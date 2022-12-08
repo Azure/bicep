@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2303) ProgramSyntax
+//@[000:2533) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -1522,6 +1522,167 @@ var parentheses = map([123], (i => '${i}'))
 //@[039:0041) |   |   |   └─Token(StringRightPiece) |}'|
 //@[041:0042) |   |   └─Token(RightParen) |)|
 //@[042:0043) |   └─Token(RightParen) |)|
-//@[043:0044) ├─Token(NewLine) |\n|
+//@[043:0045) ├─Token(NewLine) |\n\n|
+
+var objectMap = toObject([123, 456, 789], i => '${i / 100}')
+//@[000:0060) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |objectMap|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0060) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0040) |   ├─FunctionArgumentSyntax
+//@[025:0040) |   | └─ArraySyntax
+//@[025:0026) |   |   ├─Token(LeftSquare) |[|
+//@[026:0029) |   |   ├─ArrayItemSyntax
+//@[026:0029) |   |   | └─IntegerLiteralSyntax
+//@[026:0029) |   |   |   └─Token(Integer) |123|
+//@[029:0030) |   |   ├─Token(Comma) |,|
+//@[031:0034) |   |   ├─ArrayItemSyntax
+//@[031:0034) |   |   | └─IntegerLiteralSyntax
+//@[031:0034) |   |   |   └─Token(Integer) |456|
+//@[034:0035) |   |   ├─Token(Comma) |,|
+//@[036:0039) |   |   ├─ArrayItemSyntax
+//@[036:0039) |   |   | └─IntegerLiteralSyntax
+//@[036:0039) |   |   |   └─Token(Integer) |789|
+//@[039:0040) |   |   └─Token(RightSquare) |]|
+//@[040:0041) |   ├─Token(Comma) |,|
+//@[042:0059) |   ├─FunctionArgumentSyntax
+//@[042:0059) |   | └─LambdaSyntax
+//@[042:0043) |   |   ├─LocalVariableSyntax
+//@[042:0043) |   |   | └─IdentifierSyntax
+//@[042:0043) |   |   |   └─Token(Identifier) |i|
+//@[044:0046) |   |   ├─Token(Arrow) |=>|
+//@[047:0059) |   |   └─StringSyntax
+//@[047:0050) |   |     ├─Token(StringLeftPiece) |'${|
+//@[050:0057) |   |     ├─BinaryOperationSyntax
+//@[050:0051) |   |     | ├─VariableAccessSyntax
+//@[050:0051) |   |     | | └─IdentifierSyntax
+//@[050:0051) |   |     | |   └─Token(Identifier) |i|
+//@[052:0053) |   |     | ├─Token(Slash) |/|
+//@[054:0057) |   |     | └─IntegerLiteralSyntax
+//@[054:0057) |   |     |   └─Token(Integer) |100|
+//@[057:0059) |   |     └─Token(StringRightPiece) |}'|
+//@[059:0060) |   └─Token(RightParen) |)|
+//@[060:0061) ├─Token(NewLine) |\n|
+var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
+//@[000:0111) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0014) | ├─IdentifierSyntax
+//@[004:0014) | | └─Token(Identifier) |objectMap2|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0111) | └─FunctionCallSyntax
+//@[017:0025) |   ├─IdentifierSyntax
+//@[017:0025) |   | └─Token(Identifier) |toObject|
+//@[025:0026) |   ├─Token(LeftParen) |(|
+//@[026:0038) |   ├─FunctionArgumentSyntax
+//@[026:0038) |   | └─FunctionCallSyntax
+//@[026:0031) |   |   ├─IdentifierSyntax
+//@[026:0031) |   |   | └─Token(Identifier) |range|
+//@[031:0032) |   |   ├─Token(LeftParen) |(|
+//@[032:0033) |   |   ├─FunctionArgumentSyntax
+//@[032:0033) |   |   | └─IntegerLiteralSyntax
+//@[032:0033) |   |   |   └─Token(Integer) |0|
+//@[033:0034) |   |   ├─Token(Comma) |,|
+//@[035:0037) |   |   ├─FunctionArgumentSyntax
+//@[035:0037) |   |   | └─IntegerLiteralSyntax
+//@[035:0037) |   |   |   └─Token(Integer) |10|
+//@[037:0038) |   |   └─Token(RightParen) |)|
+//@[038:0039) |   ├─Token(Comma) |,|
+//@[040:0051) |   ├─FunctionArgumentSyntax
+//@[040:0051) |   | └─LambdaSyntax
+//@[040:0041) |   |   ├─LocalVariableSyntax
+//@[040:0041) |   |   | └─IdentifierSyntax
+//@[040:0041) |   |   |   └─Token(Identifier) |i|
+//@[042:0044) |   |   ├─Token(Arrow) |=>|
+//@[045:0051) |   |   └─StringSyntax
+//@[045:0048) |   |     ├─Token(StringLeftPiece) |'${|
+//@[048:0049) |   |     ├─VariableAccessSyntax
+//@[048:0049) |   |     | └─IdentifierSyntax
+//@[048:0049) |   |     |   └─Token(Identifier) |i|
+//@[049:0051) |   |     └─Token(StringRightPiece) |}'|
+//@[051:0052) |   ├─Token(Comma) |,|
+//@[053:0110) |   ├─FunctionArgumentSyntax
+//@[053:0110) |   | └─LambdaSyntax
+//@[053:0054) |   |   ├─LocalVariableSyntax
+//@[053:0054) |   |   | └─IdentifierSyntax
+//@[053:0054) |   |   |   └─Token(Identifier) |i|
+//@[055:0057) |   |   ├─Token(Arrow) |=>|
+//@[058:0110) |   |   └─ObjectSyntax
+//@[058:0059) |   |     ├─Token(LeftBrace) |{|
+//@[059:0060) |   |     ├─Token(NewLine) |\n|
+  isEven: (i % 2) == 0
+//@[002:0022) |   |     ├─ObjectPropertySyntax
+//@[002:0008) |   |     | ├─IdentifierSyntax
+//@[002:0008) |   |     | | └─Token(Identifier) |isEven|
+//@[008:0009) |   |     | ├─Token(Colon) |:|
+//@[010:0022) |   |     | └─BinaryOperationSyntax
+//@[010:0017) |   |     |   ├─ParenthesizedExpressionSyntax
+//@[010:0011) |   |     |   | ├─Token(LeftParen) |(|
+//@[011:0016) |   |     |   | ├─BinaryOperationSyntax
+//@[011:0012) |   |     |   | | ├─VariableAccessSyntax
+//@[011:0012) |   |     |   | | | └─IdentifierSyntax
+//@[011:0012) |   |     |   | | |   └─Token(Identifier) |i|
+//@[013:0014) |   |     |   | | ├─Token(Modulo) |%|
+//@[015:0016) |   |     |   | | └─IntegerLiteralSyntax
+//@[015:0016) |   |     |   | |   └─Token(Integer) |2|
+//@[016:0017) |   |     |   | └─Token(RightParen) |)|
+//@[018:0020) |   |     |   ├─Token(Equals) |==|
+//@[021:0022) |   |     |   └─IntegerLiteralSyntax
+//@[021:0022) |   |     |     └─Token(Integer) |0|
+//@[022:0023) |   |     ├─Token(NewLine) |\n|
+  isGreaterThan4: (i > 4)
+//@[002:0025) |   |     ├─ObjectPropertySyntax
+//@[002:0016) |   |     | ├─IdentifierSyntax
+//@[002:0016) |   |     | | └─Token(Identifier) |isGreaterThan4|
+//@[016:0017) |   |     | ├─Token(Colon) |:|
+//@[018:0025) |   |     | └─ParenthesizedExpressionSyntax
+//@[018:0019) |   |     |   ├─Token(LeftParen) |(|
+//@[019:0024) |   |     |   ├─BinaryOperationSyntax
+//@[019:0020) |   |     |   | ├─VariableAccessSyntax
+//@[019:0020) |   |     |   | | └─IdentifierSyntax
+//@[019:0020) |   |     |   | |   └─Token(Identifier) |i|
+//@[021:0022) |   |     |   | ├─Token(GreaterThan) |>|
+//@[023:0024) |   |     |   | └─IntegerLiteralSyntax
+//@[023:0024) |   |     |   |   └─Token(Integer) |4|
+//@[024:0025) |   |     |   └─Token(RightParen) |)|
+//@[025:0026) |   |     ├─Token(NewLine) |\n|
+})
+//@[000:0001) |   |     └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightParen) |)|
+//@[002:0003) ├─Token(NewLine) |\n|
+var objectMap3 = toObject(sortByObjectKey, x => x.name)
+//@[000:0055) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0014) | ├─IdentifierSyntax
+//@[004:0014) | | └─Token(Identifier) |objectMap3|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0055) | └─FunctionCallSyntax
+//@[017:0025) |   ├─IdentifierSyntax
+//@[017:0025) |   | └─Token(Identifier) |toObject|
+//@[025:0026) |   ├─Token(LeftParen) |(|
+//@[026:0041) |   ├─FunctionArgumentSyntax
+//@[026:0041) |   | └─VariableAccessSyntax
+//@[026:0041) |   |   └─IdentifierSyntax
+//@[026:0041) |   |     └─Token(Identifier) |sortByObjectKey|
+//@[041:0042) |   ├─Token(Comma) |,|
+//@[043:0054) |   ├─FunctionArgumentSyntax
+//@[043:0054) |   | └─LambdaSyntax
+//@[043:0044) |   |   ├─LocalVariableSyntax
+//@[043:0044) |   |   | └─IdentifierSyntax
+//@[043:0044) |   |   |   └─Token(Identifier) |x|
+//@[045:0047) |   |   ├─Token(Arrow) |=>|
+//@[048:0054) |   |   └─PropertyAccessSyntax
+//@[048:0049) |   |     ├─VariableAccessSyntax
+//@[048:0049) |   |     | └─IdentifierSyntax
+//@[048:0049) |   |     |   └─Token(Identifier) |x|
+//@[049:0050) |   |     ├─Token(Dot) |.|
+//@[050:0054) |   |     └─IdentifierSyntax
+//@[050:0054) |   |       └─Token(Identifier) |name|
+//@[054:0055) |   └─Token(RightParen) |)|
+//@[055:0056) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

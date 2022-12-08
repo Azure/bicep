@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5869504844961911147"
+      "templateHash": "15080970933865602671"
     }
   },
   "variables": {
@@ -45,7 +45,10 @@
     "reduceObjectUnion": "[reduce(createArray(createObject('foo', 123), createObject('bar', 456), createObject('baz', 789)), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), lambdaVariables('next'))))]",
     "reduceEmpty": "[reduce(createArray(), 0, lambda('cur', 'next', lambdaVariables('cur')))]",
     "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
-    "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
+    "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]",
+    "objectMap": "[toObject(createArray(123, 456, 789), lambda('i', format('{0}', div(lambdaVariables('i'), 100))))]",
+    "objectMap2": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]",
+    "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]"
   },
   "resources": [
     {

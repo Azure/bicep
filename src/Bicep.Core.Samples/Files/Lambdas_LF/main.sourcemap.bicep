@@ -86,7 +86,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 //@[46:46]     "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
-//@[91:97]     "doggoGreetings": {
+//@[94:100]     "doggoGreetings": {
 
 resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: 'asdfsadf'
@@ -94,16 +94,26 @@ resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
 var mappedResProps = map(items(storageAcc.properties.secondaryEndpoints), item => item.value)
 
 module myMod './test.bicep' = {
-//@[50:88]       "type": "Microsoft.Resources/deployments",
+//@[53:91]       "type": "Microsoft.Resources/deployments",
   name: 'asdfsadf'
-//@[53:53]       "name": "asdfsadf",
+//@[56:56]       "name": "asdfsadf",
   params: {
     outputThis: map(mapObject, obj => obj.doggo)
-//@[61:61]             "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
+//@[64:64]             "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
   }
 }
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')
 
 var parentheses = map([123], (i => '${i}'))
-//@[47:47]     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
+//@[47:47]     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]",
+
+var objectMap = toObject([123, 456, 789], i => '${i / 100}')
+//@[48:48]     "objectMap": "[toObject(createArray(123, 456, 789), lambda('i', format('{0}', div(lambdaVariables('i'), 100))))]",
+var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
+//@[49:49]     "objectMap2": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]",
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
+var objectMap3 = toObject(sortByObjectKey, x => x.name)
+//@[50:50]     "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]"
 

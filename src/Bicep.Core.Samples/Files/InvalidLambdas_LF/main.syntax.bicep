@@ -1,5 +1,5 @@
 param ids array
-//@[000:2036) ProgramSyntax
+//@[000:2375) ProgramSyntax
 //@[000:0015) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
@@ -635,6 +635,228 @@ var reduce5 = reduce(range(0, 10), 0, i => i)
 //@[043:0044) |   |       └─Token(Identifier) |i|
 //@[044:0045) |   └─Token(RightParen) |)|
 //@[045:0047) ├─Token(NewLine) |\n\n|
+
+var toObject1 = toObject('abc')
+//@[000:0031) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject1|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0031) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0030) |   ├─FunctionArgumentSyntax
+//@[025:0030) |   | └─StringSyntax
+//@[025:0030) |   |   └─Token(StringComplete) |'abc'|
+//@[030:0031) |   └─Token(RightParen) |)|
+//@[031:0032) ├─Token(NewLine) |\n|
+var toObject2 = toObject('abc', 'def')
+//@[000:0038) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject2|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0038) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0030) |   ├─FunctionArgumentSyntax
+//@[025:0030) |   | └─StringSyntax
+//@[025:0030) |   |   └─Token(StringComplete) |'abc'|
+//@[030:0031) |   ├─Token(Comma) |,|
+//@[032:0037) |   ├─FunctionArgumentSyntax
+//@[032:0037) |   | └─StringSyntax
+//@[032:0037) |   |   └─Token(StringComplete) |'def'|
+//@[037:0038) |   └─Token(RightParen) |)|
+//@[038:0039) ├─Token(NewLine) |\n|
+var toObject3 = toObject(range(0, 10), 'def')
+//@[000:0045) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject3|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0045) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0037) |   ├─FunctionArgumentSyntax
+//@[025:0037) |   | └─FunctionCallSyntax
+//@[025:0030) |   |   ├─IdentifierSyntax
+//@[025:0030) |   |   | └─Token(Identifier) |range|
+//@[030:0031) |   |   ├─Token(LeftParen) |(|
+//@[031:0032) |   |   ├─FunctionArgumentSyntax
+//@[031:0032) |   |   | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   └─Token(Integer) |0|
+//@[032:0033) |   |   ├─Token(Comma) |,|
+//@[034:0036) |   |   ├─FunctionArgumentSyntax
+//@[034:0036) |   |   | └─IntegerLiteralSyntax
+//@[034:0036) |   |   |   └─Token(Integer) |10|
+//@[036:0037) |   |   └─Token(RightParen) |)|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0044) |   ├─FunctionArgumentSyntax
+//@[039:0044) |   | └─StringSyntax
+//@[039:0044) |   |   └─Token(StringComplete) |'def'|
+//@[044:0045) |   └─Token(RightParen) |)|
+//@[045:0046) ├─Token(NewLine) |\n|
+var toObject4 = toObject(range(0, 10), () => null)
+//@[000:0050) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject4|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0050) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0037) |   ├─FunctionArgumentSyntax
+//@[025:0037) |   | └─FunctionCallSyntax
+//@[025:0030) |   |   ├─IdentifierSyntax
+//@[025:0030) |   |   | └─Token(Identifier) |range|
+//@[030:0031) |   |   ├─Token(LeftParen) |(|
+//@[031:0032) |   |   ├─FunctionArgumentSyntax
+//@[031:0032) |   |   | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   └─Token(Integer) |0|
+//@[032:0033) |   |   ├─Token(Comma) |,|
+//@[034:0036) |   |   ├─FunctionArgumentSyntax
+//@[034:0036) |   |   | └─IntegerLiteralSyntax
+//@[034:0036) |   |   |   └─Token(Integer) |10|
+//@[036:0037) |   |   └─Token(RightParen) |)|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0049) |   ├─FunctionArgumentSyntax
+//@[039:0049) |   | └─LambdaSyntax
+//@[039:0041) |   |   ├─VariableBlockSyntax
+//@[039:0040) |   |   | ├─Token(LeftParen) |(|
+//@[040:0041) |   |   | └─Token(RightParen) |)|
+//@[042:0044) |   |   ├─Token(Arrow) |=>|
+//@[045:0049) |   |   └─NullLiteralSyntax
+//@[045:0049) |   |     └─Token(NullKeyword) |null|
+//@[049:0050) |   └─Token(RightParen) |)|
+//@[050:0051) ├─Token(NewLine) |\n|
+var toObject5 = toObject(range(0, 10), i => i)
+//@[000:0046) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject5|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0046) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0037) |   ├─FunctionArgumentSyntax
+//@[025:0037) |   | └─FunctionCallSyntax
+//@[025:0030) |   |   ├─IdentifierSyntax
+//@[025:0030) |   |   | └─Token(Identifier) |range|
+//@[030:0031) |   |   ├─Token(LeftParen) |(|
+//@[031:0032) |   |   ├─FunctionArgumentSyntax
+//@[031:0032) |   |   | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   └─Token(Integer) |0|
+//@[032:0033) |   |   ├─Token(Comma) |,|
+//@[034:0036) |   |   ├─FunctionArgumentSyntax
+//@[034:0036) |   |   | └─IntegerLiteralSyntax
+//@[034:0036) |   |   |   └─Token(Integer) |10|
+//@[036:0037) |   |   └─Token(RightParen) |)|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0045) |   ├─FunctionArgumentSyntax
+//@[039:0045) |   | └─LambdaSyntax
+//@[039:0040) |   |   ├─LocalVariableSyntax
+//@[039:0040) |   |   | └─IdentifierSyntax
+//@[039:0040) |   |   |   └─Token(Identifier) |i|
+//@[041:0043) |   |   ├─Token(Arrow) |=>|
+//@[044:0045) |   |   └─VariableAccessSyntax
+//@[044:0045) |   |     └─IdentifierSyntax
+//@[044:0045) |   |       └─Token(Identifier) |i|
+//@[045:0046) |   └─Token(RightParen) |)|
+//@[046:0047) ├─Token(NewLine) |\n|
+var toObject6 = toObject(range(0, 10), i => '${i}', 'def')
+//@[000:0058) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject6|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0058) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0037) |   ├─FunctionArgumentSyntax
+//@[025:0037) |   | └─FunctionCallSyntax
+//@[025:0030) |   |   ├─IdentifierSyntax
+//@[025:0030) |   |   | └─Token(Identifier) |range|
+//@[030:0031) |   |   ├─Token(LeftParen) |(|
+//@[031:0032) |   |   ├─FunctionArgumentSyntax
+//@[031:0032) |   |   | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   └─Token(Integer) |0|
+//@[032:0033) |   |   ├─Token(Comma) |,|
+//@[034:0036) |   |   ├─FunctionArgumentSyntax
+//@[034:0036) |   |   | └─IntegerLiteralSyntax
+//@[034:0036) |   |   |   └─Token(Integer) |10|
+//@[036:0037) |   |   └─Token(RightParen) |)|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0050) |   ├─FunctionArgumentSyntax
+//@[039:0050) |   | └─LambdaSyntax
+//@[039:0040) |   |   ├─LocalVariableSyntax
+//@[039:0040) |   |   | └─IdentifierSyntax
+//@[039:0040) |   |   |   └─Token(Identifier) |i|
+//@[041:0043) |   |   ├─Token(Arrow) |=>|
+//@[044:0050) |   |   └─StringSyntax
+//@[044:0047) |   |     ├─Token(StringLeftPiece) |'${|
+//@[047:0048) |   |     ├─VariableAccessSyntax
+//@[047:0048) |   |     | └─IdentifierSyntax
+//@[047:0048) |   |     |   └─Token(Identifier) |i|
+//@[048:0050) |   |     └─Token(StringRightPiece) |}'|
+//@[050:0051) |   ├─Token(Comma) |,|
+//@[052:0057) |   ├─FunctionArgumentSyntax
+//@[052:0057) |   | └─StringSyntax
+//@[052:0057) |   |   └─Token(StringComplete) |'def'|
+//@[057:0058) |   └─Token(RightParen) |)|
+//@[058:0059) ├─Token(NewLine) |\n|
+var toObject7 = toObject(range(0, 10), i => '${i}', () => null)
+//@[000:0063) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |toObject7|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0063) | └─FunctionCallSyntax
+//@[016:0024) |   ├─IdentifierSyntax
+//@[016:0024) |   | └─Token(Identifier) |toObject|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0037) |   ├─FunctionArgumentSyntax
+//@[025:0037) |   | └─FunctionCallSyntax
+//@[025:0030) |   |   ├─IdentifierSyntax
+//@[025:0030) |   |   | └─Token(Identifier) |range|
+//@[030:0031) |   |   ├─Token(LeftParen) |(|
+//@[031:0032) |   |   ├─FunctionArgumentSyntax
+//@[031:0032) |   |   | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   └─Token(Integer) |0|
+//@[032:0033) |   |   ├─Token(Comma) |,|
+//@[034:0036) |   |   ├─FunctionArgumentSyntax
+//@[034:0036) |   |   | └─IntegerLiteralSyntax
+//@[034:0036) |   |   |   └─Token(Integer) |10|
+//@[036:0037) |   |   └─Token(RightParen) |)|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0050) |   ├─FunctionArgumentSyntax
+//@[039:0050) |   | └─LambdaSyntax
+//@[039:0040) |   |   ├─LocalVariableSyntax
+//@[039:0040) |   |   | └─IdentifierSyntax
+//@[039:0040) |   |   |   └─Token(Identifier) |i|
+//@[041:0043) |   |   ├─Token(Arrow) |=>|
+//@[044:0050) |   |   └─StringSyntax
+//@[044:0047) |   |     ├─Token(StringLeftPiece) |'${|
+//@[047:0048) |   |     ├─VariableAccessSyntax
+//@[047:0048) |   |     | └─IdentifierSyntax
+//@[047:0048) |   |     |   └─Token(Identifier) |i|
+//@[048:0050) |   |     └─Token(StringRightPiece) |}'|
+//@[050:0051) |   ├─Token(Comma) |,|
+//@[052:0062) |   ├─FunctionArgumentSyntax
+//@[052:0062) |   | └─LambdaSyntax
+//@[052:0054) |   |   ├─VariableBlockSyntax
+//@[052:0053) |   |   | ├─Token(LeftParen) |(|
+//@[053:0054) |   |   | └─Token(RightParen) |)|
+//@[055:0057) |   |   ├─Token(Arrow) |=>|
+//@[058:0062) |   |   └─NullLiteralSyntax
+//@[058:0062) |   |     └─Token(NullKeyword) |null|
+//@[062:0063) |   └─Token(RightParen) |)|
+//@[063:0065) ├─Token(NewLine) |\n\n|
 
 var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[000:0060) ├─VariableDeclarationSyntax
