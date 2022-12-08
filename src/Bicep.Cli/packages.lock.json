@@ -476,8 +476,8 @@
       },
       "Newtonsoft.Json": {
         "type": "Transitive",
-        "resolved": "13.0.1",
-        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
+        "resolved": "13.0.2",
+        "contentHash": "R2pZ3B0UjeyHShm9vG+Tu0EBb2lC8b0dFzV9gVn50ofHXh9Smjk6kTn7A/FdAsC8B5cKib1OnGYOXxRBz5XQDg=="
       },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
         "type": "Transitive",
@@ -1723,7 +1723,7 @@
           "Microsoft.Extensions.Configuration": "[6.0.1, )",
           "Microsoft.Extensions.Configuration.Binder": "[6.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
-          "Newtonsoft.Json": "[13.0.1, )",
+          "Newtonsoft.Json": "[13.0.2, )",
           "System.Collections.Immutable": "[6.0.0, )",
           "System.IO.Abstractions": "[17.2.3, )"
         }
@@ -1731,9 +1731,7 @@
       "Azure.Bicep.Decompiler": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "[1.0.0, )",
-          "Newtonsoft.Json": "[13.0.1, )",
-          "System.Collections.Immutable": "[6.0.0, )"
+          "Azure.Bicep.Core": "[1.0.0, )"
         }
       }
     },
