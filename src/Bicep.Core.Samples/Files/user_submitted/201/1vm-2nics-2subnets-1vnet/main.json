@@ -16,7 +16,7 @@
       "type": "string"
     },
     "adminPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "storageAccountType": {
       "type": "string"
@@ -222,7 +222,7 @@
               "type": "string"
             },
             "adminPassword": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "location": {
               "type": "string",

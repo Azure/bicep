@@ -14,7 +14,7 @@
       "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/"
     },
     "_artifactsLocationSasToken": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": ""
     },
     "location": {
@@ -112,7 +112,7 @@
       "type": "string"
     },
     "HostAdminPassword": {
-      "type": "secureString"
+      "type": "securestring"
     }
   },
   "variables": {

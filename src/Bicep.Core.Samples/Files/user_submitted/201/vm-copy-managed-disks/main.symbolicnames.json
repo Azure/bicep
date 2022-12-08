@@ -16,7 +16,7 @@
       "defaultValue": "azadmin"
     },
     "virtualMachineAdminPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "virtualMachineNamePrefix": {
       "type": "string",

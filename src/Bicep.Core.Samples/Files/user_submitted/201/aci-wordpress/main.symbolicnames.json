@@ -29,7 +29,7 @@
       "defaultValue": "[parameters('storageAccountName')]"
     },
     "mySqlPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "location": {
       "type": "string",

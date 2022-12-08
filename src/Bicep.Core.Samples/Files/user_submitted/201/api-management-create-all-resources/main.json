@@ -29,7 +29,7 @@
       "defaultValue": 1
     },
     "mutualAuthenticationCertificate": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "certificatePassword": {
       "type": "string"
@@ -38,10 +38,10 @@
       "type": "string"
     },
     "googleClientSecret": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "openIdConnectClientSecret": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "tenantPolicy": {
       "type": "string"

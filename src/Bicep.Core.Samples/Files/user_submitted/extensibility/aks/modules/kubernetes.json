@@ -12,7 +12,7 @@
   },
   "parameters": {
     "kubeConfig": {
-      "type": "secureString"
+      "type": "securestring"
     }
   },
   "variables": {

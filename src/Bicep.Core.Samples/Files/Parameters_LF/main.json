@@ -81,7 +81,7 @@
       ]
     },
     "password": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "secretObject": {
       "type": "secureObject"
@@ -140,7 +140,7 @@
       }
     },
     "someParameter": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "Name of the storage account"
       },
@@ -173,7 +173,7 @@
       ]
     },
     "decoratedString": {
-      "type": "secureString",
+      "type": "securestring",
       "allowedValues": [
         "Apple",
         "Banana"

@@ -23,7 +23,7 @@
       }
     },
     "administratorLoginPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "maxLength": 128,
       "minLength": 8,
       "metadata": {

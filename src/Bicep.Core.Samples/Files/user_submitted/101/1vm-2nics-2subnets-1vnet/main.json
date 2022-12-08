@@ -23,7 +23,7 @@
       }
     },
     "adminPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "Default Admin password"
       }
