@@ -1364,6 +1364,39 @@
     ]
   },
   {
+    "name": "toObject",
+    "description": "Converts an array to an object with a custom key function and optional custom value function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to map to an object.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "keyPredicate",
+        "description": "The predicate applied to each input array element to return the object key.",
+        "type": "any => string",
+        "required": true
+      },
+      {
+        "name": "valuePredicate",
+        "description": "The optional predicate applied to each input array element to return the object value.",
+        "type": "any => any",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object",
+    "parameterTypeSignatures": [
+      "array: array",
+      "keyPredicate: any => string",
+      "[valuePredicate: any => any]"
+    ]
+  },
+  {
     "name": "toUpper",
     "description": "Converts the specified string to upper case.",
     "fixedParameters": [

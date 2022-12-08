@@ -561,6 +561,27 @@ namespace Bicep.Core.Semantics.Namespaces
                     _ => new(LanguageConstants.Any),
                 }, LanguageConstants.Array)
                 .Build();
+
+            yield return new FunctionOverloadBuilder("toObject")
+                .WithGenericDescription("Converts an array to an object with a custom key function and optional custom value function.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
+                .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
+                    calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
+                    calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                .WithReturnType(LanguageConstants.Any)
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                    if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType) {
+                        return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
+                    }
+
+                    if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType) {
+                        return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, valueLambdaType.ReturnType));
+                    }
+
+                    return new(LanguageConstants.Object);
+                }, LanguageConstants.Object)
+                .Build();
         }
 
         private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)

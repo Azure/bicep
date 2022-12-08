@@ -821,6 +821,92 @@ var parentheses = map([123], (i => '${i}'))
 //@[039:041) StringRightPiece |}'|
 //@[041:042) RightParen |)|
 //@[042:043) RightParen |)|
-//@[043:044) NewLine |\n|
+//@[043:045) NewLine |\n\n|
+
+var objectMap = toObject([123, 456, 789], i => '${i / 100}')
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |objectMap|
+//@[014:015) Assignment |=|
+//@[016:024) Identifier |toObject|
+//@[024:025) LeftParen |(|
+//@[025:026) LeftSquare |[|
+//@[026:029) Integer |123|
+//@[029:030) Comma |,|
+//@[031:034) Integer |456|
+//@[034:035) Comma |,|
+//@[036:039) Integer |789|
+//@[039:040) RightSquare |]|
+//@[040:041) Comma |,|
+//@[042:043) Identifier |i|
+//@[044:046) Arrow |=>|
+//@[047:050) StringLeftPiece |'${|
+//@[050:051) Identifier |i|
+//@[052:053) Slash |/|
+//@[054:057) Integer |100|
+//@[057:059) StringRightPiece |}'|
+//@[059:060) RightParen |)|
+//@[060:061) NewLine |\n|
+var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |objectMap2|
+//@[015:016) Assignment |=|
+//@[017:025) Identifier |toObject|
+//@[025:026) LeftParen |(|
+//@[026:031) Identifier |range|
+//@[031:032) LeftParen |(|
+//@[032:033) Integer |0|
+//@[033:034) Comma |,|
+//@[035:037) Integer |10|
+//@[037:038) RightParen |)|
+//@[038:039) Comma |,|
+//@[040:041) Identifier |i|
+//@[042:044) Arrow |=>|
+//@[045:048) StringLeftPiece |'${|
+//@[048:049) Identifier |i|
+//@[049:051) StringRightPiece |}'|
+//@[051:052) Comma |,|
+//@[053:054) Identifier |i|
+//@[055:057) Arrow |=>|
+//@[058:059) LeftBrace |{|
+//@[059:060) NewLine |\n|
+  isEven: (i % 2) == 0
+//@[002:008) Identifier |isEven|
+//@[008:009) Colon |:|
+//@[010:011) LeftParen |(|
+//@[011:012) Identifier |i|
+//@[013:014) Modulo |%|
+//@[015:016) Integer |2|
+//@[016:017) RightParen |)|
+//@[018:020) Equals |==|
+//@[021:022) Integer |0|
+//@[022:023) NewLine |\n|
+  isGreaterThan4: (i > 4)
+//@[002:016) Identifier |isGreaterThan4|
+//@[016:017) Colon |:|
+//@[018:019) LeftParen |(|
+//@[019:020) Identifier |i|
+//@[021:022) GreaterThan |>|
+//@[023:024) Integer |4|
+//@[024:025) RightParen |)|
+//@[025:026) NewLine |\n|
+})
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
+var objectMap3 = toObject(sortByObjectKey, x => x.name)
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |objectMap3|
+//@[015:016) Assignment |=|
+//@[017:025) Identifier |toObject|
+//@[025:026) LeftParen |(|
+//@[026:041) Identifier |sortByObjectKey|
+//@[041:042) Comma |,|
+//@[043:044) Identifier |x|
+//@[045:047) Arrow |=>|
+//@[048:049) Identifier |x|
+//@[049:050) Dot |.|
+//@[050:054) Identifier |name|
+//@[054:055) RightParen |)|
+//@[055:056) NewLine |\n|
 
 //@[000:000) EndOfFile ||

@@ -28,6 +28,14 @@ var reduce3 = reduce(range(0, 10), 0, 'def')
 var reduce4 = reduce(range(0, 10), 0, () => null)
 var reduce5 = reduce(range(0, 10), 0, i => i)
 
+var toObject1 = toObject('abc')
+var toObject2 = toObject('abc', 'def')
+var toObject3 = toObject(range(0, 10), 'def')
+var toObject4 = toObject(range(0, 10), () => null)
+var toObject5 = toObject(range(0, 10), i => i)
+var toObject6 = toObject(range(0, 10), i => '${i}', 'def')
+var toObject7 = toObject(range(0, 10), i => '${i}', () => null)
+
 var ternary = map([ 123 ], true ? i => '${i}' : i => 'hello!')
 
 var outsideArgs = i => 123

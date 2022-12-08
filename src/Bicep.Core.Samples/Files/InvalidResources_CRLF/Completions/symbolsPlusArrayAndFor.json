@@ -5832,6 +5832,27 @@
     }
   },
   {
+    "label": "toObject",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoObject(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object\n\n```\nConverts an array to an object with a custom key function and optional custom value function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toObject",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toObject($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "toUpper",
     "kind": "function",
     "documentation": {
