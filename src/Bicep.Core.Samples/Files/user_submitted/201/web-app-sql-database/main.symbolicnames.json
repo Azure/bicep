@@ -38,7 +38,7 @@
       "type": "string"
     },
     "sqlAdministratorLoginPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "location": {
       "type": "string",

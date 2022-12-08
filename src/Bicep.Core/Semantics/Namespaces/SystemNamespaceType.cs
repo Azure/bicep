@@ -1094,7 +1094,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
                     {
-                        return targetObject.MergeProperty("type", "secureString");
+                        return targetObject.MergeProperty("type", "securestring");
                     }
 
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))

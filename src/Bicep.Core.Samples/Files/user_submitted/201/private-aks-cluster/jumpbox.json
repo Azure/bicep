@@ -70,7 +70,7 @@
       }
     },
     "vmSshKey": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
       }

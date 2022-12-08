@@ -23,7 +23,7 @@
       "type": "string"
     },
     "sftpPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "location": {
       "type": "string",

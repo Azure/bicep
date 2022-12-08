@@ -17,7 +17,7 @@
       "defaultValue": "superSecretPassword"
     },
     "secretValue": {
-      "type": "secureString"
+      "type": "securestring"
     }
   },
   "resources": [

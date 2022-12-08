@@ -42,7 +42,7 @@
       "type": "string"
     },
     "sqlAdministratorLoginPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "managedIdentityName": {
       "type": "string"

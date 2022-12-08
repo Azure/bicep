@@ -21,10 +21,10 @@
       "type": "string"
     },
     "servcePrincipalClientId": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "servicePrincipalClientSecret": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "clusterName": {
       "type": "string",
