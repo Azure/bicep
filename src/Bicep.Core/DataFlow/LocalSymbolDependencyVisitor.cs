@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.DataFlow
 {
-    public sealed class LocalSymbolDependencyVisitor : SyntaxVisitor
+    public sealed class LocalSymbolDependencyVisitor : AstVisitor
     {
         private readonly SemanticModel semanticModel;
 

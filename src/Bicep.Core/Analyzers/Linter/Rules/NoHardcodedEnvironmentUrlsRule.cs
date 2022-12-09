@@ -90,7 +90,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private sealed class Visitor : SyntaxVisitor
+        private sealed class Visitor : AstVisitor
         {
             public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new();
             private readonly ImmutableArray<string> disallowedHosts;

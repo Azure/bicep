@@ -8,7 +8,7 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Visitors
 {
-    public class FunctionVariableGeneratorVisitor : SyntaxVisitor
+    public class FunctionVariableGeneratorVisitor : AstVisitor
     {
         private readonly SemanticModel semanticModel;
         private readonly Dictionary<FunctionCallSyntaxBase, FunctionVariable> variables;

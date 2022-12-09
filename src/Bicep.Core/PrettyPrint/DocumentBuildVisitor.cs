@@ -12,7 +12,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.PrettyPrint
 {
-    public class DocumentBuildVisitor : SyntaxVisitor
+    public class DocumentBuildVisitor : CstVisitor
     {
         private static readonly ILinkedDocument Nil = new NilDocument();
 
@@ -479,6 +479,9 @@ namespace Bicep.Core.PrettyPrint
                 this.documentStack.Push(Space);
                 this.Visit(syntax.Value);
             });
+
+        public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax) =>
+            this.Build(() => base.VisitUnionTypeSyntax(syntax), Spread);
 
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);

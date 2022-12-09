@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.4" />
     <PackageReference Include="Azure.Identity" Version="1.7.0" />
-    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.3.0" />
+    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.3.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -27,14 +27,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.750" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.750" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.750" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.3.29" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.199" />
-    <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.202" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.788" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.788" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.788" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.3.61" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.238" />
+    <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
     <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.17" PrivateAssets="all" />
   </ItemGroup>

@@ -34,7 +34,7 @@
       }
     },
     "servicePrincipalClientSecret": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "The service principal client secret"
       }

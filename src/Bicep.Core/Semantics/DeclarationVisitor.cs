@@ -16,7 +16,7 @@ using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class DeclarationVisitor : SyntaxVisitor
+    public sealed class DeclarationVisitor : AstVisitor
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFeatureProvider features;

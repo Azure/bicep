@@ -13,8 +13,8 @@ var isEven = filter(numbers, i => 0 == i % 2)
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 
-var flattenedArrayOfArrays = flatten([ 0, 1 ], [ 2, 3 ], [ 4, 5 ])
-var flattenedEmptyArray = flatten()
+var flattenedArrayOfArrays = flatten([ [ 0, 1 ], [ 2, 3 ], [ 4, 5 ] ])
+var flattenedEmptyArray = flatten([])
 
 var mapSayHi = map([ 'abc', 'def', 'ghi' ], foo => 'Hi ${foo}!')
 var mapEmpty = map([], foo => 'Hi ${foo}!')
@@ -72,3 +72,10 @@ module myMod './test.bicep' = {
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')
 
 var parentheses = map([ 123 ], (i => '${i}'))
+
+var objectMap = toObject([ 123, 456, 789 ], i => '${i / 100}')
+var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
+    isEven: (i % 2) == 0
+    isGreaterThan4: (i > 4)
+  })
+var objectMap3 = toObject(sortByObjectKey, x => x.name)

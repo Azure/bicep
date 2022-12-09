@@ -282,7 +282,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return result.ToImmutableArray();
         }
 
-        private class GetParametersUsedInResourceLocationsVisitor : SyntaxVisitor
+        private class GetParametersUsedInResourceLocationsVisitor : AstVisitor
         {
             private readonly SemanticModel semanticModel;
 
@@ -309,7 +309,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private class GetReferencedParametersVisitor : SyntaxVisitor
+        private class GetReferencedParametersVisitor : AstVisitor
         {
             private readonly SemanticModel semanticModel;
 
@@ -331,7 +331,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private class ContainsCallToRgOrDeploymentLocationVisitor : SyntaxVisitor
+        private class ContainsCallToRgOrDeploymentLocationVisitor : AstVisitor
         {
             public string? ActualExpression;
 

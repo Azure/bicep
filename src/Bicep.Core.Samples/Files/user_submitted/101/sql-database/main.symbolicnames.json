@@ -27,7 +27,7 @@
       "type": "string"
     },
     "administratorLoginPassword": {
-      "type": "secureString"
+      "type": "securestring"
     }
   },
   "resources": {

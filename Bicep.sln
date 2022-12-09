@@ -81,9 +81,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.RegistryModuleTool.In
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.RegistryModuleTool.TestFixtures", "src\Bicep.RegistryModuleTool.TestFixtures\Bicep.RegistryModuleTool.TestFixtures.csproj", "{9F596D8D-5CDB-4830-B73C-26C33C0227D7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C6CAFEE8-7779-4F48-BEA1-D59D3CD91A56}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{C6CAFEE8-7779-4F48-BEA1-D59D3CD91A56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Tools.Benchmark", "src\Bicep.Tools.Benchmark\Bicep.Tools.Benchmark.csproj", "{A4127F6F-A282-47F3-BAFE-6A154F994B4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Tools.Benchmark", "src\Bicep.Tools.Benchmark\Bicep.Tools.Benchmark.csproj", "{A4127F6F-A282-47F3-BAFE-6A154F994B4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

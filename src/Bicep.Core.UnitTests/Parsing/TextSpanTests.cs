@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void InvalidSpanString_ShouldNotParse(string str)
         {
             TextSpan.TryParse(str, out var span).Should().BeFalse();
-            span.Should().BeNull();
+            span.Should().Be(TextSpan.Nil);
 
             Action parse = () => TextSpan.Parse(str);
             parse.Should().Throw<FormatException>().WithMessage($"The specified text span string '{str}' is not valid.");

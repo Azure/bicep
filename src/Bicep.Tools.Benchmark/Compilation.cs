@@ -1,6 +1,5 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core;
 using Bicep.Core.Samples;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +10,12 @@ using System.Collections.Immutable;
 using FluentAssertions;
 using System;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Utils;
+using SharpYaml;
 
 namespace Bicep.Tools.Benchmark;
 
+[MemoryDiagnoser]
 public class Compilation
 {
     private record BenchmarkData(
@@ -22,11 +24,7 @@ public class Compilation
 
     private static BenchmarkData CreateBenchmarkData()
     {
-        var files = DataSet.ReadDataSetDictionary("Files");
-
-        var fileSystem = new MockFileSystem(files.ToDictionary(
-            x => x.Key,
-            x => new MockFileData(x.Value)));
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
 
         var dataSets = DataSets.AllDataSets
             .Where(x => !x.HasRegistryModules)

@@ -33,6 +33,10 @@ using System.Linq;
 using System;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Bicep.Core.Navigation;
+using Bicep.Core.Workspaces;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using System.Collections.Immutable;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -72,17 +76,51 @@ namespace Bicep.LangServer.IntegrationTests
                 services => services.WithAzResourceTypeLoader(azResourceTypeLoader).WithAzResourceProvider(azResourceProvider));
         }
 
+        private static async Task<string> ApplyWorkspaceEdit(Listeners listeners, Uri fileUri, string fileContents)
+        {
+            var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
+
+            var changes = edit.Edit.Changes![fileUri];
+            changes.Should().HaveCount(1);
+            var test = changes.First();
+
+            var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+            var startOffset = PositionHelper.GetOffset(lineStarts, test.Range.Start);
+            var endOffset = PositionHelper.GetOffset(lineStarts, test.Range.End);
+
+            return fileContents.Substring(0, startOffset) + test.NewText + fileContents.Substring(endOffset);
+        }
+
+        private async Task<string> InvokeInsertResource(ILanguageClient client, Listeners listeners, Uri fileUri, string fileWithCursor, string resourceId)
+        {
+            var (fileContents, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor, '|');
+            var file = SourceFileFactory.CreateBicepFile(fileUri, fileContents);
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(file.FileUri, fileContents, 0));
+            await listeners.Diagnostics.WaitNext();
+
+            var result = await client.SendRequest(new InsertResourceParams
+            {
+                TextDocument = DocumentUri.From(file.FileUri),
+                Position = PositionHelper.GetPosition(file.LineStarts, cursor),
+                ResourceId = resourceId,
+            }, default);
+
+            return fileContents;
+        }
+
         [TestMethod]
         public async Task Insert_resource_command_should_insert_basic_resource()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                new TypeProperty("floatProp", LanguageConstants.Int, TypePropertyFlags.None),
+                new TypeProperty("bigIntProp", LanguageConstants.Int, TypePropertyFlags.None));
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
@@ -99,13 +137,17 @@ namespace Bicep.LangServer.IntegrationTests
                     ["readOnlyProp"] = "abc",
                     ["readWriteProp"] = "def",
                     ["writeOnlyProp"] = "ghi",
+                    ["int64Prop"] = 9223372036854775807,
+                    ["floatProp"] = 0.5,
+                    ["bigIntProp"] = JToken.Parse("3456789871234786124871623847612837461287436"),
                 },
             };
 
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -114,32 +156,9 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
+", resourceId.FullyQualifiedId);
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = resourceId.FullyQualifiedId,
-            }, default);
-
-            var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
-
-            var changes = edit.Edit.Changes![documentUri];
-            changes.Should().HaveCount(1);
-            var test = changes.First();
-
-            var startOffset = PositionHelper.GetOffset(lineStarts, test.Range.Start);
-            var endOffset = PositionHelper.GetOffset(lineStarts, test.Range.End);
-
-            var replacedFile = file.Substring(0, startOffset) + test.NewText + file.Substring(endOffset);
-
+            var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
             replacedFile.Should().Be(@"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
@@ -151,6 +170,9 @@ resource myName 'My.Rp/myTypes@2020-01-01' = {
   properties: {
     readWriteProp: 'def'
     writeOnlyProp: 'ghi'
+    int64Prop: 9223372036854775807
+    floatProp: json('0.5')
+    bigIntProp: json('3456789871234786124871623847612837461287436')
   }
 }
 module myMod './module.bicep' = {
@@ -170,7 +192,6 @@ output myOutput string = 'myOutput'
         [TestMethod]
         public async Task Insert_resource_command_should_insert_resource_group()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
@@ -205,7 +226,8 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -214,32 +236,9 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
+", resourceId.FullyQualifiedId);
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = resourceId.FullyQualifiedId,
-            }, default);
-
-            var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
-
-            var changes = edit.Edit.Changes![documentUri];
-            changes.Should().HaveCount(1);
-            var test = changes.First();
-
-            var startOffset = PositionHelper.GetOffset(lineStarts, test.Range.Start);
-            var endOffset = PositionHelper.GetOffset(lineStarts, test.Range.End);
-
-            var replacedFile = file.Substring(0, startOffset) + test.NewText + file.Substring(endOffset);
-
+            var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
             replacedFile.Should().Be(@"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
@@ -270,7 +269,6 @@ output myOutput string = 'myOutput'
         [TestMethod]
         public async Task Insert_resource_command_should_insert_child_resource()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
@@ -300,7 +298,8 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -309,32 +308,9 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
+", resourceId.FullyQualifiedId);
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = resourceId.FullyQualifiedId,
-            }, default);
-
-            var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
-
-            var changes = edit.Edit.Changes![documentUri];
-            changes.Should().HaveCount(1);
-            var test = changes.First();
-
-            var startOffset = PositionHelper.GetOffset(lineStarts, test.Range.Start);
-            var endOffset = PositionHelper.GetOffset(lineStarts, test.Range.End);
-
-            var replacedFile = file.Substring(0, startOffset) + test.NewText + file.Substring(endOffset);
-
+            var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
             replacedFile.Should().Be(@"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
@@ -365,7 +341,6 @@ output myOutput string = 'myOutput'
         [TestMethod]
         public async Task Insert_resource_command_displays_error_for_incorrectly_formatted_resourceId()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
@@ -378,7 +353,8 @@ output myOutput string = 'myOutput'
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -387,20 +363,7 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
-
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = "this isn't a resource id!",
-            }, default);
+", "this isn't a resource id!");
 
             var message = await listeners.ShowMessage.WaitNext();
             message.Should().HaveMessageAndType(
@@ -417,7 +380,6 @@ output myOutput string = 'myOutput'
         [TestMethod]
         public async Task Insert_resource_command_displays_error_for_resource_with_no_types()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
@@ -428,7 +390,8 @@ output myOutput string = 'myOutput'
 
             var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "MadeUp.Rp", new[] { "madeUpTypes" }, new[] { "myName" });
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -437,20 +400,7 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
-
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = resourceId.FullyQualifiedId,
-            }, default);
+", resourceId.FullyQualifiedId);
 
             var message = await listeners.ShowMessage.WaitNext();
             message.Should().HaveMessageAndType(
@@ -467,7 +417,6 @@ output myOutput string = 'myOutput'
         [TestMethod]
         public async Task Insert_resource_command_should_try_to_fetch_without_apiVersion_if_apiVersion_lookup_fails()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
@@ -501,7 +450,8 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -510,32 +460,9 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
+", resourceId.FullyQualifiedId);
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = resourceId.FullyQualifiedId,
-            }, default);
-
-            var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
-
-            var changes = edit.Edit.Changes![documentUri];
-            changes.Should().HaveCount(1);
-            var test = changes.First();
-
-            var startOffset = PositionHelper.GetOffset(lineStarts, test.Range.Start);
-            var endOffset = PositionHelper.GetOffset(lineStarts, test.Range.End);
-
-            var replacedFile = file.Substring(0, startOffset) + test.NewText + file.Substring(endOffset);
-
+            var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
             replacedFile.Should().Be(@"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
@@ -566,7 +493,6 @@ output myOutput string = 'myOutput'
         [TestMethod]
         public async Task Insert_resource_command_should_return_exception_info_if_both_GETs_fail()
         {
-            var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
@@ -587,7 +513,8 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("And something went wrong again!"));
 
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
@@ -596,20 +523,7 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-",
-                '|');
-            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
-
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
-            await listeners.Diagnostics.WaitNext();
-
-            var cursor = cursors.Single();
-            var result = await client.SendRequest(new InsertResourceParams
-            {
-                TextDocument = documentUri,
-                Position = PositionHelper.GetPosition(lineStarts, cursor),
-                ResourceId = resourceId.FullyQualifiedId,
-            }, default);
+", resourceId.FullyQualifiedId);
 
             var message = await listeners.ShowMessage.WaitNext();
             message.Should().HaveMessageAndType(

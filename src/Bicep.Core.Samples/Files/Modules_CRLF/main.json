@@ -1741,10 +1741,10 @@
           },
           "parameters": {
             "secureStringParam1": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "secureStringParam2": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": ""
             }
           },
@@ -1798,10 +1798,10 @@
           },
           "parameters": {
             "secureStringParam1": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "secureStringParam2": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": ""
             }
           },
@@ -1859,10 +1859,10 @@
           },
           "parameters": {
             "secureStringParam1": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "secureStringParam2": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": ""
             }
           },
@@ -1901,10 +1901,10 @@
           },
           "parameters": {
             "secureStringParam1": {
-              "type": "secureString"
+              "type": "securestring"
             },
             "secureStringParam2": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": ""
             }
           },

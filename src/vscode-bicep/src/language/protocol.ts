@@ -71,6 +71,8 @@ export interface BicepDeploymentStartParams {
   parametersFileName: string;
   parametersFileUpdateOption: ParametersFileUpdateOption;
   updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
+  resourceManagerEndpointUrl: string;
+  audience: string;
 }
 
 export interface BicepDeploymentStartResponse {

@@ -10,6 +10,7 @@ using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -97,39 +98,56 @@ namespace Bicep.Core.Emit
                     )
             );
         }
+
+        public LanguageExpression ConvertExpression(SyntaxBase syntax)
+            => ConvertExpression(ExpressionBuilder.Build(syntax));
+
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.
         /// The returned tree may be rooted at either a function expression or jtoken expression.
         /// </summary>
         /// <param name="expression">The expression</param>
-        public LanguageExpression ConvertExpression(SyntaxBase expression)
+        public LanguageExpression ConvertExpression(Expression expression)
         {
+            SyntaxBase syntax;
             switch (expression)
             {
-                case BooleanLiteralSyntax boolSyntax:
-                    return CreateFunction(boolSyntax.Value ? "true" : "false");
+                case BooleanLiteralExpression @bool:
+                    return CreateFunction(@bool.Value ? "true" : "false");
 
-                case IntegerLiteralSyntax integerSyntax:
-                    return ConvertInteger(integerSyntax, false);
+                case IntegerLiteralExpression @int:
+                    return @int.Value switch {
+                        // Bicep permits long values, but ARM's parser only permits int jtoken expressions.
+                        // We can work around this by using the `json()` function to represent non-integer numerics.
+                        > int.MaxValue or < int.MinValue => CreateFunction("json", new JTokenExpression(@int.Value.ToString(CultureInfo.InvariantCulture))),
+                        _ => new JTokenExpression((int)@int.Value),
+                    };
 
-                case StringSyntax stringSyntax:
-                    // using the throwing method to get semantic value of the string because
-                    // error checking should have caught any errors by now
-                    return ConvertString(stringSyntax);
+                case StringLiteralExpression @string:
+                    return new JTokenExpression(@string.Value);
 
-                case NullLiteralSyntax _:
+                case NullLiteralExpression _:
                     return CreateFunction("null");
 
-                case ObjectSyntax @object:
+                case InterpolatedStringExpression @string:
+                    return ConvertString(@string);
+
+                case ObjectExpression @object:
                     return ConvertObject(@object);
 
-                case ArraySyntax array:
+                case ArrayExpression array:
                     return ConvertArray(array);
 
-                case ParenthesizedExpressionSyntax parenthesized:
-                    // template expressions do not have operators so parentheses are irrelevant
-                    return ConvertExpression(parenthesized.Expression);
+                case SyntaxExpression syntaxExpression:
+                    syntax = syntaxExpression.Syntax;
+                    break;
 
+                default:
+                    throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
+            }
+
+            switch (syntax)
+            {
                 case UnaryOperationSyntax unary:
                     return ConvertUnary(unary);
 
@@ -169,7 +187,7 @@ namespace Bicep.Core.Emit
                         variableNames.Concat(body));
 
                 default:
-                    throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
+                    throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
         }
 
@@ -1057,12 +1075,27 @@ namespace Bicep.Core.Emit
 
             var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
 
-            var formatString = StringFormatConverter.BuildFormatString(syntax);
+            var formatString = StringFormatConverter.BuildFormatString(syntax.SegmentValues);
             formatArgs[0] = new JTokenExpression(formatString);
 
             for (var i = 0; i < syntax.Expressions.Length; i++)
             {
                 formatArgs[i + 1] = ConvertExpression(syntax.Expressions[i]);
+            }
+
+            return CreateFunction("format", formatArgs);
+        }
+
+        private LanguageExpression ConvertString(InterpolatedStringExpression expression)
+        {
+            var formatArgs = new LanguageExpression[expression.Expressions.Length + 1];
+
+            var formatString = StringFormatConverter.BuildFormatString(expression.SegmentValues);
+            formatArgs[0] = new JTokenExpression(formatString);
+
+            for (var i = 0; i < expression.Expressions.Length; i++)
+            {
+                formatArgs[i + 1] = ConvertExpression(expression.Expressions[i]);
             }
 
             return CreateFunction("format", formatArgs);
@@ -1107,31 +1140,32 @@ namespace Bicep.Core.Emit
             throw new NotImplementedException($"Unexpected expression type '{converted.GetType().Name}'.");
         }
 
-        private FunctionExpression ConvertArray(ArraySyntax syntax)
+        private FunctionExpression ConvertArray(ArrayExpression expression)
         {
             // we are using the createArray() function as a proxy for an array literal
             return CreateFunction(
                 "createArray",
-                syntax.Items.Select(item => ConvertExpression(item.Value)));
+                expression.Items.Select(ConvertExpression));
         }
 
-        private FunctionExpression ConvertObject(ObjectSyntax syntax)
+        private FunctionExpression ConvertObject(ObjectExpression expression)
         {
             // need keys and values in one array of parameters
-            var parameters = new LanguageExpression[syntax.Properties.Count() * 2];
+            var parameters = new LanguageExpression[expression.Properties.Count() * 2];
 
             int index = 0;
-            foreach (var propertySyntax in syntax.Properties)
+            foreach (var property in expression.Properties)
             {
-                parameters[index] = propertySyntax.Key switch
+                parameters[index] = property.Key switch
                 {
-                    IdentifierSyntax identifier => new JTokenExpression(identifier.IdentifierName),
-                    StringSyntax @string => ConvertString(@string),
-                    _ => throw new NotImplementedException($"Encountered an unexpected type '{propertySyntax.Key.GetType().Name}' when generating object's property name.")
+                    SyntaxExpression { Syntax: IdentifierSyntax identifier } => new JTokenExpression(identifier.IdentifierName),
+                    StringLiteralExpression @string => new JTokenExpression(@string.Value),
+                    InterpolatedStringExpression @string => ConvertString(@string),
+                    _ => throw new NotImplementedException($"Encountered an unexpected type '{property.Key.GetType().Name}' when generating object's property name.")
                 };
                 index++;
 
-                parameters[index] = ConvertExpression(propertySyntax.Value);
+                parameters[index] = ConvertExpression(property.Value);
                 index++;
             }
 
@@ -1144,8 +1178,8 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertBinary(BinaryOperationSyntax syntax)
         {
-            LanguageExpression operand1 = ConvertExpression(syntax.LeftExpression);
-            LanguageExpression operand2 = ConvertExpression(syntax.RightExpression);
+            var operand1 = ConvertExpression(syntax.LeftExpression);
+            var operand2 = ConvertExpression(syntax.RightExpression);
 
             return syntax.Operator switch
             {
@@ -1177,61 +1211,25 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertUnary(UnaryOperationSyntax syntax)
         {
-            switch (syntax.Operator)
+            var operand = ConvertExpression(syntax.Expression);
+            return syntax.Operator switch
             {
-                case UnaryOperator.Not:
-                    LanguageExpression convertedOperand = ConvertExpression(syntax.Expression);
-                    return CreateFunction("not", convertedOperand);
-
-                case UnaryOperator.Minus:
-                    if (syntax.Expression is IntegerLiteralSyntax integerLiteral)
-                    {
-                        // shortcutting the integer parsing logic here because we need to return either the literal 32 bit integer or the FunctionExpression of an integer outside the 32 bit range
-                        return ConvertInteger(integerLiteral, true);
-                    }
-
-                    return CreateFunction(
-                        "sub",
-                        new JTokenExpression(0),
-                        ConvertExpression(syntax.Expression));
-
-                default:
-                    throw new NotImplementedException($"Cannot emit unexpected unary operator '{syntax.Operator}.");
-            }
+                UnaryOperator.Not => CreateFunction("not", operand),
+                UnaryOperator.Minus => CreateFunction("sub", new JTokenExpression(0), operand),
+                _ => throw new NotImplementedException($"Cannot emit unexpected unary operator '{syntax.Operator}."),
+            };
         }
 
         // the deployment engine can only handle 32 bit integers expressed as literal values, so for 32 bit integers, we return the literal integer value
         // for values outside that signed 32 bit integer range, we return the FunctionExpression
-        private LanguageExpression ConvertInteger(IntegerLiteralSyntax integerSyntax, bool minus)
+        private LanguageExpression ConvertInteger(long value)
         {
-            if (minus)
+            if (value > int.MaxValue || value < int.MinValue)
             {
-                // integerSyntax.Value is always positive, so for the most negative signed 32 bit integer -2,147,483,648
-                // we would compare its positive token (2,147,483,648) to int.MaxValue (2,147,483,647) + 1
-                if (integerSyntax.Value > (ulong)int.MaxValue + 1)
-                {
-                    return CreateFunction("json", new JTokenExpression($"-{integerSyntax.Value.ToString(CultureInfo.InvariantCulture)}"));
-                }
-                else
-                {
-                    // the integerSyntax.Value is a valid negative 32 bit integer.
-                    // because integerSyntax.Value is a ulong type, it is always positive. we need to first cast it to a long in order to negate it.
-                    // after negating, cast it to a int type because that is what represents a signed 32 bit integer.
-                    var longValue = -(long)integerSyntax.Value;
-                    return new JTokenExpression((int)longValue);
-                }
+                return CreateFunction("json", new JTokenExpression(value.ToString(CultureInfo.InvariantCulture)));
             }
-            else
-            {
-                if (integerSyntax.Value > int.MaxValue)
-                {
-                    return CreateFunction("json", new JTokenExpression(integerSyntax.Value.ToString(CultureInfo.InvariantCulture)));
-                }
-                else
-                {
-                    return new JTokenExpression((int)integerSyntax.Value);
-                }
-            }
+
+            return new JTokenExpression((int)value);
         }
 
         public string GetSymbolicName(DeclaredResourceMetadata resource)

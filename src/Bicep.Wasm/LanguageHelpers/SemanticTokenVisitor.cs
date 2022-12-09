@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Wasm.LanguageHelpers
 {
-    public class SemanticTokenVisitor : SyntaxVisitor
+    public class SemanticTokenVisitor : AstVisitor
     {
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();
         private readonly SemanticModel model;

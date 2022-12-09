@@ -10,7 +10,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.Analyzers.Linter.Common
 {
-    public sealed class FindPossibleSecretsVisitor : SyntaxVisitor
+    public sealed class FindPossibleSecretsVisitor : AstVisitor
     {
         // TODO: Refactor to not use visitor
 

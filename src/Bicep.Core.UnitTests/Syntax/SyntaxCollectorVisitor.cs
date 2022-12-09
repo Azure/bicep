@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Syntax
 {
-    public class SyntaxCollectorVisitor : SyntaxVisitor
+    public class SyntaxCollectorVisitor : CstVisitor
     {
         public record SyntaxItem(SyntaxBase Syntax, SyntaxItem? Parent, int Depth)
         {

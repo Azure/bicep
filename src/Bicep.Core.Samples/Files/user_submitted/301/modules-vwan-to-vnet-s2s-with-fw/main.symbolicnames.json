@@ -33,7 +33,7 @@
       }
     },
     "psk": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "[uniqueString(subscription().id)]",
       "metadata": {
         "description": "Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet"
@@ -1674,7 +1674,7 @@
               "type": "string"
             },
             "psk": {
-              "type": "secureString",
+              "type": "securestring",
               "metadata": {
                 "description": "Specifies the pre-shared key to use for the VPN Connection"
               }
@@ -1799,7 +1799,7 @@
               }
             },
             "psk": {
-              "type": "secureString",
+              "type": "securestring",
               "metadata": {
                 "description": "Specifies the pre-shared key to use for the VPN Connection"
               }

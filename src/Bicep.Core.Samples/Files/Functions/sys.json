@@ -463,18 +463,20 @@
   {
     "name": "flatten",
     "description": "Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.",
-    "fixedParameters": [],
-    "minimumArgumentCount": 0,
-    "variableParameter": {
-      "namePrefix": "array",
-      "description": "The array of sub-arrays to flatten.",
-      "type": "array[]",
-      "minimumCount": 0
-    },
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array of sub-arrays to flatten.",
+        "type": "array[]",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(... : array[]): array",
+    "typeSignature": "(array: array[]): array",
     "parameterTypeSignatures": [
-      "... : array[]"
+      "array: array[]"
     ]
   },
   {
@@ -1359,6 +1361,39 @@
     "typeSignature": "(stringToChange: string): string",
     "parameterTypeSignatures": [
       "stringToChange: string"
+    ]
+  },
+  {
+    "name": "toObject",
+    "description": "Converts an array to an object with a custom key function and optional custom value function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to map to an object.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "keyPredicate",
+        "description": "The predicate applied to each input array element to return the object key.",
+        "type": "any => string",
+        "required": true
+      },
+      {
+        "name": "valuePredicate",
+        "description": "The optional predicate applied to each input array element to return the object value.",
+        "type": "any => any",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object",
+    "parameterTypeSignatures": [
+      "array: array",
+      "keyPredicate: any => string",
+      "[valuePredicate: any => any]"
     ]
   },
   {

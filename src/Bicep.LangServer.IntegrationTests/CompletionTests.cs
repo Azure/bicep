@@ -679,6 +679,62 @@ resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
         }
 
         [TestMethod]
+        public async Task Partial_identifier_resource_type_completions_work()
+        {
+            {
+                var fileWithCursors = @"
+resource myRes Te|st
+";
+
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+                var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+                var completions = await file.RequestCompletion(cursor);
+
+                var updatedFile = file.ApplyCompletion(completions, "'Test.Rp/basicTests'");
+                updatedFile.Should().HaveSourceText(@"
+resource myRes 'Test.Rp/basicTests@|'
+");
+            }
+        }
+
+        [TestMethod]
+        public async Task Partial_string_resource_type_completions_work()
+        {
+            {
+                var fileWithCursors = @"
+resource myRes 'Test.Rp/ba|si
+";
+
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+                var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+                var completions = await file.RequestCompletion(cursor);
+
+                var updatedFile = file.ApplyCompletion(completions, "'Test.Rp/basicTests'");
+                updatedFile.Should().HaveSourceText(@"
+resource myRes 'Test.Rp/basicTests@|'
+");
+            }
+
+            {
+                var fileWithCursors = @"
+resource myRes 'Test.Rp/basicTests@|
+";
+
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+                var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+                var completions = await file.RequestCompletion(cursor);
+
+                var updatedFile = file.ApplyCompletion(completions, "2020-01-01");
+                updatedFile.Should().HaveSourceText(@"
+resource myRes 'Test.Rp/basicTests@2020-01-01'|
+");
+            }
+        }
+
+        [TestMethod]
         public async Task ResourceTypeFollowerWithoCompletionsOffersEqualsAndExisting()
         {
 

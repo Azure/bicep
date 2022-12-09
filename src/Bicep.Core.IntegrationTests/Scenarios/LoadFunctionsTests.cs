@@ -741,5 +741,63 @@ var fileObj = loadJsonContent('file.json',  '.products[?(@.price > 3)].name')
                 template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(new JArray("pizza", "salad"));
             }
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7208
+        /// </summary>
+        [TestMethod]
+        public void LoadJsonFunction_SupportsCommentsInJsonFile()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('file.json')
+"),
+                ("file.json", @"
+//file
+{
+    ""products"" : /* block-comment */ [
+        { //item-1
+            ""name"": ""pizza"", //the-name
+            ""price"": 5.00 
+        },
+        //---
+        { //item-2
+            ""name"": ""pizza"",
+            ""price"": 4.99 //price
+        }
+    ],
+    ""ints"": [
+        1, /*comment*/ 2,3,4,5,
+        // second-half
+        6,7,8,9,10
+    ]
+}
+"));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(@"
+{
+    ""products"" : [
+        {
+            ""name"": ""pizza"",
+            ""price"": ""[json('5')]""
+        },
+        {
+            ""name"": ""pizza"",
+            ""price"": ""[json('4.99')]""
+        }
+    ],
+    ""ints"": [1,2,3,4,5,6,7,8,9,10]
+}
+"));
+            }
+        }
     }
 }

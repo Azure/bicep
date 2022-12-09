@@ -100,11 +100,11 @@
       "defaultValue": "prodKey"
     },
     "secretName": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "bankAccountPassword"
     },
     "secretValue": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "12345"
     },
     "networkAcls": {

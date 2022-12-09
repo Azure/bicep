@@ -167,11 +167,64 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetParamsData()
         {
-            yield return new object[] { "using './main.bicep' \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14) }, new SemanticTokenType[] { SemanticTokenType.Keyword, SemanticTokenType.String } };
-            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5), new TextSpan(14, 2) }, new SemanticTokenType[] { SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number } };
-            yield return new object[] { "using './main.bicep' \n param myint = 12 \n param mystr = 'test'",
-                                        new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(37, 2), new TextSpan(42, 5), new TextSpan(48, 5), new TextSpan(56, 6)},
-                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.String}};
+            yield return new object[]
+            {
+                "using './main.bicep' \n",
+                new[]
+                {
+                    new TextSpan(0, 5),
+                    new TextSpan(6, 14),
+                },
+                new[]
+                {
+                    SemanticTokenType.Keyword,
+                    SemanticTokenType.String,
+                }
+            };
+
+            yield return new object[]
+            {
+                "param myint = 12 \n",
+                new[]
+                {
+                    new TextSpan(0, 5),
+                    new TextSpan(6, 5),
+                    new TextSpan(14, 2),
+                },
+                new[]
+                {
+                    SemanticTokenType.Keyword,
+                    SemanticTokenType.Variable,
+                    SemanticTokenType.Number,
+                }
+            };
+
+            yield return new object[]
+            {
+                "using './main.bicep' \n param myint = 12 \n param mystr = 'test'",
+                new[]
+                {
+                    new TextSpan(0, 5),
+                    new TextSpan(6, 14),
+                    new TextSpan(23, 5),
+                    new TextSpan(29, 5),
+                    new TextSpan(37, 2),
+                    new TextSpan(42, 5),
+                    new TextSpan(48, 5),
+                    new TextSpan(56, 6),
+                },
+                new[]
+                {
+                    SemanticTokenType.Keyword,
+                    SemanticTokenType.String,
+                    SemanticTokenType.Keyword,
+                    SemanticTokenType.Variable,
+                    SemanticTokenType.Number,
+                    SemanticTokenType.Keyword,
+                    SemanticTokenType.Variable,
+                    SemanticTokenType.String,
+                }
+            };
         }
     }
 }

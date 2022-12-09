@@ -36,7 +36,7 @@
       "type": "string"
     },
     "virtualMachineAdminPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "virtualMachineSize": {
       "type": "string",

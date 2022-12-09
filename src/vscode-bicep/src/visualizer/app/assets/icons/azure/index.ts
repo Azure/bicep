@@ -461,6 +461,17 @@ export async function importResourceIconInline(
         await import("./containers/10105-icon-service-Container-Registries.svg")
       ).default;
 
+    // Microsoft.App
+    case "microsoft.app/containerapps":
+      return (
+        await import("./containers/02884-icon-service-Worker-Container-App.svg")
+      ).default;
+
+    case "microsoft.app/managedenvironments":
+      return (
+        await import("./containers/02989-icon-service-Container-App-Environments.svg")
+      ).default;
+
     // Microsoft.Cdn
     case "microsoft.cdn/service":
       return (await import("./appServices/00056-icon-service-CDN-Profiles.svg"))

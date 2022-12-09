@@ -18,7 +18,7 @@
       }
     },
     "password": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
         "description": "The SQL Logical Server password."
       }

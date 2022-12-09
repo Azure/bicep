@@ -10,7 +10,7 @@
   },
   "parameters": {
     "sharedKey": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "gatewaySku": {
       "type": "string",

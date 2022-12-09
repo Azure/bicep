@@ -15,7 +15,7 @@
       "type": "string"
     },
     "sqlAdministratorLoginPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "transparentDataEncryption": {
       "type": "string",

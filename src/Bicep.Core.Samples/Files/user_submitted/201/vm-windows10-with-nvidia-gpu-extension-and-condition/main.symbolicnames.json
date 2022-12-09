@@ -16,7 +16,7 @@
       "defaultValue": "localadmin"
     },
     "localAdminPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "vnetName": {
       "type": "string",

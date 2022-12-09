@@ -36,7 +36,7 @@
       "type": "string"
     },
     "adminPassword": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "location": {
       "type": "string",

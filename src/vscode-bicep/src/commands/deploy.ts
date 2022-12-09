@@ -389,6 +389,10 @@ export class DeployCommand implements Command {
         );
       }
 
+      const environment = subscription.environment;
+      const resourceManagerEndpointUrl = environment.resourceManagerEndpointUrl;
+      const audience = environment.activeDirectoryResourceId;
+
       const deploymentStartParams: BicepDeploymentStartParams = {
         documentPath,
         parametersFilePath,
@@ -404,6 +408,8 @@ export class DeployCommand implements Command {
         parametersFileName,
         parametersFileUpdateOption,
         updatedDeploymentParameters,
+        resourceManagerEndpointUrl,
+        audience,
       };
       const deploymentStartResponse: BicepDeploymentStartResponse =
         await this.client.sendRequest("workspace/executeCommand", {

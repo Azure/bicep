@@ -20,8 +20,7 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Gets the span of the current window.
         /// </summary>
-        public TextSpan GetSpan()
-            => new TextSpan(position, offset);
+        public TextSpan GetSpan() => new(position, offset);
 
         /// <summary>
         /// Gets the span from n characters behind up to current position.
@@ -114,11 +113,11 @@ namespace Bicep.Core.Parsing
 
             if (indexOfPreviousNewLine < 0 || position == 0)
             {
-                return text.Substring(0, position);
+                return text[..position];
             }
 
             var postionAfterNewLine = indexOfPreviousNewLine + 1;
-            return text.Substring(postionAfterNewLine, position - postionAfterNewLine);
+            return text[postionAfterNewLine..position];
         }
     }
 }

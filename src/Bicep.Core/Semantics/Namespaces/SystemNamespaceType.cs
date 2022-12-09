@@ -510,8 +510,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("flatten")
                 .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
-                .WithVariableParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), 0, "The array of sub-arrays to flatten.")
-                .WithReturnType(LanguageConstants.Array)
+                .WithRequiredParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), "The array of sub-arrays to flatten.")
+                .WithReturnResultBuilder((_, _, _, functionCall, argTypes) => new(GetFlattenReturnType(argTypes[0], functionCall.Arguments[0])), LanguageConstants.Array)
                 .Build();
 
             yield return new FunctionOverloadBuilder("filter")
@@ -519,7 +519,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
                 .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Bool)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
+                {
                     return new(argumentTypes[0]);
                 }, LanguageConstants.Array)
                 .Build();
@@ -529,7 +530,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to map.")
                 .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[1] switch {
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[1] switch
+                {
                     LambdaType lambdaType => new(new TypedArrayType(lambdaType.ReturnType.Type, TypeSymbolValidationFlags.Default)),
                     _ => new(LanguageConstants.Any),
                 }, LanguageConstants.Array)
@@ -540,7 +542,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
                 .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Bool)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
+                {
                     return new(argumentTypes[0]);
                 }, LanguageConstants.Array)
                 .Build();
@@ -552,10 +555,32 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[2] switch {
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[2] switch
+                {
                     LambdaType lambdaType => new(lambdaType.ReturnType.Type),
                     _ => new(LanguageConstants.Any),
                 }, LanguageConstants.Array)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("toObject")
+                .WithGenericDescription("Converts an array to an object with a custom key function and optional custom value function.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
+                .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
+                    calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
+                    calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                .WithReturnType(LanguageConstants.Any)
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                    if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType) {
+                        return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
+                    }
+
+                    if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType) {
+                        return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, valueLambdaType.ReturnType));
+                    }
+
+                    return new(LanguageConstants.Object);
+                }, LanguageConstants.Object)
                 .Build();
         }
 
@@ -798,11 +823,12 @@ namespace Bicep.Core.Semantics.Namespaces
             return ConvertJsonToBicepSyntax(functionValue as JToken ?? throw new InvalidOperationException($"Expecting function to return {nameof(JToken)}, but {functionValue?.GetType().ToString() ?? "null"} received."));
         }
 
+        private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
         private static SyntaxBase ConvertJsonToBicepSyntax(JToken token) =>
         token switch
         {
-            JObject @object => SyntaxFactory.CreateObject(@object.Properties().Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ConvertJsonToBicepSyntax(x.Value)))),
-            JArray @array => SyntaxFactory.CreateArray(@array.Select(ConvertJsonToBicepSyntax)),
+            JObject @object => SyntaxFactory.CreateObject(@object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ConvertJsonToBicepSyntax(x.Value)))),
+            JArray @array => SyntaxFactory.CreateArray(@array.Where(x => SupportedJsonTokenTypes.Contains(x.Type)).Select(ConvertJsonToBicepSyntax)),
             JValue value => value.Type switch
             {
                 JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
@@ -860,16 +886,74 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
         }
 
+        private static TypeSymbol GetFlattenReturnType(TypeSymbol typeToFlatten, IPositionable argumentPosition)
+        {
+            static TypeSymbol FlattenUnionOfArrays(UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
+                unionType,
+                unionType.Members.Select(typeRef => GetFlattenReturnType(typeRef.Type, argumentPosition)),
+                argumentPosition);
+
+            static TypeSymbol FlattenArrayOfUnion(TypeSymbol flattenInputType, UnionType itemUnion, IPositionable argumentPosition)
+                => UnionOfFlattened(flattenInputType, itemUnion.Members, argumentPosition);
+
+            static TypeSymbol UnionOfFlattened(TypeSymbol flattenInputType, IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
+            {
+                List<ITypeReference> flattenedMembers = new();
+                TypeSymbolValidationFlags flattenedFlags = TypeSymbolValidationFlags.Default;
+                List<ErrorType> errors = new();
+
+                foreach (var member in toFlatten)
+                {
+                    switch (member.Type)
+                    {
+                        case AnyType:
+                            return LanguageConstants.Array;
+                        case ErrorType errorType:
+                            errors.Add(errorType);
+                            break;
+                        case ArrayType arrayType:
+                            flattenedMembers.Add(arrayType.Item);
+                            if (arrayType is TypedArrayType typedArrayType)
+                            {
+                                flattenedFlags |= typedArrayType.ValidationFlags;
+                            }
+                            break;
+                        default:
+                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, member.Type)));
+                            break;
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
+                }
+
+                return new TypedArrayType(TypeHelper.CreateTypeUnion(flattenedMembers), flattenedFlags);
+            }
+
+            return typeToFlatten switch
+            {
+                AnyType => LanguageConstants.Array,
+                UnionType unionType => FlattenUnionOfArrays(unionType, argumentPosition),
+                ArrayType arrayType when arrayType.Item.Type is UnionType itemUnion => FlattenArrayOfUnion(arrayType, itemUnion, argumentPosition),
+                ArrayType arrayType when ReferenceEquals(arrayType.Item, LanguageConstants.Any) => LanguageConstants.Array,
+                ArrayType arrayType when TypeValidator.AreTypesAssignable(arrayType.Item.Type, LanguageConstants.Array) => arrayType.Item.Type,
+                ArrayType arrayType => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(arrayType, arrayType.Item.Type)),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(typeToFlatten, typeToFlatten)),
+            };
+        }
+
         private static TypeSymbol ConvertJsonToBicepType(JToken token)
             => token switch
             {
                 JObject @object => new ObjectType(
                     "object",
                     TypeSymbolValidationFlags.Default,
-                    @object.Properties().Select(x => new TypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                    @object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => new TypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
                     null),
                 JArray @array => new TypedArrayType(
-                    TypeHelper.CreateTypeUnion(@array.Select(ConvertJsonToBicepType)),
+                    TypeHelper.CreateTypeUnion(@array.Where(x => SupportedJsonTokenTypes.Contains(x.Type)).Select(ConvertJsonToBicepType)),
                     TypeSymbolValidationFlags.Default),
                 JValue value => value.Type switch
                 {
@@ -965,8 +1049,29 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => null,
             };
 
+            static void EmitDiagnosticIfTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, IBinder binder, IDiagnosticWriter diagnosticWriter)
+            {
+                if (decoratorParentTypeSyntax is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                }
+            }
+
+            static void EmitDiagnosticIfTargetingLiteral(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
+            {
+                if (IsLiteralSyntax(decoratorParentTypeSyntax, typeManager))
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
+                }
+            }
+
+            static void ValidateNotTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+                => EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder), binder, diagnosticWriter);
+
             static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
+                ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+
                 if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
@@ -984,11 +1089,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
                     {
-                        return targetObject.MergeProperty("type", "secureString");
+                        return targetObject.MergeProperty("type", "securestring");
                     }
 
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))
@@ -1006,11 +1112,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
                 {
-                    if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
-                        return;
-                    }
+                    var parentTypeSyntax = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
+
+                    EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, parentTypeSyntax, binder, diagnosticWriter);
+                    EmitDiagnosticIfTargetingLiteral(decoratorName, decoratorSyntax, parentTypeSyntax, typeManager, diagnosticWriter);
 
                     if (ReferenceEquals(targetType, LanguageConstants.Array) &&
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
@@ -1039,6 +1144,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleArgumentSelector))
                 .Build();
 
@@ -1047,6 +1153,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleArgumentSelector))
                 .Build();
 
@@ -1117,10 +1224,34 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
+                    .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, "true"))
                     .Build();
             }
         }
+
+        private static SyntaxBase? GetDeclaredTypeSyntaxOfParent(DecoratorSyntax syntax, IBinder binder) => binder.GetParent(syntax) switch
+        {
+            ParameterDeclarationSyntax parameterDeclaration => parameterDeclaration.Type,
+            OutputDeclarationSyntax outputDeclaration => outputDeclaration.Type,
+            TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
+            ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            _ => null,
+        };
+
+        private static bool IsLiteralSyntax(SyntaxBase? syntax, ITypeManager typeManager) => syntax switch
+        {
+            IntegerLiteralSyntax => true,
+            BooleanLiteralSyntax => true,
+            UnaryOperationSyntax => true,
+            StringSyntax => true,
+            // union types may contain symbols, but the type manager will enforce that they must resolve to a flat union of literals
+            UnionTypeSyntax => true,
+            // object types may contain symbols and still be literal types (iff the symbols themselves resolve to literal types)
+            // unlike with union types, we get no guarantees from the type checker and need to inspect the declared type to verify that this is a literal
+            ObjectTypeSyntax @object when TypeHelper.IsLiteralType(typeManager.GetDeclaredType(@object) ?? ErrorType.Empty()) => true,
+            _ => false,
+        };
 
         private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
             => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));

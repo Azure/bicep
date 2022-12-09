@@ -105,6 +105,61 @@ param stringParam sys.string = 'foo'
     }
 
     [TestMethod]
+    public void Constraint_decorators_prohibited_on_type_refs()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(3)
+@maxLength(5)
+@description('A string with a bunch of constraints')
+type constrainedString = string
+
+@minValue(3)
+@maxValue(5)
+@description('An int with a bunch of constraints')
+type constrainedInt = int
+
+@minLength(3)
+@maxLength(5)
+@description('A type alias with a bunch of constraints pointing to another type alias')
+type constrainedStringAlias = constrainedString
+
+@minValue(3)
+@maxValue(5)
+@description('A type alias with a bunch of constraints pointing to another type alias')
+type constrainedIntAlias = constrainedInt
+
+@minLength(3)
+@maxLength(5)
+@secure()
+@allowed(['fizz', 'buzz', 'pop'])
+@description('A parameter with a bunch of constraints that uses a type alias')
+param stringParam constrainedString
+
+@minValue(3)
+@maxValue(5)
+@allowed([3, 4, 5])
+@description('A parameter with a bunch of constraints that uses a type alias')
+param intParam constrainedInt
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"secure\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"intParam\" is declared but never used."),
+        });
+    }
+
+    [TestMethod]
     public void Allowed_decorator_may_not_be_used_on_literal_and_union_typed_parameters()
     {
         var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -145,6 +200,56 @@ param fizzBuzzPopParam 'fizz'|'buzz'|'pop'
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"fizzParam\" is declared but never used."),
             ("BCP295", DiagnosticLevel.Error, "The 'allowed' decorator may not be used on targets of a union or literal type. The allowed values for this parameter or type definition will be derived from the union or literal type automatically."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"fizzBuzzPopParam\" is declared but never used."),
+        });
+    }
+
+    [TestMethod]
+    public void Unions_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur: {foo: 'bar'}|anObject
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur?: {foo: 'bar'}|anObject
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
+            ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
+        });
+    }
+
+    [TestMethod]
+    public void Unary_operations_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur: !anObject
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur?: !anObject
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
+            ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
         });
     }
 }

@@ -80,7 +80,7 @@
     ]
   },
   {
-    "label": "secureString",
+    "label": "securestring",
     "kind": "snippet",
     "detail": "Secure string",
     "documentation": {
@@ -89,7 +89,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_secureString",
+    "sortText": "2_securestring",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

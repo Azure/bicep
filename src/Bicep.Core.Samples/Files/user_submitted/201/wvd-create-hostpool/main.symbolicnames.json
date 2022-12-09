@@ -86,7 +86,7 @@
       }
     },
     "administratorAccountPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "",
       "metadata": {
         "description": "The password that corresponds to the existing domain username."
@@ -100,7 +100,7 @@
       }
     },
     "vmAdministratorAccountPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "defaultValue": "",
       "metadata": {
         "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
@@ -965,7 +965,7 @@
               }
             },
             "administratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "metadata": {
                 "description": "The password that corresponds to the existing domain username."
               }
@@ -978,7 +978,7 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": "",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
@@ -1655,7 +1655,7 @@
               }
             },
             "administratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "metadata": {
                 "description": "The password that corresponds to the existing domain username."
               }
@@ -1668,7 +1668,7 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": "",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
@@ -2330,7 +2330,7 @@
               }
             },
             "administratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "metadata": {
                 "description": "The password that corresponds to the existing domain username."
               }
@@ -2343,7 +2343,7 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": "",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
@@ -3001,7 +3001,7 @@
               }
             },
             "administratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "metadata": {
                 "description": "The password that corresponds to the existing domain username."
               }
@@ -3014,7 +3014,7 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
+              "type": "securestring",
               "defaultValue": "",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."

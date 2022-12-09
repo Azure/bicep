@@ -1,0 +1,41 @@
+name: Compile Samples
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'GH Actions Run Id for the version of Bicep to use'
+        required: true
+
+permissions:
+  actions: read
+
+jobs:
+  run-benchmarks:
+    name: Compile Samples
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Fetch Bicep
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh run download ${{ github.event.inputs.run_id }} -n bicep-release-linux-x64 -D /tmp/bicep-release-linux-x64
+          chmod +x /tmp/bicep-release-linux-x64/bicep
+
+      - name: Compile Sample Files
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./scripts/compile_samples.sh /tmp/bicep-release-linux-x64/bicep > results.txt
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results.txt
+          path: ./results.txt
+          if-no-files-found: error

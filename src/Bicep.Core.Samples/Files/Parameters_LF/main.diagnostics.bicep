@@ -198,7 +198,7 @@ param negativeValues int
         123
     ]
 })
-param decoratedBool bool = (true && false) != true
+param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* comment4 */ (true && false) != true
 //@[06:019) [no-unused-params (Warning)] Parameter "decoratedBool" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedBool|
 
 @secure()

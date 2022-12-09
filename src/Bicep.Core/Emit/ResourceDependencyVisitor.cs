@@ -13,7 +13,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
-    public class ResourceDependencyVisitor : SyntaxVisitor
+    public class ResourceDependencyVisitor : AstVisitor
     {
         private readonly SemanticModel model;
         private Options? options;

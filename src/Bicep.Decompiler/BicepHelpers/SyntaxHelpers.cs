@@ -134,9 +134,9 @@ namespace Bicep.Decompiler.BicepHelpers
 
         public static Token CreatePlaceholderToken(TokenType tokenType, string trailingComment)
         {
-            var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, SyntaxFactory.EmptySpan, $"/* {trailingComment} */");
+            var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/* {trailingComment} */");
 
-            return new Token(tokenType, SyntaxFactory.EmptySpan, "?", SyntaxFactory.EmptyTrivia, trailingTrivia.AsEnumerable());
+            return SyntaxFactory.CreateToken(tokenType, "?", SyntaxFactory.EmptyTrivia, trailingTrivia.AsEnumerable());
         }
     }
 }

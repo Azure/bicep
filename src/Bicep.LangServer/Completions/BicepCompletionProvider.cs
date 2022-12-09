@@ -360,6 +360,43 @@ namespace Bicep.LanguageServer.Completions
             null => null,
         };
 
+        private static string? TryGetSkippedTokenText(SkippedTriviaSyntax skippedTrivia)
+        {
+            // This method attempts to obtain text from a skipped token - in cases where the user has partially-typed syntax
+            // but may be looking for completions.
+            if (skippedTrivia.Elements.Length != 1 ||
+                skippedTrivia.Elements[0] is not Token token)
+            {
+                return null;
+            }
+
+            switch (token.Type)
+            {
+                case TokenType.Identifier:
+                    return token.Text;
+
+                case TokenType.StringComplete:
+                    if (!token.Text.EndsWith("'", StringComparison.Ordinal))
+                    {
+                        // An unterminated string will result in skipped trivia containing an unterminated token.
+                        // Compensate here by building the expected token before lexing it.
+                        token = SyntaxFactory.CreateToken(token.Type, $"{token.Text}'");
+                    }
+
+                    return Lexer.TryGetStringValue(token);
+
+                default:
+                    return null;
+            }
+        }
+
+        private static string? TryGetEnteredTextFromStringOrSkipped(SyntaxBase syntax)
+            => syntax switch {
+                StringSyntax s => s.TryGetLiteralValue(),
+                SkippedTriviaSyntax s => TryGetSkippedTokenText(s),
+                _ => null,
+            };
+
         private IEnumerable<CompletionItem> GetResourceTypeCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceType))
@@ -398,9 +435,11 @@ namespace Bicep.LanguageServer.Completions
                 return items;
             }
 
-            static string? TryGetFullyQualifiedType(StringSyntax? stringSyntax)
+            static string? TryGetFullyQualifiedType(SyntaxBase? syntax)
             {
-                if (stringSyntax?.TryGetLiteralValue() is string entered && ResourceTypeReference.HasResourceTypePrefix(entered))
+                if (syntax is not null &&
+                    TryGetEnteredTextFromStringOrSkipped(syntax) is {} entered &&
+                    ResourceTypeReference.HasResourceTypePrefix(entered))
                 {
                     return entered;
                 }
@@ -412,9 +451,9 @@ namespace Bicep.LanguageServer.Completions
             {
                 return enclosingDeclaration switch
                 {
-                    ResourceDeclarationSyntax resourceSyntax => TryGetFullyQualifiedType(resourceSyntax.TypeString),
-                    ParameterDeclarationSyntax parameterSyntax when parameterSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.TypeString),
-                    OutputDeclarationSyntax outputSyntax when outputSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.TypeString),
+                    ResourceDeclarationSyntax resourceSyntax => TryGetFullyQualifiedType(resourceSyntax.Type),
+                    ParameterDeclarationSyntax parameterSyntax when parameterSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.Type),
+                    OutputDeclarationSyntax outputSyntax when outputSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.Type),
                     _ => null,
                 };
             }
@@ -644,7 +683,7 @@ namespace Bicep.LanguageServer.Completions
                                                                context.ReplacementRange,
                                                                new TextEdit[] { textEdit });
 
-                yield return CreateContextualSnippetCompletion("secureString",
+                yield return CreateContextualSnippetCompletion("securestring",
                                                                "Secure string",
                                                                "string",
                                                                context.ReplacementRange,
@@ -1280,7 +1319,7 @@ namespace Bicep.LanguageServer.Completions
             (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
             var nextLineSpan = GetNextLineSpan(lineStarts, line, model.SourceFile.ProgramSyntax);
 
-            if (nextLineSpan is null)
+            if (nextLineSpan.IsNil)
             {
                 return Enumerable.Empty<IDiagnostic>();
             }
@@ -1296,7 +1335,7 @@ namespace Bicep.LanguageServer.Completions
             return lineStarts[rangeStart.Line] + rangeStart.Character;
         }
 
-        private TextSpan? GetNextLineSpan(ImmutableArray<int> lineStarts, int line, ProgramSyntax programSyntax)
+        private TextSpan GetNextLineSpan(ImmutableArray<int> lineStarts, int line, ProgramSyntax programSyntax)
         {
             var nextLine = line + 1;
             if (lineStarts.Length > nextLine)
@@ -1317,7 +1356,7 @@ namespace Bicep.LanguageServer.Completions
                 return new TextSpan(nextLineStart, nextLineEnd - nextLineStart);
             }
 
-            return null;
+            return TextSpan.Nil;
         }
 
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)

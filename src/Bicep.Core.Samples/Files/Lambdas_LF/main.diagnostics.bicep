@@ -16,9 +16,9 @@ var isEven = filter(numbers, i => 0 == i % 2)
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[04:27) [no-unused-vars (Warning)] Variable "evenDoggosNestedLambdas" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |evenDoggosNestedLambdas|
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
 //@[04:26) [no-unused-vars (Warning)] Variable "flattenedArrayOfArrays" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flattenedArrayOfArrays|
-var flattenedEmptyArray = flatten()
+var flattenedEmptyArray = flatten([])
 //@[04:23) [no-unused-vars (Warning)] Variable "flattenedEmptyArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flattenedEmptyArray|
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
@@ -51,7 +51,6 @@ var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
 var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
 //@[04:20) [no-unused-vars (Warning)] Variable "sortAlphaReverse" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sortAlphaReverse|
 var sortByObjectKey = sort([
-//@[04:19) [no-unused-vars (Warning)] Variable "sortByObjectKey" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sortByObjectKey|
   { key: 124, name: 'Second' }
   { key: 298, name: 'Third' }
   { key: 24, name: 'First' }
@@ -97,4 +96,14 @@ var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says
 
 var parentheses = map([123], (i => '${i}'))
 //@[04:15) [no-unused-vars (Warning)] Variable "parentheses" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |parentheses|
+
+var objectMap = toObject([123, 456, 789], i => '${i / 100}')
+//@[04:13) [no-unused-vars (Warning)] Variable "objectMap" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap|
+var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
+//@[04:14) [no-unused-vars (Warning)] Variable "objectMap2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap2|
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
+var objectMap3 = toObject(sortByObjectKey, x => x.name)
+//@[04:14) [no-unused-vars (Warning)] Variable "objectMap3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap3|
 

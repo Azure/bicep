@@ -162,7 +162,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return pathMessage is null ? mainMessage : $"{mainMessage} {pathMessage}";
         }
 
-        private class IdPropertyVisitor : SyntaxVisitor
+        private class IdPropertyVisitor : AstVisitor
         {
             private readonly List<Failure> failures = new();
             public IEnumerable<Failure> Failures => failures;

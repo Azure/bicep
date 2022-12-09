@@ -51,7 +51,7 @@ namespace Bicep.Core.Syntax.Visitors
             where TSyntax : SyntaxBase
             => Aggregate(source, syntax => syntax is TSyntax).OfType<TSyntax>();
 
-        private class AccumulatingVisitor<TAccumulate> : SyntaxVisitor
+        private class AccumulatingVisitor<TAccumulate> : AstVisitor
         {
             private readonly Func<TAccumulate, SyntaxBase, TAccumulate> function;
 

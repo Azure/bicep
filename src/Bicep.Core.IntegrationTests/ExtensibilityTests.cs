@@ -512,7 +512,7 @@ Hello from Bicep!"));
           },
           ""parameters"": {
             ""connectionString"": {
-              ""type"": ""secureString""
+              ""type"": ""securestring""
             }
           },
           ""variables"": {

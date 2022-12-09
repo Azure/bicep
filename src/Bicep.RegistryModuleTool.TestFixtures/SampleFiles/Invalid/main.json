@@ -31,7 +31,7 @@
       }
     },
     "servicePrincipalClientSecret": {
-      "type": "secureString"
+      "type": "securestring"
     },
     "clusterName": {
       "type": "string",
