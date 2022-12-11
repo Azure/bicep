@@ -206,5 +206,11 @@ namespace Bicep.Core.TypeSystem
 
         private static string FormatName(IEnumerable<ITypeReference> unionMembers) =>
             unionMembers.Select(m => m.Type.FormatNameForCompoundTypes()).ConcatString(" | ");
+
+        public static bool SatisfiesCondition(TypeSymbol typeSymbol, Func<TypeSymbol, bool> conditionFunc)
+            => typeSymbol switch {
+                UnionType unionType => unionType.Members.All(t => conditionFunc(t.Type)),
+                _ => conditionFunc(typeSymbol),
+            };
     }
 }

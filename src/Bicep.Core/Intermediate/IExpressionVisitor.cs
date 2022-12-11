@@ -39,7 +39,7 @@ public interface IExpressionVisitor
 
     void VisitModuleReferenceExpression(ModuleReferenceExpression expression);
 
-    void VisitModuleOutputExpression(ModuleOutputExpression expression);
+    void VisitModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression expression);
 
     void VisitVariableReferenceExpression(VariableReferenceExpression expression);
 

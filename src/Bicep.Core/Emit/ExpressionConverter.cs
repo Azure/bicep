@@ -162,19 +162,18 @@ namespace Bicep.Core.Emit
                     return GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp);
 
                 case PropertyAccessExpression { Base: ModuleReferenceExpression module } exp:
-                    return GetConverter(module.IndexContext).ConvertModulePropertyAccess(module.Module, exp);
-
-                case PropertyAccessExpression { Base: ModuleOutputExpression moduleOutput } exp:
-                    return AppendProperties(
-                        ToFunctionExpression(ConvertExpression(moduleOutput.Module)),
-                        new JTokenExpression("outputs"),
-                        new JTokenExpression(exp.PropertyName),
-                        new JTokenExpression("value"));
+                    return GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp);
 
                 case PropertyAccessExpression exp:
                     return AppendProperties(
                         ToFunctionExpression(ConvertExpression(exp.Base)),
                         new JTokenExpression(exp.PropertyName));
+
+                case ModuleOutputPropertyAccessExpression exp:
+                    return AppendProperties(
+                        ToFunctionExpression(ConvertExpression(exp.Base)),
+                        new JTokenExpression(exp.PropertyName),
+                        new JTokenExpression("value"));
 
                 case ResourceIdExpression exp:
                     return GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Metadata);
@@ -184,10 +183,6 @@ namespace Bicep.Core.Emit
 
                 case ModuleReferenceExpression exp:
                     return GetModuleReferenceExpression(exp.Module, exp.IndexContext);
-
-                case ModuleOutputExpression exp:
-                    // TODO verify this is caught earlier on
-                    throw new NotImplementedException($"Module outputs cannot be directly referenced");
 
                 case VariableReferenceExpression exp:
                     if (context.VariablesToInline.Contains(exp.Variable))
@@ -377,13 +372,17 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private LanguageExpression ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, PropertyAccessExpression propertyAccess)
+        private LanguageExpression ConvertModulePropertyAccess(ModuleReferenceExpression module, PropertyAccessExpression propertyAccess)
         {
             switch (propertyAccess.PropertyName)
             {
                 case "name":
                     // the name is dependent on the name expression which could involve locals in case of a resource collection
-                    return GetModuleNameExpression(moduleSymbol);
+                    return GetModuleNameExpression(module.Module);
+                case "outputs":
+                    return AppendProperties(
+                        GetModuleReferenceExpression(module.Module, module.IndexContext),
+                        new JTokenExpression("outputs"));
             }
 
             throw new InvalidOperationException($"Unsupported module property: {propertyAccess.PropertyName}");

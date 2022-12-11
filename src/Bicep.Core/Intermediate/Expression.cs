@@ -164,11 +164,12 @@ public record ModuleReferenceExpression(
         => visitor.VisitModuleReferenceExpression(this);
 }
 
-public record ModuleOutputExpression(
-    Expression Module) : Expression
+public record ModuleOutputPropertyAccessExpression(
+    Expression Base,
+    string PropertyName) : Expression
 {
     public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitModuleOutputExpression(this);
+        => visitor.VisitModuleOutputPropertyAccessExpression(this);
 }
 
 public record VariableReferenceExpression(

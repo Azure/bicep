@@ -108,24 +108,6 @@ public class ExpressionBuilder
         }
     }
 
-    private static long? TryGetIntegerLiteralValue(SyntaxBase syntax)
-    {
-        // We depend here on the fact that type validation has already checked that the integer is valid.
-        return syntax switch {
-            // Because integerSyntax.Value is a ulong type, it is always positive. we need to first cast it to a long in order to negate it.
-            UnaryOperationSyntax { Operator: UnaryOperator.Minus } unary when unary.Expression is IntegerLiteralSyntax x => x.Value switch {
-                <= long.MaxValue => -(long)x.Value,
-                (ulong)long.MaxValue + 1 => long.MinValue,
-                _ => null,
-            },
-            IntegerLiteralSyntax x => x.Value switch {
-                <= long.MaxValue => (long)x.Value,
-                _ => null,
-            },
-            _ => null,
-        };
-    }
-
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
     {
         var symbol = context.SemanticModel.GetSymbolInfo(functionCall);
@@ -221,92 +203,55 @@ public class ExpressionBuilder
             propertyName);
     }
 
-    private Expression ConvertModuleOutput(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, string propertyName)
-    {
-        return new PropertyAccessExpression(
-            new ModuleOutputExpression(
-                new ModuleReferenceExpression(
-                    moduleSymbol,
-                    indexContext)),
-                propertyName);
-    }
-
     private Expression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
     {
+        // Looking for: myResource.someProp (where myResource is a resource declared in-file)
         if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
         {
-            // we are doing property access on a single resource
-            var indexContext = TryGetReplacementContext(resource, null, propertyAccess);
-            return new PropertyAccessExpression(
-                new ResourceReferenceExpression(resource, indexContext),
-                propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(resource, null, propertyAccess.PropertyName.IdentifierName);
         }
 
+        // Looking for: myResource[blah].someProp (where myResource is a resource declared in-file)
         if (propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
             context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is DeclaredResourceMetadata resourceCollection)
         {
-            // we are doing property access on an array access of a resource collection
             var indexContext = TryGetReplacementContext(resourceCollection, propArrayAccess.IndexExpression, propertyAccess);
             return ConvertResourcePropertyAccess(resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName);
         }
 
+        // Looking for: myResource.someProp (where myResource is a parameter of type resource)
         if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ParameterResourceMetadata parameter)
         {
-            // we are doing property access on a single resource
-            // and we are dealing with special case properties
             return ConvertResourcePropertyAccess(parameter, null, propertyAccess.PropertyName.IdentifierName);
         }
 
+        // Looking for: myMod.outputs.someProp (where someProp is an output of type resource)
         if (propertyAccess.BaseExpression is PropertyAccessSyntax &&
             context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleOutput &&
             !moduleOutput.Module.IsCollection)
         {
-            // we are doing property access on an output of a non-collection module.
-            // and we are dealing with special case properties
-            return this.ConvertResourcePropertyAccess(moduleOutput, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(moduleOutput, null, propertyAccess.PropertyName.IdentifierName);
         }
 
+        // Looking for: myMod[blah].outputs.someProp (where someProp is an output of type resource)
         if (propertyAccess.BaseExpression is PropertyAccessSyntax moduleCollectionOutputProperty &&
             moduleCollectionOutputProperty.BaseExpression is PropertyAccessSyntax moduleCollectionOutputs &&
             moduleCollectionOutputs.BaseExpression is ArrayAccessSyntax moduleArrayAccess &&
             context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleCollectionOutputMetadata &&
             moduleCollectionOutputMetadata.Module.IsCollection)
         {
-            // we are doing property access on an output of an array of modules.
-            // and we are dealing with special case properties
             var indexContext = TryGetReplacementContext(moduleCollectionOutputMetadata.NameSyntax, moduleArrayAccess.IndexExpression, propertyAccess);
             return ConvertResourcePropertyAccess(moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName);
         }
 
+        // Looking for: expr.outputs.blah (where expr is any expression of type module)
         if (propertyAccess.BaseExpression is PropertyAccessSyntax childPropertyAccess &&
-            context.SemanticModel.GetTypeInfo(childPropertyAccess.BaseExpression) is ModuleType &&
+            TypeHelper.SatisfiesCondition(context.SemanticModel.GetTypeInfo(childPropertyAccess.BaseExpression), x => x is ModuleType) &&
             childPropertyAccess.PropertyName.NameEquals(LanguageConstants.ModuleOutputsPropertyName))
         {
-            if (childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildVariableAccess &&
-                context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is VariableSymbol variableSymbol &&
-                context.VariablesToInline.Contains(variableSymbol))
-            {
-                // This is imprecise as we don't check that that variable being accessed is solely composed of modules. We'd end up generating incorrect code for:
-                // var foo = false ? mod1 : varWithOutputs
-                // var bar = foo.outputs.someProp
-                return new PropertyAccessExpression(
-                    new ModuleOutputExpression(
-                        ConvertVariableAccess(grandChildVariableAccess)),
-                    propertyAccess.PropertyName.IdentifierName);
-            }
-
-            if (context.SemanticModel.GetSymbolInfo(childPropertyAccess.BaseExpression) is ModuleSymbol outputModuleSymbol)
-            {
-                var indexContext = TryGetReplacementContext(GetModuleNameSyntax(outputModuleSymbol), null, propertyAccess);
-                return ConvertModuleOutput(outputModuleSymbol, indexContext, propertyAccess.PropertyName.IdentifierName);
-            }
-
-            if (childPropertyAccess.BaseExpression is ArrayAccessSyntax outputModulePropArrayAccess &&
-                context.SemanticModel.GetSymbolInfo(outputModulePropArrayAccess.BaseExpression) is ModuleSymbol outputArrayModuleSymbol)
-            {
-                var indexContext = TryGetReplacementContext(GetModuleNameSyntax(outputArrayModuleSymbol), outputModulePropArrayAccess.IndexExpression, propertyAccess);
-                return ConvertModuleOutput(outputArrayModuleSymbol, indexContext, propertyAccess.PropertyName.IdentifierName);
-            }
+            return new ModuleOutputPropertyAccessExpression(
+                Convert(propertyAccess.BaseExpression),
+                propertyAccess.PropertyName.IdentifierName);
         }
 
         return new PropertyAccessExpression(

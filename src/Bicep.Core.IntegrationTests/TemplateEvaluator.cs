@@ -95,15 +95,15 @@ namespace Bicep.Core.IntegrationTests
                     var apiVersion = parameters.Length > 1 ? parameters[1].Token.ToString() : null;
                     var fullBody = parameters.Length > 2 ? parameters[2].Token.ToString().EqualsOrdinalInsensitively("Full") : false;
 
+                    if (apiVersion is not null && config.OnReferenceFunc is not null)
+                    {
+                        return config.OnReferenceFunc(resourceId, apiVersion, fullBody);
+                    }
+
                     if (resourceLookup.TryGetValue(resourceId, out var foundResource) &&
                         (apiVersion is null || StringComparer.OrdinalIgnoreCase.Equals(apiVersion, foundResource.ApiVersion.Value)))
                     {
                         return fullBody ? foundResource.ToJToken() : foundResource.Properties.ToJToken();
-                    }
-
-                    if (apiVersion is not null && config.OnReferenceFunc is not null)
-                    {
-                        return config.OnReferenceFunc(resourceId, apiVersion, fullBody);
                     }
                 }
 
@@ -117,9 +117,16 @@ namespace Bicep.Core.IntegrationTests
 
                 if (resource.Properties is not null)
                 {
+                    var skipEvaluationPaths = new InsensitiveHashSet();
+                    if (resource.Type.Value.EqualsOrdinalInsensitively("Microsoft.Resources/deployments"))
+                    {
+                        skipEvaluationPaths.Add("template");
+                    };
+
                     resource.Properties.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
                         root: resource.Properties.Value,
-                        evaluationContext: evaluationContext);
+                        evaluationContext: evaluationContext,
+                        skipEvaluationPaths: skipEvaluationPaths);
                 }
             }
 
