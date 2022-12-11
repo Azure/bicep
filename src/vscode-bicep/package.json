@@ -602,7 +602,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "@azure/arm-managementgroups": "2.0.1",
+    "@azure/arm-managementgroups": "2.0.2",
     "@azure/arm-resources": "^5.1.0",
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^3.1.1",
