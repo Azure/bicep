@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14234582424103721348"
+      "templateHash": "5423294562473628901"
     }
   },
   "parameters": {
@@ -53,7 +53,11 @@
         "parameters": {
           "listOfAllowedLocations": {
             "type": "Array",
-            "metadata": "[createObject('description', 'The List of Allowed Locations for Resource Groups and Resources.', 'strongtype', 'location', 'displayName', 'Allowed Locations')]"
+            "metadata": {
+              "description": "The List of Allowed Locations for Resource Groups and Resources.",
+              "strongtype": "location",
+              "displayName": "Allowed Locations"
+            }
           },
           "listOfAllowedSKUs": {
             "type": "Array",

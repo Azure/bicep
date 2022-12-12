@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14237309335148944435"
+      "templateHash": "4655166543508546916"
     }
   },
   "parameters": {
@@ -220,8 +220,8 @@
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]",
     "scopesWithoutArmRepresentation": {
-      "subscription": "[createObject()]",
-      "resourceGroup": "[createObject()]"
+      "subscription": {},
+      "resourceGroup": {}
     },
     "scopesWithArmRepresentation": {
       "tenant": "[tenant()]",

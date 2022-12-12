@@ -25,30 +25,30 @@ var loadedTextInterpolation2 = 'Text: ${loadTextContent('Assets/TextFile.LF.txt'
 
 var loadedTextObject1 = {
 //@    "loadedTextObject1": {
+//@      "text": "[variables('$fxv#2')]"
 //@    },
   'text' : loadTextContent('Assets/TextFile.CRLF.txt')
-//@      "text": "[variables('$fxv#2')]"
 }
 var loadedTextObject2 = {
 //@    "loadedTextObject2": {
+//@      "text": "[variables('$fxv#3')]"
 //@    },
   'text' : loadTextContent('Assets/TextFile.LF.txt')  
-//@      "text": "[variables('$fxv#3')]"
 }
 var loadedBinaryInObject = {
 //@    "loadedBinaryInObject": {
+//@      "file": "[variables('$fxv#4')]"
 //@    },
   file: loadFileAsBase64('Assets/binary')
-//@      "file": "[variables('$fxv#4')]"
 }
 
 var loadedTextArray = [
 //@    "loadedTextArray": [
+//@      "[variables('$fxv#5')]",
+//@      "[variables('$fxv#6')]"
 //@    ],
   loadTextContent('Assets/TextFile.LF.txt')
-//@      "[variables('$fxv#5')]",
   loadFileAsBase64('Assets/binary')
-//@      "[variables('$fxv#6')]"
 ]
 
 var loadedTextArrayInObject = {
@@ -56,11 +56,11 @@ var loadedTextArrayInObject = {
 //@    },
   'files' : [
 //@      "files": [
+//@        "[variables('$fxv#7')]",
+//@        "[variables('$fxv#8')]"
 //@      ]
     loadTextContent('Assets/TextFile.CRLF.txt')
-//@        "[variables('$fxv#7')]",
     loadFileAsBase64('Assets/binary')
-//@        "[variables('$fxv#8')]"
   ]
 }
 
