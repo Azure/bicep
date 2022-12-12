@@ -294,7 +294,7 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSystemMock.SetupGet(x => x.Path).Returns(fileSystem.Path);
             fileSystemMock.SetupGet(x => x.Directory).Returns(fileSystem.Directory);
             fileSystemMock.SetupGet(x => x.File).Returns(fileSystem.File);
-            fileSystemMock.Setup(x => x.FileStream.Create(It.IsAny<string>(), It.IsAny<FileMode>(), It.IsAny<FileAccess>()))
+            fileSystemMock.Setup(x => x.FileStream.New(It.IsAny<string>(), It.IsAny<FileMode>(), It.IsAny<FileAccess>()))
                 .Throws(new UnauthorizedAccessException("Not allowed."));
 
             var sut = new ConfigurationManager(fileSystemMock.Object);

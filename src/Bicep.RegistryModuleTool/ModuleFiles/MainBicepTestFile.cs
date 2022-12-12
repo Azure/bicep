@@ -27,7 +27,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             try
             {
-                using (fileSystem.FileStream.Create(path, FileMode.Open, FileAccess.Read)) { }
+                using (fileSystem.FileStream.New(path, FileMode.Open, FileAccess.Read)) { }
             }
             catch (FileNotFoundException)
             {
@@ -45,7 +45,7 @@ module file is a deployment test. Make sure at least one test is added.
             string relativePath = fileSystem.Path.Combine(Directory, FileName);
             string path = fileSystem.Path.GetFullPath(relativePath);
 
-            using (fileSystem.FileStream.Create(path, FileMode.Open)) { }
+            using (fileSystem.FileStream.New(path, FileMode.Open)) { }
 
             return new(path);
         }

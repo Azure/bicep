@@ -1134,15 +1134,19 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "17.2.3",
-        "contentHash": "VcozGeE4SxIo0cnXrDHhbrh/Gb8KQnZ3BvMelvh+iw0PrIKtuuA46U2Xm4e4pgnaWFgT4RdZfTpWl/WPRdw0WQ=="
+        "resolved": "19.0.1",
+        "contentHash": "UVM412UWKjs07esf5bnfAxJ8Bj/0srrFzNXit0mbY6kFoC8M3gHsFF28KLfI4rSnfRj0wbQ/LCvkGZ/hHiTA1Q==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.0.1"
+        }
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "17.2.3",
-        "contentHash": "tkXvQbsfOIfeoGso+WptCuouFLiWt3EU8s0D8poqIVz1BJOOszkPuFbFgP2HUTJ9bp5n1HH89eFHILo6Oz5XUw==",
+        "resolved": "19.0.1",
+        "contentHash": "QsokgIwxfleFOr7D5kQIal+O5Rvr3aP1bWF7zJRs3Olg28clQS6rYd/suRYeCIy4+SMUwf/pt+5jose9lWSHtQ==",
         "dependencies": {
-          "System.IO.Abstractions": "17.2.3"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "19.0.1"
         }
       },
       "System.IO.Compression": {
@@ -1952,6 +1956,28 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
+      "TestableIO.System.IO.Abstractions": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "PGlynyB/3wzKOLY/kOBC6XvaOSyMJ1sG0yXp7toWjGUXmCm4n1ySIlpZLCtVezKtqNVQIyTzGX0ASUZIuquLrg=="
+      },
+      "TestableIO.System.IO.Abstractions.TestingHelpers": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "T7eL2y4wxJhtQFgRm0TJUyWf7QUskvcEN2p3CaFZLFfUJA+RI7NGA/eBu4P3ICK1OnHfJiy12vGImi40q3Ts5A==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.0.1"
+        }
+      },
+      "TestableIO.System.IO.Abstractions.Wrappers": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "ayFxzptLadWGxDqCqNL37maXFGNXlB5H4bD07Pl+sgDWMxVgFiu8EZ64dMAWOoLBuApxkrST1UN3dwNDrPnwmA==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1"
+        }
+      },
       "WindowsAzure.Storage": {
         "type": "Transitive",
         "resolved": "9.3.3",
@@ -1980,7 +2006,7 @@
           "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
           "Newtonsoft.Json": "[13.0.2, )",
           "System.Collections.Immutable": "[6.0.0, )",
-          "System.IO.Abstractions": "[17.2.3, )"
+          "System.IO.Abstractions": "[19.0.1, )"
         }
       },
       "Azure.Bicep.Decompiler": {
@@ -2009,7 +2035,7 @@
           "MSTest.TestFramework": "[2.2.10, )",
           "Microsoft.NET.Test.Sdk": "[17.3.2, )",
           "Moq": "[4.18.2, )",
-          "System.IO.Abstractions.TestingHelpers": "[17.2.3, )"
+          "System.IO.Abstractions.TestingHelpers": "[19.0.1, )"
         }
       },
       "bicep.langserver": {

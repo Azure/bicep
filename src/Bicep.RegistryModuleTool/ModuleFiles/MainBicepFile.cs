@@ -20,7 +20,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             string path = fileSystem.Path.GetFullPath(FileName);
 
-            using (fileSystem.FileStream.Create(path, FileMode.Append)) { }
+            using (fileSystem.FileStream.New(path, FileMode.Append)) { }
 
             return new(path);
         }
@@ -29,7 +29,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             string path = fileSystem.Path.GetFullPath(FileName);
 
-            using (fileSystem.FileStream.Create(path, FileMode.Open)) { }
+            using (fileSystem.FileStream.New(path, FileMode.Open)) { }
 
             return new(path);
         }

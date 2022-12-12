@@ -107,7 +107,7 @@ namespace Bicep.Core.Configuration
         {
             try
             {
-                using var stream = fileSystem.FileStream.Create(configurationUri.LocalPath, FileMode.Open, FileAccess.Read);
+                using var stream = fileSystem.FileStream.New(configurationUri.LocalPath, FileMode.Open, FileAccess.Read);
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(stream));
 
                 return (RootConfiguration.Bind(element, configurationUri.LocalPath), null);
