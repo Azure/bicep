@@ -5,68 +5,28 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 17,
-          "TargetLine": 13
+          "SourceLine": 0,
+          "TargetLine": 29
         },
         {
-          "SourceLine": 17,
-          "TargetLine": 11
+          "SourceLine": 0,
+          "TargetLine": 38
         },
         {
-          "SourceLine": 17,
-          "TargetLine": 12
+          "SourceLine": 1,
+          "TargetLine": 30
         },
         {
-          "SourceLine": 17,
-          "TargetLine": 14
+          "SourceLine": 1,
+          "TargetLine": 36
         },
         {
-          "SourceLine": 19,
-          "TargetLine": 17
+          "SourceLine": 2,
+          "TargetLine": 31
         },
         {
-          "SourceLine": 19,
-          "TargetLine": 15
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 16
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 18
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 21
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 19
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 20
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 22
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 25
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 23
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 24
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 26
+          "SourceLine": 2,
+          "TargetLine": 35
         },
         {
           "SourceLine": 3,
@@ -81,40 +41,8 @@
           "TargetLine": 34
         },
         {
-          "SourceLine": 2,
-          "TargetLine": 31
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 35
-        },
-        {
-          "SourceLine": 1,
-          "TargetLine": 30
-        },
-        {
-          "SourceLine": 1,
-          "TargetLine": 36
-        },
-        {
           "SourceLine": 8,
           "TargetLine": 37
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 29
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 38
-        },
-        {
-          "SourceLine": 12,
-          "TargetLine": 45
-        },
-        {
-          "SourceLine": 14,
-          "TargetLine": 46
         },
         {
           "SourceLine": 10,
@@ -135,6 +63,78 @@
         {
           "SourceLine": 10,
           "TargetLine": 47
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 45
+        },
+        {
+          "SourceLine": 14,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 11
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 12
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 13
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 14
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 15
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 16
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 21,
+          "TargetLine": 19
+        },
+        {
+          "SourceLine": 21,
+          "TargetLine": 20
+        },
+        {
+          "SourceLine": 21,
+          "TargetLine": 21
+        },
+        {
+          "SourceLine": 21,
+          "TargetLine": 22
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 23
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 24
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 25
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 26
         }
       ]
     }
