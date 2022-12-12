@@ -58,7 +58,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
             this.logger.LogInformation("Making sure the test file contains at least one test...");
 
             using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
-            var testTemplateElement = JsonElementFactory.CreateElement(tempFileStream);
+            var testTemplateElement = JsonElementFactory.CreateElementFromStream(tempFileStream);
             var testDeployments = testTemplateElement.Select($@"$..resources[?(@.type == ""Microsoft.Resources/deployments"" && @.properties.template.metadata._generator.templateHash == ""{this.latestMainArmTemplateFile.TemplateHash}"")]");
 
             if (testDeployments.IsEmpty())

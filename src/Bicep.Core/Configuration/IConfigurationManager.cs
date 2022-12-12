@@ -26,7 +26,7 @@ namespace Bicep.Core.Configuration
         /// <returns>The built-in configuration.</returns>
         static RootConfiguration GetBuiltInConfiguration() => BuiltInConfigurationLazy.Value;
 
-        public static IConfigurationManager WithStaticConfiguration(RootConfiguration configuration) 
+        public static IConfigurationManager WithStaticConfiguration(RootConfiguration configuration)
             => new ConstantConfigurationManager(configuration);
 
         protected static readonly JsonElement BuiltInConfigurationElement = GetBuiltInConfigurationElement();
@@ -43,7 +43,7 @@ namespace Bicep.Core.Configuration
                 throw new InvalidOperationException("Could not get manifest resource stream for built-in configuration.");
             }
 
-            return JsonElementFactory.CreateElement(stream);
+            return JsonElementFactory.CreateElementFromStream(stream);
         }
 
         private class ConstantConfigurationManager : IConfigurationManager

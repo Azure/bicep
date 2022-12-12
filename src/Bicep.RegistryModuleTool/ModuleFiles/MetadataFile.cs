@@ -66,7 +66,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             try
             {
                 using var stream = fileSystem.FileStream.New(path, FileMode.Open, FileAccess.Read);
-                var jsonElement = JsonElementFactory.CreateElement(stream);
+                var jsonElement = JsonElementFactory.CreateElementFromStream(stream);
 
                 if (jsonElement.ValueKind != JsonValueKind.Object)
                 {

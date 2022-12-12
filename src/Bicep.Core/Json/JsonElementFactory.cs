@@ -28,7 +28,7 @@ namespace Bicep.Core.Json
             return document.RootElement.Clone();
         }
 
-        public static JsonElement CreateElement(Stream utf8Json, JsonDocumentOptions? options = null)
+        public static JsonElement CreateElementFromStream(Stream utf8Json, JsonDocumentOptions? options = null)
         {
             using var document = JsonDocument.Parse(utf8Json, options ?? DefaultJsonDocumentOptions);
 
