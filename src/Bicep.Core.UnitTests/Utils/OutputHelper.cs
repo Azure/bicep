@@ -41,7 +41,14 @@ namespace Bicep.Core.UnitTests.Utils
             return count;
         }
 
-        public static string AddDiagsToSourceText<T>(string bicepOutput, string newlineSequence, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
+        private static Func<int, string> GetPaddingFunc(IEnumerable<int> integers)
+        {
+            var padding = integers.Any() ? CountDigits(integers.Max()) : 0;
+
+            return x => x.ToInvariantString().PadLeft(padding, '0');
+        }
+
+        public static string AddDiagsToSourceText<T>(string bicepOutput, string newlineSequence, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc, bool isLinePreformatted = false)
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
 
@@ -60,8 +67,8 @@ namespace Bicep.Core.UnitTests.Utils
 
             var diags = diagsByLine.SelectMany(x => x);
 
-            var startCharPadding = diags.Any() ? CountDigits(diags.Max(x => x.startChar)) : 0;
-            var endCharPadding = diags.Any() ? CountDigits(diags.Max(x => x.endChar)) : 0;
+            var padStartChar = GetPaddingFunc(diags.Select(x => x.startChar));
+            var padEndChar = GetPaddingFunc(diags.Select(x => x.endChar));
 
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var stringBuilder = new StringBuilder();
@@ -72,12 +79,18 @@ namespace Bicep.Core.UnitTests.Utils
                 stringBuilder.Append(newlineSequence);
                 foreach (var diag in diagsByLine[i])
                 {
-                    var startCharPadded = diag.startChar.ToString().PadLeft(startCharPadding, '0');
-                    var endCharPadded = diag.endChar.ToString().PadLeft(endCharPadding, '0');
-
                     // Pad the start & end char with zeros to ensure that the escaped text always starts at the same place
                     // This makes it easier to compare lines visually
-                    stringBuilder.Append($"//@[{startCharPadded}:{endCharPadded}) {diag.escapedText}");
+                    if (isLinePreformatted)
+                    {
+                        stringBuilder.Append(diag.escapedText);
+                    }
+                    else
+                    {
+                        var startCharPadded = padStartChar(diag.startChar);
+                        var endCharPadded = padEndChar(diag.endChar);
+                        stringBuilder.Append($"//@[{startCharPadded}:{endCharPadded}) {diag.escapedText}");
+                    }
                     stringBuilder.Append(newlineSequence);
                 }
             }
@@ -85,18 +98,14 @@ namespace Bicep.Core.UnitTests.Utils
             return stringBuilder.ToString();
         }
 
-        public static string AddDiagsToSourceText<TPositionable>(string bicepOutput, string newlineSequence, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
+        public static string AddDiagsToSourceText<TPositionable>(string bicepOutput, string newlineSequence, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc, bool isLinePreformatted = false)
             where TPositionable : IPositionable
-            => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc);
+            => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc, isLinePreformatted);
+
+        private record SourceMapDiags(TextSpan Span, string BicepLineNumber, string JsonLine, string JsonLineNumber) : IPositionable;
 
         public static string AddSourceMapToSourceText(string bicepOutput, string bicepFilePath, string newlineSequence, SourceMap sourceMap, string[] jsonLines)
         {
-            var sourceTextLines = bicepOutput.Split(newlineSequence);
-            var mappingsStartLines = new int[sourceTextLines.Length];
-            var mappingsEndLines = new int[sourceTextLines.Length];
-            Array.Fill(mappingsStartLines, int.MaxValue);
-            Array.Fill(mappingsEndLines, 0);
-
             // get source map entries for bicep file to annotate
             var fileEntry = sourceMap.Entries.FirstOrDefault(entry => string.Compare(entry.FilePath, bicepFilePath) == 0);
             if (fileEntry is null)
@@ -104,56 +113,25 @@ namespace Bicep.Core.UnitTests.Utils
                 return bicepOutput;
             }
 
-            // traverse the source map to determine the JSON line range of each mapped bicep line
-            foreach (var entry in fileEntry.SourceMap)
-            {
-                int bicepLine = entry.SourceLine;
-                int armLine = entry.TargetLine;
+            var padTarget = GetPaddingFunc(fileEntry.SourceMap.Select(x => x.TargetLine));
+            var padSource = GetPaddingFunc(fileEntry.SourceMap.Select(x => x.SourceLine));
 
-                if (armLine < mappingsStartLines[bicepLine])
-                {
-                    mappingsStartLines[bicepLine] = armLine;
-                }
+            var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
+            var sourceMapDiags = fileEntry.SourceMap.Select(entry => {
+                var offset = TextCoordinateConverter.GetOffset(lineStarts, entry.SourceLine, 0);
+                var jsonLine = jsonLines[entry.TargetLine];
+                var jsonLineNumber = padTarget(entry.TargetLine);
+                var bicepLineNumber = padSource(entry.SourceLine);
 
-                if (armLine > mappingsEndLines[bicepLine])
-                {
-                    mappingsEndLines[bicepLine] = armLine;
-                }
-            }
+                return new SourceMapDiags(new(offset, 0), bicepLineNumber, jsonLine, jsonLineNumber);
+            });
 
-            var sourceTextWithSourceMap = new StringBuilder();
-
-            for (var i = 0; i < sourceTextLines.Length; i++)
-            {
-                sourceTextWithSourceMap.Append(sourceTextLines[i]);
-                sourceTextWithSourceMap.Append(newlineSequence);
-
-                // only annotate lines that have both a mapping and content
-                if (mappingsEndLines[i] != 0 && sourceTextLines[i].Any(char.IsLetterOrDigit))
-                {
-                    // show first line of mapped JSON with content in annotation
-                    var jsonLineText = string.Empty;
-                    var jsonStartLine = mappingsStartLines[i];
-                    var jsonEndLine = mappingsEndLines[i];
-                    var offset = 0;
-                    var maxOffset = jsonEndLine - jsonStartLine;
-
-                    do
-                    {
-                        jsonLineText = OutputHelper.EscapeWhitespace(jsonLines[jsonStartLine + offset]);
-                        offset++;
-                    }
-                    while (!jsonLineText.Any(char.IsLetterOrDigit) && offset <= maxOffset);
-
-                    if (jsonLineText != string.Empty)
-                    {
-                        sourceTextWithSourceMap.Append($"//@[{jsonStartLine}:{jsonEndLine}] {jsonLineText}");
-                        sourceTextWithSourceMap.Append(newlineSequence);
-                    }
-                }
-            }
-
-            return sourceTextWithSourceMap.ToString();
+            return AddDiagsToSourceText(
+                bicepOutput,
+                newlineSequence,
+                sourceMapDiags,
+                e => $"//@[line{e.BicepLineNumber}->line{e.JsonLineNumber}] {e.JsonLine}",
+                isLinePreformatted: true);
         }
 
         public static string GetSpanText(string sourceText, IPositionable positionable)

@@ -272,9 +272,14 @@ namespace Bicep.Core.Emit
                     }
                 }
 
+                // ensure ordering is deterministic
+                var sortedEntries = sourceMapEntries
+                    .OrderBy(x => x.SourceLine).ThenBy(x => x.TargetLine)
+                    .ToImmutableArray();
+
                 var fileEntry = new SourceMapFileEntry(
                     bicepRelativeFilePath,
-                    sourceMapEntries.ToImmutableArray());
+                    sortedEntries);
                 sourceMapFileEntries.Add(fileEntry);
             }
 

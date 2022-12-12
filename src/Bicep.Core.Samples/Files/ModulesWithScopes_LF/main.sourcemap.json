@@ -5,10 +5,6 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 3,
-          "TargetLine": 14
-        },
-        {
           "SourceLine": 2,
           "TargetLine": 11
         },
@@ -457,8 +453,8 @@
           "TargetLine": 123
         },
         {
-          "SourceLine": 7,
-          "TargetLine": 127
+          "SourceLine": 3,
+          "TargetLine": 14
         },
         {
           "SourceLine": 6,
@@ -557,12 +553,8 @@
           "TargetLine": 148
         },
         {
-          "SourceLine": 11,
-          "TargetLine": 152
-        },
-        {
-          "SourceLine": 12,
-          "TargetLine": 153
+          "SourceLine": 7,
+          "TargetLine": 127
         },
         {
           "SourceLine": 10,
@@ -2609,20 +2601,20 @@
           "TargetLine": 661
         },
         {
-          "SourceLine": 15,
-          "TargetLine": 663
+          "SourceLine": 11,
+          "TargetLine": 152
         },
         {
-          "SourceLine": 16,
-          "TargetLine": 666
-        },
-        {
-          "SourceLine": 17,
-          "TargetLine": 667
+          "SourceLine": 12,
+          "TargetLine": 153
         },
         {
           "SourceLine": 15,
           "TargetLine": 662
+        },
+        {
+          "SourceLine": 15,
+          "TargetLine": 663
         },
         {
           "SourceLine": 15,
@@ -4665,12 +4657,12 @@
           "TargetLine": 1175
         },
         {
-          "SourceLine": 21,
-          "TargetLine": 1179
+          "SourceLine": 16,
+          "TargetLine": 666
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 1180
+          "SourceLine": 17,
+          "TargetLine": 667
         },
         {
           "SourceLine": 20,
@@ -4765,8 +4757,12 @@
           "TargetLine": 1200
         },
         {
-          "SourceLine": 26,
-          "TargetLine": 1205
+          "SourceLine": 21,
+          "TargetLine": 1179
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 1180
         },
         {
           "SourceLine": 26,
@@ -4778,11 +4774,11 @@
         },
         {
           "SourceLine": 26,
-          "TargetLine": 1206
+          "TargetLine": 1205
         },
         {
-          "SourceLine": 27,
-          "TargetLine": 1209
+          "SourceLine": 26,
+          "TargetLine": 1206
         },
         {
           "SourceLine": 27,
@@ -4794,6 +4790,10 @@
         },
         {
           "SourceLine": 27,
+          "TargetLine": 1209
+        },
+        {
+          "SourceLine": 27,
           "TargetLine": 1210
         }
       ]
@@ -4801,10 +4801,6 @@
     {
       "FilePath": "modules/managementgroup.bicep",
       "SourceMap": [
-        {
-          "SourceLine": 3,
-          "TargetLine": 36
-        },
         {
           "SourceLine": 2,
           "TargetLine": 33
@@ -4926,8 +4922,8 @@
           "TargetLine": 63
         },
         {
-          "SourceLine": 7,
-          "TargetLine": 67
+          "SourceLine": 3,
+          "TargetLine": 36
         },
         {
           "SourceLine": 6,
@@ -5026,12 +5022,8 @@
           "TargetLine": 88
         },
         {
-          "SourceLine": 11,
-          "TargetLine": 92
-        },
-        {
-          "SourceLine": 12,
-          "TargetLine": 93
+          "SourceLine": 7,
+          "TargetLine": 67
         },
         {
           "SourceLine": 10,
@@ -5126,8 +5118,12 @@
           "TargetLine": 113
         },
         {
-          "SourceLine": 15,
-          "TargetLine": 118
+          "SourceLine": 11,
+          "TargetLine": 92
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 93
         },
         {
           "SourceLine": 15,
@@ -5136,6 +5132,10 @@
         {
           "SourceLine": 15,
           "TargetLine": 117
+        },
+        {
+          "SourceLine": 15,
+          "TargetLine": 118
         },
         {
           "SourceLine": 15,
@@ -5148,47 +5148,15 @@
       "SourceMap": [
         {
           "SourceLine": 2,
-          "TargetLine": 58
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 217
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 364
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 512
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 638
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 731
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 878
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 1026
-        },
-        {
-          "SourceLine": 2,
-          "TargetLine": 1152
-        },
-        {
-          "SourceLine": 2,
           "TargetLine": 56
         },
         {
           "SourceLine": 2,
           "TargetLine": 57
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 58
         },
         {
           "SourceLine": 2,
@@ -5204,6 +5172,10 @@
         },
         {
           "SourceLine": 2,
+          "TargetLine": 217
+        },
+        {
+          "SourceLine": 2,
           "TargetLine": 218
         },
         {
@@ -5213,6 +5185,10 @@
         {
           "SourceLine": 2,
           "TargetLine": 363
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 364
         },
         {
           "SourceLine": 2,
@@ -5228,6 +5204,10 @@
         },
         {
           "SourceLine": 2,
+          "TargetLine": 512
+        },
+        {
+          "SourceLine": 2,
           "TargetLine": 513
         },
         {
@@ -5237,6 +5217,10 @@
         {
           "SourceLine": 2,
           "TargetLine": 637
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 638
         },
         {
           "SourceLine": 2,
@@ -5252,6 +5236,10 @@
         },
         {
           "SourceLine": 2,
+          "TargetLine": 731
+        },
+        {
+          "SourceLine": 2,
           "TargetLine": 732
         },
         {
@@ -5261,6 +5249,10 @@
         {
           "SourceLine": 2,
           "TargetLine": 877
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 878
         },
         {
           "SourceLine": 2,
@@ -5276,6 +5268,10 @@
         },
         {
           "SourceLine": 2,
+          "TargetLine": 1026
+        },
+        {
+          "SourceLine": 2,
           "TargetLine": 1027
         },
         {
@@ -5288,6 +5284,10 @@
         },
         {
           "SourceLine": 2,
+          "TargetLine": 1152
+        },
+        {
+          "SourceLine": 2,
           "TargetLine": 1153
         }
       ]
@@ -5295,14 +5295,6 @@
     {
       "FilePath": "modules/subscription.bicep",
       "SourceMap": [
-        {
-          "SourceLine": 3,
-          "TargetLine": 174
-        },
-        {
-          "SourceLine": 3,
-          "TargetLine": 688
-        },
         {
           "SourceLine": 2,
           "TargetLine": 171
@@ -6440,12 +6432,12 @@
           "TargetLine": 831
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 321
+          "SourceLine": 3,
+          "TargetLine": 174
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 835
+          "SourceLine": 3,
+          "TargetLine": 688
         },
         {
           "SourceLine": 7,
@@ -7584,12 +7576,12 @@
           "TargetLine": 978
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 468
+          "SourceLine": 8,
+          "TargetLine": 321
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 982
+          "SourceLine": 8,
+          "TargetLine": 835
         },
         {
           "SourceLine": 12,
@@ -8736,12 +8728,12 @@
           "TargetLine": 1126
         },
         {
-          "SourceLine": 19,
-          "TargetLine": 616
+          "SourceLine": 13,
+          "TargetLine": 468
         },
         {
-          "SourceLine": 19,
-          "TargetLine": 1130
+          "SourceLine": 13,
+          "TargetLine": 982
         },
         {
           "SourceLine": 18,
@@ -8952,12 +8944,12 @@
           "TargetLine": 1157
         },
         {
-          "SourceLine": 23,
-          "TargetLine": 648
+          "SourceLine": 19,
+          "TargetLine": 616
         },
         {
-          "SourceLine": 23,
-          "TargetLine": 1162
+          "SourceLine": 19,
+          "TargetLine": 1130
         },
         {
           "SourceLine": 23,
@@ -8966,6 +8958,10 @@
         {
           "SourceLine": 23,
           "TargetLine": 647
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 648
         },
         {
           "SourceLine": 23,
@@ -8981,15 +8977,11 @@
         },
         {
           "SourceLine": 23,
+          "TargetLine": 1162
+        },
+        {
+          "SourceLine": 23,
           "TargetLine": 1163
-        },
-        {
-          "SourceLine": 24,
-          "TargetLine": 652
-        },
-        {
-          "SourceLine": 24,
-          "TargetLine": 1166
         },
         {
           "SourceLine": 24,
@@ -8998,6 +8990,10 @@
         {
           "SourceLine": 24,
           "TargetLine": 651
+        },
+        {
+          "SourceLine": 24,
+          "TargetLine": 652
         },
         {
           "SourceLine": 24,
@@ -9013,15 +9009,11 @@
         },
         {
           "SourceLine": 24,
+          "TargetLine": 1166
+        },
+        {
+          "SourceLine": 24,
           "TargetLine": 1167
-        },
-        {
-          "SourceLine": 25,
-          "TargetLine": 656
-        },
-        {
-          "SourceLine": 25,
-          "TargetLine": 1170
         },
         {
           "SourceLine": 25,
@@ -9030,6 +9022,10 @@
         {
           "SourceLine": 25,
           "TargetLine": 655
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 656
         },
         {
           "SourceLine": 25,
@@ -9045,6 +9041,10 @@
         },
         {
           "SourceLine": 25,
+          "TargetLine": 1170
+        },
+        {
+          "SourceLine": 25,
           "TargetLine": 1171
         }
       ]
@@ -9052,30 +9052,6 @@
     {
       "FilePath": "modules/resourcegroup.bicep",
       "SourceMap": [
-        {
-          "SourceLine": 3,
-          "TargetLine": 195
-        },
-        {
-          "SourceLine": 3,
-          "TargetLine": 342
-        },
-        {
-          "SourceLine": 3,
-          "TargetLine": 490
-        },
-        {
-          "SourceLine": 3,
-          "TargetLine": 709
-        },
-        {
-          "SourceLine": 3,
-          "TargetLine": 856
-        },
-        {
-          "SourceLine": 3,
-          "TargetLine": 1004
-        },
         {
           "SourceLine": 2,
           "TargetLine": 192
@@ -9701,28 +9677,28 @@
           "TargetLine": 1031
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 226
+          "SourceLine": 3,
+          "TargetLine": 195
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 373
+          "SourceLine": 3,
+          "TargetLine": 342
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 521
+          "SourceLine": 3,
+          "TargetLine": 490
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 740
+          "SourceLine": 3,
+          "TargetLine": 709
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 887
+          "SourceLine": 3,
+          "TargetLine": 856
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 1035
+          "SourceLine": 3,
+          "TargetLine": 1004
         },
         {
           "SourceLine": 7,
@@ -10445,28 +10421,28 @@
           "TargetLine": 1062
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 257
+          "SourceLine": 8,
+          "TargetLine": 226
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 404
+          "SourceLine": 8,
+          "TargetLine": 373
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 552
+          "SourceLine": 8,
+          "TargetLine": 521
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 771
+          "SourceLine": 8,
+          "TargetLine": 740
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 918
+          "SourceLine": 8,
+          "TargetLine": 887
         },
         {
-          "SourceLine": 13,
-          "TargetLine": 1066
+          "SourceLine": 8,
+          "TargetLine": 1035
         },
         {
           "SourceLine": 12,
@@ -11045,52 +11021,28 @@
           "TargetLine": 1087
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 282
+          "SourceLine": 13,
+          "TargetLine": 257
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 429
+          "SourceLine": 13,
+          "TargetLine": 404
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 577
+          "SourceLine": 13,
+          "TargetLine": 552
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 796
+          "SourceLine": 13,
+          "TargetLine": 771
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 943
+          "SourceLine": 13,
+          "TargetLine": 918
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 1091
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 283
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 430
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 578
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 797
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 944
-        },
-        {
-          "SourceLine": 19,
-          "TargetLine": 1092
+          "SourceLine": 13,
+          "TargetLine": 1066
         },
         {
           "SourceLine": 17,
@@ -11645,28 +11597,52 @@
           "TargetLine": 1112
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 308
+          "SourceLine": 18,
+          "TargetLine": 282
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 455
+          "SourceLine": 18,
+          "TargetLine": 429
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 603
+          "SourceLine": 18,
+          "TargetLine": 577
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 822
+          "SourceLine": 18,
+          "TargetLine": 796
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 969
+          "SourceLine": 18,
+          "TargetLine": 943
         },
         {
-          "SourceLine": 22,
-          "TargetLine": 1117
+          "SourceLine": 18,
+          "TargetLine": 1091
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 283
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 430
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 578
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 797
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 944
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 1092
         },
         {
           "SourceLine": 22,
@@ -11675,6 +11651,10 @@
         {
           "SourceLine": 22,
           "TargetLine": 307
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 308
         },
         {
           "SourceLine": 22,
@@ -11690,6 +11670,10 @@
         },
         {
           "SourceLine": 22,
+          "TargetLine": 455
+        },
+        {
+          "SourceLine": 22,
           "TargetLine": 456
         },
         {
@@ -11699,6 +11683,10 @@
         {
           "SourceLine": 22,
           "TargetLine": 602
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 603
         },
         {
           "SourceLine": 22,
@@ -11714,6 +11702,10 @@
         },
         {
           "SourceLine": 22,
+          "TargetLine": 822
+        },
+        {
+          "SourceLine": 22,
           "TargetLine": 823
         },
         {
@@ -11723,6 +11715,10 @@
         {
           "SourceLine": 22,
           "TargetLine": 968
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 969
         },
         {
           "SourceLine": 22,
@@ -11738,31 +11734,11 @@
         },
         {
           "SourceLine": 22,
+          "TargetLine": 1117
+        },
+        {
+          "SourceLine": 22,
           "TargetLine": 1118
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 312
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 459
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 607
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 826
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 973
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 1121
         },
         {
           "SourceLine": 23,
@@ -11771,6 +11747,10 @@
         {
           "SourceLine": 23,
           "TargetLine": 311
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 312
         },
         {
           "SourceLine": 23,
@@ -11786,6 +11766,10 @@
         },
         {
           "SourceLine": 23,
+          "TargetLine": 459
+        },
+        {
+          "SourceLine": 23,
           "TargetLine": 460
         },
         {
@@ -11795,6 +11779,10 @@
         {
           "SourceLine": 23,
           "TargetLine": 606
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 607
         },
         {
           "SourceLine": 23,
@@ -11810,6 +11798,10 @@
         },
         {
           "SourceLine": 23,
+          "TargetLine": 826
+        },
+        {
+          "SourceLine": 23,
           "TargetLine": 827
         },
         {
@@ -11819,6 +11811,10 @@
         {
           "SourceLine": 23,
           "TargetLine": 972
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 973
         },
         {
           "SourceLine": 23,
@@ -11834,6 +11830,10 @@
         },
         {
           "SourceLine": 23,
+          "TargetLine": 1121
+        },
+        {
+          "SourceLine": 23,
           "TargetLine": 1122
         }
       ]
@@ -11843,35 +11843,15 @@
       "SourceMap": [
         {
           "SourceLine": 0,
-          "TargetLine": 248
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 395
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 543
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 762
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 909
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 1057
-        },
-        {
-          "SourceLine": 0,
           "TargetLine": 246
         },
         {
           "SourceLine": 0,
           "TargetLine": 247
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 248
         },
         {
           "SourceLine": 0,
@@ -11887,6 +11867,10 @@
         },
         {
           "SourceLine": 0,
+          "TargetLine": 395
+        },
+        {
+          "SourceLine": 0,
           "TargetLine": 396
         },
         {
@@ -11896,6 +11880,10 @@
         {
           "SourceLine": 0,
           "TargetLine": 542
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 543
         },
         {
           "SourceLine": 0,
@@ -11911,6 +11899,10 @@
         },
         {
           "SourceLine": 0,
+          "TargetLine": 762
+        },
+        {
+          "SourceLine": 0,
           "TargetLine": 763
         },
         {
@@ -11923,6 +11915,10 @@
         },
         {
           "SourceLine": 0,
+          "TargetLine": 909
+        },
+        {
+          "SourceLine": 0,
           "TargetLine": 910
         },
         {
@@ -11932,6 +11928,10 @@
         {
           "SourceLine": 0,
           "TargetLine": 1056
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 1057
         },
         {
           "SourceLine": 0,
