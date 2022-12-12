@@ -135,7 +135,7 @@ namespace Bicep.Core.FileSystem
                 if (maxCharacters > 0)
                 {
                     var maxFileSize = maxCharacters / 4 * 3; //each base64 character represents 6 bits
-                    var fileInfo = fileSystem.FileInfo.FromFileName(fileUri.LocalPath);
+                    var fileInfo = fileSystem.FileInfo.New(fileUri.LocalPath);
                     fileInfo.Refresh();
                     if (fileInfo.Length > maxFileSize)
                     {

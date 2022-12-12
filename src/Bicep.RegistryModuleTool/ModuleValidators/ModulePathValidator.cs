@@ -33,7 +33,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
 
         private static string GetModulePath(IFileSystem fileSystem, string directoryPath)
         {
-            var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
+            var directoryInfo = fileSystem.DirectoryInfo.New(directoryPath);
             var directoryStack = new Stack<string>();
 
             try

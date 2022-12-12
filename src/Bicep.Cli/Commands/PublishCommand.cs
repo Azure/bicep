@@ -52,7 +52,7 @@ namespace Bicep.Cli.Commands
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
-                using var armTemplateStream = this.fileSystem.FileStream.Create(inputPath, FileMode.Open, FileAccess.Read);
+                using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
                 await this.PublishModuleAsync(moduleReference, armTemplateStream);
 
                 return 0;

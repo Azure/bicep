@@ -11,7 +11,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         {
             var currentDirectory = directory.GetCurrentDirectory();
 
-            return directory.FileSystem.DirectoryInfo.FromDirectoryName(currentDirectory).Name;
+            return directory.FileSystem.DirectoryInfo.New(currentDirectory).Name;
         }
     }
 }

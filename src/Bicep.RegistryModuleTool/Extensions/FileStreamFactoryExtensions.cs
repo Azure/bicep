@@ -8,7 +8,7 @@ namespace Bicep.RegistryModuleTool.Extensions
 {
     public static class FileStreamFactoryExtensions
     {
-        public static Stream CreateDeleteOnCloseStream(this IFileStreamFactory factory, string filePath) => factory.Create(
+        public static Stream CreateDeleteOnCloseStream(this IFileStreamFactory factory, string filePath) => factory.New(
             filePath,
             FileMode.Open,
             FileAccess.ReadWrite,

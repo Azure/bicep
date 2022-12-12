@@ -901,8 +901,12 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "17.2.3",
-        "contentHash": "VcozGeE4SxIo0cnXrDHhbrh/Gb8KQnZ3BvMelvh+iw0PrIKtuuA46U2Xm4e4pgnaWFgT4RdZfTpWl/WPRdw0WQ=="
+        "resolved": "19.0.1",
+        "contentHash": "UVM412UWKjs07esf5bnfAxJ8Bj/0srrFzNXit0mbY6kFoC8M3gHsFF28KLfI4rSnfRj0wbQ/LCvkGZ/hHiTA1Q==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.0.1"
+        }
       },
       "System.IO.Compression": {
         "type": "Transitive",
@@ -1691,6 +1695,19 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
+      "TestableIO.System.IO.Abstractions": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "PGlynyB/3wzKOLY/kOBC6XvaOSyMJ1sG0yXp7toWjGUXmCm4n1ySIlpZLCtVezKtqNVQIyTzGX0ASUZIuquLrg=="
+      },
+      "TestableIO.System.IO.Abstractions.Wrappers": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "ayFxzptLadWGxDqCqNL37maXFGNXlB5H4bD07Pl+sgDWMxVgFiu8EZ64dMAWOoLBuApxkrST1UN3dwNDrPnwmA==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1"
+        }
+      },
       "WindowsAzure.Storage": {
         "type": "Transitive",
         "resolved": "9.3.3",
@@ -1719,7 +1736,7 @@
           "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
           "Newtonsoft.Json": "[13.0.2, )",
           "System.Collections.Immutable": "[6.0.0, )",
-          "System.IO.Abstractions": "[17.2.3, )"
+          "System.IO.Abstractions": "[19.0.1, )"
         }
       },
       "Azure.Bicep.Decompiler": {

@@ -51,7 +51,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 // Nothing to do.
             }
 
-            using var writeStream = fileSystem.FileStream.Create(path, FileMode.Create, FileAccess.Write);
+            using var writeStream = fileSystem.FileStream.New(path, FileMode.Create, FileAccess.Write);
             using var writer = new Utf8JsonWriter(writeStream, new JsonWriterOptions { Indented = true });
 
             rootElement.WriteTo(writer);
@@ -65,8 +65,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             try
             {
-                using var stream = fileSystem.FileStream.Create(path, FileMode.Open, FileAccess.Read);
-                var jsonElement = JsonElementFactory.CreateElement(stream);
+                using var stream = fileSystem.FileStream.New(path, FileMode.Open, FileAccess.Read);
+                var jsonElement = JsonElementFactory.CreateElementFromStream(stream);
 
                 if (jsonElement.ValueKind != JsonValueKind.Object)
                 {

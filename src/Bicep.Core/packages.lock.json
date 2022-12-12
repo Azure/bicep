@@ -205,9 +205,13 @@
       },
       "System.IO.Abstractions": {
         "type": "Direct",
-        "requested": "[17.2.3, )",
-        "resolved": "17.2.3",
-        "contentHash": "VcozGeE4SxIo0cnXrDHhbrh/Gb8KQnZ3BvMelvh+iw0PrIKtuuA46U2Xm4e4pgnaWFgT4RdZfTpWl/WPRdw0WQ=="
+        "requested": "[19.0.1, )",
+        "resolved": "19.0.1",
+        "contentHash": "UVM412UWKjs07esf5bnfAxJ8Bj/0srrFzNXit0mbY6kFoC8M3gHsFF28KLfI4rSnfRj0wbQ/LCvkGZ/hHiTA1Q==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.0.1"
+        }
       },
       "Azure.Core": {
         "type": "Transitive",
@@ -1679,6 +1683,19 @@
           "System.Text.Encoding": "4.3.0",
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
+        }
+      },
+      "TestableIO.System.IO.Abstractions": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "PGlynyB/3wzKOLY/kOBC6XvaOSyMJ1sG0yXp7toWjGUXmCm4n1ySIlpZLCtVezKtqNVQIyTzGX0ASUZIuquLrg=="
+      },
+      "TestableIO.System.IO.Abstractions.Wrappers": {
+        "type": "Transitive",
+        "resolved": "19.0.1",
+        "contentHash": "ayFxzptLadWGxDqCqNL37maXFGNXlB5H4bD07Pl+sgDWMxVgFiu8EZ64dMAWOoLBuApxkrST1UN3dwNDrPnwmA==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "19.0.1"
         }
       },
       "WindowsAzure.Storage": {
