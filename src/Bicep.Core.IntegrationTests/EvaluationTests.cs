@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -826,6 +827,72 @@ output iDogs array = filter(dogs, dog =>  (contains(dog.name, 'C') || contains(d
   }
 ]
 "));
+        }
+
+        [TestMethod]
+        public void Module_with_unknown_resourcetype_as_parameter_and_output_has_diagnostics()
+        {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param useMod1 = true
+");
+
+            var result = CompilationHelper.Compile(
+("main.bicep", @"
+param useMod1 bool
+
+module mod1 'module.bicep' = {
+  name: 'test'
+  params: {
+    bar: 'abc'
+  }
+}
+
+module mod2 'module.bicep' = {
+  name: 'test2'
+  params: {
+    bar: 'def'
+  }
+}
+
+var selectedMod = useMod1 ? mod1 : mod2
+var selectedMod2 = true ? (useMod1 ? mod1 : mod2) : mod2
+
+output test1 string = mod1.outputs.foo.bar
+output test2 string = mod2.outputs.foo.bar
+output test3 string = (useMod1 ? mod1 : mod2).outputs.foo.bar
+output test4 string = selectedMod.outputs.foo.bar
+output test5 string = selectedMod2.outputs.foo.bar
+"),
+("module.bicep", @"
+param bar string
+
+output foo object = {
+  bar: bar
+}
+"));
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters, config => config with {
+                OnReferenceFunc = (resourceId, apiVersion, fullBody) =>
+                {
+                  var id = ResourceGroupLevelResourceId.Parse(resourceId);
+                  var barVal = id.FormatName() == "test" ? "abc" : "def";
+                  return JToken.Parse(@"{
+  ""outputs"": {
+    ""foo"": {
+      ""value"": {
+        ""bar"": """ + barVal + @"""
+      }
+    }
+  }
+}");
+                },
+            });
+
+            evaluated.Should().HaveValueAtPath("$.outputs['test1'].value", "abc");
+            evaluated.Should().HaveValueAtPath("$.outputs['test2'].value", "def");
+            evaluated.Should().HaveValueAtPath("$.outputs['test3'].value", "abc");
+            evaluated.Should().HaveValueAtPath("$.outputs['test4'].value", "abc");
+            evaluated.Should().HaveValueAtPath("$.outputs['test5'].value", "abc");
         }
     }
 }
