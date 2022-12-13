@@ -528,7 +528,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("flatten")
                 .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
                 .WithRequiredParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), "The array of sub-arrays to flatten.")
-                .WithReturnResultBuilder((_, _, _, functionCall, argTypes) => new(GetFlattenReturnType(argTypes[0], functionCall.Arguments[0])), LanguageConstants.Array)
+                .WithReturnResultBuilder((_, _, _, functionCall, argTypes) => new(TypeHelper.FlattenType(argTypes[0], functionCall.Arguments[0])), LanguageConstants.Array)
                 .Build();
 
             yield return new FunctionOverloadBuilder("filter")
@@ -539,7 +539,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
                     return new(argumentTypes[0] switch
                     {
-                        TupleType tuple => new TypedArrayType(tuple.Item, TypeSymbolValidationFlags.Default),
+                        // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
+                        // For example, given a symbol `a` of type `[0, 1, 2, 3, 4]`, the expression `filter(a, x => x % 2 == 0)` returns an array in which each member is assignable to `0 | 1 | 2 | 3 | 4`,
+                        // but the returned array (which has a concrete value of `[0, 2, 4]`) will not be assignable to the input tuple type of `[0, 1, 2, 3, 4]`
+                        TupleType tuple => tuple.ToTypedArray(),
                         var otherwise => otherwise,
                     });
                 }, LanguageConstants.Array)
@@ -565,7 +568,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
                     return new(argumentTypes[0] switch
                     {
-                        TupleType tuple => new TypedArrayType(tuple.Item, TypeSymbolValidationFlags.Default),
+                        // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
+                        TupleType tuple => tuple.ToTypedArray(),
                         var otherwise => otherwise,
                     });
                 }, LanguageConstants.Array)
@@ -637,7 +641,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate computeNonLiteralType) =>
             (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
             {
-                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
+                var returnType = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
                     ? new(literalReturnType)
                     : computeNonLiteralType(binder, fileResolver, diagnostics, functionCall, argumentTypes);
 
@@ -912,100 +916,6 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
                 valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
-        }
-
-        private static TypeSymbol GetFlattenReturnType(TypeSymbol typeToFlatten, IPositionable argumentPosition)
-        {
-            static TypeSymbol FlattenTuple(TypeSymbol flattenInputType, TupleType tupleType, IPositionable argumentPosition)
-            {
-                List<ITypeReference> flattenedItems = new();
-                TupleTypeNameBuilder nameBuilder = new();
-                TypeSymbolValidationFlags flags = TypeSymbolValidationFlags.Default;
-
-                foreach (var item in tupleType.Items)
-                {
-                    if (item is TupleType itemTuple)
-                    {
-                        foreach (var subItem in itemTuple.Items)
-                        {
-                            nameBuilder.AppendItem(subItem.Type.Name);
-                            flattenedItems.Add(subItem);
-                        }
-                        flags |= itemTuple.ValidationFlags;
-                        continue;
-                    }
-
-                    // If we're not dealing with a tuple of tuples, just flatten `type` as if it were a normal array
-                    return FlattenArray(flattenInputType, tupleType, argumentPosition);
-                }
-
-                return new TupleType(nameBuilder.ToString(), flattenedItems.ToImmutableArray(), flags);
-            }
-
-            static TypeSymbol FlattenUnionOfArrays(TypeSymbol flattenInputType, UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
-                flattenInputType,
-                unionType.Members.Select(typeRef => CalculateFlattenReturnType(unionType, typeRef.Type, argumentPosition)),
-                argumentPosition);
-
-            static TypeSymbol FlattenArrayOfUnion(TypeSymbol flattenInputType, UnionType itemUnion, IPositionable argumentPosition)
-                => UnionOfFlattened(flattenInputType, itemUnion.Members, argumentPosition);
-
-            static TypeSymbol UnionOfFlattened(TypeSymbol flattenInputType, IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
-            {
-                List<ITypeReference> flattenedMembers = new();
-                TypeSymbolValidationFlags flattenedFlags = TypeSymbolValidationFlags.Default;
-                List<ErrorType> errors = new();
-
-                foreach (var member in toFlatten)
-                {
-                    switch (member.Type)
-                    {
-                        case AnyType:
-                            return LanguageConstants.Array;
-                        case ErrorType errorType:
-                            errors.Add(errorType);
-                            break;
-                        case ArrayType arrayType:
-                            flattenedMembers.Add(arrayType.Item);
-                            if (arrayType is TypedArrayType typedArrayType)
-                            {
-                                flattenedFlags |= typedArrayType.ValidationFlags;
-                            }
-                            break;
-                        default:
-                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, member.Type)));
-                            break;
-                    }
-                }
-
-                if (errors.Any())
-                {
-                    return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
-                }
-
-                return new TypedArrayType(TypeHelper.CreateTypeUnion(flattenedMembers), flattenedFlags);
-            }
-
-            static TypeSymbol FlattenArray(TypeSymbol flattenInputType, ArrayType arrayType, IPositionable argumentPosition) => arrayType.Item.Type switch
-            {
-                ErrorType et => et,
-                AnyType => LanguageConstants.Array,
-                UnionType itemUnion => FlattenArrayOfUnion(flattenInputType, itemUnion, argumentPosition),
-                TupleType itemTuple => new TypedArrayType(itemTuple.Item, itemTuple.ValidationFlags),
-                ArrayType itemArray => itemArray,
-                var otherwise => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, otherwise)),
-            };
-
-            static TypeSymbol CalculateFlattenReturnType(TypeSymbol flattenInputType, TypeSymbol typeToFlatten, IPositionable argumentPosition) => typeToFlatten switch
-            {
-                AnyType => LanguageConstants.Array,
-                TupleType tupleType => FlattenTuple(flattenInputType, tupleType, argumentPosition),
-                UnionType unionType => FlattenUnionOfArrays(flattenInputType, unionType, argumentPosition),
-                ArrayType arrayType => FlattenArray(flattenInputType, arrayType, argumentPosition),
-                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, typeToFlatten)),
-            };
-
-            return CalculateFlattenReturnType(typeToFlatten, typeToFlatten, argumentPosition);
         }
 
         private static TypeSymbol ConvertJsonToBicepType(JToken token)

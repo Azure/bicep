@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Globalization;
 
 namespace Bicep.Core.TypeSystem;
@@ -24,11 +25,7 @@ public class IntegerLiteralType : TypeSymbol
     public long Value { get; }
 
     public override bool Equals(object? other) =>
-        other is IntegerLiteralType otherIntLiteral ? otherIntLiteral == this : false;
+        other is IntegerLiteralType otherIntLiteral ? Value == otherIntLiteral.Value : false;
 
-    public override int GetHashCode() => (GetType(), Value).GetHashCode();
-
-    public static bool operator ==(IntegerLiteralType? a, IntegerLiteralType? b) => a?.Value == b?.Value;
-
-    public static bool operator !=(IntegerLiteralType? a, IntegerLiteralType? b) => a?.Value != b?.Value;
+    public override int GetHashCode() => HashCode.Combine(TypeKind, Value);
 }

@@ -847,13 +847,10 @@ namespace Bicep.Core.TypeSystem
 
             static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
             {
-                // FIXME diagnostic negative indices are not supported (but we might)
-                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).InvalidType()),
-                // FIXME diagnostic is not a valid index/tuple only has X items
-                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).InvalidType()),
+                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
                 // unlikely to hit this given that we've established that the tuple has a item at the given position
-                // FIXME diagnostic literal index expressions must have a value less than int.MaxValue
-                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).InvalidType()),
+                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
                 long otherwise => baseType.Items[(int) otherwise].Type,
             };
 

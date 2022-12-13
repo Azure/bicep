@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
+using System.Threading;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -10,7 +12,7 @@ namespace Bicep.Core.TypeSystem
 
         public DeferredTypeReference(Func<TypeSymbol> typeGetterFunc)
         {
-            lazyType = new(typeGetterFunc);
+            lazyType = new(typeGetterFunc, LazyThreadSafetyMode.PublicationOnly);
         }
 
         public TypeSymbol Type => lazyType.Value;

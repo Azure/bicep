@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 
 namespace Bicep.Core.TypeSystem;
 
@@ -19,7 +20,7 @@ public class TupleType : ArrayType
         Items = items;
         ValidationFlags = validationFlags;
         // Items may contain DeferredTypeReferences, so only calculate Item on request
-        lazyItem = new(() => TypeHelper.CreateTypeUnion(this.Items));
+        lazyItem = new(() => TypeHelper.CreateTypeUnion(this.Items), LazyThreadSafetyMode.PublicationOnly);
     }
 
     public override TypeSymbolValidationFlags ValidationFlags { get; }
@@ -28,18 +29,13 @@ public class TupleType : ArrayType
 
     public override ITypeReference Item => lazyItem.Value;
 
-    public override bool Equals(object? other) =>
-        other is TupleType otherTuple ? otherTuple == this : false;
+    /// <summary>
+    /// Recharacterize this type as a TypedArrayType containing a union of the types of the tuple members. Unlike a tuple, a typed array makes no assertions about the associated array value's length or about which indices contain a more specific type.
+    /// Intended to be used when a tuple's contents are reordered (e.g., via `sys.sort`) or when some members may have been removed (e.g., via `sys.filter`) but no new members have been added and no existing members have been transformed.
+    /// </summary>
+    public TypedArrayType ToTypedArray() => new TypedArrayType(Item, ValidationFlags);
 
-    public override int GetHashCode() => (GetType(), Items, ValidationFlags).GetHashCode();
+    public override bool Equals(object? other) => other is TupleType otherTuple && ValidationFlags == otherTuple.ValidationFlags && Items.SequenceEqual(otherTuple.Items);
 
-    public static bool operator ==(TupleType? a, TupleType? b) => a is not null
-        ? (b is not null ? nonNullEquals(a, b) : false)
-        : b is null;
-
-    public static bool operator !=(TupleType? a, TupleType? b) => !(a == b);
-
-    private static bool nonNullEquals(TupleType a, TupleType b) => a.ValidationFlags == b.ValidationFlags &&
-        a.Items.Length == b.Items.Length &&
-        Enumerable.Range(0, a.Items.Length).All(idx => a.Items[idx].Equals(b.Items[idx]));
+    public override int GetHashCode() => HashCode.Combine(TypeKind, Items, ValidationFlags);
 }

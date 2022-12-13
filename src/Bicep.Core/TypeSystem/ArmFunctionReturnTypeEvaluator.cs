@@ -15,7 +15,7 @@ namespace Bicep.Core.TypeSystem;
 
 public static class ArmFunctionReturnTypeEvaluator
 {
-    public static TypeSymbol? Evaluate(
+    public static TypeSymbol? TryEvaluate(
         string armFunctionName,
         out IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnosticBuilders,
         IEnumerable<TypeSymbol> operandTypes,
