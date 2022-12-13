@@ -7,19 +7,14 @@ using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.LanguageServer.Handlers;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using Bicep.Core.UnitTests;
-using System.Linq;
 using FluentAssertions;
-using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Baselines;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Newtonsoft.Json.Linq;
-using Bicep.Core;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -29,15 +24,8 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static IEnumerable<object[]> GetWorkingExampleData()
-            => EmbeddedFile.LoadAll(
-                typeof(ImportKubernetesManifestTests).Assembly,
-                "ImportKubernetesManifest",
-                streamName => Path.GetExtension(streamName) == ".yml")
-            .Select(x => new object[] { x });
-
         [DataTestMethod]
-        [DynamicData(nameof(GetWorkingExampleData), DynamicDataSourceType.Method)]
+        [EmbeddedFilesTestData(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)
         {

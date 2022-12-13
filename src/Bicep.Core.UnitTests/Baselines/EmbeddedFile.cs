@@ -7,6 +7,7 @@ using System.Reflection;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.UnitTests.Baselines
 {
@@ -31,8 +32,15 @@ namespace Bicep.Core.UnitTests.Baselines
             // Set the convention that all embedded resource files are in a folder named "Files"
             var combinedPathPrefix = $"Files/{streamPathPrefix}/";
 
-            foreach (var streamName in assembly.GetManifestResourceNames()
-                .Where(p => p.StartsWith(combinedPathPrefix, StringComparison.Ordinal)))
+            return LoadAll(assembly, name => name.StartsWith(combinedPathPrefix, StringComparison.Ordinal) && shouldLoad(name));
+        }
+
+        public static IEnumerable<EmbeddedFile> LoadAll(Assembly assembly, Regex regex)
+            => LoadAll(assembly, regex.IsMatch);
+
+        public static IEnumerable<EmbeddedFile> LoadAll(Assembly assembly, Func<string, bool> shouldLoad)
+        {
+            foreach (var streamName in assembly.GetManifestResourceNames().Where(shouldLoad))
             {
                 if (shouldLoad(streamName))
                 {

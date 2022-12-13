@@ -102,7 +102,7 @@ namespace Bicep.Core.UnitTests.Utils
             where TPositionable : IPositionable
             => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc, isLinePreformatted);
 
-        private record SourceMapDiags(TextSpan Span, string BicepLineNumber, string JsonLine, string JsonLineNumber) : IPositionable;
+        private record SourceMapDiags(TextSpan Span, string JsonLine) : IPositionable;
 
         public static string AddSourceMapToSourceText(string bicepOutput, string bicepFilePath, string newlineSequence, SourceMap sourceMap, string[] jsonLines)
         {
@@ -113,24 +113,19 @@ namespace Bicep.Core.UnitTests.Utils
                 return bicepOutput;
             }
 
-            var padTarget = GetPaddingFunc(fileEntry.SourceMap.Select(x => x.TargetLine));
-            var padSource = GetPaddingFunc(fileEntry.SourceMap.Select(x => x.SourceLine));
-
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
             var sourceMapDiags = fileEntry.SourceMap.Select(entry => {
                 var offset = TextCoordinateConverter.GetOffset(lineStarts, entry.SourceLine, 0);
                 var jsonLine = jsonLines[entry.TargetLine];
-                var jsonLineNumber = padTarget(entry.TargetLine);
-                var bicepLineNumber = padSource(entry.SourceLine);
 
-                return new SourceMapDiags(new(offset, 0), bicepLineNumber, jsonLine, jsonLineNumber);
+                return new SourceMapDiags(new(offset, 0), jsonLine);
             });
 
             return AddDiagsToSourceText(
                 bicepOutput,
                 newlineSequence,
                 sourceMapDiags,
-                e => $"//@[line{e.BicepLineNumber}->line{e.JsonLineNumber}] {e.JsonLine}",
+                e => $"//@{e.JsonLine}",
                 isLinePreformatted: true);
         }
 

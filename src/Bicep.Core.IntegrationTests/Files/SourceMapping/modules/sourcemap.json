@@ -1,0 +1,548 @@
+{
+  "Entrypoint": "main.bicep",
+  "Entries": [
+    {
+      "FilePath": "main.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 0,
+          "TargetLine": 11
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 12
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 13
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 15
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 16
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 19
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 20
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 21
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 23
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 24
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 25
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 26
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 27
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 28
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 29
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 30
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 31
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 32
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 33
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 34
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 35
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 36
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 37
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 38
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 39
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 40
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 41
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 42
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 43
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 44
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 45
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 47
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 48
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 49
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 50
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 51
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 52
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 53
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 54
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 55
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 56
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 57
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 58
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 59
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 60
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 61
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 62
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 63
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 64
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 65
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 66
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 67
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 68
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 69
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 70
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 71
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 72
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 73
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 74
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 75
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 76
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 77
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 78
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 79
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 80
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 81
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 82
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 83
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 84
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 85
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 86
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 87
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 88
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 89
+        },
+        {
+          "SourceLine": 1,
+          "TargetLine": 14
+        },
+        {
+          "SourceLine": 3,
+          "TargetLine": 22
+        }
+      ]
+    },
+    {
+      "FilePath": "foo/bar.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 0,
+          "TargetLine": 36
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 37
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 38
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 41
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 42
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 43
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 45
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 47
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 48
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 49
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 50
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 51
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 53
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 54
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 55
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 56
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 57
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 58
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 59
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 60
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 61
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 62
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 63
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 64
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 65
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 66
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 67
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 68
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 69
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 70
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 71
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 72
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 73
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 74
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 75
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 76
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 77
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 78
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 79
+        },
+        {
+          "SourceLine": 3,
+          "TargetLine": 44
+        },
+        {
+          "SourceLine": 5,
+          "TargetLine": 52
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 82
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 83
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 84
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 85
+        }
+      ]
+    },
+    {
+      "FilePath": "foo/bar/baz.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 0,
+          "TargetLine": 66
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 67
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 68
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 72
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 73
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 74
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 75
+        }
+      ]
+    }
+  ]
+}

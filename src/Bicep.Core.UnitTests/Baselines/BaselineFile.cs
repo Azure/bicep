@@ -6,6 +6,7 @@ using System.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Core.UnitTests.Baselines
 {
@@ -31,7 +32,7 @@ namespace Bicep.Core.UnitTests.Baselines
         {
             JToken.Parse(this.ReadFromOutputFolder()).Should().EqualWithJsonDiffOutput(
                 TestContext,
-                JToken.Parse(EmbeddedFile.Contents),
+                EmbeddedFile.Contents.TryFromJson<JToken>() ?? JToken.Parse("null"),
                 expectedLocation: EmbeddedFile.RelativeSourcePath,
                 actualLocation: OutputFilePath);
         }
