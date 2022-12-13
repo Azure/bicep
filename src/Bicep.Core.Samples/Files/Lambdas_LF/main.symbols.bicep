@@ -145,8 +145,8 @@ var objectMap = toObject([123, 456, 789], i => '${i / 100}')
 //@[042:043) Local i. Type: 123 | 456 | 789. Declaration start char: 42, length: 1
 //@[004:013) Variable objectMap. Type: object. Declaration start char: 0, length: 60
 var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
-//@[040:041) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 40, length: 1
-//@[053:054) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 53, length: 1
+//@[040:041) Local i. Type: int. Declaration start char: 40, length: 1
+//@[053:054) Local i. Type: int. Declaration start char: 53, length: 1
 //@[004:014) Variable objectMap2. Type: object. Declaration start char: 0, length: 111
   isEven: (i % 2) == 0
   isGreaterThan4: (i > 4)
