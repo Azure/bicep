@@ -1,0 +1,249 @@
+{
+    "entries": [
+        {
+            "name": "BooleanLiteral",
+            "fields": [
+                {
+                    "name": "Value",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "IntegerLiteral",
+            "fields": [
+                {
+                    "name": "Value",
+                    "type": "long"
+                }
+            ]
+        },
+        {
+            "name": "StringLiteral",
+            "fields": [
+                {
+                    "name": "Value",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "NullLiteral",
+            "fields": []
+        },
+        {
+            "name": "Syntax",
+            "fields": [
+                {
+                    "name": "Syntax",
+                    "type": "SyntaxBase"
+                }
+            ]
+        },
+        {
+            "name": "InterpolatedString",
+            "fields": [
+                {
+                    "name": "SegmentValues",
+                    "type": "ImmutableArray<string>"
+                },
+                {
+                    "name": "Expressions",
+                    "type": "ImmutableArray<Expression>"
+                }
+            ]
+        },
+        {
+            "name": "Object",
+            "fields": [
+                {
+                    "name": "Properties",
+                    "type": "ImmutableArray<ObjectProperty>"
+                }
+            ]
+        },
+        {
+            "name": "Array",
+            "fields": [
+                {
+                    "name": "Items",
+                    "type": "ImmutableArray<Expression>"
+                }
+            ]
+        },
+        {
+            "name": "Ternary",
+            "fields": [
+                {
+                    "name": "Condition",
+                    "type": "Expression"
+                },
+                {
+                    "name": "True",
+                    "type": "Expression"
+                },
+                {
+                    "name": "False",
+                    "type": "Expression"
+                }
+            ]
+        },
+        {
+            "name": "Binary",
+            "fields": [
+                {
+                    "name": "Operator",
+                    "type": "BinaryOperator"
+                },
+                {
+                    "name": "Left",
+                    "type": "Expression"
+                },
+                {
+                    "name": "Right",
+                    "type": "Expression"
+                }
+            ]
+        },
+        {
+            "name": "Unary",
+            "fields": [
+                {
+                    "name": "Operator",
+                    "type": "UnaryOperator"
+                },
+                {
+                    "name": "Expression",
+                    "type": "Expression"
+                }
+            ]
+        },
+        {
+            "name": "FunctionCall",
+            "fields": [
+                {
+                    "name": "Name",
+                    "type": "string"
+                },
+                {
+                    "name": "Parameters",
+                    "type": "ImmutableArray<Expression>"
+                }
+            ]
+        },
+        {
+            "name": "ArrayAccess",
+            "fields": [
+                {
+                    "name": "Base",
+                    "type": "Expression"
+                },
+                {
+                    "name": "Access",
+                    "type": "Expression"
+                }
+            ]
+        },
+        {
+            "name": "PropertyAccess",
+            "fields": [
+                {
+                    "name": "Base",
+                    "type": "Expression"
+                },
+                {
+                    "name": "PropertyName",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ResourceReference",
+            "fields": [
+                {
+                    "name": "Metadata",
+                    "type": "ResourceMetadata"
+                },
+                {
+                    "name": "IndexContext",
+                    "type": "IndexReplacementContext?"
+                }
+            ]
+        },
+        {
+            "name": "ModuleReference",
+            "fields": [
+                {
+                    "name": "Module",
+                    "type": "ModuleSymbol"
+                },
+                {
+                    "name": "IndexContext",
+                    "type": "IndexReplacementContext?"
+                }
+            ]
+        },
+        {
+            "name": "ModuleOutputPropertyAccess",
+            "fields": [
+                {
+                    "name": "Base",
+                    "type": "Expression"
+                },
+                {
+                    "name": "PropertyName",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "VariableReference",
+            "fields": [
+                {
+                    "name": "Variable",
+                    "type": "VariableSymbol"
+                }
+            ]
+        },
+        {
+            "name": "ParametersReference",
+            "fields": [
+                {
+                    "name": "Parameter",
+                    "type": "ParameterSymbol"
+                }
+            ]
+        },
+        {
+            "name": "LambdaVariableReference",
+            "fields": [
+                {
+                    "name": "Variable",
+                    "type": "LocalVariableSymbol"
+                }
+            ]
+        },
+        {
+            "name": "CopyIndex",
+            "fields": [
+                {
+                    "name": "Name",
+                    "type": "string?"
+                }
+            ]
+        },
+        {
+            "name": "Lambda",
+            "fields": [
+                {
+                    "name": "Parameters",
+                    "type": "ImmutableArray<string>"
+                },
+                {
+                    "name": "Body",
+                    "type": "Expression"
+                }
+            ]
+        }
+    ]
+}

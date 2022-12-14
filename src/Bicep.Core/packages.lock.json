@@ -1706,6 +1706,9 @@
           "NETStandard.Library": "1.6.1",
           "Newtonsoft.Json": "10.0.2"
         }
+      },
+      "bicep.core.sourcegenerators": {
+        "type": "Project"
       }
     },
     "net6.0/linux-arm64": {

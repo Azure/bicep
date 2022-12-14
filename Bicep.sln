@@ -85,6 +85,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{C6CAFEE8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Tools.Benchmark", "src\Bicep.Tools.Benchmark\Bicep.Tools.Benchmark.csproj", "{A4127F6F-A282-47F3-BAFE-6A154F994B4E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{87A05637-EC75-488B-8A44-C928BF664B41}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Core.SourceGenerators", "src\Bicep.Core.SourceGenerators\Bicep.Core.SourceGenerators.csproj", "{2FA62AB2-16CC-4301-A29A-0F01AD387F88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -171,6 +175,10 @@ Global
 		{A4127F6F-A282-47F3-BAFE-6A154F994B4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4127F6F-A282-47F3-BAFE-6A154F994B4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4127F6F-A282-47F3-BAFE-6A154F994B4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FA62AB2-16CC-4301-A29A-0F01AD387F88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FA62AB2-16CC-4301-A29A-0F01AD387F88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FA62AB2-16CC-4301-A29A-0F01AD387F88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FA62AB2-16CC-4301-A29A-0F01AD387F88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -196,6 +204,7 @@ Global
 		{8C2280F2-1E08-4022-B26B-59622DD8B126} = {90126655-7A34-4F5B-A41A-50A468F4632D}
 		{9F596D8D-5CDB-4830-B73C-26C33C0227D7} = {90126655-7A34-4F5B-A41A-50A468F4632D}
 		{A4127F6F-A282-47F3-BAFE-6A154F994B4E} = {C6CAFEE8-7779-4F48-BEA1-D59D3CD91A56}
+		{2FA62AB2-16CC-4301-A29A-0F01AD387F88} = {87A05637-EC75-488B-8A44-C928BF664B41}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

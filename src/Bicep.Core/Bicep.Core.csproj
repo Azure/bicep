@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="bicepconfig.json" />
+    <AdditionalFiles Include="expressions.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +39,11 @@
     <PackageReference Include="System.IO.Abstractions" Version="19.0.1" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.17" PrivateAssets="all" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Bicep.Core.SourceGenerators/Bicep.Core.SourceGenerators.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">
       <DesignTime>True</DesignTime>
