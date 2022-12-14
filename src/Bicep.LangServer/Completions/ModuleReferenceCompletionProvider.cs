@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Completions
 {
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
-        private readonly IMcrCompletionProvider mcrCompletionProvider;
+        private McrCompletionProvider? mcrCompletionProvider;
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
 
         private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
@@ -38,14 +38,18 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        public ModuleReferenceCompletionProvider(IServiceClientCredentialsProvider serviceClientCredentialsProvider, IMcrCompletionProvider mcrCompletionProvider)
+        public ModuleReferenceCompletionProvider(IServiceClientCredentialsProvider serviceClientCredentialsProvider)
         {
-            this.mcrCompletionProvider = mcrCompletionProvider;
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
         {
+            if (mcrCompletionProvider is null)
+            {
+                mcrCompletionProvider = await McrCompletionProvider.Create();
+            }
+
             return GetPublicMcrModuleRegistryCompletions(context)
                 .Concat(GetAcrModuleRegistryCompletions(context))
                 .Concat(GetPublicMcrModuleRegistryTagCompletions(context))
@@ -92,56 +96,11 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return completionItems;
-
-            // To provide intellisense before the quotes are typed
-            //if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
-            //    || declarationSyntax.Path is not StringSyntax stringSyntax
-            //    || stringSyntax.TryGetLiteralValue() is not string entered)
-            //{
-            //    entered = "";
-            //}
-
-            //if (entered == string.Empty)
-            //{
-           // return GetBicepRegistryAndTemplateSpecSchemaCompletions(context);
-            //}
-
-            //return Enumerable.Empty<CompletionItem>();
         }
-
-        //private List<CompletionItem> GetBicepRegistryAndTemplateSpecSchemaCompletions(BicepCompletionContext context)
-        //{
-        //    List<CompletionItem> completionItems = new List<CompletionItem>();
-        //    foreach (var kvp in BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails)
-        //    {
-        //        var text = kvp.Key;
-        //        var sb = new StringBuilder();
-        //        if (!text.StartsWith("'"))
-        //        {
-        //            sb.Append("'");
-        //        }
-
-        //        sb.Append(text);
-        //        sb.Append("$0");
-
-        //        if (!text.EndsWith("'"))
-        //        {
-        //            sb.Append("'");
-        //        }
-        //        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
-        //            .WithSortText(GetSortText(text, CompletionPriority.Low))
-        //            .WithSnippetEdit(context.ReplacementRange, sb.ToString())
-        //            .WithDetail(kvp.Value)
-        //            .Build();
-        //        completionItems.Add(completionItem);
-        //    }
-
-        //    return completionItems;
-        //}
 
         private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryTagCompletions(BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryTag))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryTag) || mcrCompletionProvider is null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -212,7 +171,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryCompletions(BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryStart))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryStart) || mcrCompletionProvider is null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }

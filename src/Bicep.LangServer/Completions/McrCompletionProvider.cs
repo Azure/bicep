@@ -2,29 +2,37 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Bicep.LanguageServer.Completions;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class McrCompletionProvider : IMcrCompletionProvider
+    public class McrCompletionProvider
     {
         private Dictionary<string, List<string>> moduleNamesWithTags = new();
 
-        public McrCompletionProvider()
+        private McrCompletionProvider()
         {
-            InitializeCache();
         }
 
-        private void InitializeCache()
+        public static async Task<McrCompletionProvider> Create()
         {
-            string moduleNamesWithTagsFromCache = File.ReadAllText(@"C:\Users\bhsubra\Downloads\moduleNamesWithTags.json");
+            var mcrCompletionProvider = new McrCompletionProvider();
+            await mcrCompletionProvider.InitializeCacheAsync();
+            return mcrCompletionProvider;
+        }
 
-            var metadata = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(moduleNamesWithTagsFromCache);
+        private async Task InitializeCacheAsync()
+        {
+            HttpClient client = new HttpClient();
+
+            var moduleMetadata = await client.GetStringAsync("https://teststgaccbhsubra.blob.core.windows.net/bicep-cdn-bhsubra-container/bicepModuleRegistryReferenceCompletionMetadata/package.json");
+
+            var metadata = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(moduleMetadata);
 
             if (metadata is not null)
             {
