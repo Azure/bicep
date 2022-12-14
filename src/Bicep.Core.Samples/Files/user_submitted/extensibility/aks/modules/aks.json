@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14213653433535193735"
+      "templateHash": "4813262003843921725"
     }
   },
   "parameters": {
@@ -74,7 +74,7 @@
     },
     "kubeConfig": {
       "type": "string",
-      "value": "[listClusterAdminCredential(resourceId('Microsoft.ContainerService/managedClusters', parameters('baseName')), '2020-09-01').kubeconfigs[0].value]"
+      "value": "[listClusterAdminCredential(resourceInfo('aks').id, '2020-09-01').kubeconfigs[0].value]"
     }
   }
 }

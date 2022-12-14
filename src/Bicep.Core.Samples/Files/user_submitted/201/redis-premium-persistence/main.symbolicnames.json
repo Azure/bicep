@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14883893826779677407"
+      "templateHash": "18307971782512789410"
     }
   },
   "parameters": {
@@ -114,7 +114,7 @@
           "rdb-backup-enabled": "true",
           "rdb-backup-frequency": "60",
           "rdb-backup-max-snapshot-count": "1",
-          "rdb-storage-connection-string": "[format('DefaultEndpointsProtocol=https;BlobEndpoint=https://{0}.blob.{1};AccountName={2};AccountKey={3}', resourceInfo('storageAccount').name, environment().suffixes.storage, resourceInfo('storageAccount').name, listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01').keys[0].value)]"
+          "rdb-storage-connection-string": "[format('DefaultEndpointsProtocol=https;BlobEndpoint=https://{0}.blob.{1};AccountName={2};AccountKey={3}', resourceInfo('storageAccount').name, environment().suffixes.storage, resourceInfo('storageAccount').name, listKeys(resourceInfo('storageAccount').id, '2021-04-01').keys[0].value)]"
         }
       }
     },

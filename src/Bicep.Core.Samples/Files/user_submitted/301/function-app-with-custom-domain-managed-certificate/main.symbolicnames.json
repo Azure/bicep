@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "806306819234692474"
+      "templateHash": "6126180465178974401"
     }
   },
   "parameters": {
@@ -100,11 +100,11 @@
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('{0}st', replace(variables('componentBase'), '-', ''))), '2019-06-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storage').name, environment().suffixes.storage, listKeys(resourceInfo('storage').id, '2019-06-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('{0}st', replace(variables('componentBase'), '-', ''))), '2019-06-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storage').name, environment().suffixes.storage, listKeys(resourceInfo('storage').id, '2019-06-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",

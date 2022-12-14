@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11552339350895487717"
+      "templateHash": "3656280551063454010"
     }
   },
   "parameters": {
@@ -95,7 +95,7 @@
         "azPowerShellVersion": "3.0",
         "storageAccountSettings": {
           "storageAccountName": "[resourceInfo('stg').name]",
-          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]"
+          "storageAccountKey": "[listKeys(resourceInfo('stg').id, '2019-06-01').keys[0].value]"
         },
         "scriptContent": "[variables('wpScriptToExecute')]",
         "cleanupPreference": "OnSuccess",
@@ -123,7 +123,7 @@
         "azPowerShellVersion": "3.0",
         "storageAccountSettings": {
           "storageAccountName": "[resourceInfo('stg').name]",
-          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]"
+          "storageAccountKey": "[listKeys(resourceInfo('stg').id, '2019-06-01').keys[0].value]"
         },
         "scriptContent": "[variables('sqlScriptToExecute')]",
         "cleanupPreference": "OnSuccess",
@@ -211,7 +211,7 @@
           {
             "azureFile": {
               "shareName": "[variables('wpShareName')]",
-              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]",
+              "storageAccountKey": "[listKeys(resourceInfo('stg').id, '2019-06-01').keys[0].value]",
               "storageAccountName": "[resourceInfo('stg').name]"
             },
             "name": "wordpressfile"
@@ -219,7 +219,7 @@
           {
             "azureFile": {
               "shareName": "[variables('sqlShareName')]",
-              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]",
+              "storageAccountKey": "[listKeys(resourceInfo('stg').id, '2019-06-01').keys[0].value]",
               "storageAccountName": "[resourceInfo('stg').name]"
             },
             "name": "mysqlfile"
