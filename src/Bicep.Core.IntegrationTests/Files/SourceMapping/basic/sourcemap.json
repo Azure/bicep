@@ -1,0 +1,38 @@
+{
+  "Entrypoint": "main.bicep",
+  "Entries": [
+    {
+      "FilePath": "main.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 0,
+          "TargetLine": 11
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 12
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 13
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 19
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 20
+        }
+      ]
+    }
+  ]
+}

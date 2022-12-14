@@ -1,7 +1,7 @@
 var emojis = '💪😊😈🍕☕'
-//@[line00->line11]     "emojis": "💪😊😈🍕☕",
+//@    "emojis": "💪😊😈🍕☕",
 var ninjaCat = '🐱‍👤'
-//@[line01->line12]     "ninjaCat": "🐱‍👤",
+//@    "ninjaCat": "🐱‍👤",
 
 /*
 朝辞白帝彩云间
@@ -12,44 +12,44 @@ var ninjaCat = '🐱‍👤'
 
 // greek letters in comment: Π π Φ φ plus emoji 😎
 var variousAlphabets = {
-//@[line11->line13]     "variousAlphabets": {
-//@[line11->line21]     },
+//@    "variousAlphabets": {
+//@    },
   'α': 'α'
-//@[line12->line14]       "α": "α",
+//@      "α": "α",
   'Ωω': [
-//@[line13->line15]       "Ωω": [
-//@[line13->line17]       ],
+//@      "Ωω": [
+//@      ],
     'Θμ'
-//@[line14->line16]         "Θμ"
+//@        "Θμ"
   ]
   'ążźćłóę': 'Cześć!'
-//@[line16->line18]       "ążźćłóę": "Cześć!",
+//@      "ążźćłóę": "Cześć!",
   'áéóúñü': '¡Hola!'
-//@[line17->line19]       "áéóúñü": "¡Hola!",
+//@      "áéóúñü": "¡Hola!",
 
   '二头肌': '二头肌'
-//@[line19->line20]       "二头肌": "二头肌"
+//@      "二头肌": "二头肌"
 }
 
 output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
-//@[line22->line29]     "concatUnicodeStrings": {
-//@[line22->line30]       "type": "string",
-//@[line22->line31]       "value": "[concat('Θμ', '二头肌', 'α')]"
-//@[line22->line32]     },
+//@    "concatUnicodeStrings": {
+//@      "type": "string",
+//@      "value": "[concat('Θμ', '二头肌', 'α')]"
+//@    },
 output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
-//@[line23->line33]     "interpolateUnicodeStrings": {
-//@[line23->line34]       "type": "string",
-//@[line23->line35]       "value": "[format('Θμ二{0}头肌{1}α', variables('emojis'), variables('ninjaCat'))]"
-//@[line23->line36]     }
+//@    "interpolateUnicodeStrings": {
+//@      "type": "string",
+//@      "value": "[format('Θμ二{0}头肌{1}α', variables('emojis'), variables('ninjaCat'))]"
+//@    }
 
 // all of these should produce the same string
 var surrogate_char      = '𐐷'
-//@[line26->line22]     "surrogate_char": "𐐷",
+//@    "surrogate_char": "𐐷",
 var surrogate_codepoint = '\u{10437}'
-//@[line27->line23]     "surrogate_codepoint": "𐐷",
+//@    "surrogate_codepoint": "𐐷",
 var surrogate_pairs     = '\u{D801}\u{DC37}'
-//@[line28->line24]     "surrogate_pairs": "𐐷",
+//@    "surrogate_pairs": "𐐷",
 
 // ascii escapes
 var hello = '❆ Hello\u{20}World\u{21} ❁'
-//@[line31->line25]     "hello": "❆ Hello World! ❁"
+//@    "hello": "❆ Hello World! ❁"

@@ -24,6 +24,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
+using Bicep.Core.UnitTests.Baselines;
+using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.IntegrationTests.Emit
 {
@@ -108,9 +112,36 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [DataTestMethod]
+        [EmbeddedFilesTestData(@"Files/SourceMapping/.*/main.bicep")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Source_map_generation_should_work(EmbeddedFile file)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, file);
+            var bicepFile = baselineFolder.EntryFile;
+            var sourceMapFile = baselineFolder.GetFileOrEnsureCheckedIn("sourcemap.json");
+
+            var features = new FeatureProviderOverrides(TestContext, SourceMappingEnabled: true);
+            var compiler = ServiceBuilder.Create(s => s.WithFeatureOverrides(features)).GetCompiler();
+            var bicepUri = PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath);
+
+            var compilation = await compiler.CreateCompilation(bicepUri);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            using var memoryStream = new MemoryStream();
+            var emitResult = emitter.Emit(memoryStream);
+
+            emitResult.Status.Should().Be(EmitStatus.Succeeded);
+            emitResult.SourceMap.Should().NotBeNull();
+
+            // Here we simplfy verify that the format of the baseline file looks correct.
+            var sourceMapJson = JToken.FromObject(emitResult.SourceMap!);
+            sourceMapFile.WriteToOutputFolder(sourceMapJson.ToString());
+            sourceMapFile.ShouldHaveExpectedJsonValue();
+        }
+
+        [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task ValidBicep_TemplateEmitterShouldProduceExpectedSourceMap(DataSet dataSet)
+        public async Task SourceMap_maps_json_to_bicep_lines(DataSet dataSet)
         {
             var features = new FeatureProviderOverrides(TestContext, RegistryEnabled: dataSet.HasExternalModules, SourceMappingEnabled: true);
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext, features);
@@ -130,27 +161,12 @@ namespace Bicep.Core.IntegrationTests.Emit
             var sourceTextWithSourceMapFileName = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
             File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
 
-            var actualSourceMapJson = JToken.FromObject(sourceMap);
-            var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
-            File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
-
-            // Use an assertion scope so that both assertions fail together, and the baseline update script is able to update both files in one pass
-            using (new AssertionScope())
-            {
-                // validate source file annotated with source map
-                sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
-                    TestContext,
-                    dataSet.SourceMap!,
-                    expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                    actualLocation: sourceTextWithSourceMapFileName);
-
-                // validate source map
-                actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                    TestContext,
-                    JToken.Parse(dataSet.CompiledSourceMap!),
-                    expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledSourceMap),
-                    actualLocation: actualSourceMapJsonFileName);
-            }
+            // Here we validate visually that the in-memory source map can be used to map JSON -> Bicep lines
+            sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
+                TestContext,
+                dataSet.SourceMap!,
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: sourceTextWithSourceMapFileName);
         }
 
         [TestMethod]

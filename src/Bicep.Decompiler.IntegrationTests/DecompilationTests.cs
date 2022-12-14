@@ -33,21 +33,8 @@ namespace Bicep.Core.IntegrationTests
         private static BicepDecompiler CreateDecompiler(IFileResolver fileResolver)
             => ServiceBuilder.Create(s => s.WithEmptyAzResources().WithFileResolver(fileResolver)).GetDecompiler();
 
-        [TestMethod]
-        public void ExampleData_should_return_a_number_of_records()
-        {
-            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(10, "sanity check to ensure we're finding examples to test");
-        }
-
-        private static IEnumerable<object[]> GetWorkingExampleData()
-            => EmbeddedFile.LoadAll(
-                typeof(DecompilationTests).Assembly,
-                "Working",
-                streamName => Path.GetExtension(streamName) == ".json")
-            .Select(x => new object[] { x });
-
         [DataTestMethod]
-        [DynamicData(nameof(GetWorkingExampleData), DynamicDataSourceType.Method)]
+        [EmbeddedFilesTestData(@"Files/Working/.*\.json")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
