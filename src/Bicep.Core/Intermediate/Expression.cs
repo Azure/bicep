@@ -140,14 +140,6 @@ public record PropertyAccessExpression(
         => visitor.VisitPropertyAccessExpression(this);
 }
 
-public record ResourceIdExpression(
-    ResourceMetadata Metadata,
-    IndexReplacementContext? IndexContext) : Expression
-{
-    public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitResourceIdExpression(this);
-}
-
 public record ResourceReferenceExpression(
     ResourceMetadata Metadata,
     IndexReplacementContext? IndexContext) : Expression

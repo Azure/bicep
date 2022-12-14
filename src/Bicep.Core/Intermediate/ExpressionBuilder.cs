@@ -146,7 +146,9 @@ public class ExpressionBuilder
 
                             // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                             var convertedArgs = method.Arguments.SelectArray(a => Convert(a.Expression));
-                            var resourceIdExpression = new ResourceIdExpression(resource, indexContext);
+                            var resourceIdExpression = new PropertyAccessExpression(
+                                new ResourceReferenceExpression(resource, indexContext),
+                                "id");
 
                             var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                             var apiVersionExpression = new StringLiteralExpression(apiVersion);

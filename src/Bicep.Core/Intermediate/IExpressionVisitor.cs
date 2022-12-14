@@ -33,8 +33,6 @@ public interface IExpressionVisitor
 
     void VisitPropertyAccessExpression(PropertyAccessExpression expression);
 
-    void VisitResourceIdExpression(ResourceIdExpression expression);
-
     void VisitResourceReferenceExpression(ResourceReferenceExpression expression);
 
     void VisitModuleReferenceExpression(ModuleReferenceExpression expression);

@@ -4139,5 +4139,42 @@ output aksRouteTable string = _subnets.aksPoolSys.routeTable
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
         }
+
+        // https://github.com/Azure/bicep/issues/9285
+        [TestMethod]
+        public void Test_Issue9285()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: 'asdf'
+}
+
+output fooProps object = {
+  id: foo.id
+  name: foo.name
+  type: foo.type
+  apiVersion: foo.apiVersion
+}
+output fooAccess object = {
+  id: foo['id']
+  name: foo['name']
+  type: foo['type']
+  apiVersion: foo['apiVersion']
+}
+");
+
+            result.Should().HaveTemplateWithOutput("fooProps", JToken.Parse(@"{
+  ""id"": ""[resourceId('Microsoft.Storage/storageAccounts', 'asdf')]"",
+  ""name"": ""asdf"",
+  ""type"": ""Microsoft.Storage/storageAccounts"",
+  ""apiVersion"": ""2022-09-01""
+}"));
+            result.Should().HaveTemplateWithOutput("fooAccess", JToken.Parse(@"{
+  ""id"": ""[resourceId('Microsoft.Storage/storageAccounts', 'asdf')]"",
+  ""name"": ""asdf"",
+  ""type"": ""Microsoft.Storage/storageAccounts"",
+  ""apiVersion"": ""2022-09-01""
+}"));
+        }
     }
 }
