@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13233370091517219151"
+      "templateHash": "6107309902699632887"
     }
   },
   "parameters": {
@@ -528,7 +528,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14960226424976816995"
+              "templateHash": "13883503950548406884"
             }
           },
           "parameters": {
@@ -591,10 +591,7 @@
           "variables": {
             "bastionSubnetName": "AzureBastionSubnet",
             "bastionSubnetNsgName": "[format('{0}Nsg', variables('bastionSubnetName'))]",
-            "bastionSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('virtualNetwork').name, variables('bastionSubnetName'))]",
-            "vmSubnetNsgName": "[format('{0}Nsg', parameters('vmSubnetName'))]",
-            "vmSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('virtualNetwork').name, parameters('vmSubnetName'))]",
-            "aksSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('virtualNetwork').name, parameters('aksSubnetName'))]"
+            "vmSubnetNsgName": "[format('{0}Nsg', parameters('vmSubnetName'))]"
           },
           "resources": {
             "vmSubnetNsg": {
@@ -1115,7 +1112,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7361155609709787836"
+              "templateHash": "2990604269146685644"
             }
           },
           "parameters": {
@@ -1251,7 +1248,6 @@
           },
           "variables": {
             "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
-            "vmNicId": "[resourceInfo('vmNic').id]",
             "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
             "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
             "blobStorageAccountPrivateEndpointGroupName": "blob",
