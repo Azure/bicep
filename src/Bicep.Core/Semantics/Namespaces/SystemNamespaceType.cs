@@ -110,11 +110,22 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(TryDeriveLiteralReturnType("length", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
-                .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array), "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.")
+                .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object), "The string to use for getting the number of characters or the object to use for getting the number of root-level properties.")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("length")
+                .WithReturnResultBuilder(
+                    (binder, fileResolver, diagnostics, functionCall, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
+                        TupleType tupleType => new(new IntegerLiteralType(tupleType.Items.Length)),
+                        _ => new(LanguageConstants.Int),
+                    },
+                    LanguageConstants.Int)
+                .WithGenericDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
+                .WithRequiredParameter("arg", LanguageConstants.Array, "The array to use for getting the number of elements.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("split")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("split", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)), new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
                 .WithGenericDescription("Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The string to split.")
                 .WithRequiredParameter("delimiter", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
@@ -174,7 +185,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("take")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("take", LanguageConstants.Array), LanguageConstants.Array)
                 .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns an array with the specified number of elements from the start of the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to take the elements from.")
@@ -220,7 +231,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("contains")
-                .WithReturnType(LanguageConstants.Bool)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("contains", LanguageConstants.Bool), LanguageConstants.Bool)
                 .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array")
@@ -236,35 +247,40 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("intersection")
-                .WithReturnType(LanguageConstants.Object)
+                // TODO even with non-literal types, some type arithmetic could be performed
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("intersection", LanguageConstants.Object), LanguageConstants.Object)
                 .WithGenericDescription(IntersectionDescription)
                 .WithDescription("Returns a single object with the common elements from the parameters.")
                 .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The object to use for finding common elements.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("intersection")
-                .WithReturnType(LanguageConstants.Array)
+                // TODO even with non-literal types, some type arithmetic could be performed
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("intersection", LanguageConstants.Array), LanguageConstants.Array)
                 .WithGenericDescription(IntersectionDescription)
                 .WithDescription("Returns a single array with the common elements from the parameters.")
                 .WithVariableParameter("array", LanguageConstants.Array, minimumCount: 2, "The array to use for finding common elements.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("union")
-                .WithReturnType(LanguageConstants.Object)
+                // TODO even with non-literal types, some type arithmetic could be performed
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", LanguageConstants.Object), LanguageConstants.Object)
                 .WithGenericDescription(UnionDescription)
                 .WithDescription("Returns a single object with all elements from the parameters. Duplicate keys are only included once.")
                 .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The first object to use for joining elements.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("union")
-                .WithReturnType(LanguageConstants.Array)
+                // TODO even with non-literal types, some type arithmetic could be performed
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("union", LanguageConstants.Array), LanguageConstants.Array)
                 .WithGenericDescription(UnionDescription)
                 .WithDescription("Returns a single array with all elements from the parameters. Duplicate values are only included once.")
                 .WithVariableParameter("object", LanguageConstants.Array, minimumCount: 2, "The first array to use for joining elements.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                .WithReturnType(LanguageConstants.Any)
+                // TODO even with non-literal types, some type arithmetic could be performed
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("first", LanguageConstants.Any), LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the first element.")
@@ -278,7 +294,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("last")
-                .WithReturnType(LanguageConstants.Any)
+                // TODO even with non-literal types, some type arithmetic could be performed
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("last", LanguageConstants.Any), LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the last element.")
@@ -299,7 +316,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("indexOf")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("indexOf", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
@@ -313,7 +330,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("lastIndexOf")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("lastIndexOf", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
@@ -344,10 +361,10 @@ namespace Bicep.Core.Semantics.Namespaces
 
             // TODO: Docs need updates
             yield return new FunctionOverloadBuilder("min")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription(MinDescription)
                 .WithDescription("Returns the minimum value from an array of integers.")
-                .WithRequiredParameter("intArray", LanguageConstants.Array, "The array of integers.")
+                .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
                 .Build();
 
             // TODO: Needs to support number type as well
@@ -361,10 +378,10 @@ namespace Bicep.Core.Semantics.Namespaces
 
             // TODO: Docs need updates
             yield return new FunctionOverloadBuilder("max")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription(MaxDescription)
                 .WithDescription("Returns the maximum value from an array of integers.")
-                .WithRequiredParameter("intArray", LanguageConstants.Array, "The array of integers.")
+                .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("range")
@@ -511,7 +528,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("flatten")
                 .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
                 .WithRequiredParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), "The array of sub-arrays to flatten.")
-                .WithReturnResultBuilder((_, _, _, functionCall, argTypes) => new(GetFlattenReturnType(argTypes[0], functionCall.Arguments[0])), LanguageConstants.Array)
+                .WithReturnResultBuilder((_, _, _, functionCall, argTypes) => new(TypeHelper.FlattenType(argTypes[0], functionCall.Arguments[0])), LanguageConstants.Array)
                 .Build();
 
             yield return new FunctionOverloadBuilder("filter")
@@ -519,9 +536,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
                 .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Bool)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
-                {
-                    return new(argumentTypes[0]);
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                    return new(argumentTypes[0] switch
+                    {
+                        // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
+                        // For example, given a symbol `a` of type `[0, 1, 2, 3, 4]`, the expression `filter(a, x => x % 2 == 0)` returns an array in which each member is assignable to `0 | 1 | 2 | 3 | 4`,
+                        // but the returned array (which has a concrete value of `[0, 2, 4]`) will not be assignable to the input tuple type of `[0, 1, 2, 3, 4]`
+                        TupleType tuple => tuple.ToTypedArray(),
+                        var otherwise => otherwise,
+                    });
                 }, LanguageConstants.Array)
                 .Build();
 
@@ -542,9 +565,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
                 .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Bool)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
-                {
-                    return new(argumentTypes[0]);
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                    return new(argumentTypes[0] switch
+                    {
+                        // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
+                        TupleType tuple => tuple.ToTypedArray(),
+                        var otherwise => otherwise,
+                    });
                 }, LanguageConstants.Array)
                 .Build();
 
@@ -609,15 +636,21 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLitealReturnType) =>
-            (_, _, diagnostics, functionCall, argumentTypes) =>
+            TryDeriveLiteralReturnType(armFunctionName, (_, _, _, _, _) => new(nonLitealReturnType));
+
+        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate computeNonLiteralType) =>
+            (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
             {
-                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLitealReturnType, out var diagnosticBuilders, argumentTypes);
+                var returnType = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
+                    ? new(literalReturnType)
+                    : computeNonLiteralType(binder, fileResolver, diagnostics, functionCall, argumentTypes);
+
                 var diagnosticTarget = functionCall.Arguments.Any()
                     ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
                     : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
                 diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnosticTarget))));
 
-                return new(returnType);
+                return returnType;
             };
 
         private static TypeSymbol? CalculateLambdaFromArrayParam(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
@@ -883,64 +916,6 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
                 valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
-        }
-
-        private static TypeSymbol GetFlattenReturnType(TypeSymbol typeToFlatten, IPositionable argumentPosition)
-        {
-            static TypeSymbol FlattenUnionOfArrays(UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
-                unionType,
-                unionType.Members.Select(typeRef => GetFlattenReturnType(typeRef.Type, argumentPosition)),
-                argumentPosition);
-
-            static TypeSymbol FlattenArrayOfUnion(TypeSymbol flattenInputType, UnionType itemUnion, IPositionable argumentPosition)
-                => UnionOfFlattened(flattenInputType, itemUnion.Members, argumentPosition);
-
-            static TypeSymbol UnionOfFlattened(TypeSymbol flattenInputType, IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
-            {
-                List<ITypeReference> flattenedMembers = new();
-                TypeSymbolValidationFlags flattenedFlags = TypeSymbolValidationFlags.Default;
-                List<ErrorType> errors = new();
-
-                foreach (var member in toFlatten)
-                {
-                    switch (member.Type)
-                    {
-                        case AnyType:
-                            return LanguageConstants.Array;
-                        case ErrorType errorType:
-                            errors.Add(errorType);
-                            break;
-                        case ArrayType arrayType:
-                            flattenedMembers.Add(arrayType.Item);
-                            if (arrayType is TypedArrayType typedArrayType)
-                            {
-                                flattenedFlags |= typedArrayType.ValidationFlags;
-                            }
-                            break;
-                        default:
-                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, member.Type)));
-                            break;
-                    }
-                }
-
-                if (errors.Any())
-                {
-                    return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
-                }
-
-                return new TypedArrayType(TypeHelper.CreateTypeUnion(flattenedMembers), flattenedFlags);
-            }
-
-            return typeToFlatten switch
-            {
-                AnyType => LanguageConstants.Array,
-                UnionType unionType => FlattenUnionOfArrays(unionType, argumentPosition),
-                ArrayType arrayType when arrayType.Item.Type is UnionType itemUnion => FlattenArrayOfUnion(arrayType, itemUnion, argumentPosition),
-                ArrayType arrayType when ReferenceEquals(arrayType.Item, LanguageConstants.Any) => LanguageConstants.Array,
-                ArrayType arrayType when TypeValidator.AreTypesAssignable(arrayType.Item.Type, LanguageConstants.Array) => arrayType.Item.Type,
-                ArrayType arrayType => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(arrayType, arrayType.Item.Type)),
-                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(typeToFlatten, typeToFlatten)),
-            };
         }
 
         private static TypeSymbol ConvertJsonToBicepType(JToken token)
@@ -1224,7 +1199,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
                     .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, "true"))
+                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, SyntaxFactory.CreateBooleanLiteral(true)))
+                    // TODO delete the above line and uncomment the line below when ARM w46 has finished rolling out
+                    // .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))
                     .Build();
             }
         }

@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem
 
         public ImmutableArray<ITypeReference> Members { get; }
 
-        public override string FormatNameForCompoundTypes() => this.WrapTypeName();
+        public override string FormatNameForCompoundTypes() => TypeKind == TypeKind.Never ? Name : WrapTypeName();
     }
 }
 

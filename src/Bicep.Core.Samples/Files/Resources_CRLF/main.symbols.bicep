@@ -211,7 +211,7 @@ var varARuntime = {
 }
 
 var varBRuntime = [
-//@[04:015) Variable varBRuntime. Type: object[]. Declaration start char: 0, length: 37
+//@[04:015) Variable varBRuntime. Type: [object]. Declaration start char: 0, length: 37
   varARuntime
 ]
 
@@ -318,7 +318,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
   valid loop cases
 */ 
 var storageAccounts = [
-//@[04:019) Variable storageAccounts. Type: array. Declaration start char: 0, length: 129
+//@[04:019) Variable storageAccounts. Type: [object, object]. Declaration start char: 0, length: 129
   {
     name: 'one'
     location: 'eastus2'
@@ -332,7 +332,7 @@ var storageAccounts = [
 // just a storage account loop
 @sys.description('this is just a storage account loop')
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[80:087) Local account. Type: any. Declaration start char: 80, length: 7
+//@[80:087) Local account. Type: object | object. Declaration start char: 80, length: 7
 //@[09:025) Resource storageResources. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 284
   name: account.name
   location: account.location
@@ -345,7 +345,7 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 // storage account loop with index
 @sys.description('this is just a storage account loop with index')
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
-//@[90:097) Local account. Type: any. Declaration start char: 90, length: 7
+//@[90:097) Local account. Type: object | object. Declaration start char: 90, length: 7
 //@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
 //@[09:034) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 318
   name: '${account.name}${i}'

@@ -299,7 +299,7 @@ param tooManyArguments2 string
 
 @description(sys.concat(2))
 @allowed([for thing in []: 's'])
-//@[14:019) Local thing. Type: any. Declaration start char: 14, length: 5
+//@[14:019) Local thing. Type: never. Declaration start char: 14, length: 5
 param nonConstantInDecorator string
 //@[06:028) Parameter nonConstantInDecorator. Type: string. Declaration start char: 0, length: 96
 
@@ -350,7 +350,7 @@ param invalidPermutation array = [
 	]
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
-//@[06:045) Parameter invalidDefaultWithAllowedArrayDecorator. Type: array. Declaration start char: 0, length: 245
+//@[06:045) Parameter invalidDefaultWithAllowedArrayDecorator. Type: (['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts'])[]. Declaration start char: 0, length: 245
 
 // unterminated multi-line comment
 /*    

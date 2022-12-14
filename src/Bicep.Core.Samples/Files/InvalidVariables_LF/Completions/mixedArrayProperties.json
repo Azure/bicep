@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "label": "one",
+    "kind": "property",
+    "detail": "one",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `true`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_one",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "one"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  }
+]

@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.TypeSystem
@@ -23,12 +25,8 @@ namespace Bicep.Core.TypeSystem
         public string RawStringValue { get; }
 
         public override bool Equals(object? other) =>
-            other is StringLiteralType otherStringLiteral ? otherStringLiteral == this : false;
+            other is StringLiteralType otherStringLiteral ? RawStringValue == otherStringLiteral.RawStringValue : false;
 
-        public override int GetHashCode() => (GetType(), RawStringValue).GetHashCode();
-
-        public static bool operator ==(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue == b?.RawStringValue;
-
-        public static bool operator !=(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue == b?.RawStringValue;
+        public override int GetHashCode() => HashCode.Combine(TypeKind, RawStringValue);
     }
 }

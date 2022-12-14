@@ -1,5 +1,5 @@
 var doggos = [
-//@[004:010) Variable doggos. Type: ('Casper' | 'Evie' | 'Indy' | 'Kira')[]. Declaration start char: 0, length: 54
+//@[004:010) Variable doggos. Type: ['Evie', 'Casper', 'Indy', 'Kira']. Declaration start char: 0, length: 54
   'Evie'
   'Casper'
   'Indy'
@@ -24,15 +24,15 @@ var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, 
 //@[004:027) Variable evenDoggosNestedLambdas. Type: ('Casper' | 'Evie' | 'Indy' | 'Kira')[]. Declaration start char: 0, length: 118
 
 var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
-//@[004:026) Variable flattenedArrayOfArrays. Type: array. Declaration start char: 0, length: 62
+//@[004:026) Variable flattenedArrayOfArrays. Type: [0, 1, 2, 3, 4, 5]. Declaration start char: 0, length: 62
 var flattenedEmptyArray = flatten([])
-//@[004:023) Variable flattenedEmptyArray. Type: array. Declaration start char: 0, length: 37
+//@[004:023) Variable flattenedEmptyArray. Type: <empty array>. Declaration start char: 0, length: 37
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[042:045) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 42, length: 3
 //@[004:012) Variable mapSayHi. Type: string[]. Declaration start char: 0, length: 62
 var mapEmpty = map([], foo => 'Hi ${foo}!')
-//@[023:026) Local foo. Type: any. Declaration start char: 23, length: 3
+//@[023:026) Local foo. Type: never. Declaration start char: 23, length: 3
 //@[004:012) Variable mapEmpty. Type: string[]. Declaration start char: 0, length: 43
 var mapObject = map(range(0, length(doggos)), i => {
 //@[046:047) Local i. Type: int. Declaration start char: 46, length: 1
@@ -56,8 +56,8 @@ var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
 //@[056:059) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 56, length: 3
 //@[004:023) Variable filterEqualityCheck. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 76
 var filterEmpty = filter([], foo => 'def' == foo)
-//@[029:032) Local foo. Type: any. Declaration start char: 29, length: 3
-//@[004:015) Variable filterEmpty. Type: array. Declaration start char: 0, length: 49
+//@[029:032) Local foo. Type: never. Declaration start char: 29, length: 3
+//@[004:015) Variable filterEmpty. Type: never[]. Declaration start char: 0, length: 49
 
 var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
 //@[044:045) Local x. Type: -13 | 10 | 3 | 5 | 8. Declaration start char: 44, length: 1
@@ -72,18 +72,18 @@ var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
 //@[055:056) Local y. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 55, length: 1
 //@[004:020) Variable sortAlphaReverse. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 67
 var sortByObjectKey = sort([
-//@[004:019) Variable sortByObjectKey. Type: array. Declaration start char: 0, length: 188
+//@[004:019) Variable sortByObjectKey. Type: (object | object | object | object)[]. Declaration start char: 0, length: 188
   { key: 124, name: 'Second' }
   { key: 298, name: 'Third' }
   { key: 24, name: 'First' }
   { key: 1232, name: 'Fourth' }
 ], (x, y) => int(x.key) < int(y.key))
-//@[004:005) Local x. Type: any. Declaration start char: 4, length: 1
-//@[007:008) Local y. Type: any. Declaration start char: 7, length: 1
+//@[004:005) Local x. Type: object | object | object | object. Declaration start char: 4, length: 1
+//@[007:008) Local y. Type: object | object | object | object. Declaration start char: 7, length: 1
 var sortEmpty = sort([], (x, y) => int(x) < int(y))
-//@[026:027) Local x. Type: any. Declaration start char: 26, length: 1
-//@[029:030) Local y. Type: any. Declaration start char: 29, length: 1
-//@[004:013) Variable sortEmpty. Type: array. Declaration start char: 0, length: 51
+//@[026:027) Local x. Type: never. Declaration start char: 26, length: 1
+//@[029:030) Local y. Type: never. Declaration start char: 29, length: 1
+//@[004:013) Variable sortEmpty. Type: never[]. Declaration start char: 0, length: 51
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
 //@[060:063) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 60, length: 3
@@ -94,17 +94,17 @@ var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[051:055) Local next. Type: int. Declaration start char: 51, length: 4
 //@[004:019) Variable reduceFactorial. Type: int. Declaration start char: 0, length: 71
 var reduceObjectUnion = reduce([
-//@[004:021) Variable reduceObjectUnion. Type: any. Declaration start char: 0, length: 117
+//@[004:021) Variable reduceObjectUnion. Type: object. Declaration start char: 0, length: 117
   { foo: 123 }
   { bar: 456 }
   { baz: 789 }
 ], {}, (cur, next) => union(cur, next))
-//@[008:011) Local cur. Type: any. Declaration start char: 8, length: 3
-//@[013:017) Local next. Type: any. Declaration start char: 13, length: 4
+//@[008:011) Local cur. Type: object | object | object. Declaration start char: 8, length: 3
+//@[013:017) Local next. Type: object | object | object. Declaration start char: 13, length: 4
 var reduceEmpty = reduce([], 0, (cur, next) => cur)
-//@[033:036) Local cur. Type: any. Declaration start char: 33, length: 3
-//@[038:042) Local next. Type: any. Declaration start char: 38, length: 4
-//@[004:015) Variable reduceEmpty. Type: any. Declaration start char: 0, length: 51
+//@[033:036) Local cur. Type: never. Declaration start char: 33, length: 3
+//@[038:042) Local next. Type: never. Declaration start char: 38, length: 4
+//@[004:015) Variable reduceEmpty. Type: never. Declaration start char: 0, length: 51
 
 var itemForLoop = [for item in range(0, 10): item]
 //@[023:027) Local item. Type: int. Declaration start char: 23, length: 4
@@ -152,6 +152,6 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
   isGreaterThan4: (i > 4)
 })
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
-//@[043:044) Local x. Type: any. Declaration start char: 43, length: 1
+//@[043:044) Local x. Type: object | object | object | object. Declaration start char: 43, length: 1
 //@[004:014) Variable objectMap3. Type: object. Declaration start char: 0, length: 55
 

@@ -1044,6 +1044,9 @@ namespace Bicep.Core.Parsing
                 case TokenType.LeftBrace when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
                     return this.Object(expressionFlags);
 
+                case TokenType.LeftSquare when HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression):
+                    return this.TupleType(expressionFlags);
+
                 case TokenType.LeftSquare when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
                     return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword)
                         ? this.ForExpression(expressionFlags, isResourceOrModuleContext: false)
@@ -1230,24 +1233,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ObjectPropertyType(ExpressionFlags flags)
         {
-            List<SyntaxBase> leadingNodes = new();
-
-            // Parse decorators before the declaration.
-            while (this.Check(TokenType.At))
-            {
-                leadingNodes.Add(this.Decorator());
-
-                // All decorators must followed by a newline.
-                leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
-
-
-                while (this.Check(TokenType.NewLine))
-                {
-                    // In case there are skipped trivial syntaxes after a decorator, we need to consume
-                    // all the newlines after them.
-                    leadingNodes.Add(this.NewLine());
-                }
-            }
+            var leadingNodes = DecorableSyntaxLeadingNodes().ToImmutableArray();
 
             var current = this.reader.Peek();
 
@@ -1268,6 +1254,41 @@ namespace Bicep.Core.Parsing
             var value = this.WithRecovery(() => Expression(flags), GetSuppressionFlag(colon), TokenType.NewLine, TokenType.RightBrace);
 
             return new ObjectTypePropertySyntax(leadingNodes, key, optionalityMarker, colon, value);
+        }
+
+        private TupleTypeSyntax TupleType(ExpressionFlags flags)
+        {
+            var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+
+            var itemsOrTokens = HandleArrayOrObjectElements(
+                closingTokenType: TokenType.RightSquare,
+                parseChildElement: () => TupleMemberType(flags));
+
+            var closeBracket = Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+
+            return new TupleTypeSyntax(openBracket, itemsOrTokens, closeBracket);
+        }
+
+        private SyntaxBase TupleMemberType(ExpressionFlags flags) => new TupleTypeItemSyntax(DecorableSyntaxLeadingNodes().ToImmutableArray(),
+            WithRecovery(() => Expression(flags), RecoveryFlags.None, TokenType.NewLine, TokenType.RightBrace));
+
+        protected IEnumerable<SyntaxBase> DecorableSyntaxLeadingNodes()
+        {
+            while (this.Check(TokenType.At))
+            {
+                yield return this.Decorator();
+
+                // All decorators must followed by a newline.
+                yield return this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
+
+
+                while (this.Check(TokenType.NewLine))
+                {
+                    // In case there are skipped trivial syntaxes after a decorator, we need to consume
+                    // all the newlines after them.
+                    yield return this.NewLine();
+                }
+            }
         }
 
         protected SyntaxBase Decorator()

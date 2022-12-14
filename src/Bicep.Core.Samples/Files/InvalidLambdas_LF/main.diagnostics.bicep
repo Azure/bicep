@@ -37,6 +37,7 @@ var filter5 = filter(range(0, 10), i => i)
 //@[35:41) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "any => bool". (CodeDescription: none) |i => i|
 var filter6 = filter([true, 'hello!'], i => i)
 //@[04:11) [no-unused-vars (Warning)] Variable "filter6" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filter6|
+//@[39:45) [BCP070 (Error)] Argument of type "('hello!' | true) => ('hello!' | true)" is not assignable to parameter of type "any => bool". (CodeDescription: none) |i => i|
 
 var sort1 = sort('abc')
 //@[04:09) [no-unused-vars (Warning)] Variable "sort1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sort1|

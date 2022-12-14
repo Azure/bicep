@@ -132,6 +132,17 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitTupleTypeSyntax(TupleTypeSyntax syntax)
+        {
+            this.VisitNodes(syntax.Children);
+        }
+
+        public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax)
         {
             this.Visit(syntax.Item);

@@ -8,10 +8,10 @@ var multiLineFunctionTrailingComma = concat(
 )
 
 var singleLineArrayNoCommas = ['abc' 'def']
-//@[4:27) Variable singleLineArrayNoCommas. Type: ('abc' | 'def')[]. Declaration start char: 0, length: 43
+//@[4:27) Variable singleLineArrayNoCommas. Type: ['abc', 'def']. Declaration start char: 0, length: 43
 
 var multiLineArrayMultipleCommas = [
-//@[4:32) Variable multiLineArrayMultipleCommas. Type: ('abc' | 'def')[]. Declaration start char: 0, length: 59
+//@[4:32) Variable multiLineArrayMultipleCommas. Type: ['abc', 'def']. Declaration start char: 0, length: 59
   'abc',,
   'def',,,
 ]

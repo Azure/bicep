@@ -42,7 +42,7 @@ module subscriptionModuleDuplicateName2 'modules/subscription.bicep' = {
 }
 
 module managementGroupModules 'modules/managementGroup.bicep' = [for (mg, i) in []: {
-//@[70:72) Local mg. Type: any. Declaration start char: 70, length: 2
+//@[70:72) Local mg. Type: never. Declaration start char: 70, length: 2
 //@[74:75) Local i. Type: int. Declaration start char: 74, length: 1
 //@[07:29) Module managementGroupModules. Type: module[]. Declaration start char: 0, length: 137
   name: 'dep-${mg}'
@@ -50,7 +50,7 @@ module managementGroupModules 'modules/managementGroup.bicep' = [for (mg, i) in 
 }]
 
 module cannotUseModuleCollectionAsScope 'modules/managementGroup.bicep' = [for (mg, i) in []: {
-//@[80:82) Local mg. Type: any. Declaration start char: 80, length: 2
+//@[80:82) Local mg. Type: never. Declaration start char: 80, length: 2
 //@[84:85) Local i. Type: int. Declaration start char: 84, length: 1
 //@[07:39) Module cannotUseModuleCollectionAsScope. Type: module[]. Declaration start char: 0, length: 150
   name: 'dep-${mg}'
@@ -58,7 +58,7 @@ module cannotUseModuleCollectionAsScope 'modules/managementGroup.bicep' = [for (
 }]
 
 module cannotUseSingleModuleAsScope 'modules/managementGroup.bicep' = [for (mg, i) in []: {
-//@[76:78) Local mg. Type: any. Declaration start char: 76, length: 2
+//@[76:78) Local mg. Type: never. Declaration start char: 76, length: 2
 //@[80:81) Local i. Type: int. Declaration start char: 80, length: 1
 //@[07:35) Module cannotUseSingleModuleAsScope. Type: module[]. Declaration start char: 0, length: 149
   name: 'dep-${mg}'

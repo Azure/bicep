@@ -30,18 +30,18 @@ concat(
 'five')
 
 var singleLineArray = ['abc', 'def']
-//@[4:19) Variable singleLineArray. Type: ('abc' | 'def')[]. Declaration start char: 0, length: 36
+//@[4:19) Variable singleLineArray. Type: ['abc', 'def']. Declaration start char: 0, length: 36
 var singleLineArrayTrailingCommas = ['abc', 'def',]
-//@[4:33) Variable singleLineArrayTrailingCommas. Type: ('abc' | 'def')[]. Declaration start char: 0, length: 51
+//@[4:33) Variable singleLineArrayTrailingCommas. Type: ['abc', 'def']. Declaration start char: 0, length: 51
 
 var multiLineArray = [
-//@[4:18) Variable multiLineArray. Type: ('abc' | 'def')[]. Declaration start char: 0, length: 40
+//@[4:18) Variable multiLineArray. Type: ['abc', 'def']. Declaration start char: 0, length: 40
   'abc'
   'def'
 ]
 
 var mixedArray = ['abc', 'def'
-//@[4:14) Variable mixedArray. Type: ('abc' | 'def' | 'ghi' | 'jkl' | 'lmn')[]. Declaration start char: 0, length: 50
+//@[4:14) Variable mixedArray. Type: ['abc', 'def', 'ghi', 'jkl', 'lmn']. Declaration start char: 0, length: 50
 'ghi', 'jkl'
 'lmn']
 
@@ -67,7 +67,7 @@ var nestedMixed = {
 }
 
 var brokenFormatting = [      /*foo */ 'bar'   /*
-//@[4:20) Variable brokenFormatting. Type: array. Declaration start char: 0, length: 172
+//@[4:20) Variable brokenFormatting. Type: ['bar', 'asdfdsf', 12324, '', '\n\n', 123, 233535, true]. Declaration start char: 0, length: 172
 
 hello
 

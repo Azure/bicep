@@ -176,7 +176,7 @@ resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = 
 
 // vnets
 var vnetConfigurations = [
-//@[004:022) Variable vnetConfigurations. Type: array. Declaration start char: 0, length: 138
+//@[004:022) Variable vnetConfigurations. Type: [object, object]. Declaration start char: 0, length: 138
   {
     name: 'one'
     location: resourceGroup().location
@@ -188,7 +188,7 @@ var vnetConfigurations = [
 ]
 
 resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (vnetConfig, index) in vnetConfigurations: {
-//@[070:080) Local vnetConfig. Type: any. Declaration start char: 70, length: 10
+//@[070:080) Local vnetConfig. Type: object | object. Declaration start char: 70, length: 10
 //@[082:087) Local index. Type: int. Declaration start char: 82, length: 5
 //@[009:014) Resource vnets. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 186
   name: '${vnetConfig.name}-${index}'
@@ -239,7 +239,7 @@ module singleModule 'passthrough.bicep' = {
 }
 
 var moduleSetup = [
-//@[004:015) Variable moduleSetup. Type: ('one' | 'three' | 'two')[]. Declaration start char: 0, length: 47
+//@[004:015) Variable moduleSetup. Type: ['one', 'two', 'three']. Declaration start char: 0, length: 47
   'one'
   'two'
   'three'
@@ -327,7 +327,7 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 //@[007:040) Output existingIndexedResourceAccessTier. Type: string. Declaration start char: 0, length: 104
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[073:077) Local zone. Type: any. Declaration start char: 73, length: 4
+//@[073:077) Local zone. Type: never. Declaration start char: 73, length: 4
 //@[078:079) Local i. Type: int. Declaration start char: 78, length: 1
 //@[009:024) Resource duplicatedNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 140
   name: 'no loop variable'
@@ -336,7 +336,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[083:087) Local zone. Type: any. Declaration start char: 83, length: 4
+//@[083:087) Local zone. Type: never. Declaration start char: 83, length: 4
 //@[088:089) Local i. Type: int. Declaration start char: 88, length: 1
 //@[009:034) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 198
   name: 'no loop variable 2'
@@ -347,7 +347,7 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 }]
 
 var regions = [
-//@[004:011) Variable regions. Type: ('eastus' | 'westus')[]. Declaration start char: 0, length: 39
+//@[004:011) Variable regions. Type: ['eastus', 'westus']. Declaration start char: 0, length: 39
   'eastus'
   'westus'
 ]

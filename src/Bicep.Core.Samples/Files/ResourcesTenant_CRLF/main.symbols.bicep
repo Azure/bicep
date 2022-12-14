@@ -1,7 +1,7 @@
 targetScope = 'tenant'
 
 var managementGroups = [
-//@[04:20) Variable managementGroups. Type: array. Declaration start char: 0, length: 142
+//@[04:20) Variable managementGroups. Type: [object, object]. Declaration start char: 0, length: 142
   {
     name: 'one'
     displayName: 'The first'
@@ -21,7 +21,7 @@ resource singleGroup 'Microsoft.Management/managementGroups@2020-05-01' = {
 }
 
 resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
-//@[78:80) Local mg. Type: any. Declaration start char: 78, length: 2
+//@[78:80) Local mg. Type: object | object. Declaration start char: 78, length: 2
 //@[09:19) Resource manyGroups. Type: Microsoft.Management/managementGroups@2020-05-01[]. Declaration start char: 0, length: 224
   name: mg.name
   properties: {
@@ -30,7 +30,7 @@ resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
 }]
 
 resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, index) in managementGroups: {
-//@[79:81) Local mg. Type: any. Declaration start char: 79, length: 2
+//@[79:81) Local mg. Type: object | object. Declaration start char: 79, length: 2
 //@[83:88) Local index. Type: int. Declaration start char: 83, length: 5
 //@[09:19) Resource anotherSet. Type: Microsoft.Management/managementGroups@2020-05-01[]. Declaration start char: 0, length: 319
   name: concat(mg.name, '-one-', index)
@@ -43,7 +43,7 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 }]
 
 resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
-//@[81:83) Local mg. Type: any. Declaration start char: 81, length: 2
+//@[81:83) Local mg. Type: object | object. Declaration start char: 81, length: 2
 //@[09:22) Resource yetAnotherSet. Type: Microsoft.Management/managementGroups@2020-05-01[]. Declaration start char: 0, length: 291
   name: concat(mg.name, '-two')
   properties: {

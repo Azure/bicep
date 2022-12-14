@@ -89,6 +89,9 @@ namespace Bicep.Core.TypeSystem
             IntegerLiteralType => true,
             BooleanLiteralType => true,
 
+            // A tuple can be a literal only if each item contained therein is also a literal
+            TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),
+
             // An object type can be a literal iff:
             //   - All properties are themselves of a literal type
             //   - No properties are optional
@@ -99,7 +102,6 @@ namespace Bicep.Core.TypeSystem
             ObjectType objectType => (objectType.AdditionalPropertiesType is null || objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
                 objectType.Properties.All(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && IsLiteralType(kvp.Value.TypeReference.Type)),
 
-            // TODO for array literals when type system adds support for tuples
             _ => false,
         };
 
@@ -172,6 +174,100 @@ namespace Bicep.Core.TypeSystem
             diagnostics.Write(unknownPropertyDiagnostic);
 
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
+        }
+
+        public static TypeSymbol FlattenType(TypeSymbol typeToFlatten, IPositionable argumentPosition)
+        {
+            static TypeSymbol FlattenTuple(TypeSymbol flattenInputType, TupleType tupleType, IPositionable argumentPosition)
+            {
+                List<ITypeReference> flattenedItems = new();
+                TupleTypeNameBuilder nameBuilder = new();
+                TypeSymbolValidationFlags flags = TypeSymbolValidationFlags.Default;
+
+                foreach (var item in tupleType.Items)
+                {
+                    if (item is TupleType itemTuple)
+                    {
+                        foreach (var subItem in itemTuple.Items)
+                        {
+                            nameBuilder.AppendItem(subItem.Type.Name);
+                            flattenedItems.Add(subItem);
+                        }
+                        flags |= itemTuple.ValidationFlags;
+                        continue;
+                    }
+
+                    // If we're not dealing with a tuple of tuples, just flatten `type` as if it were a normal array
+                    return FlattenArray(flattenInputType, tupleType, argumentPosition);
+                }
+
+                return new TupleType(nameBuilder.ToString(), flattenedItems.ToImmutableArray(), flags);
+            }
+
+            static TypeSymbol FlattenUnionOfArrays(TypeSymbol flattenInputType, UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
+                flattenInputType,
+                unionType.Members.Select(typeRef => CalculateFlattenedType(unionType, typeRef.Type, argumentPosition)),
+                argumentPosition);
+
+            static TypeSymbol FlattenArrayOfUnion(TypeSymbol flattenInputType, UnionType itemUnion, IPositionable argumentPosition)
+                => UnionOfFlattened(flattenInputType, itemUnion.Members, argumentPosition);
+
+            static TypeSymbol UnionOfFlattened(TypeSymbol flattenInputType, IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
+            {
+                List<ITypeReference> flattenedMembers = new();
+                TypeSymbolValidationFlags flattenedFlags = TypeSymbolValidationFlags.Default;
+                List<ErrorType> errors = new();
+
+                foreach (var member in toFlatten)
+                {
+                    switch (member.Type)
+                    {
+                        case AnyType:
+                            return LanguageConstants.Array;
+                        case ErrorType errorType:
+                            errors.Add(errorType);
+                            break;
+                        case ArrayType arrayType:
+                            flattenedMembers.Add(arrayType.Item);
+                            if (arrayType is TypedArrayType typedArrayType)
+                            {
+                                flattenedFlags |= typedArrayType.ValidationFlags;
+                            }
+                            break;
+                        default:
+                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, member.Type)));
+                            break;
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
+                }
+
+                return new TypedArrayType(TypeHelper.CreateTypeUnion(flattenedMembers), flattenedFlags);
+            }
+
+            static TypeSymbol FlattenArray(TypeSymbol flattenInputType, ArrayType arrayType, IPositionable argumentPosition) => arrayType.Item.Type switch
+            {
+                ErrorType et => et,
+                AnyType => LanguageConstants.Array,
+                UnionType itemUnion => FlattenArrayOfUnion(flattenInputType, itemUnion, argumentPosition),
+                TupleType itemTuple => new TypedArrayType(itemTuple.Item, itemTuple.ValidationFlags),
+                ArrayType itemArray => itemArray,
+                var otherwise => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, otherwise)),
+            };
+
+            static TypeSymbol CalculateFlattenedType(TypeSymbol flattenInputType, TypeSymbol typeToFlatten, IPositionable argumentPosition) => typeToFlatten switch
+            {
+                AnyType => LanguageConstants.Array,
+                TupleType tupleType => FlattenTuple(flattenInputType, tupleType, argumentPosition),
+                UnionType unionType => FlattenUnionOfArrays(flattenInputType, unionType, argumentPosition),
+                ArrayType arrayType => FlattenArray(flattenInputType, arrayType, argumentPosition),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, typeToFlatten)),
+            };
+
+            return CalculateFlattenedType(typeToFlatten, typeToFlatten, argumentPosition);
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
