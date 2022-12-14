@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10650312790912797349"
+      "templateHash": "10846596578121457424"
     }
   },
   "parameters": {
@@ -156,11 +156,6 @@
       }
     }
   },
-  "variables": {
-    "storageAccountId": "[if(parameters('createNewStorageAccount'), resourceInfo('storageAccount').id, resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')))]",
-    "subnetId": "[if(parameters('createNewVnet'), resourceInfo('subnet').id, resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName')))]",
-    "publicIPId": "[if(parameters('createNewPublicIP'), resourceInfo('publicIP').id, resourceId(parameters('publicIPResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPName')))]"
-  },
   "resources": {
     "storageAccount": {
       "condition": "[parameters('createNewStorageAccount')]",
@@ -250,10 +245,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[variables('subnetId')]"
+                "id": "[if(parameters('createNewVnet'), resourceInfo('subnet').id, resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName')))]"
               },
               "publicIPAddress": {
-                "id": "[variables('publicIPId')]"
+                "id": "[if(parameters('createNewPublicIP'), resourceInfo('publicIP').id, resourceId(parameters('publicIPResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPName')))]"
               }
             }
           }
@@ -301,7 +296,7 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(variables('storageAccountId')).primaryEndpoints.blob]"
+            "storageUri": "[reference(if(parameters('createNewStorageAccount'), resourceInfo('storageAccount').id, resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')))).primaryEndpoints.blob]"
           }
         }
       },

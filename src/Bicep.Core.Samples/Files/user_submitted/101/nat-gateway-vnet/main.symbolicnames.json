@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11641992750217039422"
+      "templateHash": "14067072517108432500"
     }
   },
   "parameters": {
@@ -62,12 +62,7 @@
     }
   },
   "variables": {
-    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]",
-    "publicIpAddresses": [
-      {
-        "id": "[resourceInfo('publicIp').id]"
-      }
-    ]
+    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]"
   },
   "resources": {
     "publicIp": {
@@ -97,7 +92,7 @@
       },
       "properties": {
         "idleTimeoutInMinutes": 4,
-        "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), variables('publicIpAddresses'), null())]"
+        "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), createArray(createObject('id', resourceInfo('publicIp').id)), null())]"
       },
       "dependsOn": [
         "publicIp"

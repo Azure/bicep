@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5761729311726706896"
+      "templateHash": "7085243670229967766"
     }
   },
   "parameters": {
@@ -36,11 +36,6 @@
     "hostingPlanName": "[parameters('applicationName')]",
     "location": "[resourceGroup().location]",
     "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
-    "_siteApiVersion": "[resourceInfo('site').apiVersion]",
-    "_siteType": "[resourceInfo('site').type]",
-    "resourceCRef": {
-      "id": "[resourceInfo('resourceC').id]"
-    },
     "setResourceCRef": true,
     "myInterpKey": "abc",
     "storageAccounts": [
@@ -244,7 +239,7 @@
             "aKind": "[reference('resourceA', '2020-01-01', 'full').kind]"
           }
         ],
-        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), null())]"
+        "repro316": "[if(variables('setResourceCRef'), createObject('id', resourceInfo('resourceC').id), null())]"
       },
       "dependsOn": [
         "resourceA",

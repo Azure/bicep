@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9919460414504247412"
+      "templateHash": "271562621716449034"
     }
   },
   "parameters": {
@@ -23,10 +23,6 @@
         "[variables('deployTimeVar')]",
         "[parameters('deployTimeParam')]"
       ]
-    },
-    "resourceIds": {
-      "a": "[resourceInfo('resA').id]",
-      "b": "[resourceInfo('resB').id]"
     }
   },
   "resources": {
@@ -63,7 +59,10 @@
       "apiVersion": "2020-01-01",
       "name": "resC",
       "properties": {
-        "resourceIds": "[variables('resourceIds')]"
+        "resourceIds": {
+          "a": "[resourceInfo('resA').id]",
+          "b": "[resourceInfo('resB').id]"
+        }
       },
       "dependsOn": [
         "resA",

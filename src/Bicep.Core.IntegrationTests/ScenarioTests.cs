@@ -4105,5 +4105,39 @@ output message sys.string = string
 
             result.Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/issues/9246
+        [TestMethod]
+        public void Test_Issue9246()
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), ("main.bicep", @"
+var vnetAddressSpace = '10.1'
+
+resource aksRouteTable 'Microsoft.Network/routeTables@2022-07-01' existing = {
+  name: 'aksRouteTable'
+}
+
+var _subnets = {
+  AzureFirewallSubnet: {
+    name: 'AzureFirewallSubnet'
+    addressPrefix: '${vnetAddressSpace}.0.0/26'
+  }
+
+  aksPoolSys: {
+    name: 'snet-001-sys-snet'
+    addressPrefix: '${vnetAddressSpace}.0.64/26'
+    routeTable: aksRouteTable.id
+  }
+}
+
+output aksRouteTable string = _subnets.aksPoolSys.routeTable
+"));
+
+            // verify the variable has been inlined
+            result.Template.Should().NotHaveValueAtPath("$.variables['_subnets']");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
+        }
     }
 }
