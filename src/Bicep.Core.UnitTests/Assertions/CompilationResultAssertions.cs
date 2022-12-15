@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Primitives;
+using Newtonsoft.Json.Linq;
 using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -92,6 +93,14 @@ namespace Bicep.Core.UnitTests.Assertions
         public AndConstraint<CompilationResultAssertions> GenerateATemplate(string because = "", params object[] becauseArgs)
         {
             Subject.Template.Should().NotBeNull(because, becauseArgs);
+
+            return new AndConstraint<CompilationResultAssertions>(this);
+        }
+
+        public AndConstraint<CompilationResultAssertions> HaveTemplateWithOutput(string name, JToken expectedValue, string because = "", params object[] becauseArgs)
+        {
+            Subject.Should().GenerateATemplate(because, becauseArgs);
+            Subject.Template.Should().HaveValueAtPath($"$.outputs['{name}'].value", expectedValue, because, becauseArgs);
 
             return new AndConstraint<CompilationResultAssertions>(this);
         }

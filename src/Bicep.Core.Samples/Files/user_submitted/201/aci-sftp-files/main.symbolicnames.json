@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4122977711936702838"
+      "templateHash": "6805805791593525594"
     }
   },
   "parameters": {
@@ -156,7 +156,7 @@
               "readOnly": false,
               "shareName": "[parameters('fileShareName')]",
               "storageAccountName": "[resourceInfo('storageAccount').name]",
-              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2020-08-01-preview').keys[0].value]"
+              "storageAccountKey": "[listKeys(resourceInfo('storageAccount').id, '2020-08-01-preview').keys[0].value]"
             }
           }
         ]

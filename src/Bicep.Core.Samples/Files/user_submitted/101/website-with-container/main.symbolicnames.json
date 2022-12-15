@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8634127563758232684"
+      "templateHash": "111743328040493950"
     }
   },
   "parameters": {
@@ -71,7 +71,7 @@
             },
             {
               "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-              "value": "[listCredentials(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('acrSubscription'), parameters('acrResourceGroup')), 'Microsoft.ContainerRegistry/registries', parameters('acrName')), '2019-05-01').passwords[0].value]"
+              "value": "[listCredentials(resourceInfo('containerRegistry').id, '2019-05-01').passwords[0].value]"
             },
             {
               "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",

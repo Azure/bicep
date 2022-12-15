@@ -93,7 +93,12 @@ namespace Bicep.Core.Emit
         }
 
         public LanguageExpression ConvertExpression(SyntaxBase syntax)
-            => ConvertExpression(expressionBuilder.Convert(syntax));
+        {
+            var expression = expressionBuilder.Convert(syntax);
+            expression = ExpressionLoweringVisitor.Lower(expression);
+
+            return ConvertExpression(expression);
+        }
 
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.
@@ -174,9 +179,6 @@ namespace Bicep.Core.Emit
                         ToFunctionExpression(ConvertExpression(exp.Base)),
                         new JTokenExpression(exp.PropertyName),
                         new JTokenExpression("value"));
-
-                case ResourceIdExpression exp:
-                    return GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Metadata);
 
                 case ResourceReferenceExpression exp:
                     return GetReferenceExpression(exp.Metadata, exp.IndexContext, true);
