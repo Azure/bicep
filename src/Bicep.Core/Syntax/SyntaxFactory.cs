@@ -43,6 +43,8 @@ namespace Bicep.Core.Syntax
 
         public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
+        public static Token GetNewlineToken(IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
+            => CreateToken(TokenType.NewLine, Environment.NewLine, leadingTrivia, trailingTrivia);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");
         public static Token RightBraceToken => CreateToken(TokenType.RightBrace, "}");
@@ -50,7 +52,9 @@ namespace Bicep.Core.Syntax
         public static Token RightParenToken => CreateToken(TokenType.RightParen, ")");
         public static Token LeftSquareToken => CreateToken(TokenType.LeftSquare, "[");
         public static Token RightSquareToken => CreateToken(TokenType.RightSquare, "]");
-        public static Token CommaToken => CreateToken(TokenType.Comma, ",");
+        public static Token CommaToken => GetCommaToken();
+        public static Token GetCommaToken(IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
+            => CreateToken(TokenType.Comma, ",", leadingTrivia, trailingTrivia);
         public static Token DotToken => CreateToken(TokenType.Dot, ".");
         public static Token QuestionToken => CreateToken(TokenType.Question, "?");
         public static Token ColonToken => CreateToken(TokenType.Colon, ":");
@@ -385,10 +389,7 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public static Token CreateNewLineWithIndent(string indent) => CreateToken(
-            TokenType.NewLine,
-            Environment.NewLine,
-            SyntaxFactory.EmptyTrivia,
-            new SyntaxTrivia[] { new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent) });
+        public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
+            trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
     }
 }

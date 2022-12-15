@@ -144,16 +144,22 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
-            if (SyntaxModifier.TryUpdatePropertyValue(body, "name", prop => replacementName) is not {} updatedBody)
+            var updatedBody = SyntaxModifier.TryAddProperty(
+                body,
+                SyntaxFactory.CreateObjectProperty(
+                    "parent",
+                    SyntaxFactory.CreateIdentifier(parentResource.Symbol.NameIdentifier.IdentifierName)),
+                atIndex: body.Properties.IndexOf(x => x == nameProp));
+            if (updatedBody is null)
             {
                 return null;
             }
 
-            var parentIdentifier = SyntaxFactory.CreateIdentifier(parentResource.Symbol.NameIdentifier.IdentifierName);
-            updatedBody = SyntaxModifier.AddProperty(
-                updatedBody,
-                SyntaxFactory.CreateObjectProperty("parent", parentIdentifier),
-                atStart: true);
+            updatedBody = SyntaxModifier.TryUpdatePropertyValue(updatedBody, "name", prop => replacementName);
+            if (updatedBody is null)
+            {
+                return null;
+            }
 
             var codeReplacement = new CodeReplacement(body.Span, updatedBody.ToTextPreserveFormatting());
 

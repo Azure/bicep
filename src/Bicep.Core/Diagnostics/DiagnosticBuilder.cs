@@ -234,9 +234,21 @@ namespace Bicep.Core.Diagnostics
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                var newSyntax = objectSyntax.AddPropertiesWithFormatting(
+                var newSyntax = SyntaxModifier.TryAddProperties(
+                    objectSyntax,
                     properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia))
                 );
+
+                if (newSyntax is null)
+                {
+                    // We're unable to come up with an automatic code fix - most likely because there are unhandled parse errors
+                    return new Diagnostic(
+                        TextSpan,
+                        warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                        "BCP035",
+                        $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
+                        showTypeInaccuracy ? TypeInaccuracyLink : null);
+                }
 
                 var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));
 

@@ -207,7 +207,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         // There is leading whitespace in this one
         [DataRow(@"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                  
+                  "+@"
                 }",
            @"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {

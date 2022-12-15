@@ -162,66 +162,6 @@ namespace Bicep.Core.Syntax
                     : mergedObject);
         }
 
-        public static ObjectSyntax AddPropertiesWithFormatting(this ObjectSyntax objectSyntax, IEnumerable<ObjectPropertySyntax> newProperties, bool atStart = false)
-        {
-            bool IsEmptyLine(Token token)
-            {
-                if (token.Type != TokenType.NewLine)
-                {
-                    return false;
-                }
-
-                foreach (var trivia in token.LeadingTrivia)
-                {
-                    if (trivia.Type != SyntaxTriviaType.Whitespace)
-                    {
-                        return false;
-                    }
-                }
-
-                foreach (var trivia in token.TrailingTrivia)
-                {
-                    if (trivia.Type != SyntaxTriviaType.Whitespace)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            var children = new List<SyntaxBase>(objectSyntax.Children);
-            var newChildren = new List<SyntaxBase>();
-
-            var indent = objectSyntax.GetBodyIndentation();
-            foreach (var property in newProperties)
-            {
-                newChildren.Add(SyntaxFactory.CreateNewLineWithIndent(indent));
-                newChildren.Add(property);
-            }
-
-            if (!atStart)
-            {
-                // Remove trailing empty lines
-                Token? lastNode = null;
-                while (children.Count > 0 && children[^1] is Token token && IsEmptyLine(token))
-                {
-                    lastNode ??= token;
-                    children.Remove(token);
-                }
-
-                children.AddRange(newChildren);
-
-                children.Add(SyntaxFactory.CreateToken(TokenType.NewLine, Environment.NewLine, lastNode?.LeadingTrivia, lastNode?.TrailingTrivia));
-            }
-            else
-            {
-                children = newChildren.Concat(children).ToList();
-            }
-
-            return new ObjectSyntax(objectSyntax.OpenBrace, children, objectSyntax.CloseBrace);
-        }
-
         public static string GetBodyIndentation(this ObjectSyntax sourceObject)
         {
             static string? GetIndent(SyntaxBase syntax)
