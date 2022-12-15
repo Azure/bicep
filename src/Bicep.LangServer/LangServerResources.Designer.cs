@@ -88,6 +88,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Note: The JSON pasted into the editor was automatically converted to Bicep using the Bicep decompiler..
+        /// </summary>
+        public static string DecompileAsPaste_AutoConvertWarning {
+            get {
+                return ResourceManager.GetString("DecompileAsPaste_AutoConvertWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}..
         /// </summary>
         public static string DeploymentFailedMessage {

@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
         string? PasteType,
         string? ErrorMessage, // This is null if pasteType == null, otherwise indicates an error trying to decompile to the given paste type
         string? Bicep, // Null if pasteType == null or errorMessage != null
-        string? decompilationDisclaimer // Non-null if the decompilation is not foolproof (for templates, resources etc)
+        string? Disclaimer // Non-null if the decompilation is not foolproof (for templates, resources etc)
     );
 
     /// <summary>
@@ -69,6 +69,8 @@ namespace Bicep.LanguageServer.Handlers
         public const string PasteType_FullTemplate = "fullTemplate"; // Full template
         public const string PasteType_ResourceObject = "resources"; // Single resource or list of multiple resources
 
+        private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
+
         public BicepDecompileForPasteCommandHandler(
             ISerializer serializer,
             ILanguageServerFacade server,
@@ -85,11 +87,12 @@ namespace Bicep.LanguageServer.Handlers
         {
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(async () =>
             {
-                return await DecompileForPaste(parameters.jsonContent, parameters.queryCanPaste);
+                var (result, successTelemetry) = await TryDecompileForPaste(parameters.jsonContent, parameters.queryCanPaste);
+                return (result, successTelemetry);
             });
         }
 
-        private async Task<(BicepDecompileForPasteCommandResult result, BicepTelemetryEvent? successTelemetry)> DecompileForPaste(string json, bool queryCanPaste)
+        private async Task<ResultAndTelemetry> TryDecompileForPaste(string json, bool queryCanPaste)
         {
             StringBuilder output = new StringBuilder();
             string decompileId = Guid.NewGuid().ToString();
@@ -98,14 +101,11 @@ namespace Bicep.LanguageServer.Handlers
             if (pasteType is null)
             {
                 // It's not anything we know how to convert to Bicep
-                return (
-                    new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), null, null, null, null),
-                    successTelemetry:
-                        // Don't log telemetry if we're just determining if we can paste, because this will happen a lot
-                        //   (on changing between editors for instance)
-                        queryCanPaste ? null
-                        : BicepTelemetryEvent.DecompileForPaste(decompileId, pasteType, json.Length, null)
-                );
+                return new ResultAndTelemetry(
+                    new BicepDecompileForPasteCommandResult(
+                        decompileId, output.ToString(), PasteType: null, ErrorMessage: null,
+                        Bicep: null, Disclaimer: null),
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType: null, bicep: null));
             }
 
             ImmutableDictionary<Uri, string> filesToSave;
@@ -135,20 +135,16 @@ namespace Bicep.LanguageServer.Handlers
                 var message = ex.Message;
                 Log(output, $"Decompilation failed: {message}");
 
-                return (
-                    new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), pasteType, message, null, null),
-                    // Don't log telemetry if we're just determining *if* the text on the clipboard can be pasted, because this will happen a lot
-                    successTelemetry: queryCanPaste ? null
-                        : BicepTelemetryEvent.DecompileForPaste(
-                            decompileId, pasteType, json.Length, null)
-                    );
+                return new ResultAndTelemetry(
+                    new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), pasteType, message, Bicep: null, Disclaimer: null),
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType, bicep: null));
             }
 
             // Show disclaimer and completion
             string disclaimerMessage = "";
             if (needsDisclaimer)
             {
-                disclaimerMessage = $"Note: The JSON pasted into the editor was automatically converted to Bicep using the Bicep decompiler.\n{BicepDecompiler.DecompilerDisclaimerMessage}";
+                disclaimerMessage = $"{LangServerResources.DecompileAsPaste_AutoConvertWarning}\n{BicepDecompiler.DecompilerDisclaimerMessage}";
                 Log(output, disclaimerMessage);
             }
 
@@ -159,20 +155,27 @@ namespace Bicep.LanguageServer.Handlers
             bicepOutput = bicepOutput.TrimEnd() + "\n";
 
             // Return result
-            return (
+            return new ResultAndTelemetry(
                 new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), pasteType, null, bicepOutput, disclaimerMessage),
                 // Don't log telemetry if we're just determining if we can paste, because this will happen a lot
                 //   (on changing between editors for instance)
-                successTelemetry: queryCanPaste ? null
-                : BicepTelemetryEvent.DecompileForPaste(
-                    decompileId, pasteType, json.Length, bicepOutput.Length)
-                );
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType, bicepOutput));
         }
 
         private static void Log(StringBuilder output, string message)
         {
             output.AppendLine(message);
             Trace.TraceInformation(message);
+        }
+
+        private BicepTelemetryEvent? GetSuccessTelemetry(bool queryCanPaste, string decompileId, string json, string? pasteType, string? bicep)
+        {
+            // Don't log telemetry if we're just determining if we can paste, because this will happen a lot
+            //   (on changing between editors for instance)
+            //asdfg but we don't call back for telemetry if we use the result
+            return queryCanPaste ?
+                null :
+                BicepTelemetryEvent.DecompileForPaste(decompileId, pasteType, json.Length, bicep?.Length);
         }
 
         /// <summary>
