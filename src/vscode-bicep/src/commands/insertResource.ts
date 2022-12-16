@@ -4,7 +4,6 @@ import vscode, { Uri, window, workspace } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import { insertResourceRequestType } from "../language";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 
 export class InsertResourceCommand implements Command {
@@ -16,14 +15,10 @@ export class InsertResourceCommand implements Command {
     context: IActionContext,
     documentUri?: Uri
   ): Promise<void> {
-    documentUri = await findOrCreateActiveBicepFile(
-      context,
-      documentUri,
-      "Choose which Bicep file to insert a resource into"
-    );
-
-    const document = await workspace.openTextDocument(documentUri);
-    const editor = await window.showTextDocument(document);
+    const editor = await findOrShowEditor(documentUri);
+    if (!editor) {
+      throw new Error(`Unable to find active editor for insert resource command`);
+    }
 
     const resourceId = await vscode.window.showInputBox({
       prompt: "Enter a resourceId",
@@ -35,11 +30,25 @@ export class InsertResourceCommand implements Command {
 
     await this.client.sendNotification(insertResourceRequestType, {
       textDocument:
-        this.client.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        this.client.code2ProtocolConverter.asTextDocumentIdentifier(editor.document),
       position: this.client.code2ProtocolConverter.asPosition(
         editor.selection.start
       ),
       resourceId: resourceId,
     });
+  }
+}
+
+async function findOrShowEditor(documentUri?: Uri) {
+  if (!documentUri) {
+    const editor = vscode.window.activeTextEditor;
+    if (editor?.document.languageId !== 'bicep') {
+      return null;
+    }
+
+    return editor;
+  } else {
+    const document = await workspace.openTextDocument(documentUri);
+    return await window.showTextDocument(document);
   }
 }

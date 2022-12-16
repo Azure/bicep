@@ -408,6 +408,7 @@
         },
         {
           "command": "bicep.insertResource",
+          "when": "editorLangId == bicep",
           "group": "0_bicep"
         },
         {
