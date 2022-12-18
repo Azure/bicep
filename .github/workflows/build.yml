@@ -249,7 +249,7 @@ jobs:
         uses: actions/setup-dotnet@v3
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v1.3
 
       - name: Build Bicep.sln
         run: msbuild Bicep.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_build.binlog
