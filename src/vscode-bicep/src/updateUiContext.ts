@@ -10,6 +10,11 @@ import {
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { bicepLanguageId } from "./language/constants";
 
+const cachedCanPasteAsBicep = {
+  clipboardText: "",
+  canPasteAsBicep: false,
+};
+
 export async function updateUiContext(
   currentDocument: TextDocument | undefined,
   pasteAsBicepCommand?: PasteAsBicepCommand // Pass this in if you want to check for canPasteAsBicep
@@ -45,10 +50,17 @@ export async function updateUiContext(
 
         if (currentDocument?.languageId === bicepLanguageId) {
           const clipboardText = await env.clipboard.readText();
-          canPasteAsBicep = await pasteAsBicepCommand.canPasteAsBicep(
-            context,
-            clipboardText
-          );
+
+          if (cachedCanPasteAsBicep.clipboardText === clipboardText) {
+            canPasteAsBicep = cachedCanPasteAsBicep.canPasteAsBicep;
+          } else {
+            canPasteAsBicep = await pasteAsBicepCommand.canPasteAsBicep(
+              context,
+              clipboardText
+            );
+            cachedCanPasteAsBicep.clipboardText = clipboardText;
+            cachedCanPasteAsBicep.canPasteAsBicep = canPasteAsBicep;
+          }
         }
 
         await commands.executeCommand(

@@ -256,7 +256,7 @@ namespace Bicep.LanguageServer.Telemetry
                 properties: new()
                 {
                     ["decompileId"] = decompileId,
-                    ["pasteType"] = pasteType ?? "",
+                    ["pasteType"] = pasteType ?? string.Empty,
                     ["jsonSize"] = jsonSize.ToString(),
                     ["bicepSize"] = bicepSize?.ToString() ?? string.Empty,
                 }

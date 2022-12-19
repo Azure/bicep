@@ -8,7 +8,7 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--enable-proposed-api ms-azuretools.vscode-bicep",
+        "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
@@ -29,7 +29,7 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--enable-proposed-api ms-azuretools.vscode-bicep",
+        "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
@@ -47,7 +47,7 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--enable-proposed-api ms-azuretools.vscode-bicep",
+        "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
@@ -64,7 +64,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--enable-proposed-api ms-azuretools.vscode-bicep",
+        "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
       ],
@@ -82,7 +82,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--enable-proposed-api ms-azuretools.vscode-bicep",
+        "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
       ],
@@ -100,7 +100,7 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--enable-proposed-api ms-azuretools.vscode-bicep",
+        "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
       ],

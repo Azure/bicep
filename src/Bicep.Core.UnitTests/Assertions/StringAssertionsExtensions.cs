@@ -103,7 +103,7 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Compares two strings after normalizing by removing whitespace from the beginning and ending of all lines
         /// </summary>
-        public static AndConstraint<StringAssertions> EqualIgnoringIndent(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
+        public static AndConstraint<StringAssertions> EqualTrimmedLines(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
         {
             var normalizedActual = instance.Subject is null ? null : StringTestUtils.TrimAllLines(StringUtils.ReplaceNewlines(instance.Subject, "\n"));
             var normalizedExpected = expected is null ? null : StringTestUtils.TrimAllLines(StringUtils.ReplaceNewlines(expected, "\n"));

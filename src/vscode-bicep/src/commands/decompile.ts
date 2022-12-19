@@ -133,16 +133,13 @@ export class DecompileCommand implements Command {
   }
 
   public static async mightBeArmTemplateNoThrow(
-    documentUriOrText: Uri | string
+    documentUri: Uri
   ): Promise<boolean> {
     try {
-      const contents =
-        documentUriOrText instanceof Uri
-          ? await fse.readFile(documentUriOrText.fsPath)
-          : documentUriOrText;
-      if (/\$schema.*deploymenttemplate\.json/i.test(contents.toString())) {
-        return true;
-      }
+      const contents = await (
+        await fse.readFile(documentUri.fsPath)
+      ).toString();
+      return /\$schema.*deploymenttemplate\.json/i.test(contents);
     } catch (err) {
       // ignore
     }

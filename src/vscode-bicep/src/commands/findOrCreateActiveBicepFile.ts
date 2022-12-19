@@ -44,7 +44,9 @@ export async function findOrCreateActiveBicepFile(
   const ui = context.ui;
 
   if (documentUri) {
-    // The command specified a specific URI, so act on that (right-click or context menu)
+    // The command specified a specific URI, so act on that (right-click or context menu).
+    // The only scenario where we should *not* have a documentUri is when a command is invoked through the command
+    //   palette or through a shortcut key.
     properties.targetFile = "rightClickOrMenu";
     return documentUri;
   }

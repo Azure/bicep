@@ -62,8 +62,7 @@ async function go() {
         extensionTestsPath: path.resolve(__dirname, "index"),
         extensionTestsEnv: { TEST_MODE: "e2e" },
         launchArgs: [
-          "--enable-proposed-api",
-          "ms-azuretools.vscode-bicep",
+          "--enable-proposed-api=ms-azuretools.vscode-bicep",
           ...userDataArguments,
         ],
       });

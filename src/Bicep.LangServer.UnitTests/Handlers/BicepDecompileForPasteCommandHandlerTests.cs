@@ -78,7 +78,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             expectedBicep = expectedBicep?.Trim('\n');
             string? actualBicep = result.Bicep?.Trim('\n');
-            actualBicep.Should().EqualIgnoringIndent(expectedBicep);
+            actualBicep.Should().EqualTrimmedLines(expectedBicep);
             result.PasteType.Should().Be(expectedPasteType switch
             {
                 PasteType.None => BicepDecompileForPasteCommandHandler.PasteType_None,
