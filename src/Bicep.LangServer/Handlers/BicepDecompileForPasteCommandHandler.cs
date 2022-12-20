@@ -172,7 +172,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             // Don't log telemetry if we're just determining if we can paste, because this will happen a lot
             //   (on changing between editors for instance)
-            //asdfg but we don't call back for telemetry if we use the result
+            // TODO: but we don't call back for telemetry if we use the result
             return queryCanPaste ?
                 null :
                 BicepTelemetryEvent.DecompileForPaste(decompileId, pasteType, json.Length, bicep?.Length);

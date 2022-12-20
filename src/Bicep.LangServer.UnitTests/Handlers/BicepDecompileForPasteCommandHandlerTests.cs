@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.DirectoryServices.Protocols;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
@@ -488,7 +489,7 @@ random characters
                         ""type"": ""Microsoft.Storage/storageAccounts"",
                         ""apiVersion"": ""2021-02-01"",
                         ""name"": ""name"",
-                        ""location"": ""[parameters('location')]"",
+                        ""location"": ""[concat(parameters('location'), variables('location'), parameters('location_var'), variables('location_var'), parameters('location_param'), variables('location_param'))]"",
                         ""kind"": ""[variables('location')]"",
                         ""sku"": {
                           ""name"": ""Premium_LRS""
@@ -498,9 +499,17 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedErrorMessage: "[6:35]: Unable to pick unique name for missing variable location",
+                    expectedErrorMessage: null,
                     expectedPasteType: PasteType.Resources,
-                    expectedBicep: null);
+                    expectedBicep: @"
+                    resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                        name: 'name'
+                        location: concat(location, location_var, location_var, location_var_var, location_param, location_param_var)
+                        kind: location_var
+                        sku: {
+                            name: 'Premium_LRS'
+                        }
+                    }");
         }
 
         [TestMethod]
@@ -1015,5 +1024,151 @@ random characters
                     expectedErrorMessage: null,
                     expectedBicep: expected);
         }
+
+        [TestMethod]
+        public async Task MissingVariable_UsedMultipleTimes_ShouldSucceed()
+        {
+            string json = @" {
+                      ""type"": ""Microsoft.Storage/storageAccounts"",
+                      ""apiVersion"": ""2021-02-01"",
+                      ""name"": ""name1"",
+                      ""location"": ""[variables('v1')]"",
+                      ""kind"": ""[variables('v1')]"",
+                      ""sku"": {
+                        ""name"": ""[variables('v1')]""
+                      }
+                    }";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.Resources,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                            name: 'name1'
+                            location: v1
+                            kind: v1
+                            sku: {
+                                name: v1
+                            }
+                        }");
+        }
+
+        [TestMethod]
+        public async Task MissingVariable_UsedMultipleTimes_CasedDifferently_ShouldSucceed()
+        {
+            string json = @" {
+                      ""type"": ""Microsoft.Storage/storageAccounts"",
+                      ""apiVersion"": ""2021-02-01"",
+                      ""name"": ""name1"",
+                      ""location"": ""[variables('v1')]"",
+                      ""kind"": ""[variables('v1')]"",
+                      ""sku"": {
+                        ""name"": ""[variables('V1')]""
+                      }
+                    }";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.Resources,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                            name: 'name1'
+                            location: v1
+                            kind: v1
+                            sku: {
+                                name: v1
+                            }
+                        }");
+        }
+
+        [TestMethod]
+        public async Task MissingParameter_UsedMultipleTimes_ShouldSucceed()
+        {
+            string json = @"{
+                      ""type"": ""Microsoft.Storage/storageAccounts"",
+                      ""apiVersion"": ""2021-02-01"",
+                      ""name"": ""name1"",
+                      ""location"": ""[parameters('p1')]"",
+                      ""kind"": ""[parameters('p1')]"",
+                      ""sku"": {
+                        ""name"": ""[parameters('p1')]""
+                      }
+                    }";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.Resources,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                            name: 'name1'
+                            location: p1
+                            kind: p1
+                            sku: {
+                                name: p1
+                            }
+                        }");
+        }
+
+        [TestMethod]
+        public async Task MissingParameter_UsedMultipleTimes_CasedDifferently_ShouldSucceed()
+        {
+            string json = @" {
+                      ""type"": ""Microsoft.Storage/storageAccounts"",
+                      ""apiVersion"": ""2021-02-01"",
+                      ""name"": ""name1"",
+                      ""location"": ""[parameters('p1')]"",
+                      ""kind"": ""[parameters('p1')]"",
+                      ""sku"": {
+                        ""name"": ""[parameters('P1')]""
+                      }
+                    }";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.Resources,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                            name: 'name1'
+                            location: p1
+                            kind: p1
+                            sku: {
+                                name: p1
+                            }
+                        }");
+        }
+
+        [TestMethod]
+        public async Task MissingParameterVariable_CollidesWithResourceName_ShouldSucceed()
+        {
+            string json = @" {
+                      ""type"": ""Microsoft.Storage/storageAccounts"",
+                      ""apiVersion"": ""2021-02-01"",
+                      ""name"": ""v1"",
+                      ""location"": ""[variables('v1')]"",
+                      ""kind"": ""[parameters('v1')]"",
+                      ""sku"": {
+                        ""name"": ""Premium_LRS""
+                      }
+                    }";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.Resources,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource v1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                            name: 'v1'
+                            location: v1_var
+                            kind: v1_param
+                            sku: {
+                                name: 'Premium_LRS'
+                            }
+                        }");
+        }
+
     }
 }

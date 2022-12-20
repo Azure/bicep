@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -468,51 +469,12 @@ namespace Bicep.Decompiler
             {
                 case "parameters":
                     {
-                        if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
-                        {
-                            throw new NotImplementedException($"Unable to process parameter with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
-                        }
-
-                        var stringVal = jTokenExpression.Value.Value<string>()!;
-                        var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal);
-                        if (resolved is null)
-                        {
-                            if (options.AllowMissingParamsAndVars)
-                            {
-                                resolved = nameResolver.TryRequestName(NameType.Parameter, stringVal)
-                                ?? throw new ArgumentException($"Unable to pick unique name for missing parameter {stringVal}");
-                            }
-                            else
-                            {
-                                throw new ArgumentException($"Unable to find parameter {stringVal}");
-                            }
-                        }
-
-                        baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
+                        baseSyntax = ParseParamOrVarFunctionExpression(expression, NameType.Parameter);
                         break;
                     }
                 case "variables":
                     {
-                        if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
-                        {
-                            throw new NotImplementedException($"Unable to process variable with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
-                        }
-
-                        var stringVal = jTokenExpression.Value.Value<string>()!;
-                        var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal);
-                        if (resolved is null)
-                        {
-                            if (options.AllowMissingParamsAndVars)
-                            {
-                                resolved = nameResolver.TryRequestName(NameType.Parameter, stringVal)
-                                ?? throw new ArgumentException($"Unable to pick unique name for missing variable {stringVal}");
-                            }
-                            else
-                            {
-                                throw new ArgumentException($"Unable to find variable {stringVal}");
-                            }
-                        }
-                        baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
+                        baseSyntax = ParseParamOrVarFunctionExpression(expression, NameType.Variable);
                         break;
                     }
                 case "reference":
@@ -610,6 +572,38 @@ namespace Bicep.Decompiler
                 }
             }
 
+            return baseSyntax;
+        }
+
+        private SyntaxBase ParseParamOrVarFunctionExpression(FunctionExpression expression, NameType nameType)
+        {
+            Debug.Assert(nameType == NameType.Parameter || nameType == NameType.Variable);
+
+            SyntaxBase? baseSyntax;
+            if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
+            {
+                throw new NotImplementedException($"Unable to process parameter or variable with non-constant name {ExpressionsEngine.SerializeExpression(expression)}");
+            }
+
+            var stringVal = jTokenExpression.Value.Value<string>()!;
+            var resolved = nameResolver.TryLookupName(nameType, stringVal);
+            if (resolved is null)
+            {
+                if (options.AllowMissingParamsAndVars)
+                {
+                    resolved = nameResolver.TryRequestName(nameType, stringVal)
+                    ?? throw new ArgumentException($"Unable to pick unique name for missing parameter or variable {stringVal}");
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        nameType == NameType.Parameter ?
+                            $"Unable to find parameter {stringVal}" :
+                            $"Unable to find variable {stringVal}");
+                }
+            }
+
+            baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
             return baseSyntax;
         }
 
