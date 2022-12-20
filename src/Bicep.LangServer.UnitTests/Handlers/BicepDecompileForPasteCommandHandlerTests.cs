@@ -93,7 +93,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
 {jsonFullTemplateMembers}
 }}";
 
-
         const string Resource1Json = @" {
                       ""type"": ""Microsoft.Storage/storageAccounts"",
                       ""apiVersion"": ""2021-02-01"",

@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class StringTestUtils
     {
-        private static Regex LineIndentRegex { get; } = new Regex("^\\s*");
+        private static Regex LineIndentRegex { get; } = new Regex("^\\s*", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         /// <summary>
         /// Shifts all lines to the left by removing whitespace until the line with the least amount of indent is
@@ -38,4 +38,3 @@ namespace Bicep.Core.UnitTests.Utils
         }
     }
 }
-
