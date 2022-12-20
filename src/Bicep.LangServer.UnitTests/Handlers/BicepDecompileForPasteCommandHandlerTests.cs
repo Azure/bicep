@@ -1,42 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.DirectoryServices.Protocols;
-using System.IO;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Bicep.Core.Configuration;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
-using Bicep.Decompiler;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Providers;
 using FluentAssertions;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
