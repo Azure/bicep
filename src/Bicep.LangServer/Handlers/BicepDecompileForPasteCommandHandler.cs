@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Handlers
             StringBuilder output = new StringBuilder();
             string decompileId = Guid.NewGuid().ToString();
 
-            var (pasteType, constructedJsonTemplate, needsDisclaimer) = ConstructFullJsonTemplate(output, json);
+            var (pasteType, constructedJsonTemplate, needsDisclaimer) = ConstructFullJsonTemplate(json);
             if (pasteType is null)
             {
                 // It's not anything we know how to convert to Bicep
@@ -169,7 +169,7 @@ namespace Bicep.LanguageServer.Handlers
         /// <summary>
         /// If the given JSON matches a pattern that we know how to paste as Bicep, convert it into a full template to be decompiled
         /// </summary>
-        private (string? pasteType, string? fullJsonTemplate, bool needsDisclaimer) ConstructFullJsonTemplate(StringBuilder output, string json)
+        private (string? pasteType, string? fullJsonTemplate, bool needsDisclaimer) ConstructFullJsonTemplate(string json)
         {
             using var streamReader = new StringReader(json);
             using var reader = new JsonTextReader(streamReader);
@@ -183,7 +183,7 @@ namespace Bicep.LanguageServer.Handlers
                     if (TryGetStringProperty(obj, "$schema") is string schema)
                     {
                         // Template converter will do a more thorough check, we just want to know if it *looks* like a template
-                        var looksLikeArmSchema = schema.Contains("deploymentTemplate.json", StringComparison.InvariantCultureIgnoreCase) == true;
+                        var looksLikeArmSchema = LanguageConstants.ArmTemplateSchemaRegex.IsMatch(schema);
                         if (looksLikeArmSchema)
                         {
                             return this.ConstructFullTemplateFromTemplateObject(json);
