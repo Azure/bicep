@@ -54,7 +54,8 @@ namespace Bicep.LanguageServer.Handlers
 
         public const string? PasteType_None = null;
         public const string PasteType_FullTemplate = "fullTemplate"; // Full template
-        public const string PasteType_ResourceObject = "resources"; // Single resource or list of multiple resources
+        public const string PasteType_SingleResource = "resource"; // Single resource
+        public const string PasteType_ResourceList = "resourceList"; // List of multiple resources
 
         private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
 
@@ -268,10 +269,10 @@ namespace Bicep.LanguageServer.Handlers
                     + "]}";
 
             return (
-                    PasteType_ResourceObject,
-                    templateJson,
-                    true
-                );
+                resourceObjects.Count == 1 ? PasteType_SingleResource : PasteType_ResourceList,
+                templateJson,
+                true
+            );
         }
 
         private static void SkipComments(JsonTextReader reader)

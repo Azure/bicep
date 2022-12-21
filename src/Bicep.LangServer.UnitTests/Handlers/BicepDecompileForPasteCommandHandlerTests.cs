@@ -39,7 +39,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             None,
             FullTemplate,
-            Resources,
+            SingleResource,
+            ResourceList,
         }
 
         private async Task TestDecompileForPaste(
@@ -61,7 +62,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             {
                 PasteType.None => BicepDecompileForPasteCommandHandler.PasteType_None,
                 PasteType.FullTemplate => BicepDecompileForPasteCommandHandler.PasteType_FullTemplate,
-                PasteType.Resources => BicepDecompileForPasteCommandHandler.PasteType_ResourceObject,
+                PasteType.SingleResource=> BicepDecompileForPasteCommandHandler.PasteType_SingleResource,
+                PasteType.ResourceList => BicepDecompileForPasteCommandHandler.PasteType_ResourceList,
                 _ => throw new NotImplementedException(),
             });
         }
@@ -347,7 +349,7 @@ random characters
                     ""configurationProfile"": ""[bad-expression]""
                 }
             }",
-            PasteType.Resources,
+            PasteType.SingleResource,
             null,
             "[6:46]: The language expression 'bad-expression' is not valid: the string character 'x' at position '5' is not expected.",
             DisplayName = "Bad expression"
@@ -453,7 +455,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedBicep: expected);
         }
 
@@ -476,7 +478,7 @@ random characters
             await TestDecompileForPaste(
                     json: json,
                     expectedErrorMessage: null,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedBicep: @"
                     resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                         name: 'name'
@@ -514,7 +516,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    PasteType.Resources,
+                    PasteType.SingleResource,
                     expectedErrorMessage: null,
                     expectedBicep: expected);
         }
@@ -584,7 +586,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    PasteType.Resources,
+                    PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: expected);
         }
@@ -622,7 +624,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    PasteType.Resources,
+                    PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: expected);
         }
@@ -673,7 +675,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    PasteType.Resources,
+                    PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: expected);
         }
@@ -861,7 +863,7 @@ random characters
 
             await TestDecompileForPaste(
                 json: json,
-                PasteType.Resources,
+                PasteType.SingleResource,
                 expectedErrorMessage: "[18:48]: Unable to find parameter location",
                 expectedBicep: null);
         }
@@ -897,7 +899,7 @@ random characters
 
             await TestDecompileForPaste(
                 json: json,
-                PasteType.Resources,
+                PasteType.SingleResource,
                 expectedErrorMessage: null,
                 expectedBicep: @"
                     module nestedDeploymentInner './nested_nestedDeploymentInner.bicep' = {
@@ -918,7 +920,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: @$"
                         {Resource1Bicep}
@@ -936,7 +938,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.ResourceList,
                     expectedErrorMessage: "[21:1]: Unable to pick unique name for resource Microsoft.Storage/storageAccounts name1",
                     expectedBicep: null);
         }
@@ -951,7 +953,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: @$"
                         {Resource1Bicep}
@@ -973,7 +975,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: $@"
                         {Resource1Bicep}
@@ -996,7 +998,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.ResourceList,
                     expectedErrorMessage: null,
                     expectedBicep: expected);
         }
@@ -1017,7 +1019,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedErrorMessage: null,
                     expectedBicep: @"
                         resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -1046,7 +1048,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedErrorMessage: null,
                     expectedBicep: @"
                         resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -1075,7 +1077,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedErrorMessage: null,
                     expectedBicep: @"
                         resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -1104,7 +1106,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedErrorMessage: null,
                     expectedBicep: @"
                         resource name1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -1133,7 +1135,7 @@ random characters
 
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.Resources,
+                    expectedPasteType: PasteType.SingleResource,
                     expectedErrorMessage: null,
                     expectedBicep: @"
                         resource v1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
