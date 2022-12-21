@@ -7,7 +7,7 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--enable-proposed-api",
+                "--enable-proposed-api=ms-azuretools.vscode-bicep",
                 "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
             ],
             "env": {

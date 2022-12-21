@@ -7,10 +7,10 @@ import { Disposable } from "./disposable";
 export class OutputChannelManager extends Disposable {
   private _azExtOutputChannel: IAzExtOutputChannel;
 
-  constructor(name: string, extensionPrefix: string) {
+  constructor(name: string, extensionConfigurationPrefix: string) {
     super();
     this._azExtOutputChannel = this.register(
-      createAzExtOutputChannel(name, extensionPrefix)
+      createAzExtOutputChannel(name, extensionConfigurationPrefix)
     );
   }
 

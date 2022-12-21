@@ -17,6 +17,7 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
+import { bicepLanguageId } from "./constants";
 
 const dotnetRuntimeVersion = "6.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
@@ -91,7 +92,7 @@ export async function createLanguageService(
   );
 
   const clientOptions: lsp.LanguageClientOptions = {
-    documentSelector: [{ language: "bicep" }],
+    documentSelector: [{ language: bicepLanguageId }],
     initializationOptions: {
       // this tells the server that this client can handle additional DocumentUri schemes
       enableRegistryContent: true,
@@ -123,7 +124,7 @@ export async function createLanguageService(
   };
 
   const client = new lsp.LanguageClient(
-    "bicep",
+    bicepLanguageId,
     "Bicep",
     serverOptions,
     clientOptions

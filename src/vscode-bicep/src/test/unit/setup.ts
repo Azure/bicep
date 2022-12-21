@@ -3,6 +3,12 @@
 jest.mock(
   "vscode",
   () => ({
+    $$_this_is_a_mock_$$: "see vscode/src/test/unit/setup.ts",
+    ConfigurationTarget: {
+      Global: 1,
+      Workspace: 2,
+      WorkspaceFolder: 3,
+    },
     languages: {
       createDiagnosticCollection: jest.fn(),
       registerCodeLensProvider: jest.fn(),

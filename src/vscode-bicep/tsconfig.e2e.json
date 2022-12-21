@@ -6,7 +6,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "outDir": "out/test",
+    "outDir": "out",
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,

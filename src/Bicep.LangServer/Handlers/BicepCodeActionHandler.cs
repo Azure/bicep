@@ -51,6 +51,8 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var documentUri = request.TextDocument.Uri;
             var compilationContext = this.compilationManager.GetCompilation(documentUri);
 

@@ -33,10 +33,11 @@ public class BicepDecompiler
         this.fileResolver = fileResolver;
     }
 
-    public async Task<DecompileResult> Decompile(Uri entryJsonUri, Uri entryBicepUri)
+    public async Task<DecompileResult> Decompile(Uri entryJsonUri, Uri entryBicepUri, DecompileOptions? options = null)
     {
         var workspace = new Workspace();
         var decompileQueue = new Queue<(Uri, Uri)>();
+        options ??= new DecompileOptions();
 
         decompileQueue.Enqueue((entryJsonUri, entryBicepUri));
 
@@ -59,7 +60,7 @@ public class BicepDecompiler
                 throw new InvalidOperationException($"Failed to read {jsonUri}");
             }
 
-            var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
+            var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput, options);
             var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToText());
             workspace.UpsertSourceFile(bicepFile);
 

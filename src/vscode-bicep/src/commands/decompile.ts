@@ -12,6 +12,8 @@ import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
 
+// Unlike most commands, this one is enabled only for JSON files, not Bicep files
+
 interface DecompileCommandParams {
   jsonUri: DocumentUri;
 }
@@ -65,7 +67,9 @@ export class DecompileCommand implements Command {
       );
     }
 
-    const canDecompile = await DecompileCommand.mightBeArmTemplate(documentUri);
+    const canDecompile = await DecompileCommand.mightBeArmTemplateNoThrow(
+      documentUri
+    );
     if (!canDecompile) {
       this.outputChannelManager.appendToOutputChannel(
         `Cannot decompile "${documentUri.fsPath}" into Bicep because it does not appear to be an ARM template.`
@@ -128,12 +132,14 @@ export class DecompileCommand implements Command {
     );
   }
 
-  public static async mightBeArmTemplate(documentUri: Uri): Promise<boolean> {
+  public static async mightBeArmTemplateNoThrow(
+    documentUri: Uri
+  ): Promise<boolean> {
     try {
-      const contents = await fse.readFile(documentUri.fsPath);
-      if (/\$schema.*deploymenttemplate\.json/i.test(contents.toString())) {
-        return true;
-      }
+      const contents = await (
+        await fse.readFile(documentUri.fsPath)
+      ).toString();
+      return /\$schema.*deploymenttemplate\.json/i.test(contents);
     } catch (err) {
       // ignore
     }

@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { IAzExtOutputChannel } from "@microsoft/vscode-azext-utils";
-import {
-  OutputChannel,
-  ViewColumn,
-  window,
-  workspace,
-  WorkspaceConfiguration,
-} from "vscode";
+import { OutputChannel, ViewColumn, window } from "vscode";
+import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { removePropertiesWithPossibleUserInfoInDeployParams } from "./removePropertiesWithPossibleUserInfo";
 
 // https://github.com/microsoft/vscode-azuretools/blob/main/utils/src/AzExtOutputChannel.ts
@@ -15,19 +10,19 @@ import { removePropertiesWithPossibleUserInfoInDeployParams } from "./removeProp
 // TODO: revisit this when https://github.com/Azure/azure-sdk-for-net/issues/27263 is resolved.
 export function createAzExtOutputChannel(
   name: string,
-  extensionPrefix: string
+  extensionConfigurationPrefix: string
 ): IAzExtOutputChannel {
-  return new AzExtOutputChannel(name, extensionPrefix);
+  return new AzExtOutputChannel(name, extensionConfigurationPrefix);
 }
 
 class AzExtOutputChannel implements IAzExtOutputChannel {
   public readonly name: string;
-  public readonly extensionPrefix: string;
+  public readonly extensionConfigurationPrefix: string;
   private _outputChannel: OutputChannel;
 
-  constructor(name: string, extensionPrefix: string) {
+  constructor(name: string, extensionConfigurationPrefix: string) {
     this.name = name;
-    this.extensionPrefix = extensionPrefix;
+    this.extensionConfigurationPrefix = extensionConfigurationPrefix;
     this._outputChannel = window.createOutputChannel(this.name);
   }
 
@@ -50,9 +45,7 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
     options?: { resourceName?: string; date?: Date }
   ): void {
     const enableOutputTimestampsSetting = "enableOutputTimestamps";
-    const projectConfiguration: WorkspaceConfiguration =
-      workspace.getConfiguration(this.extensionPrefix);
-    const result: boolean | undefined = projectConfiguration.get<boolean>(
+    const result: boolean | undefined = getBicepConfiguration().get<boolean>(
       enableOutputTimestampsSetting
     );
 

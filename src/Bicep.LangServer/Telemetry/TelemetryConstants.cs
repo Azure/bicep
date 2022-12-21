@@ -22,6 +22,8 @@ namespace Bicep.LanguageServer.Telemetry
             public const string DecompileSaveSuccess = "decompileSave/success";
             public const string DecompileSaveFailure = "decompileSave/failure";
 
+            public const string DecompileForPaste = "decompileForPaste";
+
             public const string InsertResourceSuccess = "InsertResource/success";
             public const string InsertResourceFailure = "InsertResource/failure";
 

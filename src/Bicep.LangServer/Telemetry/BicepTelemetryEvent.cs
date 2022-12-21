@@ -249,6 +249,19 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
+        public static BicepTelemetryEvent DecompileForPaste(string decompileId, string? pasteType, int jsonSize, int? bicepSize)
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.DecompileForPaste,
+                properties: new()
+                {
+                    ["decompileId"] = decompileId,
+                    ["pasteType"] = pasteType ?? string.Empty,
+                    ["jsonSize"] = jsonSize.ToString(),
+                    ["bicepSize"] = bicepSize?.ToString() ?? string.Empty,
+                }
+            );
+
         public static BicepTelemetryEvent UnhandledException(Exception exception)
             => new BicepTelemetryEvent
             (

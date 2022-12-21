@@ -44,6 +44,7 @@
     "onCommand:bicep.forceModulesRestore",
     "onCommand:bicep.insertResource",
     "onCommand:bicep.importKubernetesManifest",
+    "onCommand:bicep.pasteAsBicep",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
@@ -53,7 +54,8 @@
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
-  "enabledApiProposals": [],
+  "enabledApiProposals": [
+  ],
   "contributes": {
     "configurationDefaults": {
       "[bicep]": {
@@ -69,6 +71,25 @@
       "type": "object",
       "title": "Bicep",
       "properties": {
+        "bicep.decompileOnPaste": {
+          "type": "boolean",
+          "description": "Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
+          "default": true
+        },
+        "bicep.enableOutputTimestamps": {
+          "type": "boolean",
+          "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
+          "default": true,
+          "$comment": "This is interpreted by vscode-azuretools package and the name has to be in the following format: <extensionConfigurationPrefix>.enableOutputTimestamps"
+        },
+        "bicep.suppressedWarnings": {
+          "type": "array",
+          "description": "Warnings that are being suppressed because a 'Don't show again' button was pressed. Remove items to reset.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
@@ -79,12 +100,6 @@
           "default": "Off",
           "description": "Configure tracing of messages sent to the Bicep language server.",
           "scope": "window"
-        },
-        "bicep.enableOutputTimestamps": {
-          "type": "boolean",
-          "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
-          "default": true,
-          "$comment": "This is used by vscode-azuretools package and has to be in the following format: <extensionPrefix>.enableOutputTimestamps"
         }
       }
     },
@@ -193,6 +208,13 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "bicep.pasteAsBicep",
+        "title": "Paste JSON as Bicep",
+        "category": "Bicep",
+        "icon": "$(clippy)",
+        "enablement": "bicep.canPasteAsBicep"
+      },
+      {
         "command": "bicep.createConfigFile",
         "title": "Create Bicep Configuration File",
         "category": "Bicep"
@@ -242,6 +264,12 @@
       {
         "command": "bicep.decompile",
         "when": "editorFocus && (resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template)"
+      },
+      {
+        "command": "bicep.pasteAsBicep",
+        "key": "shift+ctrl+v",
+        "mac": "shift+cmd+v",
+        "when": "resourceLangId == bicep && bicep.canPasteAsBicep"
       }
     ],
     "menus": {
@@ -283,6 +311,11 @@
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.pasteAsBicep",
+          "when": "resourceLangId == bicep",
+          "group": "9_cutcopypaste"
         },
         {
           "command": "bicep.deploy",
@@ -367,6 +400,11 @@
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.pasteAsBicep",
+          "when": "resourceLangId == bicep",
+          "group": "9_cutcopypaste"
         },
         {
           "command": "bicep.deploy",

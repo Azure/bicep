@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DecompileAsPaste_AutoConvertWarning" xml:space="preserve">
+    <value>Note: The JSON pasted into the editor was automatically converted to Bicep using the Bicep decompiler.</value>
+  </data>
   <data name="Decompile_CreatedNewSubfolder" xml:space="preserve">
     <value>Created new subfolder for output files: {0}</value>
     <comment>{0} = file path</comment>
@@ -125,7 +128,7 @@
     <value>Decompilation failed. Please fix the following problems and try again: {0}</value>
   </data>
   <data name="Decompile_DecompilationStartMsg" xml:space="preserve">
-    <value>Decompile_Decompiling {0} into Bicep...</value>
+    <value>Decompiling {0} into Bicep...</value>
     <comment>{0} = file path</comment>
   </data>
   <data name="DeploymentFailedMessage" xml:space="preserve">
