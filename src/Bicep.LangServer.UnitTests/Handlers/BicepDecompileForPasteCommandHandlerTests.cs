@@ -417,7 +417,7 @@ random characters
         }
 
         [TestMethod]
-        public async Task NonResourceObject_WrongPropertyType_Number_CantPaste2()
+        public async Task NonResourceObject_WrongPropertyType_Number_CantPaste()
         {
             string json = @$"
                 {Resource1Json.Replace("\"2021-02-01\"", "1234")}
@@ -917,6 +917,42 @@ random characters
                     {Resource1Json}
                     {Resource2Json}
                 }}}} // extra";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.ResourceList,
+                    expectedErrorMessage: null,
+                    expectedBicep: @$"
+                        {Resource1Bicep}
+
+                        {Resource2Bicep}");
+        }
+
+        [TestMethod]
+        public async Task MultipleResourceObjects_ExtraOpenBraceAfterwards_ShouldSucceed()
+        {
+            string json = @$"
+                    {Resource1Json}
+                    {Resource2Json}
+                {{ // extra";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.ResourceList,
+                    expectedErrorMessage: null,
+                    expectedBicep: @$"
+                        {Resource1Bicep}
+
+                        {Resource2Bicep}");
+        }
+
+        [TestMethod]
+        public async Task MultipleResourceObjects_ExtraEmptyObjectAfterwards_ShouldSucceed()
+        {
+            string json = @$"
+                    {Resource1Json}
+                    {Resource2Json}
+                {{}} // extra";
 
             await TestDecompileForPaste(
                     json: json,

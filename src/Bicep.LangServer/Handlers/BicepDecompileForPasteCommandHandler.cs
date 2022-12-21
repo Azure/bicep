@@ -197,7 +197,7 @@ namespace Bicep.LanguageServer.Handlers
                     // If it's a resource object or a list of resource objects, accept it
                     if (IsResourceObject(obj))
                     {
-                        return ConstructFullTemplateFromSequenceOfResources(json, obj, reader);
+                        return ConstructFullTemplateFromSequenceOfResources(obj, reader);
                     }
                 }
             }
@@ -225,7 +225,7 @@ namespace Bicep.LanguageServer.Handlers
         ///
         /// Note that this is not a valid JSON construct by itself, unless it's just a single resource
         /// </summary>
-        private (string pasteType, string constructedJsonTemplate, bool needsDisclaimer) ConstructFullTemplateFromSequenceOfResources(string json, JObject firstResourceObject, JsonTextReader reader)
+        private (string pasteType, string constructedJsonTemplate, bool needsDisclaimer) ConstructFullTemplateFromSequenceOfResources(JObject firstResourceObject, JsonTextReader reader)
         {
             Debug.Assert(IsResourceObject(firstResourceObject));
             Debug.Assert(reader.TokenType == JsonToken.EndObject, "Reader should be on end squiggly of first resource object");

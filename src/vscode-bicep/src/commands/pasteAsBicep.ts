@@ -33,8 +33,7 @@ import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
 
 export class PasteAsBicepCommand implements Command {
-  public static readonly id = "bicep.pasteAsBicep";
-  public readonly id = PasteAsBicepCommand.id;
+  public readonly id = "bicep.pasteAsBicep";
   public disclaimerShownThisSession = false;
 
   public constructor(
