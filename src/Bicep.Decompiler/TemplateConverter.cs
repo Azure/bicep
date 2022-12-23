@@ -291,7 +291,7 @@ namespace Bicep.Decompiler
                 return true;
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "not"))
+            if (expression.IsNamed("not"))
             {
                 if (expression.Parameters.Length != 1)
                 {
@@ -307,7 +307,7 @@ namespace Bicep.Decompiler
                 // simplify the expression from (!(a == b)) to (a != b)
                 if (expression.Parameters[0] is FunctionExpression functionExpression)
                 {
-                    if (StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "equals"))
+                    if (functionExpression.IsNamed("equals"))
                     {
                         return TryReplaceBannedFunction(
                             new FunctionExpression("notEquals", functionExpression.Parameters, functionExpression.Properties),
@@ -324,7 +324,7 @@ namespace Bicep.Decompiler
                 return true;
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "if"))
+            if (expression.IsNamed("if"))
             {
                 if (expression.Parameters.Length != 3)
                 {
@@ -348,13 +348,13 @@ namespace Bicep.Decompiler
                 return true;
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createArray"))
+            if (expression.IsNamed("createArray"))
             {
                 syntax = SyntaxFactory.CreateArray(expression.Parameters.Select(ParseLanguageExpression));
                 return true;
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createObject"))
+            if (expression.IsNamed("createObject"))
             {
                 syntax = SyntaxFactory.CreateObject(expression.Parameters.Select(ParseLanguageExpression).Chunk(2).Select(pair =>
                 {
@@ -369,6 +369,43 @@ namespace Bicep.Decompiler
 
                     return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
                 }));
+                return true;
+            }
+
+            if (expression.IsNamed("tryGet") || expression.IsNamed("getIfNonNull"))
+            {
+                Stack<(LanguageExpression propertyNameExpression, bool safeAccess)> shortCircuitChain = new();
+                LanguageExpression current = expression;
+
+                while (current is FunctionExpression func && (func.IsNamed("getIfNonNull") || func.IsNamed("tryGet")))
+                {
+                    if (func.Parameters.Length != 2)
+                    {
+                        throw new ArgumentException($"Expected 2 parameters for binary function {func.Function}");
+                    }
+
+                    shortCircuitChain.Push((func.Parameters[1], func.IsNamed("tryGet")));
+                    current = func.Parameters[0];
+                }
+
+                syntax = ParseLanguageExpression(current);
+
+                while (shortCircuitChain.TryPeek(out var frame) && !frame.safeAccess)
+                {
+                    syntax = SyntaxFactory.CreateFunctionCall("getIfNonNull", syntax, ParseLanguageExpression(shortCircuitChain.Pop().propertyNameExpression));
+                }
+
+                var parenthesesRequired = false;
+                while (shortCircuitChain.TryPop(out var frame))
+                {
+                    syntax = ParsePropertyAccess(syntax, frame.propertyNameExpression, frame.safeAccess);
+                    parenthesesRequired = true;
+                }
+
+                if (parenthesesRequired)
+                {
+                    syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                }
                 return true;
             }
 
@@ -389,7 +426,7 @@ namespace Bicep.Decompiler
                 throw new InvalidOperationException($"Expected {nameof(FunctionExpression)}");
             }
 
-            if (!StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "concat"))
+            if (!functionExpression.IsNamed("concat"))
             {
                 return ParseFunctionExpression(functionExpression);
             }
@@ -436,12 +473,12 @@ namespace Bicep.Decompiler
 
         private bool CanInterpolate(FunctionExpression function)
         {
-            if (StringComparer.OrdinalIgnoreCase.Equals(function.Function, "format"))
+            if (function.IsNamed("format"))
             {
                 return true;
             }
 
-            if (!StringComparer.OrdinalIgnoreCase.Equals(function.Function, "concat"))
+            if (!function.IsNamed("concat"))
             {
                 return false;
             }
@@ -488,6 +525,7 @@ namespace Bicep.Decompiler
                                 baseSyntax = new PropertyAccessSyntax(
                                     new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
                                     SyntaxFactory.DotToken,
+                                    null,
                                     SyntaxFactory.CreateIdentifier("properties"));
                             }
                         }
@@ -500,6 +538,7 @@ namespace Bicep.Decompiler
                                 baseSyntax = new PropertyAccessSyntax(
                                     new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
                                     SyntaxFactory.DotToken,
+                                    null,
                                     SyntaxFactory.CreateIdentifier("properties"));
                             }
                         }
@@ -514,6 +553,7 @@ namespace Bicep.Decompiler
                             baseSyntax = new PropertyAccessSyntax(
                                 new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resourceName)),
                                 SyntaxFactory.DotToken,
+                                null,
                                 SyntaxFactory.CreateIdentifier("id"));
                         }
                         break;
@@ -554,25 +594,36 @@ namespace Bicep.Decompiler
 
             foreach (var property in expression.Properties)
             {
-                if (property is JTokenExpression jTokenExpression && jTokenExpression.Value.Type == JTokenType.String)
-                {
-                    // TODO handle special chars and generate array access instead
-                    baseSyntax = new PropertyAccessSyntax(
-                        baseSyntax,
-                        SyntaxFactory.DotToken,
-                        SyntaxFactory.CreateIdentifier(jTokenExpression.Value.Value<string>()!));
-                }
-                else
-                {
-                    baseSyntax = new ArrayAccessSyntax(
-                        baseSyntax,
-                        SyntaxFactory.LeftSquareToken,
-                        ParseLanguageExpression(property),
-                        SyntaxFactory.RightSquareToken);
-                }
+                baseSyntax = ParsePropertyAccess(baseSyntax, property);
             }
 
             return baseSyntax;
+        }
+
+        private SyntaxBase ParsePropertyAccess(SyntaxBase baseExpression, LanguageExpression property, bool safeNavigation = false)
+        {
+            Token? safeAccessMarker = safeNavigation ? SyntaxFactory.QuestionToken : null;
+            return TryParseIdentifier(property) is {} propertyName
+                ? new PropertyAccessSyntax(baseExpression, SyntaxFactory.DotToken, safeAccessMarker, propertyName)
+                : new ArrayAccessSyntax(
+                    baseExpression,
+                    SyntaxFactory.LeftSquareToken,
+                    safeAccessMarker,
+                    ParseLanguageExpression(property),
+                    SyntaxFactory.RightSquareToken);
+        }
+
+        private static IdentifierSyntax? TryParseIdentifier(LanguageExpression? expression)
+        {
+            if (expression is JTokenExpression jTokenExpression &&
+                jTokenExpression.Value.Type == JTokenType.String &&
+                jTokenExpression.Value.Value<string>() is string propertyName &&
+                Lexer.IsValidIdentifier(propertyName))
+            {
+                return SyntaxFactory.CreateIdentifier(propertyName);
+            }
+
+            return null;
         }
 
         private SyntaxBase ParseParamOrVarFunctionExpression(FunctionExpression expression, NameType nameType)
@@ -965,7 +1016,7 @@ namespace Bicep.Decompiler
 
                 input = JTokenHelpers.RewriteExpressions(input, expression =>
                 {
-                    if (expression is not FunctionExpression function || !StringComparer.OrdinalIgnoreCase.Equals(function.Function, "copyIndex"))
+                    if (expression is not FunctionExpression function || !function.IsNamed("copyIndex"))
                     {
                         return expression;
                     }

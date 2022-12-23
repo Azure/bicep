@@ -531,7 +531,7 @@ namespace Bicep.Core.Emit
                 foreach (var variable in nonLoopVariables)
                 {
                     emitter.EmitProperty(variable.Name, variable.Value);
-                }                
+                }
             });
         }
 
@@ -547,7 +547,7 @@ namespace Bicep.Core.Emit
                 {
                     var settings = import.NamespaceType.Settings;
 
-                    emitter.EmitObjectProperty(import.Name, () => 
+                    emitter.EmitObjectProperty(import.Name, () =>
                     {
                         emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
@@ -812,7 +812,7 @@ namespace Bicep.Core.Emit
                     jsonWriter.WriteStartObject();
                     // This is a resource being passed into a module, we actually want to pass in its id
                     // rather than the whole resource.
-                    emitter.EmitProperty("value", new PropertyAccessSyntax(propertySyntax.Value, SyntaxFactory.DotToken, SyntaxFactory.CreateIdentifier("id")));
+                    emitter.EmitProperty("value", new PropertyAccessSyntax(propertySyntax.Value, SyntaxFactory.DotToken, null, SyntaxFactory.CreateIdentifier("id")));
                     jsonWriter.WriteEndObject();
                 }
                 else

@@ -304,6 +304,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.OpenSquare);
+            this.Visit(syntax.SafeAccessMarker);
             this.Visit(syntax.IndexExpression);
             this.Visit(syntax.CloseSquare);
         }
@@ -312,6 +313,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.Dot);
+            this.Visit(syntax.SafeAccessMarker);
             this.Visit(syntax.PropertyName);
         }
 

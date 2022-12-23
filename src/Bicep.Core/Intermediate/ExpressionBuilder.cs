@@ -271,8 +271,9 @@ public class ExpressionBuilder
                             var convertedArgs = method.Arguments.SelectArray(a => ConvertWithoutLowering(a.Expression));
                             var resourceIdExpression = new PropertyAccessExpression(
                                 baseSyntax,
-                                new ResourceReferenceExpression(baseSyntax, resource, indexContext),
-                                "id");
+                                new ResourceReferenceExpression(resource, indexContext),
+                                "id",
+                                AccessExpressionFlags.None);
 
                             var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                             var apiVersionExpression = new StringLiteralExpression(baseSyntax, apiVersion);
@@ -342,23 +343,27 @@ public class ExpressionBuilder
         return new ArrayAccessExpression(
             arrayAccess,
             ConvertWithoutLowering(arrayAccess.BaseExpression),
-            ConvertWithoutLowering(arrayAccess.IndexExpression));
+            ConvertWithoutLowering(arrayAccess.IndexExpression),
+            GetAccessExpressionFlags(arrayAccess, arrayAccess.SafeAccessMarker));
     }
 
-    private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName)
+    private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName, AccessExpressionFlags flags)
     {
         return new PropertyAccessExpression(
             sourceSyntax,
             new ResourceReferenceExpression(sourceSyntax.BaseExpression, resource, indexContext),
-            propertyName);
+            propertyName,
+            flags);
     }
 
     private Expression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
     {
+        var flags = GetAccessExpressionFlags(propertyAccess, propertyAccess.SafeAccessMarker);
+
         // Looking for: myResource.someProp (where myResource is a resource declared in-file)
         if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
         {
-            return ConvertResourcePropertyAccess(propertyAccess, resource, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, resource, null, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myResource[blah].someProp (where myResource is a resource declared in-file)
@@ -366,13 +371,13 @@ public class ExpressionBuilder
             context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is DeclaredResourceMetadata resourceCollection)
         {
             var indexContext = TryGetReplacementContext(resourceCollection, propArrayAccess.IndexExpression, propertyAccess);
-            return ConvertResourcePropertyAccess(propertyAccess, resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myResource.someProp (where myResource is a parameter of type resource)
         if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ParameterResourceMetadata parameter)
         {
-            return ConvertResourcePropertyAccess(propertyAccess, parameter, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, parameter, null, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myMod.outputs.someProp (where someProp is an output of type resource)
@@ -380,7 +385,7 @@ public class ExpressionBuilder
             context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleOutput &&
             !moduleOutput.Module.IsCollection)
         {
-            return ConvertResourcePropertyAccess(propertyAccess, moduleOutput, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, moduleOutput, null, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myMod[blah].outputs.someProp (where someProp is an output of type resource)
@@ -391,7 +396,7 @@ public class ExpressionBuilder
             moduleCollectionOutputMetadata.Module.IsCollection)
         {
             var indexContext = TryGetReplacementContext(moduleCollectionOutputMetadata.NameSyntax, moduleArrayAccess.IndexExpression, propertyAccess);
-            return ConvertResourcePropertyAccess(propertyAccess, moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: expr.outputs.blah (where expr is any expression of type module)
@@ -408,7 +413,8 @@ public class ExpressionBuilder
         return new PropertyAccessExpression(
             propertyAccess,
             ConvertWithoutLowering(propertyAccess.BaseExpression),
-            propertyAccess.PropertyName.IdentifierName);
+            propertyAccess.PropertyName.IdentifierName,
+            flags);
     }
 
     private Expression ConvertResourceAccess(ResourceAccessSyntax resourceAccessSyntax)
@@ -516,7 +522,7 @@ public class ExpressionBuilder
         // loop item variable should be replaced with <array expression>[<index expression>]
         var forExpression = ConvertWithoutLowering(@for.Expression);
 
-        return new ArrayAccessExpression(index.SourceSyntax, forExpression, index);
+        return new ArrayAccessExpression(index.SourceSyntax, forExpression, index, AccessExpressionFlags.None);
     }
 
     private Expression GetLoopVariable(LocalVariableSymbol localVariableSymbol, ForSyntax @for, Expression index)
@@ -606,4 +612,33 @@ public class ExpressionBuilder
         return moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName)
             ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
     }
+
+    private static AccessExpressionFlags GetAccessExpressionFlags(SyntaxBase accessExpression, SyntaxBase? safeAccessMarker)
+    {
+        var flags = AccessExpressionFlags.None;
+        if (safeAccessMarker is not null)
+        {
+            flags |= AccessExpressionFlags.SafeAccess;
+        }
+
+        if (IsShortCircuitableAccess(accessExpression))
+        {
+            flags |= AccessExpressionFlags.ShortCircuitable;
+        }
+
+        return flags;
+    }
+
+    /// <remarks>
+    /// Like C#'s null conditional operator and JavaScript's optional chaining operator, short-circuiting only occurs across an unbroken chain of access expressions.
+    /// According, the <code>.c</code> would not be evaluated if <code>a.?b</code> were null in <code>a.?b.c</code>, but it would be in <code>(a.?b).c</code>.
+    /// </remarks>
+    private static bool IsShortCircuitableAccess(SyntaxBase expression, bool isBaseSyntax = false) => expression switch
+    {
+        PropertyAccessSyntax propertyAccess when propertyAccess.SafeAccessMarker is not null => isBaseSyntax,
+        PropertyAccessSyntax propertyAccess => IsShortCircuitableAccess(propertyAccess.BaseExpression, true),
+        ArrayAccessSyntax arrayAccess when arrayAccess.SafeAccessMarker is not null => isBaseSyntax,
+        ArrayAccessSyntax arrayAccess => IsShortCircuitableAccess(arrayAccess.BaseExpression, true),
+        _ => false,
+    };
 }

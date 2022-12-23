@@ -1796,6 +1796,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP314",
                 $@"The ""{invalidTypeDef}"" type definition in the linked ARM JSON file is invalid because it has neither a ""type"" property nor a ""$ref"" property.");
+
+            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
+                TextSpan,
+                "BCP315",
+                $@"The `.?` (safe dereference) operator may not be used to invoke instance functions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

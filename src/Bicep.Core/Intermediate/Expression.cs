@@ -137,7 +137,8 @@ public record FunctionCallExpression(
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
-    Expression Access
+    Expression Access,
+    AccessExpressionFlags Flags
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -147,7 +148,8 @@ public record ArrayAccessExpression(
 public record PropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
-    string PropertyName
+    string PropertyName,
+    AccessExpressionFlags Flags
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)

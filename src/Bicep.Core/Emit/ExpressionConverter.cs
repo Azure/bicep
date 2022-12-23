@@ -155,6 +155,18 @@ namespace Bicep.Core.Emit
                         function.Name,
                         function.Parameters.Select(p => ConvertExpression(p)));
 
+                case ArrayAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
+                    return CreateFunction(
+                        "tryGet",
+                        ConvertExpression(exp.Base),
+                        ConvertExpression(exp.Access));
+
+                case ArrayAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.ShortCircuitable):
+                    return CreateFunction(
+                        "getIfNonNull",
+                        ConvertExpression(exp.Base),
+                        ConvertExpression(exp.Access));
+
                 case ArrayAccessExpression exp:
                     return AppendProperties(
                         ToFunctionExpression(ConvertExpression(exp.Base)),
@@ -165,6 +177,18 @@ namespace Bicep.Core.Emit
 
                 case PropertyAccessExpression { Base: ModuleReferenceExpression module } exp:
                     return GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp);
+
+                case PropertyAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
+                    return CreateFunction(
+                        "tryGet",
+                        ConvertExpression(exp.Base),
+                        new JTokenExpression(exp.PropertyName));
+
+                case PropertyAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.ShortCircuitable):
+                    return CreateFunction(
+                        "getIfNonNull",
+                        ConvertExpression(exp.Base),
+                        new JTokenExpression(exp.PropertyName));
 
                 case PropertyAccessExpression exp:
                     return AppendProperties(

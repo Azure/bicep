@@ -787,27 +787,33 @@ namespace Bicep.Core.Parsing
                     // array indexer
                     Token openSquare = this.reader.Read();
 
+                    if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression))
+                    {
+                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+                        current = new ArrayTypeSyntax(new ArrayTypeMemberSyntax(current), openSquare, closeSquare);
+                        continue;
+                    }
+
+                    Token? safeAccessMarker = null;
+                    if (this.Check(TokenType.Question))
+                    {
+                        safeAccessMarker = this.reader.Read();
+                    }
+
                     if (this.Check(TokenType.RightSquare))
                     {
-                        if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression))
-                        {
-                            Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
-                            current = new ArrayTypeSyntax(new ArrayTypeMemberSyntax(current), openSquare, closeSquare);
-                        } else
-                        {
-                            // empty indexer - we are allowing this special case in the parser to help with completions
-                            SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
-                            Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+                        // empty indexer - we are allowing this special case in the parser to help with completions
+                        SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
+                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                            current = new ArrayAccessSyntax(current, openSquare, skipped, closeSquare);
-                        }
+                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, skipped, closeSquare);
                     }
                     else
                     {
                         SyntaxBase indexExpression = this.Expression(expressionFlags);
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
+                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, indexExpression, closeSquare);
                     }
 
                     continue;
@@ -817,12 +823,23 @@ namespace Bicep.Core.Parsing
                 {
                     // dot operator
                     Token dot = this.reader.Read();
+                    Token? safeAccessMarker = null;
+                    if (this.Check(TokenType.Question))
+                    {
+                        safeAccessMarker = this.reader.Read();
+                    }
 
                     IdentifierSyntax identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
 
                     if (Check(TokenType.LeftParen))
                     {
                         var functionCall = FunctionCallAccess(identifier, expressionFlags);
+                        if (safeAccessMarker is Token nonNullMarker)
+                        {
+                            identifier = new IdentifierSyntax(new SkippedTriviaSyntax(TextSpan.Between(nonNullMarker.Span, identifier.Span),
+                                new SyntaxBase[] { nonNullMarker, identifier },
+                                DiagnosticBuilder.ForPosition(nonNullMarker).SafeDereferenceNotPermittedOnInstanceFunctions().AsEnumerable()));
+                        }
 
                         // gets instance function call
                         current = new InstanceFunctionCallSyntax(
@@ -835,7 +852,7 @@ namespace Bicep.Core.Parsing
                     }
                     else
                     {
-                        current = new PropertyAccessSyntax(current, dot, identifier);
+                        current = new PropertyAccessSyntax(current, dot, safeAccessMarker, identifier);
                     }
 
                     continue;
@@ -1179,7 +1196,7 @@ namespace Bicep.Core.Parsing
 
             while (this.Check(TokenType.Dot))
             {
-                current = new PropertyAccessSyntax(current, this.reader.Read(), this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName()));
+                current = new PropertyAccessSyntax(current, this.reader.Read(), null, this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName()));
             }
 
             return current;
@@ -1337,7 +1354,7 @@ namespace Bicep.Core.Parsing
                     }
                     else
                     {
-                        current = new PropertyAccessSyntax(current, dot, identifier);
+                        current = new PropertyAccessSyntax(current, dot, null, identifier);
                     }
                 }
 
