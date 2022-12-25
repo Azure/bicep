@@ -619,7 +619,7 @@
     "eslint-plugin-jest": "^27.1.6",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.11",
-    "fork-ts-checker-webpack-plugin": "^7.2.13",
+    "fork-ts-checker-webpack-plugin": "^7.2.14",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.1.1",
     "json-merger": "^1.1.9",
