@@ -238,17 +238,18 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertShortCircuitableAccess(IAccessExpression accessExpression)
         {
-            Stack<Expression> accessExpressionStack = new();
-            accessExpressionStack.Push(accessExpression.Access);
+            LinkedList<Expression> tryGetParameters = new();
+            tryGetParameters.AddFirst(accessExpression.Access);
 
             while (!accessExpression.Flags.HasFlag(AccessExpressionFlags.SafeAccess) && accessExpression.Base is IAccessExpression currentAccess)
             {
-                accessExpressionStack.Push(currentAccess.Access);
+                tryGetParameters.AddFirst(currentAccess.Access);
                 accessExpression = currentAccess;
             }
 
-            return CreateFunction(name: "tryGet",
-                parameters: ConvertExpression(accessExpression.Base).AsEnumerable().Concat(accessExpressionStack.Select(ConvertExpression)));
+            tryGetParameters.AddFirst(accessExpression.Base);
+
+            return CreateFunction("tryGet", tryGetParameters.Select(ConvertExpression));
         }
 
         private LanguageExpression ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression propertyAccess)

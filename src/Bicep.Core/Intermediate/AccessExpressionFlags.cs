@@ -19,7 +19,8 @@ public enum AccessExpressionFlags
     SafeAccess = 1 << 0,
 
     /// <summary>
-    /// Indicates that the access may skip evaluation if a the base expression evaluated to <code>null</code>
+    /// Indicates that the access is part of an unbroken access chain following a safe access expression
+    /// and will consequently skip evaluation if the safe access expression evaluated to <code>null</code>
     /// </summary>
     ShortCircuitable = 1 << 1,
 }
