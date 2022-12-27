@@ -155,17 +155,8 @@ namespace Bicep.Core.Emit
                         function.Name,
                         function.Parameters.Select(p => ConvertExpression(p)));
 
-                case ArrayAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
-                    return CreateFunction(
-                        "tryGet",
-                        ConvertExpression(exp.Base),
-                        ConvertExpression(exp.Access));
-
-                case ArrayAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.ShortCircuitable):
-                    return CreateFunction(
-                        "getIfNonNull",
-                        ConvertExpression(exp.Base),
-                        ConvertExpression(exp.Access));
+                case ArrayAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess) || exp.Flags.HasFlag(AccessExpressionFlags.ShortCircuitable):
+                    return ConvertShortCircuitableAccess(exp);
 
                 case ArrayAccessExpression exp:
                     return AppendProperties(
@@ -178,17 +169,8 @@ namespace Bicep.Core.Emit
                 case PropertyAccessExpression { Base: ModuleReferenceExpression module } exp:
                     return GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp);
 
-                case PropertyAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
-                    return CreateFunction(
-                        "tryGet",
-                        ConvertExpression(exp.Base),
-                        new JTokenExpression(exp.PropertyName));
-
-                case PropertyAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.ShortCircuitable):
-                    return CreateFunction(
-                        "getIfNonNull",
-                        ConvertExpression(exp.Base),
-                        new JTokenExpression(exp.PropertyName));
+                case PropertyAccessExpression exp when exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess) || exp.Flags.HasFlag(AccessExpressionFlags.ShortCircuitable):
+                    return ConvertShortCircuitableAccess(exp);
 
                 case PropertyAccessExpression exp:
                     return AppendProperties(
@@ -252,6 +234,21 @@ namespace Bicep.Core.Emit
             var indexContext = expressionBuilder.TryGetReplacementContext(nameSyntax, indexExpression, newContext);
 
             return GetConverter(indexContext);
+        }
+
+        private LanguageExpression ConvertShortCircuitableAccess(IAccessExpression accessExpression)
+        {
+            Stack<Expression> accessExpressionStack = new();
+            accessExpressionStack.Push(accessExpression.Access);
+
+            while (!accessExpression.Flags.HasFlag(AccessExpressionFlags.SafeAccess) && accessExpression.Base is IAccessExpression currentAccess)
+            {
+                accessExpressionStack.Push(currentAccess.Access);
+                accessExpression = currentAccess;
+            }
+
+            return CreateFunction(name: "tryGet",
+                parameters: ConvertExpression(accessExpression.Base).AsEnumerable().Concat(accessExpressionStack.Select(ConvertExpression)));
         }
 
         private LanguageExpression ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression propertyAccess)

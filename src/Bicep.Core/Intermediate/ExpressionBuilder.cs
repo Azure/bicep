@@ -631,7 +631,7 @@ public class ExpressionBuilder
 
     /// <remarks>
     /// Like C#'s null conditional operator and JavaScript's optional chaining operator, short-circuiting only occurs across an unbroken chain of access expressions.
-    /// According, the <code>.c</code> would not be evaluated if <code>a.?b</code> were null in <code>a.?b.c</code>, but it would be in <code>(a.?b).c</code>.
+    /// Accordingly, the <code>.c</code> would not be evaluated if <code>a.?b</code> were null in <code>a.?b.c</code>, but it would be in <code>(a.?b).c</code>.
     /// </remarks>
     private static bool IsShortCircuitableAccess(SyntaxBase expression, bool isBaseSyntax = false) => expression switch
     {

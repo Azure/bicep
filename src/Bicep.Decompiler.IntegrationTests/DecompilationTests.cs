@@ -146,9 +146,9 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("createArray(1, 2, 3)", "array", "[\n  1\n  2\n  3\n]")]
         [DataRow("createObject('key', 'value')", "object", "{\n  key: 'value'\n}")]
         [DataRow("tryGet(parameters('z'), 'y')", "int", "(z.?y)")]
-        [DataRow("getIfNonNull(getIfNonNull(tryGet(parameters('z'), 'y'), 'x'), 'w')", "int", "(z.?y.x.w)")]
-        [DataRow("getIfNonNull(getIfNonNull(getIfNonNull(parameters('z'), 'y'), 'x'), 'w')", "int", "getIfNonNull(getIfNonNull(getIfNonNull(z, 'y'), 'x'), 'w')")]
-        [DataRow("getIfNonNull(getIfNonNull(tryGet(parameters('z'), 'y'), 'x'), 'w').v", "int", "(z.?y.x.w).v")]
+        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "(z.?y.x.w)")]
+        [DataRow("tryGet(tryGet(parameters('z'), 'y', 'x'), 'w', 'v')", "int", "((z.?y.x).?w.v)")]
+        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w').v", "int", "(z.?y.x.w).v")]
         public async Task Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{

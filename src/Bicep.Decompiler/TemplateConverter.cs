@@ -372,40 +372,20 @@ namespace Bicep.Decompiler
                 return true;
             }
 
-            if (expression.IsNamed("tryGet") || expression.IsNamed("getIfNonNull"))
+            if (expression.IsNamed("tryGet"))
             {
-                Stack<(LanguageExpression propertyNameExpression, bool safeAccess)> shortCircuitChain = new();
-                LanguageExpression current = expression;
-
-                while (current is FunctionExpression func && (func.IsNamed("getIfNonNull") || func.IsNamed("tryGet")))
+                if (expression.Parameters.Length < 2)
                 {
-                    if (func.Parameters.Length != 2)
-                    {
-                        throw new ArgumentException($"Expected 2 parameters for binary function {func.Function}");
-                    }
-
-                    shortCircuitChain.Push((func.Parameters[1], func.IsNamed("tryGet")));
-                    current = func.Parameters[0];
+                    throw new ArgumentException($"Expected at least 2 parameters for function {expression.Function}");
                 }
 
-                syntax = ParseLanguageExpression(current);
-
-                while (shortCircuitChain.TryPeek(out var frame) && !frame.safeAccess)
+                syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: true);
+                for (int i = 2; i < expression.Parameters.Length; i++)
                 {
-                    syntax = SyntaxFactory.CreateFunctionCall("getIfNonNull", syntax, ParseLanguageExpression(shortCircuitChain.Pop().propertyNameExpression));
+                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false);
                 }
 
-                var parenthesesRequired = false;
-                while (shortCircuitChain.TryPop(out var frame))
-                {
-                    syntax = ParsePropertyAccess(syntax, frame.propertyNameExpression, frame.safeAccess);
-                    parenthesesRequired = true;
-                }
-
-                if (parenthesesRequired)
-                {
-                    syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
-                }
+                syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
                 return true;
             }
 

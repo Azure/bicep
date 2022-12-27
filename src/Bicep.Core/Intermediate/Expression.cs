@@ -134,12 +134,19 @@ public record FunctionCallExpression(
         => visitor.VisitFunctionCallExpression(this);
 }
 
+public interface IAccessExpression
+{
+    Expression Base { get; }
+    Expression Access { get; }
+    AccessExpressionFlags Flags { get; }
+}
+
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
     Expression Access,
     AccessExpressionFlags Flags
-) : Expression(SourceSyntax)
+) : Expression(SourceSyntax), IAccessExpression
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitArrayAccessExpression(this);
@@ -150,10 +157,12 @@ public record PropertyAccessExpression(
     Expression Base,
     string PropertyName,
     AccessExpressionFlags Flags
-) : Expression(SourceSyntax)
+) : Expression(SourceSyntax), IAccessExpression
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitPropertyAccessExpression(this);
+
+    public Expression Access => new StringLiteralExpression(PropertyName);
 }
 
 public record ResourceReferenceExpression(

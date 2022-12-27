@@ -36,7 +36,6 @@ namespace Bicep.Core.Semantics.Namespaces
         private const string LastDescription = "Returns the last element of the array, or last character of the string.";
         private const string MinDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
         private const string MaxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
-        private const string GetIfNonNullDescription = "Access a property of an object or an element of an array only if the object or array is non-null.";
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
@@ -608,22 +607,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
                     return new(LanguageConstants.Object);
                 }, LanguageConstants.Object)
-                .Build();
-
-            yield return new FunctionOverloadBuilder("getIfNonNull")
-                .WithGenericDescription(GetIfNonNullDescription)
-                .WithDescription("Access a property of an object only if the object is non-null. Unlike access via the `.?` (safe dereference) operator, a deploy-time error will be raised if the object is non-null but does not contain the named property.")
-                .WithRequiredParameter("object", TypeHelper.CreateTypeUnion(LanguageConstants.Object, LanguageConstants.Null), "The possibly null object whose property will be accessed.")
-                .WithRequiredParameter("propertyName", LanguageConstants.String, "The property to access if the object is non-null.")
-                .WithReturnType(LanguageConstants.Any)
-                .Build();
-
-            yield return new FunctionOverloadBuilder("getIfNonNull")
-                .WithGenericDescription(GetIfNonNullDescription)
-                .WithDescription("Access an element of an array (by index) only if the array is non-null. Unlike access via the `[?<index>]` (safe dereference) operator, a deploy-time error will be raised if the array is non-null but does not have an element at the specified index.")
-                .WithRequiredParameter("array", TypeHelper.CreateTypeUnion(LanguageConstants.Array, LanguageConstants.Null), "The possibly null array whose index will be accessed.")
-                .WithRequiredParameter("index", LanguageConstants.Int, "The index of the element to access if the array is non-null.")
-                .WithReturnType(LanguageConstants.Any)
                 .Build();
         }
 
