@@ -505,58 +505,6 @@
     ]
   },
   {
-    "name": "getIfNonNull",
-    "description": "Access a property of an object only if the object is non-null. Unlike access via the `.?` (safe dereference) operator, a deploy-time error will be raised if the object is non-null but does not contain the named property.",
-    "fixedParameters": [
-      {
-        "name": "object",
-        "description": "The possibly null object whose property will be accessed.",
-        "type": "null | object",
-        "required": true
-      },
-      {
-        "name": "propertyName",
-        "description": "The property to access if the object is non-null.",
-        "type": "string",
-        "required": true
-      }
-    ],
-    "minimumArgumentCount": 2,
-    "maximumArgumentCount": 2,
-    "flags": "default",
-    "typeSignature": "(object: null | object, propertyName: string): any",
-    "parameterTypeSignatures": [
-      "object: null | object",
-      "propertyName: string"
-    ]
-  },
-  {
-    "name": "getIfNonNull",
-    "description": "Access an element of an array (by index) only if the array is non-null. Unlike access via the `[?<index>]` (safe dereference) operator, a deploy-time error will be raised if the array is non-null but does not have an element at the specified index.",
-    "fixedParameters": [
-      {
-        "name": "array",
-        "description": "The possibly null array whose index will be accessed.",
-        "type": "array | null",
-        "required": true
-      },
-      {
-        "name": "index",
-        "description": "The index of the element to access if the array is non-null.",
-        "type": "int",
-        "required": true
-      }
-    ],
-    "minimumArgumentCount": 2,
-    "maximumArgumentCount": 2,
-    "flags": "default",
-    "typeSignature": "(array: array | null, index: int): any",
-    "parameterTypeSignatures": [
-      "array: array | null",
-      "index: int"
-    ]
-  },
-  {
     "name": "guid",
     "description": "Creates a value in the format of a globally unique identifier based on the values provided as parameters.",
     "fixedParameters": [],

@@ -521,27 +521,6 @@
     }
   },
   {
-    "label": "getIfNonNull",
-    "kind": "function",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\ngetIfNonNull(object: null | object, propertyName: string): any\ngetIfNonNull(array: array | null, index: int): any\n\n```\nAccess a property of an object or an element of an array only if the object or array is non-null.\n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_getIfNonNull",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "getIfNonNull($0)"
-    },
-    "command": {
-      "title": "signature help",
-      "command": "editor.action.triggerParameterHints"
-    }
-  },
-  {
     "label": "guid",
     "kind": "function",
     "documentation": {
