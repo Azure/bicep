@@ -27,4 +27,7 @@ public static class ExpressionFactory
 
     public static BooleanLiteralExpression CreateBooleanLiteral(bool value, SyntaxBase? sourceSyntax = null)
         => new(sourceSyntax, value);
+
+    public static PropertyAccessExpression CreatePropertyAccess(Expression baseExpression, string propertyName, SyntaxBase? sourceSyntax = null)
+        => new(sourceSyntax ?? baseExpression.SourceSyntax, baseExpression, propertyName);
 }

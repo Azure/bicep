@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -134,6 +135,17 @@ public record FunctionCallExpression(
         => visitor.VisitFunctionCallExpression(this);
 }
 
+public record ResourceFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    ResourceReferenceExpression Resource,
+    string Name,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceFunctionCallExpression(this);
+}
+
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
@@ -227,7 +239,9 @@ public record LambdaVariableReferenceExpression(
 public record ForLoopExpression(
     SyntaxBase? SourceSyntax,
     Expression Expression,
-    Expression Body
+    Expression Body,
+    string? Name,
+    ulong? BatchSize
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -316,12 +330,50 @@ public record DeclaredOutputExpression(
         => visitor.VisitDeclaredOutputExpression(this);
 }
 
+public record DeclaredResourceExpression(
+    SyntaxBase? SourceSyntax,
+    DeclaredResourceMetadata Metadata,
+    ScopeHelper.ScopeData ScopeData,
+    SyntaxBase BodySyntax,
+    Expression Body,
+    ImmutableArray<ResourceDependencyExpression> DependsOn
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredResourceExpression(this);
+}
+
+public record DeclaredModuleExpression(
+    SyntaxBase? SourceSyntax,
+    ModuleSymbol Symbol,
+    ScopeHelper.ScopeData ScopeData,
+    SyntaxBase BodySyntax,
+    Expression Body,
+    Expression? Parameters,
+    ImmutableArray<ResourceDependencyExpression> DependsOn
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredModuleExpression(this);
+}
+
+public record ResourceDependencyExpression(
+    SyntaxBase? SourceSyntax,
+    Expression Reference
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceDependencyExpression(this);
+}
+
 public record ProgramExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<DeclaredMetadataExpression> Metadata,
     ImmutableArray<DeclaredImportExpression> Imports,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
+    ImmutableArray<DeclaredResourceExpression> Resources,
+    ImmutableArray<DeclaredModuleExpression> Modules,
     ImmutableArray<DeclaredOutputExpression> Outputs
 ) : Expression(SourceSyntax)
 {

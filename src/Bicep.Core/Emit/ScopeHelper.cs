@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -315,22 +316,25 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void EmitResourceScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
+        public static void EmitResourceScopeProperties(ExpressionBuilder builder, SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, DeclaredResourceExpression resource)
         {
             if (scopeData.ResourceScope is DeclaredResourceMetadata scopeResource)
             {
                 // emit the resource id of the resource being extended
-                expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, newContext));
+                var indexContext = builder.TryGetReplacementContext(scopeResource.NameSyntax, scopeData.IndexExpression, resource.BodySyntax);
+                expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, indexContext));
                 return;
             }
 
-            EmitResourceOrModuleScopeProperties(semanticModel, scopeData, expressionEmitter, newContext);
+            EmitResourceOrModuleScopeProperties(builder, semanticModel, scopeData, expressionEmitter, resource.BodySyntax);
         }
 
-        public static void EmitModuleScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext) =>
-            EmitResourceOrModuleScopeProperties(semanticModel, scopeData, expressionEmitter, newContext);
+        public static void EmitModuleScopeProperties(ExpressionBuilder builder, SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, DeclaredModuleExpression module)
+        {
+            EmitResourceOrModuleScopeProperties(builder, semanticModel, scopeData, expressionEmitter, module.BodySyntax);
+        }
 
-        private static void EmitResourceOrModuleScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
+        private static void EmitResourceOrModuleScopeProperties(ExpressionBuilder builder, SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
         {
             switch (scopeData.RequestedScope)
             {
@@ -346,7 +350,9 @@ namespace Bicep.Core.Emit
                     {
                         // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant or management group scope
                         var useFullyQualifiedResourceId = semanticModel.TargetScope != ResourceScope.Tenant && semanticModel.TargetScope != ResourceScope.ManagementGroup;
-                        expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, scopeData.IndexExpression, newContext, useFullyQualifiedResourceId));
+                        
+                        var indexContext = builder.TryGetReplacementContext(scopeData.ManagementGroupNameProperty, scopeData.IndexExpression, newContext);
+                        expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, indexContext, useFullyQualifiedResourceId));
                     }
                     return;
                 case ResourceScope.Subscription:
@@ -364,11 +370,13 @@ namespace Bicep.Core.Emit
                 case ResourceScope.ResourceGroup:
                     if (scopeData.SubscriptionIdProperty is not null)
                     {
-                        expressionEmitter.EmitProperty("subscriptionId", () => expressionEmitter.EmitExpression(scopeData.SubscriptionIdProperty, scopeData.IndexExpression, newContext));
+                        var indexContext = builder.TryGetReplacementContext(scopeData.SubscriptionIdProperty, scopeData.IndexExpression, newContext);
+                        expressionEmitter.EmitProperty("subscriptionId", () => expressionEmitter.EmitExpression(scopeData.SubscriptionIdProperty, indexContext));
                     }
                     if (scopeData.ResourceGroupProperty is not null)
                     {
-                        expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext));
+                        var indexContext = builder.TryGetReplacementContext(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext);
+                        expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
                     }
                     return;
                 default:

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4342176167733754365"
+      "templateHash": "15587230493181934046"
     }
   },
   "parameters": {
@@ -265,13 +265,13 @@
               ]
             },
             {
-              "condition": "[and(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)))]",
               "copy": {
                 "name": "dummyDeployments",
                 "count": "[length(range(0, 5))]",
                 "mode": "serial",
                 "batchSize": 1
               },
+              "condition": "[and(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)))]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2021-04-01",
               "name": "[format('dummyTemplateSqlServer-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",

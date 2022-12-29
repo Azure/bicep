@@ -37,61 +37,6 @@ namespace Bicep.Core.Emit
             this.expressionBuilder = new ExpressionBuilder(context, localReplacements);
         }
 
-        public LanguageExpression ConvertModuleParameterTernaryExpression(TernaryOperationSyntax ternary)
-        {
-            LanguageExpression ConvertParameter(SyntaxBase syntax)
-            {
-                return syntax switch
-                {
-                    TernaryOperationSyntax innerTernary => ConvertModuleParameterTernaryExpression(innerTernary),
-                    InstanceFunctionCallSyntax instanceFunctionCall when string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison) => ConvertGetSecretFunctionCall(instanceFunctionCall),
-                    _ => GetCreateObjectExpression(new JTokenExpression("value"), ConvertExpression(syntax))
-                };
-            }
-
-            return CreateFunction(
-                "if",
-                ConvertExpression(ternary.ConditionExpression),
-                ConvertParameter(ternary.TrueExpression),
-                ConvertParameter(ternary.FalseExpression));
-        }
-
-        private LanguageExpression ConvertGetSecretFunctionCall(InstanceFunctionCallSyntax instanceFunctionCallSyntax)
-        {
-            var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCallSyntax.BaseExpression);
-
-            if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } resource ||
-                !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
-            {
-                throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
-            }
-
-            var keyVaultId = instanceFunctionCallSyntax.BaseExpression switch
-            {
-                ArrayAccessSyntax arrayAccessSyntax when resource is DeclaredResourceMetadata declared =>
-                    CreateConverterForIndexReplacement(declared.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCallSyntax)
-                    .GetFullyQualifiedResourceId(resource),
-                _ => GetFullyQualifiedResourceId(resource)
-            };
-
-            if (instanceFunctionCallSyntax.Arguments.Count() > 1)
-            {
-                return GetCreateObjectExpression(
-                    new JTokenExpression("reference"), GetCreateObjectExpression(
-                        new JTokenExpression("keyVault"), GetCreateObjectExpression(new JTokenExpression("id"), keyVaultId),
-                        new JTokenExpression("secretName"), ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(0).Expression),
-                        new JTokenExpression("secretVersion"), ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(1).Expression)
-                    )
-                );
-            }
-            return GetCreateObjectExpression(
-                new JTokenExpression("reference"), GetCreateObjectExpression(
-                    new JTokenExpression("keyVault"), GetCreateObjectExpression(new JTokenExpression("id"), keyVaultId),
-                    new JTokenExpression("secretName"), ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(0).Expression)
-                    )
-            );
-        }
-
         public Expression ConvertToIntermediateExpression(SyntaxBase syntax)
             => expressionBuilder.Convert(syntax);
 
@@ -155,6 +100,27 @@ namespace Bicep.Core.Emit
                         function.Name,
                         function.Parameters.Select(p => ConvertExpression(p)));
 
+                case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix): {
+                    var resource = listFunction.Resource.Metadata;
+                    var resourceIdExpression = new PropertyAccessExpression(
+                        listFunction.Resource.SourceSyntax,
+                        listFunction.Resource,
+                        "id");
+
+                    var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                    var apiVersionExpression = new StringLiteralExpression(listFunction.Resource.SourceSyntax, apiVersion);
+
+                    var listArgs = listFunction.Parameters.Length switch
+                    {
+                        0 => new Expression[] { resourceIdExpression, apiVersionExpression, },
+                        _ => new Expression[] { resourceIdExpression, }.Concat(listFunction.Parameters),
+                    };
+
+                    return CreateFunction(
+                        listFunction.Name,
+                        listArgs.Select(p => ConvertExpression(p)));
+                }
+
                 case ArrayAccessExpression exp:
                     return AppendProperties(
                         ToFunctionExpression(ConvertExpression(exp.Base)),
@@ -213,7 +179,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private ExpressionConverter GetConverter(IndexReplacementContext? replacementContext)
+        public ExpressionConverter GetConverter(IndexReplacementContext? replacementContext)
         {
             if (replacementContext is not null)
             {
@@ -223,9 +189,9 @@ namespace Bicep.Core.Emit
             return this;
         }
 
-        public ExpressionConverter CreateConverterForIndexReplacement(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public ExpressionConverter CreateConverterForIndexReplacement(DeclaredResourceMetadata metadata, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var indexContext = expressionBuilder.TryGetReplacementContext(nameSyntax, indexExpression, newContext);
+            var indexContext = expressionBuilder.TryGetReplacementContext(metadata, indexExpression, newContext);
 
             return GetConverter(indexContext);
         }
@@ -387,11 +353,11 @@ namespace Bicep.Core.Emit
             if (ancestors.Length > 0)
             {
                 var firstAncestorNameLength = typesAfterProvider.Length - ancestors.Length;
+                var ancestorNames = expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray();
 
                 var parentNames = ancestors.SelectMany((x, i) =>
                 {
-                    var expression = GetResourceNameAncestorSyntaxSegment(resource, i);
-                    var nameExpression = this.ConvertExpression(expression);
+                    var nameExpression = this.ConvertExpression(ancestorNames[i]);
 
                     if (i == 0 && firstAncestorNameLength > 1)
                     {
@@ -416,122 +382,6 @@ namespace Bicep.Core.Emit
                 (type, i) => AppendProperties(
                     CreateFunction("split", nameExpression, new JTokenExpression("/")),
                     new JTokenExpression(i)));
-        }
-
-        /// <summary>
-        /// Returns a collection of name segment expressions for the specified resource. Local variable replacements
-        /// are performed so the expressions are valid in the language/binding scope of the specified resource.
-        /// </summary>
-        /// <param name="resource">The resource</param>
-        public IEnumerable<SyntaxBase> GetResourceNameSyntaxSegments(DeclaredResourceMetadata resource)
-        {
-            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            var nameExpression = resource.NameSyntax;
-
-            return ancestors
-                .Select((x, i) => GetResourceNameAncestorSyntaxSegment(resource, i))
-                .Concat(nameExpression);
-        }
-
-        /// <summary>
-        /// Calculates the expression that represents the parent name corresponding to the specified ancestor of the specified resource.
-        /// The expressions returned are modified by performing the necessary local variable replacements.
-        /// </summary>
-        /// <param name="resource">The declared resource metadata</param>
-        /// <param name="startingAncestorIndex">the index of the ancestor (0 means the ancestor closest to the root)</param>
-        private SyntaxBase GetResourceNameAncestorSyntaxSegment(DeclaredResourceMetadata resource, int startingAncestorIndex)
-        {
-            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            if (startingAncestorIndex >= ancestors.Length)
-            {
-                // not enough ancestors
-                throw new ArgumentException($"Resource type has {ancestors.Length} ancestor types but name expression was requested for ancestor type at index {startingAncestorIndex}.");
-            }
-
-            /*
-             * Consider the following example:
-             *
-             * resource one 'MS.Example/ones@...' = [for (_, i) in range(0, ...) : {
-             *   name: name_exp1(i)
-             * }]
-             *
-             * resource two 'MS.Example/ones/twos@...' = [for (_, j) in range(0, ...) : {
-             *   parent: one[index_exp2(j)]
-             *   name: name_exp2(j)
-             * }]
-             *
-             * resource three 'MS.Example/ones/twos/threes@...' = [for (_, k) in range(0, ...) : {
-             *   parent: two[index_exp3(k)]
-             *   name: name_exp3(k)
-             * }]
-             *
-             * name_exp* and index_exp* are expressions represented here as functions
-             *
-             * The name segment expressions for "three" are the following:
-             * 0. name_exp1(index_exp2(index_exp3(k)))
-             * 1. name_exp2(index_exp3(k))
-             * 2. name_exp3(k)
-             *
-             * (The formula can be generalized to more levels of nesting.)
-             *
-             * This function can be used to get 0 and 1 above by passing 0 or 1 respectively as the startingAncestorIndex.
-             * The name segment 2 above must be obtained from the resource directly.
-             *
-             * Given that we don't have proper functions in our runtime AND that our expressions don't have side effects,
-             * the formula is implemented via local variable replacement.
-             */
-
-            // the initial ancestor gives us the base expression
-            SyntaxBase? rewritten = ancestors[startingAncestorIndex].Resource.NameSyntax;
-
-            for (int i = startingAncestorIndex; i < ancestors.Length; i++)
-            {
-                var ancestor = ancestors[i];
-
-                // local variable replacement will be done in context of the next ancestor
-                // or the resource itself if we're on the last ancestor
-                var newContext = i < ancestors.Length - 1 ? ancestors[i + 1].Resource : resource;
-
-                var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(rewritten, newContext.Symbol.NameIdentifier);
-                var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
-
-                switch (inaccessibleLocalLoops.Count)
-                {
-                    case 0:
-                        /*
-                         * Hardcoded index expression resulted in no more local vars to replace.
-                         * We can just bail out with the result.
-                         */
-                        return rewritten;
-
-                    case 1 when ancestor.IndexExpression is not null:
-                        if (LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(this.context.SemanticModel, rewritten).SingleOrDefault(s => s.LocalKind == LocalKind.ForExpressionItemVariable) is { } loopItemSymbol)
-                        {
-                            // rewrite the straggler from previous iteration
-                            // TODO: Nested loops will require DFA on the ForSyntax.Expression
-                            rewritten = SymbolReplacer.Replace(this.context.SemanticModel, new Dictionary<Symbol, SyntaxBase> { [loopItemSymbol] = SyntaxFactory.CreateArrayAccess(GetEnclosingForExpression(loopItemSymbol).Expression, ancestor.IndexExpression) }, rewritten);
-                        }
-
-                        // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
-                        var @for = inaccessibleLocalLoops.Single();
-
-                        var replacements = inaccessibleLocals.ToDictionary(local => (Symbol)local, local => local.LocalKind switch
-                              {
-                                  LocalKind.ForExpressionIndexVariable => ancestor.IndexExpression,
-                                  LocalKind.ForExpressionItemVariable => SyntaxFactory.CreateArrayAccess(@for.Expression, ancestor.IndexExpression),
-                                  _ => throw new NotImplementedException($"Unexpected local kind '{local.LocalKind}'.")
-                              });
-
-                        rewritten = SymbolReplacer.Replace(this.context.SemanticModel, replacements, rewritten);
-
-                        break;
-
-                    default:
-                        throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index expression rewriting.");
-                }
-            }
-
-            return rewritten;
         }
 
         public LanguageExpression GetFullyQualifiedResourceName(DeclaredResourceMetadata resource)
@@ -886,12 +736,6 @@ namespace Bicep.Core.Emit
 
         public LanguageExpression GenerateSymbolicReference(ModuleSymbol module, IndexReplacementContext? indexContext)
             => GenerateSymbolicReference(module.Name, indexContext);
-
-        public LanguageExpression GenerateSymbolicReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression)
-            => GenerateSymbolicReference(GetSymbolicName(resource), indexExpression);
-
-        public LanguageExpression GenerateSymbolicReference(ModuleSymbol module, SyntaxBase? indexExpression)
-            => GenerateSymbolicReference(module.Name, indexExpression);
 
         public static LanguageExpression GenerateUnqualifiedResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
