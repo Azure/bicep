@@ -271,7 +271,7 @@ public class ExpressionBuilder
                             var convertedArgs = method.Arguments.SelectArray(a => ConvertWithoutLowering(a.Expression));
                             var resourceIdExpression = new PropertyAccessExpression(
                                 baseSyntax,
-                                new ResourceReferenceExpression(resource, indexContext),
+                                new ResourceReferenceExpression(indexExpression, resource, indexContext),
                                 "id",
                                 AccessExpressionFlags.None);
 
@@ -340,11 +340,24 @@ public class ExpressionBuilder
             }
         }
 
-        return new ArrayAccessExpression(
-            arrayAccess,
-            ConvertWithoutLowering(arrayAccess.BaseExpression),
-            ConvertWithoutLowering(arrayAccess.IndexExpression),
-            GetAccessExpressionFlags(arrayAccess, arrayAccess.SafeAccessMarker));
+        var convertedBase = ConvertWithoutLowering(arrayAccess.BaseExpression);
+        var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
+
+        // Looking for short-circuitable access chains
+        if (arrayAccess.BaseExpression is AccessExpressionSyntax && arrayAccess.SafeAccessMarker is null)
+        {
+            if (convertedBase is AccessExpression baseAccess)
+            {
+                return new AccessChainExpression(arrayAccess, baseAccess, ImmutableArray.Create(convertedIndex));
+            }
+
+            if (convertedBase is AccessChainExpression accessChain)
+            {
+                return new AccessChainExpression(arrayAccess, accessChain.FirstLink, accessChain.AdditionalProperties.Append(convertedIndex).ToImmutableArray());
+            }
+        }
+
+        return new ArrayAccessExpression(arrayAccess, convertedBase, convertedIndex, GetAccessExpressionFlags(arrayAccess, arrayAccess.SafeAccessMarker));
     }
 
     private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName, AccessExpressionFlags flags)
@@ -407,12 +420,31 @@ public class ExpressionBuilder
             return new ModuleOutputPropertyAccessExpression(
                 propertyAccess,
                 ConvertWithoutLowering(propertyAccess.BaseExpression),
-                propertyAccess.PropertyName.IdentifierName);
+                propertyAccess.PropertyName.IdentifierName,
+                flags);
+        }
+
+        var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
+
+        // Looking for short-circuitable access chains
+        if (propertyAccess.BaseExpression is AccessExpressionSyntax && propertyAccess.SafeAccessMarker is null)
+        {
+            Expression nextLink = new StringLiteralExpression(propertyAccess.PropertyName, propertyAccess.PropertyName.IdentifierName);
+
+            if (convertedBase is AccessExpression baseAccess)
+            {
+                return new AccessChainExpression(propertyAccess, baseAccess, ImmutableArray.Create(nextLink));
+            }
+
+            if (convertedBase is AccessChainExpression accessChain)
+            {
+                return new AccessChainExpression(propertyAccess, accessChain.FirstLink, accessChain.AdditionalProperties.Append(nextLink).ToImmutableArray());
+            }
         }
 
         return new PropertyAccessExpression(
             propertyAccess,
-            ConvertWithoutLowering(propertyAccess.BaseExpression),
+            convertedBase,
             propertyAccess.PropertyName.IdentifierName,
             flags);
     }
@@ -621,24 +653,6 @@ public class ExpressionBuilder
             flags |= AccessExpressionFlags.SafeAccess;
         }
 
-        if (IsShortCircuitableAccess(accessExpression))
-        {
-            flags |= AccessExpressionFlags.ShortCircuitable;
-        }
-
         return flags;
     }
-
-    /// <remarks>
-    /// Like C#'s null conditional operator and JavaScript's optional chaining operator, short-circuiting only occurs across an unbroken chain of access expressions.
-    /// Accordingly, the <code>.c</code> would not be evaluated if <code>a.?b</code> were null in <code>a.?b.c</code>, but it would be in <code>(a.?b).c</code>.
-    /// </remarks>
-    private static bool IsShortCircuitableAccess(SyntaxBase expression, bool isBaseSyntax = false) => expression switch
-    {
-        PropertyAccessSyntax propertyAccess when propertyAccess.SafeAccessMarker is not null => isBaseSyntax,
-        PropertyAccessSyntax propertyAccess => IsShortCircuitableAccess(propertyAccess.BaseExpression, true),
-        ArrayAccessSyntax arrayAccess when arrayAccess.SafeAccessMarker is not null => isBaseSyntax,
-        ArrayAccessSyntax arrayAccess => IsShortCircuitableAccess(arrayAccess.BaseExpression, true),
-        _ => false,
-    };
 }

@@ -64,6 +64,8 @@ public interface IExpressionVisitor
     void VisitDeclaredVariableExpression(DeclaredVariableExpression expression);
 
     void VisitDeclaredOutputExpression(DeclaredOutputExpression expression);
-    
+
     void VisitProgramExpression(ProgramExpression expression);
+
+    void VisitAccessChainExpression(AccessChainExpression expression);
 }

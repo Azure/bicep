@@ -8,6 +8,12 @@ namespace Bicep.Core.Intermediate;
 
 public abstract class ExpressionVisitor : IExpressionVisitor
 {
+    public void VisitAccessChainExpression(AccessChainExpression expression)
+    {
+        Visit(expression.FirstLink);
+        VisitMultiple(expression.AdditionalProperties);
+    }
+
     public void VisitArrayAccessExpression(ArrayAccessExpression expression)
     {
         Visit(expression.Access);

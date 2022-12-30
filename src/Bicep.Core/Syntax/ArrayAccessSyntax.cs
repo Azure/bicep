@@ -4,30 +4,25 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayAccessSyntax : ExpressionSyntax
+    public class ArrayAccessSyntax : AccessExpressionSyntax
     {
-        public ArrayAccessSyntax(SyntaxBase baseExpression, Token openSquare, Token? safeAccessMarker, SyntaxBase indexExpression, Token closeSquare)
+        public ArrayAccessSyntax(SyntaxBase baseExpression, Token openSquare, Token? safeAccessMarker, SyntaxBase indexExpression, Token closeSquare) : base(baseExpression, safeAccessMarker)
         {
             AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
-            AssertTokenType(safeAccessMarker, nameof(safeAccessMarker), TokenType.Question);
             AssertTokenType(closeSquare, nameof(closeSquare), TokenType.RightSquare);
 
-            this.BaseExpression = baseExpression;
             this.OpenSquare = openSquare;
-            this.SafeAccessMarker = safeAccessMarker;
             this.IndexExpression = indexExpression;
             this.CloseSquare = closeSquare;
         }
 
-        public SyntaxBase BaseExpression { get; }
-
         public Token OpenSquare { get; }
-
-        public Token? SafeAccessMarker { get; }
 
         public SyntaxBase IndexExpression { get; }
 
         public Token CloseSquare { get; }
+
+        public override SyntaxBase AccessExpression => IndexExpression;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
 

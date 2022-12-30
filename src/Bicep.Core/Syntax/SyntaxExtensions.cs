@@ -54,4 +54,3 @@ namespace Bicep.Core.Syntax
         }
     }
 }
-

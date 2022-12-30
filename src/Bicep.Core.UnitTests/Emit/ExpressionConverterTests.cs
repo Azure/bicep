@@ -61,9 +61,10 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("null ?? true", "[coalesce(null(), true())]")]
         [DataRow("[1, 2, 3][?3]", "[tryGet(createArray(1, 2, 3), 3)]")]
         [DataRow("{fizz: 'buzz'}.?key", "[tryGet(createObject('fizz', 'buzz'), 'key')]")]
-        [DataRow("{fizz: 'buzz'}.?key.and.nested.property.accesses", "[tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested', 'property', 'accesses')]")]
-        [DataRow("{fizz: 'buzz'}.?key.and.nested.?property.accesses", "[tryGet(tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested'), 'property', 'accesses')]")]
-        [DataRow("({fizz: 'buzz'}.?key.and.nested).property.accesses", "[tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested').property.accesses]")]
+        [DataRow("{fizz: 'buzz'}.?key.and.nested.property.accesses[0]['stringKey']", "[tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested', 'property', 'accesses', 0, 'stringKey')]")]
+        [DataRow("{fizz: 'buzz'}.key.and.nested.property.accesses[0]['stringKey']", "[createObject('fizz', 'buzz').key.and.nested.property.accesses[0].stringKey]")]
+        [DataRow("{fizz: 'buzz'}.?key.and.nested.?property.accesses[0]['stringKey']", "[tryGet(tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested'), 'property', 'accesses', 0, 'stringKey')]")]
+        [DataRow("({fizz: 'buzz'}.?key.and.nested).property.accesses[0]['stringKey']", "[tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested').property.accesses[0].stringKey]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";

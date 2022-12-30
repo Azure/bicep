@@ -134,19 +134,19 @@ public record FunctionCallExpression(
         => visitor.VisitFunctionCallExpression(this);
 }
 
-public interface IAccessExpression
-{
-    Expression Base { get; }
-    Expression Access { get; }
-    AccessExpressionFlags Flags { get; }
-}
+public abstract record AccessExpression(
+    SyntaxBase? SourceSyntax,
+    Expression Base,
+    Expression Access,
+    AccessExpressionFlags Flags
+) : Expression(SourceSyntax) { }
 
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
     Expression Access,
     AccessExpressionFlags Flags
-) : Expression(SourceSyntax), IAccessExpression
+) : AccessExpression(SourceSyntax, Base, Access, Flags)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitArrayAccessExpression(this);
@@ -157,12 +157,10 @@ public record PropertyAccessExpression(
     Expression Base,
     string PropertyName,
     AccessExpressionFlags Flags
-) : Expression(SourceSyntax), IAccessExpression
+) : AccessExpression(SourceSyntax, Base, new StringLiteralExpression(null, PropertyName), Flags)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitPropertyAccessExpression(this);
-
-    public Expression Access => new StringLiteralExpression(PropertyName);
 }
 
 public record ResourceReferenceExpression(
@@ -188,8 +186,9 @@ public record ModuleReferenceExpression(
 public record ModuleOutputPropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
-    string PropertyName)
-: Expression(SourceSyntax)
+    string PropertyName,
+    AccessExpressionFlags Flags
+) : AccessExpression(SourceSyntax, Base, new StringLiteralExpression(null, PropertyName), Flags)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitModuleOutputPropertyAccessExpression(this);
@@ -338,4 +337,14 @@ public record ProgramExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitProgramExpression(this);
+}
+
+public record AccessChainExpression(
+    SyntaxBase? SourceSyntax,
+    AccessExpression FirstLink,
+    ImmutableArray<Expression> AdditionalProperties
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitAccessChainExpression(this);
 }

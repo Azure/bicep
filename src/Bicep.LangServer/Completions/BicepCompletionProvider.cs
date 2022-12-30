@@ -349,7 +349,7 @@ namespace Bicep.LanguageServer.Completions
             || syntax is IntegerLiteralSyntax
             || (syntax is StringSyntax @string && @string.TryGetLiteralValue() is string literal)
             || syntax is UnionTypeSyntax
-            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => p.OptionalityMarker is null && IsTypeLiteralSyntax(p.Value)));
+            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => IsTypeLiteralSyntax(p.Value)));
 
         private static StatementSyntax? CyclableTypeEnclosingDeclaration(IBinder binder, SyntaxBase? syntax) => syntax switch
         {
