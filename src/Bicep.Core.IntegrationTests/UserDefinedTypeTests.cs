@@ -325,4 +325,34 @@ type anObject = {
 
         blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Warning_should_be_shown_when_reading_unknown_properties_on_unsealed_objects()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param anObject {}
+
+output prop string = anObject.prop
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP187", DiagnosticLevel.Warning, "The property \"prop\" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+        });
+    }
+
+    [TestMethod]
+    public void Warning_should_be_shown_when_setting_unknown_properties_on_unsealed_objects()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param anObject {} = {prop: 'someVal'}
+
+#disable-next-line no-unused-params
+param anotherObject object = {prop: 'someVal'}
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP037", DiagnosticLevel.Warning, "The property \"prop\" is not allowed on objects of type \"{ }\". No other properties are allowed."),
+        });
+    }
 }

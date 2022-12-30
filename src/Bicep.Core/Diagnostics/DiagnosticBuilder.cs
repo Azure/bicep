@@ -1119,7 +1119,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP187",
-                $"The property \"{property}\" does not exist in the resource definition, although it might still be valid.{TypeInaccuracyClause}", TypeInaccuracyLink);
+                $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid.{TypeInaccuracyClause}", TypeInaccuracyLink);
 
             public ErrorDiagnostic ReferencedArmTemplateHasErrors() => new(
                 TextSpan,
