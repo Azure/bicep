@@ -198,7 +198,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
         RuntimeHelpers.EnsureSufficientExecutionStack();
 
-        expression.Accept(this);
+        VisitInternal(expression);
     }
 
     protected void Visit(IEnumerable<Expression> expressions)
@@ -207,5 +207,10 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         {
             this.Visit(expression);
         }
+    }
+
+    protected virtual void VisitInternal(Expression expression)
+    {
+        expression.Accept(this);
     }
 }

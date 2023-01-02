@@ -189,13 +189,6 @@ namespace Bicep.Core.Emit
             return this;
         }
 
-        public ExpressionConverter CreateConverterForIndexReplacement(DeclaredResourceMetadata metadata, SyntaxBase? indexExpression, SyntaxBase newContext)
-        {
-            var indexContext = expressionBuilder.TryGetReplacementContext(metadata, indexExpression, newContext);
-
-            return GetConverter(indexContext);
-        }
-
         private LanguageExpression ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression propertyAccess)
         {
             var resource = reference.Metadata;

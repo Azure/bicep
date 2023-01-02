@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
@@ -194,51 +195,7 @@ public class ExpressionBuilder
                 return ConvertModule(module);
 
             case ProgramSyntax program:
-                var metadataArray = context.SemanticModel.Root.MetadataDeclarations
-                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-                    .OfType<DeclaredMetadataExpression>()
-                    .ToImmutableArray();
-
-                var imports = context.SemanticModel.Root.ImportDeclarations
-                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-                    .OfType<DeclaredImportExpression>()
-                    .ToImmutableArray();
-
-                var parameters = context.SemanticModel.Root.ParameterDeclarations
-                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-                    .OfType<DeclaredParameterExpression>()
-                    .ToImmutableArray();
-
-                var variables = context.SemanticModel.Root.VariableDeclarations
-                    .Where(x => !context.VariablesToInline.Contains(x))
-                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-                    .OfType<DeclaredVariableExpression>()
-                    .ToImmutableArray();
-
-                var resources = context.SemanticModel.DeclaredResources
-                    .Select(x => ConvertWithoutLowering(x.Symbol.DeclaringSyntax))
-                    .OfType<DeclaredResourceExpression>()
-                    .ToImmutableArray();
-
-                var modules = context.SemanticModel.Root.ModuleDeclarations
-                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-                    .OfType<DeclaredModuleExpression>()
-                    .ToImmutableArray();
-
-                var outputs = context.SemanticModel.Root.OutputDeclarations
-                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-                    .OfType<DeclaredOutputExpression>()
-                    .ToImmutableArray();
-
-                return new ProgramExpression(
-                    program,
-                    metadataArray,
-                    imports,
-                    parameters,
-                    variables,
-                    resources,
-                    modules,
-                    outputs);
+                return ConvertProgram(program);
 
             default:
                 throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}");
@@ -266,6 +223,60 @@ public class ExpressionBuilder
         }
 
         return typeSymbol;
+    }
+
+    private ProgramExpression ConvertProgram(ProgramSyntax syntax)
+    {
+        var metadataArray = context.SemanticModel.Root.MetadataDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredMetadataExpression>()
+            .ToImmutableArray();
+
+        var imports = context.SemanticModel.Root.ImportDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredImportExpression>()
+            .ToImmutableArray();
+
+        var parameters = context.SemanticModel.Root.ParameterDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredParameterExpression>()
+            .ToImmutableArray();
+
+        var functionVariables = context.FunctionVariables
+            .OrderBy(x => x.Value.Name, LanguageConstants.IdentifierComparer)
+            .Select(x => new DeclaredVariableExpression(x.Key, x.Value.Name, x.Value.Value))
+            .ToImmutableArray();
+
+        var variables = context.SemanticModel.Root.VariableDeclarations
+            .Where(x => !context.VariablesToInline.Contains(x))
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredVariableExpression>()
+            .ToImmutableArray();
+
+        var resources = context.SemanticModel.DeclaredResources
+            .Select(x => ConvertWithoutLowering(x.Symbol.DeclaringSyntax))
+            .OfType<DeclaredResourceExpression>()
+            .ToImmutableArray();
+
+        var modules = context.SemanticModel.Root.ModuleDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredModuleExpression>()
+            .ToImmutableArray();
+
+        var outputs = context.SemanticModel.Root.OutputDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredOutputExpression>()
+            .ToImmutableArray();
+
+        return new ProgramExpression(
+            syntax,
+            metadataArray,
+            imports,
+            parameters,
+            functionVariables.AddRange(variables),
+            resources,
+            modules,
+            outputs);
     }
 
     private record LoopExpressionContext(string Name, SyntaxBase SourceSyntax, Expression LoopExpression);
@@ -538,12 +549,7 @@ public class ExpressionBuilder
     }
 
     private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName)
-    {
-        return new PropertyAccessExpression(
-            sourceSyntax,
-            new ResourceReferenceExpression(sourceSyntax.BaseExpression, resource, indexContext),
-            propertyName);
-    }
+        => ExpressionFactory.CreateResourcePropertyAccess(resource, indexContext, propertyName, sourceSyntax);
 
     private Expression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
     {
@@ -745,22 +751,17 @@ public class ExpressionBuilder
         throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{localScope.DeclaringSyntax?.GetType().Name}'.");
     }
 
-    public IndexReplacementContext? TryGetReplacementContext(ModuleSymbol module, SyntaxBase? indexExpression, SyntaxBase newContext)
+    private IndexReplacementContext? TryGetReplacementContext(ModuleSymbol module, SyntaxBase? indexExpression, SyntaxBase newContext)
         => TryGetReplacementContext(GetModuleNameSyntax(module), indexExpression, newContext);
 
-    public IndexReplacementContext? TryGetReplacementContext(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+    private IndexReplacementContext? TryGetReplacementContext(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
     {
-        if (resource is not DeclaredResourceMetadata declaredResource)
-        {
-            return null;
-        }
-
-        var movedSyntax = context.Settings.EnableSymbolicNames ? declaredResource.Symbol.NameIdentifier : declaredResource.NameSyntax;
+        SyntaxBase movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : SyntaxFactory.CreateArray(GetResourceNameSyntaxSegments(resource));
 
         return TryGetReplacementContext(movedSyntax, indexExpression, newContext);
     }
 
-    public IndexReplacementContext? TryGetReplacementContext(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
+    private IndexReplacementContext? TryGetReplacementContext(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
     {
         var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(nameSyntax, newContext);
         var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
@@ -843,9 +844,8 @@ public class ExpressionBuilder
                 var metadata = context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
                     ?? throw new InvalidOperationException("Failed to find resource in cache");
 
-                SyntaxBase movedSyntax = context.Settings.EnableSymbolicNames ? metadata.Symbol.NameIdentifier : SyntaxFactory.CreateArray(GetResourceNameSyntaxSegments(metadata));
                 var indexContext = (resource.IsCollection && dependency.IndexExpression is null) ? null :
-                    TryGetReplacementContext(movedSyntax, dependency.IndexExpression, newContext);
+                    TryGetReplacementContext(metadata, dependency.IndexExpression, newContext);
 
                 var reference = new ResourceReferenceExpression(null, metadata, indexContext);
                 return new ResourceDependencyExpression(null, reference);
@@ -976,5 +976,73 @@ public class ExpressionBuilder
         }
 
         return rewritten;
+    }
+
+    public void EmitResourceScopeProperties(ExpressionEmitter expressionEmitter, DeclaredResourceExpression resource)
+    {
+        if (resource.ScopeData.ResourceScope is DeclaredResourceMetadata scopeResource)
+        {
+            // emit the resource id of the resource being extended
+            var indexContext = TryGetReplacementContext(scopeResource, resource.ScopeData.IndexExpression, resource.BodySyntax);
+            expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, indexContext));
+            return;
+        }
+
+        EmitResourceOrModuleScopeProperties(resource.ScopeData, expressionEmitter, resource.BodySyntax);
+    }
+
+    public void EmitModuleScopeProperties(ExpressionEmitter expressionEmitter, DeclaredModuleExpression module)
+    {
+        EmitResourceOrModuleScopeProperties(module.ScopeData, expressionEmitter, module.BodySyntax);
+    }
+
+    private void EmitResourceOrModuleScopeProperties(ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
+    {
+        switch (scopeData.RequestedScope)
+        {
+            case ResourceScope.Tenant:
+                if (context.SemanticModel.TargetScope != ResourceScope.Tenant)
+                {
+                    // emit the "/" to allow cross-scope deployment of a Tenant resource from another deployment scope
+                    expressionEmitter.EmitProperty("scope", new JTokenExpression("/"));
+                }
+                return;
+            case ResourceScope.ManagementGroup:
+                if (scopeData.ManagementGroupNameProperty is not null)
+                {
+                    // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant or management group scope
+                    var useFullyQualifiedResourceId = context.SemanticModel.TargetScope != ResourceScope.Tenant && context.SemanticModel.TargetScope != ResourceScope.ManagementGroup;
+                    
+                    var indexContext = TryGetReplacementContext(scopeData.ManagementGroupNameProperty, scopeData.IndexExpression, newContext);
+                    expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, indexContext, useFullyQualifiedResourceId));
+                }
+                return;
+            case ResourceScope.Subscription:
+                if (scopeData.SubscriptionIdProperty is not null)
+                {
+                    // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
+                    expressionEmitter.EmitProperty("subscriptionId", scopeData.SubscriptionIdProperty);
+                }
+                else if (context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
+                {
+                    // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
+                    expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
+                }
+                return;
+            case ResourceScope.ResourceGroup:
+                if (scopeData.SubscriptionIdProperty is not null)
+                {
+                    var indexContext = TryGetReplacementContext(scopeData.SubscriptionIdProperty, scopeData.IndexExpression, newContext);
+                    expressionEmitter.EmitProperty("subscriptionId", () => expressionEmitter.EmitExpression(scopeData.SubscriptionIdProperty, indexContext));
+                }
+                if (scopeData.ResourceGroupProperty is not null)
+                {
+                    var indexContext = TryGetReplacementContext(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext);
+                    expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
+                }
+                return;
+            default:
+                throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
+        }
     }
 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13911732419261916930"
+      "templateHash": "5420759829882528275"
     }
   },
   "parameters": {
@@ -99,7 +99,7 @@
     "extendSingleResourceInCollection": {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name))]",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name))]",
       "name": "one-resource-collection-item-lock",
       "properties": {
         "level": "ReadOnly"
@@ -133,7 +133,7 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[range(0, 1)[copyIndex()]]))]",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[copyIndex()]))]",
       "name": "[format('lock-the-lock-{0}', range(0, 1)[copyIndex()])]",
       "properties": {
         "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
@@ -412,22 +412,22 @@
       ]
     },
     "filteredZones": {
-      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
       "copy": {
         "name": "filteredZones",
         "count": "[length(range(0, 10))]"
       },
+      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
       "type": "Microsoft.Network/dnsZones",
       "apiVersion": "2018-05-01",
       "name": "[format('zone{0}', range(0, 10)[copyIndex()])]",
       "location": "[resourceGroup().location]"
     },
     "filteredIndexedZones": {
-      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "copy": {
         "name": "filteredIndexedZones",
         "count": "[length(parameters('accounts'))]"
       },
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "type": "Microsoft.Network/dnsZones",
       "apiVersion": "2018-05-01",
       "name": "[format('indexedZone-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]",
@@ -716,11 +716,11 @@
       }
     },
     "filteredModules": {
-      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
       "copy": {
         "name": "filteredModules",
         "count": "[length(range(0, 6))]"
       },
+      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
@@ -762,11 +762,11 @@
       }
     },
     "filteredIndexedModules": {
-      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "copy": {
         "name": "filteredIndexedModules",
         "count": "[length(parameters('accounts'))]"
       },
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('stuff-{0}', copyIndex())]",

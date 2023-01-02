@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10573795545729257719"
+      "templateHash": "5976882459022803021"
     }
   },
   "parameters": {
@@ -489,7 +489,7 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
       "name": "[format('lock{0}', range(0, 2)[copyIndex()])]",
       "properties": {
         "level": "CanNotDelete"
@@ -517,7 +517,7 @@
     "singleLockOnFirstZone": {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[0]))]",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
       "name": "single-lock",
       "properties": {
         "level": "ReadOnly"

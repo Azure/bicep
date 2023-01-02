@@ -496,18 +496,12 @@ namespace Bicep.Core.Emit
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
         {
-            if (!variables.Any() && !context.FunctionVariables.Any())
+            if (!variables.Any())
             {
                 return;
             }
 
             emitter.EmitObjectProperty("variables", () => {
-                //emit internal variables
-                foreach (var functionVariable in context.FunctionVariables.Values.OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
-                {
-                    emitter.EmitProperty(functionVariable.Name, functionVariable.Value);
-                }
-
                 var loopVariables = variables.Where(x => x is { Value: ForLoopExpression });
                 var nonLoopVariables = variables.Where(x => x is { Value: not ForLoopExpression });
 
@@ -644,7 +638,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("type", metadata.TypeReference.FormatName());
                 }
 
-                ScopeHelper.EmitResourceScopeProperties(expressionBuilder, context.SemanticModel, resource.ScopeData, emitter, resource);
+                expressionBuilder.EmitResourceScopeProperties(emitter, resource);
 
                 if (metadata.IsAzResource)
                 {
@@ -746,7 +740,7 @@ namespace Bicep.Core.Emit
                 // params requires special handling (see below).
                 emitter.EmitObjectProperties((ObjectExpression)body);
 
-                ScopeHelper.EmitModuleScopeProperties(expressionBuilder, context.SemanticModel, module.ScopeData, emitter, module);
+                expressionBuilder.EmitModuleScopeProperties(emitter, module);
 
                 if (module.ScopeData.RequestedScope != ResourceScope.ResourceGroup)
                 {

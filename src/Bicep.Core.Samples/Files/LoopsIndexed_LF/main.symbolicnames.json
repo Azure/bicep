@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8647043276184354817"
+      "templateHash": "9101588401156693653"
     }
   },
   "parameters": {
@@ -99,7 +99,7 @@
     "extendSingleResourceInCollection": {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name, mod(parameters('index'), 2)))]",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[copyIndex()].name, copyIndex()))]",
       "name": "one-resource-collection-item-lock",
       "properties": {
         "level": "ReadOnly"
