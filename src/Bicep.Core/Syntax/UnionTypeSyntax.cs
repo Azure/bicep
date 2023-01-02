@@ -19,7 +19,7 @@ public class UnionTypeSyntax : TypeSyntax
         }
     }
 
-    public IEnumerable<SyntaxBase> Children { get; }
+    public ImmutableArray<SyntaxBase> Children { get; }
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitUnionTypeSyntax(this);
 

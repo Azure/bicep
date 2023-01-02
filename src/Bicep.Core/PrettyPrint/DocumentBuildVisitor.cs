@@ -499,7 +499,38 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitUnionTypeSyntax(syntax));
+            this.BuildWithConcat(() => {
+                int stackTare = documentStack.Count;
+                var firstLineWritten = false;
+
+                void AggregateCurrentLine()
+                {
+                    LinkedList<ILinkedDocument> currentLineDocs = new();
+                    while (documentStack.Count > stackTare)
+                    {
+                        currentLineDocs.AddFirst(documentStack.Pop());
+                    }
+
+                    var line = Spread(currentLineDocs);
+                    this.PushDocument(firstLineWritten ? new NestDocument(1, ImmutableArray.Create(line)) : line);
+                    firstLineWritten = true;
+                    stackTare++;
+                }
+
+                for (int i = 0; i < syntax.Children.Length; i++)
+                {
+                    if (syntax.Children[i] is Token { Type: TokenType.NewLine })
+                    {
+                        AggregateCurrentLine();
+                    }
+                    else
+                    {
+                        this.Visit(syntax.Children[i]);
+                    }
+                }
+
+                AggregateCurrentLine();
+            });
 
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);

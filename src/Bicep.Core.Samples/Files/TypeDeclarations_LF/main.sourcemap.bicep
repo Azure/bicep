@@ -151,7 +151,7 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@      ]
 //@    },
 
-type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
+type tupleUnion = ['foo', 'bar', 'baz']
 //@    "tupleUnion": {
 //@      "type": "array",
 //@      "allowedValues": [
@@ -171,6 +171,8 @@ type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'po
 //@        ]
 //@      ]
 //@    },
+|['fizz', 'buzz']
+|['snap', 'crackle', 'pop']
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@    "mixedArray": {
@@ -267,3 +269,4 @@ type tuple = [
     @description('A second element using a type alias')
     bar
 ]
+
