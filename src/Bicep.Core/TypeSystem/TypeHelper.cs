@@ -121,11 +121,9 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            // is there a declared property with this name
-            var declaredProperty = baseType.Properties.TryGetValue(propertyName);
-            if (declaredProperty != null)
+            ErrorType? GenerateAccessError(TypePropertyFlags flags)
             {
-                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                if (flags.HasFlag(TypePropertyFlags.WriteOnly))
                 {
                     var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(shouldWarn, baseType, propertyName);
                     diagnostics.Write(writeOnlyDiagnostic);
@@ -136,21 +134,28 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
+                if (flags.HasFlag(TypePropertyFlags.FallbackProperty))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).FallbackPropertyUsed(propertyName));
                 }
 
-                // there is - return its type
-                return declaredProperty.TypeReference.Type;
+                return null;
+            };
+
+            // is there a declared property with this name
+            var declaredProperty = baseType.Properties.TryGetValue(propertyName);
+            if (declaredProperty != null)
+            {
+                // there is - return its type or any error raised by its use
+                return GenerateAccessError(declaredProperty.Flags) ?? declaredProperty.TypeReference.Type;
             }
 
             // the property is not declared
             // check additional properties
             if (baseType.AdditionalPropertiesType != null)
             {
-                // yes - return the additional property type
-                return baseType.AdditionalPropertiesType.Type;
+                // yes - return the additional property type or any error raised by its use
+                return GenerateAccessError(baseType.AdditionalPropertiesFlags) ?? baseType.AdditionalPropertiesType.Type;
             }
 
             var availableProperties = baseType.Properties.Values
