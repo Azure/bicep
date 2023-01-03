@@ -33,7 +33,9 @@ type aUnion = 'snap' | 'crackle' | 'pop'
 
 type expandedUnion = aUnion | 'fizz' | 'buzz' | 'pop'
 
-type tupleUnion = [ 'foo', 'bar', 'baz' ] | [ 'fizz', 'buzz' ] | [ 'snap', 'crackle', 'pop' ]
+type tupleUnion = [ 'foo', 'bar', 'baz' ]
+  | [ 'fizz', 'buzz' ]
+  | [ 'snap', 'crackle', 'pop' ]
 
 type mixedArray = ('heffalump' | 'woozle' | { shape: '*', size: '*' } | 10 | -10 | true | !true | null)[]
 

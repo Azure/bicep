@@ -418,18 +418,44 @@ type aTuple = [
 ]";
 
             var parsed = ParserHelper.Parse(typeDeclaration);
-            parsed.Should().BeOfType<ProgramSyntax>();
-            (parsed as ProgramSyntax).Declarations.Should().HaveCount(1);
-            (parsed as ProgramSyntax).Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
-            var declaration = (TypeDeclarationSyntax) (parsed as ProgramSyntax).Declarations.Single();
+            parsed.Declarations.Should().HaveCount(1);
+            parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
+            var declaration = (TypeDeclarationSyntax) parsed.Declarations.Single();
 
             declaration.Value.Should().BeOfType<TupleTypeSyntax>();
-            var declaredObject = (TupleTypeSyntax) declaration.Value;
-            declaredObject.Items.Should().HaveCount(2);
-            declaredObject.Items.First().Decorators.Should().HaveCount(2);
-            declaredObject.Items.First().Value.Should().BeOfType<VariableAccessSyntax>();
-            declaredObject.Items.Last().Decorators.Should().HaveCount(1);
-            declaredObject.Items.Last().Value.Should().BeOfType<UnionTypeSyntax>();
+            var declaredTuple = (TupleTypeSyntax) declaration.Value;
+            declaredTuple.Items.Should().HaveCount(2);
+            declaredTuple.Items.First().Decorators.Should().HaveCount(2);
+            declaredTuple.Items.First().Value.Should().BeOfType<VariableAccessSyntax>();
+            declaredTuple.Items.Last().Decorators.Should().HaveCount(1);
+            declaredTuple.Items.Last().Value.Should().BeOfType<UnionTypeSyntax>();
+        }
+
+        [TestMethod]
+        public void MultilineUnionTypeLiteralsShouldParseSuccessfully()
+        {
+            var typeDeclaration = @"
+type multilineUnion = 'a'
+  | 'multiline'
+  | 'union'
+";
+
+            var parsed = ParserHelper.Parse(typeDeclaration);
+            parsed.Declarations.Should().HaveCount(1);
+            parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
+            var declaration = (TypeDeclarationSyntax) parsed.Declarations.Single();
+
+            declaration.Value.Should().BeOfType<UnionTypeSyntax>();
+
+            var expectedMemberValues = new[] { "a", "multiline", "union" };
+            var actualMembers = declaration.Value.As<UnionTypeSyntax>().Members.ToArray();
+            actualMembers.Should().HaveCount(expectedMemberValues.Length);
+
+            for (int i = 0; i < expectedMemberValues.Length; i++)
+            {
+                actualMembers[i].Value.Should().BeOfType<StringSyntax>();
+                actualMembers[i].Value.As<StringSyntax>().TryGetLiteralValue().Should().Be(expectedMemberValues[i]);
+            }
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

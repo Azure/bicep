@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1117) ProgramSyntax
+//@[00:1120) ProgramSyntax
 //@[00:0298) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -335,13 +335,13 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[42:0047) |       └─Token(StringComplete) |'pop'|
 //@[47:0049) ├─Token(NewLine) |\n\n|
 
-type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
-//@[00:0083) ├─TypeDeclarationSyntax
+type tupleUnion = ['foo', 'bar', 'baz']
+//@[00:0085) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0015) | ├─IdentifierSyntax
 //@[05:0015) | | └─Token(Identifier) |tupleUnion|
 //@[16:0017) | ├─Token(Assignment) |=|
-//@[18:0083) | └─UnionTypeSyntax
+//@[18:0085) | └─UnionTypeSyntax
 //@[18:0039) |   ├─UnionTypeMemberSyntax
 //@[18:0039) |   | └─TupleTypeSyntax
 //@[18:0019) |   |   ├─Token(LeftSquare) |[|
@@ -357,35 +357,39 @@ type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'po
 //@[33:0038) |   |   | └─StringSyntax
 //@[33:0038) |   |   |   └─Token(StringComplete) |'baz'|
 //@[38:0039) |   |   └─Token(RightSquare) |]|
-//@[39:0040) |   ├─Token(Pipe) |||
-//@[40:0056) |   ├─UnionTypeMemberSyntax
-//@[40:0056) |   | └─TupleTypeSyntax
-//@[40:0041) |   |   ├─Token(LeftSquare) |[|
-//@[41:0047) |   |   ├─TupleTypeItemSyntax
-//@[41:0047) |   |   | └─StringSyntax
-//@[41:0047) |   |   |   └─Token(StringComplete) |'fizz'|
-//@[47:0048) |   |   ├─Token(Comma) |,|
-//@[49:0055) |   |   ├─TupleTypeItemSyntax
-//@[49:0055) |   |   | └─StringSyntax
-//@[49:0055) |   |   |   └─Token(StringComplete) |'buzz'|
-//@[55:0056) |   |   └─Token(RightSquare) |]|
-//@[56:0057) |   ├─Token(Pipe) |||
-//@[57:0083) |   └─UnionTypeMemberSyntax
-//@[57:0083) |     └─TupleTypeSyntax
-//@[57:0058) |       ├─Token(LeftSquare) |[|
-//@[58:0064) |       ├─TupleTypeItemSyntax
-//@[58:0064) |       | └─StringSyntax
-//@[58:0064) |       |   └─Token(StringComplete) |'snap'|
-//@[64:0065) |       ├─Token(Comma) |,|
-//@[66:0075) |       ├─TupleTypeItemSyntax
-//@[66:0075) |       | └─StringSyntax
-//@[66:0075) |       |   └─Token(StringComplete) |'crackle'|
-//@[75:0076) |       ├─Token(Comma) |,|
-//@[77:0082) |       ├─TupleTypeItemSyntax
-//@[77:0082) |       | └─StringSyntax
-//@[77:0082) |       |   └─Token(StringComplete) |'pop'|
-//@[82:0083) |       └─Token(RightSquare) |]|
-//@[83:0085) ├─Token(NewLine) |\n\n|
+//@[39:0040) |   ├─Token(NewLine) |\n|
+|['fizz', 'buzz']
+//@[00:0001) |   ├─Token(Pipe) |||
+//@[01:0017) |   ├─UnionTypeMemberSyntax
+//@[01:0017) |   | └─TupleTypeSyntax
+//@[01:0002) |   |   ├─Token(LeftSquare) |[|
+//@[02:0008) |   |   ├─TupleTypeItemSyntax
+//@[02:0008) |   |   | └─StringSyntax
+//@[02:0008) |   |   |   └─Token(StringComplete) |'fizz'|
+//@[08:0009) |   |   ├─Token(Comma) |,|
+//@[10:0016) |   |   ├─TupleTypeItemSyntax
+//@[10:0016) |   |   | └─StringSyntax
+//@[10:0016) |   |   |   └─Token(StringComplete) |'buzz'|
+//@[16:0017) |   |   └─Token(RightSquare) |]|
+//@[17:0018) |   ├─Token(NewLine) |\n|
+|['snap', 'crackle', 'pop']
+//@[00:0001) |   ├─Token(Pipe) |||
+//@[01:0027) |   └─UnionTypeMemberSyntax
+//@[01:0027) |     └─TupleTypeSyntax
+//@[01:0002) |       ├─Token(LeftSquare) |[|
+//@[02:0008) |       ├─TupleTypeItemSyntax
+//@[02:0008) |       | └─StringSyntax
+//@[02:0008) |       |   └─Token(StringComplete) |'snap'|
+//@[08:0009) |       ├─Token(Comma) |,|
+//@[10:0019) |       ├─TupleTypeItemSyntax
+//@[10:0019) |       | └─StringSyntax
+//@[10:0019) |       |   └─Token(StringComplete) |'crackle'|
+//@[19:0020) |       ├─Token(Comma) |,|
+//@[21:0026) |       ├─TupleTypeItemSyntax
+//@[21:0026) |       | └─StringSyntax
+//@[21:0026) |       |   └─Token(StringComplete) |'pop'|
+//@[26:0027) |       └─Token(RightSquare) |]|
+//@[27:0029) ├─Token(NewLine) |\n\n|
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[00:0090) ├─TypeDeclarationSyntax
@@ -652,4 +656,6 @@ type tuple = [
 //@[07:0008) |   ├─Token(NewLine) |\n|
 ]
 //@[00:0001) |   └─Token(RightSquare) |]|
-//@[01:0001) └─Token(EndOfFile) ||
+//@[01:0002) ├─Token(NewLine) |\n|
+
+//@[00:0000) └─Token(EndOfFile) ||

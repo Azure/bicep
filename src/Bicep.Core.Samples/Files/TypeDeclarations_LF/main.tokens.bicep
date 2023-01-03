@@ -196,7 +196,7 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[42:47) StringComplete |'pop'|
 //@[47:49) NewLine |\n\n|
 
-type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
+type tupleUnion = ['foo', 'bar', 'baz']
 //@[00:04) Identifier |type|
 //@[05:15) Identifier |tupleUnion|
 //@[16:17) Assignment |=|
@@ -207,21 +207,25 @@ type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'po
 //@[31:32) Comma |,|
 //@[33:38) StringComplete |'baz'|
 //@[38:39) RightSquare |]|
-//@[39:40) Pipe |||
-//@[40:41) LeftSquare |[|
-//@[41:47) StringComplete |'fizz'|
-//@[47:48) Comma |,|
-//@[49:55) StringComplete |'buzz'|
-//@[55:56) RightSquare |]|
-//@[56:57) Pipe |||
-//@[57:58) LeftSquare |[|
-//@[58:64) StringComplete |'snap'|
-//@[64:65) Comma |,|
-//@[66:75) StringComplete |'crackle'|
-//@[75:76) Comma |,|
-//@[77:82) StringComplete |'pop'|
-//@[82:83) RightSquare |]|
-//@[83:85) NewLine |\n\n|
+//@[39:40) NewLine |\n|
+|['fizz', 'buzz']
+//@[00:01) Pipe |||
+//@[01:02) LeftSquare |[|
+//@[02:08) StringComplete |'fizz'|
+//@[08:09) Comma |,|
+//@[10:16) StringComplete |'buzz'|
+//@[16:17) RightSquare |]|
+//@[17:18) NewLine |\n|
+|['snap', 'crackle', 'pop']
+//@[00:01) Pipe |||
+//@[01:02) LeftSquare |[|
+//@[02:08) StringComplete |'snap'|
+//@[08:09) Comma |,|
+//@[10:19) StringComplete |'crackle'|
+//@[19:20) Comma |,|
+//@[21:26) StringComplete |'pop'|
+//@[26:27) RightSquare |]|
+//@[27:29) NewLine |\n\n|
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[00:04) Identifier |type|
@@ -376,4 +380,6 @@ type tuple = [
 //@[07:08) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
-//@[01:01) EndOfFile ||
+//@[01:02) NewLine |\n|
+
+//@[00:00) EndOfFile ||
