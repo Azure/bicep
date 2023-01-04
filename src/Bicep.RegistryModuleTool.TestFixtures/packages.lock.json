@@ -1178,11 +1178,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.0.1",
-        "contentHash": "UVM412UWKjs07esf5bnfAxJ8Bj/0srrFzNXit0mbY6kFoC8M3gHsFF28KLfI4rSnfRj0wbQ/LCvkGZ/hHiTA1Q==",
+        "resolved": "19.1.5",
+        "contentHash": "tOS9FtA8fb/IAVjyaUc4+osF8IpK3i4dsOYJ4R2hoLyLS9D3qKR8nEVb/Y+nDQW5KEbTmLVpC6vEm2UnAZi/HQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.0.1",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.0.1"
+          "TestableIO.System.IO.Abstractions": "19.1.5",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.5"
         }
       },
       "System.IO.Compression": {
@@ -1974,8 +1974,8 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.0.1",
-        "contentHash": "PGlynyB/3wzKOLY/kOBC6XvaOSyMJ1sG0yXp7toWjGUXmCm4n1ySIlpZLCtVezKtqNVQIyTzGX0ASUZIuquLrg=="
+        "resolved": "19.1.5",
+        "contentHash": "jBsuhMdPQ51kbPrXbSPL8R38ARpTlxvUZNBo2XwelTu5XM0P3xEfjwjkTEfUx3EOHIkM1rEHi/Jg0sjt7hpekA=="
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
@@ -1988,10 +1988,10 @@
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "19.0.1",
-        "contentHash": "ayFxzptLadWGxDqCqNL37maXFGNXlB5H4bD07Pl+sgDWMxVgFiu8EZ64dMAWOoLBuApxkrST1UN3dwNDrPnwmA==",
+        "resolved": "19.1.5",
+        "contentHash": "hFJ3IYSMw9B6do5uYQSzlbvFVNFS7iS3H5nej8h/9QY468Z1rFWjgNK4aqInYO4Yvft1GpLnzcpsZbqX+TraeA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.0.1"
+          "TestableIO.System.IO.Abstractions": "19.1.5"
         }
       },
       "WindowsAzure.Storage": {
@@ -2022,7 +2022,7 @@
           "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
           "Newtonsoft.Json": "[13.0.2, )",
           "System.Collections.Immutable": "[6.0.0, )",
-          "System.IO.Abstractions": "[19.0.1, )"
+          "System.IO.Abstractions": "[19.1.5, )"
         }
       },
       "Azure.Bicep.RegistryModuleTool": {
@@ -2042,7 +2042,7 @@
           "System.CommandLine.Hosting": "[0.4.0-alpha.22272.1, )",
           "System.CommandLine.NamingConventionBinder": "[2.0.0-beta4.22272.1, )",
           "System.CommandLine.Rendering": "[0.4.0-alpha.22272.1, )",
-          "System.IO.Abstractions": "[19.0.1, )"
+          "System.IO.Abstractions": "[19.1.5, )"
         }
       }
     },
