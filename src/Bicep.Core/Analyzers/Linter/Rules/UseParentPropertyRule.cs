@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Comparers;
+using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
@@ -51,7 +52,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (!parentResource.Symbol.IsCollection &&
                         parentResource.TryGetNameSyntax() is {} parentNameSyntax &&
-                        TryGetParentName(childName, parentNameSyntax) is {} replacement &&
+                        TryGetParentName(model, childName, parentNameSyntax) is {} replacement &&
                         TryCreateDiagnostic(diagnosticLevel, parentResource, resource, replacement) is {} diagnostic)
                     {
                         yield return diagnostic;
@@ -63,7 +64,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static IEnumerable<string> RemoveFirstLeadingSlash(IEnumerable<string> segments)
             => segments.Select((x, i) => i == 0 ? x.Substring(1) : x);
 
-        private SyntaxBase? TryGetParentName(StringSyntax parentName, StringSyntax childName)
+        private SyntaxBase? TryGetParentName(SemanticModel model, StringSyntax parentName, StringSyntax childName)
         {
             /* Handle cases such as:
              * parent: 'abc', child: 'abc/def'
@@ -79,25 +80,31 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
-            for (var i = 0; i < parentName.SegmentValues.Length - 1; i++)
+            for (var i = 0; i < parentName.SegmentValues.Length; i++)
             {
-                if (childName.SegmentValues[i] != parentName.SegmentValues[i])
+                var isFinalCommonSegment = (i == parentName.SegmentValues.Length - 1);
+                var parentSegment = parentName.SegmentValues[i];
+                var childSegment = childName.SegmentValues[i];
+
+                // All common string segments (apart from the final common string segment) must match the parent string segments EXACTLY
+                if (!isFinalCommonSegment &&
+                    childSegment != parentSegment)
                 {
-                    // apart from the last child segment, all segments must match those of the parent
+                    return null;
+                }
+
+                // The final common segment must either match exactly, or be equal to <parent_segment>/<something>
+                if (isFinalCommonSegment &&
+                    (childSegment.Length <= parentSegment.Length ||
+                    childSegment[parentSegment.Length] != '/' ||
+                    childSegment.IndexOf(parentSegment) != 0))
+                {
                     return null;
                 }
             }
 
-            var finalParentSegment = parentName.SegmentValues[parentName.SegmentValues.Length - 1];
-            var finalChildSegment = childName.SegmentValues[parentName.SegmentValues.Length - 1];
-
-            if (finalChildSegment.Length <= finalParentSegment.Length ||
-                finalChildSegment[finalParentSegment.Length] != '/' ||
-                finalChildSegment.IndexOf(finalParentSegment) != 0)
-            {
-                // the last common segment must either match exactly, or be equal to <parent>/<something>
-                return null;
-            }
+            // Use everything after the final parent segment and trailing '/' for the first segment of the new string
+            var newFirstChildSegment = childName.SegmentValues[parentName.SegmentValues.Length - 1].Substring(parentName.SegmentValues.Last().Length + 1);
 
             if (!Enumerable.SequenceEqual(
                 childName.Expressions.Take(parentName.Expressions.Length),
@@ -110,13 +117,21 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             var newString = SyntaxFactory.CreateString(
-                new [] { finalChildSegment.Substring(finalParentSegment.Length + 1) }.Concat(childName.SegmentValues.Skip(parentName.SegmentValues.Length)),
+                new [] { newFirstChildSegment }.Concat(childName.SegmentValues.Skip(parentName.SegmentValues.Length)),
                 childName.Expressions.Skip(parentName.Expressions.Length));
 
-            return SimplifyInterpolationRule.TrySimplify(newString) ?? newString;
+            if (SimplifyInterpolationRule.TrySimplify(newString) is {} simplfied &&
+                model.GetTypeInfo(simplfied) is {} simplfiedType &&
+                TypeValidator.AreTypesAssignable(simplfiedType, LanguageConstants.String))
+            {
+                // Check if we can simplify "name: '${expr}'" to "name: expr"
+                return simplfied;
+            }
+
+            return newString;
         }
 
-        private SyntaxBase? TryGetParentName(StringSyntax childName, SyntaxBase parentName)
+        private SyntaxBase? TryGetParentName(SemanticModel model, StringSyntax childName, SyntaxBase parentName)
         {
             if (parentName is not StringSyntax parentNameString)
             {
@@ -133,7 +148,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
-            return TryGetParentName(parentNameString, childName);
+            return TryGetParentName(model, parentNameString, childName);
         }
 
         private IDiagnostic? TryCreateDiagnostic(DiagnosticLevel diagnosticLevel, DeclaredResourceMetadata parentResource, DeclaredResourceMetadata childResource, SyntaxBase replacementName)

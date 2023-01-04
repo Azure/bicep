@@ -139,4 +139,52 @@ resource sdf2 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = [for
   name: 'abc${item}/asdf'
 }]
 ");
+
+    [TestMethod]
+    public void Codefix_simplifies_interpolated_string_values() => AssertCodeFix(@"
+var a = 'blah'
+
+resource parent 'Microsoft.Network/networkInterfaces@2022-07-01' = {
+  name: 'parent'
+}
+
+resource child 'Microsoft.Network/networkInterfaces/ipConfigurations@2022-07-01' existing = {
+  name: 'par|ent/${a}'
+}
+", @"
+var a = 'blah'
+
+resource parent 'Microsoft.Network/networkInterfaces@2022-07-01' = {
+  name: 'parent'
+}
+
+resource child 'Microsoft.Network/networkInterfaces/ipConfigurations@2022-07-01' existing = {
+  parent: parent
+  name: a
+}
+");
+
+    [TestMethod]
+    public void Codefix_doesnt_simplify_interpolated_non_string_values() => AssertCodeFix(@"
+var a = 100
+
+resource parent 'Microsoft.Network/networkInterfaces@2022-07-01' = {
+  name: 'parent'
+}
+
+resource child 'Microsoft.Network/networkInterfaces/ipConfigurations@2022-07-01' existing = {
+  name: 'par|ent/${a}'
+}
+", @"
+var a = 100
+
+resource parent 'Microsoft.Network/networkInterfaces@2022-07-01' = {
+  name: 'parent'
+}
+
+resource child 'Microsoft.Network/networkInterfaces/ipConfigurations@2022-07-01' existing = {
+  parent: parent
+  name: '${a}'
+}
+");
 }
