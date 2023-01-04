@@ -22,6 +22,8 @@ import { bicepLanguageId } from "./constants";
 const dotnetRuntimeVersion = "6.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
+const dotnetAcquisitionExtensionSetting = "dotnetAcquisitionExtension";
+const existingDotnetPathSetting = "existingDotnetPath";
 
 function getServerStartupOptions(
   dotnetCommandPath: string,
@@ -149,10 +151,31 @@ export async function createLanguageService(
   return client;
 }
 
+function getCustomDotnetRuntimePathConfig() {
+  const acquireConfig = vscode.workspace
+    .getConfiguration(dotnetAcquisitionExtensionSetting)
+    .get(existingDotnetPathSetting);
+  if (!Array.isArray(acquireConfig)) {
+    return null;
+  }
+
+  return acquireConfig.filter((x) => x.extensionId === extensionId)[0];
+}
+
 async function ensureDotnetRuntimeInstalled(
   actionContext: IActionContext
 ): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
+
+  const customDotnetRuntimePathConfig = getCustomDotnetRuntimePathConfig();
+  if (customDotnetRuntimePathConfig) {
+    // This setting is a common source of issues. Add explicit logging to help with investigation.
+    getLogger().info(
+      `Found config for '${dotnetAcquisitionExtensionSetting}.${existingDotnetPathSetting}': ${JSON.stringify(
+        customDotnetRuntimePathConfig
+      )}`
+    );
+  }
 
   const result = await vscode.commands.executeCommand<{ dotnetPath: string }>(
     "dotnet.acquire",
@@ -172,7 +195,20 @@ async function ensureDotnetRuntimeInstalled(
     throw new Error(errorMessage);
   }
 
-  return path.resolve(result.dotnetPath);
+  const dotnetPath = path.resolve(result.dotnetPath);
+  if (!existsSync(dotnetPath)) {
+    // The 'dotnet.acquire' command doesn't actually verify that the dotnet path is valid, in the case
+    // that the user has configured a custom path using the 'dotnetAcquisitionExtension.existingDotnetPath' setting.
+    // Let's sanity check it here to help users unblock themselves.
+    let errorMessage = `Failed to find dotnet executable at path '${dotnetPath}'.`;
+    if (customDotnetRuntimePathConfig) {
+      errorMessage += ` Please ensure the path configured for extension '${extensionId}' with setting '${dotnetAcquisitionExtensionSetting}.${existingDotnetPathSetting}' is valid.`;
+    }
+
+    throw new Error(errorMessage);
+  }
+
+  return dotnetPath;
 }
 
 function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
