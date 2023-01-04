@@ -19,6 +19,8 @@ public interface IExpressionVisitor
 
     void VisitObjectExpression(ObjectExpression expression);
 
+    void VisitObjectPropertyExpression(ObjectPropertyExpression expression);
+
     void VisitArrayExpression(ArrayExpression expression);
 
     void VisitTernaryExpression(TernaryExpression expression);
@@ -44,6 +46,8 @@ public interface IExpressionVisitor
     void VisitParametersReferenceExpression(ParametersReferenceExpression expression);
 
     void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression);
+
+    void VisitForLoopExpression(ForLoopExpression expression);
 
     void VisitCopyIndexExpression(CopyIndexExpression expression);
 

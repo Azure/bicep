@@ -534,7 +534,7 @@ namespace Bicep.Core.Emit
                         // enforced by the lookup predicate above
                         var @for = (ForSyntax)variableSymbol.Value;
 
-                        emitter.EmitCopyObject(variableSymbol.Name, @for, @for.Body);
+                        emitter.EmitCopyObject(variableSymbol.Name, @for.Expression, @for.Body);
                     }
 
                     jsonWriter.WriteEndArray();
@@ -725,7 +725,7 @@ namespace Bicep.Core.Emit
                 if (loops.Count == 1)
                 {
                     var batchSize = GetBatchSize(resource.Symbol.DeclaringResource);
-                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(loops[0].name, loops[0].@for.Expression, loops[0].input, batchSize: batchSize));
                 }
                 else if (loops.Count > 1)
                 {
@@ -824,7 +824,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitCopyProperty(() =>
                     {
                         jsonWriter.WriteStartArray();
-                        emitter.EmitCopyObject("value", @for, @for.Body, "value");
+                        emitter.EmitCopyObject("value", @for.Expression, @for.Body, "value");
                         jsonWriter.WriteEndArray();
                     });
                     jsonWriter.WriteEndObject();
@@ -875,7 +875,7 @@ namespace Bicep.Core.Emit
                         }
 
                         var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
-                        emitter.EmitCopyProperty(() => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
+                        emitter.EmitCopyProperty(() => emitter.EmitCopyObject(moduleSymbol.Name, @for.Expression, input: null, batchSize: batchSize));
                         break;
                 }
 
@@ -1133,7 +1133,7 @@ namespace Bicep.Core.Emit
 
                 if (outputSymbol.Value is ForSyntax @for)
                 {
-                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(name: null, @for, @for.Body));
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(name: null, @for.Expression, @for.Body));
                 }
                 else
                 {

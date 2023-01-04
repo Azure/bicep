@@ -32,10 +32,11 @@ public class ExpressionBuilder
             case StringSyntax @string: {
                 if (@string.TryGetLiteralValue() is {} stringValue)
                 {
-                    return new StringLiteralExpression(stringValue);
+                    return new StringLiteralExpression(@string, stringValue);
                 }
 
                 return new InterpolatedStringExpression(
+                    @string,
                     @string.SegmentValues,
                     @string.Expressions.Select(Convert).ToImmutableArray());
             }
@@ -46,7 +47,7 @@ public class ExpressionBuilder
                     _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),
                 };
 
-                return new IntegerLiteralExpression(literalValue);
+                return new IntegerLiteralExpression(@int, literalValue);
             }
             case UnaryOperationSyntax { Operator: UnaryOperator.Minus } unary when unary.Expression is IntegerLiteralSyntax @int: {
                 var literalValue = @int.Value switch {
@@ -55,32 +56,36 @@ public class ExpressionBuilder
                     // Should have been caught earlier in validation.
                     _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),
                 };
-                return new IntegerLiteralExpression(literalValue);
+                return new IntegerLiteralExpression(unary, literalValue);
             }
             case BooleanLiteralSyntax @bool:
-                return new BooleanLiteralExpression(@bool.Value);
+                return new BooleanLiteralExpression(@bool, @bool.Value);
             case NullLiteralSyntax:
-                return new NullLiteralExpression();
+                return new NullLiteralExpression(syntax);
             case ParenthesizedExpressionSyntax x:
                 return Convert(x.Expression);
             case ObjectSyntax @object:
-                var properties = @object.Properties.Select(x => new ObjectProperty(Convert(x.Key), Convert(x.Value)));
-                return new ObjectExpression(properties.ToImmutableArray());
+                return new ObjectExpression(
+                    @object,
+                    @object.Properties.Select(ConvertObjectProperty).ToImmutableArray());
             case ArraySyntax array:
                 var items = array.Items.Select(x => Convert(x.Value));
-                return new ArrayExpression(items.ToImmutableArray());
+                return new ArrayExpression(array, items.ToImmutableArray());
             case TernaryOperationSyntax ternary:
                 return new TernaryExpression(
+                    ternary,
                     Convert(ternary.ConditionExpression),
                     Convert(ternary.TrueExpression),
                     Convert(ternary.FalseExpression));
             case BinaryOperationSyntax binary:
                 return new BinaryExpression(
+                    binary,
                     binary.Operator,
                     Convert(binary.LeftExpression),
                     Convert(binary.RightExpression));
             case UnaryOperationSyntax unary:
                 return new UnaryExpression(
+                    unary,
                     unary.Operator,
                     Convert(unary.Expression));
             case FunctionCallSyntaxBase function:
@@ -91,8 +96,8 @@ public class ExpressionBuilder
             case PropertyAccessSyntax propertyAccess:
                 return ConvertPropertyAccess(propertyAccess);
             case UnboundVariableAccessSyntax unboundVariableAccess:
-                var varProperties = new Expression[] { new StringLiteralExpression(unboundVariableAccess.Name.IdentifierName) };
-                return new FunctionCallExpression("variables", varProperties.ToImmutableArray());
+                var varProperties = new Expression[] { new StringLiteralExpression(unboundVariableAccess, unboundVariableAccess.Name.IdentifierName) };
+                return new FunctionCallExpression(unboundVariableAccess, "variables", varProperties.ToImmutableArray());
             case VariableAccessSyntax variableAccess:
                 return ConvertVariableAccess(variableAccess);
             case ResourceAccessSyntax resourceAccess:
@@ -101,11 +106,27 @@ public class ExpressionBuilder
                 var variableNames = lambda.GetLocalVariables().Select(x => x.Name.IdentifierName);
 
                 return new LambdaExpression(
+                    lambda,
                     variableNames.ToImmutableArray(),
                     Convert(lambda.Body));
+
+            case ForSyntax forSyntax:
+                return new ForLoopExpression(
+                    forSyntax,
+                    Convert(forSyntax.Expression),
+                    Convert(forSyntax.Body));
             default:
                 return new SyntaxExpression(syntax);
         }
+    }
+
+    private ObjectPropertyExpression ConvertObjectProperty(ObjectPropertySyntax syntax)
+    {
+        var keyExpression = syntax.Key is IdentifierSyntax identifier ?
+            new StringLiteralExpression(identifier, identifier.IdentifierName) :
+            Convert(syntax.Key);
+
+        return new(syntax, keyExpression, Convert(syntax.Value));
     }
 
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
@@ -125,6 +146,7 @@ public class ExpressionBuilder
         {
             case FunctionCallSyntax function:
                 return new FunctionCallExpression(
+                    function,
                     function.Name.IdentifierName,
                     function.Arguments.Select(a => Convert(a.Expression)).ToImmutableArray());
 
@@ -137,6 +159,7 @@ public class ExpressionBuilder
                     case INamespaceSymbol namespaceSymbol:
                         Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
                         return new FunctionCallExpression(
+                            method,
                             method.Name.IdentifierName,
                             method.Arguments.Select(a => Convert(a.Expression)).ToImmutableArray());
                     case { } _ when context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is DeclaredResourceMetadata resource:
@@ -147,11 +170,12 @@ public class ExpressionBuilder
                             // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                             var convertedArgs = method.Arguments.SelectArray(a => Convert(a.Expression));
                             var resourceIdExpression = new PropertyAccessExpression(
-                                new ResourceReferenceExpression(resource, indexContext),
+                                baseSyntax,
+                                new ResourceReferenceExpression(baseSyntax, resource, indexContext),
                                 "id");
 
                             var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
-                            var apiVersionExpression = new StringLiteralExpression(apiVersion);
+                            var apiVersionExpression = new StringLiteralExpression(baseSyntax, apiVersion);
 
                             var listArgs = convertedArgs.Length switch
                             {
@@ -160,6 +184,7 @@ public class ExpressionBuilder
                             };
 
                             return new FunctionCallExpression(
+                                method,
                                 method.Name.IdentifierName,
                                 listArgs.ToImmutableArray());
                         }
@@ -183,25 +208,27 @@ public class ExpressionBuilder
                 resource.Symbol.IsCollection)
             {
                 var indexContext = TryGetReplacementContext(resource, arrayAccess.IndexExpression, arrayAccess);
-                return new ResourceReferenceExpression(resource, indexContext);
+                return new ResourceReferenceExpression(arrayAccess, resource, indexContext);
             }
 
             if (context.SemanticModel.GetSymbolInfo(arrayAccess.BaseExpression) is ModuleSymbol { IsCollection: true } moduleSymbol)
             {
                 var indexContext = TryGetReplacementContext(GetModuleNameSyntax(moduleSymbol), arrayAccess.IndexExpression, arrayAccess);
-                return new ModuleReferenceExpression(moduleSymbol, indexContext);
+                return new ModuleReferenceExpression(arrayAccess, moduleSymbol, indexContext);
             }
         }
 
         return new ArrayAccessExpression(
+            arrayAccess,
             Convert(arrayAccess.BaseExpression),
             Convert(arrayAccess.IndexExpression));
     }
 
-    private Expression ConvertResourcePropertyAccess(ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName)
+    private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName)
     {
         return new PropertyAccessExpression(
-            new ResourceReferenceExpression(resource, indexContext),
+            sourceSyntax,
+            new ResourceReferenceExpression(sourceSyntax.BaseExpression, resource, indexContext),
             propertyName);
     }
 
@@ -210,7 +237,7 @@ public class ExpressionBuilder
         // Looking for: myResource.someProp (where myResource is a resource declared in-file)
         if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
         {
-            return ConvertResourcePropertyAccess(resource, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, resource, null, propertyAccess.PropertyName.IdentifierName);
         }
 
         // Looking for: myResource[blah].someProp (where myResource is a resource declared in-file)
@@ -218,13 +245,13 @@ public class ExpressionBuilder
             context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is DeclaredResourceMetadata resourceCollection)
         {
             var indexContext = TryGetReplacementContext(resourceCollection, propArrayAccess.IndexExpression, propertyAccess);
-            return ConvertResourcePropertyAccess(resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName);
         }
 
         // Looking for: myResource.someProp (where myResource is a parameter of type resource)
         if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ParameterResourceMetadata parameter)
         {
-            return ConvertResourcePropertyAccess(parameter, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, parameter, null, propertyAccess.PropertyName.IdentifierName);
         }
 
         // Looking for: myMod.outputs.someProp (where someProp is an output of type resource)
@@ -232,7 +259,7 @@ public class ExpressionBuilder
             context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleOutput &&
             !moduleOutput.Module.IsCollection)
         {
-            return ConvertResourcePropertyAccess(moduleOutput, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, moduleOutput, null, propertyAccess.PropertyName.IdentifierName);
         }
 
         // Looking for: myMod[blah].outputs.someProp (where someProp is an output of type resource)
@@ -243,7 +270,7 @@ public class ExpressionBuilder
             moduleCollectionOutputMetadata.Module.IsCollection)
         {
             var indexContext = TryGetReplacementContext(moduleCollectionOutputMetadata.NameSyntax, moduleArrayAccess.IndexExpression, propertyAccess);
-            return ConvertResourcePropertyAccess(moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName);
         }
 
         // Looking for: expr.outputs.blah (where expr is any expression of type module)
@@ -252,11 +279,13 @@ public class ExpressionBuilder
             childPropertyAccess.PropertyName.NameEquals(LanguageConstants.ModuleOutputsPropertyName))
         {
             return new ModuleOutputPropertyAccessExpression(
+                propertyAccess,
                 Convert(propertyAccess.BaseExpression),
                 propertyAccess.PropertyName.IdentifierName);
         }
 
         return new PropertyAccessExpression(
+            propertyAccess,
             Convert(propertyAccess.BaseExpression),
             propertyAccess.PropertyName.IdentifierName);
     }
@@ -265,7 +294,7 @@ public class ExpressionBuilder
     {
         if (context.SemanticModel.ResourceMetadata.TryLookup(resourceAccessSyntax) is { } resource)
         {
-            return new ResourceReferenceExpression(resource, null);
+            return new ResourceReferenceExpression(resourceAccessSyntax, resource, null);
         }
 
         throw new NotImplementedException($"Unable to obtain resource metadata when generating a resource access expression.");
@@ -280,19 +309,19 @@ public class ExpressionBuilder
         switch (symbol)
         {
             case DeclaredSymbol declaredSymbol when context.SemanticModel.ResourceMetadata.TryLookup(declaredSymbol.DeclaringSyntax) is {} resource:
-                return new ResourceReferenceExpression(resource, null);
+                return new ResourceReferenceExpression(variableAccessSyntax, resource, null);
 
             case ParameterSymbol parameterSymbol:
-                return new ParametersReferenceExpression(parameterSymbol);
+                return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case VariableSymbol variableSymbol:
-                return new VariableReferenceExpression(variableSymbol);
+                return new VariableReferenceExpression(variableAccessSyntax, variableSymbol);
 
             case ModuleSymbol moduleSymbol:
-                return new ModuleReferenceExpression(moduleSymbol, null);
+                return new ModuleReferenceExpression(variableAccessSyntax, moduleSymbol, null);
 
             case LocalVariableSymbol localVariableSymbol:
-                return GetLocalVariableExpression(localVariableSymbol);
+                return GetLocalVariableExpression(variableAccessSyntax, localVariableSymbol);
 
             default:
                 throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
@@ -300,7 +329,7 @@ public class ExpressionBuilder
         }
     }
 
-    private Expression GetLocalVariableExpression(LocalVariableSymbol localVariableSymbol)
+    private Expression GetLocalVariableExpression(SyntaxBase sourceSyntax, LocalVariableSymbol localVariableSymbol)
     {
         if (this.localReplacements.TryGetValue(localVariableSymbol, out var replacement))
         {
@@ -313,9 +342,9 @@ public class ExpressionBuilder
         switch (enclosingSyntax)
         {
             case ForSyntax @for:
-                return GetLoopVariable(localVariableSymbol, @for, new CopyIndexExpression(GetCopyIndexName(@for)));
+                return GetLoopVariable(localVariableSymbol, @for, new CopyIndexExpression(sourceSyntax, GetCopyIndexName(@for)));
             case LambdaSyntax lambda:
-                return new LambdaVariableReferenceExpression(localVariableSymbol);
+                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol);
         }
 
         throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{enclosingSyntax?.GetType().Name}'.");
@@ -360,7 +389,7 @@ public class ExpressionBuilder
         // loop item variable should be replaced with <array expression>[<index expression>]
         var forExpression = Convert(@for.Expression);
 
-        return new ArrayAccessExpression(forExpression, index);
+        return new ArrayAccessExpression(index.SourceSyntax, forExpression, index);
     }
 
     private Expression GetLoopVariable(LocalVariableSymbol localVariableSymbol, ForSyntax @for, Expression index)
