@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -23,11 +24,6 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "AzureResourceManager",
             ArmTemplateProviderVersion: "1.0.0");
 
-        private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
-        {
-            return SyntaxFactory.CreateObject(ImmutableArray<ObjectPropertySyntax>.Empty);
-        }
-
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
             return (binder, fileResolver, diagnostics, functionCall, argumentTypes) => {
@@ -38,13 +34,19 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionResult GetRestrictedResourceGroupReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(new ResourceGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()));
+            => new(
+                new ResourceGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
+                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
         private static FunctionResult GetRestrictedSubscriptionReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(new SubscriptionScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()));
+            => new(
+                new SubscriptionScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
+                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
         private static FunctionResult GetRestrictedManagementGroupReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(new ManagementGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()));
+            => new(
+                new ManagementGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
+                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
         private static FunctionResult GetTenantReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments.ToImmutableArray(), new[]
@@ -236,7 +238,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(managementGroupGenericDescription)
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
-                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
@@ -254,7 +255,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(subscriptionGenericDescription)
                     .WithDescription("Returns a named subscription scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
-                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
@@ -272,7 +272,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns a named resource group scope")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
-                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
@@ -282,7 +281,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Returns a named resource group scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
-                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }

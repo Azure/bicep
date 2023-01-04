@@ -19,6 +19,8 @@ var dependentVar = {
 }
 
 var resourceDependency = {
+//@        "dependencies": {
+//@        }
   dependenciesA: [
 //@          "dependenciesA": [
 //@          ]
@@ -76,8 +78,6 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
 //@      "properties": {
 //@      },
     dependencies: resourceDependency
-//@        "dependencies": {
-//@        }
   }
 }
 

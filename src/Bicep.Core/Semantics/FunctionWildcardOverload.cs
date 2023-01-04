@@ -18,9 +18,8 @@ namespace Bicep.Core.Semantics
             IEnumerable<FixedFunctionParameter> fixedArgumentTypes,
             VariableFunctionParameter? variableArgumentType,
             EvaluatorDelegate? evaluator,
-            VariableGeneratorDelegate? variableGenerator = null,
             FunctionFlags flags = FunctionFlags.Default)
-            : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, variableGenerator, flags)
+            : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, flags)
         {
             WildcardRegex = wildcardRegex;
         }

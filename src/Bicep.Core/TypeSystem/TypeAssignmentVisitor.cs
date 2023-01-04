@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -28,7 +29,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
-        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, object> matchedFunctionResultValues;
+        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
         private readonly BicepSourceFileKind fileKind;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, Workspaces.BicepSourceFileKind fileKind)
@@ -71,7 +72,7 @@ namespace Bicep.Core.TypeSystem
             Visit(syntax);
             return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
         }
-        public object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
+        public Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
         {
             Visit(syntax);
             return matchedFunctionResultValues.TryGetValue(syntax, out var metadata) ? metadata : null;

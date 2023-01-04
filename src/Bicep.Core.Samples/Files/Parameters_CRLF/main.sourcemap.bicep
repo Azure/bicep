@@ -309,6 +309,8 @@ param negativeValues int
 @sys.description('A boolean.')
 //@        "description": "A boolean.",
 @metadata({
+//@      "metadata": {
+//@      }
     description: 'I will be overrode.'
     foo: 'something'
 //@        "foo": "something",
@@ -327,8 +329,6 @@ param decoratedBool bool = (true && false) != true
 //@    "decoratedBool": {
 //@      "type": "bool",
 //@      "defaultValue": "[not(equals(and(true(), false()), true()))]",
-//@      "metadata": {
-//@      }
 //@    },
 
 @secure()

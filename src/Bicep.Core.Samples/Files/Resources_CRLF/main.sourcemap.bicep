@@ -379,6 +379,8 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 }
 
 var varARuntime = {
+//@          {
+//@          }
   bId: resourceB.id
 //@            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
   bType: resourceB.type
@@ -392,9 +394,9 @@ var varARuntime = {
 }
 
 var varBRuntime = [
+//@        "runtime": [
+//@        ],
   varARuntime
-//@          {
-//@          }
 ]
 
 var resourceCRef = {
@@ -422,8 +424,6 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@      "properties": {
 //@      },
     runtime: varBRuntime
-//@        "runtime": [
-//@        ],
     // repro for https://github.com/Azure/bicep/issues/316
     repro316: setResourceCRef ? resourceCRef : null
 //@        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), null())]"

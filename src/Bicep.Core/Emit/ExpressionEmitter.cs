@@ -84,9 +84,6 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitExpression(SyntaxBase syntax)
-            => EmitExpression(converter.ConvertToIntermediateExpression(syntax));
-
         public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = converter.CreateConverterForIndexReplacement(resourceNameSyntax, indexExpression, newContext);
@@ -168,12 +165,6 @@ namespace Bicep.Core.Emit
 
         public void EmitLanguageExpression(Expression expression)
         {
-            if (expression is VariableReferenceExpression varRef && context.VariablesToInline.Contains(varRef.Variable))
-            {
-                EmitExpression(varRef.Variable.Value);
-                return;
-            }
-
             if (expression is FunctionCallExpression functionCall &&
                 string.Equals(functionCall.Name, LanguageConstants.AnyFunction, LanguageConstants.IdentifierComparison))
             {
@@ -317,6 +308,17 @@ namespace Bicep.Core.Emit
             EmitObjectProperties(objectExpression);
         }
 
+        public void EmitObjectProperties(ObjectExpression @object, ISet<string>? propertiesToOmit = null)
+        {
+            propertiesToOmit ??= ImmutableHashSet<string>.Empty;
+            var properties = @object.Properties
+                .Where(x => x.TryGetKeyText() is not {} keyName || !propertiesToOmit.Contains(keyName));
+
+            @object = new(@object.SourceSyntax, properties.ToImmutableArray());
+
+            EmitObjectProperties(@object);
+        }
+
         private void EmitObjectProperties(ObjectExpression @object)
         {
             var propertyLookup = @object.Properties.OfType<ObjectPropertyExpression>().ToLookup(property => property.Value is ForLoopExpression);
@@ -432,6 +434,9 @@ namespace Bicep.Core.Emit
                 writer.WriteValue(propertyValue);
             });
 
+        public void EmitProperty(ObjectPropertyExpression property)
+            => EmitPropertyInternal(converter.ConvertExpression(property.Key), () => EmitExpression(property.Value), property.SourceSyntax ?? property.Key.SourceSyntax);
+
         public void EmitProperty(Expression name, Expression expression)
             => EmitPropertyInternal(converter.ConvertExpression(name), () => EmitExpression(expression), expression.SourceSyntax);
 
@@ -448,31 +453,11 @@ namespace Bicep.Core.Emit
                 this.writer.WriteValue(serialized);
             });
 
-        public void EmitPropertyWithTransform(string name, SyntaxBase value, Func<LanguageExpression, LanguageExpression> convertedValueTransform)
-            => EmitPropertyInternal(new JTokenExpression(name), () =>
-            {
-                var converted = converter.ConvertExpression(value);
-                var transformed = convertedValueTransform(converted);
-                var serialized = ExpressionSerializer.SerializeExpression(transformed);
-
-                this.writer.WriteValue(serialized);
-            },
-            value);
-
-        public void EmitProperty(string name, Action valueFunc)
-            => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
-
-        public void EmitCopyProperty(Action valueFunc)
-            => EmitPropertyInternal(new JTokenExpression(LanguageConstants.CopyLoopIdentifier), valueFunc, skipCopyCheck: true);
-
         public void EmitProperty(string name, string value)
-            => EmitPropertyInternal(new JTokenExpression(name), value);
+            => EmitProperty(name, new StringLiteralExpression(null, value));
 
         public void EmitProperty(string name, SyntaxBase expressionValue)
-            => EmitPropertyInternal(new JTokenExpression(name), expressionValue);
-
-        public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
-            => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
+            => EmitProperty(name, converter.ConvertToIntermediateExpression(expressionValue));
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, IPositionable? location = null, bool skipCopyCheck = false)
         {
@@ -485,22 +470,28 @@ namespace Bicep.Core.Emit
             writer.WritePropertyWithPosition(location, serializedName, valueFunc);
         }
 
-        private void EmitPropertyInternal(LanguageExpression expressionKey, string value)
-            => EmitPropertyInternal(expressionKey, () =>
-            {
-                var propertyValue = ExpressionSerializer.SerializeExpression(new JTokenExpression(value));
-                writer.WriteValue(propertyValue);
-            });
+        public void EmitProperty(string name, Action valueFunc)
+            => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
 
-        private void EmitPropertyInternal(LanguageExpression expressionKey, SyntaxBase syntaxValue)
-            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue), syntaxValue);
+        public void EmitCopyProperty(Action valueFunc)
+            => EmitPropertyInternal(new JTokenExpression(LanguageConstants.CopyLoopIdentifier), valueFunc, skipCopyCheck: true);
 
-        public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
-        {
-            if (expression != null)
-            {
-                EmitProperty(name, expression);
-            }
-        }
+        public void EmitObjectProperty(string propertyName, Action writePropertiesFunc, IPositionable? position = null)
+            => writer.WritePropertyWithPosition(
+                position,
+                propertyName,
+                () => EmitObject(writePropertiesFunc, position));
+
+        public void EmitArrayProperty(string propertyName, Action writeItemsFunc, IPositionable? position = null)
+            => writer.WritePropertyWithPosition(
+                position,
+                propertyName,
+                () => EmitArray(writeItemsFunc, position));
+
+        public void EmitObject(Action writePropertiesFunc, IPositionable? position = null)
+            => writer.WriteObjectWithPosition(position, writePropertiesFunc);
+
+        public void EmitArray(Action writeItemsFunc, IPositionable? position = null)
+            => writer.WriteArrayWithPosition(position, writeItemsFunc);
     }
 }

@@ -27,14 +27,14 @@ param myBool bool
 @sys.description('this is myString2')
 //@        "description": "this is myString2"
 @metadata({
+//@      "metadata": {
+//@      }
   description: 'overwrite but still valid'
 })
 param myString2 string = 'string value'
 //@    "myString2": {
 //@      "type": "string",
 //@      "defaultValue": "string value",
-//@      "metadata": {
-//@      }
 //@    },
 param myInt2 int = 42
 //@    "myInt2": {
@@ -61,6 +61,8 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 @sys.description('this is foo')
 //@        "description": "this is foo",
 @metadata({
+//@      "metadata": {
+//@      }
   description: 'overwrite but still valid'
   another: 'just for fun'
 //@        "another": "just for fun"
@@ -70,8 +72,6 @@ param foo object = {
 //@      "type": "object",
 //@      "defaultValue": {
 //@      },
-//@      "metadata": {
-//@      }
 //@    },
   enabled: true
 //@        "enabled": true,
@@ -347,6 +347,8 @@ param negativeValues int
 @sys.description('A boolean.')
 //@        "description": "A boolean.",
 @metadata({
+//@      "metadata": {
+//@      }
     description: 'I will be overrode.'
     foo: 'something'
 //@        "foo": "something",
@@ -365,8 +367,6 @@ param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* c
 //@    "decoratedBool": {
 //@      "type": "bool",
 //@      "defaultValue": "[not(equals(and(true(), false()), true()))]",
-//@      "metadata": {
-//@      }
 //@    },
 
 @secure()

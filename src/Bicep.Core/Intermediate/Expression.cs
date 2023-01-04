@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Intermediate;
 
@@ -51,14 +52,6 @@ public record NullLiteralExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitNullLiteralExpression(this);
-}
-
-public record SyntaxExpression(
-    SyntaxBase Syntax
-) : Expression(Syntax)
-{
-    public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitSyntaxExpression(this);
 }
 
 public record InterpolatedStringExpression(
@@ -200,6 +193,15 @@ public record VariableReferenceExpression(
         => visitor.VisitVariableReferenceExpression(this);
 }
 
+public record SynthesizedVariableReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string Name
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitSynthesizedVariableReferenceExpression(this);
+}
+
 public record ParametersReferenceExpression(
     SyntaxBase? SourceSyntax,
     ParameterSymbol Parameter
@@ -237,6 +239,16 @@ public record CopyIndexExpression(
         => visitor.VisitCopyIndexExpression(this);
 }
 
+public record ConditionExpression(
+    SyntaxBase? SourceSyntax,
+    Expression Expression,
+    Expression Body
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitConditionExpression(this);
+}
+
 public record LambdaExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> Parameters,
@@ -245,4 +257,70 @@ public record LambdaExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitLambdaExpression(this);
+}
+
+public record DeclaredMetadataExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    Expression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredMetadataExpression(this);
+}
+
+public record DeclaredImportExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    NamespaceType NamespaceType,
+    Expression? Config
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredImportExpression(this);
+}
+
+public record DeclaredParameterExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    ParameterSymbol Symbol,
+    Expression? DefaultValue
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredParameterExpression(this);
+}
+
+public record DeclaredVariableExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    Expression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredVariableExpression(this);
+}
+
+public record DeclaredOutputExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    OutputSymbol Symbol,
+    Expression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredOutputExpression(this);
+}
+
+public record ProgramExpression(
+    SyntaxBase? SourceSyntax,
+    ImmutableArray<DeclaredMetadataExpression> Metadata,
+    ImmutableArray<DeclaredImportExpression> Imports,
+    ImmutableArray<DeclaredParameterExpression> Parameters,
+    ImmutableArray<DeclaredVariableExpression> Variables,
+    ImmutableArray<DeclaredOutputExpression> Outputs
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitProgramExpression(this);
 }

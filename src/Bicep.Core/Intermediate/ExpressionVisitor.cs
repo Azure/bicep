@@ -39,6 +39,12 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Body);
     }
 
+    public void VisitConditionExpression(ConditionExpression expression)
+    {
+        Visit(expression.Expression);
+        Visit(expression.Body);
+    }
+
     public void VisitFunctionCallExpression(FunctionCallExpression expression)
     {
         VisitMultiple(expression.Parameters);
@@ -103,10 +109,6 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public void VisitSyntaxExpression(SyntaxExpression expression)
-    {
-    }
-
     public void VisitTernaryExpression(TernaryExpression expression)
     {
         Visit(expression.Condition);
@@ -123,8 +125,51 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public void Visit(Expression expression)
+    public void VisitSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
     {
+    }
+
+    public void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitDeclaredImportExpression(DeclaredImportExpression expression)
+    {
+        Visit(expression.Config);
+    }
+
+    public void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
+    {
+        Visit(expression.DefaultValue);
+    }
+
+    public void VisitDeclaredVariableExpression(DeclaredVariableExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitDeclaredOutputExpression(DeclaredOutputExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitProgramExpression(ProgramExpression expression)
+    {
+        VisitMultiple(expression.Metadata);
+        VisitMultiple(expression.Imports);
+        VisitMultiple(expression.Parameters);
+        VisitMultiple(expression.Variables);
+        VisitMultiple(expression.Outputs);
+    }
+
+    public void Visit(Expression? expression)
+    {
+        if (expression is null)
+        {
+            return;
+        }
+
         RuntimeHelpers.EnsureSufficientExecutionStack();
 
         expression.Accept(this);
