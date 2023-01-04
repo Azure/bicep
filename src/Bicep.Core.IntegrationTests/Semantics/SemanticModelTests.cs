@@ -9,6 +9,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -285,6 +286,27 @@ param storageAccount string = 'testStorageAccount'";
             var compilation = Services.BuildCompilation(files, uri);
 
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Count().Should().Be(1);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task All_nodes_should_be_parented(DataSet dataSet)
+        {
+            var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
+            var model = compilation.GetEntrypointSemanticModel();
+
+            var allNodes = SyntaxCollectorVisitor.Build(model.Root.Syntax);
+            foreach (var node in allNodes)
+            {
+                if (node.Syntax == model.Root.Syntax)
+                {
+                    model.Binder.GetParent(node.Syntax).Should().BeNull();
+                }
+                else
+                {
+                    model.Binder.GetParent(node.Syntax).Should().NotBeNull();
+                }
+            }
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)

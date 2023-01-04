@@ -10,5 +10,7 @@ namespace Bicep.Core.Syntax
         /// </summary>
         /// <param name="node">The node</param>
         SyntaxBase? GetParent(SyntaxBase node);
+
+        bool IsDescendant(SyntaxBase node, SyntaxBase potentialAncestor);
     }
 }
