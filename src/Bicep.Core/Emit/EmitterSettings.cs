@@ -10,7 +10,7 @@ namespace Bicep.Core.Emit
         {
             AssemblyFileVersion = features.AssemblyVersion;
             EnableSourceMapping = features.SourceMappingEnabled;
-            EnableSymbolicNames = features.ShouldEmitSymbolicNames();
+            EnableSymbolicNames = features.SymbolicNameCodegenEnabled || features.ExtensibilityEnabled || features.UserDefinedTypesEnabled;
         }
 
         /// <summary>

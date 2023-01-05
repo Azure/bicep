@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5537579470070255671"
+      "templateHash": "3972844562288684861"
     }
   },
   "parameters": {
@@ -109,7 +109,69 @@
         }
       ]
     },
-    "subnetName": "default"
+    "subnetName": "default",
+    "virtualNetwork": {
+      "name": "[replace(variables('metadata').longName, '{0}', 'vnet')]",
+      "location": "[parameters('location')]",
+      "addressPrefixes": [
+        "[parameters('virtualNetworkAddressPrefix')]"
+      ],
+      "subnets": [
+        {
+          "name": "[variables('subnetName')]",
+          "properties": {
+            "addressPrefix": "[parameters('virtualNetworkSubnetPrefix')]",
+            "networkSecurityGroup": {
+              "id": "[resourceInfo('nsg').id]"
+            }
+          }
+        }
+      ]
+    },
+    "networkInterface": {
+      "name": "[replace(variables('metadata').longName, '{0}', 'nic')]",
+      "location": "[parameters('location')]",
+      "ipConfigurations": [
+        {
+          "name": "ipconfig1",
+          "properties": {
+            "privateIPAllocationMethod": "Dynamic",
+            "publicIPAddress": {
+              "id": "[resourceInfo('pip').id]"
+            },
+            "subnet": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnetName'))]"
+            }
+          }
+        }
+      ]
+    },
+    "virtualMachine": {
+      "name": "[replace(variables('metadata').shortName, '{0}', 'vm')]",
+      "location": "[parameters('location')]",
+      "vmSize": "[parameters('virtualMachineSize')]",
+      "vmComputerName": "[replace(variables('metadata').shortName, '{0}', 'vm')]",
+      "vmAdminUsername": "[parameters('virtualMachineAdminUsername')]",
+      "vmAdminPassword": "[parameters('virtualMachineAdminPassword')]",
+      "vmImagePublisher": "[parameters('virtualMachinePublisher')]",
+      "vmImageOffer": "[parameters('virtualMachineOffer')]",
+      "vmImageSku": "[parameters('virtualMachineSku')]",
+      "vmOSDiskName": "[replace(variables('metadata').longName, '{0}', 'osdisk')]",
+      "vmDataDisks": [],
+      "networkInterfaces": [
+        {
+          "id": "[resourceInfo('nic').id]"
+        }
+      ]
+    },
+    "virtualMachineExtensionCustomScript": {
+      "name": "[format('{0}/config-app', resourceInfo('vm').name)]",
+      "location": "[parameters('location')]",
+      "fileUris": [
+        "[parameters('virtualMachineExtensionCustomScriptUri')]"
+      ],
+      "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))]"
+    }
   },
   "resources": {
     "st": {
@@ -146,13 +208,13 @@
     "vnet": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
-      "name": "[createObject('name', replace(variables('metadata').longName, '{0}', 'vnet'), 'location', parameters('location'), 'addressPrefixes', createArray(parameters('virtualNetworkAddressPrefix')), 'subnets', createArray(createObject('name', variables('subnetName'), 'properties', createObject('addressPrefix', parameters('virtualNetworkSubnetPrefix'), 'networkSecurityGroup', createObject('id', resourceInfo('nsg').id))))).name]",
-      "location": "[createObject('name', replace(variables('metadata').longName, '{0}', 'vnet'), 'location', parameters('location'), 'addressPrefixes', createArray(parameters('virtualNetworkAddressPrefix')), 'subnets', createArray(createObject('name', variables('subnetName'), 'properties', createObject('addressPrefix', parameters('virtualNetworkSubnetPrefix'), 'networkSecurityGroup', createObject('id', resourceInfo('nsg').id))))).location]",
+      "name": "[variables('virtualNetwork').name]",
+      "location": "[variables('virtualNetwork').location]",
       "properties": {
         "addressSpace": {
-          "addressPrefixes": "[createObject('name', replace(variables('metadata').longName, '{0}', 'vnet'), 'location', parameters('location'), 'addressPrefixes', createArray(parameters('virtualNetworkAddressPrefix')), 'subnets', createArray(createObject('name', variables('subnetName'), 'properties', createObject('addressPrefix', parameters('virtualNetworkSubnetPrefix'), 'networkSecurityGroup', createObject('id', resourceInfo('nsg').id))))).addressPrefixes]"
+          "addressPrefixes": "[variables('virtualNetwork').addressPrefixes]"
         },
-        "subnets": "[createObject('name', replace(variables('metadata').longName, '{0}', 'vnet'), 'location', parameters('location'), 'addressPrefixes', createArray(parameters('virtualNetworkAddressPrefix')), 'subnets', createArray(createObject('name', variables('subnetName'), 'properties', createObject('addressPrefix', parameters('virtualNetworkSubnetPrefix'), 'networkSecurityGroup', createObject('id', resourceInfo('nsg').id))))).subnets]"
+        "subnets": "[variables('virtualNetwork').subnets]"
       },
       "dependsOn": [
         "nsg"
@@ -161,10 +223,10 @@
     "nic": {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-06-01",
-      "name": "[createObject('name', replace(variables('metadata').longName, '{0}', 'nic'), 'location', parameters('location'), 'ipConfigurations', createArray(createObject('name', 'ipconfig1', 'properties', createObject('privateIPAllocationMethod', 'Dynamic', 'publicIPAddress', createObject('id', resourceInfo('pip').id), 'subnet', createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnetName'))))))).name]",
-      "location": "[createObject('name', replace(variables('metadata').longName, '{0}', 'nic'), 'location', parameters('location'), 'ipConfigurations', createArray(createObject('name', 'ipconfig1', 'properties', createObject('privateIPAllocationMethod', 'Dynamic', 'publicIPAddress', createObject('id', resourceInfo('pip').id), 'subnet', createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnetName'))))))).location]",
+      "name": "[variables('networkInterface').name]",
+      "location": "[variables('networkInterface').location]",
       "properties": {
-        "ipConfigurations": "[createObject('name', replace(variables('metadata').longName, '{0}', 'nic'), 'location', parameters('location'), 'ipConfigurations', createArray(createObject('name', 'ipconfig1', 'properties', createObject('privateIPAllocationMethod', 'Dynamic', 'publicIPAddress', createObject('id', resourceInfo('pip').id), 'subnet', createObject('id', resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnetName'))))))).ipConfigurations]"
+        "ipConfigurations": "[variables('networkInterface').ipConfigurations]"
       },
       "dependsOn": [
         "pip",
@@ -174,33 +236,33 @@
     "vm": {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
-      "name": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).name]",
-      "location": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).location]",
+      "name": "[variables('virtualMachine').name]",
+      "location": "[variables('virtualMachine').location]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmSize]"
+          "vmSize": "[variables('virtualMachine').vmSize]"
         },
         "osProfile": {
-          "computerName": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmComputerName]",
-          "adminUsername": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmAdminUsername]",
-          "adminPassword": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmAdminPassword]"
+          "computerName": "[variables('virtualMachine').vmComputerName]",
+          "adminUsername": "[variables('virtualMachine').vmAdminUsername]",
+          "adminPassword": "[variables('virtualMachine').vmAdminPassword]"
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmImagePublisher]",
-            "offer": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmImageOffer]",
-            "sku": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmImageSku]",
+            "publisher": "[variables('virtualMachine').vmImagePublisher]",
+            "offer": "[variables('virtualMachine').vmImageOffer]",
+            "sku": "[variables('virtualMachine').vmImageSku]",
             "version": "latest"
           },
           "osDisk": {
-            "name": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmOSDiskName]",
+            "name": "[variables('virtualMachine').vmOSDiskName]",
             "caching": "ReadWrite",
             "createOption": "FromImage"
           },
-          "dataDisks": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).vmDataDisks]"
+          "dataDisks": "[variables('virtualMachine').vmDataDisks]"
         },
         "networkProfile": {
-          "networkInterfaces": "[createObject('name', replace(variables('metadata').shortName, '{0}', 'vm'), 'location', parameters('location'), 'vmSize', parameters('virtualMachineSize'), 'vmComputerName', replace(variables('metadata').shortName, '{0}', 'vm'), 'vmAdminUsername', parameters('virtualMachineAdminUsername'), 'vmAdminPassword', parameters('virtualMachineAdminPassword'), 'vmImagePublisher', parameters('virtualMachinePublisher'), 'vmImageOffer', parameters('virtualMachineOffer'), 'vmImageSku', parameters('virtualMachineSku'), 'vmOSDiskName', replace(variables('metadata').longName, '{0}', 'osdisk'), 'vmDataDisks', createArray(), 'networkInterfaces', createArray(createObject('id', resourceInfo('nic').id))).networkInterfaces]"
+          "networkInterfaces": "[variables('virtualMachine').networkInterfaces]"
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
@@ -217,16 +279,16 @@
     "vmext": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
-      "name": "[createObject('name', format('{0}/config-app', resourceInfo('vm').name), 'location', parameters('location'), 'fileUris', createArray(parameters('virtualMachineExtensionCustomScriptUri')), 'commandToExecute', format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))).name]",
-      "location": "[createObject('name', format('{0}/config-app', resourceInfo('vm').name), 'location', parameters('location'), 'fileUris', createArray(parameters('virtualMachineExtensionCustomScriptUri')), 'commandToExecute', format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))).location]",
+      "name": "[variables('virtualMachineExtensionCustomScript').name]",
+      "location": "[variables('virtualMachineExtensionCustomScript').location]",
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
         "typeHandlerVersion": "1.10",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "fileUris": "[createObject('name', format('{0}/config-app', resourceInfo('vm').name), 'location', parameters('location'), 'fileUris', createArray(parameters('virtualMachineExtensionCustomScriptUri')), 'commandToExecute', format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))).fileUris]",
-          "commandToExecute": "[createObject('name', format('{0}/config-app', resourceInfo('vm').name), 'location', parameters('location'), 'fileUris', createArray(parameters('virtualMachineExtensionCustomScriptUri')), 'commandToExecute', format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))).commandToExecute]"
+          "fileUris": "[variables('virtualMachineExtensionCustomScript').fileUris]",
+          "commandToExecute": "[variables('virtualMachineExtensionCustomScript').commandToExecute]"
         },
         "protectedSettings": {}
       },

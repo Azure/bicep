@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11559571680286830127"
+      "templateHash": "546289837928721149"
     }
   },
   "parameters": {
@@ -50,6 +50,7 @@
     }
   },
   "variables": {
+    "subnetRef": "[format('{0}/subnets/{1}', resourceInfo('vn').id, variables('subnetName'))]",
     "addressPrefix": "20.0.0.0/16",
     "subnetName": "Subnet01",
     "subnetPrefix": "20.0.0.0/24",
@@ -125,7 +126,7 @@
             "type": "VirtualMachineScaleSets",
             "osType": "Linux",
             "enableAutoScaling": false,
-            "vnetSubnetID": "[format('{0}/subnets/{1}', resourceInfo('vn').id, variables('subnetName'))]"
+            "vnetSubnetID": "[variables('subnetRef')]"
           }
         ],
         "servicePrincipalProfile": {

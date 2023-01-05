@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11288953077036289210"
+      "templateHash": "10482767500499069638"
     }
   },
   "parameters": {
@@ -143,6 +143,7 @@
   },
   "variables": {
     "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
+    "vmNicId": "[resourceInfo('vmNic').id]",
     "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
     "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
     "blobStorageAccountPrivateEndpointGroupName": "blob",

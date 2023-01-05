@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3656280551063454010"
+      "templateHash": "17715552190949918086"
     }
   },
   "parameters": {
@@ -43,6 +43,8 @@
     "wpShareName": "wordpress-share",
     "sqlShareName": "mysql-share",
     "roleDefinitionId": "[resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "roleAssignmentName": "[guid(resourceInfo('mi').name, variables('roleDefinitionId'), resourceGroup().id)]",
+    "uamiId": "[resourceId(resourceInfo('mi').type, resourceInfo('mi').name)]",
     "wpScriptToExecute": "[format('Get-AzStorageAccount -StorageAccountName {0} -ResourceGroupName {1} | New-AzStorageShare -Name {2}', parameters('storageAccountName'), resourceGroup().name, variables('wpShareName'))]",
     "sqlScriptToExecute": "[format('Get-AzStorageAccount -StorageAccountName {0} -ResourceGroupName {1} | New-AzStorageShare -Name {2}', parameters('storageAccountName'), resourceGroup().name, variables('sqlShareName'))]"
   },
@@ -56,7 +58,7 @@
     "miRoleAssign": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceInfo('mi').name, variables('roleDefinitionId'), resourceGroup().id)]",
+      "name": "[variables('roleAssignmentName')]",
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
         "principalId": "[reference('mi').principalId]",
@@ -88,7 +90,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceId(resourceInfo('mi').type, resourceInfo('mi').name))]": {}
+          "[format('{0}', variables('uamiId'))]": {}
         }
       },
       "properties": {
@@ -116,7 +118,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceId(resourceInfo('mi').type, resourceInfo('mi').name))]": {}
+          "[format('{0}', variables('uamiId'))]": {}
         }
       },
       "properties": {

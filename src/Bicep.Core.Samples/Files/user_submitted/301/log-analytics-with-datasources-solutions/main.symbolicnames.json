@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16086514202404926137"
+      "templateHash": "15982968023323408126"
     }
   },
   "parameters": {
@@ -96,6 +96,10 @@
       }
     }
   },
+  "variables": {
+    "lockName": "[format('{0}-lck', resourceInfo('logAnalyticsWorkspace').name)]",
+    "diagnosticsName": "[format('{0}-dgs', resourceInfo('logAnalyticsWorkspace').name)]"
+  },
   "resources": {
     "logAnalyticsWorkspace": {
       "type": "Microsoft.OperationalInsights/workspaces",
@@ -162,7 +166,7 @@
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
-      "name": "[format('{0}-lck', resourceInfo('logAnalyticsWorkspace').name)]",
+      "name": "[variables('lockName')]",
       "properties": {
         "level": "CanNotDelete"
       },
@@ -175,7 +179,7 @@
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
-      "name": "[format('{0}-dgs', resourceInfo('logAnalyticsWorkspace').name)]",
+      "name": "[variables('diagnosticsName')]",
       "properties": {
         "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]",
         "storageAccountId": "[resourceId(parameters('diagnosticStorageAccountResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('diagnosticStorageAccountName'))]",

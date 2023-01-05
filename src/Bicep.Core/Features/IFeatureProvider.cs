@@ -22,8 +22,5 @@ namespace Bicep.Core.Features
         bool ParamsFilesEnabled { get; }
 
         bool UserDefinedTypesEnabled { get; }
-
-        bool ShouldEmitSymbolicNames()
-            => SymbolicNameCodegenEnabled || ExtensibilityEnabled || UserDefinedTypesEnabled;
     }
 }

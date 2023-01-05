@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13272301670869903501"
+      "templateHash": "17528996743340300724"
     }
   },
   "parameters": {
@@ -29,6 +29,9 @@
       "defaultValue": "profilecontainers"
     }
   },
+  "variables": {
+    "filesharelocation": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]"
+  },
   "resources": {
     "sa": {
       "type": "Microsoft.Storage/storageAccounts",
@@ -43,7 +46,7 @@
     "fs": {
       "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
       "apiVersion": "2020-08-01-preview",
-      "name": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]",
+      "name": "[variables('filesharelocation')]",
       "dependsOn": [
         "sa"
       ]
