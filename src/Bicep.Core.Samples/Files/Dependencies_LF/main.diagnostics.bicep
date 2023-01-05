@@ -59,6 +59,7 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[14:57) [BCP081 (Warning)] Resource type "My.Rp/myResourceType/childType@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/myResourceType/childType@2020-01-01'|
   name: 'resC/resD'
+//@[08:19) [use-parent-property (Warning)] Resource "resE" has its name formatted as a child of resource "resC". The syntax can be simplified by using the parent property. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-parent-property)) |'resC/resD'|
   properties: {
     resDRef: resD.id
   }

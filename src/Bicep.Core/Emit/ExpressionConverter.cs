@@ -124,7 +124,7 @@ namespace Bicep.Core.Emit
                         // Bicep permits long values, but ARM's parser only permits int jtoken expressions.
                         // We can work around this by using the `json()` function to represent non-integer numerics.
                         > int.MaxValue or < int.MinValue => CreateFunction("json", new JTokenExpression(@int.Value.ToString(CultureInfo.InvariantCulture))),
-                        _ => new JTokenExpression((int)@int.Value),
+                        _ => new JTokenExpression(@int.Value),
                     };
 
                 case StringLiteralExpression @string:
