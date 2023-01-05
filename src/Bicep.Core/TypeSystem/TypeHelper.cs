@@ -4,10 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
+using Azure.Deployments.Expression.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -104,6 +107,61 @@ namespace Bicep.Core.TypeSystem
 
             _ => false,
         };
+
+        /// <summary>
+        /// Attempt to create a type symbol for a literal value.
+        /// </summary>
+        /// <param name="token">The literal value (expressed as a Newtonsoft JToken)</param>
+        /// <returns></returns>
+        public static TypeSymbol? TryCreateTypeLiteral(JToken token) => token switch
+        {
+            JObject jObject => TryCreateTypeLiteral(jObject),
+            JArray jArray => TryCreateTypeLiteral(jArray),
+            _ when token.Type == JTokenType.Boolean => new BooleanLiteralType(token.ToObject<bool>()),
+            _ when token.IsTextBasedJTokenType() => new StringLiteralType(token.ToString()),
+            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => new IntegerLiteralType((long)intVal),
+            _ => null,
+        };
+
+        private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
+        {
+            List<TypeProperty> convertedProperties = new();
+            ObjectTypeNameBuilder nameBuilder = new();
+            foreach (var prop in jObject.Properties())
+            {
+                if (TryCreateTypeLiteral(prop.Value) is TypeSymbol propType)
+                {
+                    convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required | TypePropertyFlags.DisallowAny));
+                    nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
+        }
+
+        private static TypeSymbol? TryCreateTypeLiteral(JArray jArray)
+        {
+            List<ITypeReference> convertedItems = new();
+            TupleTypeNameBuilder nameBuilder = new();
+            foreach (var item in jArray)
+            {
+                if (TryCreateTypeLiteral(item) is TypeSymbol itemType)
+                {
+                    convertedItems.Add(itemType);
+                    nameBuilder.AppendItem(itemType.Name);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return new TupleType(nameBuilder.ToString(), convertedItems.ToImmutableArray(), TypeSymbolValidationFlags.Default);
+        }
 
         /// <summary>
         /// Gets the type of the property whose name we can obtain at compile-time.
