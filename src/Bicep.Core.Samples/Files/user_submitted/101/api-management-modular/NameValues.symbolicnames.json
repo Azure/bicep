@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11465963401547040736"
+      "templateHash": "1203366722634930124"
     }
   },
   "parameters": {
@@ -66,8 +66,8 @@
       "copy": {
         "count": "[length(variables('apimNameValueSet'))]",
         "input": {
-          "nameValueId": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).id]",
-          "nameValueName": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).name]"
+          "nameValueId": "[resourceId('Microsoft.ApiManagement/service/namedValues', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]",
+          "nameValueName": "[variables('apimNameValueSet')[copyIndex()].displayName]"
         }
       }
     }

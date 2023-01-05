@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14067072517108432500"
+      "templateHash": "4315925004950247409"
     }
   },
   "parameters": {
@@ -62,7 +62,12 @@
     }
   },
   "variables": {
-    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]"
+    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]",
+    "publicIpAddresses": [
+      {
+        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
+      }
+    ]
   },
   "resources": {
     "publicIp": {
@@ -92,7 +97,7 @@
       },
       "properties": {
         "idleTimeoutInMinutes": 4,
-        "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), createArray(createObject('id', resourceInfo('publicIp').id)), null())]"
+        "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), variables('publicIpAddresses'), null())]"
       },
       "dependsOn": [
         "publicIp"
@@ -115,7 +120,7 @@
             "properties": {
               "addressPrefix": "[parameters('vnetSubnetPrefix')]",
               "natGateway": {
-                "id": "[resourceInfo('natGateway').id]"
+                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
               },
               "privateEndpointNetworkPolicies": "Enabled",
               "privateLinkServiceNetworkPolicies": "Enabled",
@@ -156,7 +161,7 @@
       "properties": {
         "addressPrefix": "[parameters('vnetSubnetPrefix')]",
         "natGateway": {
-          "id": "[resourceInfo('natGateway').id]"
+          "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
         },
         "privateEndpointNetworkPolicies": "Enabled",
         "privateLinkServiceNetworkPolicies": "Enabled",

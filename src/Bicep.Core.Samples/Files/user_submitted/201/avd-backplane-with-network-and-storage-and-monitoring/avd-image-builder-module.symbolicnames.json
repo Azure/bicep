@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3591148648264486228"
+      "templateHash": "4602590212295487082"
     }
   },
   "parameters": {
@@ -72,7 +72,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceInfo('managedidentity').id)]": {}
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]": {}
         }
       },
       "properties": {
@@ -130,9 +130,9 @@
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id, resourceInfo('aibdef').id, resourceInfo('managedidentity').id)]",
+      "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
       "properties": {
-        "roleDefinitionId": "[resourceInfo('aibdef').id]",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom')))]",
         "principalId": "[reference('managedidentity').principalId]",
         "principalType": "ServicePrincipal"
       },
@@ -144,7 +144,7 @@
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceInfo('managedidentity').id)]",
+      "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
       "properties": {
         "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
         "principalId": "[reference('managedidentity').principalId]",

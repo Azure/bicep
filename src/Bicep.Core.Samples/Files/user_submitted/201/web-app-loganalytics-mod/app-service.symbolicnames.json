@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "587423152998807340"
+      "templateHash": "3819470834506068566"
     }
   },
   "parameters": {
@@ -52,7 +52,7 @@
     "appServiceLogging": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/logs', resourceInfo('appService').name)]",
+      "name": "[format('{0}/logs', variables('webSiteName'))]",
       "properties": {
         "applicationLogs": {
           "fileSystem": {
@@ -79,7 +79,7 @@
     "appServiceAppSettings": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/appsettings', resourceInfo('appService').name)]",
+      "name": "[format('{0}/appsettings', variables('webSiteName'))]",
       "properties": {
         "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('APPINSIGHTS_INSTRUMENTATIONKEY')]"
       },
@@ -90,7 +90,7 @@
     "appServiceSiteExtension": {
       "type": "Microsoft.Web/sites/siteextensions",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', resourceInfo('appService').name)]",
+      "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', variables('webSiteName'))]",
       "dependsOn": [
         "appService"
       ]

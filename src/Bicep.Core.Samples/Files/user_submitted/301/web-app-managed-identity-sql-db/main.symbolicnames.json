@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2734358218178251737"
+      "templateHash": "17037999912607815487"
     }
   },
   "parameters": {
@@ -73,7 +73,7 @@
     "sqlserverName_databaseName": {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2020-08-01-preview",
-      "name": "[format('{0}/{1}', resourceInfo('sqlserver').name, variables('databaseName'))]",
+      "name": "[format('{0}/{1}', variables('sqlserverName'), variables('databaseName'))]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Basic"
@@ -89,7 +89,7 @@
     "sqlserverName_AllowAllWindowsAzureIps": {
       "type": "Microsoft.Sql/servers/firewallRules",
       "apiVersion": "2014-04-01",
-      "name": "[format('{0}/AllowAllWindowsAzureIps', resourceInfo('sqlserver').name)]",
+      "name": "[format('{0}/AllowAllWindowsAzureIps', variables('sqlserverName'))]",
       "properties": {
         "endIpAddress": "0.0.0.0",
         "startIpAddress": "0.0.0.0"
@@ -114,16 +114,16 @@
       "name": "[variables('webSiteName')]",
       "location": "[parameters('location')]",
       "tags": {
-        "[format('hidden-related:{0}', resourceInfo('hostingPlan').id)]": "empty",
+        "[format('hidden-related:{0}', resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName')))]": "empty",
         "displayName": "Website"
       },
       "properties": {
-        "serverFarmId": "[resourceInfo('hostingPlan').id]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       },
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceInfo('msi').id)]": {}
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')))]": {}
         }
       },
       "dependsOn": [
@@ -134,7 +134,7 @@
     "webSiteConnectionStrings": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/connectionstrings', resourceInfo('webSite').name)]",
+      "name": "[format('{0}/connectionstrings', variables('webSiteName'))]",
       "properties": {
         "DefaultConnection": {
           "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference('sqlserver').fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference('sqlserver').fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
@@ -168,10 +168,10 @@
     "AppInsights_webSiteName": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2018-05-01-preview",
-      "name": "[format('AppInsights{0}', resourceInfo('webSite').name)]",
+      "name": "[format('AppInsights{0}', variables('webSiteName'))]",
       "location": "[parameters('location')]",
       "tags": {
-        "[format('hidden-link:{0}', resourceInfo('webSite').id)]": "Resource",
+        "[format('hidden-link:{0}', resourceId('Microsoft.Web/sites', variables('webSiteName')))]": "Resource",
         "displayName": "AppInsightsComponent"
       },
       "kind": "web",

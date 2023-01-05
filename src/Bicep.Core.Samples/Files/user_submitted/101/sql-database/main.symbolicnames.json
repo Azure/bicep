@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14297944808178125170"
+      "templateHash": "4195185749894704979"
     }
   },
   "parameters": {
@@ -44,7 +44,7 @@
     "sqlDB": {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2020-08-01-preview",
-      "name": "[format('{0}/{1}', resourceInfo('server').name, parameters('sqlDBName'))]",
+      "name": "[format('{0}/{1}', parameters('serverName'), parameters('sqlDBName'))]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "Standard",

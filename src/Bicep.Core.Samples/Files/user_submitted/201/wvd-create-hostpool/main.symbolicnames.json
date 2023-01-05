@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14726841752421343453"
+      "templateHash": "4259362336117477743"
     }
   },
   "parameters": {
@@ -562,7 +562,7 @@
       "location": "[parameters('location')]",
       "tags": "[parameters('applicationGroupTags')]",
       "properties": {
-        "hostPoolArmPath": "[resourceInfo('hostpool').id]",
+        "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]",
         "friendlyName": "Default Desktop",
         "description": "Desktop Application Group created through the Hostpool Wizard",
         "applicationGroupType": "Desktop"
@@ -845,7 +845,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15617346665699553121"
+              "templateHash": "8529385440411645806"
             }
           },
           "parameters": {
@@ -1203,7 +1203,7 @@
                     }
                   },
                   "imageReference": {
-                    "id": "[resourceInfo('imageName').id]"
+                    "id": "[resourceId('Microsoft.Compute/images', variables('imageName_var'))]"
                   }
                 },
                 "networkProfile": {

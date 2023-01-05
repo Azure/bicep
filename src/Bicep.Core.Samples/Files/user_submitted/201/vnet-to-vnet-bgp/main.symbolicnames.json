@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4669046696212341522"
+      "templateHash": "12652950816214191109"
     }
   },
   "parameters": {
@@ -219,10 +219,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[format('{0}/subnets/GatewaySubnet', resourceInfo('vnet1').id)]"
+                "id": "[format('{0}/subnets/GatewaySubnet', resourceId('Microsoft.Network/virtualNetworks', variables('vnet1cfg').name))]"
               },
               "publicIPAddress": {
-                "id": "[resourceInfo('gw1pip').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet1cfg').gatewayPublicIPName)]"
               }
             }
           }
@@ -255,10 +255,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[format('{0}/subnets/GatewaySubnet', resourceInfo('vnet2').id)]"
+                "id": "[format('{0}/subnets/GatewaySubnet', resourceId('Microsoft.Network/virtualNetworks', variables('vnet2cfg').name))]"
               },
               "publicIPAddress": {
-                "id": "[resourceInfo('gw2pip').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet2cfg').gatewayPublicIPName)]"
               }
             }
           }
@@ -286,11 +286,11 @@
       "location": "[parameters('location')]",
       "properties": {
         "virtualNetworkGateway1": {
-          "id": "[resourceInfo('vpngw1').id]",
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet1cfg').gatewayName)]",
           "properties": {}
         },
         "virtualNetworkGateway2": {
-          "id": "[resourceInfo('vpngw2').id]",
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet2cfg').gatewayName)]",
           "properties": {}
         },
         "connectionType": "Vnet2Vnet",
@@ -310,11 +310,11 @@
       "location": "[parameters('location')]",
       "properties": {
         "virtualNetworkGateway1": {
-          "id": "[resourceInfo('vpngw2').id]",
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet2cfg').gatewayName)]",
           "properties": {}
         },
         "virtualNetworkGateway2": {
-          "id": "[resourceInfo('vpngw1').id]",
+          "id": "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet1cfg').gatewayName)]",
           "properties": {}
         },
         "connectionType": "Vnet2Vnet",

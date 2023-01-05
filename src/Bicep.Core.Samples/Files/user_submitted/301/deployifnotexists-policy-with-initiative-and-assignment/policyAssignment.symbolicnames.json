@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "444332721634326843"
+      "templateHash": "15295644524409115888"
     }
   },
   "parameters": {
@@ -49,7 +49,7 @@
     "roleAssignment": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceInfo('bicepExampleAssignment').name, resourceInfo('bicepExampleAssignment').type, subscription().subscriptionId)]",
+      "name": "[guid('bicepExampleAssignment', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
       "properties": {
         "principalId": "[reference('bicepExampleAssignment', '2020-09-01', 'full').identity.principalId]",
         "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"

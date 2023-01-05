@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3222260244803295673"
+      "templateHash": "3453376788904590022"
     }
   },
   "parameters": {
@@ -187,7 +187,7 @@
             "properties": {
               "addressPrefix": "[parameters('NATSubnetPrefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('natNsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NATSubnetNSGName'))]"
               }
             }
           },
@@ -196,7 +196,7 @@
             "properties": {
               "addressPrefix": "[parameters('hyperVSubnetPrefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('hyperVNsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('hyperVSubnetNSGName'))]"
               }
             }
           },
@@ -205,7 +205,7 @@
             "properties": {
               "addressPrefix": "[parameters('ghostedSubnetPrefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('ghostedNsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ghostedSubnetNSGName'))]"
               }
             }
           },
@@ -214,7 +214,7 @@
             "properties": {
               "addressPrefix": "[parameters('azureVMsSubnetPrefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('azureVmsSubnet').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('azureVMsSubnetNSGName'))]"
               },
               "routeTable": {
                 "id": "[reference('createAzureVmUdr').outputs.udrId.value]"
@@ -298,7 +298,7 @@
     "vmExtension": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
-      "name": "[format('{0}/InstallWindowsFeatures', resourceInfo('hostVm').name)]",
+      "name": "[format('{0}/InstallWindowsFeatures', parameters('HostVirtualMachineName'))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Powershell",
@@ -321,7 +321,7 @@
     "hostVmSetupExtension": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
-      "name": "[format('{0}/HVHOSTSetup', resourceInfo('hostVm').name)]",
+      "name": "[format('{0}/HVHOSTSetup', parameters('HostVirtualMachineName'))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",
@@ -355,10 +355,10 @@
             "value": "[parameters('HostNetworkInterface1Name')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('NATSubnetName'))]"
+            "value": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('NATSubnetName'))]"
           },
           "pipId": {
-            "value": "[resourceInfo('publicIp').id]"
+            "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]"
           }
         },
         "template": {
@@ -370,7 +370,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3322466845026343883"
+              "templateHash": "833684061951102879"
             }
           },
           "parameters": {
@@ -433,7 +433,7 @@
           "outputs": {
             "nicId": {
               "type": "string",
-              "value": "[resourceInfo('nic').id]"
+              "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
             },
             "assignedIp": {
               "type": "string",
@@ -464,7 +464,7 @@
             "value": true
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('hyperVSubnetName'))]"
+            "value": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('hyperVSubnetName'))]"
           }
         },
         "template": {
@@ -476,7 +476,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3322466845026343883"
+              "templateHash": "833684061951102879"
             }
           },
           "parameters": {
@@ -539,7 +539,7 @@
           "outputs": {
             "nicId": {
               "type": "string",
-              "value": "[resourceInfo('nic').id]"
+              "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
             },
             "assignedIp": {
               "type": "string",
@@ -572,10 +572,10 @@
             "value": "[parameters('HostNetworkInterface1Name')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('NATSubnetName'))]"
+            "value": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('NATSubnetName'))]"
           },
           "pipId": {
-            "value": "[resourceInfo('publicIp').id]"
+            "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]"
           }
         },
         "template": {
@@ -587,7 +587,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3322466845026343883"
+              "templateHash": "833684061951102879"
             }
           },
           "parameters": {
@@ -650,7 +650,7 @@
           "outputs": {
             "nicId": {
               "type": "string",
-              "value": "[resourceInfo('nic').id]"
+              "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
             },
             "assignedIp": {
               "type": "string",
@@ -688,7 +688,7 @@
             "value": true
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('hyperVSubnetName'))]"
+            "value": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('hyperVSubnetName'))]"
           }
         },
         "template": {
@@ -700,7 +700,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3322466845026343883"
+              "templateHash": "833684061951102879"
             }
           },
           "parameters": {
@@ -763,7 +763,7 @@
           "outputs": {
             "nicId": {
               "type": "string",
-              "value": "[resourceInfo('nic').id]"
+              "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
             },
             "assignedIp": {
               "type": "string",
@@ -800,7 +800,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7458258094091755263"
+              "templateHash": "16856940868851518995"
             }
           },
           "parameters": {
@@ -834,7 +834,7 @@
           "outputs": {
             "udrId": {
               "type": "string",
-              "value": "[resourceInfo('udr').id]"
+              "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
             }
           }
         }
@@ -869,7 +869,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7458258094091755263"
+              "templateHash": "16856940868851518995"
             }
           },
           "parameters": {
@@ -903,7 +903,7 @@
           "outputs": {
             "udrId": {
               "type": "string",
-              "value": "[resourceInfo('udr').id]"
+              "value": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
             }
           }
         }

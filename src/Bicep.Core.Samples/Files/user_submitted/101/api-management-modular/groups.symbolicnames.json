@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12966508422874822476"
+      "templateHash": "8099781985018259242"
     }
   },
   "parameters": {
@@ -57,8 +57,8 @@
       "copy": {
         "count": "[length(variables('groupsSet'))]",
         "input": {
-          "groupId": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).id]",
-          "groupName": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).name]"
+          "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+          "groupName": "[variables('groupsSet')[copyIndex()].groupName]"
         }
       }
     }

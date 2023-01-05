@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4131452229265908377"
+      "templateHash": "6188807284257928663"
     }
   },
   "parameters": {
@@ -67,7 +67,7 @@
   "outputs": {
     "managementGroupID": {
       "type": "string",
-      "value": "[resourceInfo('managementGroup').name]"
+      "value": "[parameters('managementGroupId')]"
     }
   }
 }

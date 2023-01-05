@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14775352266700963980"
+      "templateHash": "8232443465087908715"
     }
   },
   "parameters": {
@@ -116,17 +116,17 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[resourceInfo('subnet').id]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
               },
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceInfo('publicIP').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
               }
             }
           }
         ],
         "networkSecurityGroup": {
-          "id": "[resourceInfo('nsg').id]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
         }
       },
       "dependsOn": [
@@ -177,7 +177,7 @@
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName'))]",
       "properties": {
         "networkSecurityGroup": {
-          "id": "[resourceInfo('nsg').id]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
         },
         "addressPrefix": "[variables('subnetAddressPrefix')]",
         "privateEndpointNetworkPolicies": "Enabled",
@@ -231,7 +231,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceInfo('nic').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
             }
           ]
         },

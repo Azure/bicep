@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3322466845026343883"
+      "templateHash": "833684061951102879"
     }
   },
   "parameters": {
@@ -70,7 +70,7 @@
   "outputs": {
     "nicId": {
       "type": "string",
-      "value": "[resourceInfo('nic').id]"
+      "value": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
     },
     "assignedIp": {
       "type": "string",

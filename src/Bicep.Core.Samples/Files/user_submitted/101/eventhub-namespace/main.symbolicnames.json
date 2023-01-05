@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3346610195081320023"
+      "templateHash": "4717942573584928573"
     }
   },
   "parameters": {
@@ -47,7 +47,7 @@
     "eventHub": {
       "type": "Microsoft.EventHub/namespaces/eventhubs",
       "apiVersion": "2017-04-01",
-      "name": "[format('{0}/{1}', resourceInfo('eventHubNamespace').name, variables('eventHubName'))]",
+      "name": "[format('{0}/{1}', variables('eventHubNamespaceName'), variables('eventHubName'))]",
       "properties": {
         "messageRetentionInDays": 7,
         "partitionCount": 1

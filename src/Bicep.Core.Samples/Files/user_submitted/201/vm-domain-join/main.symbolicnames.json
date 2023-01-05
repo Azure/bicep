@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17982765110025310907"
+      "templateHash": "13957027872942036651"
     }
   },
   "parameters": {
@@ -100,7 +100,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceInfo('publicIp').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
               },
               "subnet": {
                 "id": "[variables('subnetId')]"
@@ -152,7 +152,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceInfo('nic').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
             }
           ]
         },
@@ -171,7 +171,7 @@
     "virtualMachineExtension": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/joindomain', resourceInfo('virtualMachine').name)]",
+      "name": "[format('{0}/joindomain', parameters('dnsLabelPrefix'))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",

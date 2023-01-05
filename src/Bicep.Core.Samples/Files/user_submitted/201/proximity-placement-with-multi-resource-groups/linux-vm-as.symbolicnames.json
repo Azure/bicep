@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16602990965325228130"
+      "templateHash": "14746205280723861821"
     }
   },
   "parameters": {
@@ -71,7 +71,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "availabilitySet": {
-          "id": "[resourceInfo('availabilitySets').id]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', 'as')]"
         },
         "hardwareProfile": {
           "vmSize": "Standard_B4ms"
@@ -79,7 +79,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceInfo('nic').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
             }
           ]
         },

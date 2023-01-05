@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17550427312171209821"
+      "templateHash": "3102022256267994560"
     }
   },
   "parameters": {
@@ -36,7 +36,7 @@
     "serviceBusQueue": {
       "type": "Microsoft.ServiceBus/namespaces/queues",
       "apiVersion": "2017-04-01",
-      "name": "[format('{0}/{1}', resourceInfo('serviceBusNamespace').name, parameters('serviceBusQueueName'))]",
+      "name": "[format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName'))]",
       "properties": {
         "lockDuration": "PT5M",
         "maxSizeInMegabytes": 1024,

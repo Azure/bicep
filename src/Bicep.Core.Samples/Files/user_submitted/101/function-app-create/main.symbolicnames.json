@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13601427409074496277"
+      "templateHash": "14387219169303838344"
     }
   },
   "parameters": {
@@ -142,7 +142,7 @@
             "hostType": "Standard"
           }
         ],
-        "serverFarmId": "[resourceInfo('appService').id]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceName'))]",
         "reserved": false,
         "isXenon": false,
         "hyperV": false,
@@ -150,11 +150,11 @@
           "appSettings": [
             {
               "name": "AzureWebJobsStorage",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storageAccount').name, environment().suffixes.storage, listKeys(resourceInfo('storageAccount').id, '2019-06-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storageAccount').name, environment().suffixes.storage, listKeys(resourceInfo('storageAccount').id, '2019-06-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
@@ -271,9 +271,9 @@
     "functionAppBinding": {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', variables('functionAppName'), format('{0}.azurewebsites.net', resourceInfo('functionApp').name))]",
+      "name": "[format('{0}/{1}', variables('functionAppName'), format('{0}.azurewebsites.net', variables('functionAppName')))]",
       "properties": {
-        "siteName": "[resourceInfo('functionApp').name]",
+        "siteName": "[variables('functionAppName')]",
         "hostNameType": "Verified"
       },
       "dependsOn": [

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13729247149373144532"
+      "templateHash": "9959650247723691159"
     }
   },
   "parameters": {
@@ -62,7 +62,7 @@
         "ProjectName": "[parameters('appName')]"
       },
       "properties": {
-        "serverFarmId": "[resourceInfo('appServicePlan').id]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "httpsOnly": true,
         "siteConfig": {
           "minTlsVersion": "1.2"
@@ -75,7 +75,7 @@
     "appServiceLogging": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/logs', resourceInfo('appService').name)]",
+      "name": "[format('{0}/logs', variables('webSiteName'))]",
       "properties": {
         "applicationLogs": {
           "fileSystem": {
@@ -102,7 +102,7 @@
     "appServiceAppSettings": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/appsettings', resourceInfo('appService').name)]",
+      "name": "[format('{0}/appsettings', variables('webSiteName'))]",
       "properties": {
         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference('appInsights').InstrumentationKey]"
       },
@@ -115,7 +115,7 @@
     "appServiceSiteExtension": {
       "type": "Microsoft.Web/sites/siteextensions",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', resourceInfo('appService').name)]",
+      "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', variables('webSiteName'))]",
       "dependsOn": [
         "appInsights",
         "appService"
@@ -133,7 +133,7 @@
       },
       "properties": {
         "Application_Type": "web",
-        "WorkspaceResourceId": "[resourceInfo('logAnalyticsWorkspace').id]"
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
       },
       "dependsOn": [
         "logAnalyticsWorkspace"

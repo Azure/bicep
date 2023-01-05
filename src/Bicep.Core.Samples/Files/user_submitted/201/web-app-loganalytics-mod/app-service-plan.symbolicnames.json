@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4637137393056098823"
+      "templateHash": "9542820828638189911"
     }
   },
   "parameters": {
@@ -49,7 +49,7 @@
   "outputs": {
     "appServicePlanID": {
       "type": "string",
-      "value": "[resourceInfo('appServicePlan').id]"
+      "value": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
     }
   }
 }

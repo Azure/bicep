@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17024638405349992044"
+      "templateHash": "15928558416114035813"
     }
   },
   "parameters": {
@@ -91,7 +91,7 @@
         "enableBgp": true,
         "sharedKey": "[parameters('psk')]",
         "localNetworkGateway2": {
-          "id": "[resourceInfo('localnetworkgw').id]",
+          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]",
           "properties": {}
         }
       },

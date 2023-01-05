@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2340195045377583716"
+      "templateHash": "1433713818141164207"
     }
   },
   "parameters": {
@@ -92,16 +92,16 @@
       "location": "[parameters('location')]",
       "kind": "functionapp",
       "properties": {
-        "serverFarmId": "[resourceInfo('plan').id]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
           "appSettings": [
             {
               "name": "AzureWebJobsStorage",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storageAccount').name, environment().suffixes.storage, listKeys(resourceInfo('storageAccount').id, '2019-06-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('storageAccount').name, environment().suffixes.storage, listKeys(resourceInfo('storageAccount').id, '2019-06-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
@@ -132,7 +132,7 @@
     "function": {
       "type": "Microsoft.Web/sites/functions",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', resourceInfo('functionApp').name, variables('functionNameComputed'))]",
+      "name": "[format('{0}/{1}', variables('functionAppName'), variables('functionNameComputed'))]",
       "properties": {
         "config": {
           "disabled": false,
@@ -178,9 +178,9 @@
     "keyVaultSecret": {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2018-02-14",
-      "name": "[format('{0}/{1}', resourceInfo('keyVault').name, variables('functionAppKeySecretName'))]",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('functionAppKeySecretName'))]",
       "properties": {
-        "value": "[listKeys(format('{0}/host/default', resourceInfo('functionApp').id), resourceInfo('functionApp').apiVersion).functionKeys.default]"
+        "value": "[listKeys(format('{0}/host/default', resourceId('Microsoft.Web/sites', variables('functionAppName'))), '2020-06-01').functionKeys.default]"
       },
       "dependsOn": [
         "functionApp",

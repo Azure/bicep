@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3313400328646416300"
+      "templateHash": "1270528138025457372"
     }
   },
   "parameters": {
@@ -80,9 +80,9 @@
     "galleryassignment": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id, resourceInfo('gallerydef').id, resourceInfo('managedidentity').id)]",
+      "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
       "properties": {
-        "roleDefinitionId": "[resourceInfo('gallerydef').id]",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
         "principalId": "[reference('managedidentity').principalId]",
         "principalType": "ServicePrincipal"
       },
@@ -94,7 +94,7 @@
     "avdid": {
       "type": "Microsoft.Compute/galleries/images",
       "apiVersion": "2019-07-01",
-      "name": "[format('{0}/{1}', resourceInfo('avdsig').name, parameters('imageDefinitionName'))]",
+      "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
       "location": "[parameters('sigLocation')]",
       "properties": {
         "osType": "Windows",
@@ -129,7 +129,7 @@
     },
     "avdidoutput": {
       "type": "string",
-      "value": "[resourceInfo('avdid').id]"
+      "value": "[resourceId('Microsoft.Compute/galleries/images', split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[0], split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[1])]"
     }
   }
 }

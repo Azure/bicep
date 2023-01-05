@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2127656982266260806"
+      "templateHash": "8474947876549270925"
     }
   },
   "parameters": {
@@ -126,7 +126,7 @@
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/{1}', parameters('apimInstanceName'), 'applicationinsights')]",
       "properties": {
-        "loggerId": "[resourceInfo('apiManagementLogger').id]",
+        "loggerId": "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('apimInstanceName'), parameters('appInsightsName'))]",
         "alwaysLog": "allErrors",
         "logClientIp": true,
         "sampling": {
@@ -151,7 +151,7 @@
         "mode": "Incremental",
         "parameters": {
           "apimInstanceName": {
-            "value": "[resourceInfo('apiManagement').name]"
+            "value": "[parameters('apimInstanceName')]"
           }
         },
         "template": {
@@ -163,7 +163,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12966508422874822476"
+              "templateHash": "8099781985018259242"
             }
           },
           "parameters": {
@@ -213,8 +213,8 @@
               "copy": {
                 "count": "[length(variables('groupsSet'))]",
                 "input": {
-                  "groupId": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).id]",
-                  "groupName": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).name]"
+                  "groupId": "[resourceId('Microsoft.ApiManagement/service/groups', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+                  "groupName": "[variables('groupsSet')[copyIndex()].groupName]"
                 }
               }
             }
@@ -237,7 +237,7 @@
         "mode": "Incremental",
         "parameters": {
           "apimInstanceName": {
-            "value": "[resourceInfo('apiManagement').name]"
+            "value": "[parameters('apimInstanceName')]"
           }
         },
         "template": {
@@ -320,7 +320,7 @@
         "mode": "Incremental",
         "parameters": {
           "apimInstanceName": {
-            "value": "[resourceInfo('apiManagement').name]"
+            "value": "[parameters('apimInstanceName')]"
           }
         },
         "template": {
@@ -332,7 +332,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11465963401547040736"
+              "templateHash": "1203366722634930124"
             }
           },
           "parameters": {
@@ -391,8 +391,8 @@
               "copy": {
                 "count": "[length(variables('apimNameValueSet'))]",
                 "input": {
-                  "nameValueId": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).id]",
-                  "nameValueName": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).name]"
+                  "nameValueId": "[resourceId('Microsoft.ApiManagement/service/namedValues', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]",
+                  "nameValueName": "[variables('apimNameValueSet')[copyIndex()].displayName]"
                 }
               }
             }

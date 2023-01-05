@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18340490257762112422"
+      "templateHash": "7102212884286788604"
     }
   },
   "parameters": {
@@ -61,7 +61,7 @@
       "name": "location-lock",
       "properties": {
         "scope": "[variables('mgScope')]",
-        "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', resourceInfo('policyDefinition').name)]"
+        "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', variables('policyDefinitionName'))]"
       },
       "dependsOn": [
         "policyDefinition"

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7085243670229967766"
+      "templateHash": "10573795545729257719"
     }
   },
   "parameters": {
@@ -36,6 +36,11 @@
     "hostingPlanName": "[parameters('applicationName')]",
     "location": "[resourceGroup().location]",
     "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+    "_siteApiVersion": "2019-08-01",
+    "_siteType": "Microsoft.Web/sites",
+    "resourceCRef": {
+      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+    },
     "setResourceCRef": true,
     "myInterpKey": "abc",
     "storageAccounts": [
@@ -186,10 +191,10 @@
       "apiVersion": "2019-10-01",
       "name": "nestedTemplate1",
       "properties": {
-        "otherId": "[resourceInfo('nested').id]",
-        "otherName": "[resourceInfo('nested').name]",
-        "otherVersion": "[resourceInfo('nested').apiVersion]",
-        "otherType": "[resourceInfo('nested').type]",
+        "otherId": "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]",
+        "otherName": "nestedTemplate1",
+        "otherVersion": "2019-10-01",
+        "otherType": "Microsoft.Resources/deployments",
         "otherThings": "[reference('nested').mode]"
       },
       "dependsOn": [
@@ -204,7 +209,7 @@
     "resourceB": {
       "type": "My.Rp/typeA/typeB",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}/myName', resourceInfo('resourceA').name)]",
+      "name": "[format('{0}/myName', 'resourceA')]",
       "dependsOn": [
         "resourceA"
       ]
@@ -212,12 +217,12 @@
     "resourceC": {
       "type": "My.Rp/typeA/typeB",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}/myName', resourceInfo('resourceA').name)]",
+      "name": "[format('{0}/myName', 'resourceA')]",
       "properties": {
-        "aId": "[resourceInfo('resourceA').id]",
-        "aType": "[resourceInfo('resourceA').type]",
-        "aName": "[resourceInfo('resourceA').name]",
-        "aApiVersion": "[resourceInfo('resourceA').apiVersion]",
+        "aId": "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "aType": "My.Rp/typeA",
+        "aName": "resourceA",
+        "aApiVersion": "2020-01-01",
         "bProperties": "[reference('resourceB')]"
       },
       "dependsOn": [
@@ -232,14 +237,14 @@
       "properties": {
         "runtime": [
           {
-            "bId": "[resourceInfo('resourceB').id]",
-            "bType": "[resourceInfo('resourceB').type]",
-            "bName": "[resourceInfo('resourceB').name]",
-            "bApiVersion": "[resourceInfo('resourceB').apiVersion]",
+            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+            "bType": "My.Rp/typeA/typeB",
+            "bName": "[format('{0}/myName', 'resourceA')]",
+            "bApiVersion": "2020-01-01",
             "aKind": "[reference('resourceA', '2020-01-01', 'full').kind]"
           }
         ],
-        "repro316": "[if(variables('setResourceCRef'), createObject('id', resourceInfo('resourceC').id), null())]"
+        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), null())]"
       },
       "dependsOn": [
         "resourceA",
@@ -305,11 +310,11 @@
       "apiVersion": "2020-01-01",
       "name": "extensionDependencies",
       "properties": {
-        "res1": "[resourceInfo('vmWithCondition').id]",
+        "res1": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
         "res1runtime": "[reference('vmWithCondition').something]",
-        "res2": "[resourceInfo('extension1').id]",
+        "res2": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
         "res2runtime": "[reference('extension1').something]",
-        "res3": "[resourceInfo('extension2').id]",
+        "res3": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')]",
         "res3runtime": "[reference('extension2').something]"
       },
       "dependsOn": [
@@ -616,11 +621,11 @@
   "outputs": {
     "siteApiVersion": {
       "type": "string",
-      "value": "[resourceInfo('site').apiVersion]"
+      "value": "2019-08-01"
     },
     "siteType": {
       "type": "string",
-      "value": "[resourceInfo('site').type]"
+      "value": "Microsoft.Web/sites"
     },
     "p1_subnet1prefix": {
       "type": "string",
@@ -628,15 +633,15 @@
     },
     "p1_subnet1name": {
       "type": "string",
-      "value": "[resourceInfo('p1_subnet1').name]"
+      "value": "subnet1"
     },
     "p1_subnet1type": {
       "type": "string",
-      "value": "[resourceInfo('p1_subnet1').type]"
+      "value": "Microsoft.Network/virtualNetworks/subnets"
     },
     "p1_subnet1id": {
       "type": "string",
-      "value": "[resourceInfo('p1_subnet1').id]"
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')]"
     },
     "p2_res2childprop": {
       "type": "string",
@@ -644,15 +649,15 @@
     },
     "p2_res2childname": {
       "type": "string",
-      "value": "[resourceInfo('p2_res2child').name]"
+      "value": "child2"
     },
     "p2_res2childtype": {
       "type": "string",
-      "value": "[resourceInfo('p2_res2child').type]"
+      "value": "Microsoft.Rp2/resource2/child2"
     },
     "p2_res2childid": {
       "type": "string",
-      "value": "[resourceInfo('p2_res2child').id]"
+      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
     },
     "p3_res1childprop": {
       "type": "string",
@@ -660,15 +665,15 @@
     },
     "p3_res1childname": {
       "type": "string",
-      "value": "[resourceInfo('p3_child1').name]"
+      "value": "child1"
     },
     "p3_res1childtype": {
       "type": "string",
-      "value": "[resourceInfo('p3_child1').type]"
+      "value": "Microsoft.Rp1/resource1/child1"
     },
     "p3_res1childid": {
       "type": "string",
-      "value": "[resourceInfo('p3_child1').id]"
+      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
     },
     "p4_res1childprop": {
       "type": "string",
@@ -676,15 +681,15 @@
     },
     "p4_res1childname": {
       "type": "string",
-      "value": "[resourceInfo('p4_child1').name]"
+      "value": "child1"
     },
     "p4_res1childtype": {
       "type": "string",
-      "value": "[resourceInfo('p4_child1').type]"
+      "value": "Microsoft.Rp1/resource1/child1"
     },
     "p4_res1childid": {
       "type": "string",
-      "value": "[resourceInfo('p4_child1').id]"
+      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
     }
   }
 }
