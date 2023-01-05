@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7552979031435785171"
+      "templateHash": "3761323621114699632"
     }
   },
   "parameters": {
@@ -139,7 +139,7 @@
     "key": {
       "type": "Microsoft.KeyVault/vaults/keys",
       "apiVersion": "2019-09-01",
-      "name": "[format('{0}/{1}', resourceInfo('keyvault').name, parameters('keyName'))]",
+      "name": "[format('{0}/{1}', parameters('vaultName'), parameters('keyName'))]",
       "properties": {
         "kty": "RSA",
         "keyOps": [
@@ -155,7 +155,7 @@
     "secret": {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2018-02-14",
-      "name": "[format('{0}/{1}', resourceInfo('keyvault').name, parameters('secretName'))]",
+      "name": "[format('{0}/{1}', parameters('vaultName'), parameters('secretName'))]",
       "properties": {
         "value": "[parameters('secretValue')]"
       },

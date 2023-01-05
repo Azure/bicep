@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "73375902871047960"
+      "templateHash": "2943086781191583770"
     }
   },
   "parameters": {
@@ -63,7 +63,7 @@
                 "id": "[parameters('subnetref')]"
               },
               "publicIPAddress": {
-                "id": "[resourceInfo('vpngwpip').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))]"
               }
             }
           }
@@ -88,7 +88,7 @@
   "outputs": {
     "id": {
       "type": "string",
-      "value": "[resourceInfo('vpngw').id]"
+      "value": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))]"
     },
     "vpngwip": {
       "type": "string",

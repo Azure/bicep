@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12908939607230391049"
+      "templateHash": "1042632168174174653"
     }
   },
   "parameters": {
@@ -360,7 +360,7 @@
             "count": "[parameters('nodePoolCount')]",
             "vmSize": "[parameters('nodePoolVmSize')]",
             "osDiskSizeGB": "[parameters('nodePoolOsDiskSizeGB')]",
-            "vnetSubnetID": "[resourceInfo('aksSubnet').id]",
+            "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
             "maxPods": "[parameters('nodePoolMaxPods')]",
             "osType": "[parameters('nodePoolOsType')]",
             "maxCount": "[parameters('nodePoolMaxCount')]",

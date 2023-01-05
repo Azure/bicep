@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "410829462598088868"
+      "templateHash": "9878070999700807777"
     }
   },
   "parameters": {
@@ -47,7 +47,7 @@
   "outputs": {
     "id": {
       "type": "string",
-      "value": "[resourceInfo('wan').id]"
+      "value": "[resourceId('Microsoft.Network/virtualWans', parameters('wanname'))]"
     }
   }
 }

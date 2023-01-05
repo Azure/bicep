@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "601069753694913082"
+      "templateHash": "8479115218615516519"
     }
   },
   "parameters": {
@@ -57,7 +57,7 @@
                       "name": "Scope",
                       "value": {
                         "resourceIds": [
-                          "[resourceInfo('appinsights').id]"
+                          "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
                         ]
                       }
                     },
@@ -132,7 +132,7 @@
                       "name": "Scope",
                       "value": {
                         "resourceIds": [
-                          "[resourceInfo('appinsights').id]"
+                          "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
                         ]
                       }
                     },

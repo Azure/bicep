@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10717778024170373424"
+      "templateHash": "9808007941102328408"
     }
   },
   "variables": {
@@ -85,7 +85,7 @@
       "copy": {
         "count": "[length(range(0, length(variables('managementGroups'))))]",
         "input": {
-          "name": "[resourceInfo(format('yetAnotherSet[{0}]', range(0, length(variables('managementGroups')))[copyIndex()])).name]",
+          "name": "[concat(variables('managementGroups')[copyIndex()].name, '-two')]",
           "displayName": "[reference(format('yetAnotherSet[{0}]', range(0, length(variables('managementGroups')))[copyIndex()])).displayName]"
         }
       }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6918186836298612330"
+      "templateHash": "18008192003209068101"
     }
   },
   "parameters": {
@@ -65,8 +65,8 @@
       "properties": {
         "azCliVersion": "2.0.80",
         "storageAccountSettings": {
-          "storageAccountName": "[resourceInfo('stg').name]",
-          "storageAccountKey": "[listKeys(resourceInfo('stg').id, '2019-06-01').keys[0].value]"
+          "storageAccountName": "[format('dscript{0}', uniqueString(resourceGroup().id))]",
+          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('dscript{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value]"
         },
         "scriptContent": "[parameters('scriptToExecute')]",
         "cleanupPreference": "OnSuccess",
@@ -81,7 +81,7 @@
   "outputs": {
     "scriptLogs": {
       "type": "string",
-      "value": "[reference(format('{0}/logs/default', resourceInfo('dScript').id), resourceInfo('dScript').apiVersion, 'Full').properties.log]"
+      "value": "[reference(format('{0}/logs/default', resourceId('Microsoft.Resources/deploymentScripts', 'scriptWithStorage')), '2019-10-01-preview', 'Full').properties.log]"
     }
   }
 }

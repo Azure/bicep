@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17953042731019452306"
+      "templateHash": "1356105973675912490"
     }
   },
   "parameters": {
@@ -40,7 +40,7 @@
     "container": {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2019-06-01",
-      "name": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('containerName'))]",
+      "name": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('containerName'))]",
       "dependsOn": [
         "sa"
       ]

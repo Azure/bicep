@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2493248739247190913"
+      "templateHash": "5989534997423292376"
     }
   },
   "parameters": {
@@ -47,7 +47,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11614669036025593162"
+              "templateHash": "10028704102689692286"
             }
           },
           "parameters": {
@@ -369,7 +369,7 @@
                 "parameters": {},
                 "policyDefinitions": [
                   {
-                    "policyDefinitionId": "[resourceInfo('deployAzureMonitorAgentWindowsDCR').id]",
+                    "policyDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'deployAzureMonitorAgentWindowsDCR')]",
                     "parameters": {}
                   }
                 ]
@@ -382,7 +382,7 @@
           "outputs": {
             "monitoringGovernanceId": {
               "type": "string",
-              "value": "[resourceInfo('monitoringGovernance').id]"
+              "value": "[subscriptionResourceId('Microsoft.Authorization/policySetDefinitions', 'monitoringGovernance')]"
             }
           }
         }
@@ -418,7 +418,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10115694628080181563"
+              "templateHash": "17856974315146222949"
             }
           },
           "parameters": {
@@ -460,7 +460,7 @@
             "roleAssignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "name": "[guid(resourceInfo('monitoringGovernanceAssignment').name, resourceInfo('monitoringGovernanceAssignment').type, subscription().subscriptionId)]",
+              "name": "[guid('monitoringGovernance', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
               "properties": {
                 "principalId": "[reference('monitoringGovernanceAssignment', '2020-09-01', 'full').identity.principalId]",
                 "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"

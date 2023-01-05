@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14565200303840693811"
+      "templateHash": "7175852432426490142"
     }
   },
   "parameters": {
@@ -83,7 +83,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[format('{0}', resourceInfo('managedIdentity').id)]": {}
+          "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript'))]": {}
         }
       },
       "properties": {
@@ -103,7 +103,7 @@
   "outputs": {
     "scriptLogs": {
       "type": "string",
-      "value": "[reference(format('{0}/logs/default', resourceInfo('deploymentScript').id), resourceInfo('deploymentScript').apiVersion, 'Full').properties.log]"
+      "value": "[reference(format('{0}/logs/default', resourceId('Microsoft.Resources/deploymentScripts', 'deploymentScript')), '2020-10-01', 'Full').properties.log]"
     },
     "staticWebsiteHostName": {
       "type": "string",

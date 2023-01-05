@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9919460414504247412"
+      "templateHash": "156273920754641258"
     }
   },
   "parameters": {
@@ -25,8 +25,8 @@
       ]
     },
     "resourceIds": {
-      "a": "[resourceInfo('resA').id]",
-      "b": "[resourceInfo('resB').id]"
+      "a": "[resourceId('My.Rp/myResourceType', 'resA')]",
+      "b": "[resourceId('My.Rp/myResourceType', 'resB')]"
     }
   },
   "resources": {
@@ -46,9 +46,9 @@
       "properties": {
         "dependencies": {
           "dependenciesA": [
-            "[resourceInfo('resA').id]",
-            "[resourceInfo('resA').name]",
-            "[resourceInfo('resA').type]",
+            "[resourceId('My.Rp/myResourceType', 'resA')]",
+            "resA",
+            "My.Rp/myResourceType",
             "[reference('resA').deployTime]",
             "[reference('resA').eTag]"
           ]
@@ -73,7 +73,7 @@
     "resD": {
       "type": "My.Rp/myResourceType/childType",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}/resD', resourceInfo('resC').name)]",
+      "name": "[format('{0}/resD', 'resC')]",
       "properties": {},
       "dependsOn": [
         "resC"
@@ -84,7 +84,7 @@
       "apiVersion": "2020-01-01",
       "name": "resC/resD",
       "properties": {
-        "resDRef": "[resourceInfo('resD').id]"
+        "resDRef": "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
       },
       "dependsOn": [
         "resD"
@@ -94,11 +94,11 @@
   "outputs": {
     "resourceAType": {
       "type": "string",
-      "value": "[resourceInfo('resA').type]"
+      "value": "My.Rp/myResourceType"
     },
     "resourceBId": {
       "type": "string",
-      "value": "[resourceInfo('resB').id]"
+      "value": "[resourceId('My.Rp/myResourceType', 'resB')]"
     },
     "resourceCProperties": {
       "type": "object",

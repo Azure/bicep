@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2911260488967922211"
+      "templateHash": "14621610686863918372"
     }
   },
   "parameters": {
@@ -127,7 +127,7 @@
               "name": "[replace(replace(reference('defaultStorageAccount').primaryEndpoints.blob, 'https://', ''), '/', '')]",
               "isDefault": true,
               "container": "[parameters('clusterName')]",
-              "key": "[listKeys(resourceInfo('defaultStorageAccount').id, '2021-04-01').keys[0].value]"
+              "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-04-01').keys[0].value]"
             }
           ]
         },

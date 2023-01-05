@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6446857309320902390"
+      "templateHash": "13311947683384646986"
     }
   },
   "parameters": {
@@ -35,13 +35,13 @@
     "solution": {
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
-      "name": "[format('SecurityInsights({0})', resourceInfo('workspace').name)]",
+      "name": "[format('SecurityInsights({0})', parameters('workspaceName'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "workspaceResourceId": "[resourceInfo('workspace').id]"
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
       },
       "plan": {
-        "name": "[format('SecurityInsights({0})', resourceInfo('workspace').name)]",
+        "name": "[format('SecurityInsights({0})', parameters('workspaceName'))]",
         "product": "OMSGallery/SecurityInsights",
         "publisher": "Microsoft",
         "promotionCode": ""

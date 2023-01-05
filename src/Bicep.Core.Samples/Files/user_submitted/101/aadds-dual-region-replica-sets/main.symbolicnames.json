@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4356980910469897906"
+      "templateHash": "13758972796220001574"
     }
   },
   "parameters": {
@@ -124,7 +124,7 @@
             "properties": {
               "addressPrefix": "10.0.0.0/24",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('nsgEUS').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-eus-nsg')]"
               }
             }
           }
@@ -200,7 +200,7 @@
             "properties": {
               "addressPrefix": "10.1.0.0/24",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('nsgWEU').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-weu-nsg')]"
               }
             }
           }
@@ -213,14 +213,14 @@
     "peerEUS": {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}-peering-{2}', resourceInfo('vnetEUS').name, resourceInfo('vnetEUS').name, resourceInfo('vnetWEU').name)]",
+      "name": "[format('{0}/{1}-peering-{2}', 'aadds-eus-vnet', 'aadds-eus-vnet', 'aadds-weu-vnet')]",
       "properties": {
         "allowVirtualNetworkAccess": true,
         "allowForwardedTraffic": true,
         "allowGatewayTransit": false,
         "useRemoteGateways": false,
         "remoteVirtualNetwork": {
-          "id": "[resourceInfo('vnetWEU').id]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
         }
       },
       "dependsOn": [
@@ -231,14 +231,14 @@
     "peerWEU": {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}-peering-{2}', resourceInfo('vnetWEU').name, resourceInfo('vnetWEU').name, resourceInfo('vnetEUS').name)]",
+      "name": "[format('{0}/{1}-peering-{2}', 'aadds-weu-vnet', 'aadds-weu-vnet', 'aadds-eus-vnet')]",
       "properties": {
         "allowVirtualNetworkAccess": true,
         "allowForwardedTraffic": true,
         "allowGatewayTransit": false,
         "useRemoteGateways": false,
         "remoteVirtualNetwork": {
-          "id": "[resourceInfo('vnetEUS').id]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]"
         }
       },
       "dependsOn": [

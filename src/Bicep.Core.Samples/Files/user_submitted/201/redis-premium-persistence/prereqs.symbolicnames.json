@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9709034695536265833"
+      "templateHash": "3379072964600254192"
     }
   },
   "parameters": {
@@ -61,15 +61,15 @@
   "outputs": {
     "diagAccountId": {
       "type": "string",
-      "value": "[resourceInfo('diagsAccount').id]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('diags{0}', uniqueString(resourceGroup().id)))]"
     },
     "cacheAccountName": {
       "type": "string",
-      "value": "[resourceInfo('cacheAccount').name]"
+      "value": "[parameters('cacheAccountName')]"
     },
     "cacheAccountId": {
       "type": "string",
-      "value": "[resourceInfo('cacheAccount').id]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('cacheAccountName'))]"
     }
   }
 }

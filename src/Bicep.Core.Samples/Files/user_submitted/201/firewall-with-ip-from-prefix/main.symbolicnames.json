@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11690547563059134845"
+      "templateHash": "5151308088929181120"
     }
   },
   "parameters": {
@@ -105,7 +105,7 @@
       "properties": {
         "publicIPAllocationMethod": "Static",
         "publicIPPrefix": {
-          "id": "[resourceInfo('ipprefix').id]"
+          "id": "[resourceId('Microsoft.Network/publicIPPrefixes', variables('ipprefixname'))]"
         }
       },
       "dependsOn": [
@@ -124,10 +124,10 @@
             "name": "[format('{0}-vnetIpconf', variables('firewallname'))]",
             "properties": {
               "subnet": {
-                "id": "[format('{0}/subnets/AzureFirewallSubnet', resourceInfo('vnet').id)]"
+                "id": "[format('{0}/subnets/AzureFirewallSubnet', resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')))]"
               },
               "publicIPAddress": {
-                "id": "[resourceInfo('publicip').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipname'))]"
               }
             }
           }

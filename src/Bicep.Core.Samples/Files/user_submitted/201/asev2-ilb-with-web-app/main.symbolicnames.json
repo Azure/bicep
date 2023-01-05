@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8732730911566083409"
+      "templateHash": "10271837689330496137"
     }
   },
   "parameters": {
@@ -68,7 +68,7 @@
     "subnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/subnet-01', resourceInfo('virtualNetwork').name)]",
+      "name": "[format('{0}/subnet-01', 'vnet-01')]",
       "properties": {
         "addressPrefix": "10.0.1.0/24",
         "networkSecurityGroup": {
@@ -109,8 +109,8 @@
         "internalLoadBalancingMode": "[parameters('internalLoadBalancingMode')]",
         "dnsSuffix": "[parameters('dnsSuffix')]",
         "virtualNetwork": {
-          "id": "[resourceInfo('virtualNetwork').id]",
-          "subnet": "[resourceInfo('subnet').name]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-01')]",
+          "subnet": "[format('{0}/subnet-01', 'vnet-01')]"
         },
         "workerPools": []
       },
@@ -126,7 +126,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "hostingEnvironmentProfile": {
-          "id": "[resourceInfo('hostingEnvironment').id]"
+          "id": "[resourceId('Microsoft.Web/hostingEnvironments', parameters('aseName'))]"
         }
       },
       "sku": {
@@ -146,9 +146,9 @@
       "name": "[parameters('websiteName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[resourceInfo('serverFarm').id]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
         "hostingEnvironmentProfile": {
-          "id": "[resourceInfo('hostingEnvironment').id]"
+          "id": "[resourceId('Microsoft.Web/hostingEnvironments', parameters('aseName'))]"
         }
       },
       "dependsOn": [

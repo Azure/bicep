@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11641992750217039422"
+      "templateHash": "4315925004950247409"
     }
   },
   "parameters": {
@@ -65,7 +65,7 @@
     "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]",
     "publicIpAddresses": [
       {
-        "id": "[resourceInfo('publicIp').id]"
+        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
       }
     ]
   },
@@ -120,7 +120,7 @@
             "properties": {
               "addressPrefix": "[parameters('vnetSubnetPrefix')]",
               "natGateway": {
-                "id": "[resourceInfo('natGateway').id]"
+                "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
               },
               "privateEndpointNetworkPolicies": "Enabled",
               "privateLinkServiceNetworkPolicies": "Enabled",
@@ -161,7 +161,7 @@
       "properties": {
         "addressPrefix": "[parameters('vnetSubnetPrefix')]",
         "natGateway": {
-          "id": "[resourceInfo('natGateway').id]"
+          "id": "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
         },
         "privateEndpointNetworkPolicies": "Enabled",
         "privateLinkServiceNetworkPolicies": "Enabled",

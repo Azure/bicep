@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4989043547049501784"
+      "templateHash": "7861983186134794544"
     }
   },
   "parameters": {
@@ -42,7 +42,7 @@
   "outputs": {
     "id": {
       "type": "string",
-      "value": "[resourceInfo('route').id]"
+      "value": "[resourceId('Microsoft.Network/routeTables', format('{0}-rot', parameters('prefix')))]"
     }
   }
 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3972844562288684861"
+      "templateHash": "6418395677303165146"
     }
   },
   "parameters": {
@@ -122,7 +122,7 @@
           "properties": {
             "addressPrefix": "[parameters('virtualNetworkSubnetPrefix')]",
             "networkSecurityGroup": {
-              "id": "[resourceInfo('nsg').id]"
+              "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroup').name)]"
             }
           }
         }
@@ -137,10 +137,10 @@
           "properties": {
             "privateIPAllocationMethod": "Dynamic",
             "publicIPAddress": {
-              "id": "[resourceInfo('pip').id]"
+              "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIp').name)]"
             },
             "subnet": {
-              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnetName'))]"
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetwork').name, variables('subnetName'))]"
             }
           }
         }
@@ -160,12 +160,12 @@
       "vmDataDisks": [],
       "networkInterfaces": [
         {
-          "id": "[resourceInfo('nic').id]"
+          "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterface').name)]"
         }
       ]
     },
     "virtualMachineExtensionCustomScript": {
-      "name": "[format('{0}/config-app', resourceInfo('vm').name)]",
+      "name": "[format('{0}/config-app', variables('virtualMachine').name)]",
       "location": "[parameters('location')]",
       "fileUris": [
         "[parameters('virtualMachineExtensionCustomScriptUri')]"

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15982968023323408126"
+      "templateHash": "5211779161132325392"
     }
   },
   "parameters": {
@@ -97,8 +97,8 @@
     }
   },
   "variables": {
-    "lockName": "[format('{0}-lck', resourceInfo('logAnalyticsWorkspace').name)]",
-    "diagnosticsName": "[format('{0}-dgs', resourceInfo('logAnalyticsWorkspace').name)]"
+    "lockName": "[format('{0}-lck', parameters('name'))]",
+    "diagnosticsName": "[format('{0}-dgs', parameters('name'))]"
   },
   "resources": {
     "logAnalyticsWorkspace": {
@@ -120,13 +120,13 @@
       },
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
-      "name": "[format('{0}({1})', parameters('solutions')[copyIndex()].name, resourceInfo('logAnalyticsWorkspace').name)]",
+      "name": "[format('{0}({1})', parameters('solutions')[copyIndex()].name, parameters('name'))]",
       "location": "[parameters('location')]",
       "properties": {
-        "workspaceResourceId": "[resourceInfo('logAnalyticsWorkspace').id]"
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
       },
       "plan": {
-        "name": "[format('{0}({1})', parameters('solutions')[copyIndex()].name, resourceInfo('logAnalyticsWorkspace').name)]",
+        "name": "[format('{0}({1})', parameters('solutions')[copyIndex()].name, parameters('name'))]",
         "product": "[parameters('solutions')[copyIndex()].product]",
         "publisher": "[parameters('solutions')[copyIndex()].publisher]",
         "promotionCode": "[parameters('solutions')[copyIndex()].promotionCode]"
@@ -181,7 +181,7 @@
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
       "name": "[variables('diagnosticsName')]",
       "properties": {
-        "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]",
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]",
         "storageAccountId": "[resourceId(parameters('diagnosticStorageAccountResourceGroup'), 'Microsoft.Storage/storageAccounts', parameters('diagnosticStorageAccountName'))]",
         "logs": [
           {

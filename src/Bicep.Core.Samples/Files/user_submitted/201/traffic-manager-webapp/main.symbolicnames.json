@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13754927006065788180"
+      "templateHash": "16807685243729840213"
     }
   },
   "parameters": {
@@ -57,7 +57,7 @@
       "name": "[parameters('uniqueDnsNameForWebApp')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[resourceInfo('appServicePlan').id]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       },
       "dependsOn": [
         "appServicePlan"
@@ -85,7 +85,7 @@
             "name": "[parameters('uniqueDnsNameForWebApp')]",
             "type": "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
             "properties": {
-              "targetResourceId": "[resourceInfo('webSite').id]",
+              "targetResourceId": "[resourceId('Microsoft.Web/sites', parameters('uniqueDnsNameForWebApp'))]",
               "endpointStatus": "Enabled"
             }
           }
