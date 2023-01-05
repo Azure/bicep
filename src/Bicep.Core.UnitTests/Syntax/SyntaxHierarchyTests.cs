@@ -16,19 +16,10 @@ namespace Bicep.Core.UnitTests.Syntax
     public class SyntaxHierarchyTests
     {
         [TestMethod]
-        public void EmptyHierarchy_GetParent_ShouldThrow()
-        {
-            var hierarchy = new SyntaxHierarchy();
-            Action fail = () => hierarchy.GetParent(TestSyntaxFactory.CreateNull());
-            fail.Should().Throw<ArgumentException>().WithMessage("Unable to determine parent of specified node of type 'NullLiteralSyntax' at span '[-1:-1]' because it has not been indexed.");
-        }
-
-        [TestMethod]
         public void EmptyFile_GetProgramParent_ShouldReturnNull()
         {
-            var hierarchy = new SyntaxHierarchy();
             var program = ParserHelper.Parse(string.Empty);
-            hierarchy.AddRoot(program);
+            var hierarchy = SyntaxHierarchy.Build(program);
 
             hierarchy.GetParent(program).Should().BeNull();
         }
@@ -36,10 +27,9 @@ namespace Bicep.Core.UnitTests.Syntax
         [TestMethod]
         public void NonEmptyFile_GetParent_ShouldReturnExpectedNode()
         {
-            var hierarchy = new SyntaxHierarchy();
             var program = ParserHelper.Parse("param foo string\r\nvar bar = 42");
+            var hierarchy = SyntaxHierarchy.Build(program);
 
-            hierarchy.AddRoot(program);
             hierarchy.GetParent(program).Should().BeNull();
 
             var nodes = SyntaxAggregator.Aggregate(program, new List<SyntaxBase>(),
