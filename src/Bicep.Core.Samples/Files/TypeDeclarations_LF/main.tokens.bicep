@@ -62,16 +62,16 @@ type foo = {
 //@[13:16) Identifier |int|
 //@[16:18) NewLine |\n\n|
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
 //@[04:21) Identifier |intArrayArrayProp|
-//@[21:22) Question |?|
-//@[22:23) Colon |:|
-//@[24:27) Identifier |int|
-//@[28:29) LeftSquare |[|
-//@[29:30) RightSquare |]|
-//@[31:32) LeftSquare |[|
-//@[32:33) RightSquare |]|
-//@[33:34) NewLine |\n|
+//@[21:22) Colon |:|
+//@[23:26) Identifier |int|
+//@[27:28) LeftSquare |[|
+//@[28:29) RightSquare |]|
+//@[30:31) LeftSquare |[|
+//@[31:32) RightSquare |]|
+//@[33:34) Question |?|
+//@[34:35) NewLine |\n|
   }
 //@[02:03) RightBrace |}|
 //@[03:05) NewLine |\n\n|
@@ -88,11 +88,11 @@ type foo = {
 //@[15:24) StringComplete |'literal'|
 //@[24:26) NewLine |\n\n|
 
-  recursion?: foo
+  recursion: foo?
 //@[02:11) Identifier |recursion|
-//@[11:12) Question |?|
-//@[12:13) Colon |:|
-//@[14:17) Identifier |foo|
+//@[11:12) Colon |:|
+//@[13:16) Identifier |foo|
+//@[16:17) Question |?|
 //@[17:18) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
@@ -380,6 +380,13 @@ type tuple = [
 //@[07:08) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
-//@[01:02) NewLine |\n|
+//@[01:03) NewLine |\n\n|
+
+param nullableParam string?
+//@[00:05) Identifier |param|
+//@[06:19) Identifier |nullableParam|
+//@[20:26) Identifier |string|
+//@[26:27) Question |?|
+//@[27:28) NewLine |\n|
 
 //@[00:00) EndOfFile ||

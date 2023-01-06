@@ -1,6 +1,6 @@
 @description('The foo type')
-//@[00:1120) ProgramSyntax
-//@[00:0298) ├─TypeDeclarationSyntax
+//@[00:1150) ProgramSyntax
+//@[00:0299) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
 //@[01:0028) | | └─FunctionCallSyntax
@@ -26,7 +26,7 @@ type foo = {
 //@[05:0008) | ├─IdentifierSyntax
 //@[05:0008) | | └─Token(Identifier) |foo|
 //@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0259) | └─ObjectTypeSyntax
+//@[11:0260) | └─ObjectTypeSyntax
 //@[11:0012) |   ├─Token(LeftBrace) |{|
 //@[12:0013) |   ├─Token(NewLine) |\n|
   @minLength(3)
@@ -76,11 +76,11 @@ type foo = {
 //@[20:0022) |   ├─Token(NewLine) |\n\n|
 
   objectProp: {
-//@[02:0088) |   ├─ObjectTypePropertySyntax
+//@[02:0089) |   ├─ObjectTypePropertySyntax
 //@[02:0012) |   | ├─IdentifierSyntax
 //@[02:0012) |   | | └─Token(Identifier) |objectProp|
 //@[12:0013) |   | ├─Token(Colon) |:|
-//@[14:0088) |   | └─ObjectTypeSyntax
+//@[14:0089) |   | └─ObjectTypeSyntax
 //@[14:0015) |   |   ├─Token(LeftBrace) |{|
 //@[15:0016) |   |   ├─Token(NewLine) |\n|
     @minValue(1)
@@ -105,24 +105,25 @@ type foo = {
 //@[13:0016) |   |   |     └─Token(Identifier) |int|
 //@[16:0018) |   |   ├─Token(NewLine) |\n\n|
 
-    intArrayArrayProp?: int [] []
-//@[04:0033) |   |   ├─ObjectTypePropertySyntax
+    intArrayArrayProp: int [] [] ?
+//@[04:0034) |   |   ├─ObjectTypePropertySyntax
 //@[04:0021) |   |   | ├─IdentifierSyntax
 //@[04:0021) |   |   | | └─Token(Identifier) |intArrayArrayProp|
-//@[21:0022) |   |   | ├─Token(Question) |?|
-//@[22:0023) |   |   | ├─Token(Colon) |:|
-//@[24:0033) |   |   | └─ArrayTypeSyntax
-//@[24:0030) |   |   |   ├─ArrayTypeMemberSyntax
-//@[24:0030) |   |   |   | └─ArrayTypeSyntax
-//@[24:0027) |   |   |   |   ├─ArrayTypeMemberSyntax
-//@[24:0027) |   |   |   |   | └─VariableAccessSyntax
-//@[24:0027) |   |   |   |   |   └─IdentifierSyntax
-//@[24:0027) |   |   |   |   |     └─Token(Identifier) |int|
-//@[28:0029) |   |   |   |   ├─Token(LeftSquare) |[|
-//@[29:0030) |   |   |   |   └─Token(RightSquare) |]|
-//@[31:0032) |   |   |   ├─Token(LeftSquare) |[|
-//@[32:0033) |   |   |   └─Token(RightSquare) |]|
-//@[33:0034) |   |   ├─Token(NewLine) |\n|
+//@[21:0022) |   |   | ├─Token(Colon) |:|
+//@[23:0034) |   |   | └─NullableTypeSyntax
+//@[23:0032) |   |   |   ├─ArrayTypeSyntax
+//@[23:0029) |   |   |   | ├─ArrayTypeMemberSyntax
+//@[23:0029) |   |   |   | | └─ArrayTypeSyntax
+//@[23:0026) |   |   |   | |   ├─ArrayTypeMemberSyntax
+//@[23:0026) |   |   |   | |   | └─VariableAccessSyntax
+//@[23:0026) |   |   |   | |   |   └─IdentifierSyntax
+//@[23:0026) |   |   |   | |   |     └─Token(Identifier) |int|
+//@[27:0028) |   |   |   | |   ├─Token(LeftSquare) |[|
+//@[28:0029) |   |   |   | |   └─Token(RightSquare) |]|
+//@[30:0031) |   |   |   | ├─Token(LeftSquare) |[|
+//@[31:0032) |   |   |   | └─Token(RightSquare) |]|
+//@[33:0034) |   |   |   └─Token(Question) |?|
+//@[34:0035) |   |   ├─Token(NewLine) |\n|
   }
 //@[02:0003) |   |   └─Token(RightBrace) |}|
 //@[03:0005) |   ├─Token(NewLine) |\n\n|
@@ -146,15 +147,16 @@ type foo = {
 //@[15:0024) |   |   └─Token(StringComplete) |'literal'|
 //@[24:0026) |   ├─Token(NewLine) |\n\n|
 
-  recursion?: foo
+  recursion: foo?
 //@[02:0017) |   ├─ObjectTypePropertySyntax
 //@[02:0011) |   | ├─IdentifierSyntax
 //@[02:0011) |   | | └─Token(Identifier) |recursion|
-//@[11:0012) |   | ├─Token(Question) |?|
-//@[12:0013) |   | ├─Token(Colon) |:|
-//@[14:0017) |   | └─VariableAccessSyntax
-//@[14:0017) |   |   └─IdentifierSyntax
-//@[14:0017) |   |     └─Token(Identifier) |foo|
+//@[11:0012) |   | ├─Token(Colon) |:|
+//@[13:0017) |   | └─NullableTypeSyntax
+//@[13:0016) |   |   ├─VariableAccessSyntax
+//@[13:0016) |   |   | └─IdentifierSyntax
+//@[13:0016) |   |   |   └─Token(Identifier) |foo|
+//@[16:0017) |   |   └─Token(Question) |?|
 //@[17:0018) |   ├─Token(NewLine) |\n|
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
@@ -656,6 +658,18 @@ type tuple = [
 //@[07:0008) |   ├─Token(NewLine) |\n|
 ]
 //@[00:0001) |   └─Token(RightSquare) |]|
-//@[01:0002) ├─Token(NewLine) |\n|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+param nullableParam string?
+//@[00:0027) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0019) | ├─IdentifierSyntax
+//@[06:0019) | | └─Token(Identifier) |nullableParam|
+//@[20:0027) | └─NullableTypeSyntax
+//@[20:0026) |   ├─VariableAccessSyntax
+//@[20:0026) |   | └─IdentifierSyntax
+//@[20:0026) |   |   └─Token(Identifier) |string|
+//@[26:0027) |   └─Token(Question) |?|
+//@[27:0028) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

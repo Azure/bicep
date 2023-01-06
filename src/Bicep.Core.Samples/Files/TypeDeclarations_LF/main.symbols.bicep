@@ -1,7 +1,7 @@
 @description('The foo type')
 @sealed()
 type foo = {
-//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
+//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? }>. Declaration start char: 0, length: 299
   @minLength(3)
   @maxLength(10)
   @description('A string property')
@@ -11,14 +11,14 @@ type foo = {
     @minValue(1)
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
 
   literalProp: 'literal'
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -73,4 +73,7 @@ type tuple = [
     @description('A second element using a type alias')
     bar
 ]
+
+param nullableParam string?
+//@[6:19) Parameter nullableParam. Type: null | string. Declaration start char: 0, length: 27
 

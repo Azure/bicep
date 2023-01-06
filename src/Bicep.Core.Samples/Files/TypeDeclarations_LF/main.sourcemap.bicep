@@ -4,12 +4,6 @@
 type foo = {
 //@    "foo": {
 //@      "type": "object",
-//@      "required": [
-//@        "stringProp",
-//@        "objectProp",
-//@        "typeRefProp",
-//@        "literalProp"
-//@      ],
 //@      "properties": {
 //@        "stringProp": {
 //@          "type": "string",
@@ -18,9 +12,6 @@ type foo = {
 //@        },
 //@        "objectProp": {
 //@          "type": "object",
-//@          "required": [
-//@            "intProp"
-//@          ],
 //@          "properties": {
 //@            "intProp": {
 //@              "type": "int",
@@ -32,7 +23,8 @@ type foo = {
 //@                "items": {
 //@                  "type": "int"
 //@                }
-//@              }
+//@              },
+//@              "nullable": true
 //@            }
 //@          }
 //@        },
@@ -45,7 +37,8 @@ type foo = {
 //@          ]
 //@        },
 //@        "recursion": {
-//@          "$ref": "#/definitions/foo"
+//@          "$ref": "#/definitions/foo",
+//@          "nullable": true
 //@        }
 //@      },
 //@      "sealed": true,
@@ -65,7 +58,7 @@ type foo = {
 //@              "minValue": 1
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
@@ -73,7 +66,7 @@ type foo = {
   literalProp: 'literal'
 //@            "literal"
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -200,11 +193,6 @@ type bool = string
 param inlineObjectParam {
 //@    "inlineObjectParam": {
 //@      "type": "object",
-//@      "required": [
-//@        "foo",
-//@        "bar",
-//@        "baz"
-//@      ],
 //@      "properties": {
 //@        "foo": {
 //@          "type": "string"
@@ -257,7 +245,7 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 param paramUsingType mixedArray
 //@    "paramUsingType": {
 //@      "$ref": "#/definitions/mixedArray"
-//@    }
+//@    },
 
 type tuple = [
 //@    "tuple": {
@@ -269,4 +257,10 @@ type tuple = [
     @description('A second element using a type alias')
     bar
 ]
+
+param nullableParam string?
+//@    "nullableParam": {
+//@      "type": "string",
+//@      "nullable": true
+//@    }
 

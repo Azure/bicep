@@ -82,7 +82,7 @@ type objectWithInvalidRecursion = {
 }
 
 type arrayWithInvalidMember = objectWithInvalidRecursion[]
-//@[5:27) TypeAlias arrayWithInvalidMember. Type: Type<error[]>. Declaration start char: 0, length: 58
+//@[5:27) TypeAlias arrayWithInvalidMember. Type: Type<objectWithInvalidRecursion[]>. Declaration start char: 0, length: 58
 
 @sealed()
 param sealedStringParam string

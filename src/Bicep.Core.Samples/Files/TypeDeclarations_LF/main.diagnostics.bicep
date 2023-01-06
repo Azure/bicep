@@ -10,14 +10,14 @@ type foo = {
     @minValue(1)
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
 
   literalProp: 'literal'
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -65,4 +65,7 @@ type tuple = [
     @description('A second element using a type alias')
     bar
 ]
+
+param nullableParam string?
+//@[6:19) [no-unused-params (Warning)] Parameter "nullableParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |nullableParam|
 
