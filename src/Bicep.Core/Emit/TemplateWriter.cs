@@ -126,7 +126,7 @@ namespace Bicep.Core.Emit
 
             if (context.Settings.EnableSymbolicNames)
             {
-                emitter.EmitProperty("languageVersion", "1.9-experimental");
+                emitter.EmitProperty("languageVersion", "1.10-experimental");
             }
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
@@ -276,6 +276,7 @@ namespace Bicep.Core.Emit
             UnaryOperationSyntax unaryOperation => GetTypePropertiesForUnaryOperationSyntax(unaryOperation),
             UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType),
             ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression),
+            NullableTypeSyntax nullableType => GetTypePropertiesForNullableTypeSyntax(nullableType),
             // this should have been caught by the parser
             _ => throw new ArgumentException("Invalid type syntax encountered."),
         };
@@ -376,7 +377,6 @@ namespace Bicep.Core.Emit
         private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax)
         {
             var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType) };
-            List<Expression> required = new();
             List<ObjectPropertyExpression> propertySchemata = new();
 
             foreach (var property in syntax.Properties)
@@ -387,20 +387,10 @@ namespace Bicep.Core.Emit
                     throw new ArgumentException("Invalid object type key encountered during serialization.");
                 }
 
-                if (property.OptionalityMarker is null)
-                {
-                    required.Add(ExpressionFactory.CreateStringLiteral(keyText));
-                }
-
                 var propertySchema = TypePropertiesForTypeExpression(property.Value);
                 propertySchema = AddDecoratorsToBody(property, propertySchema, context.SemanticModel.GetDeclaredType(property) ?? ErrorType.Empty());
 
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(keyText, propertySchema));
-            }
-
-            if (required.Any())
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("required", ExpressionFactory.CreateArray(required)));
             }
 
             if (propertySchemata.Any())
@@ -497,6 +487,10 @@ namespace Bicep.Core.Emit
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };
+
+        private ObjectExpression GetTypePropertiesForNullableTypeSyntax(NullableTypeSyntax syntax)
+            // the merge below is expected to cause test failures until Azure.Deployments.Templates is upgraded to >= 1.0.790
+            => TypePropertiesForTypeExpression(syntax.Base).MergeProperty("nullable", SyntaxFactory.CreateBooleanLiteral(true));
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
         {

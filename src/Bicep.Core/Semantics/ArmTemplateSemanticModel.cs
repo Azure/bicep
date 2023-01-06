@@ -362,21 +362,20 @@ namespace Bicep.Core.Semantics
             {
                 foreach (var (propertyName, schema) in propertySchemata)
                 {
-                    var required = schemaNode.Required?.Value.Contains(propertyName) ?? false;
-                    var flags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
+                    var flags = TypePropertyFlags.Required;
                     var description = GetMostSpecificDescription(schema);
 
                     if (schema.Ref?.Value is { } @ref)
                     {
                         var type = new DeferredTypeReference(() => templateTypeDefinitions.GetOrAdd(@ref, ResolveTypeReference));
                         properties.Add(new(propertyName, type, flags, description));
-                        nameBuilder.AppendProperty(propertyName, @ref.Replace("#/definitions", ""), isOptional: !required);
+                        nameBuilder.AppendProperty(propertyName, @ref.Replace("#/definitions", ""));
                     }
                     else
                     {
                         var type = GetType(schema);
                         properties.Add(new(propertyName, type, flags, description));
-                        nameBuilder.AppendProperty(propertyName, type.Name, isOptional: !required);
+                        nameBuilder.AppendProperty(propertyName, type.Name);
                     }
                 }
             }

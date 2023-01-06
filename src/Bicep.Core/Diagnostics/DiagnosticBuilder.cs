@@ -1801,6 +1801,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP315",
                 "Expected a type identifier at this location.");
+
+            public ErrorDiagnostic NullableTypesUnsupported() => new(
+                TextSpan,
+                "BCP316",
+                $@"Using nullable types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

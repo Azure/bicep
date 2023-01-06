@@ -14,7 +14,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -1343,7 +1342,6 @@ type b = 'pop'
             var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
-            completions.Should().NotContain(x => x.Label == "a");
         }
 
         [TestMethod]
@@ -1404,31 +1402,15 @@ type a = 'fizz'|'buzz'|ǂ
         }
 
         [TestMethod]
-        public async Task ObjectTypePropertyCompletionsShouldNotIncludeCyclicReferences()
+        public async Task UnaryOperationTypeCompletionsShouldNotIncludeCyclicReferences()
         {
             var fileWithCursors = @"
-type a = {
-    requiredAndRecursive: ǂ
-}
+type a = -ǂ
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
             var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().NotContain(x => x.Label == "a");
-        }
-
-        [TestMethod]
-        public async Task OptionalObjectTypePropertyCompletionsShouldIncludeRecursiveReferences()
-        {
-            var fileWithCursors = @"
-type a = {
-    optionalAndRecursive?: ǂ
-}
-";
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
-            var completions = await file.RequestCompletion(cursor);
-            completions.Should().Contain(x => x.Label == "a");
         }
 
         [TestMethod]

@@ -138,7 +138,6 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Key);
-            this.Visit(syntax.OptionalityMarker);
             this.Visit(syntax.Colon);
             this.Visit(syntax.Value);
         }
@@ -185,6 +184,12 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
+        }
+
+        public override void VisitNullableTypeSyntax(NullableTypeSyntax syntax)
+        {
+            this.Visit(syntax.Base);
+            this.Visit(syntax.NullabilityMarker);
         }
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)

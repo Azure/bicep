@@ -61,6 +61,15 @@ param oneOfSeveralStrings 'this one'|'that one'|'perhaps this one instead'
     }
 
     [TestMethod]
+    public void Nullable_types_are_disabled_unless_feature_is_enabled()
+    {
+        var result = CompilationHelper.Compile(@"
+param nullableString string?
+");
+        result.Should().ContainDiagnostic("BCP316", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+    }
+
+    [TestMethod]
     public void Namespaces_cannot_be_used_as_types()
     {
         var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -219,7 +228,7 @@ type anObject = {
 
         var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 type anObject = {
-    recur?: {foo: 'bar'}|anObject
+    recur: {foo: 'bar'}|anObject?
 }
 ");
 
@@ -242,13 +251,13 @@ type anObject = {
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
-        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfUnaryOperationSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 type anObject = {
-    recur?: !anObject
+    recur: !anObject?
 }
 ");
 
-        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
+        blockedBecauseOfUnaryOperationSemantics.Should().HaveDiagnostics(new[] {
             ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
         });
     }
@@ -267,13 +276,37 @@ type anObject = {
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
-        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 type anObject = {
-    recur?: anObject[]
+    recur: (anObject?)[]
 }
 ");
 
-        blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anArray = (anArray?)[]
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anArray = anArray[]?
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Cyclic_nullables_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type nullable = nullable?
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+        });
     }
 
     [TestMethod]
@@ -281,7 +314,7 @@ type anObject = {
     {
         var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 type anObject = {
-    recurEventually: [anObject]
+    recur: [anObject]
 }
 ");
 
@@ -290,13 +323,33 @@ type anObject = {
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
-        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 type anObject = {
-    recur?: [anObject]
+    recur: [anObject]?
 }
 ");
 
-        blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur: [anObject?]
+}
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type aTuple = [aTuple?]
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type aTuple = [aTuple]?
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -315,15 +368,35 @@ type anObject = {
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
-        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 type anObject = {
-    recurEventually?: {
-        recurNow: anObject
+    recurEventually: {
+        recurNow: anObject?
     }
 }
 ");
 
-        blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: {
+        recurNow: anObject
+    }?
+}
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
+
+        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: {
+        recurNow: anObject
+    }
+}?
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]

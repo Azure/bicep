@@ -268,6 +268,7 @@ namespace Bicep.Core.TypeSystem
                 UnionTypeSyntax unionType => GetDeclaredTypeAssignment(unionType)?.Reference,
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
+                NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
                 _ => null
             };
         }
@@ -332,26 +333,19 @@ namespace Bicep.Core.TypeSystem
             return signifiedType;
         });
 
-        private ITypeReference ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
             }
 
-            if (RequiresDeferral(syntax))
-            {
-                return new DeferredTypeReference(() => FinalizeArrayType(syntax));
-            }
+            var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
+            var flags = TypeSymbolValidationFlags.Default;
 
-            return FinalizeArrayType(syntax);
-        }
-
-        private TypeSymbol FinalizeArrayType(ArrayTypeSyntax syntax)
-        {
-            var memberType = GetDeclaredType(syntax.Item) ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
-
-            return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
+            return memberType is DeferredTypeReference
+                ? new TypedArrayType(syntax.ToText(), memberType, flags)
+                : new TypedArrayType(memberType, flags);
         }
 
         private TypeSymbol GetObjectTypeType(ObjectTypeSyntax syntax)
@@ -372,9 +366,8 @@ namespace Bicep.Core.TypeSystem
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
-                    var propertyFlags = prop.OptionalityMarker is null ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                    properties.Add(new(propertyName, propertyType, propertyFlags, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
-                    nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType), prop.OptionalityMarker is not null);
+                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
+                    nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 } else
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).NonConstantTypeProperty());
@@ -531,9 +524,8 @@ namespace Bicep.Core.TypeSystem
 
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
         {
-            ArrayTypeSyntax arrayType => RequiresDeferral(arrayType.Item.Value),
             ParenthesizedExpressionSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
-            TupleTypeSyntax tupleType => tupleType.Items.Any(i => RequiresDeferral(i.Value)),
+            NullableTypeSyntax nullableType => RequiresDeferral(nullableType.Base),
             UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
             UnionTypeSyntax unionType => unionType.Members.Any(m => RequiresDeferral(m.Value)),
             VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol => true,
@@ -696,6 +688,26 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbol otherwise => otherwise,
             };
         }
+
+        private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NullableTypesUnsupported());
+            }
+
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Base, allowNamespaceReferences: false);
+
+            return baseExpressionType is DeferredTypeReference
+                ? new DeferredTypeReference(() => FinalizeNullableType(baseExpressionType))
+                : FinalizeNullableType(baseExpressionType);
+        }
+
+        private TypeSymbol FinalizeNullableType(ITypeReference baseType) => baseType.Type switch
+        {
+            ErrorType errorType => errorType,
+            TypeSymbol otherwise => TypeHelper.CreateTypeUnion(otherwise, LanguageConstants.Null)
+        };
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {

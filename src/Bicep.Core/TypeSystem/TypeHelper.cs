@@ -132,7 +132,7 @@ namespace Bicep.Core.TypeSystem
                 if (TryCreateTypeLiteral(prop.Value) is TypeSymbol propType)
                 {
                     convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required | TypePropertyFlags.DisallowAny));
-                    nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
+                    nameBuilder.AppendProperty(prop.Name, propType.Name);
                 }
                 else
                 {

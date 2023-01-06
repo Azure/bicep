@@ -300,8 +300,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectTypePropertyValue))
             {
-                var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
-                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
+                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.UnionTypeMember))
@@ -349,13 +348,14 @@ namespace Bicep.LanguageServer.Completions
             || syntax is IntegerLiteralSyntax
             || (syntax is StringSyntax @string && @string.TryGetLiteralValue() is string literal)
             || syntax is UnionTypeSyntax
-            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => p.OptionalityMarker is null && IsTypeLiteralSyntax(p.Value)));
+            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => IsTypeLiteralSyntax(p.Value)))
+            || (syntax is TupleTypeSyntax tupleType && tupleType.Items.All(i => IsTypeLiteralSyntax(i.Value)));
 
         private static StatementSyntax? CyclableTypeEnclosingDeclaration(IBinder binder, SyntaxBase? syntax) => syntax switch
         {
             StatementSyntax statement => statement,
-            // Optional object properties are allowed to point to an ancestor in the syntax tree
-            ObjectTypePropertySyntax objectTypeProperty when objectTypeProperty.OptionalityMarker is not null => null,
+            // Aggregate types have special rules around cycles and nullability. Stop looking for cycles if you hit one while climbing the syntax hierarchy for a given type declaration
+            ArrayTypeMemberSyntax or ObjectTypePropertySyntax or TupleTypeItemSyntax => null,
             SyntaxBase otherwise => CyclableTypeEnclosingDeclaration(binder, binder.GetParent(otherwise)),
             null => null,
         };

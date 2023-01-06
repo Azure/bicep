@@ -28,6 +28,8 @@ namespace Bicep.Core.Syntax
 
         void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
+        void VisitNullableTypeSyntax(NullableTypeSyntax syntax);
+
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
 
         void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax);

@@ -170,6 +170,11 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitNullableTypeSyntax(NullableTypeSyntax syntax)
+        {
+            this.Visit(syntax.Base);
+        }
+
         public override void VisitStringSyntax(StringSyntax syntax)
         {
             for (var i = 0; i < syntax.Expressions.Length; i++)

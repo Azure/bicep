@@ -13,7 +13,7 @@ internal class ObjectTypeNameBuilder
     private bool hasProperties = false;
     private bool finalized = false;
 
-    internal void AppendProperty(string propertyName, string propertyValue, bool isOptional)
+    internal void AppendProperty(string propertyName, string propertyValue)
     {
         if (finalized)
         {
@@ -36,11 +36,6 @@ internal class ObjectTypeNameBuilder
             builder.Append('\'');
             builder.Append(StringUtils.EscapeBicepString(propertyName));
             builder.Append('\'');
-        }
-
-        if (isOptional)
-        {
-            builder.Append('?');
         }
 
         builder.Append(": ");

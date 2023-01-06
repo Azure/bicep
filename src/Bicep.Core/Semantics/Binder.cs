@@ -26,7 +26,7 @@ namespace Bicep.Core.Semantics
             var uniqueDeclarations = GetUniqueDeclarations(declarations);
             this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, this.TargetScope, uniqueDeclarations);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
-            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
+            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, sourceFile.Hierarchy, this.Bindings);
 
             this.FileSymbol = new FileSymbol(
                 symbolContext,

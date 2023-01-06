@@ -1327,11 +1327,10 @@ namespace Bicep.Core.Parsing
                 RecoveryFlags.None,
                 TokenType.Colon, TokenType.NewLine, TokenType.RightBrace);
 
-            Token? optionalityMarker = Check(reader.Peek(), TokenType.Question) ? reader.Read() : default;
-            var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(optionalityMarker ?? key), TokenType.NewLine, TokenType.RightBrace);
+            var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine, TokenType.RightBrace);
             var value = this.WithRecovery(TypeExpression, GetSuppressionFlag(colon), TokenType.NewLine, TokenType.RightBrace);
 
-            return new ObjectTypePropertySyntax(leadingNodes, key, optionalityMarker, colon, value);
+            return new ObjectTypePropertySyntax(leadingNodes, key, colon, value);
         }
 
         private TupleTypeSyntax TupleType()
@@ -1448,6 +1447,18 @@ namespace Bicep.Core.Parsing
         }
 
         private SyntaxBase UnaryTypeExpression()
+        {
+            var candidate = UnaryTypeBaseExpression();
+
+            if (Check(TokenType.Question))
+            {
+                return new NullableTypeSyntax(candidate, Expect(TokenType.Question, b => b.ExpectedCharacter("?")));
+            }
+
+            return candidate;
+        }
+
+        private SyntaxBase UnaryTypeBaseExpression()
         {
             Token operatorToken = this.reader.Peek();
 
