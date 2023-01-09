@@ -660,7 +660,7 @@ param storageAccountName string = 'test'";
         private (MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) GetTestConfig()
         {
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             return (diagsListener, testOutputPath);
         }

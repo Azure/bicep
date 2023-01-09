@@ -200,7 +200,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private async Task ChangeLinterRuleState(Mock<ITelemetryProvider> telemetryProvider, string prevBicepConfigFileContents, string curBicepConfigFileContents)
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigFileContents, testOutputPath);
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();

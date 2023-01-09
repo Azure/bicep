@@ -55,9 +55,9 @@
       },
       "MSTest.TestFramework": {
         "type": "Direct",
-        "requested": "[2.2.10, )",
-        "resolved": "2.2.10",
-        "contentHash": "JZRVXKq19uRhkj8MuzsU8zJhPV2JV3ZToFPAIg+BU53L1L9mNDfm9jXerdRfbrE4HBcf2M54Ij80zPOdlha3+Q=="
+        "requested": "[3.0.2, )",
+        "resolved": "3.0.2",
+        "contentHash": "cuCE5PXK0mX0FIfY3yzDNKFqCf2FTxZhdH/Bxg4662MAWZg4TnG3rYsFzNpPECrvn8Ry6lG8TaT2Ltg1NZkC6Q=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
@@ -2050,7 +2050,7 @@
           "FluentAssertions": "[6.8.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest.TestAdapter": "[2.2.10, )",
-          "MSTest.TestFramework": "[2.2.10, )",
+          "MSTest.TestFramework": "[3.0.2, )",
           "Microsoft.NET.Test.Sdk": "[17.3.2, )",
           "Moq": "[4.18.2, )",
           "System.IO.Abstractions.TestingHelpers": "[19.0.1, )"

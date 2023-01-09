@@ -59,5 +59,5 @@ public class FeatureProviderTests
         subDirFeatures.ExtensibilityEnabled.Should().BeTrue();
     }
 
-    private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory, path.Replace('/', Path.DirectorySeparatorChar));
+    private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory!, path.Replace('/', Path.DirectorySeparatorChar));
 }

@@ -58,7 +58,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             int endCharacter,
             bool clientSupportShowDocumentRequestAndWorkspaceFolders = true)
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
 

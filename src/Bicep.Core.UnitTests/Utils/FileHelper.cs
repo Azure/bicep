@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Utils
     public static class FileHelper
     {
         public static string GetUniqueTestOutputPath(TestContext testContext)
-            => Path.Combine(testContext.ResultsDirectory, Guid.NewGuid().ToString());
+            => Path.Combine(testContext.ResultsDirectory!, Guid.NewGuid().ToString());
 
         public static string GetResultFilePath(TestContext testContext, string fileName, string? testOutputPath = null)
         {
