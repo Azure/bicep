@@ -428,4 +428,17 @@ param anotherObject object = {prop: 'someVal'}
             ("BCP037", DiagnosticLevel.Warning, "The property \"prop\" is not allowed on objects of type \"{ }\". No other properties are allowed."),
         });
     }
+
+    [TestMethod]
+    public void Error_should_be_emitted_when_setting_a_default_value_on_a_nullable_parameter()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param myParam string? = 'foo'
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP317", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+        });
+    }
 }

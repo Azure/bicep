@@ -378,6 +378,11 @@ namespace Bicep.Core.TypeSystem
                 if (syntax.Modifier != null)
                 {
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
+
+                    if (TypeValidator.AreTypesAssignable(LanguageConstants.Null, declaredType))
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Modifier).NullableTypedParamsMayNotHaveDefaultValues());
+                    }
                 }
 
                 if (declaredType is ErrorType)

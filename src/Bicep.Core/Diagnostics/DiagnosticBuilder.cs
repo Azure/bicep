@@ -1806,6 +1806,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP316",
                 $@"Using nullable types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
+
+            public ErrorDiagnostic NullableTypedParamsMayNotHaveDefaultValues() => new(
+                TextSpan,
+                "BCP317",
+                "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
