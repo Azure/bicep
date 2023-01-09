@@ -956,27 +956,21 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics =>
-            {
-                var errors = new List<ErrorDiagnostic>();
+            => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
-                CollectErrors(errors, baseType);
-
-                var indexType = typeManager.GetTypeInfo(syntax.IndexExpression);
-                CollectErrors(errors, indexType);
-
-                if (PropagateErrorType(errors, baseType, indexType))
-                {
-                    return ErrorType.Create(errors);
-                }
-
-                baseType = UnwrapType(baseType);
-                return GetArrayItemType(syntax, diagnostics, baseType, indexType);
-            });
-
-        private static ITypeReference GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
+        private static TypeSymbol GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
         {
+            var errors = new List<ErrorDiagnostic>();
+            CollectErrors(errors, baseType);
+            CollectErrors(errors, indexType);
+
+            if (PropagateErrorType(errors, baseType, indexType))
+            {
+                return ErrorType.Create(errors);
+            }
+
+            baseType = UnwrapType(baseType);
+
             switch (baseType)
             {
                 case AnyType:
@@ -995,7 +989,16 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // index was of the wrong type
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.SafeAccessMarker is not null);
+
+                //case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
+                //    return integerLiteralIndex.Value switch
+                //    {
+                //        < 0 => ErrorType.Empty(), // FIXME: new diagnostic: Negative indexes not allowed
+                //        > int.MaxValue => ErrorType.Empty(), // FIXME: new diagnostic: Tuple has no item at index X
+                //        long idx when idx >= baseTuple.Items.Length => ErrorType.Empty(), // FIXME: new diagnostic: Tuple has no item at index X
+                //        long validIndex => baseTuple.Items[(int)validIndex].Type,
+                //    };
 
                 case ArrayType baseArray:
                     // we are indexing over an array
@@ -1006,7 +1009,7 @@ namespace Bicep.Core.TypeSystem
                         return baseArray.Item.Type;
                     }
 
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
 
                 case ObjectType baseObject:
                     {
@@ -1031,7 +1034,7 @@ namespace Bicep.Core.TypeSystem
                             }
                         }
 
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
+                        return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
                     }
 
                 case DiscriminatedObjectType:
@@ -1043,7 +1046,7 @@ namespace Bicep.Core.TypeSystem
                         return LanguageConstants.Any;
                     }
 
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
 
                 case UnionType unionType:
                     {
@@ -1065,51 +1068,106 @@ namespace Bicep.Core.TypeSystem
 
                 default:
                     // base expression was of the wrong type
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType), diagnostics, syntax.SafeAccessMarker is not null);
             }
         }
 
-        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+        private static TypeSymbol InvalidAccessExpression(ErrorDiagnostic error, IDiagnosticWriter diagnostics, bool safeAccess)
+        {
+            if (safeAccess)
             {
-                var errors = new List<ErrorDiagnostic>();
+                diagnostics.Write(new Diagnostic(error.Span, DiagnosticLevel.Warning, error.Code, error.Message, error.Uri, error.Styling, error.Source));
+                return LanguageConstants.Null;
+            }
+            return ErrorType.Create(error);
+        }
 
-                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
-                CollectErrors(errors, baseType);
+        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-                if (PropagateErrorType(errors, baseType))
+        private static TypeSymbol GetPropertyType(PropertyAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType)
+        {
+            baseType = UnwrapType(baseType);
+
+            switch (baseType)
+            {
+                case ErrorType:
+                    return baseType;
+                case TypeSymbol _ when baseType.GetDiagnostics().Any():
+                    return ErrorType.Create(baseType.GetDiagnostics());
+                case ObjectType objectType:
+                    if (!syntax.PropertyName.IsValid)
+                    {
+                        // the property is not valid
+                        // there's already a parse error for it, so we don't need to add a type error as well
+                        return ErrorType.Empty();
+                    }
+
+                    return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, syntax.SafeAccessMarker is not null || TypeValidator.ShouldWarn(objectType), diagnostics);
+
+                case DiscriminatedObjectType _:
+                    // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
+                    return LanguageConstants.Any;
+
+                case TypeSymbol _ when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object):
+                    // We can assign to an object, but we don't have a type for that object.
+                    // The best we can do is allow it and return the 'any' type.
+                    return LanguageConstants.Any;
+
+                default:
+                    // can only access properties of objects
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType), diagnostics, syntax.SafeAccessMarker is not null);
+            }
+        }
+
+        private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
+        {
+            Stack<AccessExpressionSyntax> chainedAccesses = new();
+            chainedAccesses.Push(syntax);
+
+            while (chainedAccesses.TryPeek(out var current) && current.SafeAccessMarker is null && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
+            {
+                chainedAccesses.Push(baseAccessExpression);
+            }
+
+            var baseType = typeManager.GetTypeInfo(chainedAccesses.Peek().BaseExpression);
+
+            var nullVariantRemoved = false;
+            AccessExpressionSyntax? prevAccess = null;
+            while (chainedAccesses.TryPop(out var nextAccess))
+            {
+                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
                 {
-                    return ErrorType.Create(errors);
+                    // if the first access definitely returns null, short-circuit the whole chain
+                    if (ReferenceEquals(baseType, LanguageConstants.Null))
+                    {
+                        return baseType;
+                    }
+
+                    // if the first access might return null, evaluate the rest of the chain as if it does not return null, the create a union of the result and null
+                    if (baseType is UnionType baseUnion &&
+                        baseUnion.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is { } sansNull &&
+                        sansNull.Length < baseUnion.Members.Length)
+                    {
+                        nullVariantRemoved = true;
+                        baseType = TypeHelper.CreateTypeUnion(sansNull);
+                    }
                 }
 
-                baseType = UnwrapType(baseType);
-
-                switch (baseType)
+                baseType = nextAccess switch
                 {
-                    case ObjectType objectType:
-                        if (!syntax.PropertyName.IsValid)
-                        {
-                            // the property is not valid
-                            // there's already a parse error for it, so we don't need to add a type error as well
-                            return ErrorType.Empty();
-                        }
+                    ArrayAccessSyntax arrayAccess => GetArrayItemType(arrayAccess, diagnostics, baseType, typeManager.GetTypeInfo(arrayAccess.IndexExpression)),
+                    PropertyAccessSyntax propertyAccess => GetPropertyType(propertyAccess, diagnostics, baseType),
+                    _ => throw new InvalidOperationException("Unrecognized access syntax"),
+                };
 
-                        return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, TypeValidator.ShouldWarn(objectType), diagnostics);
+                prevAccess = nextAccess;
+            }
 
-                    case DiscriminatedObjectType _:
-                        // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-                        return LanguageConstants.Any;
-
-                    case TypeSymbol _ when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object):
-                        // We can assign to an object, but we don't have a type for that object.
-                        // The best we can do is allow it and return the 'any' type.
-                        return LanguageConstants.Any;
-
-                    default:
-                        // can only access properties of objects
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
-                }
-            });
+            return nullVariantRemoved
+                ? TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null)
+                : baseType;
+        }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>

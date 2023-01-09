@@ -15,6 +15,8 @@ public class SafeDereferenceTests
 {
     private ServiceBuilder ServicesWithResourceTypedParamsAndOutputsEnabled => new ServiceBuilder()
         .WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
+    private ServiceBuilder ServicesWithUserDefinedTypes => new ServiceBuilder()
+        .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
 
     [NotNull]
     public TestContext? TestContext { get; set; }
@@ -156,5 +158,30 @@ output outputData object = {
         compiledOutputData!["nestedProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.outputData.value.nested.key]");
         compiledOutputData!["maybeNestedProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.outputData.value, 'nested', 'key')]");
         compiledOutputData!["maybeOutputNestedProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs, 'outputData', 'value', 'nested', 'key')]");
+    }
+
+    [TestMethod]
+    public void Access_chains_consider_safe_dereference_in_type_assignment()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(1)
+param foo (null
+  | {
+      nested: {
+        deeplyNested: 'value'
+      }
+    })[]
+
+output topLevel object = foo[0]
+output nested object = foo[0].?nested
+output nestedAlt object = foo[?0].nested
+output deeplyNested string = foo[0].?nested.deeplyNested
+");
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"object\" but the provided value is of type \"null | { nested: { deeplyNested: 'value' } }\"."),
+            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
+            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
+            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"string\" but the provided value is of type \"'value' | null\"."),
+        });
     }
 }
