@@ -226,7 +226,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         private async Task VerifyCodeActionIsAvailableToSuppressLinterDiagnostics(string bicepConfigFileContents)
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);

@@ -35,9 +35,9 @@ public sealed class EmbeddedFilesTestDataAttribute : Attribute, ITestDataSource
         return files.Select(x => new object[] { x });
     }
 
-    public string GetDisplayName(MethodInfo methodInfo, object[] data)
+    public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
     {
-        var file = (data[0] as EmbeddedFile)!;
+        var file = (data?[0] as EmbeddedFile)!;
 
         return $"{methodInfo.Name}({file.StreamPath})";
     }

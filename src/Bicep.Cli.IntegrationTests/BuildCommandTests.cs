@@ -432,7 +432,7 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithEmptyBicepConfig_ShouldProduceConfigurationError()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
             var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", string.Empty, testOutputPath);
 
@@ -446,7 +446,7 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithInvalidBicepConfig_ShouldProduceConfigurationError()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
             var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
   ""analyzers"": {
@@ -468,7 +468,7 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
             FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
   ""analyzers"": {

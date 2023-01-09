@@ -44,9 +44,9 @@ namespace Bicep.Core.Samples
                 return data.Select(x => new object[] { x });
             }
 
-            public string GetDisplayName(MethodInfo methodInfo, object[] data)
+            public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
             {
-                var baselineData = (data[0] as BaselineData_Bicepparam)!;
+                var baselineData = (data?[0] as BaselineData_Bicepparam)!;
 
                 return $"{methodInfo.Name}({baselineData.paramsFile.StreamPath})";
             }

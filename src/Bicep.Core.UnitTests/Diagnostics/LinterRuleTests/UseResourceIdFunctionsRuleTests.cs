@@ -66,7 +66,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ]
               }
             }",
-            new object[]
+            new string[]
             {
                 // TTK result:
                 // Property: "id" must use one of the following expressions for an resourceId property:
@@ -108,7 +108,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ]
               }
             }",
-            new object[]
+            new string[]
             {
                 "[24:31] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 "[7:21] If property \"firstId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
                 "[13:23] If property \"secondId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
             param id string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${'NSGName'}'
             ",
-            new object[]
+            new string[]
             {
             // pass
             },
@@ -151,7 +151,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${'NSGName'}'
                   }
                 }   ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -163,7 +163,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${'NSGName'}'
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -176,7 +176,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${'NSGName'}'
                   }
                 }",
-            new object[]
+            new string[]
             {
                  // pass
                  "[2:27] This module references itself, which is not allowed."
@@ -192,7 +192,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     id: 'my/id'
                   }
                 }",
-            new object[]
+            new string[]
             {
                 "[7:21] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -244,7 +244,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           }
                         }
                     ",
-                    new object[]
+                    new string[]
                     {
                         // Pass
                     },
@@ -261,7 +261,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // TTK complains, but Bicep will show an error for type mismatch, so we'll all values that aren't string
                 // pass
@@ -281,7 +281,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // TTK result:
                 // Property: "resourceId" must use one of the following expressions for an resourceId property:
@@ -304,7 +304,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     failId: 'this is not excluded from verification/should fail' // this should fail
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // TTK result:
                 // Property: "id" must use one of the following expressions for an resourceId property:
@@ -323,7 +323,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // TTK fails on this:
                 //
@@ -349,7 +349,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 "[6:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -364,7 +364,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 "[6:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -392,7 +392,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 "[19:23] If property \"slashesFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at slashesFailId -> slashes2 -> slashes"
             },
@@ -424,7 +424,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // pass - all parameters are acceptable regardless of default value
             },
@@ -441,7 +441,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 SOMEONES_ID: concat('495f6d91-cceb-4916-bf29-c07bea002443')
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -472,7 +472,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
             ",
-            new object[]
+            new string[]
             {
                 "[20:17] If property \"keyVaultShouldFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at keyVaultShouldFailId -> existingKeyVaultId",
             },
@@ -518,7 +518,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -538,7 +538,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 protocol: 'http'
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -570,7 +570,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ]
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -730,7 +730,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -759,7 +759,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -853,7 +853,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
 ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -879,7 +879,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -896,7 +896,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 guId: 'abc/def'   // fail
               }
             }",
-            new object[]
+            new string[]
             {
                 // guId: 'abc/def'   // not considered "guid", fail
                 "[9:17] If property \"guId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
@@ -912,7 +912,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 id: idValue
               }
             }",
-            new object[]
+            new string[]
             {
                 "[7:17] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at id -> idValue",
             },
@@ -928,7 +928,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 id: idValue2
               }
             }",
-            new object[]
+            new string[]
             {
                 "[8:17] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at id -> idValue2 -> idValue",
             },
@@ -945,7 +945,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }"
         ,
-        new object[]
+        new string[]
         {
         },
             DisplayName = "resolved variable double - passing")]
@@ -964,7 +964,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 fourthId: idValue4
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -981,7 +981,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 id: p4
               }
             }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -999,7 +999,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }"
         ,
-        new object[]
+        new string[]
         {
             // pass
             },
@@ -1026,7 +1026,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
               }
             }",
-            new object[]
+            new string[]
             {
                 "[16:19] If property \"fail2id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. Found nonconforming expression at fail2id -> appGatewayBackendPool",
             },
@@ -1042,7 +1042,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     id: v3
                   }
                 }",
-                new object[]
+                new string[]
                 {
                     "[2:26] The expression is involved in a cycle (\"v3\" -> \"v2\" -> \"v1\").",
                     "[3:26] The expression is involved in a cycle (\"v1\" -> \"v3\" -> \"v2\").",
@@ -1073,7 +1073,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                 }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1089,7 +1089,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }
                ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1102,7 +1102,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }"
             ,
-            new object[]
+            new string[]
             {
                 "[5:21] If property \"resourceId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -1123,7 +1123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1143,7 +1143,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     name: 'Premium_LRS'
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1165,7 +1165,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     name: 'Premium_LRS'
                   }
                 }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1265,7 +1265,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }
                 ",
-            new object[]
+            new string[]
             {
                 // TTK results:
                 // [-] IDs Should Be Derived From ResourceIDs
@@ -1287,7 +1287,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }
             ",
-            new object[]
+            new string[]
             {
                 "[5:21] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -1300,7 +1300,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }]
             ",
-            new object[]
+            new string[]
             {
                 "[5:21] If property \"failid\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -1331,7 +1331,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }"
             ,
-            new object[]
+            new string[]
             {
             "[19:173] The name \"NSGName\" does not exist in the current context."
             },
@@ -1472,7 +1472,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1613,7 +1613,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -1637,10 +1637,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   }
                 }]
             ",
+            new string[]
+            {
+                // pass
+            },
             DisplayName = "Regress #8424"
         )]
         [DataTestMethod]
-        public void Test(string text, params string[] expectedMessages)
+        public void Test(string text, string[] expectedMessages)
         {
             CompileAndTest(text, expectedMessages);
         }

@@ -142,7 +142,7 @@ param accountName string = 'testAccount'
         [TestMethod]
         public async Task Handle_WhenCompiledFileAlreadyExists_ReturnsBuildFailedMessage()
         {
-            string outputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, outputPath);
             FileHelper.SaveResultFile(TestContext, "input.json", string.Empty, outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
@@ -156,7 +156,7 @@ param accountName string = 'testAccount'
         [TestMethod]
         public async Task Handle_WhenCompiledFileAlreadyExistsAndIsMalformed_ReturnsBuildFailedMessage()
         {
-            string outputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, outputPath);
             FileHelper.SaveResultFile(TestContext, "input.json", "invalid json", outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);

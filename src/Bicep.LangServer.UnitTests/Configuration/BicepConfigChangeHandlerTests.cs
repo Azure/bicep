@@ -230,7 +230,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
 
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var workspace = new Workspace();

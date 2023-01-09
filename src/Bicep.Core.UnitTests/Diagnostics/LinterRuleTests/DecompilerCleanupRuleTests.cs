@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             @"
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                   kind: 'ServiceCatalog'
                 }",
-            new object[]
+            new string[]
             {
                 "applicationName_resource"
             },
@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                   kind: 'ServiceCatalog'
                 }",
-            new object[]
+            new string[]
             {
                 // pass (
             },
@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                   kind: 'ServiceCatalog'
                 }",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -63,7 +63,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 param applicationName2_Resource string = 'pass'
                 output applicationName3_Resource string = 'pass'
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -125,7 +125,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   name: 'rule3'
                 }
             ",
-            new object[]
+            new string[]
             {
                 "namespace1_resource",
                 "namespace1_queue1_resource",
@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "namespace2_queue1_rule3_resource",
             },
             DisplayName = "nested resources")]
-        public void ResourceNameFluff(string bicep, params string[] expectedFailingResourceNames)
+        public void ResourceNameFluff(string bicep, string[] expectedFailingResourceNames)
         {
             AssertLinterRuleDiagnostics(
                 DecompilerCleanupRule.Code,
@@ -155,7 +155,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             @"
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -171,7 +171,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                 }
             ",
-            new object[]
+            new string[]
             {
                 "hostpoolName_var",
                 "appGroupName_var",
@@ -182,7 +182,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var hostpoolName = 'Olympic'
                 var hostpoolName_Var = replace(hostpoolName, '""', '')
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -192,7 +192,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var hostpoolName = 'billiards'
                 var hostpoolName_variable = replace(hostpoolName, '""', '')
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -202,7 +202,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var hostpoolName = 'car'
                 var _var = replace(hostpoolName, '""', '')
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -216,12 +216,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                 }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
             DisplayName = "_var passes for non-variable names")]
-        public void VariableNameFluff(string bicep, params string[] expectedFailingResourceNames)
+        public void VariableNameFluff(string bicep, string[] expectedFailingResourceNames)
         {
             AssertLinterRuleDiagnostics(
                 DecompilerCleanupRule.Code,
@@ -236,7 +236,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             @"
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -252,7 +252,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                 }
             ",
-            new object[]
+            new string[]
             {
                 "hostpoolName_var",
                 "appGroupName_var",
@@ -263,7 +263,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var hostpoolName = 'Olympic'
                 var hostpoolName_Var = replace(hostpoolName, '""', '')
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -273,7 +273,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var hostpoolName = 'billiards'
                 var hostpoolName_variable = replace(hostpoolName, '""', '')
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -283,7 +283,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var hostpoolName = 'car'
                 var _var = replace(hostpoolName, '""', '')
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
@@ -297,12 +297,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   location: 'location'
                 }
             ",
-            new object[]
+            new string[]
             {
                 // pass
             },
             DisplayName = "_var passes for non-variable names")]
-        public void ParameterNameFluff(string bicep, params string[] expectedFailingResourceNames)
+        public void ParameterNameFluff(string bicep, string[] expectedFailingResourceNames)
         {
             AssertLinterRuleDiagnostics(
                 DecompilerCleanupRule.Code,

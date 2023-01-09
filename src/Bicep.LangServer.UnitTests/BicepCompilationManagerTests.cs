@@ -301,7 +301,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), BicepCompilationManagerHelper.CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
 
-            var uri = DocumentUri.File(this.TestContext.TestName);
+            var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
 
             manager.GetCompilation(uri).Should().BeNull();
         }
@@ -316,7 +316,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), BicepCompilationManagerHelper.CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
 
-            var uri = DocumentUri.File(this.TestContext.TestName);
+            var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
 
             manager.CloseCompilation(uri);
 
@@ -696,7 +696,7 @@ module moduleB './moduleB.bicep' = {
   }
 }";
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
 
@@ -748,7 +748,7 @@ module moduleB './moduleB.bicep' = {
   }
 }";
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
 
@@ -771,7 +771,7 @@ module moduleB './moduleB.bicep' = {
 
             var bicepConfigFileContents = @"{}";
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
 
@@ -816,7 +816,7 @@ resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
 }
 
 param location string = 'testLocation'";
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(bicepFilePath).ToUri();
 
@@ -867,17 +867,17 @@ param location string = 'testLocation'";
 
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
-            var uri = DocumentUri.File(this.TestContext.TestName);
+            var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
             var workspace = new Workspace();
 
             return new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, BicepCompilationManagerHelper.CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
         }
 
-        private DocumentUri CreateUri(string languageId) => DocumentUri.File(this.TestContext.TestName + languageId switch
+        private DocumentUri CreateUri(string languageId) => DocumentUri.File(this.TestContext.TestName + (languageId switch
         {
             LanguageConstants.LanguageId => LanguageConstants.LanguageFileExtension,
             LanguageConstants.ParamsLanguageId => LanguageConstants.ParamsFileExtension,
             _ => LanguageConstants.LanguageFileExtension
-        });
+        }));
     }
 }
