@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Completions
 {
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
-        private McrCompletionProvider? mcrCompletionProvider;
+        private readonly IMcrCompletionProvider mcrCompletionProvider;
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
 
         private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
@@ -38,18 +38,14 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        public ModuleReferenceCompletionProvider(IServiceClientCredentialsProvider serviceClientCredentialsProvider)
+        public ModuleReferenceCompletionProvider(IMcrCompletionProvider mcrCompletionProvider, IServiceClientCredentialsProvider serviceClientCredentialsProvider)
         {
+            this.mcrCompletionProvider = mcrCompletionProvider;
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
         {
-            if (mcrCompletionProvider is null)
-            {
-                mcrCompletionProvider = await McrCompletionProvider.Create();
-            }
-
             return GetPublicMcrModuleRegistryCompletions(context)
                 .Concat(GetAcrModuleRegistryCompletions(context))
                 .Concat(GetPublicMcrModuleRegistryTagCompletions(context))
@@ -100,7 +96,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryTagCompletions(BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryTag) || mcrCompletionProvider is null)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryTag))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -171,7 +167,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryCompletions(BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryStart) || mcrCompletionProvider is null)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryStart))
             {
                 return Enumerable.Empty<CompletionItem>();
             }

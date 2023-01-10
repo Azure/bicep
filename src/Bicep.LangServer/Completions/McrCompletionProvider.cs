@@ -1,42 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Bicep.Core.Registry.Oci;
 using Bicep.LanguageServer.Completions;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class McrCompletionProvider
+    public record ModuleMetadata(string moduleName, List<string> tags, string readmeLink);
+
+    public class McrCompletionProvider : IMcrCompletionProvider
     {
-        private Dictionary<string, List<string>> moduleNamesWithTags = new();
+        private List<ModuleMetadata> moduleMetadataCache = new List<ModuleMetadata>();
 
-        private McrCompletionProvider()
-        {
-        }
-
-        public static async Task<McrCompletionProvider> Create()
-        {
-            var mcrCompletionProvider = new McrCompletionProvider();
-            await mcrCompletionProvider.InitializeCacheAsync();
-            return mcrCompletionProvider;
-        }
-
-        private async Task InitializeCacheAsync()
+        public async Task Initialize()
         {
             HttpClient client = new HttpClient();
 
-            var moduleMetadata = await client.GetStringAsync("https://teststgaccbhsubra.blob.core.windows.net/bicep-cdn-bhsubra-container/bicepModuleRegistryReferenceCompletionMetadata/package.json");
+            var moduleMetadata = await client.GetStringAsync("https://modulesmetadata.bicep-df.azure.com/moduleNamesWithTags");
 
-            var metadata = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(moduleMetadata);
+            var metadata = JsonConvert.DeserializeObject<List<ModuleMetadata>>(moduleMetadata);
 
             if (metadata is not null)
             {
-                moduleNamesWithTags = metadata;
+                moduleMetadataCache = metadata;
             }
         }
 
@@ -44,9 +37,9 @@ namespace Bicep.LanguageServer.Providers
         {
             List<CompletionItem> completionItems = new List<CompletionItem>();
 
-            foreach (var moduleName in moduleNamesWithTags.Keys.ToList())
+            foreach (var moduleName in moduleMetadataCache)
             {
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, moduleName).Build();
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, moduleName.moduleName).Build();
                 completionItems.Add(completionItem);
             }
 
@@ -56,11 +49,15 @@ namespace Bicep.LanguageServer.Providers
         public List<CompletionItem> GetTags(string moduleName)
         {
             List<CompletionItem> completionItems = new List<CompletionItem>();
+            ModuleMetadata? metadata = moduleMetadataCache.FirstOrDefault(x => x.moduleName.Equals(moduleName, StringComparison.Ordinal));
 
-            foreach (var tag in moduleNamesWithTags[moduleName])
+            if (metadata is not null)
             {
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, tag).Build();
-                completionItems.Add(completionItem);
+                foreach (var tag in metadata.tags)
+                {
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, tag).Build();
+                    completionItems.Add(completionItem);
+                }
             }
 
             return completionItems;
