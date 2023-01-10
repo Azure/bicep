@@ -1796,6 +1796,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP314",
                 $@"The ""{invalidTypeDef}"" type definition in the linked ARM JSON file is invalid because it has neither a ""type"" property nor a ""$ref"" property.");
+
+            public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
+                TextSpan,
+                "BCP315",
+                "An object type may have at most one additional properties declaration.");
+
+            public ErrorDiagnostic SealedIncompatibleWithAdditionalPropertiesDeclaration() => new(
+                TextSpan,
+                "BCP316",
+                $@"The ""{LanguageConstants.ParameterSealedPropertyName}"" decorator may not be used on object types with an explicit additional properties type declaration.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

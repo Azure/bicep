@@ -355,4 +355,28 @@ param anotherObject object = {prop: 'someVal'}
             ("BCP037", DiagnosticLevel.Warning, "The property \"prop\" is not allowed on objects of type \"{ }\". No other properties are allowed."),
         });
     }
+
+    [TestMethod]
+    public void Error_should_be_shown_when_setting_unknown_properties_that_do_not_match_additional_properties_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  *: int
+} = {prop: 'someVal'}
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP036", DiagnosticLevel.Error, @"The property ""prop"" expected a value of type ""int"" but the provided value is of type ""'someVal'""."),
+        });
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  *: string
+} = {prop: 'someVal'}
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }
