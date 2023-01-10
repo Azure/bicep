@@ -392,7 +392,7 @@ type stringStringDictionary = {
 //@[04:05) Asterisk |*|
 //@[05:06) Colon |:|
 //@[07:13) Identifier |string|
-//@[13:15) NewLine |\r\n|
+//@[13:14) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
 //@[01:02) NewLine |\n|

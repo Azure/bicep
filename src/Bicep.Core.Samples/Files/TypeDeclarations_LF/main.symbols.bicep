@@ -75,7 +75,7 @@ type tuple = [
 ]
 
 type stringStringDictionary = {
-//@[5:27) TypeAlias stringStringDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 48
+//@[5:27) TypeAlias stringStringDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 47
     *: string
 }
 

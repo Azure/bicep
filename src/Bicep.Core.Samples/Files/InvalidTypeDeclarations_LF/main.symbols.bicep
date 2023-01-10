@@ -99,3 +99,4 @@ param disallowedUnionParam 'foo'|-99
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[6:37) Parameter objectWithInvalidRecursionParam. Type: error. Declaration start char: 0, length: 64
+

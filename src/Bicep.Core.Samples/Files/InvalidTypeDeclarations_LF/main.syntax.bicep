@@ -1,5 +1,5 @@
 type 44
-//@[00:1284) ProgramSyntax
+//@[00:1285) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -493,4 +493,6 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[38:0064) | └─VariableAccessSyntax
 //@[38:0064) |   └─IdentifierSyntax
 //@[38:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
-//@[64:0064) └─Token(EndOfFile) ||
+//@[64:0065) ├─Token(NewLine) |\n|
+
+//@[00:0000) └─Token(EndOfFile) ||

@@ -298,4 +298,6 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[00:05) Identifier |param|
 //@[06:37) Identifier |objectWithInvalidRecursionParam|
 //@[38:64) Identifier |objectWithInvalidRecursion|
-//@[64:64) EndOfFile ||
+//@[64:65) NewLine |\n|
+
+//@[00:00) EndOfFile ||
