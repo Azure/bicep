@@ -1,4 +1,4 @@
-﻿type 44
+type 44
 
 type noAssignment
 
