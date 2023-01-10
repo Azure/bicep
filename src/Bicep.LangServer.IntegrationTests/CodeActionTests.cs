@@ -131,7 +131,7 @@ namespace Bicep.LangServer.IntegrationTests
                         var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
                         var bicepFixDescriptions = bicepFixes.Select(f => f.Description);
-                        var quickFixTitles = quickFixList.Select(f => f.CodeAction.Title);
+                        var quickFixTitles = quickFixList.Select(f => f.CodeAction?.Title);
                         bicepFixDescriptions.Should().BeEquivalentTo(quickFixTitles);
 
                         for (int i = 0; i < quickFixList.Count; i++)

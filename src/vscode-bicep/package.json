@@ -264,12 +264,6 @@
       {
         "command": "bicep.decompile",
         "when": "editorFocus && (resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template)"
-      },
-      {
-        "command": "bicep.pasteAsBicep",
-        "key": "shift+ctrl+v",
-        "mac": "shift+cmd+v",
-        "when": "resourceLangId == bicep && bicep.canPasteAsBicep"
       }
     ],
     "menus": {
