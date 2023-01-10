@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -18,13 +19,15 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
+        private readonly IMcrCompletionProvider mcrCompletionProvider;
         private readonly ISymbolResolver symbolResolver;
 
         private const int MaxHoverMarkdownCodeBlockLength = 90000;
         //actual limit for hover in VS code is 100,000 characters.
 
-        public BicepHoverHandler(ISymbolResolver symbolResolver)
+        public BicepHoverHandler(IMcrCompletionProvider mcrCompletionProvider, ISymbolResolver symbolResolver)
         {
+            this.mcrCompletionProvider = mcrCompletionProvider;
             this.symbolResolver = symbolResolver;
         }
 
@@ -36,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<Hover?>(null);
             }
 
-            var markdown = GetMarkdown(request, result);
+            var markdown = GetMarkdown(request, result, this.mcrCompletionProvider);
             if (markdown == null)
             {
                 return Task.FromResult<Hover?>(null);
@@ -60,7 +63,7 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent? GetMarkdown(HoverParams request, SymbolResolutionResult result)
+        private static MarkedStringsOrMarkupContent? GetMarkdown(HoverParams request, SymbolResolutionResult result, IMcrCompletionProvider mcrCompletionProvider)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
@@ -99,9 +102,13 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
+
                     if (filePath != null)
                     {
-                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
+                        var documentationLink = mcrCompletionProvider.GetReadmeLink(filePath) is string readmeLink ? $"[View Type Documentation]({readmeLink})" : "";
+                        var descriptionMarkdown = TryGetDescriptionMarkdown(result, module);
+
+                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptionMarkdown is { } ? $"{descriptionMarkdown}\n{documentationLink}" : documentationLink));
                     }
 
                     return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
