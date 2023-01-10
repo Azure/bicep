@@ -66,3 +66,7 @@ type tuple = [
     bar
 ]
 
+type stringStringDictionary = {
+    *: string
+}
+

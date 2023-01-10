@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1120) ProgramSyntax
+//@[00:1170) ProgramSyntax
 //@[00:0298) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -656,6 +656,27 @@ type tuple = [
 //@[07:0008) |   ├─Token(NewLine) |\n|
 ]
 //@[00:0001) |   └─Token(RightSquare) |]|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type stringStringDictionary = {
+//@[00:0048) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0027) | ├─IdentifierSyntax
+//@[05:0027) | | └─Token(Identifier) |stringStringDictionary|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0048) | └─ObjectTypeSyntax
+//@[30:0031) |   ├─Token(LeftBrace) |{|
+//@[31:0032) |   ├─Token(NewLine) |\n|
+    *: string
+//@[04:0013) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[04:0005) |   | ├─Token(Asterisk) |*|
+//@[05:0006) |   | ├─Token(Colon) |:|
+//@[07:0013) |   | └─VariableAccessSyntax
+//@[07:0013) |   |   └─IdentifierSyntax
+//@[07:0013) |   |     └─Token(Identifier) |string|
+//@[13:0015) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0002) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

@@ -34,6 +34,27 @@ type sealedString = string
 //@[20:26) Identifier |string|
 //@[26:28) NewLine |\n\n|
 
+@sealed()
+//@[00:01) At |@|
+//@[01:07) Identifier |sealed|
+//@[07:08) LeftParen |(|
+//@[08:09) RightParen |)|
+//@[09:10) NewLine |\n|
+type sealedDictionary = {
+//@[00:04) Identifier |type|
+//@[05:21) Identifier |sealedDictionary|
+//@[22:23) Assignment |=|
+//@[24:25) LeftBrace |{|
+//@[25:26) NewLine |\n|
+	*: string
+//@[01:02) Asterisk |*|
+//@[02:03) Colon |:|
+//@[04:10) Identifier |string|
+//@[10:11) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
 type disallowedUnion = 'foo'|21
 //@[00:04) Identifier |type|
 //@[05:20) Identifier |disallowedUnion|
@@ -277,6 +298,4 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[00:05) Identifier |param|
 //@[06:37) Identifier |objectWithInvalidRecursionParam|
 //@[38:64) Identifier |objectWithInvalidRecursion|
-//@[64:65) NewLine |\n|
-
-//@[00:00) EndOfFile ||
+//@[64:64) EndOfFile ||

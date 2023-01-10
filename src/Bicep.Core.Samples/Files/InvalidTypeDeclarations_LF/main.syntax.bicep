@@ -1,5 +1,5 @@
 type 44
-//@[00:1235) ProgramSyntax
+//@[00:1284) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -57,6 +57,36 @@ type sealedString = string
 //@[20:0026) |   └─IdentifierSyntax
 //@[20:0026) |     └─Token(Identifier) |string|
 //@[26:0028) ├─Token(NewLine) |\n\n|
+
+@sealed()
+//@[00:0048) ├─TypeDeclarationSyntax
+//@[00:0009) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0009) | | └─FunctionCallSyntax
+//@[01:0007) | |   ├─IdentifierSyntax
+//@[01:0007) | |   | └─Token(Identifier) |sealed|
+//@[07:0008) | |   ├─Token(LeftParen) |(|
+//@[08:0009) | |   └─Token(RightParen) |)|
+//@[09:0010) | ├─Token(NewLine) |\n|
+type sealedDictionary = {
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0021) | ├─IdentifierSyntax
+//@[05:0021) | | └─Token(Identifier) |sealedDictionary|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0038) | └─ObjectTypeSyntax
+//@[24:0025) |   ├─Token(LeftBrace) |{|
+//@[25:0026) |   ├─Token(NewLine) |\n|
+	*: string
+//@[01:0010) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[01:0002) |   | ├─Token(Asterisk) |*|
+//@[02:0003) |   | ├─Token(Colon) |:|
+//@[04:0010) |   | └─VariableAccessSyntax
+//@[04:0010) |   |   └─IdentifierSyntax
+//@[04:0010) |   |     └─Token(Identifier) |string|
+//@[10:0011) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 type disallowedUnion = 'foo'|21
 //@[00:0031) ├─TypeDeclarationSyntax
@@ -463,6 +493,4 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[38:0064) | └─VariableAccessSyntax
 //@[38:0064) |   └─IdentifierSyntax
 //@[38:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
-//@[64:0065) ├─Token(NewLine) |\n|
-
-//@[00:0000) └─Token(EndOfFile) ||
+//@[64:0064) └─Token(EndOfFile) ||
