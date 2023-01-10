@@ -88,7 +88,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Note: The JSON pasted into the editor was automatically converted to Bicep using the Bicep decompiler..
+        ///   Looks up a localized string similar to The JSON pasted into the editor was automatically decompiled to Bicep. Undo to revert..
         /// </summary>
         public static string DecompileAsPaste_AutoConvertWarning {
             get {
