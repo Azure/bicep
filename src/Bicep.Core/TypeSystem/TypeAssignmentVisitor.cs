@@ -991,15 +991,6 @@ namespace Bicep.Core.TypeSystem
                     // index was of the wrong type
                     return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.SafeAccessMarker is not null);
 
-                //case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
-                //    return integerLiteralIndex.Value switch
-                //    {
-                //        < 0 => ErrorType.Empty(), // FIXME: new diagnostic: Negative indexes not allowed
-                //        > int.MaxValue => ErrorType.Empty(), // FIXME: new diagnostic: Tuple has no item at index X
-                //        long idx when idx >= baseTuple.Items.Length => ErrorType.Empty(), // FIXME: new diagnostic: Tuple has no item at index X
-                //        long validIndex => baseTuple.Items[(int)validIndex].Type,
-                //    };
-
                 case ArrayType baseArray:
                     // we are indexing over an array
                     if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int))
@@ -1122,6 +1113,12 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
         {
+            // if a chain of accesses starts with a "safe" access (e.g., `<base>[?0].property` or `<base>.?some.deeply.nested.property`), it may short-circuit at runtime,
+            // meaning that `.deeply.nested.property` will only be evaluated if `<base>.?some` returns a non-null value
+            // the upshot of this is that we will need to mark `<base>.?some` as non-nullable when evaluating any chained property accesses, then mark the resultant type
+            // as nullable iff the original "safe" access might return null.
+            // because of this requirement, it's necessary to evaluate the full access chain and determine if it is kicked off by a .? or [?] operator rather than
+            // just evaluating `syntax.BaseExpression` recursively
             Stack<AccessExpressionSyntax> chainedAccesses = new();
             chainedAccesses.Push(syntax);
 

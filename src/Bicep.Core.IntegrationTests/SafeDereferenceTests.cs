@@ -44,7 +44,7 @@ output outputData object = {
 
         compiledOutputData!["vmName"].Should().DeepEqual("name");
         compiledOutputData!["vmId"].Should().DeepEqual("[resourceId('Microsoft.Compute/virtualMachines', 'name')]");
-        compiledOutputData!["vmProperties"].Should().DeepEqual("[reference(resourceId('Microsoft.Compute/virtualMachines', 'name'), '2020-06-01')]");
+        compiledOutputData!["vmProperties"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Compute/virtualMachines', 'name'), '2020-06-01', 'full'), 'properties')]");
         compiledOutputData!["vmIdentity"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Compute/virtualMachines', 'name'), '2020-06-01', 'full'), 'identity')]");
         compiledOutputData!["vmPlanName"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Compute/virtualMachines', 'name'), '2020-06-01', 'full'), 'plan', 'name')]");
         compiledOutputData!["vmEvictionPolicy"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Compute/virtualMachines', 'name'), '2020-06-01'), 'evictionPolicy')]");
@@ -72,7 +72,7 @@ output outputData object = {
 
         compiledOutputData!["vmName"].Should().DeepEqual("[last(split(parameters('vm'), '/'))]");
         compiledOutputData!["vmId"].Should().DeepEqual("[parameters('vm')]");
-        compiledOutputData!["vmProperties"].Should().DeepEqual("[reference(parameters('vm'), '2020-06-01')]");
+        compiledOutputData!["vmProperties"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01', 'full'), 'properties')]");
         compiledOutputData!["vmIdentity"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01', 'full'), 'identity')]");
         compiledOutputData!["vmPlanName"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01', 'full'), 'plan', 'name')]");
         compiledOutputData!["vmEvictionPolicy"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01'), 'evictionPolicy')]");
@@ -110,7 +110,7 @@ output outputData object = {
 
         compiledOutputData!["vmName"].Should().DeepEqual("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '/'))]");
         compiledOutputData!["vmId"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value]");
-        compiledOutputData!["vmProperties"].Should().DeepEqual("[reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01')]");
+        compiledOutputData!["vmProperties"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01', 'full'), 'properties')]");
         compiledOutputData!["vmIdentity"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01', 'full'), 'identity')]");
         compiledOutputData!["vmPlanName"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01', 'full'), 'plan', 'name')]");
         compiledOutputData!["vmEvictionPolicy"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01'), 'evictionPolicy')]");

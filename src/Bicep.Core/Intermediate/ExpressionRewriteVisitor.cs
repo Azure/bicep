@@ -14,14 +14,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     void IExpressionVisitor.VisitAccessChainExpression(AccessChainExpression expression) => ReplaceCurrent(expression, ReplaceAccessChainExpression);
     public virtual Expression ReplaceAccessChainExpression(AccessChainExpression expression)
     {
-        var hasChanges = TryRewriteStrict(expression.FirstLink, out var firstLink);
-        var additionalLinks = new Expression[expression.AdditionalProperties.Length];
-        for (int i = 0; i < additionalLinks.Length; i++)
-        {
-            hasChanges |= TryRewrite(expression.AdditionalProperties[i], out additionalLinks[i]);
-        }
+        var hasChanges =
+            TryRewriteStrict(expression.FirstLink, out var firstLink) |
+            TryRewriteStrict(expression.AdditionalProperties, out var additionalProperties);
 
-        return hasChanges ? new(expression.SourceSyntax, firstLink, additionalLinks.ToImmutableArray()) : expression;
+        return hasChanges ? expression with { FirstLink = firstLink, AdditionalProperties = additionalProperties } : expression;
     }
 
     void IExpressionVisitor.VisitArrayAccessExpression(ArrayAccessExpression expression) => ReplaceCurrent(expression, ReplaceArrayAccessExpression);

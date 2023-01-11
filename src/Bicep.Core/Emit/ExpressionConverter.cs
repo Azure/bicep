@@ -259,13 +259,7 @@ namespace Bicep.Core.Emit
         private (LanguageExpression @base, bool includesFirstAccess) ConvertBaseExpression(AccessExpression expression) => expression.Base switch
         {
             ResourceReferenceExpression resource when expression is PropertyAccessExpression exp => GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp),
-            ModuleReferenceExpression module when expression is PropertyAccessExpression exp => exp.PropertyName switch
-            {
-                // the name is dependent on the name expression which could involve locals in case of a resource collection
-                "name" => (GetConverter(module.IndexContext).GetModuleNameExpression(module.Module), true),
-                "outputs" => (GetConverter(module.IndexContext).GetModuleReferenceExpression(module.Module, module.IndexContext), false),
-                string otherwise => throw new InvalidOperationException($"Unsupported module property: {otherwise}"),
-            },
+            ModuleReferenceExpression module when expression is PropertyAccessExpression exp => GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp),
             _ => (ConvertExpression(expression.Base), false),
         };
 
@@ -313,7 +307,7 @@ namespace Bicep.Core.Emit
                                 },
                                 Array.Empty<LanguageExpression>()),
                             true);
-                    case "properties":
+                    case "properties" when !expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
                         return (GetReferenceExpression(resource, indexContext, false), true);
@@ -349,7 +343,7 @@ namespace Bicep.Core.Emit
                                 },
                                 Array.Empty<LanguageExpression>()),
                             true);
-                    case "properties":
+                    case "properties" when !expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
                         return (GetReferenceExpression(resource, indexContext, false), true);
@@ -382,7 +376,7 @@ namespace Bicep.Core.Emit
                     case "apiVersion":
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                         return (new JTokenExpression(apiVersion), true);
-                    case "properties":
+                    case "properties" when !expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
                         return (GetReferenceExpression(resource, indexContext, false), true);
@@ -396,21 +390,13 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private LanguageExpression ConvertModulePropertyAccess(ModuleReferenceExpression module, PropertyAccessExpression propertyAccess)
+        private (LanguageExpression @base, bool includesFirstAccess) ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression) => expression.PropertyName switch
         {
-            switch (propertyAccess.PropertyName)
-            {
-                case "name":
-                    // the name is dependent on the name expression which could involve locals in case of a resource collection
-                    return GetModuleNameExpression(module.Module);
-                case "outputs":
-                    return AppendProperties(
-                        GetModuleReferenceExpression(module.Module, module.IndexContext),
-                        new JTokenExpression("outputs"));
-            }
-
-            throw new InvalidOperationException($"Unsupported module property: {propertyAccess.PropertyName}");
-        }
+            // the name is dependent on the name expression which could involve locals in case of a resource collection
+            "name" => (GetModuleNameExpression(reference.Module), true),
+            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext), false),
+            string otherwise => throw new InvalidOperationException($"Unsupported module property: {otherwise}"),
+        };
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
         {

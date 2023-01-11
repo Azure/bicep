@@ -834,11 +834,11 @@ namespace Bicep.Core.Parsing
                     if (Check(TokenType.LeftParen))
                     {
                         var functionCall = FunctionCallAccess(identifier, expressionFlags);
-                        if (safeAccessMarker is Token nonNullMarker)
+                        if (safeAccessMarker is not null)
                         {
-                            identifier = new IdentifierSyntax(new SkippedTriviaSyntax(TextSpan.Between(nonNullMarker.Span, identifier.Span),
-                                new SyntaxBase[] { nonNullMarker, identifier },
-                                DiagnosticBuilder.ForPosition(nonNullMarker).SafeDereferenceNotPermittedOnInstanceFunctions().AsEnumerable()));
+                            identifier = new IdentifierSyntax(new SkippedTriviaSyntax(TextSpan.Between(safeAccessMarker.Span, identifier.Span),
+                                new SyntaxBase[] { safeAccessMarker, identifier },
+                                DiagnosticBuilder.ForPosition(safeAccessMarker).SafeDereferenceNotPermittedOnInstanceFunctions().AsEnumerable()));
                         }
 
                         // gets instance function call

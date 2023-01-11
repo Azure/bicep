@@ -6,7 +6,8 @@ namespace Bicep.Core.Syntax
 {
     public class PropertyAccessSyntax : AccessExpressionSyntax
     {
-        public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, Token? safeAccessMarker, IdentifierSyntax propertyName) : base(baseExpression, safeAccessMarker)
+        public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, Token? safeAccessMarker, IdentifierSyntax propertyName)
+            : base(baseExpression, safeAccessMarker)
         {
             AssertTokenType(dot, nameof(dot), TokenType.Dot);
 
@@ -17,8 +18,6 @@ namespace Bicep.Core.Syntax
         public Token Dot { get; }
 
         public IdentifierSyntax PropertyName { get; }
-
-        public override SyntaxBase AccessExpression => PropertyName;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 
