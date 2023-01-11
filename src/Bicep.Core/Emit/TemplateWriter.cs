@@ -490,7 +490,7 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression GetTypePropertiesForNullableTypeSyntax(NullableTypeSyntax syntax)
             // the merge below is expected to cause test failures until Azure.Deployments.Templates is upgraded to >= 1.0.790
-            => TypePropertiesForTypeExpression(syntax.Base).MergeProperty("nullable", SyntaxFactory.CreateBooleanLiteral(true));
+            => TypePropertiesForTypeExpression(syntax.Base).MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true));
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
         {
