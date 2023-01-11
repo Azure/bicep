@@ -21,7 +21,8 @@ type TargetFile =
   | "singleInWorkspace"
   | "singleInVisibleEditors"
   | "quickPick"
-  | "new";
+  | "new"
+  | "activeEditor";
 type Properties = TelemetryProperties & { targetFile: TargetFile };
 
 /**
@@ -30,9 +31,10 @@ type Properties = TelemetryProperties & { targetFile: TargetFile };
  * In all cases, if a URL is passed in, it will be targeted (this handles all scenarios except invoking through a shortcut key or the command palette, e.g.
  *   context menus will always pass in a URI).
  * For shortcut keys and command palette, the behavior is:
- *   1) If there's only a single bicep command available in the current workspace or visible editors, use that.
- *   2) If there are no bicep files in the workspace and visible editors, ask the user if they want to create a new file.
- *   3) Finally, show a pick list of available bicep files and allow them to choose (if the current editor is a bicep file, it will be at the top of the list be we will still ask).
+ *   1) If there is an active bicep file, use that.
+ *   2) If there's only a single bicep command available in the current workspace or visible editors, use that.
+ *   3) If there are no bicep files in the workspace and visible editors, ask the user if they want to create a new file.
+ *   4) Finally, show a pick list of available bicep files and allow them to choose (if the current editor is a bicep file, it will be at the top of the list be we will still ask).
  * @throws User-cancelled error
  */
 export async function findOrCreateActiveBicepFile(
@@ -49,6 +51,12 @@ export async function findOrCreateActiveBicepFile(
     //   palette or through a shortcut key.
     properties.targetFile = "rightClickOrMenu";
     return documentUri;
+  }
+
+  const activeEditor = window.activeTextEditor;
+  if (activeEditor?.document.languageId === bicepLanguageId) {
+    properties.targetFile = "activeEditor";
+    return activeEditor.document.uri;
   }
 
   const workspaceBicepFiles = (
@@ -85,12 +93,7 @@ export async function findOrCreateActiveBicepFile(
 
   // Show quick pick
   const entries: IAzureQuickPickItem<Uri>[] = [];
-  const activeEditor = window.activeTextEditor;
-  if (activeEditor?.document?.languageId === bicepLanguageId) {
-    // Add active editor to the top of the list
-    addFileQuickPick(entries, activeEditor.document.uri, true);
-  }
-  bicepFilesSorted.forEach((u) => addFileQuickPick(entries, u, false));
+  bicepFilesSorted.forEach((u) => addFileQuickPick(entries, u));
 
   const response = await ui.showQuickPick(entries, {
     placeHolder: prompt,
@@ -100,8 +103,7 @@ export async function findOrCreateActiveBicepFile(
 
 function addFileQuickPick(
   items: IAzureQuickPickItem<Uri>[],
-  uri: Uri,
-  isActiveEditor: boolean
+  uri: Uri
 ): void {
   if (items.find((i) => i.data === uri)) {
     return;
@@ -114,12 +116,11 @@ function addFileQuickPick(
     : path.basename(uri.fsPath);
 
   items.push({
-    label: isActiveEditor ? `$(chevron-right) ${relativePath}` : relativePath,
+    label: relativePath,
     data: uri,
     alwaysShow: true,
-    description: isActiveEditor ? "Active editor" : undefined,
     id: uri.path, // Used for most-recent persistence
-    priority: isActiveEditor ? "highest" : "normal",
+    priority: "normal",
   });
 }
 
