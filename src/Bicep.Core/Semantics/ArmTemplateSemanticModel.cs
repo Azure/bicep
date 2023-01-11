@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -11,6 +10,8 @@ using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Extensions;
+using Azure.Deployments.Templates.Engines;
+using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
@@ -29,8 +30,6 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
 
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
-
-        private readonly ConcurrentDictionary<string, TypeSymbol> templateTypeDefinitions = new();
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
         {
@@ -150,92 +149,63 @@ namespace Bicep.Core.Semantics
 
         private TypeSymbol GetType(ITemplateSchemaNode schemaNode)
         {
-            if (schemaNode.Ref?.Value is string @ref)
+            try
             {
+                var resolved = TemplateEngine.ResolveSchemaReferences(SourceFile.Template, schemaNode);
 
-                return templateTypeDefinitions.GetOrAdd(@ref, ResolveTypeReference);
+                var bicepType = resolved.Type.Value switch
+                {
+                    TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(resolved.Metadata?.Value, out var resourceType) => resourceType,
+                    TemplateParameterType.String => GetPrimitiveType(resolved, t => t.IsTextBasedJTokenType(), LanguageConstants.TypeNameString, LanguageConstants.LooseString),
+                    TemplateParameterType.Int => GetPrimitiveType(resolved, t => t.Type == JTokenType.Integer, LanguageConstants.TypeNameInt, LanguageConstants.LooseInt),
+                    TemplateParameterType.Bool => GetPrimitiveType(resolved, t => t.Type == JTokenType.Boolean, LanguageConstants.TypeNameBool, LanguageConstants.LooseBool),
+                    TemplateParameterType.Array => GetArrayType(resolved),
+                    TemplateParameterType.Object => GetObjectType(resolved),
+                    TemplateParameterType.SecureString => LanguageConstants.SecureString,
+                    TemplateParameterType.SecureObject => GetObjectType(resolved, TypeSymbolValidationFlags.IsSecure),
+                    _ => ErrorType.Empty(),
+                };
+
+                if (resolved.Nullable?.Value == true)
+                {
+                    bicepType = TypeHelper.CreateTypeUnion(bicepType, LanguageConstants.Null);
+                }
+
+                return bicepType;
             }
-
-            return schemaNode.Type.Value switch
+            catch (TemplateValidationException tve)
             {
-                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(GetMetadata(schemaNode), out var resourceType) => resourceType,
-                TemplateParameterType.String => GetPrimitiveType(schemaNode, t => t.IsTextBasedJTokenType(), LanguageConstants.TypeNameString, LanguageConstants.LooseString),
-                TemplateParameterType.Int => GetPrimitiveType(schemaNode, t => t.Type == JTokenType.Integer, LanguageConstants.TypeNameInt, LanguageConstants.LooseInt),
-                TemplateParameterType.Bool => GetPrimitiveType(schemaNode, t => t.Type == JTokenType.Boolean, LanguageConstants.TypeNameBool, LanguageConstants.LooseBool),
-                TemplateParameterType.Array => GetArrayType(schemaNode),
-                TemplateParameterType.Object => GetObjectType(schemaNode),
-                TemplateParameterType.SecureString => LanguageConstants.SecureString,
-                TemplateParameterType.SecureObject => GetObjectType(schemaNode, TypeSymbolValidationFlags.IsSecure),
-                _ => ErrorType.Empty(),
-            };
-        }
-
-        private TypeSymbol ResolveTypeReference(string reference)
-        {
-            if (!FollowRefsToConcreteTypeDefinition(reference, out var concreteType, out var errorBuilder))
-            {
-                return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForDocumentStart()));
+                return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().UnresolvableArmJsonType(tve.TemplateErrorAdditionalInfo.Path ?? "<unknown location>", tve.Message));
             }
-
-            return GetType(concreteType);
         }
-
-        private bool FollowRefsToConcreteTypeDefinition(string reference, [NotNullWhen(true)] out ITemplateSchemaNode? concreteType, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
-            => FollowRefsUntil(new TemplateTypeDefinition { Ref = reference.ToTemplateGenericProperty() }, node => node.Type != null, out concreteType, out errorBuilder);
 
         /// <summary>
         /// Metadata may be attached to $ref nodes, and the appropriate description for a given parameter or property will be the first one (if any) encountered while following $ref pointers to a concrete type.
         /// </summary>
         /// <param name="schemaNode">The starting point for the search</param>
         /// <returns></returns>
-        private string? GetMostSpecificDescription(ITemplateSchemaNode schemaNode) => FollowRefsUntil(schemaNode,
-            n => (GetMetadata(n) as JObject)?.ContainsKey(LanguageConstants.MetadataDescriptionPropertyName) == true,
-            out var nodeWithDescriptionOrEndOfRefTrail,
-            out _)
-            ? (GetMetadata(nodeWithDescriptionOrEndOfRefTrail) as JObject)?[LanguageConstants.MetadataDescriptionPropertyName]?.ToString() : null;
-
-        private bool FollowRefsUntil(
-            ITemplateSchemaNode startingPoint,
-            Func<ITemplateSchemaNode, bool> shouldStopTraversing,
-            [NotNullWhen(true)] out ITemplateSchemaNode? cursorOnStop,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
+        private string? GetMostSpecificDescription(ITemplateSchemaNode schemaNode)
         {
-            ITemplateSchemaNode current = startingPoint;
-            LinkedList<string> visited = new();
-
-            while (!shouldStopTraversing(current) && current.Ref?.Value is string @ref)
+            if (GetMetadata(schemaNode) is JObject metadataObject &&
+                metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                descriptionToken is JValue { Value: string description })
             {
-                if (visited.Contains(@ref))
-                {
-                    errorBuilder = b => b.CyclicArmTypeRefs(visited.Append(@ref));
-                    cursorOnStop = null;
-                    return false;
-                }
-                visited.AddLast(@ref);
-
-
-                if (SourceFile.Template?.Definitions?.TryGetValue(@ref.Replace("#/definitions/", string.Empty), out var dereferenced) == true)
-                {
-                    current = dereferenced;
-                    continue;
-                }
-
-                errorBuilder = b => b.ArmTypeRefTargetNotFound(@ref);
-                cursorOnStop = null;
-                return false;
+                return description;
             }
 
-            errorBuilder = null;
-            cursorOnStop = current;
-            return true;
+            return null;
         }
-
-        private static JToken? GetMetadata(ITemplateSchemaNode schemaNode) => schemaNode switch
+        private JToken? GetMetadata(ITemplateSchemaNode schemaNode)
         {
-            TemplateInputParameter param => param.Metadata?.Value,
-            TemplateTypeDefinition type => type.Metadata?.Value,
-            _ => null,
-        };
+            try
+            {
+                return TemplateEngine.ResolveSchemaReferences(SourceFile.Template, schemaNode).Metadata?.Value;
+            }
+            catch (TemplateValidationException)
+            {
+                return null;
+            }
+        }
 
         private static TypeSymbol GetPrimitiveType(ITemplateSchemaNode schemaNode, Func<JToken, bool> isValidLiteralPredicate, string typeName, TypeSymbol type)
         {
@@ -276,17 +246,9 @@ namespace Bicep.Core.Semantics
                 List<ITypeReference> tupleMembers = new();
                 foreach (var prefixItem in prefixItems)
                 {
-                    if (prefixItem.Ref?.Value is { } @ref)
-                    {
-                        nameBuilder.AppendItem(@ref.Replace("#/definitions", ""));
-                        tupleMembers.Add(new DeferredTypeReference(() => templateTypeDefinitions.GetOrAdd(@ref, ResolveTypeReference)));
-                    }
-                    else
-                    {
-                        var itemType = GetType(prefixItem);
-                        nameBuilder.AppendItem(itemType.Name);
-                        tupleMembers.Add(itemType);
-                    }
+                    var (type, typeName) = GetDeferrableTypeInfo(prefixItem);
+                    nameBuilder.AppendItem(typeName);
+                    tupleMembers.Add(type);
                 }
 
                 return new TupleType(nameBuilder.ToString(), tupleMembers.ToImmutableArray(), default);
@@ -296,9 +258,8 @@ namespace Bicep.Core.Semantics
             {
                 if (items.Ref?.Value is { } @ref)
                 {
-                    return new TypedArrayType($"{@ref.Replace("#/definitions", "")}[]",
-                        new DeferredTypeReference(() => templateTypeDefinitions.GetOrAdd(@ref, ResolveTypeReference)),
-                        default);
+                    var (type, typeName) = GetDeferrableTypeInfo(items);
+                    return new TypedArrayType($"{typeName}[]", type, default);
                 }
 
                 return new TypedArrayType(GetType(items), default);
@@ -365,18 +326,10 @@ namespace Bicep.Core.Semantics
                     var flags = TypePropertyFlags.Required;
                     var description = GetMostSpecificDescription(schema);
 
-                    if (schema.Ref?.Value is { } @ref)
-                    {
-                        var type = new DeferredTypeReference(() => templateTypeDefinitions.GetOrAdd(@ref, ResolveTypeReference));
-                        properties.Add(new(propertyName, type, flags, description));
-                        nameBuilder.AppendProperty(propertyName, @ref.Replace("#/definitions", ""));
-                    }
-                    else
-                    {
-                        var type = GetType(schema);
-                        properties.Add(new(propertyName, type, flags, description));
-                        nameBuilder.AppendProperty(propertyName, type.Name);
-                    }
+                    var (type, typeName) = GetDeferrableTypeInfo(schema);
+
+                    properties.Add(new(propertyName, type, flags, description));
+                    nameBuilder.AppendProperty(propertyName, typeName);
                 }
             }
 
@@ -386,9 +339,10 @@ namespace Bicep.Core.Semantics
 
                 if (addlProps.SchemaNode is { } additionalPropertiesSchema)
                 {
-                    additionalPropertiesType = additionalPropertiesSchema.Ref?.Value is { } @ref
-                        ? new DeferredTypeReference(() => templateTypeDefinitions.GetOrAdd(@ref, ResolveTypeReference))
-                        : GetType(additionalPropertiesSchema);
+                    var typeInfo = GetDeferrableTypeInfo(additionalPropertiesSchema);
+                    additionalPropertiesType = typeInfo.type;
+                    // FIXME: Uncomment the following after merging https://github.com/Azure/bicep/pull/9511
+                    // nameBuilder.AppendPropertyMatcher("*", typeInfo.typeName);
                 }
                 else if (addlProps.BooleanValue == false)
                 {
@@ -396,13 +350,19 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            if (properties.Count == 0 && additionalPropertiesType == LanguageConstants.Any && additionalPropertiesFlags == TypePropertyFlags.FallbackProperty)
+            if (properties.Count == 0 && schemaNode.AdditionalProperties is null)
             {
                 return symbolValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
             }
 
             return new ObjectType(nameBuilder.ToString(), symbolValidationFlags, properties, additionalPropertiesType, additionalPropertiesFlags);
         }
+
+        private (ITypeReference type, string typeName) GetDeferrableTypeInfo(ITemplateSchemaNode schemaNode) => schemaNode.Ref?.Value switch
+        {
+            string @ref => (new DeferredTypeReference(() => GetType(schemaNode)), @ref.Replace("#/definitions/", "")),
+            _ => GetType(schemaNode) switch { TypeSymbol concreteType => (concreteType, concreteType.Name) },
+        };
 
         private static TypeSymbol GetType(TemplateOutputParameter output)
         {

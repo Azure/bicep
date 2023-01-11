@@ -1782,20 +1782,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP311",
                 $@"The provided index value of ""{indexSought}"" is not valid for type ""{typeName}"". Indexes for this type must be between 0 and {tupleLength - 1}");
 
-            public ErrorDiagnostic CyclicArmTypeRefs(IEnumerable<string> cycleLinks) => new(
+            public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,
                 "BCP312",
-                $@"Type reference cycle detected in the linked ARM JSON file (""{string.Join(" -> ", cycleLinks.Select(l => $@"""{l}"""))}"").");
-
-            public ErrorDiagnostic ArmTypeRefTargetNotFound(string refSansTarget) => new(
-                TextSpan,
-                "BCP313",
-                $@"The ""{refSansTarget}"" type definition could not be found in the linked ARM JSON file.");
-
-            public ErrorDiagnostic ArmTypeDefHasNoTypeOrRef(string invalidTypeDef) => new(
-                TextSpan,
-                "BCP314",
-                $@"The ""{invalidTypeDef}"" type definition in the linked ARM JSON file is invalid because it has neither a ""type"" property nor a ""$ref"" property.");
+                $@"The type at '{errorSource}' could not be resolved by the ARM JSON template engine. Original error message: [{message}]");
 
             public ErrorDiagnostic ExpectedTypeIdentifier() => new(
                 TextSpan,

@@ -214,6 +214,7 @@ public class ArmTemplateSemanticModelTests
           ""contentVersion"": ""1.0.0.0"",
           ""languageVersion"": ""1.10-experimental"",
           ""resources"": {},
+          ""definitions"": {},
           ""parameters"": {
             ""refParam"": {
               ""$ref"": ""#/definitions/doesntExist""
@@ -337,6 +338,30 @@ public class ArmTemplateSemanticModelTests
 
         model.Parameters.TryGetValue("arrayOfSubsetOfLiterals", out var arrayOfSubsetOfLiterals).Should().BeTrue();
         arrayOfSubsetOfLiterals!.TypeReference.Type.Name.Should().Be("('buzz' | 'fizz' | 1 | 2 | null | true | { key: 'value', arrayProp: ['fee', 'fi', 'fo', 'fum'] })[]");
+    }
+
+    [TestMethod]
+    public void Model_creates_union_null_types_from_nullable_modifier()
+    {
+        var parameterType = GetLoadedParameterType(@"{
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""languageVersion"": ""1.10-experimental"",
+          ""resources"": {},
+          ""parameters"": {
+            ""nullableParam"": {
+              ""type"": ""string"",
+              ""nullable"": true
+            }
+          }
+        }
+        ", "nullableParam");
+
+        parameterType.Should().BeOfType<UnionType>();
+
+        var members = parameterType.As<UnionType>().Members;
+        members.Should().HaveCount(2);
+        members.Should().Contain(new[] { LanguageConstants.Null, LanguageConstants.LooseString });
     }
 
     private static TypeSymbol GetLoadedParameterType(string jsonTemplate, string parameterName)
