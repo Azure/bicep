@@ -1106,7 +1106,7 @@ namespace Bicep.Core.Emit
                 else if (output.Symbol.Type is ResourceType)
                 {
                     // Resource-typed outputs are serialized using the resource id.
-                    var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id");
+                    var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id", AccessExpressionFlags.None);
 
                     emitter.EmitProperty("value", value);
                 }
