@@ -81,6 +81,8 @@ type foo = {
 @description('An array of array of arrays of arrays of ints')
 //@        "description": "An array of array of arrays of arrays of ints"
 @metadata({
+//@      "metadata": {
+//@      },
   examples: [
 //@        "examples": [
 //@        ],
@@ -124,8 +126,6 @@ type bar = int[][][][]
 //@            }
 //@          }
 //@        }
-//@      },
-//@      "metadata": {
 //@      },
 //@    },
 

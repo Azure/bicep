@@ -67,6 +67,10 @@ namespace Bicep.Core.TypeSystem
 
         TypeDecorator = 1 << 10,
 
+        GenerateIntermediateVariableAlways = 1 << 11,
+
+        GenerateIntermediateVariableOnIndirectAssignment = 1 << 12,
+
         /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>

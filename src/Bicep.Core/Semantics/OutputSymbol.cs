@@ -7,15 +7,12 @@ namespace Bicep.Core.Semantics
 {
     public class OutputSymbol : DeclaredSymbol
     {
-        public OutputSymbol(ISymbolContext context, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
+        public OutputSymbol(ISymbolContext context, string name, OutputDeclarationSyntax declaringSyntax)
             : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.Value = value;
         }
 
         public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax)this.DeclaringSyntax;
-
-        public SyntaxBase Value { get; }
 
         public override void Accept(SymbolVisitor visitor)
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -19,6 +20,6 @@ namespace Bicep.Core.Semantics
 
         FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax);
 
-        object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax);
+        Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax);
     }
 }

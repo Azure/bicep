@@ -77,8 +77,6 @@ namespace Bicep.Core.Analyzers.Linter
         /// Abstract method each rule must implement to provide analyzer
         /// diagnostics through the Analyze API
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
         public abstract IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel);
 
         protected DiagnosticLevel GetDiagnosticLevel(SemanticModel model) => GetDiagnosticLevel(model.Configuration.Analyzers);

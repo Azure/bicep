@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Utils;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Visitors
 {
@@ -13,26 +13,18 @@ namespace Bicep.Core.Visitors
         private readonly SemanticModel semanticModel;
         private readonly Dictionary<FunctionCallSyntaxBase, FunctionVariable> variables;
 
-        private readonly VisitorRecorder<SyntaxBase> syntaxRecorder = new();
-
         private FunctionVariableGeneratorVisitor(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
             this.variables = new();
         }
 
-        public static IDictionary<FunctionCallSyntaxBase, FunctionVariable> GetFunctionVariables(SemanticModel semanticModel)
+        public static ImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable> GetFunctionVariables(SemanticModel semanticModel)
         {
             var visitor = new FunctionVariableGeneratorVisitor(semanticModel);
             visitor.Visit(semanticModel.Root.Syntax);
 
-            return visitor.variables;
-        }
-
-        protected override void VisitInternal(SyntaxBase node)
-        {
-            using var _ = syntaxRecorder.Scope(node);
-            base.VisitInternal(node);
+            return visitor.variables.ToImmutableDictionary();
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -48,19 +40,19 @@ namespace Bicep.Core.Visitors
 
         private void GenerateVariableFromFunctionCall(FunctionCallSyntaxBase syntax)
         {
-            var symbol = semanticModel.GetSymbolInfo(syntax);
-            if (symbol is not FunctionSymbol || semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not { VariableGenerator: { } } functionOverload)
+            if (semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not {} functionOverload ||
+                semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax) is not {} functionResult)
             {
                 return;
             }
 
-            var directVariableAssignment = syntaxRecorder.Skip(1).FirstOrDefault() is VariableDeclarationSyntax;
-            var variable = functionOverload.VariableGenerator(syntax, symbol, semanticModel.GetTypeInfo(syntax), directVariableAssignment, semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax));
-            if (variable is not null)
+            var directVariableAssignment = semanticModel.Binder.GetParent(syntax) is VariableDeclarationSyntax;
+
+            if (functionOverload.Flags.HasFlag(FunctionFlags.GenerateIntermediateVariableAlways) ||
+                (!directVariableAssignment && functionOverload.Flags.HasFlag(FunctionFlags.GenerateIntermediateVariableOnIndirectAssignment)))
             {
-                variables.Add(syntax, new($"$fxv#{variables.Count}", variable));
+                variables.Add(syntax, new($"$fxv#{variables.Count}", functionResult));
             }
         }
-
     }
 }

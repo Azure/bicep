@@ -4,11 +4,17 @@
 
 // metadata with value
 metadata myString2 = 'string value'
+//@    "myString2": "string value",
 metadata myInt2 = 42
+//@    "myInt2": 42,
 metadata myTruth = true
+//@    "myTruth": true,
 metadata myFalsehood = false
+//@    "myFalsehood": false,
 metadata myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+//@    "myEscapedString": "First line\r\nSecond\ttabbed\tline",
 metadata myMultiLineString = '''
+//@    "myMultiLineString": "  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n",
   This is a multi line string // with comments,
   blocked ${interpolation},
   and a /* newline.
@@ -17,6 +23,8 @@ metadata myMultiLineString = '''
 
 // object value
 metadata foo = {
+//@    "foo": {
+//@    },
   enabled: true
 //@      "enabled": true,
   name: 'this is my object'
@@ -60,6 +68,8 @@ metadata foo = {
 
 // array value
 metadata myArrayMetadata = [
+//@    "myArrayMetadata": [
+//@    ],
   'a'
 //@      "a",
   'b'
@@ -70,7 +80,9 @@ metadata myArrayMetadata = [
 
 // emtpy object and array
 metadata myEmptyObj = { }
+//@    "myEmptyObj": {},
 metadata myEmptyArray = [ ]
+//@    "myEmptyArray": []
 
 // param with same name as metadata is permitted
 param foo string

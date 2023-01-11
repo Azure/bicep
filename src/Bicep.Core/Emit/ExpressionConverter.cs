@@ -93,11 +93,7 @@ namespace Bicep.Core.Emit
         }
 
         public Expression ConvertToIntermediateExpression(SyntaxBase syntax)
-        {
-            var expression = expressionBuilder.Convert(syntax);
-
-            return ExpressionLoweringVisitor.Lower(expression);
-        }
+            => expressionBuilder.Convert(syntax);
 
         public LanguageExpression ConvertExpression(SyntaxBase syntax)
         {
@@ -113,7 +109,6 @@ namespace Bicep.Core.Emit
         /// <param name="expression">The expression</param>
         public LanguageExpression ConvertExpression(Expression expression)
         {
-            SyntaxBase syntax;
             switch (expression)
             {
                 case BooleanLiteralExpression @bool:
@@ -141,10 +136,6 @@ namespace Bicep.Core.Emit
 
                 case ArrayExpression array:
                     return ConvertArray(array);
-
-                case SyntaxExpression syntaxExpression:
-                    syntax = syntaxExpression.Syntax;
-                    break;
 
                 case UnaryExpression unary:
                     return ConvertUnary(unary);
@@ -193,12 +184,10 @@ namespace Bicep.Core.Emit
                     return GetModuleReferenceExpression(exp.Module, exp.IndexContext);
 
                 case VariableReferenceExpression exp:
-                    if (context.VariablesToInline.Contains(exp.Variable))
-                    {
-                        // we've got a runtime dependency, so we have to inline the variable usage
-                        return ConvertExpression(exp.Variable.DeclaringVariable.Value);
-                    }
                     return CreateFunction("variables", new JTokenExpression(exp.Variable.Name));
+
+                case SynthesizedVariableReferenceExpression exp:
+                    return CreateFunction("variables", new JTokenExpression(exp.Name));
 
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
@@ -221,12 +210,6 @@ namespace Bicep.Core.Emit
 
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
-            }
-
-            switch (syntax)
-            {
-                default:
-                    throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
         }
 
@@ -799,7 +782,6 @@ namespace Bicep.Core.Emit
             {
                 parameters[index] = property.Key switch
                 {
-                    SyntaxExpression { Syntax: IdentifierSyntax identifier } => new JTokenExpression(identifier.IdentifierName),
                     StringLiteralExpression @string => new JTokenExpression(@string.Value),
                     InterpolatedStringExpression @string => ConvertString(@string),
                     _ => throw new NotImplementedException($"Encountered an unexpected type '{property.Key.GetType().Name}' when generating object's property name.")

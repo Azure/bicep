@@ -39,8 +39,6 @@ namespace Bicep.Core.Syntax
                 Interleave(variables.Select(x => new LocalVariableSyntax(x)), () => CommaToken),
                 SyntaxFactory.RightParenToken);
 
-        public static UnboundVariableAccessSyntax CreateUnboundVariableAccess(string text) => new(CreateIdentifier(text));
-
         public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token GetNewlineToken(IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
