@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
@@ -42,6 +44,8 @@ namespace Bicep.Core.Semantics
 
         public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
         {
+            targetType = RemoveImplicitNull(targetType);
+
             if (targetType is ErrorType)
             {
                 return;
@@ -63,7 +67,14 @@ namespace Bicep.Core.Semantics
                 return targetObject;
             }
 
-            return this.evaluator(functionCall, targetType, targetObject);
+            return this.evaluator(functionCall, RemoveImplicitNull(targetType), targetObject);
         }
+
+        private static TypeSymbol RemoveImplicitNull(TypeSymbol type) => type switch
+        {
+            UnionType union when union.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToArray() is { } sansNull
+                && sansNull.Length < union.Members.Length => TypeHelper.CreateTypeUnion(sansNull),
+            _ => type,
+        };
     }
 }

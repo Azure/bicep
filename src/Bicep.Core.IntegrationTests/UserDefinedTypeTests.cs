@@ -441,4 +441,31 @@ param myParam string? = 'foo'
             ("BCP317", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
         });
     }
+
+    [TestMethod]
+    public void Constraint_decorators_can_be_used_on_nullably_typed_params()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(3)
+@maxLength(10)
+@secure()
+#disable-next-line no-unused-params
+param constrainedString string?
+
+@minValue(3)
+@maxValue(10)
+type constrainedInt = int?
+
+@minLength(3)
+@maxLength(10)
+type constrainedArray = array?
+
+@sealed()
+@secure()
+#disable-next-line no-unused-params
+param sealedObject {}?
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

@@ -982,9 +982,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => null,
             };
 
+            static SyntaxBase? UnwrapNullableSyntax(SyntaxBase? maybeNullable) => maybeNullable switch
+            {
+                NullableTypeSyntax nullable => nullable.Base,
+                var otherwise => otherwise,
+            };
+
             static void EmitDiagnosticIfTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
-                if (decoratorParentTypeSyntax is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
+                if (UnwrapNullableSyntax(decoratorParentTypeSyntax) is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
                 }
@@ -992,7 +998,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static void EmitDiagnosticIfTargetingLiteral(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
             {
-                if (IsLiteralSyntax(decoratorParentTypeSyntax, typeManager))
+                if (IsLiteralSyntax(UnwrapNullableSyntax(decoratorParentTypeSyntax), typeManager))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
                 }
