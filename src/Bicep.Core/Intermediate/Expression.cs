@@ -193,6 +193,10 @@ public record VariableReferenceExpression(
         => visitor.VisitVariableReferenceExpression(this);
 }
 
+    /// <summary>
+    ///   Represents a variable which has been synthesized rather than explicitly declared by the user.
+    ///   This is used for example when in-lining JSON blocks for the loadJsonContent() function.
+    /// </summary>
 public record SynthesizedVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
     string Name
