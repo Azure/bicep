@@ -1203,7 +1203,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
 
                         // make sure the target type doesn't have an explicit additional properties declaration
-                        if ((targetType as ObjectType)?.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) == false)
+                        if (targetType is ObjectType targetObject && !targetObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
                         {
                             diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
                         }

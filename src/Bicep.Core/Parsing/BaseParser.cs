@@ -1248,7 +1248,7 @@ namespace Bicep.Core.Parsing
                             TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
                             TokenType.StringComplete or TokenType.StringLeftPiece => this.InterpolableString(),
                             TokenType.Asterisk => this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
-                            _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                            _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyNameOrMatcher()),
                         }, b => b.ExpectedPropertyName()),
                 RecoveryFlags.None,
                 TokenType.Colon, TokenType.NewLine, TokenType.RightBrace);

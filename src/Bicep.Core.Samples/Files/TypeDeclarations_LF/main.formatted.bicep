@@ -64,5 +64,5 @@ type tuple = [
 ]
 
 type stringStringDictionary = {
-  *:string
+  *: string
 }

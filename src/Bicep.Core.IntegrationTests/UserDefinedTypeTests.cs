@@ -379,4 +379,21 @@ param aDict {
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Additional_properties_may_be_used_alongside_named_properties()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  knownProp: int
+  *: string
+} = {
+  knownProp: 21
+  prop: 'someVal'
+}
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

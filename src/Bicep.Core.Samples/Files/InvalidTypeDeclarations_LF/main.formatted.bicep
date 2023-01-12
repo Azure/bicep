@@ -11,7 +11,7 @@ type sealedString = string
 
 @sealed()
 type sealedDictionary = {
-  *:string
+  *: string
 }
 
 type disallowedUnion = 'foo' | 21

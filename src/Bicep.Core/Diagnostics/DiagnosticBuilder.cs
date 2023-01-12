@@ -1806,6 +1806,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP316",
                 $@"The ""{LanguageConstants.ParameterSealedPropertyName}"" decorator may not be used on object types with an explicit additional properties type declaration.");
+
+            public ErrorDiagnostic ExpectedPropertyNameOrMatcher() => new(
+                TextSpan,
+                "BCP317",
+                "Expected an identifier, a string, or an asterisk at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
