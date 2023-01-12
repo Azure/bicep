@@ -66,6 +66,10 @@ type tuple = [
     bar
 ]
 
+type stringStringDictionary = {
+    *: string
+}
+
 param nullableParam string?
 //@[6:19) [no-unused-params (Warning)] Parameter "nullableParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |nullableParam|
 

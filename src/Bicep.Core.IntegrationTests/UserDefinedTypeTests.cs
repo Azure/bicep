@@ -430,16 +430,44 @@ param anotherObject object = {prop: 'someVal'}
     }
 
     [TestMethod]
-    public void Error_should_be_emitted_when_setting_a_default_value_on_a_nullable_parameter()
+    public void Error_should_be_shown_when_setting_unknown_properties_that_do_not_match_additional_properties_type()
     {
         var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
 #disable-next-line no-unused-params
-param myParam string? = 'foo'
+param aDict {
+  *: int
+} = {prop: 'someVal'}
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP315", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+            ("BCP036", DiagnosticLevel.Error, @"The property ""prop"" expected a value of type ""int"" but the provided value is of type ""'someVal'""."),
         });
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  *: string
+} = {prop: 'someVal'}
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Additional_properties_may_be_used_alongside_named_properties()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  knownProp: int
+  *: string
+} = {
+  knownProp: 21
+  prop: 'someVal'
+}
+");
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -467,5 +495,18 @@ param sealedObject {}?
 ");
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Error_should_be_emitted_when_setting_a_default_value_on_a_nullable_parameter()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param myParam string? = 'foo'
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP315", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+        });
     }
 }

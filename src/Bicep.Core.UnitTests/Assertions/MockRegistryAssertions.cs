@@ -41,6 +41,8 @@ namespace Bicep.Core.UnitTests.Assertions
                 using var manifestStream = MockRegistryBlobClient.WriteStream(manifestBytes);
                 var manifest = OciSerialization.Deserialize<OciManifest>(manifestStream);
 
+                manifest.ArtifactType.Should().Be("application/vnd.ms.bicep.module.artifact", "artifact type should be correct");
+
                 var config = manifest.Config;
                 config.MediaType.Should().Be("application/vnd.ms.bicep.module.config.v1+json", "config media type should be correct");
                 config.Size.Should().Be(0, "config should be empty");

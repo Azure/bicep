@@ -1797,9 +1797,24 @@ namespace Bicep.Core.Diagnostics
                 "BCP314",
                 $@"Using nullable types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
-            public ErrorDiagnostic NullableTypedParamsMayNotHaveDefaultValues() => new(
+            public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,
                 "BCP315",
+                "An object type may have at most one additional properties declaration.");
+
+            public ErrorDiagnostic SealedIncompatibleWithAdditionalPropertiesDeclaration() => new(
+                TextSpan,
+                "BCP316",
+                $@"The ""{LanguageConstants.ParameterSealedPropertyName}"" decorator may not be used on object types with an explicit additional properties type declaration.");
+
+            public ErrorDiagnostic ExpectedPropertyNameOrMatcher() => new(
+                TextSpan,
+                "BCP317",
+                "Expected an identifier, a string, or an asterisk at this location.");
+
+            public ErrorDiagnostic NullableTypedParamsMayNotHaveDefaultValues() => new(
+                TextSpan,
+                "BCP318",
                 "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden.");
         }
 

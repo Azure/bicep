@@ -250,13 +250,23 @@ param paramUsingType mixedArray
 type tuple = [
 //@    "tuple": {
 //@      "type": "array"
-//@    }
+//@    },
     @description('A leading string')
     string
 
     @description('A second element using a type alias')
     bar
 ]
+
+type stringStringDictionary = {
+//@    "stringStringDictionary": {
+//@      "type": "object",
+//@      "additionalProperties": {
+//@        "type": "string"
+//@      }
+//@    }
+    *: string
+}
 
 param nullableParam string?
 //@    "nullableParam": {

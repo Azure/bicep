@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6070087479697226072"
+      "templateHash": "18409897617731555211"
     }
   },
   "definitions": {
@@ -162,6 +162,12 @@
     },
     "tuple": {
       "type": "array"
+    },
+    "stringStringDictionary": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
     }
   },
   "parameters": {

@@ -384,7 +384,7 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitObjectTypeSyntax(ObjectTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectTypeSyntax);
 
-        protected virtual SyntaxBase ReplaceObjectPropertyTypeSyntax(ObjectTypePropertySyntax syntax)
+        protected virtual SyntaxBase ReplaceObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewrite(syntax.Key, out var key);
@@ -398,7 +398,23 @@ namespace Bicep.Core.Syntax
 
             return new ObjectTypePropertySyntax(leadingNodes, key, colon, value);
         }
-        void ISyntaxVisitor.VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectPropertyTypeSyntax);
+        void ISyntaxVisitor.VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectTypePropertySyntax);
+
+        protected virtual SyntaxBase ReplaceObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Asterisk, out var asterisk);
+            hasChanges |= TryRewriteStrict(syntax.Colon, out var colon);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ObjectTypeAdditionalPropertiesSyntax(leadingNodes, asterisk, colon, value);
+        }
+        void ISyntaxVisitor.VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectTypeAdditionalPropertiesSyntax);
 
         protected virtual SyntaxBase ReplaceTupleTypeSyntax(TupleTypeSyntax syntax)
         {

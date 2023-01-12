@@ -382,6 +382,21 @@ type tuple = [
 //@[00:01) RightSquare |]|
 //@[01:03) NewLine |\n\n|
 
+type stringStringDictionary = {
+//@[00:04) Identifier |type|
+//@[05:27) Identifier |stringStringDictionary|
+//@[28:29) Assignment |=|
+//@[30:31) LeftBrace |{|
+//@[31:32) NewLine |\n|
+    *: string
+//@[04:05) Asterisk |*|
+//@[05:06) Colon |:|
+//@[07:13) Identifier |string|
+//@[13:14) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
 param nullableParam string?
 //@[00:05) Identifier |param|
 //@[06:19) Identifier |nullableParam|

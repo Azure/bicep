@@ -398,6 +398,14 @@ namespace Bicep.Core.Emit
                 properties.Add(ExpressionFactory.CreateObjectProperty("properties", ExpressionFactory.CreateObject(propertySchemata)));
             }
 
+            if (syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().SingleOrDefault() is { } addlPropsType)
+            {
+                var addlPropertiesSchema = TypePropertiesForTypeExpression(addlPropsType.Value);
+                addlPropertiesSchema = AddDecoratorsToBody(addlPropsType, addlPropertiesSchema, context.SemanticModel.GetDeclaredType(addlPropsType) ?? ErrorType.Empty());
+
+                properties.Add(ExpressionFactory.CreateObjectProperty("additionalProperties", addlPropertiesSchema));
+            }
+
             return ExpressionFactory.CreateObject(properties);
         }
 

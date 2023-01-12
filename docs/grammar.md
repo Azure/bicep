@@ -155,8 +155,9 @@ primaryTypeExpression ->
 
 ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"
 
-objectType -> "{" (NL+ (objectTypeProperty NL+ )* )? "}"
+objectType -> "{" (NL+ ((objectTypeProperty | objectTypeAdditionalPropertiesMatcher) NL+ )* )? "}"
 objectTypeProperty -> decorator* ( IDENTIFIER(name) | stringComplete | multilineString ) ":" typeExpression
+objectTypeAdditionalPropertiesMatcher -> decorator* "*:" typeExpression
 
 tupleType -> "[" (NL+ tupleItem* )? "]"
 tupleItem -> decorator* typeExpression NL+

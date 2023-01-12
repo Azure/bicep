@@ -63,4 +63,8 @@ type tuple = [
   bar
 ]
 
+type stringStringDictionary = {
+  *: string
+}
+
 param nullableParam string?

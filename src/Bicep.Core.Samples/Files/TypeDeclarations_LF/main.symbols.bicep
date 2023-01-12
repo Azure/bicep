@@ -74,6 +74,11 @@ type tuple = [
     bar
 ]
 
+type stringStringDictionary = {
+//@[5:27) TypeAlias stringStringDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 47
+    *: string
+}
+
 param nullableParam string?
 //@[6:19) Parameter nullableParam. Type: null | string. Declaration start char: 0, length: 27
 

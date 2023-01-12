@@ -132,6 +132,12 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitTupleTypeSyntax(TupleTypeSyntax syntax)
         {
             this.VisitNodes(syntax.Children);
