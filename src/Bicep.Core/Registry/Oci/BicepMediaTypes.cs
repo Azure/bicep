@@ -9,6 +9,6 @@ namespace Bicep.Core.Registry.Oci
 
         public const string BicepModuleLayerV1Json = "application/vnd.ms.bicep.module.layer.v1+json";
 
-        public const string BicepModuleLayerV1Zip = "application/vnd.ms.bicep.module.layer.v1+zip";
+        public const string BicepModuleArtifactType = "application/vnd.ms.bicep.module.artifact";
     }
 }
