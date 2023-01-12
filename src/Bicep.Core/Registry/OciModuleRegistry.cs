@@ -120,7 +120,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
+                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, layer);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
