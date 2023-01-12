@@ -1,19 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Syntax;
+using Bicep.Core.Intermediate;
 
-namespace Bicep.Core.Semantics
-{
-    public class FunctionVariable
-    {
-        public FunctionVariable(string name, SyntaxBase value)
-        {
-            Name = name;
-            Value = value;
-        }
-        public string Name { get; }
+namespace Bicep.Core.Semantics;
 
-        public SyntaxBase Value { get; }
-    }
-}
-
+public record FunctionVariable(
+    string Name,
+    Expression Value);

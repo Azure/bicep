@@ -41,8 +41,6 @@ namespace Bicep.Core.Semantics
 
         protected FunctionOverload.EvaluatorDelegate? Evaluator { get; private set; }
 
-        protected FunctionOverload.VariableGeneratorDelegate? VariableGenerator { get; private set; }
-
         protected FunctionFlags Flags { get; private set; }
 
         public FunctionOverload Build()
@@ -61,7 +59,6 @@ namespace Bicep.Core.Semantics
                 FixedParameters.ToImmutable(),
                 VariableParameter,
                 Evaluator,
-                VariableGenerator,
                 Flags);
 
         public FunctionOverloadBuilder WithGenericDescription(string genericDescription)
@@ -116,11 +113,6 @@ namespace Bicep.Core.Semantics
         public FunctionOverloadBuilder WithEvaluator(FunctionOverload.EvaluatorDelegate evaluator)
         {
             Evaluator = evaluator;
-            return this;
-        }
-        public FunctionOverloadBuilder WithVariableGenerator(FunctionOverload.VariableGeneratorDelegate variableGenerator)
-        {
-            VariableGenerator = variableGenerator;
             return this;
         }
 

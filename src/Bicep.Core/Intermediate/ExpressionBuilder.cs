@@ -25,7 +25,19 @@ public class ExpressionBuilder
         this.localReplacements = localReplacements;
     }
 
+    public ExpressionBuilder(EmitterContext context)
+        : this(context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
+    {
+    }
+
     public Expression Convert(SyntaxBase syntax)
+    {
+        var expresion = ConvertWithoutLowering(syntax);
+
+        return ExpressionLoweringVisitor.Lower(expresion);
+    }
+
+    private Expression ConvertWithoutLowering(SyntaxBase syntax)
     {
         switch (syntax)
         {
@@ -38,7 +50,7 @@ public class ExpressionBuilder
                 return new InterpolatedStringExpression(
                     @string,
                     @string.SegmentValues,
-                    @string.Expressions.Select(Convert).ToImmutableArray());
+                    @string.Expressions.Select(ConvertWithoutLowering).ToImmutableArray());
             }
             case IntegerLiteralSyntax @int: {
                 var literalValue = @int.Value switch {
@@ -63,31 +75,29 @@ public class ExpressionBuilder
             case NullLiteralSyntax:
                 return new NullLiteralExpression(syntax);
             case ParenthesizedExpressionSyntax x:
-                return Convert(x.Expression);
+                return ConvertWithoutLowering(x.Expression);
             case ObjectSyntax @object:
-                return new ObjectExpression(
-                    @object,
-                    @object.Properties.Select(ConvertObjectProperty).ToImmutableArray());
+                return ConvertObject(@object);
             case ArraySyntax array:
-                var items = array.Items.Select(x => Convert(x.Value));
+                var items = array.Items.Select(x => ConvertWithoutLowering(x.Value));
                 return new ArrayExpression(array, items.ToImmutableArray());
             case TernaryOperationSyntax ternary:
                 return new TernaryExpression(
                     ternary,
-                    Convert(ternary.ConditionExpression),
-                    Convert(ternary.TrueExpression),
-                    Convert(ternary.FalseExpression));
+                    ConvertWithoutLowering(ternary.ConditionExpression),
+                    ConvertWithoutLowering(ternary.TrueExpression),
+                    ConvertWithoutLowering(ternary.FalseExpression));
             case BinaryOperationSyntax binary:
                 return new BinaryExpression(
                     binary,
                     binary.Operator,
-                    Convert(binary.LeftExpression),
-                    Convert(binary.RightExpression));
+                    ConvertWithoutLowering(binary.LeftExpression),
+                    ConvertWithoutLowering(binary.RightExpression));
             case UnaryOperationSyntax unary:
                 return new UnaryExpression(
                     unary,
                     unary.Operator,
-                    Convert(unary.Expression));
+                    ConvertWithoutLowering(unary.Expression));
             case FunctionCallSyntaxBase function:
                 return ConvertFunction(function);
             case ArrayAccessSyntax arrayAccess:
@@ -95,9 +105,6 @@ public class ExpressionBuilder
                 return ConvertArrayAccess(arrayAccess);
             case PropertyAccessSyntax propertyAccess:
                 return ConvertPropertyAccess(propertyAccess);
-            case UnboundVariableAccessSyntax unboundVariableAccess:
-                var varProperties = new Expression[] { new StringLiteralExpression(unboundVariableAccess, unboundVariableAccess.Name.IdentifierName) };
-                return new FunctionCallExpression(unboundVariableAccess, "variables", varProperties.ToImmutableArray());
             case VariableAccessSyntax variableAccess:
                 return ConvertVariableAccess(variableAccess);
             case ResourceAccessSyntax resourceAccess:
@@ -108,47 +115,140 @@ public class ExpressionBuilder
                 return new LambdaExpression(
                     lambda,
                     variableNames.ToImmutableArray(),
-                    Convert(lambda.Body));
+                    ConvertWithoutLowering(lambda.Body));
 
             case ForSyntax forSyntax:
                 return new ForLoopExpression(
                     forSyntax,
-                    Convert(forSyntax.Expression),
-                    Convert(forSyntax.Body));
+                    ConvertWithoutLowering(forSyntax.Expression),
+                    ConvertWithoutLowering(forSyntax.Body));
+
+            case IfConditionSyntax conditionSyntax:
+                return new ConditionExpression(
+                    conditionSyntax,
+                    ConvertWithoutLowering(conditionSyntax.ConditionExpression),
+                    ConvertWithoutLowering(conditionSyntax.Body));
+
+            case MetadataDeclarationSyntax metadata:
+                return new DeclaredMetadataExpression(
+                    metadata,
+                    metadata.Name.IdentifierName,
+                    ConvertWithoutLowering(metadata.Value));
+
+            case ImportDeclarationSyntax import:
+                var symbol = GetDeclaredSymbol<ImportedNamespaceSymbol>(import);
+                return new DeclaredImportExpression(
+                    import,
+                    symbol.Name,
+                    GetTypeInfo<NamespaceType>(import),
+                    import.Config is not null ? ConvertWithoutLowering(import.Config) : null);
+
+            case ParameterDeclarationSyntax parameter:
+                return new DeclaredParameterExpression(
+                    parameter,
+                    parameter.Name.IdentifierName,
+                    GetDeclaredSymbol<ParameterSymbol>(parameter),
+                    parameter.Modifier is ParameterDefaultValueSyntax defaultValue ? ConvertWithoutLowering(defaultValue.DefaultValue) : null);
+
+            case VariableDeclarationSyntax variable:
+                return new DeclaredVariableExpression(
+                    variable,
+                    variable.Name.IdentifierName,
+                    ConvertWithoutLowering(variable.Value));
+
+            case OutputDeclarationSyntax output:
+                return new DeclaredOutputExpression(
+                    output,
+                    output.Name.IdentifierName,
+                    GetDeclaredSymbol<OutputSymbol>(output),
+                    ConvertWithoutLowering(output.Value));
+
+            case ProgramSyntax program:
+                var metadataArray = context.SemanticModel.Root.MetadataDeclarations
+                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+                    .OfType<DeclaredMetadataExpression>()
+                    .ToImmutableArray();
+
+                var imports = context.SemanticModel.Root.ImportDeclarations
+                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+                    .OfType<DeclaredImportExpression>()
+                    .ToImmutableArray();
+
+                var parameters = context.SemanticModel.Root.ParameterDeclarations
+                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+                    .OfType<DeclaredParameterExpression>()
+                    .ToImmutableArray();
+
+                var variables = context.SemanticModel.Root.VariableDeclarations
+                    .Where(x => !context.VariablesToInline.Contains(x))
+                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+                    .OfType<DeclaredVariableExpression>()
+                    .ToImmutableArray();
+
+                var outputs = context.SemanticModel.Root.OutputDeclarations
+                    .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+                    .OfType<DeclaredOutputExpression>()
+                    .ToImmutableArray();
+
+                return new ProgramExpression(
+                    program,
+                    metadataArray,
+                    imports,
+                    parameters,
+                    variables,
+                    outputs);
+
             default:
-                return new SyntaxExpression(syntax);
+                throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}");
         }
     }
 
-    private ObjectPropertyExpression ConvertObjectProperty(ObjectPropertySyntax syntax)
+    private TSymbol GetDeclaredSymbol<TSymbol>(SyntaxBase syntax)
+        where TSymbol : DeclaredSymbol
+    {
+        if (!context.SemanticModel.Root.DeclarationsBySyntax.TryGetValue(syntax, out var symbol) ||
+            symbol is not TSymbol declaredSymbol)
+        {
+            throw new ArgumentException($"Failed to find symbol for syntax of type {syntax.GetType()}");
+        }
+
+        return declaredSymbol;
+    }
+
+    private TType GetTypeInfo<TType>(SyntaxBase syntax)
+        where TType : TypeSymbol
+    {
+        if (context.SemanticModel.GetTypeInfo(syntax) is not TType typeSymbol)
+        {
+            throw new ArgumentException($"Failed to find type symbol for syntax of type {syntax.GetType()}");
+        }
+
+        return typeSymbol;
+    }
+
+    public ObjectExpression ConvertObject(ObjectSyntax @object)
+        => new ObjectExpression(
+            @object,
+            @object.Properties.Select(ConvertObjectProperty).ToImmutableArray());
+
+    public ObjectPropertyExpression ConvertObjectProperty(ObjectPropertySyntax syntax)
     {
         var keyExpression = syntax.Key is IdentifierSyntax identifier ?
             new StringLiteralExpression(identifier, identifier.IdentifierName) :
-            Convert(syntax.Key);
+            ConvertWithoutLowering(syntax.Key);
 
-        return new(syntax, keyExpression, Convert(syntax.Value));
+        return new(syntax, keyExpression, ConvertWithoutLowering(syntax.Value));
     }
 
-    private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
+    private FunctionCallExpression ConvertFunctionDirect(FunctionCallSyntaxBase functionCall)
     {
-        var symbol = context.SemanticModel.GetSymbolInfo(functionCall);
-        if (symbol is FunctionSymbol &&
-            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { Evaluator: { } } functionOverload)
-        {
-            return Convert(functionOverload.Evaluator(functionCall,
-                symbol,
-                context.SemanticModel.GetTypeInfo(functionCall),
-                context.FunctionVariables.GetValueOrDefault(functionCall),
-                context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall)));
-        }
-
         switch (functionCall)
         {
             case FunctionCallSyntax function:
                 return new FunctionCallExpression(
                     function,
                     function.Name.IdentifierName,
-                    function.Arguments.Select(a => Convert(a.Expression)).ToImmutableArray());
+                    function.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
 
             case InstanceFunctionCallSyntax method:
                 var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(method.BaseExpression);
@@ -161,14 +261,14 @@ public class ExpressionBuilder
                         return new FunctionCallExpression(
                             method,
                             method.Name.IdentifierName,
-                            method.Arguments.Select(a => Convert(a.Expression)).ToImmutableArray());
+                            method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
                     case { } _ when context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is DeclaredResourceMetadata resource:
                         if (method.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                         {
                             var indexContext = TryGetReplacementContext(resource.NameSyntax, indexExpression, method);
 
                             // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
-                            var convertedArgs = method.Arguments.SelectArray(a => Convert(a.Expression));
+                            var convertedArgs = method.Arguments.SelectArray(a => ConvertWithoutLowering(a.Expression));
                             var resourceIdExpression = new PropertyAccessExpression(
                                 baseSyntax,
                                 new ResourceReferenceExpression(baseSyntax, resource, indexContext),
@@ -197,6 +297,27 @@ public class ExpressionBuilder
         }
     }
 
+    private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
+    {
+        if (context.FunctionVariables.GetValueOrDefault(functionCall) is {} functionVariable)
+        {
+            return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
+        }
+
+        if (context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is {} functionValue)
+        {
+            return functionValue;
+        }
+
+        var converted = ConvertFunctionDirect(functionCall);
+        if (context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { Evaluator: {} } functionOverload)
+        {
+            return functionOverload.Evaluator(converted);
+        }
+
+        return converted;
+    }
+
     private Expression ConvertArrayAccess(ArrayAccessSyntax arrayAccess)
     {
         // if there is an array access on a resource/module reference, we have to generate differently
@@ -220,8 +341,8 @@ public class ExpressionBuilder
 
         return new ArrayAccessExpression(
             arrayAccess,
-            Convert(arrayAccess.BaseExpression),
-            Convert(arrayAccess.IndexExpression));
+            ConvertWithoutLowering(arrayAccess.BaseExpression),
+            ConvertWithoutLowering(arrayAccess.IndexExpression));
     }
 
     private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName)
@@ -280,13 +401,13 @@ public class ExpressionBuilder
         {
             return new ModuleOutputPropertyAccessExpression(
                 propertyAccess,
-                Convert(propertyAccess.BaseExpression),
+                ConvertWithoutLowering(propertyAccess.BaseExpression),
                 propertyAccess.PropertyName.IdentifierName);
         }
 
         return new PropertyAccessExpression(
             propertyAccess,
-            Convert(propertyAccess.BaseExpression),
+            ConvertWithoutLowering(propertyAccess.BaseExpression),
             propertyAccess.PropertyName.IdentifierName);
     }
 
@@ -315,6 +436,12 @@ public class ExpressionBuilder
                 return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case VariableSymbol variableSymbol:
+                if (context.VariablesToInline.Contains(variableSymbol))
+                {
+                    // we've got a runtime dependency, so we have to inline the variable usage
+                    return ConvertWithoutLowering(variableSymbol.DeclaringVariable.Value);
+                }
+
                 return new VariableReferenceExpression(variableAccessSyntax, variableSymbol);
 
             case ModuleSymbol moduleSymbol:
@@ -387,7 +514,7 @@ public class ExpressionBuilder
     private Expression GetLoopItemVariable(ForSyntax @for, Expression index)
     {
         // loop item variable should be replaced with <array expression>[<index expression>]
-        var forExpression = Convert(@for.Expression);
+        var forExpression = ConvertWithoutLowering(@for.Expression);
 
         return new ArrayAccessExpression(index.SourceSyntax, forExpression, index);
     }
@@ -453,7 +580,7 @@ public class ExpressionBuilder
                     return null;
                 }
 
-                return new(this.localReplacements, Convert(indexExpression));
+                return new(this.localReplacements, ConvertWithoutLowering(indexExpression));
 
             case 1 when indexExpression is not null:
                 // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
@@ -462,11 +589,11 @@ public class ExpressionBuilder
                 var builder = new ExpressionBuilder(this.context, localReplacements);
                 foreach (var local in inaccessibleLocals)
                 {
-                    var replacementValue = GetLoopVariable(local, @for, builder.Convert(indexExpression));
+                    var replacementValue = GetLoopVariable(local, @for, builder.ConvertWithoutLowering(indexExpression));
                     localReplacements = localReplacements.SetItem(local, replacementValue);
                 }
 
-                return new(localReplacements, builder.Convert(indexExpression));
+                return new(localReplacements, builder.ConvertWithoutLowering(indexExpression));
 
             default:
                 throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index replacement.");
