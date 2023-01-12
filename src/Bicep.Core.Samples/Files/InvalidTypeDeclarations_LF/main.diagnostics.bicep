@@ -17,6 +17,12 @@ type resource = bool
 //@[00:09) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (CodeDescription: none) |@sealed()|
 type sealedString = string
 
+@sealed()
+//@[00:09) [BCP316 (Error)] The "sealed" decorator may not be used on object types with an explicit additional properties type declaration. (CodeDescription: none) |@sealed()|
+type sealedDictionary = {
+	*: string
+}
+
 type disallowedUnion = 'foo'|21
 //@[29:31) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'string' type. (CodeDescription: none) |21|
 

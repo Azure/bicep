@@ -14,6 +14,12 @@ type resource = bool
 type sealedString = string
 //@[5:17) TypeAlias sealedString. Type: Type<string>. Declaration start char: 0, length: 36
 
+@sealed()
+type sealedDictionary = {
+//@[5:21) TypeAlias sealedDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 48
+	*: string
+}
+
 type disallowedUnion = 'foo'|21
 //@[5:20) TypeAlias disallowedUnion. Type: error. Declaration start char: 0, length: 31
 

@@ -1157,7 +1157,16 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator(ValidateNotTargetingAlias)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
+                    {
+                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+
+                        // make sure the target type doesn't have an explicit additional properties declaration
+                        if (targetType is ObjectType targetObject && !targetObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+                        }
+                    })
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, new BooleanLiteralExpression(null, true)))
                     // TODO delete the above line and uncomment the line below when ARM w46 has finished rolling out
                     // .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))

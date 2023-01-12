@@ -72,6 +72,8 @@ namespace Bicep.Core.Syntax
 
         void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax);
 
+        void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax);
+
         void VisitTupleTypeSyntax(TupleTypeSyntax syntax);
 
         void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax);
