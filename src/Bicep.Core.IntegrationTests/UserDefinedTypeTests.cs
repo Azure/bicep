@@ -506,7 +506,7 @@ param myParam string? = 'foo'
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP315", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+            ("BCP318", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
         });
     }
 }
