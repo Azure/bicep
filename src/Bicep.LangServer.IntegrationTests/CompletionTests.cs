@@ -809,9 +809,6 @@ output test string |
                 item.Kind.Should().Be(CompletionItemKind.Operator);
                 item.Preselect.Should().BeTrue();
                 item.TextEdit!.TextEdit!.NewText.Should().Be("=");
-
-                // do not add = to the list of commit chars
-                // it makes it difficult to type = without the "existing" keyword :)
                 item.CommitCharacters.Should().BeNull();
             }
 
