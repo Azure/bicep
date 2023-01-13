@@ -683,12 +683,6 @@ namespace Bicep.LanguageServer.Completions
             // | below indicates cursor position
             // output foo type |
             SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => offset > output.Type.GetEndPosition() && offset <= output.Assignment.Span.Position);
-            // resource foo '...' e|
-            // OR
-            // resource foo '...' e| = {
-            // SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
-            // // resource foo '...' |=
-            // SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
 
         private static bool IsVariableValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position
