@@ -795,6 +795,36 @@ resource base64 'Microsoft.Foo/foos@2020-09-01' existing | {}
         }
 
         [TestMethod]
+        public async Task OutputTypeFollowerWithoCompletionsOffersEquals()
+        {
+
+            var fileWithCursors = @"
+output test string |
+";
+
+            static void AssertEqualsOperatorCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("=");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Operator);
+                item.Preselect.Should().BeTrue();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("=");
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithBuiltInTypes,
+                fileWithCursors, 
+                completions => 
+                    completions.Should().SatisfyRespectively(
+                        x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                            d => AssertEqualsOperatorCompletion(d)
+                        )),
+                '|');
+        }
+
+        [TestMethod]
         public async Task PropertyNameCompletionsShouldIncludeTrailingColonIfColonIsMissing()
         {
             var fileWithCursors = @"
