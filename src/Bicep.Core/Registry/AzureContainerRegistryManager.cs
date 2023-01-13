@@ -11,7 +11,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using OciAnnotations = Bicep.Core.Registry.Oci.OciAnnotations;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
 
 namespace Bicep.Core.Registry
@@ -56,7 +58,7 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task PushArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference, StreamDescriptor config, params StreamDescriptor[] layers)
+        public async Task PushArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference, StreamDescriptor config, string? documentationUrl, params StreamDescriptor[] layers)
         {
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
@@ -80,11 +82,10 @@ namespace Bicep.Core.Registry
                 var layerUploadResult = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-            var manifest = new OciManifest(2, configDescriptor, layerDescriptors);
+            var manifest = new OciManifest(2, configDescriptor, layerDescriptors, new OciAnnotations(documentationUrl is null ? string.Empty : WebUtility.UrlEncode(documentationUrl)));
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
 
-            manifestStream.Position = 0;
             // BUG: the client closes the stream :( (is it still the case?)
             var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(tag: moduleReference.Tag));
         }

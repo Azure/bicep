@@ -15,6 +15,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Tracing;
+using Azure.Containers.ContainerRegistry.Specialized;
+using System.Net;
 
 namespace Bicep.Core.Registry
 {
@@ -113,14 +115,21 @@ namespace Bicep.Core.Registry
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled)
+        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUrl)
         {
+            //var annotations = new Dictionary<string, string>();
+
+            //if (!string.IsNullOrWhiteSpace(documentationUrl))
+            //{
+            //    annotations.Add("Documentation", WebUtility.UrlEncode(documentationUrl));
+            //}
+
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
             {
-                await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
+                await this.client.PushArtifactAsync(configuration, moduleReference, config, documentationUrl, layer);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {

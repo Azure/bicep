@@ -31,6 +31,21 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--documentationurl":
+                        if (isLast)
+                        {
+                            throw new CommandLineException("The --documentationUrl parameter expects an argument.");
+                        }
+
+                        if (this.DocumentationUrl is not null)
+                        {
+                            throw new CommandLineException("The --documentationUrl parameter cannot be specified twice.");
+                        }
+
+                        DocumentationUrl = args[i + 1];
+                        i++;
+                        break;
+
                     default:
                         if (args[i].StartsWith("--"))
                         {
@@ -56,11 +71,18 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException("The target module was not specified.");
             }
+
+            if (DocumentationUrl is null)
+            {
+                throw new CommandLineException("The documentation url was not specified.");
+            }
         }
 
         public string InputFile { get; }
 
         public string TargetModuleReference { get; }
+
+        public string DocumentationUrl { get; }
 
         public bool NoRestore { get; }
     }

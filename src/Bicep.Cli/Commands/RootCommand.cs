@@ -136,12 +136,13 @@ Usage:
       bicep generate-params file.bicep --outfile file.parameters.json
 
 
-  {exeName} publish <file> --target <ref>
+  {exeName} publish <file> --target <ref> --documentationUrl <documentationUrl>
     Publishes the .bicep file to the module registry.
 
     Arguments:
-      <file>        The input file (can be a Bicep file or an ARM template file)
-      <ref>         The module reference
+      <file>             The input file (can be a Bicep file or an ARM template file)
+      <ref>              The module reference
+      <documentationUrl> URL to get documentation on the module
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
