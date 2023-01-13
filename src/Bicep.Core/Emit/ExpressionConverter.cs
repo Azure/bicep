@@ -711,19 +711,6 @@ namespace Bicep.Core.Emit
                 ConvertExpression(indexContext.Index));
         }
 
-        private LanguageExpression GenerateSymbolicReference(string symbolName, SyntaxBase? indexExpression)
-        {
-            if (indexExpression is null)
-            {
-                return new JTokenExpression(symbolName);
-            }
-
-            return CreateFunction(
-                "format",
-                new JTokenExpression($"{symbolName}[{{0}}]"),
-                ConvertExpression(indexExpression));
-        }
-
         public LanguageExpression GenerateSymbolicReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
             => GenerateSymbolicReference(GetSymbolicName(resource), indexContext);
 

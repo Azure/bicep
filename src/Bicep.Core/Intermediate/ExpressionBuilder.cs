@@ -756,7 +756,7 @@ public class ExpressionBuilder
 
     private IndexReplacementContext? TryGetReplacementContext(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
     {
-        SyntaxBase movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : SyntaxFactory.CreateArray(GetResourceNameSyntaxSegments(resource));
+        SyntaxBase movedSyntax = resource.IsAzResource ? SyntaxFactory.CreateArray(GetResourceNameSyntaxSegments(resource)) : resource.Symbol.NameIdentifier;
 
         return TryGetReplacementContext(movedSyntax, indexExpression, newContext);
     }

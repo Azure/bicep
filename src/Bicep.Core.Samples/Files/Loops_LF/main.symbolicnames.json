@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5420759829882528275"
+      "templateHash": "16946259249638547988"
     }
   },
   "parameters": {
@@ -99,7 +99,7 @@
     "extendSingleResourceInCollection": {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name))]",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name))]",
       "name": "one-resource-collection-item-lock",
       "properties": {
         "level": "ReadOnly"
@@ -133,7 +133,7 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[copyIndex()]))]",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[range(0, 1)[copyIndex()]]))]",
       "name": "[format('lock-the-lock-{0}', range(0, 1)[copyIndex()])]",
       "properties": {
         "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
@@ -221,7 +221,7 @@
       "properties": {
         "resolutionVirtualNetworks": [
           {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[copyIndex()].name)]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[add(parameters('index'), 1)].name)]"
           }
         ]
       },
@@ -237,10 +237,10 @@
       "properties": {
         "resolutionVirtualNetworks": [
           {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[copyIndex()].name)]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[sub(parameters('index'), 1)].name)]"
           },
           {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[copyIndex()].name)]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[mul(parameters('index'), 2)].name)]"
           }
         ]
       },
@@ -815,11 +815,11 @@
     },
     "indexedCollectionName": {
       "type": "string",
-      "value": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]"
+      "value": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)]"
     },
     "indexedCollectionId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name))]"
     },
     "indexedCollectionType": {
       "type": "string",
@@ -854,11 +854,11 @@
     },
     "existingIndexedResourceName": {
       "type": "string",
-      "value": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]"
+      "value": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 0)].name)]"
     },
     "existingIndexedResourceId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[copyIndex()].name))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 1)].name))]"
     },
     "existingIndexedResourceType": {
       "type": "string",

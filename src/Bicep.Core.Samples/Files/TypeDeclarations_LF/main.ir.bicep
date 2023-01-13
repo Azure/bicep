@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1120) ProgramExpression
+//@[00:1169) ProgramExpression
 @sealed()
 type foo = {
   @minLength(3)
@@ -80,4 +80,8 @@ type tuple = [
     @description('A second element using a type alias')
     bar
 ]
+
+type stringStringDictionary = {
+    *: string
+}
 
