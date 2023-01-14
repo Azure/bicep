@@ -98,8 +98,7 @@ namespace Bicep.Core.Registry
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
 
-            //MemoryStream copy = new();
-            //await manifestStream.CopyToAsync(copy).ConfigureAwait(false);
+            manifestStream.Position = 0;
 
             // BUG: the client closes the stream :( (is it still the case?)
             var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(tag: moduleReference.Tag));

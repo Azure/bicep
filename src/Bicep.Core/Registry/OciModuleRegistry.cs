@@ -117,13 +117,6 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUrl)
         {
-            //var annotations = new Dictionary<string, string>();
-
-            //if (!string.IsNullOrWhiteSpace(documentationUrl))
-            //{
-            //    annotations.Add("Documentation", WebUtility.UrlEncode(documentationUrl));
-            //}
-
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
