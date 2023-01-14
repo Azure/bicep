@@ -39,7 +39,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             if (syntax.IndexExpression is StringSyntax stringSyntax &&
-                this.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax.BaseExpression) is ({ } resourceSymbol, { } resourceBodyType))
+                this.resourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax.BaseExpression) is ({ } resourceSymbol, { } resourceBodyType))
             {
                 if (stringSyntax.TryGetLiteralValue() is { } propertyName)
                 {
@@ -59,7 +59,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax.BaseExpression) is (ResourceSymbol resourceSymbol, { } resourceBodyType) &&
+            if (this.resourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax.BaseExpression) is (ResourceSymbol resourceSymbol, { } resourceBodyType) &&
                 resourceSymbol.DeclaringResource.IsExistingResource())
             {
                 this.FlagIfNotReadableAtDeployTime(syntax, syntax.PropertyName.IdentifierName, resourceSymbol, resourceBodyType);
@@ -71,7 +71,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             // This one checks for runtime functions like storageAccount.listKeys().
-            if (this.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax.BaseExpression) is (ResourceSymbol resourceSymbol, { } resourceBodyType) &&
+            if (this.resourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax.BaseExpression) is (ResourceSymbol resourceSymbol, { } resourceBodyType) &&
                 resourceSymbol.DeclaringResource.IsExistingResource())
             {
                 this.FlagIfFunctionRequiresInlining(syntax, resourceSymbol, resourceBodyType);
@@ -102,48 +102,29 @@ namespace Bicep.Core.TypeSystem
         private void FlagNestedRuntimeMemberAccess(SyntaxBase errorSyntax, ResourceSymbol resourceSymbol, ObjectType resourceBodyType)
         {
             var resourceSymbolName = resourceSymbol.Name;
+            var runtimeIdentifierPropertyNames = GetRuntimeIdentifierPropertyNames(resourceBodyType);
             var accessiblePropertyNames = GetAccessiblePropertyNames(resourceBodyType);
             var accessibleFunctionNames = GetAccessibleFunctionNames(resourceBodyType);
 
             var diagnostic = DiagnosticBuilder.ForPosition(errorSyntax)
-                .NestedRuntimePropertyAccessNotSupported(resourceSymbolName, accessiblePropertyNames, accessibleFunctionNames);
+                .NestedRuntimePropertyAccessNotSupported(resourceSymbolName, runtimeIdentifierPropertyNames, accessiblePropertyNames, accessibleFunctionNames);
 
             this.diagnosticWriter.Write(diagnostic);
         }
 
-        private (ResourceSymbol?, ObjectType?) TryResolveRuntimeExistingResourceSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax)
-        {
-            var resolved = this.resourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax);
+        private static IEnumerable<string> GetRuntimeIdentifierPropertyNames(ObjectType resourceBodyType) => resourceBodyType.Properties
+            .Where(kv => !kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
+            .Select(kv => kv.Key)
+            .Intersect(AzResourceTypeProvider.UniqueIdentifierProperties);
 
-            // Find the existing resources whose name is not readable at deploy-time.
-            if (resolved is (ResourceSymbol resourceSymbol, { } bodyType) &&
-                resourceSymbol.DeclaringResource.IsExistingResource() &&
-                bodyType.Properties.TryGetValue(AzResourceTypeProvider.ResourceNamePropertyName, out var namePropertyType) &&
-                !namePropertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
-            {
-                return (resourceSymbol, bodyType);
-            }
+        private static IEnumerable<string> GetAccessiblePropertyNames(ObjectType resourceBodyType) => resourceBodyType.Properties
+            .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) && !kv.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+            .Select(kv => kv.Key)
+            .Append(AzResourceTypeProvider.ResourceNamePropertyName) // Adding "name" because it will be inlined.
+            .Distinct();
 
-            return (null, null);
-        }
-
-        private static IEnumerable<string> GetAccessiblePropertyNames(ObjectType resourceBodyType)
-        {
-            var accessiblePropertyNames = resourceBodyType.Properties
-                .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
-                .Select(kv => kv.Key)
-                .Append(AzResourceTypeProvider.ResourceNamePropertyName);
-
-            return accessiblePropertyNames;
-        }
-
-        private static IEnumerable<string> GetAccessibleFunctionNames(ObjectType resourceBodyType)
-        {
-            var accesibleFunctionNames = resourceBodyType.MethodResolver.functionOverloads
-                .Where(x => !x.Flags.HasFlag(FunctionFlags.RequiresInlining))
-                .Select(x => x.Name);
-
-            return accesibleFunctionNames;
-        }
+        private static IEnumerable<string> GetAccessibleFunctionNames(ObjectType resourceBodyType) => resourceBodyType.MethodResolver.functionOverloads
+            .Where(x => !x.Flags.HasFlag(FunctionFlags.RequiresInlining))
+            .Select(x => x.Name);
     }
 }

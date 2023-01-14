@@ -32,7 +32,19 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (!syntax.IsExistingResource())
+            if (syntax.IsExistingResource())
+            {
+                var body = syntax.TryGetBody();
+
+                if (body is not null)
+                {
+                    foreach (var nestedResource in body.Resources)
+                    {
+                        this.Visit(nestedResource);
+                    }
+                }
+            }
+            else
             {
                 base.VisitResourceDeclarationSyntax(syntax);
             }
