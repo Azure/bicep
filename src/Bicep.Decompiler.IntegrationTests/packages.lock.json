@@ -91,17 +91,17 @@
       },
       "Azure.Containers.ContainerRegistry": {
         "type": "Transitive",
-        "resolved": "1.1.0-beta.4",
-        "contentHash": "GhTCm4Hh2Hs+MUQL5ocIn+dqcfPzyTkCjkIji/IuATZ/Nyr1FZHCaHm44P3Mj0uuXbBLgXejFlypDlTyKMJcsw==",
+        "resolved": "1.1.0-beta.5",
+        "contentHash": "U4NcSaH1jYOe94bwGewT9h5AsSnl6NBUlvFWwN0BN+xAzhozOgFbxdeD/eTUSSJszytvU0/o5cweAM/lKuuo5w==",
         "dependencies": {
-          "Azure.Core": "1.24.0",
+          "Azure.Core": "1.27.0",
           "System.Text.Json": "4.7.2"
         }
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.26.0",
-        "contentHash": "fKn/sxuceulRDjdzY1ug2WOrDR9PV7IrTHmP5UrWj2G/qOTCg4dSs3IVIynUJ35kYWpowsKJF4sTmh1QtHTajA==",
+        "resolved": "1.27.0",
+        "contentHash": "2313x90KaNKRY88ZMK/4MQaNESTzgPEeUCeyXMrOoZwh8HsjuHAHPG8eskHlpmQ4CuOag+QEwE04vykzTvosrw==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
           "System.Diagnostics.DiagnosticSource": "4.6.0",
@@ -2016,7 +2016,7 @@
           "Azure.Bicep.Types": "[0.3.61, )",
           "Azure.Bicep.Types.Az": "[0.2.238, )",
           "Azure.Bicep.Types.K8s": "[0.1.233, )",
-          "Azure.Containers.ContainerRegistry": "[1.1.0-beta.4, )",
+          "Azure.Containers.ContainerRegistry": "[1.1.0-beta.5, )",
           "Azure.Deployments.Core": "[1.0.788, )",
           "Azure.Deployments.Expression": "[1.0.788, )",
           "Azure.Deployments.Templates": "[1.0.788, )",

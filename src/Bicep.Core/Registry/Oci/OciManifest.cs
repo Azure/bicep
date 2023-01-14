@@ -3,13 +3,12 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Azure.Containers.ContainerRegistry.Specialized;
 
 namespace Bicep.Core.Registry.Oci
 {
     public class OciManifest
     {
-        public OciManifest(int schemaVersion, OciDescriptor config, IEnumerable<OciDescriptor> layers, OciAnnotations annotations)
+        public OciManifest(int schemaVersion, OciDescriptor config, IEnumerable<OciDescriptor> layers, OciAnnotations? annotations = null)
         {
             this.SchemaVersion = schemaVersion;
             this.Config = config;
@@ -23,6 +22,6 @@ namespace Bicep.Core.Registry.Oci
 
         public ImmutableArray<OciDescriptor> Layers { get; }
 
-        public OciAnnotations Annotations { get; }
+        public OciAnnotations? Annotations { get; }
     }
 }

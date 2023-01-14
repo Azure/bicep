@@ -87,15 +87,15 @@ namespace Bicep.Core.UnitTests.Registry
             return CreateResult(ContainerRegistryModelFactory.DownloadManifestResult(digest: digest, manifestStream: WriteStream(bytes)));
         }
 
-        public override async Task<Response<UploadBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
-        {
-            await Task.Yield();
+        //public override async Task<Response<UploadBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
+        //{
+        //    await Task.Yield();
 
-            var (copy, digest) = ReadStream(stream);
-            Blobs.TryAdd(digest, copy);
+        //    var (copy, digest) = ReadStream(stream);
+        //    Blobs.TryAdd(digest, copy);
 
-            return CreateResult(ContainerRegistryModelFactory.UploadBlobResult());
-        }
+        //    return CreateResult(ContainerRegistryModelFactory.UploadBlobResult());
+        //}
 
         public override async Task<Response<UploadManifestResult>> UploadManifestAsync(Stream stream, UploadManifestOptions? options = default, CancellationToken cancellationToken = default)
         {

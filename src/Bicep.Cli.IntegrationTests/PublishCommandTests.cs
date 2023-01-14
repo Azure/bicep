@@ -191,7 +191,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var client = StrictMock.Of<ContainerRegistryBlobClient>();
             client
-                .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<UploadBlobOptions>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
@@ -220,7 +220,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var client = StrictMock.Of<ContainerRegistryBlobClient>();
             client
-                .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<UploadBlobOptions>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();

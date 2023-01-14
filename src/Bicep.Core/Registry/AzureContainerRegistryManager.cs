@@ -60,6 +60,8 @@ namespace Bicep.Core.Registry
 
         public async Task PushArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference, StreamDescriptor config, string? documentationUrl, params StreamDescriptor[] layers)
         {
+            System.Diagnostics.Debugger.Launch();
+
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 
@@ -82,9 +84,22 @@ namespace Bicep.Core.Registry
                 var layerUploadResult = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-            var manifest = new OciManifest(2, configDescriptor, layerDescriptors, new OciAnnotations(documentationUrl is null ? string.Empty : WebUtility.UrlEncode(documentationUrl)));
+            OciManifest manifest;
+
+            if (string.IsNullOrWhiteSpace(documentationUrl))
+            {
+                manifest = new OciManifest(2, configDescriptor, layerDescriptors);
+            }
+            else
+            {
+                manifest = new OciManifest(2, configDescriptor, layerDescriptors, new OciAnnotations(WebUtility.UrlEncode(documentationUrl)));
+            }
+
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
+
+            //MemoryStream copy = new();
+            //await manifestStream.CopyToAsync(copy).ConfigureAwait(false);
 
             // BUG: the client closes the stream :( (is it still the case?)
             var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(tag: moduleReference.Tag));
