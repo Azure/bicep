@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.3.48" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.4.33" />
     <PackageReference Include="Moq" Version="4.18.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
     <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
