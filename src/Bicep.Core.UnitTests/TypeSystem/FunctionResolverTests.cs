@@ -240,7 +240,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
             };
 
-            TypeSymbol ToTypeLiteral(object argument) => argument switch
+            TypeSymbol ToTypeLiteral(object? argument) => argument switch
             {
                 string str => new StringLiteralType(str),
                 string[] strArray => new TupleType($"[{string.Join(", ", strArray.Select(str => $"'{str}'"))}]", strArray.Select(str => new StringLiteralType(str)).ToImmutableArray<ITypeReference>(), default),
@@ -248,10 +248,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 int[] intArray => new TupleType("", intArray.Select(@int => new IntegerLiteralType(@int)).ToImmutableArray<ITypeReference>(), default),
                 bool boolVal => new BooleanLiteralType(boolVal),
                 bool[] boolArray => new TupleType("", boolArray.Select(@bool => new BooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
+                null => LanguageConstants.Null,
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")
             };
 
-            object[] CreateRow(object returnedLiteral, string functionName, params object[] argumentLiterals)
+            object[] CreateRow(object? returnedLiteral, string functionName, params object[] argumentLiterals)
             {
                 var argumentLiteralSyntaxes = argumentLiterals.Select(ToFunctionArgumentSyntax).ToArray();
                 var argumentTypeLiterals = argumentLiterals.Select(ToTypeLiteral).ToList();
@@ -298,7 +299,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(new[] { "pop" }, "intersection", new[] { "fizz", "buzz", "pop" }, new[] { "snap", "crackle", "pop" }),
                 CreateRow(new[] { "fizz", "buzz", "pop" }, "union", new[] { "fizz", "buzz" }, new[] { "pop" }),
                 CreateRow("fizz", "first", new[] { new[] { "fizz", "buzz", "pop" } }),
+                CreateRow(null, "first", new[] { Array.Empty<string>() }),
                 CreateRow("pop", "last", new[] { new[] { "fizz", "buzz", "pop" } }),
+                CreateRow(null, "last", new[] { Array.Empty<string>() }),
                 CreateRow(0, "indexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(3, "lastIndexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(1, "min", new[] { 10, 4, 1, 6 }),
