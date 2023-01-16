@@ -19,7 +19,7 @@
     "jest": "^27.5.1",
     "jest-runner-groups": "^2.2.0",
     "prettier": "^2.8.3",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.0.7",
     "ts-jest": "^27.1.4",
     "typescript": "^4.9.4",
     "uuid": "^9.0.0"
