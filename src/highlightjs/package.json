@@ -6,7 +6,7 @@
     "@types/jest": "^28.1.7",
     "@types/node": "^18.11.18",
     "@types/plist": "^3.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.32.0",
     "eslint-plugin-header": "^3.1.1",
