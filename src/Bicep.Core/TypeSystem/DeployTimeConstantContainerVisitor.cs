@@ -34,6 +34,8 @@ namespace Bicep.Core.TypeSystem
         {
             if (syntax.IsExistingResource())
             {
+                // DTC validation should be skipped for existing resource properties,
+                // so only visiting nested resources inside the existing resource.
                 var body = syntax.TryGetBody();
 
                 if (body is not null)
