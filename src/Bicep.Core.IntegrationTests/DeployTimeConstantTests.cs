@@ -55,6 +55,34 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
     name: 'Premium_LRS'
   }
 }]
+
+resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
+  name: uniqueString(appPlan.properties.workerTierName)
+
+  resource subnet0 'subnets' = {
+    name: uniqueString(appPlan.properties.workerTierName)
+    properties: {
+      addressPrefix: '10.0.2.0/24'
+    }
+  }
+
+  resource subnet1 'subnets' existing = {
+    name: uniqueString(appPlan.properties.workerTierName)
+  }
+}
+
+resource subnet2 'Microsoft.Network/virtualNetworks/subnets@2022-07-01' = {
+  name: 'subnet2'
+  parent: vnet 
+  properties: {
+    addressPrefix: '10.0.2.0/24'
+  }
+}
+
+resource diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'  = {
+  name: 'diag'
+  scope: vnet::subnet1
+}
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
@@ -64,6 +92,9 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
                 ("BCP182", DiagnosticLevel.Error, "This expression is being used in the for-body of the variable \"foo\", which requires values that can be calculated at the start of the deployment. Properties of appPlan which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP182", DiagnosticLevel.Error, "This expression is being used in the for-body of the variable \"foo\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"bar\" -> \"aRecord\"). Properties of aRecord which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP177", DiagnosticLevel.Error, "This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of aRecord which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+                ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""name"" property of the ""Microsoft.Network/virtualNetworks/subnets"" type, which requires a value that can be calculated at the start of the deployment. Properties of appPlan which can be calculated at the start include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""parent"" property of the ""Microsoft.Network/virtualNetworks/subnets"" type, which requires a value that can be calculated at the start of the deployment. Properties of vnet which can be calculated at the start include ""apiVersion"", ""id"", ""type""."),
+                ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""scope"" property of the ""Microsoft.Insights/diagnosticSettings"" type, which requires a value that can be calculated at the start of the deployment. Properties of subnet1 which can be calculated at the start include ""apiVersion"", ""id"", ""type""."),
             });
         }
 
