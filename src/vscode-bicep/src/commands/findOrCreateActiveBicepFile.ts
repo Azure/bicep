@@ -101,10 +101,7 @@ export async function findOrCreateActiveBicepFile(
   return response.data;
 }
 
-function addFileQuickPick(
-  items: IAzureQuickPickItem<Uri>[],
-  uri: Uri
-): void {
+function addFileQuickPick(items: IAzureQuickPickItem<Uri>[], uri: Uri): void {
   if (items.find((i) => i.data === uri)) {
     return;
   }
@@ -120,7 +117,6 @@ function addFileQuickPick(
     data: uri,
     alwaysShow: true,
     id: uri.path, // Used for most-recent persistence
-    priority: "normal",
   });
 }
 
