@@ -52,5 +52,26 @@ namespace Bicep.Core.Syntax
 
             return TryGetTypeProperty(model, objectSyntax, propertyName);
         }
+
+        /// <remarks>
+        /// If a chain of accesses starts with a "safe" access (e.g., <code><i>base</i>[?0].property</code> or <code><i>base</i>.?some.deeply.nested.property</code>),
+        /// it may short-circuit at runtime, meaning that <code>.deeply.nested.property</code> will only be evaluated if <code><i>base</i>.?some</code> returns a non-null value.
+        /// The upshot of this is that we will need to mark <code><i>base</i>.?some</code> as non-nullable when evaluating any chained property accesses, then
+        /// mark the resultant type as nullable iff the original "safe" access might return null.
+        /// Because of this requirement, it's necessary to evaluate the full access chain and determine if it is kicked off by a .? or [?] operator rather than
+        /// just evaluating <code>syntax.BaseExpression</code> recursively
+        /// </remarks>
+        public static Stack<AccessExpressionSyntax> ToAccessExpressionStack(this AccessExpressionSyntax syntax)
+        {
+            Stack<AccessExpressionSyntax> chainedAccesses = new();
+            chainedAccesses.Push(syntax);
+
+            while (chainedAccesses.TryPeek(out var current) && current.SafeAccessMarker is null && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
+            {
+                chainedAccesses.Push(baseAccessExpression);
+            }
+
+            return chainedAccesses;
+        }
     }
 }

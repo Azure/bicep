@@ -1124,19 +1124,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
         {
-            // if a chain of accesses starts with a "safe" access (e.g., `<base>[?0].property` or `<base>.?some.deeply.nested.property`), it may short-circuit at runtime,
-            // meaning that `.deeply.nested.property` will only be evaluated if `<base>.?some` returns a non-null value
-            // the upshot of this is that we will need to mark `<base>.?some` as non-nullable when evaluating any chained property accesses, then mark the resultant type
-            // as nullable iff the original "safe" access might return null.
-            // because of this requirement, it's necessary to evaluate the full access chain and determine if it is kicked off by a .? or [?] operator rather than
-            // just evaluating `syntax.BaseExpression` recursively
-            Stack<AccessExpressionSyntax> chainedAccesses = new();
-            chainedAccesses.Push(syntax);
-
-            while (chainedAccesses.TryPeek(out var current) && current.SafeAccessMarker is null && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
-            {
-                chainedAccesses.Push(baseAccessExpression);
-            }
+            Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
 
             var baseType = typeManager.GetTypeInfo(chainedAccesses.Peek().BaseExpression);
 
