@@ -282,17 +282,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                // TODO even with non-literal types, some type arithmetic could be performed
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    return argumentTypes[0] switch
+                    FunctionResult result = new(argumentTypes[0] switch 
                     {
-                        TypedArrayType typedArrayType => new(typedArrayType.Item.Type),
-                        TupleType tupleType when tupleType.Items.Length == 0 => new(LanguageConstants.Null),
-                        _ => TryDeriveLiteralReturnType("first", LanguageConstants.Any)
-                                .Invoke(binder, fileResolver, diagnostics, arguments, argumentTypes)
-                    };
-                }, TypeHelper.CreateTypeUnion(LanguageConstants.Object, LanguageConstants.Any, LanguageConstants.Null))
+                        TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
+                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                        _ => throw new InvalidOperationException("Could not determine the return type from the provided input")
+                    });
+                    return result;
+                }, LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the first element.")
@@ -306,17 +305,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("last")
-                // TODO even with non-literal types, some type arithmetic could be performed
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    return argumentTypes[0] switch
+                    return new(argumentTypes[0] switch 
                     {
-                        TypedArrayType typedArrayType => new(typedArrayType.Item.Type),
-                        TupleType tupleType when tupleType.Items.Length == 0 => new(LanguageConstants.Null),
-                        _ => TryDeriveLiteralReturnType("last", LanguageConstants.Any)
-                                .Invoke(binder, fileResolver, diagnostics, arguments, argumentTypes)
-                    };
-                }, TypeHelper.CreateTypeUnion(LanguageConstants.Object, LanguageConstants.Any, LanguageConstants.Null))
+                        TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
+                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                        _ => throw new InvalidOperationException("Could not determine the return type from the provided input")
+                    });
+                }, LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the last element.")
