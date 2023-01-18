@@ -194,5 +194,10 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place in an import statement: 'import 'foo@1.0.0' with { foo: true } as |'
         /// </summary>
         ExpectingImportAsKeyword = 1L << 35,
+
+        /// <summary>
+        /// The current location is after the output type.
+        /// </summary>
+        OutputTypeFollower = 1UL << 36
     }
 }

@@ -1797,9 +1797,24 @@ namespace Bicep.Core.Diagnostics
                 "BCP314",
                 $@"The ""{invalidTypeDef}"" type definition in the linked ARM JSON file is invalid because it has neither a ""type"" property nor a ""$ref"" property.");
 
-            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
+            public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,
                 "BCP315",
+                "An object type may have at most one additional properties declaration.");
+
+            public ErrorDiagnostic SealedIncompatibleWithAdditionalPropertiesDeclaration() => new(
+                TextSpan,
+                "BCP316",
+                $@"The ""{LanguageConstants.ParameterSealedPropertyName}"" decorator may not be used on object types with an explicit additional properties type declaration.");
+
+            public ErrorDiagnostic ExpectedPropertyNameOrMatcher() => new(
+                TextSpan,
+                "BCP317",
+                "Expected an identifier, a string, or an asterisk at this location.");
+
+            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
+                TextSpan,
+                "BCP318",
                 $@"The `.?` (safe dereference) operator may not be used to invoke instance functions.");
         }
 

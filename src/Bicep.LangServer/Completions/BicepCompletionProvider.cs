@@ -71,6 +71,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
+                .Concat(GetOutputTypeFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
                 .Concat(GetImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
@@ -724,6 +725,15 @@ namespace Bicep.LanguageServer.Completions
             var declaredType = model.GetDeclaredType(output);
 
             return GetValueCompletionsForType(model, context, declaredType, loopsAllowed: true);
+        }
+
+        private IEnumerable<CompletionItem> GetOutputTypeFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.OutputTypeFollower))
+            {
+                const string equals = "=";
+                yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
+            }
         }
 
         private IEnumerable<CompletionItem> GetResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)

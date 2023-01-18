@@ -14,6 +14,12 @@ internal class ObjectTypeNameBuilder
     private bool finalized = false;
 
     internal void AppendProperty(string propertyName, string propertyValue, bool isOptional)
+        => DoAppendProperty(Lexer.IsValidIdentifier(propertyName) ? propertyName : StringUtils.EscapeBicepString(propertyName), propertyValue, isOptional);
+
+    internal void AppendPropertyMatcher(string matchNotation, string value)
+        => DoAppendProperty(matchNotation, value, false);
+
+    private void DoAppendProperty(string propertyName, string propertyValue, bool isOptional)
     {
         if (finalized)
         {
@@ -26,17 +32,7 @@ internal class ObjectTypeNameBuilder
         }
         hasProperties = true;
         builder.Append(' ');
-
-        if (Lexer.IsValidIdentifier(propertyName))
-        {
-            builder.Append(propertyName);
-        }
-        else
-        {
-            builder.Append('\'');
-            builder.Append(StringUtils.EscapeBicepString(propertyName));
-            builder.Append('\'');
-        }
+        builder.Append(propertyName);
 
         if (isOptional)
         {
