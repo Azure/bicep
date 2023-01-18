@@ -40,5 +40,7 @@ namespace Bicep.Core.Modules
         /// Gets a value indicating whether this reference points to an external module.
         /// </summary>
         public abstract bool IsExternal { get; }
+
+        public virtual string? DocumentationUrl { get; set; }
     }
 }

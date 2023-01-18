@@ -72,17 +72,17 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException("The target module was not specified.");
             }
 
-            if (DocumentationUrl is null)
-            {
-                throw new CommandLineException("The documentation url was not specified.");
-            }
+            //if (DocumentationUrl is null)
+            //{
+            //    throw new CommandLineException("The documentation url was not specified.");
+            //}
         }
 
         public string InputFile { get; }
 
         public string TargetModuleReference { get; }
 
-        public string DocumentationUrl { get; }
+        public string? DocumentationUrl { get; }
 
         public bool NoRestore { get; }
     }

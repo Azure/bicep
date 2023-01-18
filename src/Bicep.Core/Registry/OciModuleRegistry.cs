@@ -39,6 +39,8 @@ namespace Bicep.Core.Registry
             this.parentModuleUri = parentModuleUri;
         }
 
+        public AzureContainerRegistryManager Client { get { return client; } }
+
         public override string Scheme => ModuleReferenceSchemes.Oci;
 
         public override RegistryCapabilities GetCapabilities(OciArtifactModuleReference reference)
@@ -103,6 +105,15 @@ namespace Bicep.Core.Registry
                     {
                         statuses.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
                         timer.OnFail();
+                    }
+                }
+                else
+                {
+                    var annotations = result.Manifest.Annotations;
+
+                    if (annotations is not null && annotations.Documentation is string documentationUrl && !string.IsNullOrWhiteSpace(documentationUrl))
+                    {
+                        reference.DocumentationUrl = documentationUrl;
                     }
                 }
             }

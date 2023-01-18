@@ -60,8 +60,6 @@ namespace Bicep.Core.Registry
 
         public async Task PushArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference, StreamDescriptor config, string? documentationUrl, params StreamDescriptor[] layers)
         {
-            System.Diagnostics.Debugger.Launch();
-
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 

@@ -76,7 +76,7 @@ namespace Bicep.Cli.Commands
             return 0;
         }
 
-        private async Task PublishModuleAsync(ModuleReference target, Stream stream, string documentationUrl)
+        private async Task PublishModuleAsync(ModuleReference target, Stream stream, string? documentationUrl)
         {
             try
             {
