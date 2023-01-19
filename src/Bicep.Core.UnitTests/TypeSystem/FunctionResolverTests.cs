@@ -272,12 +272,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetLastTestCases() => new[]
         {
-            // first(resourceGroup[]) -> resourceGroup
+            // last(resourceGroup[]) -> resourceGroup
             new object[] { 
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
-            // first(['test', 3]) -> 3
+            // last(['test', 3]) -> 3
             new object[] {
                 new TupleType("['test', 3]",
                     ImmutableArray.Create<ITypeReference>(
@@ -287,7 +287,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 default),
                 new IntegerLiteralType(3)
             },
-            // first([resourceGroup, subscription]) => subscription
+            // last([resourceGroup, subscription]) => subscription
             new object[] {
                 new TupleType("[resourceGroup, subscription]",
                     ImmutableArray.Create<ITypeReference>(
