@@ -12,6 +12,7 @@ import {
   Range,
   MessageItem,
   ConfigurationTarget,
+  ProgressLocation,
 } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
@@ -32,6 +33,7 @@ import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
 import { Disposable } from "../utils/disposable";
 import { isEmptyOrWhitespace } from "../utils/isEmptyOrWhitespace";
+import { withProgressAfterDelay } from "../utils/withProgressAfterDelay";
 
 export class PasteAsBicepCommand implements Command {
   public readonly id = "bicep.pasteAsBicep";
@@ -100,17 +102,26 @@ export class PasteAsBicepCommand implements Command {
     jsonContent: string,
     queryCanPaste: boolean
   ): Promise<BicepDecompileForPasteCommandResult> {
-    const decompileParams: BicepDecompileForPasteCommandParams = {
-      jsonContent,
-      queryCanPaste,
-    };
-    const decompileResult: BicepDecompileForPasteCommandResult =
-      await this.client.sendRequest("workspace/executeCommand", {
-        command: "decompileForPaste",
-        arguments: [decompileParams],
-      });
+    return await withProgressAfterDelay(
+      {
+        location: ProgressLocation.Notification,
+        title:
+          "Decompiling clipboard text into Bicep is taking longer than expected...",
+      },
+      async () => {
+        const decompileParams: BicepDecompileForPasteCommandParams = {
+          jsonContent,
+          queryCanPaste,
+        };
+        const decompileResult: BicepDecompileForPasteCommandResult =
+          await this.client.sendRequest("workspace/executeCommand", {
+            command: "decompileForPaste",
+            arguments: [decompileParams],
+          });
 
-    return decompileResult;
+        return decompileResult;
+      }
+    );
   }
 
   private isAutoConvertOnPasteEnabled(): boolean {
