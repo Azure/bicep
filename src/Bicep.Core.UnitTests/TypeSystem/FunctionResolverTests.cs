@@ -146,6 +146,20 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Should().HaveDiagnostics(diagnosticMessages.Select(message => ("BCP309", DiagnosticLevel.Error, message)));
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetFirstTestCases), DynamicDataSourceType.Method)]
+        public void FirstReturnsCorrectTypeForNonLiterals(TypeSymbol inputArrayType, TypeSymbol expected)
+        {
+            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetLastTestCases), DynamicDataSourceType.Method)]
+        public void LastReturnsCorrectTypeForNonLiterals(TypeSymbol inputArrayType, TypeSymbol expected)
+        {
+            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
+        }
+
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
         {
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
@@ -227,6 +241,44 @@ namespace Bicep.Core.UnitTests.TypeSystem
             },
         };
 
+        private static IEnumerable<object[]> GetFirstTestCases() => new[]
+        {
+            // first(resourceGroup[]) -> resourceGroup
+            new object[] { 
+                new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
+                TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
+            },
+            // first([resourceGroup, subscription]) => resourceGroup
+            new object[] {
+                new TupleType("[resourceGroup, subscription]",
+                    ImmutableArray.Create<ITypeReference>(
+                        LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
+                        LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
+                    ),
+                default),
+                LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup)
+            }
+        };
+
+        private static IEnumerable<object[]> GetLastTestCases() => new[]
+        {
+            // first(resourceGroup[]) -> resourceGroup
+            new object[] { 
+                new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
+                TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
+            },
+            // first([resourceGroup, subscription]) => subscription
+            new object[] {
+                new TupleType("[resourceGroup, subscription]",
+                    ImmutableArray.Create<ITypeReference>(
+                        LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
+                        LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
+                    ),
+                default),
+                LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
+            }
+        };
+
         private static IEnumerable<object[]> GetLiteralTransformations()
         {
             FunctionArgumentSyntax ToFunctionArgumentSyntax(object argument) => argument switch
@@ -299,8 +351,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(new[] { "pop" }, "intersection", new[] { "fizz", "buzz", "pop" }, new[] { "snap", "crackle", "pop" }),
                 CreateRow(new[] { "fizz", "buzz", "pop" }, "union", new[] { "fizz", "buzz" }, new[] { "pop" }),
                 CreateRow("fizz", "first", new[] { new[] { "fizz", "buzz", "pop" } }),
+                CreateRow(3, "first", new[] { new object[] { 3, "buzz", true } }),
                 CreateRow(null, "first", new[] { Array.Empty<string>() }),
                 CreateRow("pop", "last", new[] { new[] { "fizz", "buzz", "pop" } }),
+                CreateRow(true, "last", new[] { new object[] { 3, "buzz", true } }),
                 CreateRow(null, "last", new[] { Array.Empty<string>() }),
                 CreateRow(0, "indexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(3, "lastIndexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),

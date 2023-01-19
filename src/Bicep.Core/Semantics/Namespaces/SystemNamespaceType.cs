@@ -284,13 +284,12 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("first")
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    FunctionResult result = new(argumentTypes[0] switch 
+                    return new(argumentTypes[0] switch 
                     {
                         TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
                         ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
                         _ => throw new InvalidOperationException("Could not determine the return type from the provided input")
                     });
-                    return result;
                 }, LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
