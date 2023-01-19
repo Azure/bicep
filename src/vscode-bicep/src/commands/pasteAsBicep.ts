@@ -12,6 +12,7 @@ import {
   Range,
   MessageItem,
   ConfigurationTarget,
+  ProgressLocation,
 } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
@@ -20,7 +21,6 @@ import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
 } from "@microsoft/vscode-azext-utils";
-import { Disposable } from "../utils";
 import { areEqualIgnoringWhitespace } from "../utils/areEqualIgnoringWhitespace";
 import { getTextAfterFormattingChanges } from "../utils/getTextAfterFormattingChanges";
 import { bicepConfigurationKeys, bicepLanguageId } from "../language/constants";
@@ -31,6 +31,8 @@ import {
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
+import { withProgressIfSlow } from "../utils/withProgressIfSlow";
+import { Disposable } from "../utils/disposable";
 
 export class PasteAsBicepCommand implements Command {
   public readonly id = "bicep.pasteAsBicep";
@@ -99,17 +101,25 @@ export class PasteAsBicepCommand implements Command {
     jsonContent: string,
     queryCanPaste: boolean
   ): Promise<BicepDecompileForPasteCommandResult> {
-    const decompileParams: BicepDecompileForPasteCommandParams = {
-      jsonContent,
-      queryCanPaste,
-    };
-    const decompileResult: BicepDecompileForPasteCommandResult =
-      await this.client.sendRequest("workspace/executeCommand", {
-        command: "decompileForPaste",
-        arguments: [decompileParams],
-      });
+    return await withProgressIfSlow(
+      {
+        location: ProgressLocation.Notification,
+        title: "Attempting to decompile into Bicep",
+      },
+      async () => {
+        const decompileParams: BicepDecompileForPasteCommandParams = {
+          jsonContent,
+          queryCanPaste,
+        };
+        const decompileResult: BicepDecompileForPasteCommandResult =
+          await this.client.sendRequest("workspace/executeCommand", {
+            command: "decompileForPaste",
+            arguments: [decompileParams],
+          });
 
-    return decompileResult;
+        return decompileResult;
+      }
+    );
   }
 
   private isAutoConvertOnPasteEnabled(): boolean {
