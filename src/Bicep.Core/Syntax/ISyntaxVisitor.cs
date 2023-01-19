@@ -115,5 +115,7 @@ namespace Bicep.Core.Syntax
         void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
 
         void VisitLambdaSyntax(LambdaSyntax syntax);
+
+        void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax);
     }
 }

@@ -59,6 +59,7 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("5 ?? 3 + 2 ?? 7", "[coalesce(coalesce(5, add(3, 2)), 7)]")]
         [DataRow("true ?? true && false ?? false || true", "[coalesce(coalesce(true(), and(true(), false())), or(false(), true()))]")]
         [DataRow("null ?? true", "[coalesce(null(), true())]")]
+        [DataRow("{foo:true}!.foo", "[createObject('foo', true()).foo]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";

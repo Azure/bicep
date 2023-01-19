@@ -76,6 +76,8 @@ public class ExpressionBuilder
                 return new NullLiteralExpression(syntax);
             case ParenthesizedExpressionSyntax x:
                 return ConvertWithoutLowering(x.Expression);
+            case NonNullAssertionSyntax assertion:
+                return ConvertWithoutLowering(assertion.BaseExpression);
             case ObjectSyntax @object:
                 return ConvertObject(@object);
             case ArraySyntax array:

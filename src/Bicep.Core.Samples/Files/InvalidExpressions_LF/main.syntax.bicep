@@ -151,19 +151,19 @@ var bad = (null) ? !
 //@[20:0020) |   └─SkippedTriviaSyntax
 //@[20:0021) ├─Token(NewLine) |\n|
 var bad = (null)!
-//@[00:0016) ├─VariableDeclarationSyntax
+//@[00:0017) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0007) | ├─IdentifierSyntax
 //@[04:0007) | | └─Token(Identifier) |bad|
 //@[08:0009) | ├─Token(Assignment) |=|
-//@[10:0016) | └─ParenthesizedExpressionSyntax
-//@[10:0011) |   ├─Token(LeftParen) |(|
-//@[11:0015) |   ├─NullLiteralSyntax
-//@[11:0015) |   | └─Token(NullKeyword) |null|
-//@[15:0016) |   └─Token(RightParen) |)|
-//@[16:0018) ├─SkippedTriviaSyntax
-//@[16:0017) | ├─Token(Exclamation) |!|
-//@[17:0018) | └─Token(NewLine) |\n|
+//@[10:0017) | └─NonNullAssertionSyntax
+//@[10:0016) |   ├─ParenthesizedExpressionSyntax
+//@[10:0011) |   | ├─Token(LeftParen) |(|
+//@[11:0015) |   | ├─NullLiteralSyntax
+//@[11:0015) |   | | └─Token(NullKeyword) |null|
+//@[15:0016) |   | └─Token(RightParen) |)|
+//@[16:0017) |   └─Token(Exclamation) |!|
+//@[17:0018) ├─Token(NewLine) |\n|
 var bad = (null)[0]
 //@[00:0019) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
