@@ -416,7 +416,7 @@ output quux string = foos[0]!.bar.baz.quux
         var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithPossiblyNullDeref);
         result.Should().HaveDiagnostics(new []
         {
-          ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at deploy time, which would cause the deployment to fail."),
+          ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
         });
         result.Diagnostics.Single().Should().BeAssignableTo<IFixable>();
         result.Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithPossiblyNullDeref, templateWithNonNullAssertion);
