@@ -634,6 +634,29 @@ output string test2 = testRes.properties.|
         }
 
         [TestMethod]
+        public async Task Nonnull_assertion_operator_unwraps_union_with_null()
+        {
+            var fileWithCursors = @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+var bar = foos[0]!.ǂ
+var baz = foos[0]!.bar.ǂ
+var quux = foos[0]!.bar.baz.ǂ
+";
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithTypesEnabled,
+                fileWithCursors,
+                completions =>
+                    completions.Should().SatisfyRespectively(
+                        d => d.Single().Label.Should().Be("bar"),
+                        d => d.Single().Label.Should().Be("baz"),
+                        d => d.Single().Label.Should().Be("quux")),
+                'ǂ');
+        }
+
+        [TestMethod]
         public async Task Completions_after_resource_type_should_only_include_existing_keyword()
         {
             var fileWithCursors = @"
@@ -790,6 +813,36 @@ resource base64 'Microsoft.Foo/foos@2020-09-01' existing | {}
                             x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                                 d => AssertEqualsOperatorCompletion(d)
                             )),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task OutputTypeFollowerWithoCompletionsOffersEquals()
+        {
+
+            var fileWithCursors = @"
+output test string |
+";
+
+            static void AssertEqualsOperatorCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("=");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Operator);
+                item.Preselect.Should().BeTrue();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("=");
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithBuiltInTypes,
+                fileWithCursors,
+                completions =>
+                    completions.Should().SatisfyRespectively(
+                        x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                            d => AssertEqualsOperatorCompletion(d)
+                        )),
                 '|');
         }
 

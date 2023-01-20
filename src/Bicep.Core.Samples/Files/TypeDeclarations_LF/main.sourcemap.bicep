@@ -268,6 +268,20 @@ type stringStringDictionary = {
     *: string
 }
 
+param mightIncludeNull ({key: 'value'} | null)[]
+//@    "mightIncludeNull": {
+//@      "type": "array",
+//@      "allowedValues": [
+//@        null,
+//@        {
+//@          "key": "value"
+//@        }
+//@      ]
+//@    },
+
+var maybeNull = mightIncludeNull[0]!.key
+//@    "maybeNull": "[parameters('mightIncludeNull')[0].key]"
+
 param nullableParam string?
 //@    "nullableParam": {
 //@      "type": "string",

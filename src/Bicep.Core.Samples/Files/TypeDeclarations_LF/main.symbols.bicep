@@ -79,6 +79,12 @@ type stringStringDictionary = {
     *: string
 }
 
+param mightIncludeNull ({key: 'value'} | null)[]
+//@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48
+
+var maybeNull = mightIncludeNull[0]!.key
+//@[4:13) Variable maybeNull. Type: 'value'. Declaration start char: 0, length: 40
+
 param nullableParam string?
 //@[6:19) Parameter nullableParam. Type: null | string. Declaration start char: 0, length: 27
 

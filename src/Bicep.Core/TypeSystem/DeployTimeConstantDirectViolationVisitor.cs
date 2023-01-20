@@ -71,6 +71,33 @@ namespace Bicep.Core.TypeSystem
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
         {
+            if (this.DeployTimeConstantContainer is ObjectPropertySyntax property &&
+                property.TryGetTypeProperty(this.SemanticModel) is { } typeProperty &&
+                typeProperty.TypeReference is ResourceParentType or ResourceScopeType)
+            {
+                switch (this.SemanticModel.Binder.GetParent(syntax))
+                {
+                    case not PropertyAccessSyntax and not ArrayAccessSyntax when
+                        this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax) is ({ } resourceSymbol, { } resourceType):
+                        {
+                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+
+                            return;
+                        }
+                    case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
+                        this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
+                        this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
+                        {
+                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+
+                            return;
+                        }
+
+                    default:
+                        return;
+            }
+            }
+
             if (this.DeployTimeConstantContainer is not IfConditionSyntax and not ForSyntax)
             {
                 // We can skip validation if we are inside a resource/module body or a function call, because the

@@ -149,6 +149,9 @@ namespace Bicep.Core.TypeSystem
 
                 case ParenthesizedExpressionSyntax parenthesizedExpression:
                     return GetTypeAssignment(parenthesizedExpression.Expression);
+
+                case NonNullAssertionSyntax nonNullAssertion:
+                    return GetNonNullType(nonNullAssertion);
             }
 
             return null;
@@ -275,6 +278,7 @@ namespace Bicep.Core.TypeSystem
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
                 NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
+                NonNullAssertionSyntax nonNullAssertion => GetDeclaredTypeAssignment(nonNullAssertion)?.Reference,
                 _ => null
             };
         }
@@ -547,6 +551,7 @@ namespace Bicep.Core.TypeSystem
 
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
         {
+            NonNullAssertionSyntax nonNullAssertion => RequiresDeferral(nonNullAssertion.BaseExpression),
             ParenthesizedExpressionSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
             NullableTypeSyntax nullableType => RequiresDeferral(nullableType.Base),
             UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
@@ -839,6 +844,18 @@ namespace Bicep.Core.TypeSystem
                 body,
                 syntax.PropertyName.IdentifierName,
                 useSyntax: true);
+        }
+
+        private DeclaredTypeAssignment? GetNonNullType(NonNullAssertionSyntax syntax)
+        {
+            var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
+
+            return baseExpressionAssignment?.Reference switch
+            {
+                DeferredTypeReference deferredType => new(new DeferredTypeReference(() => TypeHelper.RemoveNullability(deferredType.Type)), syntax, baseExpressionAssignment.Flags),
+                ITypeReference otherwise => new(TypeHelper.RemoveNullability(otherwise.Type), syntax, baseExpressionAssignment.Flags),
+                null => null,
+            };
         }
 
         private DeclaredTypeAssignment? GetResourceAccessType(ResourceAccessSyntax syntax)

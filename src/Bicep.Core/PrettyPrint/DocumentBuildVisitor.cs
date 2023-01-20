@@ -508,7 +508,8 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 int stackTare = documentStack.Count;
                 var firstLineWritten = false;
 
@@ -539,6 +540,13 @@ namespace Bicep.Core.PrettyPrint
                 }
 
                 AggregateCurrentLine();
+            });
+
+        public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.Visit(syntax.BaseExpression);
+                this.Visit(syntax.AssertionOperator);
             });
 
         public override void VisitNullableTypeSyntax(NullableTypeSyntax syntax) =>

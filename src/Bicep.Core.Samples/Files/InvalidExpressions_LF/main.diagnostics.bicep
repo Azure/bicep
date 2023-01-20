@@ -53,7 +53,6 @@ var bad = (null) ? !
 var bad = (null)!
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
-//@[16:17) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |!|
 var bad = (null)[0]
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|

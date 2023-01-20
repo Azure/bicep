@@ -185,6 +185,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsParameterDefaultValueContext(matchingNodes, offset), BicepCompletionContextKind.ParameterDefaultValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsVariableValueContext(matchingNodes, offset), BicepCompletionContextKind.VariableValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsOutputValueContext(matchingNodes, offset), BicepCompletionContextKind.OutputValue | BicepCompletionContextKind.Expression) |
+                       ConvertFlag(IsOutputTypeFollowerContext(matchingNodes, offset), BicepCompletionContextKind.OutputTypeFollower) |
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
@@ -677,6 +678,11 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, Token>(matchingNodes, (output, token) => output.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // output foo type = a|
             SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (output, _, _, token) => output.Assignment is Token assignmentToken && offset > assignmentToken.GetEndPosition() && token.Type == TokenType.Identifier);
+
+        private static bool IsOutputTypeFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // | below indicates cursor position
+            // output foo type |
+            SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => offset > output.Type.GetEndPosition() && offset <= output.Assignment.Span.Position);
 
         private static bool IsVariableValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position

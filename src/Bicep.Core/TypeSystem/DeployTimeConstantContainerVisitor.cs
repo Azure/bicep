@@ -32,7 +32,21 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (!syntax.IsExistingResource())
+            if (syntax.IsExistingResource())
+            {
+                // DTC validation should be skipped for existing resource properties,
+                // so only visiting nested resources inside the existing resource.
+                var body = syntax.TryGetBody();
+
+                if (body is not null)
+                {
+                    foreach (var nestedResource in body.Resources)
+                    {
+                        this.Visit(nestedResource);
+                    }
+                }
+            }
+            else
             {
                 base.VisitResourceDeclarationSyntax(syntax);
             }
