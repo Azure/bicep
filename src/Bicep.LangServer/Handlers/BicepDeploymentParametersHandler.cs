@@ -148,7 +148,7 @@ namespace Bicep.LanguageServer.Handlers
             return modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
                 parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
                 expressionSyntax is not null &&
-                expressionSyntax is not StringSyntax &&  // This line is what is really causing the issue. Strings that contain ${} should be treated as expressions.
+                (expressionSyntax is not StringSyntax || specificationString.IsInterpolated()) &&
                 expressionSyntax is not IntegerLiteralSyntax &&
                 expressionSyntax is not BooleanLiteralSyntax;
         }
