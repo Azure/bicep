@@ -477,25 +477,25 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.3.48",
-        "contentHash": "9GiMcUu+Hi9bARi+S+ORinw58ttPq9oDCToY/w5CpyAVBhiNOljuKGC9j+2dX6o3+6bYHM4XXHerVTnob34rfg==",
+        "resolved": "17.4.33",
+        "contentHash": "y6p/7Xt2wqeSS1Q1WiUv9BynA/qhYMSt3X7Mn4Cy6hz5+v5zZ91WPkn+BVlMNBWrF/0tzDS7eHW2OD8aC/32NQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.3.48",
-          "Microsoft.VisualStudio.Validation": "17.0.58",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.4.33",
+          "Microsoft.VisualStudio.Validation": "17.0.64",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Transitive",
-        "resolved": "17.3.48",
-        "contentHash": "WZgmhbdKg3zRmLzXh2qB9e3K1hzJKZO5Iv3awDupCsMJ4t5r/SOjtP6P3O/phv75SRG38bCOCsd8leZJzXJqOA=="
+        "resolved": "17.4.33",
+        "contentHash": "gpf500WFCqnhJmbIEDvVYgeNLpHZ6PAyhcewyqqpE8UoKNHoCDdMgogulYuJERbRaGqywqD1pRwPNplVteNZ8g=="
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
-        "resolved": "17.0.58",
-        "contentHash": "6C24odGmfR9D2aMCpyNfnS2Hf+SXsNtj9ugsxUKNDCCMnjmJz/4C6B+5tY4UZ+tv7tRBusdl6fQM72TbhAIpGQ=="
+        "resolved": "17.0.64",
+        "contentHash": "tjh3zXOKXKXCeWNGMh+gq+B4SR9WBQPxoj37NY9klrJ8i8hmYZEIcb1khFkLRu988YHs0q6iawjk9Q/RvMdz3g=="
       },
       "Microsoft.Win32.Primitives": {
         "type": "Transitive",
@@ -2100,7 +2100,7 @@
           "MSTest.TestAdapter": "[2.2.10, )",
           "MSTest.TestFramework": "[3.0.2, )",
           "Microsoft.NET.Test.Sdk": "[17.3.2, )",
-          "Microsoft.VisualStudio.Threading": "[17.3.48, )",
+          "Microsoft.VisualStudio.Threading": "[17.4.33, )",
           "Moq": "[4.18.2, )",
           "OmniSharp.Extensions.LanguageClient": "[0.19.6, )"
         }
