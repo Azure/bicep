@@ -829,8 +829,8 @@ namespace Bicep.Core.TypeSystem
 
             return baseExpressionAssignment?.Reference switch
             {
-                DeferredTypeReference deferredType => new(new DeferredTypeReference(() => TypeHelper.RemoveNullability(deferredType.Type)), syntax, baseExpressionAssignment.Flags),
-                ITypeReference otherwise => new(TypeHelper.RemoveNullability(otherwise.Type), syntax, baseExpressionAssignment.Flags),
+                DeferredTypeReference deferredType => new(new DeferredTypeReference(() => TypeHelper.TryRemoveNullability(deferredType.Type) ?? deferredType.Type), syntax, baseExpressionAssignment.Flags),
+                ITypeReference otherwise => new(TypeHelper.TryRemoveNullability(otherwise.Type) ?? otherwise.Type, syntax, baseExpressionAssignment.Flags),
                 null => null,
             };
         }
@@ -960,12 +960,10 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // if the first access might return null, evaluate the rest of the chain as if it does not return null, the create a union of the result and null
-                    if (baseAssignment.Reference.Type is UnionType baseUnion &&
-                        baseUnion.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is { } sansNull &&
-                        sansNull.Length < baseUnion.Members.Length)
+                    if (TypeHelper.TryRemoveNullability(baseAssignment.Reference.Type) is TypeSymbol nonNullable)
                     {
                         nullVariantRemoved = true;
-                        baseAssignment = new(TypeHelper.CreateTypeUnion(sansNull), baseAssignment.DeclaringSyntax, baseAssignment.Flags);
+                        baseAssignment = new(nonNullable, baseAssignment.DeclaringSyntax, baseAssignment.Flags);
                     }
                 }
 

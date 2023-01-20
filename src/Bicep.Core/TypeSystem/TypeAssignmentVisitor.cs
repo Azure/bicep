@@ -1141,12 +1141,10 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // if the first access might return null, evaluate the rest of the chain as if it does not return null, the create a union of the result and null
-                    if (baseType is UnionType baseUnion &&
-                        baseUnion.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is { } sansNull &&
-                        sansNull.Length < baseUnion.Members.Length)
+                    if (TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullable)
                     {
                         nullVariantRemoved = true;
-                        baseType = TypeHelper.CreateTypeUnion(sansNull);
+                        baseType = nonNullable;
                     }
                 }
 
@@ -1490,7 +1488,11 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
-            => AssignType(syntax, () => TypeHelper.RemoveNullability(typeManager.GetTypeInfo(syntax.BaseExpression)));
+            => AssignType(syntax, () =>
+            {
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+                return TypeHelper.TryRemoveNullability(baseType) ?? baseType;
+            });
 
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {

@@ -1000,18 +1000,14 @@ namespace Bicep.LanguageServer.Completions
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange));
             }
 
-            var nullableBase = false;
-            if (declaredType is UnionType unionType &&
-                unionType.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is {} sansNull &&
-                sansNull.Length < unionType.Members.Length)
+            if (declaredType is not null && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
             {
-                nullableBase = true;
-                declaredType = TypeHelper.CreateTypeUnion(sansNull);
+                declaredType = nonNullable;
             }
 
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange, nullableBase))
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
                 .Concat(GetMethods(declaredType)
                     .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
         }
@@ -1450,7 +1446,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, bool nullableBase, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)
@@ -1465,7 +1461,7 @@ namespace Bicep.LanguageServer.Completions
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
                 var edit = new StringBuilder("[");
-                if (propertyAccess.SafeAccessMarker is not null || ShouldInjectSafeAccessMarker(property, propertyAccess, nullableBase))
+                if (propertyAccess.SafeAccessMarker is not null || ShouldInjectSafeAccessMarker(property, propertyAccess))
                 {
                     edit.Append('?');
                 }
@@ -1482,29 +1478,17 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
-                item.WithPlainTextEdit(replacementRange, $"{(ShouldInjectSafeAccessMarker(property, propertyAccess, nullableBase) ? "?" : "")}{property.Name}");
+                item.WithPlainTextEdit(replacementRange, $"{(ShouldInjectSafeAccessMarker(property, propertyAccess) ? "?" : "")}{property.Name}");
             }
 
             return item.Build();
         }
 
-        private static bool ShouldInjectSafeAccessMarker(TypeProperty property, PropertyAccessSyntax propertyAccess, bool nullableBase)
-        {
-            if (propertyAccess.SafeAccessMarker is not null)
-            {
-                return false;
-            }
-
-            return (nullableBase && !IsInSafeDereferenceChainTail(propertyAccess.BaseExpression)) ||
-                (property.TypeReference.Type is UnionType unionType && unionType.Members.Any(m => ReferenceEquals(m.Type, LanguageConstants.Null)));
-        }
-
-        private static bool IsInSafeDereferenceChainTail(SyntaxBase baseExpression) => baseExpression switch
-        {
-            AccessExpressionSyntax accessExpression when accessExpression.SafeAccessMarker is not null => true,
-            AccessExpressionSyntax accessExpression => IsInSafeDereferenceChainTail(accessExpression.BaseExpression),
-            _ => false,
-        };
+        /// <remarks>
+        /// If a <see cref="TypeProperty"/> is not marked as required OR its type is nullable, the property may or may not be present at runtime and should be accessed via safe dereference to avoid a deploy time error.
+        /// </remarks>
+        private static bool ShouldInjectSafeAccessMarker(TypeProperty property, PropertyAccessSyntax propertyAccess)
+            => propertyAccess.SafeAccessMarker is null && (!property.Flags.HasFlag(TypePropertyFlags.Required) || TypeHelper.TryRemoveNullability(property.TypeReference.Type) is not null);
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Keyword, keyword)

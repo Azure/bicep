@@ -337,7 +337,7 @@ public class ExpressionBuilder
         var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
 
         // Looking for short-circuitable access chains
-        if (arrayAccess.BaseExpression is AccessExpressionSyntax && arrayAccess.SafeAccessMarker is null)
+        if (arrayAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
         {
             if (convertedBase is AccessExpression baseAccess)
             {
@@ -352,6 +352,16 @@ public class ExpressionBuilder
 
         return new ArrayAccessExpression(arrayAccess, convertedBase, convertedIndex, GetAccessExpressionFlags(arrayAccess, arrayAccess.SafeAccessMarker));
     }
+
+    private bool IsAccessExpressionSyntax(SyntaxBase syntax) => syntax switch
+    {
+        AccessExpressionSyntax => true,
+
+        // type transformations with no runtime representation should be unwrapped and inspected
+        NonNullAssertionSyntax nonNullAssertion => IsAccessExpressionSyntax(nonNullAssertion.BaseExpression),
+
+        _ => false,
+    };
 
     private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName, AccessExpressionFlags flags)
     {
@@ -420,7 +430,7 @@ public class ExpressionBuilder
         var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
 
         // Looking for short-circuitable access chains
-        if (propertyAccess.BaseExpression is AccessExpressionSyntax && propertyAccess.SafeAccessMarker is null)
+        if (propertyAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
         {
             Expression nextLink = new StringLiteralExpression(propertyAccess.PropertyName, propertyAccess.PropertyName.IdentifierName);
 
