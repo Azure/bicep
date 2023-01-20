@@ -142,7 +142,7 @@ namespace Bicep.Core.UnitTests.Utils
             if (!semanticModel.HasErrors())
             {
                 using var stream = new MemoryStream();
-                var emitResult = emitter.EmitParamsFile(stream);
+                var emitResult = emitter.Emit(stream);
 
                 if (emitResult.Status != EmitStatus.Failed)
                 {
