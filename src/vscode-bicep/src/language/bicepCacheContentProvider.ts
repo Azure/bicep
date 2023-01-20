@@ -5,7 +5,7 @@ import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
-import { Disposable } from "../utils";
+import { Disposable } from "../utils/disposable";
 import { bicepCacheRequestType } from "./protocol";
 
 export class BicepCacheContentProvider

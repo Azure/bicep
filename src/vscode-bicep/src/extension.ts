@@ -13,20 +13,6 @@ import {
   workspace,
 } from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import {
-  BuildCommand,
-  CommandManager,
-  DeployCommand,
-  ForceModulesRestoreCommand,
-  GenerateParamsCommand,
-  InsertResourceCommand,
-  ShowSourceCommand,
-  ShowVisualizerCommand,
-  ShowVisualizerToSideCommand,
-  WalkthroughCopyToClipboardCommand,
-  WalkthroughCreateBicepFileCommand,
-  WalkthroughOpenBicepFileCommand,
-} from "./commands";
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 import { DecompileCommand } from "./commands/decompile";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
@@ -34,13 +20,6 @@ import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { BicepCacheContentProvider, createLanguageService } from "./language";
 import { TreeManager } from "./tree/TreeManager";
 import { updateUiContext } from "./updateUiContext";
-import {
-  activateWithTelemetryAndErrorHandling,
-  createLogger,
-  Disposable,
-  getLogger,
-  resetLogger,
-} from "./utils";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { BicepVisualizerViewManager } from "./visualizer";
@@ -49,6 +28,23 @@ import {
   bicepLanguageId,
 } from "./language/constants";
 import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
+import { Disposable } from "./utils/disposable";
+import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
+import { createLogger, getLogger, resetLogger } from "./utils/logger";
+import {
+  ShowVisualizerCommand,
+  ShowVisualizerToSideCommand,
+} from "./commands/showVisualizer";
+import { ShowSourceCommand } from "./commands/showSource";
+import { WalkthroughCopyToClipboardCommand } from "./commands/gettingStarted/WalkthroughCopyToClipboardCommand";
+import { WalkthroughCreateBicepFileCommand } from "./commands/gettingStarted/WalkthroughCreateBicepFileCommand";
+import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/WalkthroughOpenBicepFileCommand";
+import { ForceModulesRestoreCommand } from "./commands/forceModulesRestore";
+import { InsertResourceCommand } from "./commands/insertResource";
+import { DeployCommand } from "./commands/deploy";
+import { GenerateParamsCommand } from "./commands/generateParams";
+import { BuildCommand } from "./commands/build";
+import { CommandManager } from "./commands/commandManager";
 
 let languageClient: lsp.LanguageClient | null = null;
 

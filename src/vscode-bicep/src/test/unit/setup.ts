@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode from "vscode";
-
+// WARNING: The unit tests run in parallel, so this mock is a singleton and shared among all the unit tests.
+// (This is not the case for the e2e tests, which run sequentially.)
 jest.mock(
   "vscode",
   () => ({
@@ -34,23 +34,6 @@ jest.mock(
       showWorkspaceFolderPick: jest.fn(),
       onDidChangeActiveTextEditor: jest.fn(),
       showInformationMessage: jest.fn(),
-      withProgress: jest.fn(
-        async (
-          _options: vscode.ProgressOptions,
-          task: (
-            progress: vscode.Progress<{ message?: string; increment?: number }>,
-            token: vscode.CancellationToken
-          ) => void
-        ) => {
-          return await task(
-            { report: jest.fn() },
-            {
-              isCancellationRequested: false,
-              onCancellationRequested: jest.fn(),
-            }
-          );
-        }
-      ),
     },
     workspace: {
       getConfiguration: jest.fn(),
