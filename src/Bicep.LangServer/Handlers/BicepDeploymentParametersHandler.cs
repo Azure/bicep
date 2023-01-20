@@ -150,7 +150,7 @@ namespace Bicep.LanguageServer.Handlers
                 expressionSyntax is not null &&
                 // Complex Evaluation of StringSyntax is required for nested functions like 'resource${uniqueString(resourceGroup().id)}'
                 // Fixes: https://github.com/Azure/bicep/issues/8154
-                (expressionSyntax is not StringSyntax specificationString || specificationString.IsInterpolated()) &&
+                (expressionSyntax is not StringSyntax specificationString || not specificationString.IsInterpolated()) &&
                 expressionSyntax is not IntegerLiteralSyntax &&
                 expressionSyntax is not BooleanLiteralSyntax;
         }
