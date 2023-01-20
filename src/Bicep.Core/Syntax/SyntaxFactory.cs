@@ -389,5 +389,11 @@ namespace Bicep.Core.Syntax
 
         public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
             trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
+
+        public static NonNullAssertionSyntax AsNonNullable(SyntaxBase @base) => @base switch
+        {
+            NonNullAssertionSyntax alreadyNonNull => alreadyNonNull,
+            _ => new NonNullAssertionSyntax(@base, ExclamationToken),
+        };
     }
 }
