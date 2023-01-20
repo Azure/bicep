@@ -585,7 +585,11 @@ export class DeployCommand implements Command {
           placeHolder: `Please enter value for parameter "${paramName}"`,
         });
       } else {
-        if (deploymentParameter.isExpression || (deploymentParameter.parameterType == ParameterType.String && deploymentParameter.value?.includes("${"))) {
+        if (
+          deploymentParameter.isExpression || 
+          (deploymentParameter.parameterType === ParameterType.String &&
+            deploymentParameter.value?.includes("${")))
+        {
           paramValue = await this.selectValueForParameterOfTypeExpression(
             _context,
             paramName,
