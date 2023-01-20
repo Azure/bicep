@@ -27,7 +27,6 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
-  ParameterType,
 } from "../language";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
@@ -585,11 +584,7 @@ export class DeployCommand implements Command {
           placeHolder: `Please enter value for parameter "${paramName}"`,
         });
       } else {
-        if (
-          deploymentParameter.isExpression || 
-          (deploymentParameter.parameterType === ParameterType.String &&
-            deploymentParameter.value?.includes("${")))
-        {
+        if (deploymentParameter.isExpression ) {
           paramValue = await this.selectValueForParameterOfTypeExpression(
             _context,
             paramName,
