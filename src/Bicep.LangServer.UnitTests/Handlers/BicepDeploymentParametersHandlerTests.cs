@@ -552,7 +552,7 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("deploymentLocation");
-                    updatedParam.value.Should().Be("concat('deploy-',resourceGroup().location)");
+                    updatedParam.value.Should().Be("concat('deploy-', resourceGroup().location)");
                     updatedParam.isMissingParam.Should().BeFalse();
                     updatedParam.isExpression.Should().BeTrue();
                     updatedParam.isSecure.Should().BeFalse();
