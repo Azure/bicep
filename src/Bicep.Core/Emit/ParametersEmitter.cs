@@ -8,54 +8,55 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Newtonsoft.Json;
 
-namespace Bicep.Core.Emit
+namespace Bicep.Core.Emit;
+
+public class ParametersEmitter
 {
-    public class ParametersEmitter
+    private readonly SemanticModel model;
+
+    public ParametersEmitter(SemanticModel model)
     {
-        private readonly SemanticModel paramSemanticModel;
+        this.model = model;
+    }
 
-        private readonly EmitterSettings settings;
+    /// <summary>
+    /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.
+    /// </summary>
+    public static Encoding UTF8EncodingWithoutBom { get; } = new UTF8Encoding(false);
 
-        public ParametersEmitter(SemanticModel paramSemanticModel)
+    public EmitResult Emit(Stream stream)
+    {
+        using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
+
+        return Emit(sw);
+    }
+
+    public EmitResult Emit(TextWriter textWriter) => this.EmitOrFail(() =>
+    {
+        using var writer = new JsonTextWriter(textWriter)
         {
-            this.paramSemanticModel = paramSemanticModel;
-            this.settings = new(paramSemanticModel.Features);
+            // don't close the textWriter when writer is disposed
+            CloseOutput = false,
+            Formatting = Formatting.Indented
+        };
+
+        var emitter = new ParametersJsonWriter(model);
+        emitter.Write(writer);
+        writer.Flush();
+    });
+
+    private EmitResult EmitOrFail(Action write)
+    {
+        // collect all the diagnostics
+        var diagnostics = model.GetAllDiagnostics();
+
+        if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
+        {
+            return new EmitResult(EmitStatus.Failed, diagnostics);
         }
 
-        /// <summary>
-        /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.
-        /// </summary>
-        public static Encoding UTF8EncodingWithoutBom { get; } = new UTF8Encoding(false);
+        write();
 
-         public EmitResult EmitParamsFile(Stream stream) => EmitOrFail(() =>
-        {
-            using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true))
-            {
-                Formatting = Formatting.Indented
-            };
-
-            new ParametersJsonWriter(paramSemanticModel).Write(writer);
-        });
-
-        public EmitResult EmitParamsFile(JsonTextWriter writer) => this.EmitOrFail(() =>
-        {
-            new ParametersJsonWriter(paramSemanticModel).Write(writer);
-        });
-
-
-        private EmitResult EmitOrFail(Action write)
-        {
-            // collect all the diagnostics
-            var diagnostics = paramSemanticModel.GetAllDiagnostics();
-
-            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
-            {
-                return new EmitResult(EmitStatus.Failed, diagnostics);
-            }
-
-            write();
-
-            return new EmitResult(EmitStatus.Succeeded, diagnostics);
-        }
+        return new EmitResult(EmitStatus.Succeeded, diagnostics);
     }
 }

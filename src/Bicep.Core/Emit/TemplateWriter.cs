@@ -90,15 +90,12 @@ namespace Bicep.Core.Emit
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
 
-        private readonly EmitterContext context;
-        private readonly EmitterSettings settings;
-        private readonly ExpressionBuilder expressionBuilder;
+        private EmitterContext Context => ExpressionBuilder.Context;
+        private ExpressionBuilder ExpressionBuilder { get; }
 
-        public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
+        public TemplateWriter(SemanticModel semanticModel)
         {
-            this.context = new EmitterContext(semanticModel, settings);
-            this.settings = settings;
-            expressionBuilder = new(context);
+            ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -117,14 +114,14 @@ namespace Bicep.Core.Emit
 
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
-            var emitter = new ExpressionEmitter(jsonWriter, this.context);
-            var program = (ProgramExpression)expressionBuilder.Convert(context.SemanticModel.Root.Syntax);
+            var emitter = new ExpressionEmitter(jsonWriter, this.Context);
+            var program = (ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax);
 
             jsonWriter.WriteStartObject();
 
-            emitter.EmitProperty("$schema", GetSchema(context.SemanticModel.TargetScope));
+            emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
 
-            if (context.Settings.EnableSymbolicNames)
+            if (Context.Settings.EnableSymbolicNames)
             {
                 emitter.EmitProperty("languageVersion", "1.9-experimental");
             }
@@ -153,7 +150,7 @@ namespace Bicep.Core.Emit
 
         private void EmitTypeDefinitionsIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
-            if (context.SemanticModel.Root.TypeDeclarations.Length == 0)
+            if (Context.SemanticModel.Root.TypeDeclarations.Length == 0)
             {
                 return;
             }
@@ -161,7 +158,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("definitions");
             jsonWriter.WriteStartObject();
 
-            foreach (var declaredTypeSymbol in context.SemanticModel.Root.TypeDeclarations)
+            foreach (var declaredTypeSymbol in Context.SemanticModel.Root.TypeDeclarations)
             {
                 jsonWriter.WritePropertyWithPosition(
                     declaredTypeSymbol.DeclaringType,
@@ -192,20 +189,20 @@ namespace Bicep.Core.Emit
             var result = input;
             foreach (var decoratorSyntax in decorated.Decorators.Reverse())
             {
-                var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
+                var symbol = this.Context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
                 if (symbol is FunctionSymbol decoratorSymbol &&
                     decoratorSymbol.DeclaringObject is NamespaceType namespaceType &&
                     DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
                 {
                     var argumentTypes = decoratorSyntax.Arguments
-                        .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                        .Select(argument => this.Context.SemanticModel.TypeManager.GetTypeInfo(argument))
                         .ToArray();
 
                     // There should be exact one matching decorator since there's no errors.
                     var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
 
-                    var functionCall = expressionBuilder.Convert(decoratorSyntax.Expression) as FunctionCallExpression
+                    var functionCall = ExpressionBuilder.Convert(decoratorSyntax.Expression) as FunctionCallExpression
                         ?? throw new InvalidOperationException($"Failed to convert decorator expression {decoratorSyntax.Expression.GetType()}");
 
                     var evaluated = decorator.Evaluate(functionCall, targetType, result);
@@ -280,7 +277,7 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Invalid type syntax encountered."),
         };
 
-        private ObjectExpression TypePropertiesForUnqualifedReference(VariableAccessSyntax variableAccess) => context.SemanticModel.GetSymbolInfo(variableAccess) switch
+        private ObjectExpression TypePropertiesForUnqualifedReference(VariableAccessSyntax variableAccess) => Context.SemanticModel.GetSymbolInfo(variableAccess) switch
         {
             AmbientTypeSymbol ambientType => ExpressionFactory.CreateObject(TypeProperty(ambientType.Name).AsEnumerable()),
             TypeAliasSymbol typeAlias => ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref", ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAlias.Name}")).AsEnumerable()),
@@ -291,7 +288,7 @@ namespace Bicep.Core.Emit
         private ObjectExpression TypePropertiesForQualifiedReference(PropertyAccessSyntax propertyAccess)
         {
             // The only property access scenario supported at the moment is dereferencing types from a namespace
-            if (context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is not BuiltInNamespaceSymbol builtInNamespace || builtInNamespace.Type.ProviderName != SystemNamespaceType.BuiltInName)
+            if (Context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is not BuiltInNamespaceSymbol builtInNamespace || builtInNamespace.Type.ProviderName != SystemNamespaceType.BuiltInName)
             {
                 throw new ArgumentException("Property access base expression did not resolve to the 'sys' namespace.");
             }
@@ -318,7 +315,7 @@ namespace Bicep.Core.Emit
 
         private string GetResourceTypeString(ResourceTypeSyntax syntax)
         {
-            if (context.SemanticModel.GetTypeInfo(syntax) is not ResourceType resourceType)
+            if (Context.SemanticModel.GetTypeInfo(syntax) is not ResourceType resourceType)
             {
                 // This should have been caught during type checking
                 throw new ArgumentException($"Unable to locate resource type.");
@@ -349,9 +346,9 @@ namespace Bicep.Core.Emit
             IntegerLiteralSyntax or
             BooleanLiteralSyntax or
             UnaryOperationSyntax or
-            NullLiteralSyntax => SingleElementArray(expressionBuilder.Convert(syntax)),
-            ObjectTypeSyntax objectType when context.SemanticModel.GetDeclaredType(objectType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
-            TupleTypeSyntax tupleType when context.SemanticModel.GetDeclaredType(tupleType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
+            NullLiteralSyntax => SingleElementArray(ExpressionBuilder.Convert(syntax)),
+            ObjectTypeSyntax objectType when Context.SemanticModel.GetDeclaredType(objectType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
+            TupleTypeSyntax tupleType when Context.SemanticModel.GetDeclaredType(tupleType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
             UnionTypeSyntax unionType => GetAllowedValuesForUnionType(unionType),
             ParenthesizedExpressionSyntax parenthesized => TryGetAllowedValues(parenthesized.Expression),
             _ => null,
@@ -361,7 +358,7 @@ namespace Bicep.Core.Emit
 
         private ArrayExpression GetAllowedValuesForUnionType(UnionTypeSyntax syntax)
         {
-            if (context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
+            if (Context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
             {
                 // This should have been caught during type checking
                 throw new ArgumentException("Invalid union encountered during template serialization");
@@ -393,7 +390,7 @@ namespace Bicep.Core.Emit
                 }
 
                 var propertySchema = TypePropertiesForTypeExpression(property.Value);
-                propertySchema = AddDecoratorsToBody(property, propertySchema, context.SemanticModel.GetDeclaredType(property) ?? ErrorType.Empty());
+                propertySchema = AddDecoratorsToBody(property, propertySchema, Context.SemanticModel.GetDeclaredType(property) ?? ErrorType.Empty());
 
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(keyText, propertySchema));
             }
@@ -411,7 +408,7 @@ namespace Bicep.Core.Emit
             if (syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().SingleOrDefault() is { } addlPropsType)
             {
                 var addlPropertiesSchema = TypePropertiesForTypeExpression(addlPropsType.Value);
-                addlPropertiesSchema = AddDecoratorsToBody(addlPropsType, addlPropertiesSchema, context.SemanticModel.GetDeclaredType(addlPropsType) ?? ErrorType.Empty());
+                addlPropertiesSchema = AddDecoratorsToBody(addlPropsType, addlPropertiesSchema, Context.SemanticModel.GetDeclaredType(addlPropsType) ?? ErrorType.Empty());
 
                 properties.Add(ExpressionFactory.CreateObjectProperty("additionalProperties", addlPropertiesSchema));
             }
@@ -427,7 +424,7 @@ namespace Bicep.Core.Emit
             //     SyntaxFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
             //         item,
             //         TypePropertiesForTypeExpression(item.Value),
-            //         context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
+            //         Context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
             // SyntaxFactory.CreateObjectProperty("items", SyntaxFactory.CreateBooleanLiteral(false)),
         });
 
@@ -452,7 +449,7 @@ namespace Bicep.Core.Emit
         private ObjectExpression GetTypePropertiesForUnaryOperationSyntax(UnaryOperationSyntax syntax)
         {
             // Within type syntax, unary operations are only permitted if they are resolvable to a literal type at compile-time
-            if (context.SemanticModel.GetDeclaredType(syntax) is not {} type || !TypeHelper.IsLiteralType(type))
+            if (Context.SemanticModel.GetDeclaredType(syntax) is not {} type || !TypeHelper.IsLiteralType(type))
             {
                 throw new ArgumentException("Unary operator applied to unresolvable type symbol.");
             }
@@ -468,7 +465,7 @@ namespace Bicep.Core.Emit
         {
             // Union types permit symbolic references, unary operations, and literals, so long as the whole expression embodied in the UnionTypeSyntax can be
             // reduced to a flat union of literal types. If this didn't happen during type checking, the syntax will resolve to an ErrorType instead of a UnionType
-            if (context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
+            if (Context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
             {
                 throw new ArgumentException("Invalid union encountered during template serialization");
             }
@@ -508,14 +505,14 @@ namespace Bicep.Core.Emit
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
         {
-            if (!variables.Any() && !context.FunctionVariables.Any())
+            if (!variables.Any() && !Context.FunctionVariables.Any())
             {
                 return;
             }
 
             emitter.EmitObjectProperty("variables", () => {
                 //emit internal variables
-                foreach (var functionVariable in context.FunctionVariables.Values.OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
+                foreach (var functionVariable in Context.FunctionVariables.Values.OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
                 {
                     emitter.EmitProperty(functionVariable.Name, functionVariable.Value);
                 }
@@ -571,7 +568,7 @@ namespace Bicep.Core.Emit
         private void EmitResources(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             jsonWriter.WritePropertyName("resources");
-            if (context.Settings.EnableSymbolicNames)
+            if (Context.Settings.EnableSymbolicNames)
             {
                 jsonWriter.WriteStartObject();
             }
@@ -580,14 +577,14 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteStartArray();
             }
 
-            foreach (var resource in this.context.SemanticModel.DeclaredResources)
+            foreach (var resource in this.Context.SemanticModel.DeclaredResources)
             {
-                if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
+                if (resource.IsExistingResource && !Context.Settings.EnableSymbolicNames)
                 {
                     continue;
                 }
 
-                if (context.Settings.EnableSymbolicNames)
+                if (Context.Settings.EnableSymbolicNames)
                 {
                     jsonWriter.WritePropertyName(emitter.GetSymbolicName(resource));
                 }
@@ -595,9 +592,9 @@ namespace Bicep.Core.Emit
                 this.EmitResource(jsonWriter, resource, emitter);
             }
 
-            foreach (var moduleSymbol in this.context.SemanticModel.Root.ModuleDeclarations)
+            foreach (var moduleSymbol in this.Context.SemanticModel.Root.ModuleDeclarations)
             {
-                if (context.Settings.EnableSymbolicNames)
+                if (Context.Settings.EnableSymbolicNames)
                 {
                     jsonWriter.WritePropertyName(moduleSymbol.Name);
                 }
@@ -605,7 +602,7 @@ namespace Bicep.Core.Emit
                 this.EmitModule(jsonWriter, moduleSymbol, emitter);
             }
 
-            if (context.Settings.EnableSymbolicNames)
+            if (Context.Settings.EnableSymbolicNames)
             {
                 jsonWriter.WriteEndObject();
             }
@@ -618,7 +615,7 @@ namespace Bicep.Core.Emit
         private ulong? GetBatchSize(StatementSyntax statement)
         {
             var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(
-                context.SemanticModel,
+                Context.SemanticModel,
                 statement,
                 SystemNamespaceType.BuiltInName,
                 LanguageConstants.BatchSizePropertyName);
@@ -644,7 +641,7 @@ namespace Bicep.Core.Emit
                 var conditions = new List<SyntaxBase>();
                 var loops = new List<(string name, ForSyntax @for, SyntaxBase? input)>();
 
-                var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+                var ancestors = this.Context.SemanticModel.ResourceAncestors.GetAncestors(resource);
                 foreach (var ancestor in ancestors)
                 {
                     if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
@@ -715,13 +712,13 @@ namespace Bicep.Core.Emit
                     throw new InvalidOperationException("nested loops are not supported");
                 }
 
-                if (context.Settings.EnableSymbolicNames && resource.IsExistingResource)
+                if (Context.Settings.EnableSymbolicNames && resource.IsExistingResource)
                 {
                     jsonWriter.WritePropertyName("existing");
                     jsonWriter.WriteValue(true);
                 }
 
-                var importSymbol = context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => resource.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                var importSymbol = Context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => resource.Type.DeclaringNamespace.AliasNameEquals(i.Name));
 
                 if (importSymbol is not null)
                 {
@@ -741,9 +738,9 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("type", resource.TypeReference.FormatName());
                 }
 
-                if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
+                if (Context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
                 {
-                    ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);
+                    ScopeHelper.EmitResourceScopeProperties(Context.SemanticModel, scopeData, emitter, body);
                 }
 
                 if (resource.IsAzResource)
@@ -813,7 +810,7 @@ namespace Bicep.Core.Emit
                     jsonWriter.WriteEndObject();
                 }
                 else if (
-                    this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is { } resourceMetadata &&
+                    this.Context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is { } resourceMetadata &&
                     moduleSymbol.TryGetModuleType() is ModuleType moduleType &&
                     moduleType.TryGetParameterType(keyName) is ResourceParameterType parameterType)
                 {
@@ -869,13 +866,13 @@ namespace Bicep.Core.Emit
                 // params requires special handling (see below).
                 emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
-                var scopeData = context.ModuleScopeData[moduleSymbol];
-                ScopeHelper.EmitModuleScopeProperties(context.SemanticModel, scopeData, emitter, body);
+                var scopeData = Context.ModuleScopeData[moduleSymbol];
+                ScopeHelper.EmitModuleScopeProperties(Context.SemanticModel, scopeData, emitter, body);
 
                 if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
                 {
                     // if we're deploying to a scope other than resource group, we need to supply a location
-                    if (this.context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
+                    if (this.Context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
                     {
                         // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
                         emitter.EmitProperty("location", new FunctionExpression(
@@ -913,10 +910,10 @@ namespace Bicep.Core.Emit
                     // If it is a template spec module, emit templateLink instead of template contents.
                     jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                     {
-                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
+                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
                         var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                         var moduleTextWriter = new StringWriter();
-                        var moduleJsonWriter = new SourceAwareJsonTextWriter(this.context.SemanticModel.FileResolver, moduleTextWriter, moduleBicepFile);
+                        var moduleJsonWriter = new SourceAwareJsonTextWriter(this.Context.SemanticModel.FileResolver, moduleTextWriter, moduleBicepFile);
 
                         moduleWriter.Write(moduleJsonWriter);
                         jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
@@ -963,7 +960,7 @@ namespace Bicep.Core.Emit
             switch (dependency.Resource)
             {
                 case ResourceSymbol resourceDependency:
-                    var resource = context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) as DeclaredResourceMetadata ??
+                    var resource = Context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) as DeclaredResourceMetadata ??
                         throw new ArgumentException($"Unable to find resource metadata for dependency '{dependency.Resource.Name}'");
 
                     switch ((resourceDependency.IsCollection, dependency.IndexExpression))
@@ -1018,7 +1015,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    var resource = context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) as DeclaredResourceMetadata ??
+                    var resource = Context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) as DeclaredResourceMetadata ??
                         throw new ArgumentException($"Unable to find resource metadata for dependency '{dependency.Resource.Name}'");
 
                     emitter.EmitResourceIdReference(resource, dependency.IndexExpression, newContext);
@@ -1043,7 +1040,7 @@ namespace Bicep.Core.Emit
 
         private void EmitDependsOn(JsonTextWriter jsonWriter, DeclaredSymbol declaredSymbol, ExpressionEmitter emitter, SyntaxBase newContext)
         {
-            var dependencies = context.ResourceDependencies[declaredSymbol]
+            var dependencies = Context.ResourceDependencies[declaredSymbol]
                 .Where(dep => ShouldGenerateDependsOn(dep));
 
             if (!dependencies.Any())
@@ -1055,7 +1052,7 @@ namespace Bicep.Core.Emit
                 // need to put dependencies in a deterministic order to generate a deterministic template
                 foreach (var dependency in dependencies.OrderBy(x => x.Resource.Name))
                 {
-                    if (context.Settings.EnableSymbolicNames)
+                    if (Context.Settings.EnableSymbolicNames)
                     {
                         EmitSymbolicNameDependsOnEntry(jsonWriter, emitter, newContext, dependency);
                     }
@@ -1137,14 +1134,14 @@ namespace Bicep.Core.Emit
         public void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
         {
             emitter.EmitObjectProperty("metadata", () => {
-                if (context.Settings.EnableSymbolicNames)
+                if (Context.Settings.EnableSymbolicNames)
                 {
                     emitter.EmitProperty("_EXPERIMENTAL_WARNING", "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!");
                 }
 
                 emitter.EmitObjectProperty("_generator", () => {
                     emitter.EmitProperty("name", LanguageConstants.LanguageId);
-                    emitter.EmitProperty("version", this.context.Settings.AssemblyFileVersion);
+                    emitter.EmitProperty("version", this.Context.SemanticModel.Features.AssemblyVersion);
                 });
 
                 foreach (var item in metadata)

@@ -10,13 +10,8 @@ namespace Bicep.Core.Emit
         Succeeded,
 
         /// <summary>
-        /// Emitting the template succeeded with warnings. There were no errors. Informational diagnostics may have been emitted.
-        /// </summary>
-        SucceededWithWarnings,
-
-        /// <summary>
         /// Emitting the template failed due to errors. Warnings and informational diagnostics may have been emitted also.
         /// </summary>
-        Failed
+        Failed,
     }
 }
