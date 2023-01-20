@@ -148,7 +148,7 @@ namespace Bicep.LanguageServer.Handlers
             return modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
                 parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
                 expressionSyntax is not null &&
-                (expressionSyntax is not StringSyntax || expressionSyntax is StringSyntax specificationString && not specificationString.IsInterpolated()) &&
+                (expressionSyntax is not StringSyntax || expressionSyntax.IsInterpolated()) &&
                 expressionSyntax is not IntegerLiteralSyntax &&
                 expressionSyntax is not BooleanLiteralSyntax;
         }
