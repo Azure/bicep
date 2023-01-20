@@ -483,6 +483,7 @@ param testProperties object";
         public async Task Handle_ParameterWithDefaultValuesOfTypeExpression_ShouldReturnUpdatedDeploymentParametersWithIsExpressionSetToTrue()
         {
             var bicepFileContents = @"param location string = resourceGroup().location
+param deploymentLocation string = 'deploy-${resourceGroup().location}'
 param policyDefinitionId string = resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetworkName_var', 'subnet1Name')
 resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@2018-11-01-preview' = {
   name: 'name/policyArtifact'
@@ -506,6 +507,10 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
     ""location"": {
       ""type"": ""string"",
       ""defaultValue"": ""[resourceGroup().location]""
+    },
+    ""deploymentLocation"": {
+      ""type"": ""string"",
+      ""defaultValue"": ""[concat('deploy-',resourceGroup().location)]""
     },
     ""policyDefinitionId"": {
       ""type"": ""string"",
@@ -535,6 +540,14 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
                 {
                     updatedParam.name.Should().Be("location");
                     updatedParam.value.Should().Be("resourceGroup().location");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isSecure.Should().BeFalse();
+                },
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("deploymentLocation");
+                    updatedParam.value.Should().Be("concat('deploy-',resourceGroup().location)");
                     updatedParam.isMissingParam.Should().BeFalse();
                     updatedParam.isExpression.Should().BeTrue();
                     updatedParam.isSecure.Should().BeFalse();
