@@ -2,11 +2,8 @@
 // Licensed under the MIT License.
 import path from "path";
 import fs from "fs";
-import rimraf from "rimraf";
-import { promisify } from "util";
+import { rimraf } from "rimraf";
 import { homedir } from "os";
-
-const rimrafAsync = promisify(rimraf);
 
 export const bicepCli = path.resolve(
   __dirname,
@@ -59,7 +56,7 @@ function logFilesInternal(files: string[], dirPath: string) {
 }
 
 export async function emptyDir(dirPath: string): Promise<void> {
-  await rimrafAsync(dirPath);
+  await rimraf(dirPath);
 }
 
 export function expectFileExists(filePath: string): void {
