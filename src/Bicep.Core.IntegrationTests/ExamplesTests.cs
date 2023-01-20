@@ -66,7 +66,7 @@ namespace Bicep.Core.IntegrationTests
 
                 if (result.Status == EmitStatus.Succeeded)
                 {
-                    File.WriteAllText(jsonFile.OutputFilePath, stringWriter.ToString());
+                    jsonFile.WriteToOutputFolder(stringWriter.ToString());
                     jsonFile.ShouldHaveExpectedJsonValue();
 
                     // validate that the template is parseable by the deployment engine
