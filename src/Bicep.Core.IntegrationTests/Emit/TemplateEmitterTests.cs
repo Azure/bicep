@@ -316,7 +316,7 @@ this
             var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new ParametersEmitter(compilation.GetEntrypointSemanticModel());
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-            return emitter.EmitParamsFile(stream);
+            return emitter.Emit(stream);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets
