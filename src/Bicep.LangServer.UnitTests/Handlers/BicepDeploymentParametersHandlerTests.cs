@@ -484,6 +484,7 @@ param testProperties object";
         {
             var bicepFileContents = @"param location string = resourceGroup().location
 param deploymentLocation string = 'deploy-${resourceGroup().location}'
+param dataFactoryName string = 'datafactory${uniqueString(resourceGroup().id)}'
 param policyDefinitionId string = resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetworkName_var', 'subnet1Name')
 resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@2018-11-01-preview' = {
   name: 'name/policyArtifact'
@@ -511,6 +512,10 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
     ""deploymentLocation"": {
       ""type"": ""string"",
       ""defaultValue"": ""[concat('deploy-',resourceGroup().location)]""
+    },
+    ""dataFactoryName"": {
+        ""type"": ""string"",
+        ""defaultValue"": ""[format('datafactory{0}', uniqueString(resourceGroup().id))]""
     },
     ""policyDefinitionId"": {
       ""type"": ""string"",
@@ -548,6 +553,13 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
                 {
                     updatedParam.name.Should().Be("deploymentLocation");
                     updatedParam.value.Should().Be("concat('deploy-',resourceGroup().location)");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isSecure.Should().BeFalse();
+                },
+                updatedParam => {
+                    updatedParam.name.Should().Be("dataFactoryName");
+                    updatedParam.value.Should().Be("format('datafactory{0}', uniqueString(resourceGroup().id))");
                     updatedParam.isMissingParam.Should().BeFalse();
                     updatedParam.isExpression.Should().BeTrue();
                     updatedParam.isSecure.Should().BeFalse();
