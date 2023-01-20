@@ -8,9 +8,9 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciManifest
     {
-        // TODO: Add top-level annotations
-        public OciManifest(int schemaVersion, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers)
+        public OciManifest(int schemaVersion, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers, OciAnnotations? annotations = null)
         {
+            this.Annotations = annotations;
             this.SchemaVersion = schemaVersion;
             this.ArtifactType = artifactType;
             this.Config = config;
@@ -24,5 +24,7 @@ namespace Bicep.Core.Registry.Oci
         public OciDescriptor Config { get; }
 
         public ImmutableArray<OciDescriptor> Layers { get; }
+
+        public OciAnnotations? Annotations { get; }
     }
 }

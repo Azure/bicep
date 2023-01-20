@@ -15,6 +15,9 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Tracing;
+using Json.Path;
+using Microsoft.VisualBasic.FileIO;
+using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
 {
@@ -81,6 +84,33 @@ namespace Bicep.Core.Registry
             return true;
         }
 
+        public bool TryGetDocumentationUrl(OciArtifactModuleReference reference, [NotNullWhen(true)] out string? documentationUrl)
+        {
+            documentationUrl = null;
+            string manifestFilePath = this.GetModuleFilePath(reference, ModuleFileType.Manifest);
+            string manifestFileContents = File.ReadAllText(manifestFilePath);
+
+            if (string.IsNullOrWhiteSpace(manifestFileContents))
+            {
+                return false;
+            }
+
+            OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
+            if (ociManifest is null)
+            {
+                return false;
+            }
+
+            OciAnnotations? ociAnnotations = ociManifest.Annotations;
+            if (ociAnnotations is null)
+            {
+                return false;
+            }
+
+            documentationUrl = ociAnnotations.Documentation;
+            return true;
+        }
+
         public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
@@ -113,14 +143,14 @@ namespace Bicep.Core.Registry
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled)
+        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUrl)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
             {
-                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, layer);
+                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, documentationUrl, layer);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {

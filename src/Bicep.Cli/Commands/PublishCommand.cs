@@ -47,13 +47,14 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            var documentationUrl = args.DocumentationUrl;
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
-                await this.PublishModuleAsync(moduleReference, armTemplateStream);
+                await this.PublishModuleAsync(moduleReference, armTemplateStream, documentationUrl);
 
                 return 0;
             }
@@ -70,16 +71,16 @@ namespace Bicep.Cli.Commands
             compilationWriter.ToStream(compilation, stream);
 
             stream.Position = 0;
-            await this.PublishModuleAsync(moduleReference, stream);
+            await this.PublishModuleAsync(moduleReference, stream, documentationUrl);
 
             return 0;
         }
 
-        private async Task PublishModuleAsync(ModuleReference target, Stream stream)
+        private async Task PublishModuleAsync(ModuleReference target, Stream stream, string? documentationUrl)
         {
             try
             {
-                await this.moduleDispatcher.PublishModule(target, stream);
+                await this.moduleDispatcher.PublishModule(target, stream, documentationUrl);
             }
             catch (ExternalModuleException exception)
             {

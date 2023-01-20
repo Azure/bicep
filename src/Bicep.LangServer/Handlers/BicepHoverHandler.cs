@@ -1,30 +1,55 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
+        private readonly ConfigurationManager configurationManager;
+        private readonly IContainerRegistryClientFactory clientFactory;
+        private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IFileResolver fileResolver;
+        private readonly IModuleDispatcher moduleDispatcher;
         private readonly ISymbolResolver symbolResolver;
 
         private const int MaxHoverMarkdownCodeBlockLength = 90000;
         //actual limit for hover in VS code is 100,000 characters.
 
-        public BicepHoverHandler(ISymbolResolver symbolResolver)
+        public BicepHoverHandler(
+            ConfigurationManager configurationManager,
+            IContainerRegistryClientFactory clientFactory,
+            IFeatureProviderFactory featureProviderFactory,
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider,
+            ISymbolResolver symbolResolver)
         {
+            this.configurationManager = configurationManager;
+            this.clientFactory = clientFactory;
+            this.featureProviderFactory = featureProviderFactory;
+            this.fileResolver = fileResolver;
+            this.moduleDispatcher = moduleDispatcher;
             this.symbolResolver = symbolResolver;
         }
 
@@ -36,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<Hover?>(null);
             }
 
-            var markdown = GetMarkdown(request, result);
+            var markdown = GetMarkdown(request, result, this.configurationManager, this.clientFactory, this.featureProviderFactory, this.fileResolver, this.moduleDispatcher);
             if (markdown == null)
             {
                 return Task.FromResult<Hover?>(null);
@@ -60,7 +85,14 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent? GetMarkdown(HoverParams request, SymbolResolutionResult result)
+        private static MarkedStringsOrMarkupContent? GetMarkdown(
+            HoverParams request,
+            SymbolResolutionResult result,
+            ConfigurationManager configurationManager,
+            IContainerRegistryClientFactory clientFactory,
+            IFeatureProviderFactory featureProviderFactory,
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
@@ -99,9 +131,32 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
+
                     if (filePath != null)
                     {
-                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
+                        var uri = request.TextDocument.Uri.ToUri();
+                        moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _);
+
+                        if (moduleReference is not null && moduleReference is OciArtifactModuleReference ociArtifactModuleReference)
+                        {
+                            if (moduleReference.Scheme == ModuleReferenceSchemes.Oci)
+                            {
+                                var features = featureProviderFactory.GetFeatureProvider(uri);
+
+                                if (features.RegistryEnabled)
+                                {
+                                    var configuration = configurationManager.GetConfiguration(uri);
+                                    var ociModuleRegistry = new OciModuleRegistry(fileResolver, clientFactory, features, configuration, uri);
+
+                                    if (ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out string? documentationUrl))
+                                    {
+                                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUrl)})"));
+                                    }
+                                }
+                            }
+                        }
+
+                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
                     }
 
                     return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));

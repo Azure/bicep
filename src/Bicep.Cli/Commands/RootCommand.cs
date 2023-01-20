@@ -143,9 +143,13 @@ Usage:
       <file>        The input file (can be a Bicep file or an ARM template file)
       <ref>         The module reference
 
+    Options:
+      --documentationUrl  URL to get documentation on the module
+
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUrl https://github.com/hello-world/README.md
 
   {exeName} restore <file>
     Restores external modules from the specified Bicep file to the local module cache.

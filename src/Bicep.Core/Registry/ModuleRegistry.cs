@@ -20,7 +20,7 @@ namespace Bicep.Core.Registry
 
         public abstract bool IsModuleRestoreRequired(T reference);
 
-        public abstract Task PublishModule(T reference, Stream compiled);
+        public abstract Task PublishModule(T reference, Stream compiled, string? documentationUrl);
 
         public abstract Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<T> references);
 
@@ -32,7 +32,7 @@ namespace Bicep.Core.Registry
 
         public bool IsModuleRestoreRequired(ModuleReference reference) => this.IsModuleRestoreRequired(ConvertReference(reference));
 
-        public Task PublishModule(ModuleReference moduleReference, Stream compiled) => this.PublishModule(ConvertReference(moduleReference), compiled);
+        public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUrl) => this.PublishModule(ConvertReference(moduleReference), compiled, documentationUrl);
 
         public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references) =>
             this.RestoreModules(references.Select(ConvertReference));

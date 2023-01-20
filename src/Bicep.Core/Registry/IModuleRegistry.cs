@@ -70,6 +70,6 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
-        Task PublishModule(ModuleReference moduleReference, Stream compiled);
+        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUrl = null);
     }
 }
