@@ -1489,6 +1489,9 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
+            => AssignType(syntax, () => TypeHelper.RemoveNullability(typeManager.GetTypeInfo(syntax.BaseExpression)));
+
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
             errors.AddRange(reference.Type.GetDiagnostics());

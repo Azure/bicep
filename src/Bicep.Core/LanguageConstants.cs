@@ -255,7 +255,7 @@ namespace Bicep.Core
 
             var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
             if (moduleScope != containingScope)
             {
                 // If the module scope matches the parent scope, we can safely omit the scope property

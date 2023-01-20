@@ -867,6 +867,12 @@ namespace Bicep.Core.Parsing
                     continue;
                 }
 
+                if (this.Check(TokenType.Exclamation))
+                {
+                    current = new NonNullAssertionSyntax(current, this.reader.Read());
+                    continue;
+                }
+
                 break;
             }
 

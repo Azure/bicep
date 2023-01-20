@@ -635,6 +635,29 @@ output string test2 = testRes.properties.|
         }
 
         [TestMethod]
+        public async Task Nonnull_assertion_operator_unwraps_union_with_null()
+        {
+            var fileWithCursors = @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+var bar = foos[0]!.ǂ
+var baz = foos[0]!.bar.ǂ
+var quux = foos[0]!.bar.baz.ǂ
+";
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithTypesEnabled,
+                fileWithCursors,
+                completions =>
+                    completions.Should().SatisfyRespectively(
+                        d => d.Single().Label.Should().Be("bar"),
+                        d => d.Single().Label.Should().Be("baz"),
+                        d => d.Single().Label.Should().Be("quux")),
+                'ǂ');
+        }
+
+        [TestMethod]
         public async Task Property_completions_acknowledge_nullability()
         {
             var fileWithCursors = @"

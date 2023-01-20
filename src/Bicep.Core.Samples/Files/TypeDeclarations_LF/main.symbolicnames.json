@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4810124979738128769"
+      "templateHash": "11699777311316241424"
     }
   },
   "definitions": {
@@ -225,7 +225,19 @@
     },
     "paramUsingType": {
       "$ref": "#/definitions/mixedArray"
+    },
+    "mightIncludeNull": {
+      "type": "array",
+      "allowedValues": [
+        null,
+        {
+          "key": "value"
+        }
+      ]
     }
+  },
+  "variables": {
+    "maybeNull": "[parameters('mightIncludeNull')[0].key]"
   },
   "resources": {}
 }
