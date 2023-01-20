@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1169) ProgramSyntax
+//@[00:1261) ProgramSyntax
 //@[00:0298) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -677,6 +677,57 @@ type stringStringDictionary = {
 //@[13:0014) |   ├─Token(NewLine) |\n|
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
-//@[01:0002) ├─Token(NewLine) |\n|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+param mightIncludeNull ({key: 'value'} | null)[]
+//@[00:0048) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0022) | ├─IdentifierSyntax
+//@[06:0022) | | └─Token(Identifier) |mightIncludeNull|
+//@[23:0048) | └─ArrayTypeSyntax
+//@[23:0046) |   ├─ArrayTypeMemberSyntax
+//@[23:0046) |   | └─ParenthesizedExpressionSyntax
+//@[23:0024) |   |   ├─Token(LeftParen) |(|
+//@[24:0045) |   |   ├─UnionTypeSyntax
+//@[24:0038) |   |   | ├─UnionTypeMemberSyntax
+//@[24:0038) |   |   | | └─ObjectTypeSyntax
+//@[24:0025) |   |   | |   ├─Token(LeftBrace) |{|
+//@[25:0037) |   |   | |   ├─ObjectTypePropertySyntax
+//@[25:0028) |   |   | |   | ├─IdentifierSyntax
+//@[25:0028) |   |   | |   | | └─Token(Identifier) |key|
+//@[28:0029) |   |   | |   | ├─Token(Colon) |:|
+//@[30:0037) |   |   | |   | └─StringSyntax
+//@[30:0037) |   |   | |   |   └─Token(StringComplete) |'value'|
+//@[37:0038) |   |   | |   └─Token(RightBrace) |}|
+//@[39:0040) |   |   | ├─Token(Pipe) |||
+//@[41:0045) |   |   | └─UnionTypeMemberSyntax
+//@[41:0045) |   |   |   └─NullLiteralSyntax
+//@[41:0045) |   |   |     └─Token(NullKeyword) |null|
+//@[45:0046) |   |   └─Token(RightParen) |)|
+//@[46:0047) |   ├─Token(LeftSquare) |[|
+//@[47:0048) |   └─Token(RightSquare) |]|
+//@[48:0050) ├─Token(NewLine) |\n\n|
+
+var maybeNull = mightIncludeNull[0]!.key
+//@[00:0040) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0013) | ├─IdentifierSyntax
+//@[04:0013) | | └─Token(Identifier) |maybeNull|
+//@[14:0015) | ├─Token(Assignment) |=|
+//@[16:0040) | └─PropertyAccessSyntax
+//@[16:0036) |   ├─NonNullAssertionSyntax
+//@[16:0035) |   | ├─ArrayAccessSyntax
+//@[16:0032) |   | | ├─VariableAccessSyntax
+//@[16:0032) |   | | | └─IdentifierSyntax
+//@[16:0032) |   | | |   └─Token(Identifier) |mightIncludeNull|
+//@[32:0033) |   | | ├─Token(LeftSquare) |[|
+//@[33:0034) |   | | ├─IntegerLiteralSyntax
+//@[33:0034) |   | | | └─Token(Integer) |0|
+//@[34:0035) |   | | └─Token(RightSquare) |]|
+//@[35:0036) |   | └─Token(Exclamation) |!|
+//@[36:0037) |   ├─Token(Dot) |.|
+//@[37:0040) |   └─IdentifierSyntax
+//@[37:0040) |     └─Token(Identifier) |key|
+//@[40:0041) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

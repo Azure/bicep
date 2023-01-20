@@ -918,5 +918,19 @@ namespace Bicep.Core.Syntax
             return new LambdaSyntax(variableSection, arrow, body);
         }
         void ISyntaxVisitor.VisitLambdaSyntax(LambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceLambdaSyntax);
+
+        protected virtual SyntaxBase ReplaceNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
+            hasChanges |= TryRewriteStrict(syntax.AssertionOperator, out var assertionOperator);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new NonNullAssertionSyntax(baseExpression, assertionOperator);
+        }
+        void ISyntaxVisitor.VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax) => ReplaceCurrent(syntax, ReplaceNonNullAssertionSyntax);
     }
 }

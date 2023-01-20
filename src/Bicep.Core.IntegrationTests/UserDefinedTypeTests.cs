@@ -396,4 +396,28 @@ param aDict {
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Nullably_typed_values_can_be_used_as_nonnullable_outputs_with_postfix_assertion()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+output quux string = foos[0].bar.baz.quux
+");
+
+        result.Should().HaveDiagnostics(new []
+        {
+          ("BCP055", DiagnosticLevel.Error, @"Cannot access properties of type ""null | { bar: { baz: { quux: 'quux' } } }"". An ""object"" type is required."),
+        });
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+output quux string = foos[0]!.bar.baz.quux
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Should().HaveTemplateWithOutput("quux", "[parameters('foos')[0].bar.baz.quux]");
+    }
 }

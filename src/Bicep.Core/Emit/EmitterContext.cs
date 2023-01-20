@@ -11,9 +11,9 @@ namespace Bicep.Core.Emit
 {
     public class EmitterContext
     {
-        public EmitterContext(SemanticModel semanticModel, EmitterSettings settings)
+        public EmitterContext(SemanticModel semanticModel)
         {
-            Settings = settings;
+            Settings = new(semanticModel.Features);
             SemanticModel = semanticModel;
             DataFlowAnalyzer = new(semanticModel);
             VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);

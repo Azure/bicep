@@ -23,8 +23,6 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionBuilder expressionBuilder;
 
-        private readonly ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements;
-
         public ExpressionConverter(EmitterContext context)
             : this(context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
         {
@@ -33,7 +31,6 @@ namespace Bicep.Core.Emit
         private ExpressionConverter(EmitterContext context, ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements)
         {
             this.context = context;
-            this.localReplacements = localReplacements;
             this.expressionBuilder = new ExpressionBuilder(context, localReplacements);
         }
 

@@ -24,8 +24,8 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' existing = {
   name: 'foo'
 }
 
-resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-  name: 'name'
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'vm'
   location: 'westus'
 
   resource windowsVMDsc 'extensions' existing = {
@@ -37,15 +37,33 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
   name: appPlan.properties.provisioningState
 }
 
-var foo = virtualMachine::windowsVMDsc.properties.autoUpgradeMinorVersion
+resource vm2 'Microsoft.Compute/virtualMachines@2020-12-01' existing = {
+  name: appPlan.properties.workerTierName // Create a runtime reference.
+}
+
+resource windowsVMDsc2 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' existing = {
+  name: 'vmDsc2'
+  parent: vm2
+}
+
+resource diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' existing = {
+  name: 'diag'
+  scope: vm2
+}
+
+var foo = vm::windowsVMDsc.properties.autoUpgradeMinorVersion
 var bar = storage.properties.accessTier
 var baz = storage.listKeys().keys
+var qux = windowsVMDsc2.properties
+var quux = diag.properties
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""windowsVMDsc"" include ""apiVersion"", ""id"", ""name"", ""type""."),
-                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
-                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""name"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""windowsVMDsc"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""name"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""name"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""parent"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""windowsVMDsc2"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including ""scope"" cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""diag"" include ""apiVersion"", ""id"", ""name"", ""type""."),
             });
         }
     }

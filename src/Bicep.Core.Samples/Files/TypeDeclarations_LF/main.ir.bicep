@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1169) ProgramExpression
+//@[00:1261) ProgramExpression
 @sealed()
 type foo = {
   @minLength(3)
@@ -71,7 +71,7 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 //@[68:0074) |     └─StringLiteralExpression { Value = pong }
 
 param paramUsingType mixedArray
-//@[00:0031) └─DeclaredParameterExpression { Name = paramUsingType }
+//@[00:0031) ├─DeclaredParameterExpression { Name = paramUsingType }
 
 type tuple = [
     @description('A leading string')
@@ -84,4 +84,14 @@ type tuple = [
 type stringStringDictionary = {
     *: string
 }
+
+param mightIncludeNull ({key: 'value'} | null)[]
+//@[00:0048) ├─DeclaredParameterExpression { Name = mightIncludeNull }
+
+var maybeNull = mightIncludeNull[0]!.key
+//@[00:0040) └─DeclaredVariableExpression { Name = maybeNull }
+//@[16:0040)   └─PropertyAccessExpression { PropertyName = key }
+//@[16:0035)     └─ArrayAccessExpression
+//@[33:0034)       ├─IntegerLiteralExpression { Value = 0 }
+//@[16:0032)       └─ParametersReferenceExpression { Parameter = mightIncludeNull }
 

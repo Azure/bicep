@@ -2367,12 +2367,14 @@ module withSeparateConfig './child/folder with separate config/moduleWithAzImpor
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "1.9-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "16208829896531593582"
+//@              "templateHash": "4117709985067600940"
 //@            }
 //@          },
 //@          "imports": {
@@ -2381,7 +2383,7 @@ module withSeparateConfig './child/folder with separate config/moduleWithAzImpor
 //@              "version": "1.0.0"
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "str": {
 //@              "type": "string",

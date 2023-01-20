@@ -319,7 +319,7 @@ param storageAccount string = 'testStorageAccount'";
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var model = compilation.GetEntrypointSemanticModel();
 
-            var builder = new ExpressionBuilder(new(model, new(model.Features)));
+            var builder = new ExpressionBuilder(new(model));
             var converted = builder.Convert(model.Root.Syntax);
 
             var expressionList = ExpressionCollectorVisitor.Build(converted);

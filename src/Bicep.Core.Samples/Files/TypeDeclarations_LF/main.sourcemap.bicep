@@ -257,7 +257,7 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 param paramUsingType mixedArray
 //@    "paramUsingType": {
 //@      "$ref": "#/definitions/mixedArray"
-//@    }
+//@    },
 
 type tuple = [
 //@    "tuple": {
@@ -279,4 +279,18 @@ type stringStringDictionary = {
 //@    }
     *: string
 }
+
+param mightIncludeNull ({key: 'value'} | null)[]
+//@    "mightIncludeNull": {
+//@      "type": "array",
+//@      "allowedValues": [
+//@        null,
+//@        {
+//@          "key": "value"
+//@        }
+//@      ]
+//@    }
+
+var maybeNull = mightIncludeNull[0]!.key
+//@    "maybeNull": "[parameters('mightIncludeNull')[0].key]"
 
