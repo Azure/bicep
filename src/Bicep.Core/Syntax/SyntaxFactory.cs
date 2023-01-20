@@ -77,6 +77,7 @@ namespace Bicep.Core.Syntax
         public static Token TrueKeywordToken => CreateToken(TokenType.TrueKeyword, "true");
         public static Token FalseKeywordToken => CreateToken(TokenType.FalseKeyword, "false");
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword, "null");
+        public static Token ArrowToken => CreateToken(TokenType.Arrow, "=>");
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
         {
@@ -389,6 +390,23 @@ namespace Bicep.Core.Syntax
 
         public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
             trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
+
+        public static LambdaSyntax CreateLambdaSyntax(IEnumerable<string> parameterNames, SyntaxBase functionExpression)
+        {
+            SyntaxBase variableBlock = parameterNames.Count() switch {
+                1 => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(parameterNames.First())),
+                _ => new VariableBlockSyntax(
+                    SyntaxFactory.LeftParenToken,
+                    SyntaxFactory.Interleave(parameterNames
+                        .Select(name => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(name))), () => SyntaxFactory.CommaToken),
+                    SyntaxFactory.RightParenToken),
+            };
+
+            return new LambdaSyntax(
+                variableBlock,
+                SyntaxFactory.ArrowToken,
+                functionExpression);
+        }
 
         public static NonNullAssertionSyntax AsNonNullable(SyntaxBase @base) => @base switch
         {

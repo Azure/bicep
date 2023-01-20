@@ -358,7 +358,6 @@ namespace Bicep.Core.Semantics
         public ParameterAssignmentSymbol? TryGetParameterAssignment(ParameterSymbol parameterSymbol) =>
             this.assignmentsByDeclaration.Value.TryGetValue(parameterSymbol, out var parameterAssignmentSymbol) ? parameterAssignmentSymbol : null;
 
-
         private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
             if(this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)

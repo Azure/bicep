@@ -38,7 +38,7 @@ namespace Bicep.Cli.Services
                     return new TemplateEmitter(compilation.GetEntrypointSemanticModel()).Emit(stream);
 
                 case BicepSourceFileKind.ParamsFile:
-                    return new ParametersEmitter(compilation.GetEntrypointSemanticModel()).EmitParamsFile(stream);
+                    return new ParametersEmitter(compilation.GetEntrypointSemanticModel()).Emit(stream);
 
                 default:
                     throw new NotImplementedException($"Unexpected file kind '{fileKind}'");
@@ -52,27 +52,10 @@ namespace Bicep.Cli.Services
             switch (fileKind)
             {
                 case BicepSourceFileKind.BicepFile:
-                    {
-                        var sourceFileToTrack = semanticModel.Features.SourceMappingEnabled ? semanticModel.SourceFile : default;
-                        using var writer = new SourceAwareJsonTextWriter(semanticModel.FileResolver, io.Output, sourceFileToTrack)
-                        {
-                            Formatting = Formatting.Indented
-                        };
-
-                        var emitter = new TemplateEmitter(semanticModel);
-
-                        return emitter.Emit(writer);
-                    }
+                    return new TemplateEmitter(semanticModel).Emit(io.Output);
 
                 case BicepSourceFileKind.ParamsFile:
-                    {
-                        using var writer = new JsonTextWriter(io.Output)
-                        {
-                            Formatting = Formatting.Indented
-                        };
-
-                        return new ParametersEmitter(semanticModel).EmitParamsFile(writer);
-                    }
+                    return new ParametersEmitter(semanticModel).Emit(io.Output);
 
                 default:
                     throw new NotImplementedException($"Unexpected file kind '{fileKind}'");
