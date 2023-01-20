@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
             => ServiceBuilder.Create(s => s.WithEmptyAzResources().WithFileResolver(fileResolver)).GetDecompiler();
 
         [DataTestMethod]
-        [EmbeddedFilesTestData(@"Files/Working/naming002-loops/main.json")]
+        [EmbeddedFilesTestData(@"Files/Working/.*\.json")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
