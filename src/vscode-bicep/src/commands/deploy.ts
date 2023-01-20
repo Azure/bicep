@@ -584,7 +584,7 @@ export class DeployCommand implements Command {
           placeHolder: `Please enter value for parameter "${paramName}"`,
         });
       } else {
-        if (deploymentParameter.isExpression ) {
+        if (deploymentParameter.isExpression) {
           paramValue = await this.selectValueForParameterOfTypeExpression(
             _context,
             paramName,
