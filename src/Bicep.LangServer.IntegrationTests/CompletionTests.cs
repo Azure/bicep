@@ -1872,7 +1872,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
 
-var outTest = abc.listWithInput().?withInputOutputVal|
+var outTest = abc.listWithInput().withInputOutputVal|
 ");
         }
 

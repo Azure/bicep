@@ -35,7 +35,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "?array"
+      "newText": "array"
     },
     "commitCharacters": [
       "."
@@ -140,7 +140,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "?bool"
+      "newText": "bool"
     },
     "commitCharacters": [
       "."
@@ -518,7 +518,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "?int"
+      "newText": "int"
     },
     "commitCharacters": [
       "."
@@ -850,7 +850,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "?object"
+      "newText": "object"
     },
     "commitCharacters": [
       "."
@@ -1039,7 +1039,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "?string"
+      "newText": "string"
     },
     "commitCharacters": [
       "."

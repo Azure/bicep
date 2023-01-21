@@ -1461,7 +1461,7 @@ namespace Bicep.LanguageServer.Completions
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
                 var edit = new StringBuilder("[");
-                if (propertyAccess.SafeAccessMarker is not null || ShouldInjectSafeAccessMarker(property, propertyAccess))
+                if (propertyAccess.SafeAccessMarker is not null)
                 {
                     edit.Append('?');
                 }
@@ -1478,17 +1478,11 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
-                item.WithPlainTextEdit(replacementRange, $"{(ShouldInjectSafeAccessMarker(property, propertyAccess) ? "?" : "")}{property.Name}");
+                item.WithPlainTextEdit(replacementRange, property.Name);
             }
 
             return item.Build();
         }
-
-        /// <remarks>
-        /// If a <see cref="TypeProperty"/> is not marked as required OR its type is nullable, the property may or may not be present at runtime and should be accessed via safe dereference to avoid a deploy time error.
-        /// </remarks>
-        private static bool ShouldInjectSafeAccessMarker(TypeProperty property, PropertyAccessSyntax propertyAccess)
-            => propertyAccess.SafeAccessMarker is null && (!property.Flags.HasFlag(TypePropertyFlags.Required) || TypeHelper.TryRemoveNullability(property.TypeReference.Type) is not null);
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Keyword, keyword)
