@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -309,6 +311,32 @@ param storageAccount string = 'testStorageAccount'";
             }
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task ProgramsShouldProduceExpectedIrTree(DataSet dataSet)
+        {
+            var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
+            var model = compilation.GetEntrypointSemanticModel();
+
+            var builder = new ExpressionBuilder(new(model));
+            var converted = builder.Convert(model.Root.Syntax);
+
+            var expressionList = ExpressionCollectorVisitor.Build(converted);
+            var expressionByParent = expressionList.ToLookup(x => x.Parent);
+
+            TextSpan getSpan(ExpressionCollectorVisitor.ExpressionItem data) => data.Expression.SourceSyntax?.Span ?? TextSpan.TextDocumentStart;
+
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, expressionList, getSpan, expression => ExpressionCollectorVisitor.GetExpressionLoggingString(expressionByParent, expression));
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainIr), sourceTextWithDiags);
+
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                TestContext,
+                dataSet.Ir ?? "",
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
+                actualLocation: resultsFile);
+        }
+
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)
         {
             return SyntaxAggregator.Aggregate(
@@ -327,5 +355,10 @@ param storageAccount string = 'testStorageAccount'";
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetValidDataSets() => DataSets
+            .AllDataSets
+            .Where(ds => ds.IsValid)
+            .ToDynamicTestData();
     }
 }

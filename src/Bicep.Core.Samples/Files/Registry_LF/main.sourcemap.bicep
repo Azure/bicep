@@ -21,10 +21,6 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "namePrefix": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -75,8 +71,12 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 //@      "name": "planDeploy",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     namePrefix: 'hello'
+//@          "namePrefix": {
 //@            "value": "hello"
+//@          }
   }
 }
 
@@ -90,10 +90,6 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "namePrefix": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -144,8 +140,12 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@      "name": "planDeploy2",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     namePrefix: 'hello'
+//@          "namePrefix": {
 //@            "value": "hello"
+//@          }
   }
 }
 
@@ -184,16 +184,6 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "appPlanId": {
-//@          },
-//@          "namePrefix": {
-//@          },
-//@          "dockerImage": {
-//@          },
-//@          "dockerImageTag": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -271,14 +261,24 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 //@      "name": "[format('{0}siteDeploy', variables('websites')[copyIndex()].name)]",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     appPlanId: appPlanDeploy.outputs.planId
+//@          "appPlanId": {
 //@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
+//@          },
     namePrefix: site.name
+//@          "namePrefix": {
 //@            "value": "[variables('websites')[copyIndex()].name]"
+//@          },
     dockerImage: 'nginxdemos/hello'
+//@          "dockerImage": {
 //@            "value": "nginxdemos/hello"
+//@          },
     dockerImageTag: site.tag
+//@          "dockerImageTag": {
 //@            "value": "[variables('websites')[copyIndex()].tag]"
+//@          }
   }
 }]
 
@@ -296,16 +296,6 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "appPlanId": {
-//@          },
-//@          "namePrefix": {
-//@          },
-//@          "dockerImage": {
-//@          },
-//@          "dockerImageTag": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -383,14 +373,24 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@      "name": "[format('{0}siteDeploy2', variables('websites')[copyIndex()].name)]",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     appPlanId: appPlanDeploy.outputs.planId
+//@          "appPlanId": {
 //@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
+//@          },
     namePrefix: site.name
+//@          "namePrefix": {
 //@            "value": "[variables('websites')[copyIndex()].name]"
+//@          },
     dockerImage: 'nginxdemos/hello'
+//@          "dockerImage": {
 //@            "value": "nginxdemos/hello"
+//@          },
     dockerImageTag: site.tag
+//@          "dockerImageTag": {
 //@            "value": "[variables('websites')[copyIndex()].tag]"
+//@          }
   }
 }]
 
@@ -404,10 +404,6 @@ module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-sp
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "location": {
-//@          }
-//@        },
 //@        "templateLink": {
 //@          "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Resources/templateSpecs/storage-spec/versions/1.0"
 //@        }
@@ -420,8 +416,12 @@ module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-sp
 //@      "name": "storageDeploy",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     location: 'eastus'
+//@          "location": {
 //@            "value": "eastus"
+//@          }
   }
 }
 
@@ -435,10 +435,6 @@ module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "location": {
-//@          }
-//@        },
 //@        "templateLink": {
 //@          "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Resources/templateSpecs/storage-spec/versions/1.0"
 //@        }
@@ -451,8 +447,12 @@ module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
 //@      "name": "storageDeploy2",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     location: 'eastus'
+//@          "location": {
 //@            "value": "eastus"
+//@          }
   }
 }
 
@@ -491,12 +491,6 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "vnetName": {
-//@          },
-//@          "subnetName": {
-//@          }
-//@        },
 //@        "templateLink": {
 //@          "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/prod-rg/providers/Microsoft.Resources/templateSpecs/vnet-spec/versions/v2"
 //@        }
@@ -509,10 +503,16 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 //@      "name": "[format('{0}Deploy', variables('vnets')[copyIndex()].name)]",
   scope: rg
   params: {
+//@        "parameters": {
+//@        },
     vnetName: vnet.name
+//@          "vnetName": {
 //@            "value": "[variables('vnets')[copyIndex()].name]"
+//@          },
     subnetName: vnet.subnetName
+//@          "subnetName": {
 //@            "value": "[variables('vnets')[copyIndex()].subnetName]"
+//@          }
   }
 }]
 
@@ -535,10 +535,6 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "port": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -571,8 +567,12 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   name: 'port'
 //@      "name": "port",
   params: {
+//@        "parameters": {
+//@        },
     port: 'test'
+//@          "port": {
 //@            "value": "test"
+//@          }
   }
 }
 
@@ -586,10 +586,6 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "ipv4": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -622,8 +618,12 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
   name: 'ipv4'
 //@      "name": "ipv4",
   params: {
+//@        "parameters": {
+//@        },
     ipv4: 'test'
+//@          "ipv4": {
 //@            "value": "test"
+//@          }
   }
 }
 
@@ -637,10 +637,6 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "ipv4port": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -673,8 +669,12 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
   name: 'ipv4port'
 //@      "name": "ipv4port",
   params: {
+//@        "parameters": {
+//@        },
     ipv4port: 'test'
+//@          "ipv4port": {
 //@            "value": "test"
+//@          }
   }
 }
 
@@ -688,10 +688,6 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "ipv6": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -724,8 +720,12 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
   name: 'ipv6'
 //@      "name": "ipv6",
   params: {
+//@        "parameters": {
+//@        },
     ipv6: 'test'
+//@          "ipv6": {
 //@            "value": "test"
+//@          }
   }
 }
 
@@ -739,10 +739,6 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "ipv6port": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -775,7 +771,11 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
   name: 'ipv6port'
 //@      "name": "ipv6port",
   params: {
+//@        "parameters": {
+//@        },
     ipv6port: 'test'
+//@          "ipv6port": {
 //@            "value": "test"
+//@          }
   }
 }

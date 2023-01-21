@@ -21,6 +21,7 @@ namespace Bicep.Core.Samples
     {
         public const string TestFileMain = "main.bicep";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
+        public const string TestFileMainIr = "main.ir.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
@@ -49,6 +50,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazyDiagnostics;
 
+        private readonly Lazy<string>? lazyIr;
+
         private readonly Lazy<string>? lazyCompiled;
 
         private readonly Lazy<string>? lazyCompiledWithSymbolicNames;
@@ -74,6 +77,7 @@ namespace Bicep.Core.Samples
             this.lazyBicep = this.CreateRequired(TestFileMain);
             this.lazyTokens = this.CreateRequired(TestFileMainTokens);
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
+            this.lazyIr = this.CreateIffValid(TestFileMainIr);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
             this.lazyCompiledWithSymbolicNames = this.CreateIffValid(TestFileMainCompiledWithSymbolicNames);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
@@ -94,6 +98,8 @@ namespace Bicep.Core.Samples
         public string Tokens => this.lazyTokens.Value;
 
         public string Diagnostics => this.lazyDiagnostics.Value;
+
+        public string? Ir => this.lazyIr?.Value;
 
         public string? Compiled => this.lazyCompiled?.Value;
 

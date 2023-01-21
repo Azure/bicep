@@ -639,7 +639,7 @@ output child0Name string = child[0].name
                 });
 
                 template.Should().HaveValueAtPath("$.outputs['parent0Props'].value", "[reference(resourceId('My.RP/parentType', format('parent{0}', variables('items')[0])), '2020-01-01')]");
-                template.Should().HaveValueAtPath("$.outputs['child0Props'].value", "[reference(resourceId('My.RP/parentType/childType', format('parent{0}', variables('items')[mod(add(copyIndex(), 1), length(variables('items')))]), format('child{0}', variables('items')[0])), '2020-01-01')]");
+                template.Should().HaveValueAtPath("$.outputs['child0Props'].value", "[reference(resourceId('My.RP/parentType/childType', format('parent{0}', variables('items')[mod(add(0, 1), length(variables('items')))]), format('child{0}', variables('items')[0])), '2020-01-01')]");
                 template.Should().HaveValueAtPath("$.outputs['parent0Name'].value", "[format('parent{0}', variables('items')[0])]");
                 template.Should().HaveValueAtPath("$.outputs['child0Name'].value", "[format('child{0}', variables('items')[0])]");
             }

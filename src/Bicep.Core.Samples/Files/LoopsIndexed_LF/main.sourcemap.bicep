@@ -458,10 +458,6 @@ module singleModule 'passthrough.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -490,8 +486,12 @@ module singleModule 'passthrough.bicep' = {
   name: 'test'
 //@      "name": "test",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'hello'
+//@          "myInput": {
 //@            "value": "hello"
+//@          }
   }
 }
 
@@ -523,10 +523,6 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -559,8 +555,12 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
   name: concat(moduleName, moduleIndex)
 //@      "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'in-${moduleName}-${moduleIndex}'
+//@          "myInput": {
 //@            "value": "[format('in-{0}-{1}', variables('moduleSetup')[copyIndex()], copyIndex())]"
+//@          }
   }
   dependsOn: [
     singleModule
@@ -582,10 +582,6 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (mo
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -618,8 +614,12 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (mo
   name: concat(moduleName, moduleIndex)
 //@      "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'in-${moduleName}-${moduleIndex}'
+//@          "myInput": {
 //@            "value": "[format('in-{0}-{1}', variables('moduleSetup')[copyIndex()], copyIndex())]"
+//@          }
   }
   dependsOn: [
     storageAccounts
@@ -636,10 +636,6 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -673,8 +669,12 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
 //@      "name": "hello",
   params: {
+//@        "parameters": {
+//@        },
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
+//@          "myInput": {
 //@            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index'))), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3))), '2019-06-01').accessTier)]"
+//@          }
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -694,10 +694,6 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -731,8 +727,12 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
   name: concat(moduleName, moduleIndex)
 //@      "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName} - ${moduleIndex}'
+//@          "myInput": {
 //@            "value": "[format('{0} - {1} - {2} - {3}', reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index'))), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3))), '2019-06-01').accessTier, variables('moduleSetup')[copyIndex()], copyIndex())]"
+//@          }
   }
   dependsOn: [
     storageAccounts2[index - 9]
@@ -845,10 +845,6 @@ module apim 'passthrough.bicep' = [for (region, i) in regions: {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -877,8 +873,12 @@ module apim 'passthrough.bicep' = [for (region, i) in regions: {
   name: 'apim-${region}-${name}-${i}'
 //@      "name": "[format('apim-{0}-{1}-{2}', variables('regions')[copyIndex()], parameters('name'), copyIndex())]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: region
+//@          "myInput": {
 //@            "value": "[variables('regions')[copyIndex()]]"
+//@          }
   }
 }]
 

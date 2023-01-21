@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -13,10 +15,26 @@ public record IndexReplacementContext(
     ImmutableDictionary<LocalVariableSymbol, Expression> LocalReplacements,
     Expression Index);
 
+[DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
 public abstract record Expression(
     SyntaxBase? SourceSyntax)
 {
     public abstract void Accept(IExpressionVisitor visitor);
+
+    public string GetDebuggerDisplay()
+    {
+        var name = this.GetType().Name;
+        var attributes = GetDebugAttributes();
+
+        if (attributes is null)
+        {
+            return name;
+        }
+
+        return $"{name} {attributes}";
+    }
+
+    protected virtual object? GetDebugAttributes() => null;
 }
 
 public record BooleanLiteralExpression(
@@ -26,6 +44,8 @@ public record BooleanLiteralExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitBooleanLiteralExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Value };
 }
 
 public record IntegerLiteralExpression(
@@ -35,6 +55,8 @@ public record IntegerLiteralExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitIntegerLiteralExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Value };
 }
 
 public record StringLiteralExpression(
@@ -44,6 +66,8 @@ public record StringLiteralExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitStringLiteralExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Value };
 }
 
 public record NullLiteralExpression(
@@ -112,6 +136,8 @@ public record BinaryExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitBinaryExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Operator };
 }
 
 public record UnaryExpression(
@@ -122,6 +148,8 @@ public record UnaryExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitUnaryExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Operator };
 }
 
 public record FunctionCallExpression(
@@ -132,6 +160,21 @@ public record FunctionCallExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitFunctionCallExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record ResourceFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    ResourceReferenceExpression Resource,
+    string Name,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceFunctionCallExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public abstract record AccessExpression(
@@ -161,6 +204,8 @@ public record PropertyAccessExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitPropertyAccessExpression(this);
+
+    protected override object? GetDebugAttributes() => new { PropertyName };
 }
 
 public record ResourceReferenceExpression(
@@ -192,6 +237,8 @@ public record ModuleOutputPropertyAccessExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitModuleOutputPropertyAccessExpression(this);
+
+    protected override object? GetDebugAttributes() => new { PropertyName };
 }
 
 public record VariableReferenceExpression(
@@ -201,6 +248,8 @@ public record VariableReferenceExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitVariableReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Variable = Variable.Name };
 }
 
     /// <summary>
@@ -214,6 +263,8 @@ public record SynthesizedVariableReferenceExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitSynthesizedVariableReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record ParametersReferenceExpression(
@@ -223,6 +274,8 @@ public record ParametersReferenceExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitParametersReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Parameter = Parameter.Name };
 }
 
 public record LambdaVariableReferenceExpression(
@@ -232,12 +285,16 @@ public record LambdaVariableReferenceExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitLambdaVariableReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Variable = Variable.Name };
 }
 
 public record ForLoopExpression(
     SyntaxBase? SourceSyntax,
     Expression Expression,
-    Expression Body
+    Expression Body,
+    string? Name,
+    ulong? BatchSize
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -281,6 +338,8 @@ public record DeclaredMetadataExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredMetadataExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record DeclaredImportExpression(
@@ -292,6 +351,8 @@ public record DeclaredImportExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredImportExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record DeclaredParameterExpression(
@@ -303,6 +364,8 @@ public record DeclaredParameterExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredParameterExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record DeclaredVariableExpression(
@@ -313,6 +376,8 @@ public record DeclaredVariableExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredVariableExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record DeclaredOutputExpression(
@@ -324,6 +389,44 @@ public record DeclaredOutputExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredOutputExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record DeclaredResourceExpression(
+    SyntaxBase? SourceSyntax,
+    DeclaredResourceMetadata Metadata,
+    ScopeHelper.ScopeData ScopeData,
+    SyntaxBase BodySyntax,
+    Expression Body,
+    ImmutableArray<ResourceDependencyExpression> DependsOn
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredResourceExpression(this);
+}
+
+public record DeclaredModuleExpression(
+    SyntaxBase? SourceSyntax,
+    ModuleSymbol Symbol,
+    ScopeHelper.ScopeData ScopeData,
+    SyntaxBase BodySyntax,
+    Expression Body,
+    Expression? Parameters,
+    ImmutableArray<ResourceDependencyExpression> DependsOn
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredModuleExpression(this);
+}
+
+public record ResourceDependencyExpression(
+    SyntaxBase? SourceSyntax,
+    Expression Reference
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceDependencyExpression(this);
 }
 
 public record ProgramExpression(
@@ -332,6 +435,8 @@ public record ProgramExpression(
     ImmutableArray<DeclaredImportExpression> Imports,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
+    ImmutableArray<DeclaredResourceExpression> Resources,
+    ImmutableArray<DeclaredModuleExpression> Modules,
     ImmutableArray<DeclaredOutputExpression> Outputs
 ) : Expression(SourceSyntax)
 {

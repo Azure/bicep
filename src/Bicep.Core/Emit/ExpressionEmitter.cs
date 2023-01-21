@@ -7,6 +7,7 @@ using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
+using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
@@ -84,9 +85,9 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitExpression(SyntaxBase resourceNameSyntax, IndexReplacementContext? indexContext)
         {
-            var converterForContext = converter.CreateConverterForIndexReplacement(resourceNameSyntax, indexExpression, newContext);
+            var converterForContext = converter.GetConverter(indexContext);
 
             var expression = converterForContext.ConvertExpression(resourceNameSyntax);
             var serialized = ExpressionSerializer.SerializeExpression(expression);
@@ -94,9 +95,9 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitUnqualifiedResourceId(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitUnqualifiedResourceId(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
-            var converterForContext = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
+            var converterForContext = converter.GetConverter(indexContext);
 
             var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
@@ -104,17 +105,16 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
+        public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
-            var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameIdentifier, indexExpression, newContext)
-                .GenerateSymbolicReference(resource, indexExpression);
+            var expression = converter.GetConverter(indexContext).GenerateSymbolicReference(resource, indexContext);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
         public void EmitSymbolReference(DeclaredResourceMetadata resource)
         {
-            var expression = converter.GenerateSymbolicReference(resource, null as SyntaxBase);
+            var expression = converter.GenerateSymbolicReference(resource, null);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
@@ -122,19 +122,16 @@ namespace Bicep.Core.Emit
         public string GetSymbolicName(DeclaredResourceMetadata resource)
             => converter.GetSymbolicName(resource);
 
-        public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, SyntaxBase indexExpression, SyntaxBase newContext)
+        public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
         {
-            var expression = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext)
-                .GenerateSymbolicReference(moduleSymbol, indexExpression);
+            var expression = converter.GetConverter(indexContext).GenerateSymbolicReference(moduleSymbol, indexContext);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
-        public void EmitResourceIdReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitResourceIdReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
-            var nameComponents = SyntaxFactory.CreateArray(this.converter.GetResourceNameSyntaxSegments(resource));
-
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(nameComponents, indexExpression, newContext);
+            var converterForContext = this.converter.GetConverter(indexContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
@@ -142,9 +139,9 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitResourceIdReference(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitResourceIdReference(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext);
+            var converterForContext = this.converter.GetConverter(indexContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
@@ -157,9 +154,9 @@ namespace Bicep.Core.Emit
             return converter.GetFullyQualifiedResourceName(resource);
         }
 
-        public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, SyntaxBase? indexExpression, SyntaxBase newContext, bool fullyQualified)
+        public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, IndexReplacementContext? indexContext, bool fullyQualified)
         {
-            var converterForContext = converter.CreateConverterForIndexReplacement(managementGroupNameProperty, indexExpression, newContext);
+            var converterForContext = converter.GetConverter(indexContext);
             return converterForContext.GenerateManagementGroupResourceId(managementGroupNameProperty, fullyQualified);
         }
 
@@ -195,14 +192,6 @@ namespace Bicep.Core.Emit
                 writer.WriteValue(serialized);
             }
         }
-
-        public void EmitCopyObject(string? name, SyntaxBase forExpression, SyntaxBase? input, string? copyIndexOverride = null, ulong? batchSize = null)
-            => EmitCopyObject(
-                name,
-                converter.ConvertToIntermediateExpression(forExpression),
-                input is null ? null : converter.ConvertToIntermediateExpression(input),
-                copyIndexOverride,
-                batchSize);
 
         public void EmitCopyObject(string? name, Expression forExpression, Expression? input, string? copyIndexOverride = null, ulong? batchSize = null)
         {
@@ -255,8 +244,7 @@ namespace Bicep.Core.Emit
                             this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
                         }
                     }
-                    else
-                    {
+                    else {
                         this.EmitPropertyWithTransform("input", input, expression =>
                         {
                             if (!CanEmitAsInputDirectly(input))
@@ -293,33 +281,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        public void EmitObjectProperties(ObjectSyntax objectSyntax, ISet<string>? propertiesToOmit = null)
-        {
-            var properties = objectSyntax.Properties
-                .Where(x => x.TryGetKeyText() is not {} keyName || propertiesToOmit?.Contains(keyName) != true);
-
-            objectSyntax = new ObjectSyntax(objectSyntax.OpenBrace, properties, objectSyntax.CloseBrace);
-
-            if (converter.ConvertToIntermediateExpression(objectSyntax) is not ObjectExpression objectExpression)
-            {
-                throw new InvalidOperationException();
-            }
-
-            EmitObjectProperties(objectExpression);
-        }
-
-        public void EmitObjectProperties(ObjectExpression @object, ISet<string>? propertiesToOmit = null)
-        {
-            propertiesToOmit ??= ImmutableHashSet<string>.Empty;
-            var properties = @object.Properties
-                .Where(x => x.TryGetKeyText() is not {} keyName || !propertiesToOmit.Contains(keyName));
-
-            @object = new(@object.SourceSyntax, properties.ToImmutableArray());
-
-            EmitObjectProperties(@object);
-        }
-
-        private void EmitObjectProperties(ObjectExpression @object)
+        public void EmitObjectProperties(ObjectExpression @object)
         {
             var propertyLookup = @object.Properties.OfType<ObjectPropertyExpression>().ToLookup(property => property.Value is ForLoopExpression);
 
@@ -362,77 +324,38 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitModuleParameterValue(SyntaxBase syntax)
+        public static Expression ConvertModuleParameter(Expression parameter)
         {
-            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall
-                && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
+            switch (parameter)
             {
-                EmitModuleParameterGetSecret(instanceFunctionCall);
-                return;
+                case ResourceFunctionCallExpression functionCall when 
+                    LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName):
+                    return ConvertModuleParameterGetSecret(functionCall);
+                case TernaryExpression ternary:
+                    return new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleParameter(ternary.True), ConvertModuleParameter(ternary.False));
+                default:
+                    return ExpressionFactory.CreateObject(new [] {
+                        ExpressionFactory.CreateObjectProperty("value", parameter)
+                    }, parameter.SourceSyntax);
             }
-            if (syntax is TernaryOperationSyntax ternarySyntax)
-            {
-                writer.WriteValue(ExpressionSerializer.SerializeExpression(converter.ConvertModuleParameterTernaryExpression(ternarySyntax)));
-                return;
-            }
-            writer.WriteStartObject();
-            EmitProperty("value", syntax);
-            writer.WriteEndObject();
         }
 
-        private void EmitModuleParameterGetSecret(InstanceFunctionCallSyntax instanceFunctionCallSyntax)
+        private static Expression ConvertModuleParameterGetSecret(ResourceFunctionCallExpression functionCall)
         {
-            var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCallSyntax.BaseExpression);
-
-            if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } resource ||
-                !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
+            var properties = new List<ObjectPropertyExpression>();
+            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new [] {
+                ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
+            }, functionCall.SourceSyntax)));
+            properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
+            if (functionCall.Parameters.Length > 1)
             {
-                throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
+                properties.Add(ExpressionFactory.CreateObjectProperty("secretVersion", functionCall.Parameters[1]));
             }
 
-            var keyVaultId = instanceFunctionCallSyntax.BaseExpression switch
-            {
-                ArrayAccessSyntax arrayAccessSyntax when resource is DeclaredResourceMetadata declared => converter
-                    .CreateConverterForIndexReplacement(declared.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCallSyntax)
-                    .GetFullyQualifiedResourceId(resource),
-                _ => converter.GetFullyQualifiedResourceId(resource)
-            };
-            writer.WriteStartObject();
-            writer.WritePropertyName("reference");
-            writer.WriteStartObject();
-            writer.WritePropertyName("keyVault");
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("id");
-
-            var keyVaultIdSerialised = ExpressionSerializer.SerializeExpression(keyVaultId);
-            writer.WriteValue(keyVaultIdSerialised);
-
-            writer.WriteEndObject(); // keyVault
-
-            writer.WritePropertyName("secretName");
-            var secretName = converter.ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(0).Expression);
-            var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
-            writer.WriteValue(secretNameSerialised);
-
-            if (instanceFunctionCallSyntax.Arguments.Count() > 1)
-            {
-                writer.WritePropertyName("secretVersion");
-                var secretVersion = converter.ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(1).Expression);
-                var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
-                writer.WriteValue(secretVersionSerialised);
-            }
-
-            writer.WriteEndObject(); // reference
-            writer.WriteEndObject();
+            return ExpressionFactory.CreateObject(new [] {
+                ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(properties))
+            }, functionCall.SourceSyntax);
         }
-
-        public void EmitProperty(string name, LanguageExpression expressionValue)
-            => EmitPropertyInternal(new JTokenExpression(name), () =>
-            {
-                var propertyValue = ExpressionSerializer.SerializeExpression(expressionValue);
-                writer.WriteValue(propertyValue);
-            });
 
         public void EmitProperty(ObjectPropertyExpression property)
             => EmitPropertyInternal(converter.ConvertExpression(property.Key), () => EmitExpression(property.Value), property.SourceSyntax ?? property.Key.SourceSyntax);
@@ -451,6 +374,13 @@ namespace Bicep.Core.Emit
                 var serialized = ExpressionSerializer.SerializeExpression(transformed);
 
                 this.writer.WriteValue(serialized);
+            });
+
+        public void EmitProperty(string name, LanguageExpression expressionValue)
+            => EmitPropertyInternal(new JTokenExpression(name), () =>
+            {
+                var propertyValue = ExpressionSerializer.SerializeExpression(expressionValue);
+                writer.WriteValue(propertyValue);
             });
 
         public void EmitProperty(string name, string value)
@@ -476,17 +406,17 @@ namespace Bicep.Core.Emit
         public void EmitCopyProperty(Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(LanguageConstants.CopyLoopIdentifier), valueFunc, skipCopyCheck: true);
 
-        public void EmitObjectProperty(string propertyName, Action writePropertiesFunc, IPositionable? position = null)
+        public void EmitProperty(string propertyName, Action writeValueFunc, IPositionable? position = null)
             => writer.WritePropertyWithPosition(
                 position,
                 propertyName,
-                () => EmitObject(writePropertiesFunc, position));
+                writeValueFunc);
+
+        public void EmitObjectProperty(string propertyName, Action writePropertiesFunc, IPositionable? position = null)
+            => EmitProperty(propertyName, () => EmitObject(writePropertiesFunc, position), position);
 
         public void EmitArrayProperty(string propertyName, Action writeItemsFunc, IPositionable? position = null)
-            => writer.WritePropertyWithPosition(
-                position,
-                propertyName,
-                () => EmitArray(writeItemsFunc, position));
+            => EmitProperty(propertyName, () => EmitArray(writeItemsFunc, position), position);
 
         public void EmitObject(Action writePropertiesFunc, IPositionable? position = null)
             => writer.WriteObjectWithPosition(position, writePropertiesFunc);

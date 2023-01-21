@@ -148,7 +148,9 @@ namespace Bicep.LanguageServer.Handlers
             return modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
                 parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
                 expressionSyntax is not null &&
-                expressionSyntax is not StringSyntax &&
+                // Complex Evaluation of StringSyntax is required for nested functions like 'resource${uniqueString(resourceGroup().id)}'
+                // Fixes: https://github.com/Azure/bicep/issues/8154
+                (expressionSyntax is not StringSyntax specificationString || specificationString.IsInterpolated()) && // (not a non-interpolated string literal)
                 expressionSyntax is not IntegerLiteralSyntax &&
                 expressionSyntax is not BooleanLiteralSyntax;
         }
