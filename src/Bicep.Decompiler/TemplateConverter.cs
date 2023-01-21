@@ -372,6 +372,43 @@ namespace Bicep.Decompiler
                 return true;
             }
 
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "lambda"))
+            {
+                if (expression.Parameters.Length < 1)
+                {
+                    throw new ArgumentException($"Expected at least 1 argument for function {expression.Function}");
+                }
+
+                var lambdaExpression = expression.Parameters.Last();
+                var paramNames = new string[expression.Parameters.Length - 1];
+                for (var i = 0; i < expression.Parameters.Length - 1; i++)
+                {
+                    if (expression.Parameters[i] is not JTokenExpression jtokenParam ||
+                        jtokenParam.Value.Type is not JTokenType.String)
+                    {
+                        throw new ArgumentException($"Argument {i} for {expression.Function} is not a valid identifier");
+                    }
+
+                    paramNames[i] = jtokenParam.Value.ToString();
+                }
+
+                syntax = SyntaxFactory.CreateLambdaSyntax(paramNames, ParseLanguageExpression(lambdaExpression));
+                return true;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "lambdaVariables"))
+            {
+                if (expression.Parameters.Length != 1 ||
+                    expression.Parameters[0] is not JTokenExpression jtokenParam ||
+                    jtokenParam.Value.Type is not JTokenType.String)
+                {
+                    throw new ArgumentException($"Expected exactly 1 parameter of type {JTokenType.String} for function {expression.Function}");
+                }
+
+                syntax = SyntaxFactory.CreateIdentifier(jtokenParam.Value.ToString());
+                return true;
+            }
+
             if (expression.IsNamed("tryGet"))
             {
                 if (expression.Parameters.Length < 2)
