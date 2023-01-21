@@ -286,7 +286,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
                         ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
-                        _ => throw new InvalidOperationException("Could not determine the return type from the provided input")
+                        _ => LanguageConstants.Any
                     });
                 }, LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
@@ -308,7 +308,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
                         ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
-                        _ => throw new InvalidOperationException("Could not determine the return type from the provided input")
+                        _ => LanguageConstants.Any
                     });
                 }, LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
