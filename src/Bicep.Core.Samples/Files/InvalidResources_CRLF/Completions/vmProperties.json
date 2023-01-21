@@ -14,7 +14,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "additionalCapabilities"
+      "newText": "?additionalCapabilities"
     },
     "commitCharacters": [
       "."
@@ -35,7 +35,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "availabilitySet"
+      "newText": "?availabilitySet"
     },
     "commitCharacters": [
       "."
@@ -56,7 +56,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "billingProfile"
+      "newText": "?billingProfile"
     },
     "commitCharacters": [
       "."
@@ -77,7 +77,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "diagnosticsProfile"
+      "newText": "?diagnosticsProfile"
     },
     "commitCharacters": [
       "."
@@ -98,7 +98,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "evictionPolicy"
+      "newText": "?evictionPolicy"
     },
     "commitCharacters": [
       "."
@@ -119,7 +119,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "extensionsTimeBudget"
+      "newText": "?extensionsTimeBudget"
     },
     "commitCharacters": [
       "."
@@ -140,7 +140,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "hardwareProfile"
+      "newText": "?hardwareProfile"
     },
     "commitCharacters": [
       "."
@@ -161,7 +161,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "host"
+      "newText": "?host"
     },
     "commitCharacters": [
       "."
@@ -182,7 +182,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "hostGroup"
+      "newText": "?hostGroup"
     },
     "commitCharacters": [
       "."
@@ -203,7 +203,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "instanceView"
+      "newText": "?instanceView"
     },
     "commitCharacters": [
       "."
@@ -224,7 +224,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "licenseType"
+      "newText": "?licenseType"
     },
     "commitCharacters": [
       "."
@@ -245,7 +245,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "networkProfile"
+      "newText": "?networkProfile"
     },
     "commitCharacters": [
       "."
@@ -266,7 +266,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "osProfile"
+      "newText": "?osProfile"
     },
     "commitCharacters": [
       "."
@@ -287,7 +287,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "priority"
+      "newText": "?priority"
     },
     "commitCharacters": [
       "."
@@ -308,7 +308,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "provisioningState"
+      "newText": "?provisioningState"
     },
     "commitCharacters": [
       "."
@@ -329,7 +329,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "proximityPlacementGroup"
+      "newText": "?proximityPlacementGroup"
     },
     "commitCharacters": [
       "."
@@ -350,7 +350,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "securityProfile"
+      "newText": "?securityProfile"
     },
     "commitCharacters": [
       "."
@@ -371,7 +371,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "storageProfile"
+      "newText": "?storageProfile"
     },
     "commitCharacters": [
       "."
@@ -392,7 +392,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "virtualMachineScaleSet"
+      "newText": "?virtualMachineScaleSet"
     },
     "commitCharacters": [
       "."
@@ -413,7 +413,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "vmId"
+      "newText": "?vmId"
     },
     "commitCharacters": [
       "."

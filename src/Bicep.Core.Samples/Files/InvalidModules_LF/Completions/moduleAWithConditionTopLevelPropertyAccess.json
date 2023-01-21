@@ -35,7 +35,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "outputs"
+      "newText": "?outputs"
     },
     "commitCharacters": [
       "."
