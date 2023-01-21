@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -310,67 +311,6 @@ namespace Bicep.Core.Emit
                         parentResourceId,
                         fullyQualifiedType,
                         nameSegments);
-                default:
-                    throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
-            }
-        }
-
-        public static void EmitResourceScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
-        {
-            if (scopeData.ResourceScope is DeclaredResourceMetadata scopeResource)
-            {
-                // emit the resource id of the resource being extended
-                expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, newContext));
-                return;
-            }
-
-            EmitResourceOrModuleScopeProperties(semanticModel, scopeData, expressionEmitter, newContext);
-        }
-
-        public static void EmitModuleScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext) =>
-            EmitResourceOrModuleScopeProperties(semanticModel, scopeData, expressionEmitter, newContext);
-
-        private static void EmitResourceOrModuleScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
-        {
-            switch (scopeData.RequestedScope)
-            {
-                case ResourceScope.Tenant:
-                    if (semanticModel.TargetScope != ResourceScope.Tenant)
-                    {
-                        // emit the "/" to allow cross-scope deployment of a Tenant resource from another deployment scope
-                        expressionEmitter.EmitProperty("scope", new JTokenExpression("/"));
-                    }
-                    return;
-                case ResourceScope.ManagementGroup:
-                    if (scopeData.ManagementGroupNameProperty is not null)
-                    {
-                        // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant or management group scope
-                        var useFullyQualifiedResourceId = semanticModel.TargetScope != ResourceScope.Tenant && semanticModel.TargetScope != ResourceScope.ManagementGroup;
-                        expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, scopeData.IndexExpression, newContext, useFullyQualifiedResourceId));
-                    }
-                    return;
-                case ResourceScope.Subscription:
-                    if (scopeData.SubscriptionIdProperty is not null)
-                    {
-                        // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
-                        expressionEmitter.EmitProperty("subscriptionId", scopeData.SubscriptionIdProperty);
-                    }
-                    else if (semanticModel.TargetScope == ResourceScope.ResourceGroup)
-                    {
-                        // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
-                        expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
-                    }
-                    return;
-                case ResourceScope.ResourceGroup:
-                    if (scopeData.SubscriptionIdProperty is not null)
-                    {
-                        expressionEmitter.EmitProperty("subscriptionId", () => expressionEmitter.EmitExpression(scopeData.SubscriptionIdProperty, scopeData.IndexExpression, newContext));
-                    }
-                    if (scopeData.ResourceGroupProperty is not null)
-                    {
-                        expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext));
-                    }
-                    return;
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }

@@ -458,10 +458,6 @@ module singleModule 'passthrough.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -490,8 +486,12 @@ module singleModule 'passthrough.bicep' = {
   name: 'test'
 //@      "name": "test",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'hello'
+//@          "myInput": {
 //@            "value": "hello"
+//@          }
   }
 }
 
@@ -523,10 +523,6 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleNam
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -559,8 +555,12 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleNam
   name: moduleName
 //@      "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'in-${moduleName}'
+//@          "myInput": {
 //@            "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
+//@          }
   }
   dependsOn: [
     singleModule
@@ -582,10 +582,6 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for mod
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -618,8 +614,12 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for mod
   name: moduleName
 //@      "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'in-${moduleName}'
+//@          "myInput": {
 //@            "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
+//@          }
   }
   dependsOn: [
     storageAccounts
@@ -636,10 +636,6 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -673,8 +669,12 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
 //@      "name": "hello",
   params: {
+//@        "parameters": {
+//@        },
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
+//@          "myInput": {
 //@            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name)), '2019-06-01').accessTier)]"
+//@          }
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -694,10 +694,6 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for module
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -731,8 +727,12 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for module
   name: moduleName
 //@      "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName}'
+//@          "myInput": {
 //@            "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name)), '2019-06-01').accessTier, variables('moduleSetup')[copyIndex()])]"
+//@          }
   }
   dependsOn: [
     storageAccounts2[index - 9]
@@ -845,10 +845,6 @@ module apim 'passthrough.bicep' = [for region in regions: {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -877,8 +873,12 @@ module apim 'passthrough.bicep' = [for region in regions: {
   name: 'apim-${region}-${name}'
 //@      "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: region
+//@          "myInput": {
 //@            "value": "[variables('regions')[copyIndex()]]"
+//@          }
   }
 }]
 
@@ -1116,11 +1116,11 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 
 resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0,10): if(i % 3 == 0) {
 //@    {
-//@      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
 //@      "copy": {
 //@        "name": "filteredZones",
 //@        "count": "[length(range(0, 10))]"
 //@      },
+//@      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
 //@      "type": "Microsoft.Network/dnsZones",
 //@      "apiVersion": "2018-05-01",
 //@      "name": "[format('zone{0}', range(0, 10)[copyIndex()])]",
@@ -1132,11 +1132,11 @@ resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range
 
 module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0) {
 //@    {
-//@      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
 //@      "copy": {
 //@        "name": "filteredModules",
 //@        "count": "[length(range(0, 6))]"
 //@      },
+//@      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2020-10-01",
 //@      "properties": {
@@ -1144,10 +1144,6 @@ module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1176,18 +1172,22 @@ module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0
   name: 'stuff${i}'
 //@      "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'script-${i}'
+//@          "myInput": {
 //@            "value": "[format('script-{0}', range(0, 6)[copyIndex()])]"
+//@          }
   }
 }]
 
 resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (account, i) in accounts: if(account.enabled) {
 //@    {
-//@      "condition": "[parameters('accounts')[copyIndex()].enabled]",
 //@      "copy": {
 //@        "name": "filteredIndexedZones",
 //@        "count": "[length(parameters('accounts'))]"
 //@      },
+//@      "condition": "[parameters('accounts')[copyIndex()].enabled]",
 //@      "type": "Microsoft.Network/dnsZones",
 //@      "apiVersion": "2018-05-01",
 //@      "name": "[format('indexedZone-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]",
@@ -1205,11 +1205,11 @@ output lastNameServers array = filteredIndexedZones[length(accounts) - 1].proper
 
 module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if(account.enabled) {
 //@    {
-//@      "condition": "[parameters('accounts')[copyIndex()].enabled]",
 //@      "copy": {
 //@        "name": "filteredIndexedModules",
 //@        "count": "[length(parameters('accounts'))]"
 //@      },
+//@      "condition": "[parameters('accounts')[copyIndex()].enabled]",
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2020-10-01",
 //@      "properties": {
@@ -1217,10 +1217,6 @@ module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in account
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "myInput": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1249,8 +1245,12 @@ module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in account
   name: 'stuff-${i}'
 //@      "name": "[format('stuff-{0}', copyIndex())]",
   params: {
+//@        "parameters": {
+//@        },
     myInput: 'script-${account.name}-${i}'
+//@          "myInput": {
 //@            "value": "[format('script-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]"
+//@          }
   }
 }]
 

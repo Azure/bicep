@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8647043276184354817"
+      "templateHash": "17497602448980063996"
     }
   },
   "parameters": {
@@ -221,7 +221,7 @@
       "properties": {
         "resolutionVirtualNetworks": [
           {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-{1}', variables('vnetConfigurations')[copyIndex()].name, copyIndex()))]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-{1}', variables('vnetConfigurations')[add(parameters('index'), 1)].name, add(parameters('index'), 1)))]"
           }
         ]
       },
@@ -237,10 +237,10 @@
       "properties": {
         "resolutionVirtualNetworks": [
           {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-{1}', variables('vnetConfigurations')[copyIndex()].name, copyIndex()))]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-{1}', variables('vnetConfigurations')[sub(parameters('index'), 1)].name, sub(parameters('index'), 1)))]"
           },
           {
-            "id": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-{1}', variables('vnetConfigurations')[copyIndex()].name, copyIndex()))]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', format('{0}-{1}', variables('vnetConfigurations')[mul(parameters('index'), 2)].name, mul(parameters('index'), 2)))]"
           }
         ]
       },
@@ -701,11 +701,11 @@
     },
     "indexedCollectionName": {
       "type": "string",
-      "value": "[format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[copyIndex()].name, copyIndex())]"
+      "value": "[format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[parameters('index')].name, parameters('index'))]"
     },
     "indexedCollectionId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[copyIndex()].name, copyIndex()))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[parameters('index')].name, parameters('index')))]"
     },
     "indexedCollectionType": {
       "type": "string",
@@ -740,11 +740,11 @@
     },
     "existingIndexedResourceName": {
       "type": "string",
-      "value": "[format('{0}-existing-{1}-{2}', parameters('name'), parameters('accounts')[copyIndex()].name, copyIndex())]"
+      "value": "[format('{0}-existing-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 0)].name, mul(parameters('index'), 0))]"
     },
     "existingIndexedResourceId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}-{2}', parameters('name'), parameters('accounts')[copyIndex()].name, copyIndex()))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 1)].name, mul(parameters('index'), 1)))]"
     },
     "existingIndexedResourceType": {
       "type": "string",

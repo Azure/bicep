@@ -32,10 +32,9 @@ namespace Bicep.Core.UnitTests.Assertions
                 _ => "  ",
             };
 
-        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        private static string? CalculateDiff(string expected, string actual, bool ignoreWhiteSpace = false, bool ignoreCase = false, int truncate = 100)
         {
-            const int truncate = 100;
-            var diff = InlineDiffBuilder.Diff(expected, instance.Subject, ignoreWhiteSpace: false, ignoreCase: false);
+            var diff = InlineDiffBuilder.Diff(expected, actual, ignoreWhiteSpace: ignoreWhiteSpace, ignoreCase: ignoreCase);
 
             var lineLogs = diff.Lines
                 .Where(line => line.Type != ChangeType.Unchanged)
@@ -47,7 +46,19 @@ namespace Bicep.Core.UnitTests.Assertions
                 lineLogs = lineLogs.Concat(new[] { "...truncated..." });
             }
 
-            var testPassed = !diff.HasDifferences;
+            if (!diff.HasDifferences)
+            {
+                return null;
+            }
+
+            return string.Join('\n', lineLogs);
+        }
+
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        {
+            var lineDiff = CalculateDiff(expected, instance.Subject);
+            var testPassed = lineDiff is null;
+
             var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
             if (isBaselineUpdate)
             {
@@ -59,7 +70,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 .ForCondition(testPassed)
                 .FailWith(
                     BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
-                    string.Join('\n', lineLogs),
+                    lineDiff,
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
 
