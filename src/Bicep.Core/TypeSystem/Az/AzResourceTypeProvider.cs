@@ -27,6 +27,7 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
         public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";
+        public const string GetSecretFunctionName = "getSecret";
 
         /*
          * The following top-level properties must be set deploy-time constant values,
@@ -380,7 +381,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             if (StringComparer.OrdinalIgnoreCase.Equals(resourceType.FormatType(), ResourceTypeKeyVault))
             {
-                yield return new FunctionOverloadBuilder("getSecret")
+                yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
                     .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")

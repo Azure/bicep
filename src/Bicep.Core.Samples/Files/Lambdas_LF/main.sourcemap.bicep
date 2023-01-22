@@ -113,10 +113,6 @@ module myMod './test.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "outputThis": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -145,8 +141,12 @@ module myMod './test.bicep' = {
   name: 'asdfsadf'
 //@      "name": "asdfsadf",
   params: {
+//@        "parameters": {
+//@        },
     outputThis: map(mapObject, obj => obj.doggo)
+//@          "outputThis": {
 //@            "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
+//@          }
   }
 }
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')

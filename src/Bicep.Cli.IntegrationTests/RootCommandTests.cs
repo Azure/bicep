@@ -113,9 +113,9 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().NotBeEmpty();
                 output.Should().ContainAll(
                     "MIT License",
-                    "Copyright (c) Microsoft Corporation.",
+                    "(c) Microsoft Corporation.",
                     "---------------------------------------------------------",
-                    "Copyright (c) .NET Foundation and Contributors",
+                    "(c) .NET Foundation and Contributors",
                     "THE SOFTWARE IS PROVIDED \"AS IS\"",
                     "MIT");
 

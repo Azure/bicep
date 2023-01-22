@@ -10,16 +10,14 @@ using System.IO;
 
 namespace Bicep.Core.Emit
 {
-    public class PlaceholderParametersJsonWriter : TemplateWriter
+    public class PlaceholderParametersJsonWriter
     {
-        public PlaceholderParametersJsonWriter(SemanticModel semanticModel, EmitterSettings settings) : base(semanticModel, settings)
+        public PlaceholderParametersJsonWriter(SemanticModel semanticModel)
         {
-            this.context = new EmitterContext(semanticModel, settings);
-            this.settings = settings;
+            this.Context = new EmitterContext(semanticModel);
         }
 
-        private readonly EmitterContext context;
-        private readonly EmitterSettings settings;
+        private EmitterContext Context { get; }
 
         public void Write(JsonTextWriter writer, string existingContent)
         {
@@ -69,8 +67,8 @@ namespace Bicep.Core.Emit
         private JToken GenerateTemplate(string contentVersion)
         {
             using var stringWriter = new StringWriter();
-            using var jsonWriter = new PositionTrackingJsonTextWriter(this.context.SemanticModel.FileResolver, stringWriter);
-            var emitter = new ExpressionEmitter(jsonWriter, this.context);
+            using var jsonWriter = new PositionTrackingJsonTextWriter(this.Context.SemanticModel.FileResolver, stringWriter);
+            var emitter = new ExpressionEmitter(jsonWriter, this.Context);
 
             jsonWriter.WriteStartObject();
 
@@ -78,12 +76,12 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("contentVersion", contentVersion);
 
-            if (this.context.SemanticModel.Root.ParameterDeclarations.Length > 0)
+            if (this.Context.SemanticModel.Root.ParameterDeclarations.Length > 0)
             {
                 jsonWriter.WritePropertyName("parameters");
                 jsonWriter.WriteStartObject();
 
-                foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
+                foreach (var parameterSymbol in this.Context.SemanticModel.Root.ParameterDeclarations)
                 {
                     if (parameterSymbol.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)
                     {

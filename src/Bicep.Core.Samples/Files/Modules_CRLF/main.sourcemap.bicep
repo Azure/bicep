@@ -20,14 +20,6 @@ module modATest './modulea.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "stringParamB": {
-//@          },
-//@          "objParam": {
-//@          },
-//@          "arrayParam": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -96,17 +88,25 @@ module modATest './modulea.bicep' = {
   name: 'modATest'
 //@      "name": "modATest",
   params: {
+//@        "parameters": {
+//@        },
     stringParamB: 'hello!'
+//@          "stringParamB": {
 //@            "value": "hello!"
+//@          },
     objParam: {
+//@          "objParam": {
 //@            "value": {
 //@            }
+//@          },
       a: 'b'
 //@              "a": "b"
     }
     arrayParam: [
+//@          "arrayParam": {
 //@            "value": [
 //@            ]
+//@          }
       {
 //@              {
 //@              },
@@ -131,10 +131,6 @@ module modB './child/moduleb.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "location": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -172,8 +168,12 @@ module modB './child/moduleb.bicep' = {
   name: 'modB'
 //@      "name": "modB",
   params: {
+//@        "parameters": {
+//@        },
     location: 'West US'
+//@          "location": {
 //@            "value": "West US"
+//@          }
   }
 }
 
@@ -189,10 +189,6 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "location": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -230,8 +226,12 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
   name: 'modBWithCondition'
 //@      "name": "modBWithCondition",
   params: {
+//@        "parameters": {
+//@        },
     location: 'East US'
+//@          "location": {
 //@            "value": "East US"
+//@          }
   }
 }
 
@@ -244,10 +244,6 @@ module modC './child/modulec.json' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "location": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -277,8 +273,12 @@ module modC './child/modulec.json' = {
   name: 'modC'
 //@      "name": "modC",
   params: {
+//@        "parameters": {
+//@        },
     location: 'West US'
+//@          "location": {
 //@            "value": "West US"
+//@          }
   }
 }
 
@@ -292,10 +292,6 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "location": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -325,8 +321,12 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
   name: 'modCWithCondition'
 //@      "name": "modCWithCondition",
   params: {
+//@        "parameters": {
+//@        },
     location: 'East US'
+//@          "location": {
 //@            "value": "East US"
+//@          }
   }
 }
 
@@ -401,7 +401,6 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {},
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -454,6 +453,7 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
   name: 'optionalWithNoParams2'
 //@      "name": "optionalWithNoParams2",
   params: {
+//@        "parameters": {},
   }
 }
 
@@ -466,16 +466,6 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "optionalString": {
-//@          },
-//@          "optionalInt": {
-//@          },
-//@          "optionalObj": {
-//@          },
-//@          "optionalArray": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -528,14 +518,24 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
   name: 'optionalWithNoParams3'
 //@      "name": "optionalWithNoParams3",
   params: {
+//@        "parameters": {
+//@        },
     optionalString: 'abc'
+//@          "optionalString": {
 //@            "value": "abc"
+//@          },
     optionalInt: 42
+//@          "optionalInt": {
 //@            "value": 42
+//@          },
     optionalObj: { }
+//@          "optionalObj": {
 //@            "value": {}
+//@          },
     optionalArray: [ ]
+//@          "optionalArray": {
 //@            "value": []
+//@          }
   }
 }
 
@@ -572,16 +572,6 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "optionalString": {
-//@          },
-//@          "optionalInt": {
-//@          },
-//@          "optionalObj": {
-//@          },
-//@          "optionalArray": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -638,14 +628,24 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
   name: 'optionalWithAllParamsAndManualDependency'
 //@      "name": "optionalWithAllParamsAndManualDependency",
   params: {
+//@        "parameters": {
+//@        },
     optionalString: 'abc'
+//@          "optionalString": {
 //@            "value": "abc"
+//@          },
     optionalInt: 42
+//@          "optionalInt": {
 //@            "value": 42
+//@          },
     optionalObj: { }
+//@          "optionalObj": {
 //@            "value": {}
+//@          },
     optionalArray: [ ]
+//@          "optionalArray": {
 //@            "value": []
+//@          }
   }
   dependsOn: [
     resWithDependencies
@@ -662,16 +662,6 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "optionalString": {
-//@          },
-//@          "optionalInt": {
-//@          },
-//@          "optionalObj": {
-//@          },
-//@          "optionalArray": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -728,14 +718,24 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
   name: 'optionalWithImplicitDependency'
 //@      "name": "optionalWithImplicitDependency",
   params: {
+//@        "parameters": {
+//@        },
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
+//@          "optionalString": {
 //@            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
+//@          },
     optionalInt: 42
+//@          "optionalInt": {
 //@            "value": 42
+//@          },
     optionalObj: { }
+//@          "optionalObj": {
 //@            "value": {}
+//@          },
     optionalArray: [ ]
+//@          "optionalArray": {
 //@            "value": []
+//@          }
   }
 }
 
@@ -748,16 +748,6 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "optionalString": {
-//@          },
-//@          "optionalInt": {
-//@          },
-//@          "optionalObj": {
-//@          },
-//@          "optionalArray": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -814,14 +804,24 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
 //@      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
   params: {
+//@        "parameters": {
+//@        },
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
+//@          "optionalString": {
 //@            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
+//@          },
     optionalInt: 42
+//@          "optionalInt": {
 //@            "value": 42
+//@          },
     optionalObj: { }
+//@          "optionalObj": {
 //@            "value": {}
+//@          },
     optionalArray: [ ]
+//@          "optionalArray": {
 //@            "value": []
+//@          }
   }
 }
 
@@ -913,14 +913,6 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "arrayParam": {
-//@          },
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -987,12 +979,20 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
   name: module.name
 //@      "name": "[variables('myModules')[copyIndex()].name]",
   params: {
+//@        "parameters": {
+//@        },
     arrayParam: []
+//@          "arrayParam": {
 //@            "value": []
+//@          },
     objParam: module
+//@          "objParam": {
 //@            "value": "[variables('myModules')[copyIndex()]]"
+//@          },
     stringParamB: module.location
+//@          "stringParamB": {
 //@            "value": "[variables('myModules')[copyIndex()].location]"
+//@          }
   }
 }]
 
@@ -1010,16 +1010,6 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "arrayParam": {
-//@          },
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "stringParamA": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1086,18 +1076,28 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
   name: module.name
 //@      "name": "[variables('myModules')[copyIndex()].name]",
   params: {
+//@        "parameters": {
+//@        },
     arrayParam: [
+//@          "arrayParam": {
 //@            "value": [
 //@            ]
+//@          },
       i + 1
 //@              "[add(copyIndex(), 1)]"
     ]
     objParam: module
+//@          "objParam": {
 //@            "value": "[variables('myModules')[copyIndex()]]"
+//@          },
     stringParamB: module.location
+//@          "stringParamB": {
 //@            "value": "[variables('myModules')[copyIndex()].location]"
+//@          },
     stringParamA: concat('a', i)
+//@          "stringParamA": {
 //@            "value": "[concat('a', copyIndex())]"
+//@          }
   }
 }]
 
@@ -1115,16 +1115,6 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "arrayParam": {
-//@            "copy": [
-//@            ]
-//@          },
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1191,16 +1181,26 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
   name: module.name
 //@      "name": "[variables('myModules')[copyIndex()].name]",
   params: {
+//@        "parameters": {
+//@          "arrayParam": {
+//@          },
+//@        },
     arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
+//@            "copy": [
 //@              {
 //@                "name": "value",
 //@                "count": "[length(range(0, 3))]",
 //@                "input": "[concat('test-', range(0, 3)[copyIndex('value')], '-', variables('myModules')[copyIndex()].name)]"
 //@              }
+//@            ]
     objParam: module
+//@          "objParam": {
 //@            "value": "[variables('myModules')[copyIndex()]]"
+//@          },
     stringParamB: module.location
+//@          "stringParamB": {
 //@            "value": "[variables('myModules')[copyIndex()].location]"
+//@          }
   }
 }]
 
@@ -1218,18 +1218,6 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "objParam": {
-//@          },
-//@          "stringParamA": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "arrayParam": {
-//@            "copy": [
-//@            ]
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1296,18 +1284,30 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
   name: 'hello-${x}'
 //@      "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
   params: {
+//@        "parameters": {
+//@          "arrayParam": {
+//@          }
+//@        },
     objParam: {}
+//@          "objParam": {
 //@            "value": {}
+//@          },
     stringParamA: 'test'
+//@          "stringParamA": {
 //@            "value": "test"
+//@          },
     stringParamB: 'test'
+//@          "stringParamB": {
 //@            "value": "test"
+//@          },
     arrayParam: [for x in emptyArray: x]
+//@            "copy": [
 //@              {
 //@                "name": "value",
 //@                "count": "[length(variables('emptyArray'))]",
 //@                "input": "[variables('emptyArray')[copyIndex('value')]]"
 //@              }
+//@            ]
   }
 }]
 
@@ -1327,18 +1327,6 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "objParam": {
-//@          },
-//@          "stringParamA": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "arrayParam": {
-//@            "copy": [
-//@            ]
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1405,18 +1393,30 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
   name: 'hello-${duplicateAcrossScopes}'
 //@      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
   params: {
+//@        "parameters": {
+//@          "arrayParam": {
+//@          }
+//@        },
     objParam: {}
+//@          "objParam": {
 //@            "value": {}
+//@          },
     stringParamA: 'test'
+//@          "stringParamA": {
 //@            "value": "test"
+//@          },
     stringParamB: 'test'
+//@          "stringParamB": {
 //@            "value": "test"
+//@          },
     arrayParam: [for x in emptyArray: x]
+//@            "copy": [
 //@              {
 //@                "name": "value",
 //@                "count": "[length(variables('emptyArray'))]",
 //@                "input": "[variables('emptyArray')[copyIndex('value')]]"
 //@              }
+//@            ]
   }
 }]
 
@@ -1437,16 +1437,6 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "arrayParam": {
-//@            "copy": [
-//@            ]
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1513,16 +1503,26 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
   name: 'hello-${someDuplicate}'
 //@      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
   params: {
+//@        "parameters": {
+//@          "arrayParam": {
+//@          }
+//@        },
     objParam: {}
+//@          "objParam": {
 //@            "value": {}
+//@          },
     stringParamB: 'test'
+//@          "stringParamB": {
 //@            "value": "test"
+//@          },
     arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+//@            "copy": [
 //@              {
 //@                "name": "value",
 //@                "count": "[length(variables('emptyArray'))]",
 //@                "input": "[format('{0}-{1}', createArray()[copyIndex()], variables('emptyArray')[copyIndex('value')])]"
 //@              }
+//@            ]
   }
 }]
 
@@ -1535,14 +1535,6 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "arrayParam": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1609,11 +1601,15 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
   name: 'propertyLoopInsideParameterValue'
 //@      "name": "propertyLoopInsideParameterValue",
   params: {
+//@        "parameters": {
+//@        },
     objParam: {
+//@          "objParam": {
 //@            "value": {
 //@              "copy": [
 //@              ],
 //@            }
+//@          },
       a: [for i in range(0,10): i]
 //@                {
 //@                  "name": "a",
@@ -1650,10 +1646,14 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
       }]
     }
     stringParamB: ''
+//@          "stringParamB": {
 //@            "value": ""
+//@          },
     arrayParam: [
+//@          "arrayParam": {
 //@            "value": [
 //@            ]
+//@          }
       {
 //@              {
 //@                "copy": [
@@ -1679,14 +1679,6 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "arrayParam": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1753,11 +1745,15 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
   name: 'propertyLoopInsideParameterValueWithIndexes'
 //@      "name": "propertyLoopInsideParameterValueWithIndexes",
   params: {
+//@        "parameters": {
+//@        },
     objParam: {
+//@          "objParam": {
 //@            "value": {
 //@              "copy": [
 //@              ],
 //@            }
+//@          },
       a: [for (i, i2) in range(0,10): i + i2]
 //@                {
 //@                  "name": "a",
@@ -1796,10 +1792,14 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
       }]
     }
     stringParamB: ''
+//@          "stringParamB": {
 //@            "value": ""
+//@          },
     arrayParam: [
+//@          "arrayParam": {
 //@            "value": [
 //@            ]
+//@          }
       {
 //@              {
 //@                "copy": [
@@ -1829,14 +1829,6 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "objParam": {
-//@          },
-//@          "stringParamB": {
-//@          },
-//@          "arrayParam": {
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -1903,11 +1895,15 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
 //@      "name": "propertyLoopInsideParameterValueInsideModuleLoop",
   params: {
+//@        "parameters": {
+//@        },
     objParam: {
+//@          "objParam": {
 //@            "value": {
 //@              "copy": [
 //@              ],
 //@            }
+//@          },
       a: [for i in range(0,10): i + thing]
 //@                {
 //@                  "name": "a",
@@ -1944,10 +1940,14 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
       }]
     }
     stringParamB: ''
+//@          "stringParamB": {
 //@            "value": ""
+//@          },
     arrayParam: [
+//@          "arrayParam": {
 //@            "value": [
 //@            ]
+//@          }
       {
 //@              {
 //@                "copy": [
@@ -1980,25 +1980,6 @@ module secureModule1 'child/secureParams.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "secureStringParam1": {
-//@            "reference": {
-//@              "keyVault": {
-//@                "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
-//@              },
-//@              "secretName": "mySecret"
-//@            }
-//@          },
-//@          "secureStringParam2": {
-//@            "reference": {
-//@              "keyVault": {
-//@                "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
-//@              },
-//@              "secretName": "mySecret",
-//@              "secretVersion": "secretVersion"
-//@            }
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -2031,8 +2012,27 @@ module secureModule1 'child/secureParams.bicep' = {
   name: 'secureModule1'
 //@      "name": "secureModule1",
   params: {
+//@        "parameters": {
+//@        },
     secureStringParam1: kv.getSecret('mySecret')
+//@          "secureStringParam1": {
+//@            "reference": {
+//@              "keyVault": {
+//@                "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
+//@              },
+//@              "secretName": "mySecret"
+//@            }
+//@          },
     secureStringParam2: kv.getSecret('mySecret','secretVersion')
+//@          "secureStringParam2": {
+//@            "reference": {
+//@              "keyVault": {
+//@                "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
+//@              },
+//@              "secretName": "mySecret",
+//@              "secretVersion": "secretVersion"
+//@            }
+//@          }
   }
 }
 
@@ -2050,25 +2050,6 @@ module secureModule2 'child/secureParams.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "secureStringParam1": {
-//@            "reference": {
-//@              "keyVault": {
-//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
-//@              },
-//@              "secretName": "mySecret"
-//@            }
-//@          },
-//@          "secureStringParam2": {
-//@            "reference": {
-//@              "keyVault": {
-//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
-//@              },
-//@              "secretName": "mySecret",
-//@              "secretVersion": "secretVersion"
-//@            }
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -2101,8 +2082,27 @@ module secureModule2 'child/secureParams.bicep' = {
   name: 'secureModule2'
 //@      "name": "secureModule2",
   params: {
+//@        "parameters": {
+//@        },
     secureStringParam1: scopedKv.getSecret('mySecret')
+//@          "secureStringParam1": {
+//@            "reference": {
+//@              "keyVault": {
+//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
+//@              },
+//@              "secretName": "mySecret"
+//@            }
+//@          },
     secureStringParam2: scopedKv.getSecret('mySecret','secretVersion')
+//@          "secureStringParam2": {
+//@            "reference": {
+//@              "keyVault": {
+//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
+//@              },
+//@              "secretName": "mySecret",
+//@              "secretVersion": "secretVersion"
+//@            }
+//@          }
   }
 }
 
@@ -2170,25 +2170,6 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "secureStringParam1": {
-//@            "reference": {
-//@              "keyVault": {
-//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('vaults')[copyIndex()].vaultSub, variables('vaults')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('vaults')[copyIndex()].vaultName)]"
-//@              },
-//@              "secretName": "[variables('secrets')[copyIndex()].name]"
-//@            }
-//@          },
-//@          "secureStringParam2": {
-//@            "reference": {
-//@              "keyVault": {
-//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('vaults')[copyIndex()].vaultSub, variables('vaults')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('vaults')[copyIndex()].vaultName)]"
-//@              },
-//@              "secretName": "[variables('secrets')[copyIndex()].name]",
-//@              "secretVersion": "[variables('secrets')[copyIndex()].version]"
-//@            }
-//@          }
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -2221,8 +2202,27 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
   name: 'secureModuleLooped-${i}'
 //@      "name": "[format('secureModuleLooped-{0}', copyIndex())]",
   params: {
+//@        "parameters": {
+//@        },
     secureStringParam1: loopedKv[i].getSecret(secret.name)
+//@          "secureStringParam1": {
+//@            "reference": {
+//@              "keyVault": {
+//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('vaults')[copyIndex()].vaultSub, variables('vaults')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('vaults')[copyIndex()].vaultName)]"
+//@              },
+//@              "secretName": "[variables('secrets')[copyIndex()].name]"
+//@            }
+//@          },
     secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
+//@          "secureStringParam2": {
+//@            "reference": {
+//@              "keyVault": {
+//@                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('vaults')[copyIndex()].vaultSub, variables('vaults')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('vaults')[copyIndex()].vaultName)]"
+//@              },
+//@              "secretName": "[variables('secrets')[copyIndex()].name]",
+//@              "secretVersion": "[variables('secrets')[copyIndex()].version]"
+//@            }
+//@          }
   }
 }]
 
@@ -2235,10 +2235,6 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@          "scope": "inner"
 //@        },
 //@        "mode": "Incremental",
-//@        "parameters": {
-//@          "secureStringParam1": "[if(true(), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret')), createObject('value', 'notTrue'))]",
-//@          "secureStringParam2": "[if(true(), if(false(), createObject('value', 'false'), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret', 'secretVersion', 'secretVersion'))), createObject('value', 'notTrue'))]"
-//@        },
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 //@          "contentVersion": "1.0.0.0",
@@ -2271,8 +2267,12 @@ module secureModuleCondition 'child/secureParams.bicep' = {
   name: 'secureModuleCondition'
 //@      "name": "secureModuleCondition",
   params: {
+//@        "parameters": {
+//@        },
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
+//@          "secureStringParam1": "[if(true(), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret')), createObject('value', 'notTrue'))]",
     secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
+//@          "secureStringParam2": "[if(true(), if(false(), createObject('value', 'false'), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret', 'secretVersion', 'secretVersion'))), createObject('value', 'notTrue'))]"
   }
 }
 
@@ -2367,12 +2367,14 @@ module withSeparateConfig './child/folder with separate config/moduleWithAzImpor
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "1.9-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "16208829896531593582"
+//@              "templateHash": "4117709985067600940"
 //@            }
 //@          },
 //@          "imports": {
@@ -2381,7 +2383,7 @@ module withSeparateConfig './child/folder with separate config/moduleWithAzImpor
 //@              "version": "1.0.0"
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "str": {
 //@              "type": "string",

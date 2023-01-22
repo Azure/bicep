@@ -124,8 +124,6 @@ param createGrandchild bool
 //@      "type": "bool"
 //@    }
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
-//@      "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
-//@      "condition": "[and(parameters('createParent'), parameters('createChild'))]",
 //@    {
 //@      "condition": "[parameters('createParent')]",
 //@      "type": "My.Rp/parentType",
@@ -136,6 +134,7 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 
   resource conditionChild 'childType' = if (createChild) {
 //@    {
+//@      "condition": "[and(parameters('createParent'), parameters('createChild'))]",
 //@      "type": "My.Rp/parentType/childType",
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}', 'conditionParent', 'conditionChild')]",
@@ -147,6 +146,7 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 
     resource conditionGrandchild 'grandchildType' = if (createGrandchild) {
 //@    {
+//@      "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
 //@      "type": "My.Rp/parentType/childType/grandchildType",
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}/{2}', 'conditionParent', 'conditionChild', 'conditionGrandchild')]",
