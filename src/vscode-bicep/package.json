@@ -628,7 +628,7 @@
     "nerdbank-gitversioning": "^3.5.119",
     "prettier": "^2.8.3",
     "react-test-renderer": "^18.2.0",
-    "rimraf": "^3.0.2",
+    "rimraf": "^4.1.1",
     "semver": "^7.3.8",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.6",
