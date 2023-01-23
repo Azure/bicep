@@ -31,7 +31,6 @@ import {
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
-import { withProgressIfSlow } from "../utils/withProgressIfSlow";
 import { Disposable } from "../utils/disposable";
 
 export class PasteAsBicepCommand implements Command {
@@ -101,7 +100,7 @@ export class PasteAsBicepCommand implements Command {
     jsonContent: string,
     queryCanPaste: boolean
   ): Promise<BicepDecompileForPasteCommandResult> {
-    return await withProgressIfSlow(
+    return await window.withProgress(
       {
         location: ProgressLocation.Notification,
         title: "Attempting to decompile into Bicep",

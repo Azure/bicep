@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode from "vscode";
-
 jest.mock(
   "vscode",
   () => ({
@@ -15,11 +13,6 @@ jest.mock(
     languages: {
       createDiagnosticCollection: jest.fn(),
       registerCodeLensProvider: jest.fn(),
-    },
-    ProgressLocation: {
-      SourceControl: 1,
-      Window: 10,
-      Notification: 15,
     },
     StatusBarAlignment: { Left: 1, Right: 2 },
     window: {
@@ -34,23 +27,6 @@ jest.mock(
       showWorkspaceFolderPick: jest.fn(),
       onDidChangeActiveTextEditor: jest.fn(),
       showInformationMessage: jest.fn(),
-      withProgress: jest.fn(
-        async (
-          _options: vscode.ProgressOptions,
-          task: (
-            progress: vscode.Progress<{ message?: string; increment?: number }>,
-            token: vscode.CancellationToken
-          ) => void
-        ) => {
-          return await task(
-            { report: jest.fn() },
-            {
-              isCancellationRequested: false,
-              onCancellationRequested: jest.fn(),
-            }
-          );
-        }
-      ),
     },
     workspace: {
       getConfiguration: jest.fn(),
