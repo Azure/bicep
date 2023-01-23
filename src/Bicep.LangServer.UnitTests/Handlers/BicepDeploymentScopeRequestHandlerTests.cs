@@ -68,7 +68,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task Handle_WithInvalidConfigurationFile_ReturnsBicepDeploymentScopeResponseWithErrorMessage()
         {
-            string outputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             string bicepFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'name'
   location: 'global'

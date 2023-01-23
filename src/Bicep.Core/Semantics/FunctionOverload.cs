@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -14,18 +15,23 @@ namespace Bicep.Core.Semantics
 {
     public class FunctionOverload
     {
-        public delegate FunctionResult ResultBuilderDelegate(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes);
-        public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionResultValue);
-        public delegate SyntaxBase? VariableGeneratorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionResultValue);
+        public delegate FunctionResult ResultBuilderDelegate(
+            IBinder binder,
+            IFileResolver fileResolver,
+            IDiagnosticWriter diagnostics,
+            FunctionCallSyntaxBase functionCall,
+            ImmutableArray<TypeSymbol> argumentTypes);
 
-        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, VariableGeneratorDelegate? variableGenerator, FunctionFlags flags = FunctionFlags.Default)
+        public delegate Expression EvaluatorDelegate(
+            FunctionCallExpression expression);
+
+        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
         {
             Name = name;
             GenericDescription = genericDescription;
             Description = description;
             ResultBuilder = resultBuilder;
             Evaluator = evaluator;
-            VariableGenerator = variableGenerator;
             FixedParameters = fixedParameters.ToImmutableArray();
             VariableParameter = variableParameter;
             Flags = flags;
@@ -56,8 +62,6 @@ namespace Bicep.Core.Semantics
         public TypeSymbol TypeSignatureSymbol { get; }
 
         public EvaluatorDelegate? Evaluator { get; }
-
-        public VariableGeneratorDelegate? VariableGenerator { get; }
 
         public FunctionFlags Flags { get; }
 

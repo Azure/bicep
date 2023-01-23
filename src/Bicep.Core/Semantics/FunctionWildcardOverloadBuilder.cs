@@ -26,7 +26,6 @@ namespace Bicep.Core.Semantics
                 FixedParameters.ToImmutable(),
                 VariableParameter,
                 Evaluator,
-                VariableGenerator,
                 Flags);
         }
     }

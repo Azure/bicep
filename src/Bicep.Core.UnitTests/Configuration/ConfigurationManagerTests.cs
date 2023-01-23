@@ -551,6 +551,6 @@ namespace Bicep.Core.UnitTests.Configuration
 }");
         }
 
-        private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory, path.Replace('/', Path.DirectorySeparatorChar));
+        private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory!, path.Replace('/', Path.DirectorySeparatorChar));
     }
 }

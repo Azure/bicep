@@ -11,6 +11,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -49,7 +50,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
-                .WithEvaluator((functionCall, _, _, _, _) => functionCall.Arguments.Single().Expression)
+                .WithEvaluator(expression => expression.Parameters[0])
                 .Build();
 
             yield return new FunctionOverloadBuilder("concat")
@@ -498,25 +499,23 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("filePath", LanguageConstants.StringFilePath, "The path to the file that will be loaded.")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithReturnResultBuilder(LoadTextContentResultBuilder, LanguageConstants.String)
-                .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
-                .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
+                .WithFlags(FunctionFlags.GenerateIntermediateVariableOnIndirectAssignment)
                 .Build();
 
             yield return new FunctionOverloadBuilder("loadFileAsBase64")
                 .WithGenericDescription($"Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is {LanguageConstants.MaxLiteralCharacterLimit / 4 * 3 / 1024} Kb.")
                 .WithRequiredParameter("filePath", LanguageConstants.StringFilePath, "The path to the file that will be loaded.")
                 .WithReturnResultBuilder(LoadContentAsBase64ResultBuilder, LanguageConstants.String)
-                .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
-                .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
+                .WithFlags(FunctionFlags.GenerateIntermediateVariableOnIndirectAssignment)
                 .Build();
+
             yield return new FunctionOverloadBuilder("loadJsonContent")
                 .WithGenericDescription($"Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.")
                 .WithRequiredParameter("filePath", LanguageConstants.StringJsonFilePath, "The path to the file that will be loaded.")
                 .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)
-                .WithEvaluator(JsonContentFunctionReturnTypeEvaluator)
-                .WithVariableGenerator(JsonContentFunctionVariableGenerator)
+                .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                 .Build();
 
             yield return new FunctionOverloadBuilder("items")
@@ -635,15 +634,12 @@ namespace Bicep.Core.Semantics.Namespaces
             return true;
         }
 
-        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLitealReturnType) =>
-            TryDeriveLiteralReturnType(armFunctionName, (_, _, _, _, _) => new(nonLitealReturnType));
-
-        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate computeNonLiteralType) =>
+        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
             (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
             {
-                var returnType = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
+                FunctionResult returnType = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
                     ? new(literalReturnType)
-                    : computeNonLiteralType(binder, fileResolver, diagnostics, functionCall, argumentTypes);
+                    : new(nonLiteralReturnType);
 
                 var diagnosticTarget = functionCall.Arguments.Any()
                     ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
@@ -680,7 +676,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 out var fileContent,
                 out var errorDiagnostic,
                 LanguageConstants.MaxLiteralCharacterLimit)
-                ? new(new StringLiteralType(fileContent))
+                ? new(new StringLiteralType(fileContent), new StringLiteralExpression(functionCall, fileContent))
                 : new(ErrorType.Create(errorDiagnostic));
         }
 
@@ -740,7 +736,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
                 }
             }
-            return new(ConvertJsonToBicepType(token), token);
+
+            return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
@@ -805,74 +802,34 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0]))));
             }
 
-            return new(new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent));
-        }
-
-        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
-        {
-            if (functionVariable is not null)
-            {
-                return SyntaxFactory.CreateUnboundVariableAccess(functionVariable.Name);
-            }
-
-            return CreateStringLiteral(typeSymbol);
-        }
-
-        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)
-        {
-            if (directVariableAssignment)
-            {
-                return null;
-            }
-            return CreateStringLiteral(typeSymbol);
-        }
-
-        private static SyntaxBase CreateStringLiteral(TypeSymbol typeSymbol)
-        {
-            if (typeSymbol is not StringLiteralType stringLiteral)
-            {
-                throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
-            }
-
-            return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
-        }
-
-        private static SyntaxBase JsonContentFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
-        {
-            if (functionVariable is null)
-            {
-                // TemplateEmitter when emitting ARM-json code instead function will use createObject functions instead putting raw JSON.
-                // This can be avoided using functionVariables where bicep syntax is processed by Emitter itself, not by ExpressionConverter.
-                throw new InvalidOperationException($"Function Variable must be used");
-            }
-
-            return SyntaxFactory.CreateUnboundVariableAccess(functionVariable.Name);
-        }
-
-        private static SyntaxBase JsonContentFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)
-        {
-            //converting JSON to bicep syntax and then back to ARM-JSON escapes ARM template expressions (`[variables('')]`, etc.) out of the box
-            return ConvertJsonToBicepSyntax(functionValue as JToken ?? throw new InvalidOperationException($"Expecting function to return {nameof(JToken)}, but {functionValue?.GetType().ToString() ?? "null"} received."));
+            return new(
+                new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent),
+                new StringLiteralExpression(functionCall, fileContent));
         }
 
         private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
-        private static SyntaxBase ConvertJsonToBicepSyntax(JToken token) =>
-        token switch
-        {
-            JObject @object => SyntaxFactory.CreateObject(@object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ConvertJsonToBicepSyntax(x.Value)))),
-            JArray @array => SyntaxFactory.CreateArray(@array.Where(x => SupportedJsonTokenTypes.Contains(x.Type)).Select(ConvertJsonToBicepSyntax)),
-            JValue value => value.Type switch
-            {
-                JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
-                JTokenType.Integer => value.ToObject<long>() < 0 ? SyntaxFactory.CreateNegativeIntegerLiteral((ulong)(0 - value.ToObject<long>())) : SyntaxFactory.CreateIntegerLiteral(value.ToObject<ulong>()),
-                // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
-                JTokenType.Float => SyntaxFactory.CreateFunctionCall("json", SyntaxFactory.CreateStringLiteral(value.ToObject<double>().ToString(CultureInfo.InvariantCulture))),
-                JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.ToObject<bool>()),
-                JTokenType.Null => SyntaxFactory.CreateFunctionCall("null"),
-                _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
-            },
-            _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
-        };
+        private static Expression ConvertJsonToExpression(JToken token)
+            => token switch {
+                JObject @object => new ObjectExpression(null, @object.Properties()
+                    .Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type))
+                    .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))
+                    .ToImmutableArray()),
+                JArray @array => new ArrayExpression(null, @array
+                    .Where(x => SupportedJsonTokenTypes.Contains(x.Type))
+                    .Select(ConvertJsonToExpression)
+                    .ToImmutableArray()),
+                JValue value => value.Type switch
+                {
+                    JTokenType.String => new StringLiteralExpression(null, value.ToString(CultureInfo.InvariantCulture)),
+                    JTokenType.Integer => new IntegerLiteralExpression(null, value.ToObject<long>()),
+                    // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                    JTokenType.Float => new FunctionCallExpression(null, "json", ImmutableArray.Create<Expression>(new StringLiteralExpression(null, value.ToObject<double>().ToString(CultureInfo.InvariantCulture)))),
+                    JTokenType.Boolean => new BooleanLiteralExpression(null, value.ToObject<bool>()),
+                    JTokenType.Null => new NullLiteralExpression(null),
+                    _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
+                },
+                _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
+            };
 
         private static TypeSymbol GetItemsReturnType(TypeSymbol keyType, TypeSymbol valueType)
             => new TypedArrayType(
@@ -998,11 +955,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider)
         {
-            static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<DecoratorSyntax, SyntaxBase> propertyValueSelector) =>
-                (decoratorSyntax, _, targetObject) =>
-                    targetObject.MergeProperty(propertyName, propertyValueSelector(decoratorSyntax));
+            static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<FunctionCallExpression, Expression> propertyValueSelector) =>
+                (functionCall, _, targetObject) =>
+                    targetObject.MergeProperty(propertyName, propertyValueSelector(functionCall));
 
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
+
+            static Expression SingleParameterSelector(FunctionCallExpression functionCall) => functionCall.Parameters.Single();
 
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
@@ -1068,12 +1027,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
                     {
-                        return targetObject.MergeProperty("type", "securestring");
+                        return targetObject.MergeProperty("type", new StringLiteralExpression(null, "securestring"));
                     }
 
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))
                     {
-                        return targetObject.MergeProperty("type", "secureObject");
+                        return targetObject.MergeProperty("type", new StringLiteralExpression(null, "secureObject"));
                     }
 
                     return targetObject;
@@ -1110,7 +1069,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
                 })
-                .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject("allowedValues", SingleParameterSelector))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
@@ -1119,7 +1078,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleParameterSelector))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxValuePropertyName)
@@ -1128,7 +1087,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleParameterSelector))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinLengthPropertyName)
@@ -1137,7 +1096,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleParameterSelector))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxLengthPropertyName)
@@ -1146,7 +1105,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleParameterSelector))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMetadataPropertyName)
@@ -1155,15 +1114,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) =>
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleParameterSelector))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
                 .WithDescription("Describes the parameter.")
                 .WithRequiredParameter("text", LanguageConstants.String, "The description.")
                 .WithFlags(FunctionFlags.AnyDecorator)
-                .WithEvaluator(MergeToTargetObject("metadata", decoratorSyntax => SyntaxFactory.CreateObject(
-                    SyntaxFactory.CreateObjectProperty("description", SingleArgumentSelector(decoratorSyntax)).AsEnumerable())))
+                .WithEvaluator(MergeToTargetObject("metadata", functionCall => ExpressionFactory.CreateObject(
+                    ExpressionFactory.CreateObjectProperty("description", SingleParameterSelector(functionCall), functionCall.SourceSyntax).AsEnumerable())))
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.BatchSizePropertyName)
@@ -1189,7 +1148,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, minimumBatchSize));
                     }
                 })
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleParameterSelector))
                 .Build();
 
             if (featureProvider.UserDefinedTypesEnabled)
@@ -1198,8 +1157,17 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, SyntaxFactory.CreateBooleanLiteral(true)))
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
+                    {
+                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+
+                        // make sure the target type doesn't have an explicit additional properties declaration
+                        if (targetType is ObjectType targetObject && !targetObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+                        }
+                    })
+                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, new BooleanLiteralExpression(null, true)))
                     // TODO delete the above line and uncomment the line below when ARM w46 has finished rolling out
                     // .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))
                     .Build();

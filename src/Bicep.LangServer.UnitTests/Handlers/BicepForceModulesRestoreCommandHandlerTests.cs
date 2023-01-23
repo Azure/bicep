@@ -54,7 +54,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public async Task Handle_WithValidPath_WithoutModules_ReturnsBuildSucceededMessage()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             string bicepFileContents = @"
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
@@ -75,7 +75,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public async Task Handle_WithValidPath_AndThreeLocalModulesInInputFile_ReturnsSummaryMessage()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             string bicepLocalModuleFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'name'
@@ -118,7 +118,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public async Task Handle_WithValidPath_AndTwoLocalModules_InInputFile_WhichOneDoNotExist_ReturnsSummaryMessage()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             string bicepLocalModuleFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'name'

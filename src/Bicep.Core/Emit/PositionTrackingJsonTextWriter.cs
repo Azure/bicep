@@ -102,6 +102,17 @@ namespace Bicep.Core.Emit
             AddSourceMapping(sourcePosition, startPos);
         }
 
+        public void WriteArrayWithPosition(IPositionable? sourcePosition, Action itemsFunc)
+        {
+            var startPos = this.trackingWriter.CurrentPosition;
+
+            base.WriteStartArray();
+            itemsFunc();
+            base.WriteEndArray();
+
+            AddSourceMapping(sourcePosition, startPos);
+        }
+
         public void WritePropertyWithPosition(IPositionable? keyPosition, string name, Action valueFunc)
         {
             var startPos = this.trackingWriter.CurrentPosition;

@@ -40,7 +40,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [TestMethod]
         public void TryGetConfiguration_WithValidDocumentUri_ShoudReturnRootConfiguration()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {

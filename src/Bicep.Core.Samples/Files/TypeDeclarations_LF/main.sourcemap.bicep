@@ -81,6 +81,8 @@ type foo = {
 @description('An array of array of arrays of arrays of ints')
 //@        "description": "An array of array of arrays of arrays of ints"
 @metadata({
+//@      "metadata": {
+//@      },
   examples: [
 //@        "examples": [
 //@        ],
@@ -124,8 +126,6 @@ type bar = int[][][][]
 //@            }
 //@          }
 //@        }
-//@      },
-//@      "metadata": {
 //@      },
 //@    },
 
@@ -262,11 +262,21 @@ param paramUsingType mixedArray
 type tuple = [
 //@    "tuple": {
 //@      "type": "array"
-//@    }
+//@    },
     @description('A leading string')
     string
 
     @description('A second element using a type alias')
     bar
 ]
+
+type stringStringDictionary = {
+//@    "stringStringDictionary": {
+//@      "type": "object",
+//@      "additionalProperties": {
+//@        "type": "string"
+//@      }
+//@    }
+    *: string
+}
 

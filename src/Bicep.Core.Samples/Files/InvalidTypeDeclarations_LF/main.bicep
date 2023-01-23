@@ -1,4 +1,4 @@
-﻿type 44
+type 44
 
 type noAssignment
 
@@ -8,6 +8,11 @@ type resource = bool
 
 @sealed()
 type sealedString = string
+
+@sealed()
+type sealedDictionary = {
+	*: string
+}
 
 type disallowedUnion = 'foo'|21
 

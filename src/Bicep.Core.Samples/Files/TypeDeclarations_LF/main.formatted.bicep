@@ -62,3 +62,7 @@ type tuple = [
   @description('A second element using a type alias')
   bar
 ]
+
+type stringStringDictionary = {
+  *: string
+}

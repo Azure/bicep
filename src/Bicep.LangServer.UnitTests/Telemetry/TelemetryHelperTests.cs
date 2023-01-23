@@ -518,7 +518,7 @@ namespace Bicep.LangServer.UnitTests.Telemetry
         private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
         {
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var prevConfiguration = GetRootConfiguration(testOutputPath, prevBicepConfigContents, configurationManager);
             var curConfiguration = GetRootConfiguration(testOutputPath, curBicepConfigContents, configurationManager);
