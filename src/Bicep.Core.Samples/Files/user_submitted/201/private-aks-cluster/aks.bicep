@@ -157,7 +157,7 @@ var aadProfileConfiguration = {
   tenantID: aadProfileTenantId
 }
 
-var virtualNetworkName = last(split(virtualNetworkId, '/'))
+var virtualNetworkName = last(split(virtualNetworkId, '/'))!
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' existing = {
   name: virtualNetworkName

@@ -125,7 +125,7 @@ param aadJoin bool = false
 param intune bool = false
 
 var emptyArray = []
-var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@')) : domain)
+var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@'))! : domain)
 var storageAccountName = split(split(vmImageVhdUri, '/')[2], '.')[0]
 var storageaccount = concat(resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts', storageAccountName))
 var newNsgName = '${rdshPrefix}nsg-${guidValue}'

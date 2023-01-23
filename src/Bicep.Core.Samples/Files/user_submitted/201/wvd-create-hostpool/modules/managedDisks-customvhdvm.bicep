@@ -125,7 +125,7 @@ param aadJoin bool = false
 param intune bool = false
 
 var emptyArray = []
-var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@')) : domain)
+var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@'))! : domain)
 var storageAccountType = rdshVMDiskType
 var imageName_var = '${rdshPrefix}image'
 var newNsgName = '${rdshPrefix}nsg-${guidValue}'

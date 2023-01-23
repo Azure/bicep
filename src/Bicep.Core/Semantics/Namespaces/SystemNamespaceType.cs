@@ -280,8 +280,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                // TODO even with non-literal types, some type arithmetic could be performed
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("first", LanguageConstants.Any), LanguageConstants.Any)
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
+                {
+                    return new(argumentTypes[0] switch 
+                    {
+                        TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
+                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                        _ => LanguageConstants.Any
+                    });
+                }, LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the first element.")
@@ -295,8 +302,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("last")
-                // TODO even with non-literal types, some type arithmetic could be performed
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("last", LanguageConstants.Any), LanguageConstants.Any)
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
+                {
+                    return new(argumentTypes[0] switch 
+                    {
+                        TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
+                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                        _ => LanguageConstants.Any
+                    });
+                }, LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the last element.")
