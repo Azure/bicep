@@ -226,7 +226,7 @@ public class ArmTemplateSemanticModelTests
 
         parameterType.Type.Should().BeOfType<ErrorType>();
         var loadError = parameterType.Type.GetDiagnostics().Single();
-        loadError.Code.Should().Be("BCP318");
+        loadError.Code.Should().Be("BCP319");
         loadError.Message.Should().Be("The type at \"parameters.refParam.$ref\" could not be resolved by the ARM JSON template engine. Original error message: \"Invalid reference encountered at 'parameters.refParam.$ref'. '#/definitions' not found in template. Please see https://aka.ms/arm-syntax-parameters for usage details.\"");
     }
 
