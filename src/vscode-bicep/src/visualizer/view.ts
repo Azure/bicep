@@ -7,7 +7,9 @@ import { LanguageClient } from "vscode-languageclient/node";
 
 import { createDeploymentGraphMessage, Message } from "./messages";
 import { deploymentGraphRequestType } from "../language";
-import { Disposable, debounce, getLogger } from "../utils";
+import { Disposable } from "../utils/disposable";
+import { debounce } from "../utils/time";
+import { getLogger } from "../utils/logger";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
