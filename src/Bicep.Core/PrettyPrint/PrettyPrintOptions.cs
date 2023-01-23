@@ -12,11 +12,13 @@ namespace Bicep.Core.PrettyPrint
 
         private const int MaxIndentSize = 1000;
 
+        public static PrettyPrintOptions Default = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
+
         public PrettyPrintOptions(
-            NewlineOption newlineOption,
-            IndentKindOption indentKindOption,
-            long indentSize,
-            bool insertFinalNewLine)
+            NewlineOption newlineOption = NewlineOption.LF,
+            IndentKindOption indentKindOption = IndentKindOption.Space,
+            long indentSize = 2,
+            bool insertFinalNewLine = false)
         {
             this.NewlineOption = newlineOption;
             this.IndentKindOption = indentKindOption;
