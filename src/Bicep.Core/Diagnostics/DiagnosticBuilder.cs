@@ -1782,11 +1782,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP311",
                 $@"The provided index value of ""{indexSought}"" is not valid for type ""{typeName}"". Indexes for this type must be between 0 and {tupleLength - 1}");
 
-            public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
-                TextSpan,
-                "BCP312",
-                $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
-
             public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,
                 "BCP315",
@@ -1801,6 +1796,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP317",
                 "Expected an identifier, a string, or an asterisk at this location.");
+
+            public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
+                TextSpan,
+                "BCP318",
+                $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
