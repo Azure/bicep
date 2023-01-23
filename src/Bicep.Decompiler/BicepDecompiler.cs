@@ -106,7 +106,6 @@ public class BicepDecompiler
     public string? DecompileJsonValue(string jsonInput, DecompileOptions? options = null)
     {
         var workspace = new Workspace();
-        var decompileQueue = new Queue<(Uri, Uri)>();
         options ??= new DecompileOptions();
 
         var bicepUri = new Uri("file://jsonInput.json", UriKind.Absolute);
