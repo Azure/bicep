@@ -85,14 +85,14 @@
       },
       "OmniSharp.Extensions.LanguageClient": {
         "type": "Direct",
-        "requested": "[0.19.6, )",
-        "resolved": "0.19.6",
-        "contentHash": "FiaoxQJjkh0euKMSSWNhSKUJ6mu4VZ0RRndkgkbBLdofFrjruFU7SeJgsVYpsq/I2wOYBMRyXNl5/8b6nC5LTw==",
+        "requested": "[0.19.7, )",
+        "resolved": "0.19.7",
+        "contentHash": "27nOb6dx9XrGuLdtAKBox5uGUHMAbuEZ/dBYxu9tWbXixc1OB3rgnd0S/UJmxAHA89xWkYPJKW2H6oKo2j4xlw==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "6.0.0",
-          "OmniSharp.Extensions.JsonRpc": "0.19.6",
-          "OmniSharp.Extensions.LanguageProtocol": "0.19.6",
-          "OmniSharp.Extensions.LanguageServer.Shared": "0.19.6"
+          "OmniSharp.Extensions.JsonRpc": "0.19.7",
+          "OmniSharp.Extensions.LanguageProtocol": "0.19.7",
+          "OmniSharp.Extensions.LanguageServer.Shared": "0.19.7"
         }
       },
       "Azure.Bicep.Types": {
