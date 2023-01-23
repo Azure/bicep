@@ -337,13 +337,13 @@ namespace Bicep.Core.TypeSystem
         /// If the provided type is a union of <code>null</code> and one or more other types, this function will return a union with the <code>null</code>
         /// branch removed. For example, <code>null | string</code> would be transformed to <code>string</code>, and <code>null | string | int</code> would be
         /// transformed to <code>string | int</code>.
-        /// Otherwise, this method will return the input. Use <see cref="object.ReferenceEquals(object?, object?)" /> to determine whether this method created a new type.
+        /// Otherwise, this method will return null.
         /// </remarks>
-        public static TypeSymbol RemoveNullability(TypeSymbol type) => type switch
+        public static TypeSymbol? TryRemoveNullability(TypeSymbol type) => type switch
         {
             UnionType union when union.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is {} sansNull &&
                 sansNull.Length < union.Members.Length => CreateTypeUnion(sansNull),
-            _ => type,
+            _ => null,
         };
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)

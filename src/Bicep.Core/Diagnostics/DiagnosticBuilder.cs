@@ -1811,6 +1811,19 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP317",
                 "Expected an identifier, a string, or an asterisk at this location.");
+
+            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, SyntaxBase baseExpression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP318",
+                $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: new(
+                    "If you know the value will not be null at the start of the deployment, use a non-null assertion operator to inform the compiler that the value will not be null",
+                    false,
+                    CodeFixKind.QuickFix,
+                    new(baseExpression.Span, SyntaxFactory.AsNonNullable(baseExpression).ToTextPreserveFormatting())));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
