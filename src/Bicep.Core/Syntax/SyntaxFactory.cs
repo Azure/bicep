@@ -391,7 +391,6 @@ namespace Bicep.Core.Syntax
         public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
             trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
 
-
         public static LambdaSyntax CreateLambdaSyntax(IEnumerable<string> parameterNames, SyntaxBase functionExpression)
         {
             SyntaxBase variableBlock = parameterNames.Count() switch {
@@ -408,5 +407,11 @@ namespace Bicep.Core.Syntax
                 SyntaxFactory.ArrowToken,
                 functionExpression);
         }
+
+        public static NonNullAssertionSyntax AsNonNullable(SyntaxBase @base) => @base switch
+        {
+            NonNullAssertionSyntax alreadyNonNull => alreadyNonNull,
+            _ => new NonNullAssertionSyntax(@base, ExclamationToken),
+        };
     }
 }

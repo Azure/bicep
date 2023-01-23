@@ -125,7 +125,7 @@ param aadJoin bool = false
 param intune bool = false
 
 var emptyArray = []
-var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@')) : domain)
+var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@'))! : domain)
 var storageAccountType = rdshVMDiskType
 var newNsgName = '${rdshPrefix}nsg-${guidValue}'
 var nsgId = (createNetworkSecurityGroup ? resourceId('Microsoft.Network/networkSecurityGroups', newNsgName) : networkSecurityGroupId)

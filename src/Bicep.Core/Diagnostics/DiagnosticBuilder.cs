@@ -1782,21 +1782,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP311",
                 $@"The provided index value of ""{indexSought}"" is not valid for type ""{typeName}"". Indexes for this type must be between 0 and {tupleLength - 1}");
 
-            public ErrorDiagnostic CyclicArmTypeRefs(IEnumerable<string> cycleLinks) => new(
-                TextSpan,
-                "BCP312",
-                $@"Type reference cycle detected in the linked ARM JSON file (""{string.Join(" -> ", cycleLinks.Select(l => $@"""{l}"""))}"").");
-
-            public ErrorDiagnostic ArmTypeRefTargetNotFound(string refSansTarget) => new(
-                TextSpan,
-                "BCP313",
-                $@"The ""{refSansTarget}"" type definition could not be found in the linked ARM JSON file.");
-
-            public ErrorDiagnostic ArmTypeDefHasNoTypeOrRef(string invalidTypeDef) => new(
-                TextSpan,
-                "BCP314",
-                $@"The ""{invalidTypeDef}"" type definition in the linked ARM JSON file is invalid because it has neither a ""type"" property nor a ""$ref"" property.");
-
             public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,
                 "BCP315",
@@ -1812,9 +1797,27 @@ namespace Bicep.Core.Diagnostics
                 "BCP317",
                 "Expected an identifier, a string, or an asterisk at this location.");
 
+            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, SyntaxBase baseExpression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP318",
+                $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: new(
+                    "If you know the value will not be null at the start of the deployment, use a non-null assertion operator to inform the compiler that the value will not be null",
+                    false,
+                    CodeFixKind.QuickFix,
+                    new(baseExpression.Span, SyntaxFactory.AsNonNullable(baseExpression).ToTextPreserveFormatting())));
+
+            public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
+                TextSpan,
+                "BCP319",
+                $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
+
             public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
                 TextSpan,
-                "BCP318",
+                "BCP320",
                 $@"The `.?` (safe dereference) operator may not be used to invoke instance functions.");
         }
 

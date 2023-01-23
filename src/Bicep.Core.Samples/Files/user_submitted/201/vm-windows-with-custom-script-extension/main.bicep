@@ -250,7 +250,7 @@ var virtualMachineExtensionCustomScript = {
   fileUris: [
     virtualMachineExtensionCustomScriptUri
   ]
-  commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File ./${last(split(virtualMachineExtensionCustomScriptUri, '/'))}'
+  commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File ./${last(split(virtualMachineExtensionCustomScriptUri, '/'))!}'
 }
 
 resource vmext 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {

@@ -984,6 +984,11 @@ namespace Bicep.Core.TypeSystem
 
             switch (baseType)
             {
+                case TypeSymbol when TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType:
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax.BaseExpression));
+
+                    return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, indexType);
+
                 case AnyType:
                     // base expression is of type any
                     if (indexType.TypeKind == TypeKind.Any)
@@ -1087,41 +1092,6 @@ namespace Bicep.Core.TypeSystem
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-        private static TypeSymbol GetPropertyType(PropertyAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType)
-        {
-            baseType = UnwrapType(baseType);
-
-            switch (baseType)
-            {
-                case ErrorType:
-                    return baseType;
-                case TypeSymbol _ when baseType.GetDiagnostics().Any():
-                    return ErrorType.Create(baseType.GetDiagnostics());
-                case ObjectType objectType:
-                    if (!syntax.PropertyName.IsValid)
-                    {
-                        // the property is not valid
-                        // there's already a parse error for it, so we don't need to add a type error as well
-                        return ErrorType.Empty();
-                    }
-
-                    return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, syntax.SafeAccessMarker is not null || TypeValidator.ShouldWarn(objectType), diagnostics);
-
-                case DiscriminatedObjectType _:
-                    // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-                    return LanguageConstants.Any;
-
-                case TypeSymbol _ when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object):
-                    // We can assign to an object, but we don't have a type for that object.
-                    // The best we can do is allow it and return the 'any' type.
-                    return LanguageConstants.Any;
-
-                default:
-                    // can only access properties of objects
-                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType), diagnostics, syntax.SafeAccessMarker is not null);
-            }
-        }
-
         private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
         {
             Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
@@ -1151,7 +1121,7 @@ namespace Bicep.Core.TypeSystem
                 baseType = nextAccess switch
                 {
                     ArrayAccessSyntax arrayAccess => GetArrayItemType(arrayAccess, diagnostics, baseType, typeManager.GetTypeInfo(arrayAccess.IndexExpression)),
-                    PropertyAccessSyntax propertyAccess => GetPropertyType(propertyAccess, diagnostics, baseType),
+                    PropertyAccessSyntax propertyAccess => GetNamedPropertyType(propertyAccess, UnwrapType(baseType), diagnostics),
                     _ => throw new InvalidOperationException("Unrecognized access syntax"),
                 };
 
@@ -1161,6 +1131,37 @@ namespace Bicep.Core.TypeSystem
             return nullVariantRemoved
                 ? TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null)
                 : baseType;
+        }
+
+        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => baseType switch
+        {
+            ErrorType => baseType,
+            TypeSymbol when baseType.GetDiagnostics().Any() => ErrorType.Create(baseType.GetDiagnostics()),
+
+            TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
+
+            // the property is not valid
+            // there's already a parse error for it, so we don't need to add a type error as well
+            ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
+
+            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, TypeValidator.ShouldWarn(objectType), diagnostics),
+
+            // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
+            DiscriminatedObjectType => LanguageConstants.Any,
+
+            // We can assign to an object, but we don't have a type for that object.
+            // The best we can do is allow it and return the 'any' type.
+            TypeSymbol when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) => LanguageConstants.Any,
+
+            // can only access properties of objects
+            _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType)),
+        };
+
+        private static TypeSymbol EmitNullablePropertyAccessDiagnosticAndEraseNullability(PropertyAccessSyntax syntax, TypeSymbol originalBaseType, TypeSymbol nonNullableBaseType, IDiagnosticWriter diagnostics)
+        {
+            diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax.BaseExpression));
+
+            return GetNamedPropertyType(syntax, nonNullableBaseType, diagnostics);
         }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
