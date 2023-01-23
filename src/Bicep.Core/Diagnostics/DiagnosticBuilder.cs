@@ -1785,7 +1785,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,
                 "BCP312",
-                $@"The type at '{errorSource}' could not be resolved by the ARM JSON template engine. Original error message: [{message}]");
+                $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
 
             public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,
