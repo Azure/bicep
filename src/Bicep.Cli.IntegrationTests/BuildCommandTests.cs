@@ -343,6 +343,43 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [TestMethod]
+        public async Task Build_Params_Without_Feature_Flag_Disabled_ShouldFail_WithExepectedErrorMessage()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
+            FileHelper.SaveResultFile(TestContext, "main.bicep", "", Path.GetDirectoryName(bicepparamsPath));
+
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            File.Exists(outputFilePath).Should().BeFalse();
+            var(output, error, result) = await Bicep("build", "--outfile", outputFilePath, bicepparamsPath);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Be("Please enable the parameters file feature flag to compile the parameter file\r\n");
+        }
+
+        [TestMethod]
+        public async Task Build_Params_With_Feature_Flag_Enabled_ShouldSucceed()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
+            FileHelper.SaveResultFile(TestContext, "main.bicep", "", Path.GetDirectoryName(bicepparamsPath));
+
+            var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            File.Exists(outputFilePath).Should().BeFalse();
+            var(output, error, result) = await Bicep(settings, "build", "--outfile", outputFilePath, bicepparamsPath);
+
+            File.Exists(outputFilePath).Should().BeTrue();
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+        }
+
+
+
+        [TestMethod]
         public async Task Build_WithOutFile_ShouldSucceed()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"

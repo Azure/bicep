@@ -76,7 +76,15 @@ namespace Bicep.Cli.Commands
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
 
-            logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+            if(!features.ParamsFilesEnabled && IsBicepparamsFile(inputPath)) 
+            {
+                logger.LogError("Please enable the parameters file feature flag to compile the parameter file");
+            }
+            else 
+            {
+                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+            }
+
             return 1;
         }
 
