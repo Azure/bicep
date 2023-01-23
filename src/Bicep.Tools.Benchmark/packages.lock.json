@@ -123,8 +123,8 @@
       },
       "Azure.Identity": {
         "type": "Transitive",
-        "resolved": "1.8.0",
-        "contentHash": "xnsY/lgAG4bO5d2akXc1hqfvknIk+u3gh5Ma33KN2uyNeU3C5AzIfrwO/N/b9D/7dk4MyXai4JGKHNgHjcoFsA==",
+        "resolved": "1.8.1",
+        "contentHash": "pxpGgVW6SCG+RewCVVlsEtcnQsLmlRobVlknY1Ir6t00iu2eRbdH/+ignhDnTaKlNN8pHfMJH5rTkJs9W4rQOg==",
         "dependencies": {
           "Azure.Core": "1.25.0",
           "Microsoft.Identity.Client": "4.46.0",
@@ -730,13 +730,13 @@
       },
       "OmniSharp.Extensions.LanguageClient": {
         "type": "Transitive",
-        "resolved": "0.19.6",
-        "contentHash": "FiaoxQJjkh0euKMSSWNhSKUJ6mu4VZ0RRndkgkbBLdofFrjruFU7SeJgsVYpsq/I2wOYBMRyXNl5/8b6nC5LTw==",
+        "resolved": "0.19.7",
+        "contentHash": "27nOb6dx9XrGuLdtAKBox5uGUHMAbuEZ/dBYxu9tWbXixc1OB3rgnd0S/UJmxAHA89xWkYPJKW2H6oKo2j4xlw==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "6.0.0",
-          "OmniSharp.Extensions.JsonRpc": "0.19.6",
-          "OmniSharp.Extensions.LanguageProtocol": "0.19.6",
-          "OmniSharp.Extensions.LanguageServer.Shared": "0.19.6"
+          "OmniSharp.Extensions.JsonRpc": "0.19.7",
+          "OmniSharp.Extensions.LanguageProtocol": "0.19.7",
+          "OmniSharp.Extensions.LanguageServer.Shared": "0.19.7"
         }
       },
       "OmniSharp.Extensions.LanguageProtocol": {
@@ -2073,7 +2073,7 @@
           "Azure.Deployments.Core": "[1.0.815, )",
           "Azure.Deployments.Expression": "[1.0.815, )",
           "Azure.Deployments.Templates": "[1.0.815, )",
-          "Azure.Identity": "[1.8.0, )",
+          "Azure.Identity": "[1.8.1, )",
           "Azure.ResourceManager.Resources": "[1.3.1, )",
           "JsonPatch.Net": "[2.0.4, )",
           "JsonPath.Net": "[0.2.1, )",
@@ -2147,7 +2147,7 @@
           "Microsoft.NET.Test.Sdk": "[17.3.2, )",
           "Microsoft.VisualStudio.Threading": "[17.4.33, )",
           "Moq": "[4.18.2, )",
-          "OmniSharp.Extensions.LanguageClient": "[0.19.6, )"
+          "OmniSharp.Extensions.LanguageClient": "[0.19.7, )"
         }
       }
     },

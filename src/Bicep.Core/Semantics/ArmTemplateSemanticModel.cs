@@ -144,7 +144,7 @@ namespace Bicep.Core.Semantics
             TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(GetMetadata(parameter), out var resourceType) =>
                 resourceType,
 
-            _ => GetType((ITemplateSchemaNode) parameter),
+            _ => GetType((ITemplateSchemaNode)parameter),
         };
 
         private TypeSymbol GetType(ITemplateSchemaNode schemaNode)
@@ -160,9 +160,9 @@ namespace Bicep.Core.Semantics
                     TemplateParameterType.Int => GetPrimitiveType(resolved, t => t.Type == JTokenType.Integer, LanguageConstants.TypeNameInt, LanguageConstants.LooseInt),
                     TemplateParameterType.Bool => GetPrimitiveType(resolved, t => t.Type == JTokenType.Boolean, LanguageConstants.TypeNameBool, LanguageConstants.LooseBool),
                     TemplateParameterType.Array => GetArrayType(resolved),
-                    TemplateParameterType.Object => GetObjectType(resolved),
+                    TemplateParameterType.Object => GetObjectType(SourceFile.Template!, resolved),
                     TemplateParameterType.SecureString => LanguageConstants.SecureString,
-                    TemplateParameterType.SecureObject => GetObjectType(resolved, TypeSymbolValidationFlags.IsSecure),
+                    TemplateParameterType.SecureObject => GetObjectType(SourceFile.Template!, resolved, TypeSymbolValidationFlags.IsSecure),
                     _ => ErrorType.Empty(),
                 };
 
@@ -307,7 +307,7 @@ namespace Bicep.Core.Semantics
             return new TypedArrayType(TypeHelper.CreateTypeUnion(elements), default);
         }
 
-        private TypeSymbol GetObjectType(ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags symbolValidationFlags = TypeSymbolValidationFlags.Default)
+        private TypeSymbol GetObjectType(Template template, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags symbolValidationFlags = TypeSymbolValidationFlags.Default)
         {
             if (schemaNode.AllowedValues?.Value is JArray jArray)
             {
@@ -323,7 +323,12 @@ namespace Bicep.Core.Semantics
             {
                 foreach (var (propertyName, schema) in propertySchemata)
                 {
-                    var flags = TypePropertyFlags.Required;
+                    // depending on the language version, either only properties included in schemaNode.Required are required,
+                    // or all of them are (but some may be nullable)
+                    var required = template.GetLanguageVersion().HasFeature(TemplateLanguageFeature.NullableParameters)
+                        ? true
+                        : schemaNode.Required?.Value.Contains(propertyName) ?? false;
+                    var flags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
                     var description = GetMostSpecificDescription(schema);
 
                     var (type, typeName) = GetDeferrableTypeInfo(schema);
@@ -341,8 +346,7 @@ namespace Bicep.Core.Semantics
                 {
                     var typeInfo = GetDeferrableTypeInfo(additionalPropertiesSchema);
                     additionalPropertiesType = typeInfo.type;
-                    // FIXME: Uncomment the following after merging https://github.com/Azure/bicep/pull/9511
-                    // nameBuilder.AppendPropertyMatcher("*", typeInfo.typeName);
+                    nameBuilder.AppendPropertyMatcher("*", typeInfo.typeName);
                 }
                 else if (addlProps.BooleanValue == false)
                 {
@@ -393,7 +397,7 @@ namespace Bicep.Core.Semantics
                 metadata.TryGetValue(LanguageConstants.MetadataResourceTypePropertyName, out var obj) &&
                 obj.Value<string>() is string resourceTypeRaw)
             {
-                if (ResourceTypeReference.TryParse(resourceTypeRaw) is {} parsed)
+                if (ResourceTypeReference.TryParse(resourceTypeRaw) is { } parsed)
                 {
                     type = new UnboundResourceType(parsed);
                     return true;

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -66,7 +68,7 @@ param oneOfSeveralStrings 'this one'|'that one'|'perhaps this one instead'
         var result = CompilationHelper.Compile(@"
 param nullableString string?
 ");
-        result.Should().ContainDiagnostic("BCP314", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.Should().ContainDiagnostic("BCP320", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
     }
 
     [TestMethod]
@@ -500,23 +502,26 @@ param sealedObject {}?
     [TestMethod]
     public void Nullably_typed_values_can_be_used_as_nonnullable_outputs_with_postfix_assertion()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var templateWithPossiblyNullDeref = @"
 param foos (null | { bar: { baz: { quux: 'quux' } } })[]
 
 output quux string = foos[0].bar.baz.quux
-");
-
-        result.Should().HaveDiagnostics(new []
-        {
-          ("BCP055", DiagnosticLevel.Error, @"Cannot access properties of type ""null | { bar: { baz: { quux: 'quux' } } }"". An ""object"" type is required."),
-        });
-
-        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+";
+        var templateWithNonNullAssertion = @"
 param foos (null | { bar: { baz: { quux: 'quux' } } })[]
 
 output quux string = foos[0]!.bar.baz.quux
-");
+";
 
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithPossiblyNullDeref);
+        result.Should().HaveDiagnostics(new []
+        {
+          ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
+        });
+        result.Diagnostics.Single().Should().BeAssignableTo<IFixable>();
+        result.Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithPossiblyNullDeref, templateWithNonNullAssertion);
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithNonNullAssertion);
         result.Should().NotHaveAnyDiagnostics();
         result.Should().HaveTemplateWithOutput("quux", "[parameters('foos')[0].bar.baz.quux]");
     }
@@ -530,7 +535,7 @@ param myParam string? = 'foo'
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP318", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+            ("BCP322", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
         });
     }
 }

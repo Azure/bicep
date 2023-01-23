@@ -187,7 +187,7 @@ var PSQL_DATABASES = [
 ]
 
 resource postgreSQL 'Microsoft.DBForPostgreSQL/servers@2017-12-01' existing = {
-  name: last(split(postgreSqlServerId, '/'))
+  name: last(split(postgreSqlServerId, '/'))!
   resource database 'databases' = [for (item, index) in PSQL_DATABASES: {
     name: item.database.name
     properties: {

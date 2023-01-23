@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -213,6 +214,7 @@ public class ArmTemplateSemanticModelTests
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
           ""languageVersion"": ""1.10-experimental"",
+          ""definitions"": {},
           ""resources"": {},
           ""definitions"": {},
           ""parameters"": {
@@ -224,6 +226,9 @@ public class ArmTemplateSemanticModelTests
         ", "refParam");
 
         parameterType.Type.Should().BeOfType<ErrorType>();
+        var loadError = parameterType.Type.GetDiagnostics().Single();
+        loadError.Code.Should().Be("BCP319");
+        loadError.Message.Should().Be("The type at \"parameters.refParam.$ref\" could not be resolved by the ARM JSON template engine. Original error message: \"Invalid reference encountered at 'parameters.refParam.$ref'. '#/definitions' not found in template. Please see https://aka.ms/arm-syntax-parameters for usage details.\"");
     }
 
     [TestMethod]

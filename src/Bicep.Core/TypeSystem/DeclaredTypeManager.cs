@@ -852,8 +852,14 @@ namespace Bicep.Core.TypeSystem
 
             return baseExpressionAssignment?.Reference switch
             {
-                DeferredTypeReference deferredType => new(new DeferredTypeReference(() => TypeHelper.RemoveNullability(deferredType.Type)), syntax, baseExpressionAssignment.Flags),
-                ITypeReference otherwise => new(TypeHelper.RemoveNullability(otherwise.Type), syntax, baseExpressionAssignment.Flags),
+                DeferredTypeReference deferredType => new(
+                    new DeferredTypeReference(() => TypeHelper.TryRemoveNullability(deferredType.Type) ?? deferredType.Type),
+                    syntax,
+                    baseExpressionAssignment.Flags),
+                ITypeReference otherwise => new(
+                    TypeHelper.TryRemoveNullability(otherwise.Type) ?? otherwise.Type,
+                    syntax,
+                    baseExpressionAssignment.Flags),
                 null => null,
             };
         }

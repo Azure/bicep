@@ -81,8 +81,8 @@ var linuxConfiguration = {
   provisionVMAgent: true
 }
 
-var virtualNetworkName = last(split(virtualNetworkId, '/'))
-var logAnalyticsWorkspaceName = last(split(logAnalyticsWorkspaceId, '/'))
+var virtualNetworkName = last(split(virtualNetworkId, '/'))!
+var logAnalyticsWorkspaceName = last(split(logAnalyticsWorkspaceId, '/'))!
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = {
   name: logAnalyticsWorkspaceName
