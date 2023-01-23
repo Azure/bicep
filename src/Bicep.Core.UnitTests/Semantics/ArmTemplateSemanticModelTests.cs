@@ -213,6 +213,7 @@ public class ArmTemplateSemanticModelTests
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
           ""languageVersion"": ""1.9-experimental"",
+          ""definitions"": {},
           ""resources"": {},
           ""parameters"": {
             ""refParam"": {
