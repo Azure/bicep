@@ -29,9 +29,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.788" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.788" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.788" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.815" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.815" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.815" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.3.61" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.238" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
