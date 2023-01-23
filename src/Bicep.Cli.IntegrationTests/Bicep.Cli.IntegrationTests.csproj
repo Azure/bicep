@@ -20,9 +20,4 @@
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
     <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.119" />
-  </ItemGroup>
 </Project>
