@@ -21,4 +21,6 @@ public abstract class AccessExpressionSyntax : ExpressionSyntax
     public SyntaxBase BaseExpression { get; }
 
     public Token? SafeAccessMarker { get; }
+
+    public abstract AccessExpressionSyntax AsSafeAccess();
 }

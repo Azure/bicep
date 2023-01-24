@@ -1797,18 +1797,23 @@ namespace Bicep.Core.Diagnostics
                 "BCP317",
                 "Expected an identifier, a string, or an asterisk at this location.");
 
-            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, SyntaxBase baseExpression) => new(
+            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP318",
                 $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
-                documentationUri: null,
-                styling: DiagnosticStyling.Default,
-                fix: new(
-                    "If you know the value will not be null at the start of the deployment, use a non-null assertion operator to inform the compiler that the value will not be null",
+                null,
+                DiagnosticStyling.Default,
+                new(
+                    "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToTextPreserveFormatting())),
+                new CodeFix(
+                    "If you know the value will not be null at the start of the deployment, use a `!.` (non-null assertion) operator to inform the compiler that the value will not be null",
                     false,
                     CodeFixKind.QuickFix,
-                    new(baseExpression.Span, SyntaxFactory.AsNonNullable(baseExpression).ToTextPreserveFormatting())));
+                    new(accessExpression.BaseExpression.Span, SyntaxFactory.AsNonNullable(accessExpression.BaseExpression).ToTextPreserveFormatting())));
 
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,

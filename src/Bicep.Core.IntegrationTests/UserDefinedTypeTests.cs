@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.CodeAction;
@@ -412,14 +413,32 @@ param foos (null | { bar: { baz: { quux: 'quux' } } })[]
 
 output quux string = foos[0]!.bar.baz.quux
 ";
+        var templateWithSafeDeref = @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+output quux string = foos[0].?bar.baz.quux
+";
 
         var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithPossiblyNullDeref);
         result.Should().HaveDiagnostics(new []
         {
           ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
         });
+
         result.Diagnostics.Single().Should().BeAssignableTo<IFixable>();
-        result.Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithPossiblyNullDeref, templateWithNonNullAssertion);
+        var fixAlternatives = new HashSet<string> { templateWithNonNullAssertion, templateWithSafeDeref };
+        foreach (var fix in result.Diagnostics.Single().As<IFixable>().Fixes)
+        {
+            fix.Replacements.Should().HaveCount(1);
+            var replacement = fix.Replacements.Single();
+
+            var actualText = templateWithPossiblyNullDeref.Remove(replacement.Span.Position, replacement.Span.Length);
+            actualText = actualText.Insert(replacement.Span.Position, replacement.Text);
+
+            fixAlternatives.Remove(actualText);
+        }
+
+        fixAlternatives.Should().BeEmpty();
 
         result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithNonNullAssertion);
         result.Should().NotHaveAnyDiagnostics();

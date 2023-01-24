@@ -985,7 +985,7 @@ namespace Bicep.Core.TypeSystem
             switch (baseType)
             {
                 case TypeSymbol when TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType:
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax.BaseExpression));
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax));
 
                     return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, indexType);
 
@@ -1121,7 +1121,7 @@ namespace Bicep.Core.TypeSystem
                 baseType = nextAccess switch
                 {
                     ArrayAccessSyntax arrayAccess => GetArrayItemType(arrayAccess, diagnostics, baseType, typeManager.GetTypeInfo(arrayAccess.IndexExpression)),
-                    PropertyAccessSyntax propertyAccess => GetNamedPropertyType(propertyAccess, UnwrapType(baseType), diagnostics),
+                    PropertyAccessSyntax propertyAccess => GetNamedPropertyType(propertyAccess, baseType, diagnostics),
                     _ => throw new InvalidOperationException("Unrecognized access syntax"),
                 };
 
@@ -1133,10 +1133,10 @@ namespace Bicep.Core.TypeSystem
                 : baseType;
         }
 
-        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => baseType switch
+        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => UnwrapType(baseType) switch
         {
-            ErrorType => baseType,
-            TypeSymbol when baseType.GetDiagnostics().Any() => ErrorType.Create(baseType.GetDiagnostics()),
+            ErrorType error => error,
+            TypeSymbol withErrors when withErrors.GetDiagnostics().Any() => ErrorType.Create(withErrors.GetDiagnostics()),
 
             TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
@@ -1151,15 +1151,15 @@ namespace Bicep.Core.TypeSystem
 
             // We can assign to an object, but we don't have a type for that object.
             // The best we can do is allow it and return the 'any' type.
-            TypeSymbol when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) => LanguageConstants.Any,
+            TypeSymbol maybeObject when TypeValidator.AreTypesAssignable(maybeObject, LanguageConstants.Object) => LanguageConstants.Any,
 
             // can only access properties of objects
-            _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType)),
+            TypeSymbol otherwise => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(otherwise)),
         };
 
         private static TypeSymbol EmitNullablePropertyAccessDiagnosticAndEraseNullability(PropertyAccessSyntax syntax, TypeSymbol originalBaseType, TypeSymbol nonNullableBaseType, IDiagnosticWriter diagnostics)
         {
-            diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax.BaseExpression));
+            diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax));
 
             return GetNamedPropertyType(syntax, nonNullableBaseType, diagnostics);
         }

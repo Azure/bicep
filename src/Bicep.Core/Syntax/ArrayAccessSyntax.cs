@@ -22,6 +22,10 @@ namespace Bicep.Core.Syntax
 
         public Token CloseSquare { get; }
 
+        public override ArrayAccessSyntax AsSafeAccess() => SafeAccessMarker is null
+            ? new(BaseExpression, OpenSquare, SyntaxFactory.QuestionToken, IndexExpression, CloseSquare)
+            : this;
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, CloseSquare);

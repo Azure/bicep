@@ -19,6 +19,10 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax PropertyName { get; }
 
+        public override PropertyAccessSyntax AsSafeAccess() => SafeAccessMarker is null
+            ? new(BaseExpression, Dot, SyntaxFactory.QuestionToken, PropertyName)
+            : this;
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, PropertyName);
