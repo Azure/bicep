@@ -355,7 +355,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Be("Please enable the parameters file feature flag to compile the parameter file\r\n");
+            error.Should().Contain("Please enable the parameters file feature flag to compile the parameter file");
         }
 
         [TestMethod]
