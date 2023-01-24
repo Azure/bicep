@@ -51,11 +51,11 @@
     "onCommand:bicep.gettingStarted.copyToClipboard",
     "onCommand:bicep.gettingStarted.createBicepFile",
     "onCommand:bicep.gettingStarted.openBicepFile",
-    "onWebviewPanel:bicep.visualizer",
-    "onLanguage:bicep-params"
+    "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
-  "enabledApiProposals": [],
+  "enabledApiProposals": [
+  ],
   "contributes": {
     "configurationDefaults": {
       "[bicep]": {
@@ -79,7 +79,8 @@
         "bicep.enableOutputTimestamps": {
           "type": "boolean",
           "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
-          "default": true
+          "default": true,
+          "$comment": "This is interpreted by vscode-azuretools package and the name has to be in the following format: <extensionConfigurationPrefix>.enableOutputTimestamps"
         },
         "bicep.suppressedWarnings": {
           "type": "array",
@@ -125,17 +126,6 @@
         "filenames": [
           "bicepconfig.json"
         ]
-      },
-      {
-        "id": "bicep-params",
-        "aliases": [
-          "Bicep Parameters",
-          "Bicep Params"
-        ],
-        "extensions": [
-          ".bicepparam"
-        ],
-        "configuration": "./syntaxes/language-configuration.json"
       }
     ],
     "grammars": [
@@ -151,11 +141,6 @@
       },
       {
         "language": "bicep",
-        "scopeName": "source.bicep",
-        "path": "./syntaxes/bicep.tmlanguage"
-      },
-      {
-        "language": "bicep-params",
         "scopeName": "source.bicep",
         "path": "./syntaxes/bicep.tmlanguage"
       }
