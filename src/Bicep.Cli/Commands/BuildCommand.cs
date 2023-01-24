@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -78,7 +79,7 @@ namespace Bicep.Cli.Commands
 
             if(!features.ParamsFilesEnabled && IsBicepparamsFile(inputPath)) 
             {
-                logger.LogError("Please enable the parameters file feature flag to compile the parameter file");
+                logger.LogError(CliResources.UnableToCompileParamsFile, inputPath, nameof(ExperimentalFeaturesEnabled.ParamsFiles));
             }
             else 
             {

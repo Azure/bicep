@@ -355,7 +355,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain("Please enable the parameters file feature flag to compile the parameter file");
+            error.Should().Contain($"The specified input \"{bicepparamsPath}\" could not be compiled. Compilation of files with extension .bicepparam is only supported if experimental feature \"{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}\" is enabled.");
         }
 
         [TestMethod]
