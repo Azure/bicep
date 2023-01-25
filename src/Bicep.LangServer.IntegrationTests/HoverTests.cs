@@ -1,10 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
+using Bicep.Core.Features;
+using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -12,12 +22,13 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.CompilationManager;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,12 +36,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -264,7 +269,6 @@ output string test = testRes[3].prop|erties.rea|donly
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
-
 
         [TestMethod]
         public async Task PropertyHovers_are_displayed_on_properties_with_conditions()
@@ -546,6 +550,165 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
+        }
+
+        [DataTestMethod]
+        [DataRow(@"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ],
+  ""annotations"": {
+    ""documentation"": ""http://test.com""
+  }
+}", "```bicep\nmodule test 'test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n[View Type Documentation](http://test.com)\n")]
+        [DataRow(@"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ]
+}", "```bicep\nmodule test 'test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n")]
+        public async Task Verify_Hover_OverAcrModuleName(string manifestFileContents, string expectedHoverContent)
+        {
+            var registry = "test.azurecr.io";
+            var repository = "bicep/modules/storage";
+            var digest = "sha:12345";
+            var fileWithCursors = $@"module |test '{registry}/{repository}:{digest}' = {{
+              name: 'abc'
+            }}";
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepPath);
+            var parentModuleUri = documentUri.ToUri();
+
+            var client = await GetLanguageClientAsync(
+                documentUri,
+                parentModuleUri,
+                testOutputPath,
+                bicepFileContents,
+                manifestFileContents,
+                registry,
+                repository,
+                digest);
+            var bicepFile = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent));
+        }
+
+        private async Task<ILanguageClient> GetLanguageClientAsync(
+            DocumentUri documentUri,
+            Uri parentModuleUri,
+            string testOutputPath,
+            string bicepFileContents,
+            string manifestFileContents,
+            string registry,
+            string repository,
+            string digest)
+        {
+            var featureProviderFactory = GetFeatureProviderFactory(parentModuleUri, testOutputPath);
+
+            var compiler = ServiceBuilder.Create().GetCompiler();
+            var compilation = await compiler.CreateCompilation(parentModuleUri);
+            var compilationContext = new CompilationContext(compilation);
+            var compilationManager = GetBicepCompilationManager(documentUri, compilationContext);
+
+            var moduleDispatcher = GetModuleDispatcher(
+                compilationContext.ProgramSyntax,
+                parentModuleUri,
+                bicepFileContents,
+                manifestFileContents,
+                testOutputPath,
+                registry,
+                repository,
+                digest);
+
+            SharedLanguageHelperManager sharedLanguageHelperManager = new();
+            sharedLanguageHelperManager.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureProviderFactory(featureProviderFactory).WithModuleDispatcher(moduleDispatcher).WithCompilationManager(compilationManager)));
+
+            var multiFileLanguageServerHelper = await sharedLanguageHelperManager.GetAsync();
+            return multiFileLanguageServerHelper.Client;
+        }
+
+        private ICompilationManager GetBicepCompilationManager(DocumentUri documentUri, CompilationContext compilationContext)
+        {
+            var bicepCompilationManager = StrictMock.Of<ICompilationManager>();
+            bicepCompilationManager.Setup(m => m.GetCompilation(documentUri)).Returns(compilationContext);
+
+            return bicepCompilationManager.Object;
+        }
+
+        private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectory)
+        {
+            var features = StrictMock.Of<IFeatureProvider>();
+            features.Setup(m => m.RegistryEnabled).Returns(true);
+            features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
+
+            var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
+            featureProviderFactory.Setup(m => m.GetFeatureProvider(uri)).Returns(features.Object);
+
+            return featureProviderFactory.Object;
+        }
+
+        private OciArtifactModuleReference GetModuleReferenceAndSaveManifestFile(string registory, string repository, string digest, string manifestFileContents, string testOutputPath, Uri parentModuleUri)
+        {
+            var manifestFilePath = Path.Combine(testOutputPath, "br", registory, repository.Replace("/", "$"), digest.Replace(":", "#"));
+            FileHelper.SaveResultFile(TestContext, "manifest", manifestFileContents, manifestFilePath);
+
+            return new OciArtifactModuleReference(registory, repository, null, digest, parentModuleUri);
+        }
+
+        private IModuleDispatcher GetModuleDispatcher(
+            ProgramSyntax programSyntax,
+            Uri parentModuleUri,
+            string bicepFileContents,
+            string manifestFileContents,
+            string testOutputPath,
+            string registry,
+            string repository,
+            string digest)
+        {
+            var file = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
+            var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
+
+            ModuleReference? ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+                registry,
+                repository,
+                digest,
+                manifestFileContents,
+                testOutputPath,
+                parentModuleUri);
+
+            DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
+            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri, out ociArtifactModuleReference, out failureBuilder)).Returns(true);
+
+            return moduleDispatcher.Object;
         }
 
         private static void ValidateHover(Hover? hover, Symbol symbol)

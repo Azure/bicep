@@ -42,7 +42,6 @@ namespace Bicep.LanguageServer.Handlers
             IFeatureProviderFactory featureProviderFactory,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            IModuleRegistryProvider moduleRegistryProvider,
             ISymbolResolver symbolResolver)
         {
             this.configurationManager = configurationManager;
@@ -135,31 +134,28 @@ namespace Bicep.LanguageServer.Handlers
                     if (filePath != null)
                     {
                         var uri = request.TextDocument.Uri.ToUri();
-                        moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _);
 
-                        if (moduleReference is not null && moduleReference is OciArtifactModuleReference ociArtifactModuleReference)
+                        if (moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                            moduleReference is not null &&
+                            moduleReference.Scheme == ModuleReferenceSchemes.Oci &&
+                            moduleReference is OciArtifactModuleReference ociArtifactModuleReference)
                         {
-                            if (moduleReference.Scheme == ModuleReferenceSchemes.Oci)
+                            var features = featureProviderFactory.GetFeatureProvider(uri);
+
+                            if (features.RegistryEnabled)
                             {
-                                var features = featureProviderFactory.GetFeatureProvider(uri);
+                                var configuration = configurationManager.GetConfiguration(uri);
+                                var ociModuleRegistry = new OciModuleRegistry(fileResolver, clientFactory, features, configuration, uri);
 
-                                if (features.RegistryEnabled)
+                                if (ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out string? documentationUrl))
                                 {
-                                    var configuration = configurationManager.GetConfiguration(uri);
-                                    var ociModuleRegistry = new OciModuleRegistry(fileResolver, clientFactory, features, configuration, uri);
-
-                                    if (ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out string? documentationUrl))
-                                    {
-                                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUrl)})"));
-                                    }
+                                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUrl)})"));
                                 }
                             }
                         }
-
-                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
                     }
 
-                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
+                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
 
                 case OutputSymbol output:
                     return WithMarkdown(CodeBlockWithDescription(
