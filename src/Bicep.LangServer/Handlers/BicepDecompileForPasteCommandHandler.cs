@@ -99,28 +99,31 @@ namespace Bicep.LanguageServer.Handlers
             StringBuilder output = new StringBuilder();
             string decompileId = Guid.NewGuid().ToString();
 
-            var (pasteType, constructedJsonTemplate) = TryConstructFullJsonTemplate(json);
-            if (pasteType is null)
+            if (!string.IsNullOrWhiteSpace(json))
             {
-                // It's not a template or resource.  Try treating it as a JSON value.
-                var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, queryCanPaste);
-                if (resultAndTelemetry is not null)
+                var (pasteType, constructedJsonTemplate) = TryConstructFullJsonTemplate(json);
+                if (pasteType is null)
                 {
-                    return resultAndTelemetry;
+                    // It's not a template or resource.  Try treating it as a JSON value.
+                    var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, queryCanPaste);
+                    if (resultAndTelemetry is not null)
+                    {
+                        return resultAndTelemetry;
+                    }
                 }
+                else
+                {
+                    // It's a full or partial template and we have converted it into a full template to parse
+                    return await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
+                }
+            }
 
-                // It's not anything we know how to convert to Bicep
-                return new ResultAndTelemetry(
-                    new BicepDecompileForPasteCommandResult(
-                        decompileId, output.ToString(), PasteType: null, ErrorMessage: null,
-                        Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType: null, bicep: null));
-            }
-            else
-            {
-                // It's a full or partial template and we have converted it into a full template to parse
-                return await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
-            }
+            // It's not anything we know how to convert to Bicep
+            return new ResultAndTelemetry(
+                new BicepDecompileForPasteCommandResult(
+                    decompileId, output.ToString(), PasteType: null, ErrorMessage: null,
+                    Bicep: null, Disclaimer: null),
+                GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType: null, bicep: null));
         }
 
         private async Task<ResultAndTelemetry> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, string pasteType, bool queryCanPaste, string? constructedJsonTemplate)

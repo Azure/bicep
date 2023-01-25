@@ -31,6 +31,7 @@ import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
 import { Disposable } from "../utils/disposable";
+import { isEmptyOrWhitespace } from "../utils/isEmptyOrWhitespace";
 
 export class PasteAsBicepCommand implements Command {
   public readonly id = "bicep.pasteAsBicep";
@@ -145,7 +146,8 @@ export class PasteAsBicepCommand implements Command {
 
           // This edit was a paste if the clipboard text matches the inserted text (ignoring formatting)
           if (
-            clipboardText.length > 1 && // non-trivial changes only
+            clipboardText.length > 1 &&
+            !isEmptyOrWhitespace(clipboardText) && // ... non-trivial changes only
             areEqualIgnoringWhitespace(clipboardText, contentChange.text)
           ) {
             // See if we can paste this text as Bicep
