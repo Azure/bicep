@@ -200,5 +200,5 @@ export interface BicepDecompileForPasteCommandResult {
   errorMessage?: string;
   pasteType?: string; // undefined if can't be pasted
   bicep?: string;
-  decompilationDisclaimer?: string;
+  disclaimer?: string;
 }

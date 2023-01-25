@@ -86,7 +86,7 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
-        private string DisclaimerMessage => $"{LangServerResources.DecompileAsPaste_AutoConvertWarning}\n{BicepDecompiler.DecompilerDisclaimerMessage}";
+        private string DisclaimerMessage => $"{BicepDecompiler.DecompilerDisclaimerMessage}";
 
         private static void Log(StringBuilder output, string message)
         {
@@ -106,7 +106,6 @@ namespace Bicep.LanguageServer.Handlers
                 var resultAndTelemetry = TryConvertFromJsonValue(output, json, decompileId, queryCanPaste);
                 if (resultAndTelemetry is not null)
                 {
-                    Log(output, DisclaimerMessage);
                     return resultAndTelemetry;
                 }
 
@@ -120,7 +119,6 @@ namespace Bicep.LanguageServer.Handlers
             else
             {
                 // It's a full or partial template and we have converted it into a full template to parse
-                Log(output, DisclaimerMessage);
                 return await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
             }
         }
