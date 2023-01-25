@@ -25,6 +25,9 @@ namespace Bicep.Core.Registry.Oci
 
         public ImmutableArray<OciDescriptor> Layers { get; }
 
+        /// <summary>
+        /// Additional information provided through arbitrary metadata.
+        /// </summary>
         public OciAnnotations? Annotations { get; }
     }
 }

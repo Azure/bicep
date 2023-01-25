@@ -112,7 +112,7 @@ namespace Bicep.Core.Registry
                 return false;
             }
 
-            documentationUrl = ociAnnotations.Documentation;
+            documentationUrl = ociAnnotations.DocumentationUrl;
 
             return !string.IsNullOrWhiteSpace(documentationUrl);
         }
