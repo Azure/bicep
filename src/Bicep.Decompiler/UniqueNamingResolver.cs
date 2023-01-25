@@ -53,10 +53,6 @@ namespace Bicep.Decompiler
                 value = "_" + value;
             }
 
-            if (!identifier.EqualsOrdinally(value))
-            {
-                Trace.TraceInformation($"{nameof(EscapeIdentifier)}: \"{identifier}\" -> \"{value}\"");
-            }
             return value;
         }
 
@@ -100,14 +96,12 @@ namespace Bicep.Decompiler
                 {
                     [nameType] = desiredName,
                 };
-                Trace.TraceInformation($"{nameof(TryRequestNameCore)}: Using desired name \"{desiredName}\"");
                 assignedNames[desiredName] = nameByType;
             }
             else
             {
                 if (nameByType.ContainsKey(nameType))
                 {
-                    Trace.TraceInformation($"{nameof(TryRequestNameCore)}: \"{desiredName}\" -> NULL");
                     return null;
                 }
 
@@ -115,7 +109,6 @@ namespace Bicep.Decompiler
                 {
                     // output names can't clash with param/var/resource names
                     nameByType[nameType] = desiredName;
-                    Trace.TraceInformation($"{nameof(TryRequestNameCore)}: Using desired name \"{desiredName}\"");
                 }
                 else if (!nameByType.ContainsKey(NameType.Parameter) && !nameByType.ContainsKey(NameType.Variable) && !nameByType.ContainsKey(NameType.Resource))
                 {
@@ -126,7 +119,6 @@ namespace Bicep.Decompiler
                 {
                     // TODO technically a naming clash is still possible here but unlikely
                     nameByType[nameType] = $"{desiredName}_{GetNamingSuffix(nameType)}";
-                    Trace.TraceInformation($"{nameof(TryRequestNameCore)}: \"{desiredName}\" -> \"{nameByType[nameType]}\"");
                 }
             }
 
@@ -185,7 +177,6 @@ namespace Bicep.Decompiler
             if (unqualifiedName != null)
             {
                 assignedResourceNames[assignedResourceKey] = unqualifiedName;
-                Trace.TraceInformation($"{nameof(TryRequestResourceName)}: Using unqualified name \"{unqualifiedName}\"");
                 return unqualifiedName;
             }
 
@@ -193,11 +184,9 @@ namespace Bicep.Decompiler
             if (qualifiedName != null)
             {
                 assignedResourceNames[assignedResourceKey] = qualifiedName;
-                Trace.TraceInformation($"{nameof(TryRequestResourceName)}: Using qualified name \"{qualifiedName}\"");
                 return qualifiedName;
             }
 
-            Trace.TraceInformation($"{nameof(TryRequestResourceName)}: \"{unqualifiedName}\" -> NULL");
             return null;
         }
 

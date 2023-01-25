@@ -20,7 +20,6 @@ import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
 } from "@microsoft/vscode-azext-utils";
-import { Disposable } from "../utils";
 import { areEqualIgnoringWhitespace } from "../utils/areEqualIgnoringWhitespace";
 import { getTextAfterFormattingChanges } from "../utils/getTextAfterFormattingChanges";
 import { bicepConfigurationKeys, bicepLanguageId } from "../language/constants";
@@ -31,6 +30,8 @@ import {
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
+import { Disposable } from "../utils/disposable";
+import { isEmptyOrWhitespace } from "../utils/isEmptyOrWhitespace";
 
 export class PasteAsBicepCommand implements Command {
   public readonly id = "bicep.pasteAsBicep";
@@ -145,7 +146,8 @@ export class PasteAsBicepCommand implements Command {
 
           // This edit was a paste if the clipboard text matches the inserted text (ignoring formatting)
           if (
-            clipboardText.length > 1 && // non-trivial changes only
+            clipboardText.length > 1 &&
+            !isEmptyOrWhitespace(clipboardText) && // ... non-trivial changes only
             areEqualIgnoringWhitespace(clipboardText, contentChange.text)
           ) {
             // See if we can paste this text as Bicep
@@ -221,58 +223,80 @@ export class PasteAsBicepCommand implements Command {
               );
             }
 
-            // Don't wait for disclaimer because our telemetry won't fire until we return
+            // Don't wait for disclaimer/warning because our telemetry won't fire until we return
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.showDisclaimerWarningIfNeeded(context, canPasteResult);
+            this.showWarning(context, canPasteResult);
           }
         }
       }
     );
   }
 
-  private async showDisclaimerWarningIfNeeded(
+  private async showWarning(
     context: IActionContext,
     pasteResult: BicepDecompileForPasteCommandResult
   ): Promise<void> {
-    if (!pasteResult.decompilationDisclaimer) {
-      return;
-    }
-
-    if (
-      this.disclaimerShownThisSession ||
-      this.suppressedWarningsManager.isWarningSuppressed(
-        SuppressedWarningsManager.keys.decompileOnPasteWarning
-      )
-    ) {
-      return;
-    }
-
-    const dontShowAgain: MessageItem = {
-      title: "Never show again",
-    };
-    const disable: MessageItem = {
-      title: "Disable decompile on paste",
-    };
-
-    this.disclaimerShownThisSession = true;
-    const result = await context.ui.showWarningMessage(
-      pasteResult.decompilationDisclaimer,
-      dontShowAgain,
-      disable
-    );
-    if (result === dontShowAgain) {
-      await this.suppressedWarningsManager.suppressWarning(
-        SuppressedWarningsManager.keys.decompileOnPasteWarning
-      );
-    } else if (result === disable) {
+    try {
+      // Always show this message
       this.outputChannelManager.appendToOutputChannel(
-        `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning})`
+        "The JSON pasted into the editor was automatically decompiled to Bicep. Use undo to revert.",
+        true /*noFocus*/
       );
-      await getBicepConfiguration().update(
-        bicepConfigurationKeys.decompileOnPaste,
-        false,
-        ConfigurationTarget.Global
+
+      if (!pasteResult.disclaimer) {
+        return;
+      }
+
+      // Show disclaimer only once per session
+      if (this.disclaimerShownThisSession) {
+        return;
+      }
+
+      // Always show disclaimer in output window
+      this.outputChannelManager.appendToOutputChannel(
+        pasteResult.disclaimer,
+        true /*noFocus*/
       );
+
+      // Show disclaimer in a dialog until disabled
+      if (
+        this.suppressedWarningsManager.isWarningSuppressed(
+          SuppressedWarningsManager.keys.decompileOnPasteWarning
+        )
+      ) {
+        return;
+      }
+
+      const dontShowAgain: MessageItem = {
+        title: "Never show again",
+      };
+      const disable: MessageItem = {
+        title: "Disable automatic decompile on paste",
+      };
+
+      const result = await context.ui.showWarningMessage(
+        pasteResult.disclaimer,
+        dontShowAgain,
+        disable
+      );
+      if (result === dontShowAgain) {
+        await this.suppressedWarningsManager.suppressWarning(
+          SuppressedWarningsManager.keys.decompileOnPasteWarning
+        );
+      } else if (result === disable) {
+        await getBicepConfiguration().update(
+          bicepConfigurationKeys.decompileOnPaste,
+          false,
+          ConfigurationTarget.Global
+        );
+
+        // Don't wait for this to finish
+        window.showWarningMessage(
+          `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
+        );
+      }
+    } finally {
+      this.disclaimerShownThisSession = true;
     }
   }
 }

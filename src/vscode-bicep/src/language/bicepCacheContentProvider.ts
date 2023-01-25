@@ -5,13 +5,12 @@ import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
-import { Disposable } from "../utils";
+import { Disposable } from "../utils/disposable";
 import { bicepCacheRequestType } from "./protocol";
 
 export class BicepCacheContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider
-{
+  implements vscode.TextDocumentContentProvider {
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(

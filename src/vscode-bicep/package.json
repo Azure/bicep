@@ -34,6 +34,7 @@
     "theme": "light"
   },
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
+  "$activationEvents.comment": "When we start requiring VS Code 1.74.0 or higher, we can remove the onCommand and onLanguage activation events but will still need the onWebviewPanel event (see https://code.visualstudio.com/api/references/activation-events#onLanguage)",
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
@@ -264,12 +265,6 @@
       {
         "command": "bicep.decompile",
         "when": "editorFocus && (resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template)"
-      },
-      {
-        "command": "bicep.pasteAsBicep",
-        "key": "shift+ctrl+v",
-        "mac": "shift+cmd+v",
-        "when": "resourceLangId == bicep && bicep.canPasteAsBicep"
       }
     ],
     "menus": {

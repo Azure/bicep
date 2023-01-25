@@ -17,6 +17,8 @@ using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Bicep.Decompiler;
 
@@ -101,6 +103,23 @@ public class BicepDecompiler
             PrintFiles(workspace));
     }
 
+    public string? DecompileJsonValue(string jsonInput, DecompileOptions? options = null)
+    {
+        var workspace = new Workspace();
+        options ??= new DecompileOptions();
+
+        var bicepUri = new Uri("file://jsonInput.json", UriKind.Absolute);
+        try
+        {
+            var syntax = TemplateConverter.DecompileJsonValue(workspace, fileResolver, bicepUri, jsonInput, options);
+            return syntax is null ? null : PrintSyntax(syntax);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
     private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
     {
         var filesToSave = new Dictionary<Uri, string>();
@@ -111,11 +130,18 @@ public class BicepDecompiler
                 continue;
             }
 
-            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
+            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, GetPrettyPrintOptions());
         }
 
         return filesToSave.ToImmutableDictionary();
     }
+
+    private static string PrintSyntax(SyntaxBase syntax)
+    {
+        return PrettyPrinter.PrintSyntax(syntax, GetPrettyPrintOptions());
+    }
+
+    private static PrettyPrintOptions GetPrettyPrintOptions() => new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
 
     private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
