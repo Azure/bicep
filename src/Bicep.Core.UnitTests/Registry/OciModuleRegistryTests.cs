@@ -27,18 +27,26 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void TryGetDocumentationUrl_WithInvalidManifestContents_ShouldReturnFalse(string manifestFileContents)
         {
-            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'", testOutputPath);
-            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
 
-            var ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+            ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void TryGetDocumentationUrl_WithNonExistentManifestFile_ShouldReturnFalse()
+        {
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                "some_manifest_text",
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345",
-                manifestFileContents,
-                testOutputPath,
-                parentModuleUri);
-            var ociModuleRegistry = new OciModuleRegistry(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, GetFeatures(testOutputPath), BicepTestConstants.BuiltInConfiguration, parentModuleUri);
+                false);
 
             ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
         }
@@ -46,10 +54,6 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void TryGetDocumentationUrl_WithManifestFileAndNoAnnotations_ShouldReturnFalse()
         {
-            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'", testOutputPath);
-            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
-
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
   ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
@@ -68,14 +72,12 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ]
 }";
-            var ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
-                "sha:12345",
-                manifestFileContents,
-                testOutputPath,
-                parentModuleUri);
-            var ociModuleRegistry = new OciModuleRegistry(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, GetFeatures(testOutputPath), BicepTestConstants.BuiltInConfiguration, parentModuleUri);
+                "sha:12345");
 
             ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
         }
@@ -85,10 +87,6 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void TryGetDocumentationUrl_WithAnnotationsInManifestFileAndInvalidDocumentationUrl_ShouldReturnFalse(string documentationUrl)
         {
-            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'", testOutputPath);
-            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
-
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
   ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
@@ -110,14 +108,12 @@ namespace Bicep.Core.UnitTests.Registry
     ""documentation"": """+ documentationUrl + @"""
   }
 }";
-            var ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
-                "sha:12345",
-                manifestFileContents,
-                testOutputPath,
-                parentModuleUri);
-            var ociModuleRegistry = new OciModuleRegistry(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, GetFeatures(testOutputPath), BicepTestConstants.BuiltInConfiguration, parentModuleUri);
+                "sha:12345");
 
             ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
         }
@@ -126,10 +122,6 @@ namespace Bicep.Core.UnitTests.Registry
         public void TryGetDocumentationUrl_WithValidDocumentationUrlInManifestFile_ShouldReturnTrue()
         {
             var documentationUrl = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
-            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'", testOutputPath);
-            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
-
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
   ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
@@ -151,14 +143,12 @@ namespace Bicep.Core.UnitTests.Registry
     ""documentation"": """+ documentationUrl + @"""
   }
 }";
-            var ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
-                "sha:12345",
-                manifestFileContents,
-                testOutputPath,
-                parentModuleUri);
-            var ociModuleRegistry = new OciModuleRegistry(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, GetFeatures(testOutputPath), BicepTestConstants.BuiltInConfiguration, parentModuleUri);
+                "sha:12345");
 
             ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out string? result).Should().BeTrue();
 
@@ -166,11 +156,44 @@ namespace Bicep.Core.UnitTests.Registry
             result.Should().BeEquivalentTo(documentationUrl);
         }
 
-        private IFeatureProvider GetFeatures(string rootDirectory)
+        private (OciModuleRegistry, OciArtifactModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(
+            string bicepFileContents,
+            string manifestFileContents,
+            string registory,
+            string repository,
+            string digest,
+            bool cacheRootDirectory = true)
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, bicepFileContents, testOutputPath);
+            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
+
+            var ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+                registory,
+                repository,
+                digest,
+                manifestFileContents,
+                testOutputPath,
+                parentModuleUri);
+
+            var ociModuleRegistry = new OciModuleRegistry(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, GetFeatures(cacheRootDirectory, testOutputPath), BicepTestConstants.BuiltInConfiguration, parentModuleUri);
+
+            return (ociModuleRegistry, ociArtifactModuleReference);
+        }
+
+        private IFeatureProvider GetFeatures(bool cacheRootDirectory, string rootDirectory)
         {
             var features = StrictMock.Of<IFeatureProvider>();
             features.Setup(m => m.RegistryEnabled).Returns(true);
-            features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
+
+            if (cacheRootDirectory)
+            {
+                features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
+            }
+            else
+            {
+                features.Setup(m => m.CacheRootDirectory).Returns(string.Empty);
+            }
 
             return features.Object;
         }
