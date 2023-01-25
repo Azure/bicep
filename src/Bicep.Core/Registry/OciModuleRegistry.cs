@@ -87,9 +87,14 @@ namespace Bicep.Core.Registry
         public bool TryGetDocumentationUrl(OciArtifactModuleReference reference, [NotNullWhen(true)] out string? documentationUrl)
         {
             documentationUrl = null;
-            string manifestFilePath = this.GetModuleFilePath(reference, ModuleFileType.Manifest);
-            string manifestFileContents = File.ReadAllText(manifestFilePath);
 
+            string manifestFilePath = this.GetModuleFilePath(reference, ModuleFileType.Manifest);
+            if (!File.Exists(manifestFilePath))
+            {
+                return false;
+            }
+
+            string manifestFileContents = File.ReadAllText(manifestFilePath);
             if (string.IsNullOrWhiteSpace(manifestFileContents))
             {
                 return false;
@@ -109,12 +114,7 @@ namespace Bicep.Core.Registry
 
             documentationUrl = ociAnnotations.Documentation;
 
-            if (string.IsNullOrWhiteSpace(documentationUrl))
-            {
-                return false;
-            }
-
-            return true;
+            return !string.IsNullOrWhiteSpace(documentationUrl);
         }
 
         public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
