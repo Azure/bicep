@@ -144,7 +144,7 @@ Usage:
       <ref>         The module reference
 
     Options:
-      --documentationUrl  URL to get documentation on the module
+      --documentationUrl  Module documentation url
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
