@@ -153,6 +153,15 @@ export class PasteAsBicepCommand implements Command {
           e.contentChanges.length === 1
         ) {
           const contentChange = e.contentChanges[0];
+
+          // Ignore deletions and trivial changes
+          if (
+            contentChange.text.length < 2 ||
+            isEmptyOrWhitespace(contentChange.text)
+          ) {
+            return;
+          }
+
           const clipboardText = await env.clipboard.readText();
 
           // This edit was a paste if the clipboard text matches the inserted text (ignoring formatting)
