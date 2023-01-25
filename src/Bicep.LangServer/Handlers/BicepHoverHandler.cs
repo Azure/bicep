@@ -153,9 +153,11 @@ namespace Bicep.LanguageServer.Handlers
                                 }
                             }
                         }
+
+                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
                     }
 
-                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
+                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
 
                 case OutputSymbol output:
                     return WithMarkdown(CodeBlockWithDescription(
