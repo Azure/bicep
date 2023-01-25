@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -76,7 +77,15 @@ namespace Bicep.Cli.Commands
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
 
-            logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+            if(!features.ParamsFilesEnabled && IsBicepparamsFile(inputPath)) 
+            {
+                logger.LogError(CliResources.UnableToCompileParamsFile, inputPath, nameof(ExperimentalFeaturesEnabled.ParamsFiles));
+            }
+            else 
+            {
+                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+            }
+
             return 1;
         }
 
