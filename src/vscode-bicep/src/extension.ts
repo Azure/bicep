@@ -29,9 +29,8 @@ import {
 } from "./language/constants";
 import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
 import { Disposable } from "./utils/disposable";
-import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
-import { InsertResourceCommand } from "./commands/insertResource";
+import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import {
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
@@ -41,6 +40,7 @@ import { WalkthroughCopyToClipboardCommand } from "./commands/gettingStarted/Wal
 import { WalkthroughCreateBicepFileCommand } from "./commands/gettingStarted/WalkthroughCreateBicepFileCommand";
 import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/WalkthroughOpenBicepFileCommand";
 import { ForceModulesRestoreCommand } from "./commands/forceModulesRestore";
+import { InsertResourceCommand } from "./commands/insertResource";
 import { DeployCommand } from "./commands/deploy";
 import { GenerateParamsCommand } from "./commands/generateParams";
 import { BuildCommand } from "./commands/build";
@@ -195,13 +195,13 @@ export async function activate(context: ExtensionContext): Promise<void> {
           })
         );
 
+        await languageClient.start();
+        getLogger().info("Bicep language service started.");
+
         await updateUiContext(
           window.activeTextEditor?.document,
           pasteAsBicepCommand
         );
-
-        await languageClient.start();
-        getLogger().info("Bicep language service started.");
       })
   );
 }

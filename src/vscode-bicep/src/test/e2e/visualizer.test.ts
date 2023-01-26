@@ -4,9 +4,10 @@
 import fs from "fs";
 import path from "path";
 import vscode from "vscode";
+import { sleep } from "../../utils/time";
 
 import { expectDefined } from "../utils/assert";
-import { sleep, until } from "../utils/time";
+import { until } from "../utils/time";
 import {
   executeCloseAllEditors,
   executeShowSourceCommand,

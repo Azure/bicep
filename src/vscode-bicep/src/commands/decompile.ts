@@ -174,7 +174,7 @@ export class DecompileCommand implements Command {
         .map((f) => `"${f}"`)
         .join(", ");
       const message = isSingleFileDecompilation
-        ? `Output file already exists: ${conflictFilesWithQuotes}`
+        ? `Decompile output file already exists: ${conflictFilesWithQuotes}`
         : `There are multiple decompilation output files and the following already exist: ${conflictFilesWithQuotes}`;
       this.outputChannelManager.appendToOutputChannel(message.trimEnd());
 
