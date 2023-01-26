@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -4204,6 +4205,38 @@ output sql resource = sql
             {
                 ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
             });
+        }
+
+        // https://github.com/Azure/bicep/issues/9653
+        [TestMethod]
+        public void Test_9653()
+        {
+            var templateWithNullablyTypedName = @"
+param input string
+
+resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: last(split(input, '/'))
+}
+";
+            var templateWithNonNullAssertion = @"
+param input string
+
+resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: last(split(input, '/'))!
+}
+";
+
+            var result = CompilationHelper.Compile(templateWithNullablyTypedName);
+            result.Template.Should().NotBeNull();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP321", DiagnosticLevel.Warning, @"The value of type ""null | string"" may be null at the start of the deployment, which would cause this assignment (and the overall deployment with it) to fail."),
+            });
+
+            result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
+            result.ExcludingLinterDiagnostics().Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullablyTypedName, templateWithNonNullAssertion);
+
+            CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }
