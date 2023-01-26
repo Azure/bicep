@@ -33,13 +33,12 @@ namespace Bicep.Core.TypeSystem.Az
          * The following top-level properties must be set deploy-time constant values,
          * and it is safe to read them at deploy-time because their values cannot be changed.
          */
-        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
-        {
-            ResourceIdPropertyName,
-            ResourceNamePropertyName,
-            ResourceTypePropertyName,
-            ResourceApiVersionPropertyName,
-        };
+        public static readonly ImmutableSortedSet<string> ReadWriteDeployTimeConstantPropertyNames
+            = ImmutableSortedSet.Create(LanguageConstants.IdentifierComparer,
+                ResourceIdPropertyName,
+                ResourceNamePropertyName,
+                ResourceTypePropertyName,
+                ResourceApiVersionPropertyName);
 
         /*
          * The following top-level properties must be set deploy-time constant values

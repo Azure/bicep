@@ -1814,6 +1814,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP319",
                 $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
+
+            public ErrorDiagnostic ModuleOutputResourcePropertyAccessDetected() => new(
+                TextSpan,
+                "BCP320",
+                "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
