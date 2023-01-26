@@ -73,7 +73,7 @@
       "properties": {
         "bicep.experimental.decompileOnPaste": {
           "type": "boolean",
-          "description": "(Experimental) NOTE: 'Enable Paste as Bicep' must also be enabled. Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
+          "description": "(Experimental) NOTE: 'Enable Paste JSON as Bicep' must also be enabled. Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
           "default": true
         },
         "bicep.experimental.enablePasteAsBicep": {
