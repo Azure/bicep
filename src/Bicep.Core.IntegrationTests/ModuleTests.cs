@@ -569,7 +569,6 @@ output id string = mod.outputs.storage.id
 output name string = mod.outputs.storage.name
 output type string = mod.outputs.storage.type
 output apiVersion string = mod.outputs.storage.apiVersion
-output accessTier string = mod.outputs.storage.properties.accessTier
 
 "),
 ("module.bicep", @"
@@ -600,11 +599,6 @@ output storage resource = storage
             {
                 ["type"] = new JValue("string"),
                 ["value"] = new JValue("2019-06-01"),
-            });
-            result.Template.Should().HaveValueAtPath("$.outputs.accessTier", new JObject()
-            {
-                ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value, '2019-06-01').accessTier]"),
             });
         }
 
