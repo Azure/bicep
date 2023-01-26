@@ -8,9 +8,9 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciManifest
     {
-        public OciManifest(int schemaVersion, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers, OciAnnotations? annotations = null)
+        public OciManifest(int schemaVersion, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers, IDictionary<string, string>? annotations = null)
         {
-            this.Annotations = annotations;
+            this.Annotations = annotations?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
             this.SchemaVersion = schemaVersion;
             this.ArtifactType = artifactType;
             this.Config = config;
@@ -28,6 +28,6 @@ namespace Bicep.Core.Registry.Oci
         /// <summary>
         /// Additional information provided through arbitrary metadata.
         /// </summary>
-        public OciAnnotations? Annotations { get; }
+        public ImmutableDictionary<string, string> Annotations { get; }
     }
 }

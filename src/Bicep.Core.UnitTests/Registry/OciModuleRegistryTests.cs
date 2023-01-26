@@ -111,7 +111,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ],
   ""annotations"": {
-    ""documentationUri"": """+ documentationUri + @"""
+    ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
   }
 }";
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
@@ -148,7 +148,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ],
   ""annotations"": {
-    ""documentationUri"": """ + documentationUri + @"""
+    ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
   }
 }";
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(

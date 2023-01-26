@@ -12,7 +12,6 @@ using Azure.Containers.ContainerRegistry.Specialized;
 using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
-using OciAnnotations = Bicep.Core.Registry.Oci.OciAnnotations;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
 
 namespace Bicep.Core.Registry
@@ -89,7 +88,11 @@ namespace Bicep.Core.Registry
             }
             else
             {
-                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, new OciAnnotations(documentationUri));
+                var annotations = new Dictionary<string, string>
+            {
+                { LanguageConstants.OciOpenContainerImageDocumentationAnnotation, documentationUri }
+            };
+                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, annotations);
             }
 
             using var manifestStream = new MemoryStream();

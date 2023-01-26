@@ -95,6 +95,8 @@ namespace Bicep.Core
 
         public const string ListFunctionPrefix = "list";
 
+        public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
+
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,

@@ -102,14 +102,9 @@ namespace Bicep.Core.Registry
                 return null;
             }
 
-            OciAnnotations? ociAnnotations = ociManifest.Annotations;
-            if (ociAnnotations is null)
-            {
-                return null;
-            }
-
-            var documentationUri = ociAnnotations.DocumentationUri;
-            if (string.IsNullOrWhiteSpace(documentationUri))
+            var ociAnnotations = ociManifest.Annotations;
+            if (!ociAnnotations.Any() || (ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri) &&
+                string.IsNullOrWhiteSpace(documentationUri)))
             {
                 return null;
             }
