@@ -7,6 +7,7 @@ import { getBicepConfiguration } from "../../language/getBicepConfiguration";
 import { until } from "../utils/time";
 import { normalizeMultilineString } from "../utils/normalizeMultilineString";
 import { SuppressedWarningsManager } from "../../commands/SuppressedWarningsManager";
+import { bicepConfigurationKeys } from "../../language/constants";
 
 describe("pasteAsBicep", (): void => {
   afterEach(async () => {
@@ -16,7 +17,14 @@ describe("pasteAsBicep", (): void => {
   async function configureSettings(): Promise<void> {
     // Make sure Decompile on Paste is on
     await getBicepConfiguration().update(
-      "decompileOnPaste",
+      bicepConfigurationKeys.decompileOnPaste,
+      true,
+      ConfigurationTarget.Global
+    );
+
+    // Make sure experimental enable paste on bicep is on
+    await getBicepConfiguration().update(
+      bicepConfigurationKeys.experimentalEnablePasteOnBicep,
       true,
       ConfigurationTarget.Global
     );
@@ -126,13 +134,6 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
       content: "// My bicep file\n",
     });
     await vscode.window.showTextDocument(textDocument);
-
-    // Make sure Decompile on Paste is on
-    await getBicepConfiguration().update(
-      "decompileOnPaste",
-      true,
-      ConfigurationTarget.Global
-    );
 
     vscode.env.clipboard.writeText(json);
     await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
