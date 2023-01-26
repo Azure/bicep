@@ -105,7 +105,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ],
   ""annotations"": {
-    ""documentation"": """+ documentationUrl + @"""
+    ""documentationUrl"": """+ documentationUrl + @"""
   }
 }";
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ],
   ""annotations"": {
-    ""documentation"": """+ documentationUrl + @"""
+    ""documentationUrl"": """ + documentationUrl + @"""
   }
 }";
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
