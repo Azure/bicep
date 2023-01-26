@@ -55,8 +55,7 @@
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
-  "enabledApiProposals": [
-  ],
+  "enabledApiProposals": [],
   "contributes": {
     "configurationDefaults": {
       "[bicep]": {
@@ -79,7 +78,7 @@
         },
         "bicep.experimental.enablePasteAsBicep": {
           "type": "boolean",
-          "description": "(Experimental) Enable Paste as Bicep",
+          "description": "(Experimental) Enable Paste JSON as Bicep",
           "default": false
         },
         "bicep.enableOutputTimestamps": {
