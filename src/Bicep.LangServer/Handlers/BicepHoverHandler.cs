@@ -26,29 +26,20 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
-        private readonly ConfigurationManager configurationManager;
-        private readonly IContainerRegistryClientFactory clientFactory;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IModuleRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
 
         private const int MaxHoverMarkdownCodeBlockLength = 90000;
         //actual limit for hover in VS code is 100,000 characters.
 
         public BicepHoverHandler(
-            ConfigurationManager configurationManager,
-            IContainerRegistryClientFactory clientFactory,
-            IFeatureProviderFactory featureProviderFactory,
-            IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider,
             ISymbolResolver symbolResolver)
         {
-            this.configurationManager = configurationManager;
-            this.clientFactory = clientFactory;
-            this.featureProviderFactory = featureProviderFactory;
-            this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
         }
 
@@ -60,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<Hover?>(null);
             }
 
-            var markdown = GetMarkdown(request, result, this.configurationManager, this.clientFactory, this.featureProviderFactory, this.fileResolver, this.moduleDispatcher);
+            var markdown = GetMarkdown(request, result, this.moduleDispatcher, this.moduleRegistryProvider);
             if (markdown == null)
             {
                 return Task.FromResult<Hover?>(null);
@@ -87,11 +78,8 @@ namespace Bicep.LanguageServer.Handlers
         private static MarkedStringsOrMarkupContent? GetMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
-            ConfigurationManager configurationManager,
-            IContainerRegistryClientFactory clientFactory,
-            IFeatureProviderFactory featureProviderFactory,
-            IFileResolver fileResolver,
-            IModuleDispatcher moduleDispatcher)
+            IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
@@ -134,20 +122,18 @@ namespace Bicep.LanguageServer.Handlers
                     if (filePath != null)
                     {
                         var uri = request.TextDocument.Uri.ToUri();
+                        var registries = moduleRegistryProvider.Registries(uri);
 
-                        if (moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
-                            moduleReference is not null &&
-                            moduleReference.Scheme == ModuleReferenceSchemes.Oci &&
-                            moduleReference is OciArtifactModuleReference ociArtifactModuleReference)
+                        if (registries != null &&
+                            registries.Any() &&
+                            moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                            moduleReference is not null)
                         {
-                            var features = featureProviderFactory.GetFeatureProvider(uri);
-
-                            if (features.RegistryEnabled)
+                            foreach (var registry in registries)
                             {
-                                var configuration = configurationManager.GetConfiguration(uri);
-                                var ociModuleRegistry = new OciModuleRegistry(fileResolver, clientFactory, features, configuration, uri);
-
-                                if (ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out string? documentationUrl))
+                                if (registry.Scheme == moduleReference.Scheme &&
+                                    registry.GetDocumentationUrl(moduleReference) is string documentationUrl &&
+                                    !string.IsNullOrWhiteSpace(documentationUrl))
                                 {
                                     return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUrl)})"));
                                 }

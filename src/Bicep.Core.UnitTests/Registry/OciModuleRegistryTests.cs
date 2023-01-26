@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("    ")]
         [DataRow(null)]
         [DataTestMethod]
-        public void TryGetDocumentationUrl_WithInvalidManifestContents_ShouldReturnFalse(string manifestFileContents)
+        public void GetDocumentationUrl_WithInvalidManifestContents_ShouldReturnFalse(string manifestFileContents)
         {
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
@@ -34,11 +34,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
+            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+
+            result.Should().BeNull();
         }
 
         [TestMethod]
-        public void TryGetDocumentationUrl_WithNonExistentManifestFile_ShouldReturnFalse()
+        public void GetDocumentationUrl_WithNonExistentManifestFile_ShouldReturnFalse()
         {
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
@@ -48,11 +50,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "sha:12345",
                 false);
 
-            ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
+            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+
+            result.Should().BeNull();
         }
 
         [TestMethod]
-        public void TryGetDocumentationUrl_WithManifestFileAndNoAnnotations_ShouldReturnFalse()
+        public void GetDocumentationUrl_WithManifestFileAndNoAnnotations_ShouldReturnFalse()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -79,13 +83,15 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
+            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+
+            result.Should().BeNull();
         }
 
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public void TryGetDocumentationUrl_WithAnnotationsInManifestFileAndInvalidDocumentationUrl_ShouldReturnFalse(string documentationUrl)
+        public void GetDocumentationUrl_WithAnnotationsInManifestFileAndInvalidDocumentationUrl_ShouldReturnFalse(string documentationUrl)
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -115,11 +121,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out _).Should().BeFalse();
+            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+
+            result.Should().BeNull();
         }
 
         [TestMethod]
-        public void TryGetDocumentationUrl_WithValidDocumentationUrlInManifestFile_ShouldReturnTrue()
+        public void GetDocumentationUrl_WithValidDocumentationUrlInManifestFile_ShouldReturnTrue()
         {
             var documentationUrl = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
             var manifestFileContents = @"{
@@ -150,7 +158,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            ociModuleRegistry.TryGetDocumentationUrl(ociArtifactModuleReference, out string? result).Should().BeTrue();
+            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(documentationUrl);

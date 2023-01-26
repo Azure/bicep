@@ -15,8 +15,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Tracing;
-using Json.Path;
-using Microsoft.VisualBasic.FileIO;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
@@ -84,37 +82,39 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public bool TryGetDocumentationUrl(OciArtifactModuleReference reference, [NotNullWhen(true)] out string? documentationUrl)
+        public override string? GetDocumentationUrl(OciArtifactModuleReference ociArtifactModuleReference)
         {
-            documentationUrl = null;
-
-            string manifestFilePath = this.GetModuleFilePath(reference, ModuleFileType.Manifest);
+            string manifestFilePath = this.GetModuleFilePath(ociArtifactModuleReference, ModuleFileType.Manifest);
             if (!File.Exists(manifestFilePath))
             {
-                return false;
+                return null;
             }
 
             string manifestFileContents = File.ReadAllText(manifestFilePath);
             if (string.IsNullOrWhiteSpace(manifestFileContents))
             {
-                return false;
+                return null;
             }
 
             OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
             if (ociManifest is null)
             {
-                return false;
+                return null;
             }
 
             OciAnnotations? ociAnnotations = ociManifest.Annotations;
             if (ociAnnotations is null)
             {
-                return false;
+                return null;
             }
 
-            documentationUrl = ociAnnotations.DocumentationUrl;
+            var documentationUrl = ociAnnotations.DocumentationUrl;
+            if (string.IsNullOrWhiteSpace(documentationUrl))
+            {
+                return null;
+            }
 
-            return !string.IsNullOrWhiteSpace(documentationUrl);
+            return documentationUrl;
         }
 
         public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)

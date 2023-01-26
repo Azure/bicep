@@ -122,5 +122,7 @@ namespace Bicep.Core.Registry
         {
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
+
+        public override string? GetDocumentationUrl(TemplateSpecModuleReference moduleReference) => null;
     }
 }

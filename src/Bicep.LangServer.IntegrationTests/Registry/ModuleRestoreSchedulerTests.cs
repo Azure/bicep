@@ -201,6 +201,8 @@ namespace Bicep.LangServer.UnitTests.Registry
                 throw new NotImplementedException();
             }
 
+            public string? GetDocumentationUrl(ModuleReference moduleReference) => null;
+
             public bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 failureBuilder = null;

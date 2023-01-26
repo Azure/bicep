@@ -71,5 +71,11 @@ namespace Bicep.Core.Registry
         /// <param name="moduleReference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
         Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUrl = null);
+
+        /// <summary>
+        /// Returns documentationUrl for the module.
+        /// </summary>
+        /// <param name="moduleReference">The module reference</param>
+        string? GetDocumentationUrl(ModuleReference moduleReference);
     }
 }

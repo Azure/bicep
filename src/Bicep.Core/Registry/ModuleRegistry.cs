@@ -30,6 +30,8 @@ namespace Bicep.Core.Registry
 
         public abstract bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
+        public abstract string? GetDocumentationUrl(T reference);
+
         public bool IsModuleRestoreRequired(ModuleReference reference) => this.IsModuleRestoreRequired(ConvertReference(reference));
 
         public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUrl) => this.PublishModule(ConvertReference(moduleReference), compiled, documentationUrl);
@@ -42,6 +44,8 @@ namespace Bicep.Core.Registry
 
         public bool TryGetLocalModuleEntryPointUri(ModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             this.TryGetLocalModuleEntryPointUri(ConvertReference(reference), out localUri, out failureBuilder);
+
+        public string? GetDocumentationUrl(ModuleReference reference) => this.GetDocumentationUrl(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(T reference);
 
