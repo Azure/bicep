@@ -4173,29 +4173,5 @@ output fooAccess object = {
   ""apiVersion"": ""2022-09-01""
 }"));
         }
-
-        // https://github.com/Azure/bicep/issues/9469
-        [TestMethod]
-        public void Test_Issue9469()
-        {
-            var result = CompilationHelper.Compile(@"
-param CertificateSubjects array
-
-resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
-  name: c.keyVault.name
-  scope: resourceGroup(c.keyVault.subscriptionId, c.keyVault.resourceGroupName)
-}]
-
-resource Certificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
-  name: replace(replace(c.subject, '*', 'wild'), '.', '-')
-  parent: CertificateVault[i]
-}]
-");
-
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
-                ("BCP320", DiagnosticLevel.Error, "A resource cannot use a parent that was declared with a for-expression."),
-            });
-        }
     }
 }

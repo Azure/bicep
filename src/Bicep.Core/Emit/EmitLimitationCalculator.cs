@@ -43,7 +43,6 @@ namespace Bicep.Core.Emit
             DetectInvalidValueForParentProperty(model, diagnostics);
             BlockLambdasOutsideFunctionArguments(model, diagnostics);
             BlockUnsupportedLambdaVariableUsage(model, diagnostics);
-            BlockedLoopedResourceParents(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -433,16 +432,6 @@ namespace Bicep.Core.Emit
                 }
             }
         }
-
-        private static void BlockedLoopedResourceParents(SemanticModel model, IDiagnosticWriter diagnostics) =>
-            diagnostics.WriteMultiple(model.DeclaredResources
-                // find resources with looped parents
-                .Where(resource => resource.Parent is { IndexExpression: SyntaxBase })
-                // of those, find resources whose parents were specified via the 'parent' property (nested resources that violate this constraint will raise a diagnostic from ForSyntaxValidationVisitor)
-                .Select(resource => resource.Symbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceParentPropertyName))
-                .WhereNotNull()
-                .Select(DiagnosticBuilder.ForPosition)
-                .Select(b => b.ResourceParentCannotBeLooped()));
 
         private static bool IsInvariant(SemanticModel semanticModel, LocalVariableSyntax itemVariable, LocalVariableSyntax? indexVariable, SyntaxBase expression)
         {

@@ -980,8 +980,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic NestedResourceNotAllowedInLoop() => new(
                 TextSpan,
                 "BCP160",
-                $"A nested resource cannot appear inside of a resource with a for-expression.",
-                documentationUri: new("https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/copy-resources#iteration-for-a-child-resource"));
+                $"A nested resource cannot appear inside of a resource with a for-expression.");
 
             public ErrorDiagnostic ExpectedLoopItemIdentifierOrVariableBlockStart() => new(
                 TextSpan,
@@ -1815,12 +1814,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP319",
                 $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
-
-            public ErrorDiagnostic ResourceParentCannotBeLooped() => new(
-                TextSpan,
-                "BCP320",
-                $"A resource cannot use a parent that was declared with a for-expression.",
-                documentationUri: new("https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/copy-resources#iteration-for-a-child-resource"));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
