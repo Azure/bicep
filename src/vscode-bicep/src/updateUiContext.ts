@@ -48,18 +48,20 @@ export async function updateUiContext(
       if (pasteAsBicepCommand) {
         let canPasteAsBicep = false;
 
-        if (currentDocument?.languageId === bicepLanguageId) {
-          const clipboardText = await env.clipboard.readText();
+        if (pasteAsBicepCommand?.isExperimentalPasteAsBicepEnabled()) {
+          if (currentDocument?.languageId === bicepLanguageId) {
+            const clipboardText = await env.clipboard.readText();
 
-          if (cachedCanPasteAsBicep.clipboardText === clipboardText) {
-            canPasteAsBicep = cachedCanPasteAsBicep.canPasteAsBicep;
-          } else {
-            canPasteAsBicep = await pasteAsBicepCommand.canPasteAsBicep(
-              context,
-              clipboardText
-            );
-            cachedCanPasteAsBicep.clipboardText = clipboardText;
-            cachedCanPasteAsBicep.canPasteAsBicep = canPasteAsBicep;
+            if (cachedCanPasteAsBicep.clipboardText === clipboardText) {
+              canPasteAsBicep = cachedCanPasteAsBicep.canPasteAsBicep;
+            } else {
+              canPasteAsBicep = await pasteAsBicepCommand.canPasteAsBicep(
+                context,
+                clipboardText
+              );
+              cachedCanPasteAsBicep.clipboardText = clipboardText;
+              cachedCanPasteAsBicep.canPasteAsBicep = canPasteAsBicep;
+            }
           }
         }
 

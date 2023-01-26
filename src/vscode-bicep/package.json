@@ -72,10 +72,15 @@
       "type": "object",
       "title": "Bicep",
       "properties": {
-        "bicep.decompileOnPaste": {
+        "bicep.experimental.decompileOnPaste": {
           "type": "boolean",
-          "description": "Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
+          "description": "(Experimental) NOTE: 'Enable Paste as Bicep' must also be enabled. Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
           "default": true
+        },
+        "bicep.experimental.enablePasteAsBicep": {
+          "type": "boolean",
+          "description": "(Experimental) Enable Paste as Bicep",
+          "default": false
         },
         "bicep.enableOutputTimestamps": {
           "type": "boolean",
@@ -309,7 +314,7 @@
         },
         {
           "command": "bicep.pasteAsBicep",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && config.bicep.experimental.enablePasteAsBicep",
           "group": "9_cutcopypaste"
         },
         {
@@ -398,7 +403,7 @@
         },
         {
           "command": "bicep.pasteAsBicep",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && config.bicep.experimental.enablePasteAsBicep",
           "group": "9_cutcopypaste"
         },
         {
