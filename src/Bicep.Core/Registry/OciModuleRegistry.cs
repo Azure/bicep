@@ -82,7 +82,7 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public override string? GetDocumentationUrl(OciArtifactModuleReference ociArtifactModuleReference)
+        public override string? GetDocumentationUri(OciArtifactModuleReference ociArtifactModuleReference)
         {
             string manifestFilePath = this.GetModuleFilePath(ociArtifactModuleReference, ModuleFileType.Manifest);
             if (!File.Exists(manifestFilePath))
@@ -108,13 +108,13 @@ namespace Bicep.Core.Registry
                 return null;
             }
 
-            var documentationUrl = ociAnnotations.DocumentationUrl;
-            if (string.IsNullOrWhiteSpace(documentationUrl))
+            var documentationUri = ociAnnotations.DocumentationUri;
+            if (string.IsNullOrWhiteSpace(documentationUri))
             {
                 return null;
             }
 
-            return documentationUrl;
+            return documentationUri;
         }
 
         public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
@@ -149,14 +149,14 @@ namespace Bicep.Core.Registry
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUrl)
+        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUri)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
             {
-                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, documentationUrl, layer);
+                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, documentationUri, layer);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {

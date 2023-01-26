@@ -571,7 +571,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
     }
   ],
   ""annotations"": {
-    ""documentationUrl"": ""http://test.com""
+    ""documentationUri"": ""http://test.com""
   }
 }", "```bicep\nmodule test 'test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n[View Type Documentation](http://test.com)\n")]
         [DataRow(@"{

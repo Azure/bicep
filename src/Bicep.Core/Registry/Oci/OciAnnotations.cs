@@ -11,14 +11,14 @@ namespace Bicep.Core.Registry.Oci
     /// </summary>
     public class OciAnnotations
     {
-        public OciAnnotations(string documentationUrl)
+        public OciAnnotations(string documentationUri)
         {
-            this.DocumentationUrl = documentationUrl;
+            this.DocumentationUri = documentationUri;
         }
 
         /// <summary>
         ///  URL to get documentation on the image.
         /// </summary>
-        public string DocumentationUrl { get; }
+        public string DocumentationUri { get; }
     }
 }

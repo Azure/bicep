@@ -57,7 +57,7 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUrl = null, params StreamDescriptor[] layers)
+        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri = null, params StreamDescriptor[] layers)
         {
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
@@ -83,13 +83,13 @@ namespace Bicep.Core.Registry
 
             OciManifest manifest;
 
-            if (string.IsNullOrWhiteSpace(documentationUrl))
+            if (string.IsNullOrWhiteSpace(documentationUri))
             {
                 manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors);
             }
             else
             {
-                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, new OciAnnotations(documentationUrl));
+                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, new OciAnnotations(documentationUri));
             }
 
             using var manifestStream = new MemoryStream();

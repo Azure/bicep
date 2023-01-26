@@ -132,10 +132,10 @@ namespace Bicep.LanguageServer.Handlers
                             foreach (var registry in registries)
                             {
                                 if (registry.Scheme == moduleReference.Scheme &&
-                                    registry.GetDocumentationUrl(moduleReference) is string documentationUrl &&
-                                    !string.IsNullOrWhiteSpace(documentationUrl))
+                                    registry.GetDocumentationUri(moduleReference) is string documentationUri &&
+                                    !string.IsNullOrWhiteSpace(documentationUri))
                                 {
-                                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUrl)})"));
+                                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUri)})"));
                                 }
                             }
                         }

@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("    ")]
         [DataRow(null)]
         [DataTestMethod]
-        public void GetDocumentationUrl_WithInvalidManifestContents_ShouldReturnFalse(string manifestFileContents)
+        public void GetDocumentationUri_WithInvalidManifestContents_ShouldReturnFalse(string manifestFileContents)
         {
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
@@ -34,13 +34,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDocumentationUrl_WithNonExistentManifestFile_ShouldReturnFalse()
+        public void GetDocumentationUri_WithNonExistentManifestFile_ShouldReturnFalse()
         {
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
@@ -50,13 +50,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "sha:12345",
                 false);
 
-            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDocumentationUrl_WithManifestFileAndNoAnnotations_ShouldReturnFalse()
+        public void GetDocumentationUri_WithManifestFileAndNoAnnotations_ShouldReturnFalse()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -83,7 +83,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public void GetDocumentationUrl_WithAnnotationsInManifestFileAndInvalidDocumentationUrl_ShouldReturnFalse(string documentationUrl)
+        public void GetDocumentationUri_WithAnnotationsInManifestFileAndInvalidDocumentationUri_ShouldReturnFalse(string documentationUri)
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -111,7 +111,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ],
   ""annotations"": {
-    ""documentationUrl"": """+ documentationUrl + @"""
+    ""documentationUri"": """+ documentationUri + @"""
   }
 }";
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
@@ -121,15 +121,15 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDocumentationUrl_WithValidDocumentationUrlInManifestFile_ShouldReturnTrue()
+        public void GetDocumentationUri_WithValiddocumentationUriInManifestFile_ShouldReturnTrue()
         {
-            var documentationUrl = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
+            var documentationUri = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
   ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
@@ -148,7 +148,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ],
   ""annotations"": {
-    ""documentationUrl"": """ + documentationUrl + @"""
+    ""documentationUri"": """ + documentationUri + @"""
   }
 }";
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
@@ -158,10 +158,10 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUrl(ociArtifactModuleReference);
+            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(documentationUrl);
+            result.Should().BeEquivalentTo(documentationUri);
         }
 
         private (OciModuleRegistry, OciArtifactModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(

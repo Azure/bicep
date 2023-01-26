@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 
 namespace Bicep.Cli.Arguments
 {
@@ -31,18 +32,24 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
-                    case "--documentationurl":
+                    case "--documentationuri":
                         if (isLast)
                         {
-                            throw new CommandLineException("The --documentationUrl parameter expects an argument.");
+                            throw new CommandLineException("The --documentationUri parameter expects an argument.");
                         }
 
-                        if (this.DocumentationUrl is not null)
+                        if (this.DocumentationUri is not null)
                         {
-                            throw new CommandLineException("The --documentationUrl parameter cannot be specified more than once.");
+                            throw new CommandLineException("The --documentationUri parameter cannot be specified more than once.");
                         }
 
-                        DocumentationUrl = args[i + 1];
+                        DocumentationUri = args[i + 1];
+
+                        if (!Uri.IsWellFormedUriString(DocumentationUri, UriKind.Absolute))
+                        {
+                            throw new CommandLineException("The --documentationUri should be a well formed uri string.");
+                        }
+
                         i++;
                         break;
 
@@ -73,7 +80,7 @@ namespace Bicep.Cli.Arguments
             }
         }
 
-        public string? DocumentationUrl { get; }
+        public string? DocumentationUri { get; }
 
         public string InputFile { get; }
 

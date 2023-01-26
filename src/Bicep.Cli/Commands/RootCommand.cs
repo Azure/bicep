@@ -144,12 +144,12 @@ Usage:
       <ref>         The module reference
 
     Options:
-      --documentationUrl  Module documentation url
+      --documentationUri  Module documentation uri
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1
-      bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUrl https://github.com/hello-world/README.md
+      bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md
 
   {exeName} restore <file>
     Restores external modules from the specified Bicep file to the local module cache.
