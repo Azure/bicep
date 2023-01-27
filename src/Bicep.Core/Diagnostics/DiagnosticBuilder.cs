@@ -1804,11 +1804,7 @@ namespace Bicep.Core.Diagnostics
                 $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
                 documentationUri: null,
                 styling: DiagnosticStyling.Default,
-                fix: new(
-                    "If you know the value will not be null at the start of the deployment, use a non-null assertion operator to inform the compiler that the value will not be null",
-                    false,
-                    CodeFixKind.QuickFix,
-                    new(baseExpression.Span, SyntaxFactory.AsNonNullable(baseExpression).ToTextPreserveFormatting())));
+                fix: AsNonNullable(baseExpression));
 
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,
@@ -1819,6 +1815,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP320",
                 "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
+
+            public FixableDiagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP321",
+                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: AsNonNullable(expression));
+
+            private static CodeFix AsNonNullable(SyntaxBase expression) => new(
+                "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
+                false,
+                CodeFixKind.QuickFix,
+                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
