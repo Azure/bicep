@@ -1824,7 +1824,7 @@ namespace Bicep.Core.Diagnostics
             }
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
-                "If you know the value will not be null, use a non-null assertion operator to override the ",
+                "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
                 false,
                 CodeFixKind.QuickFix,
                 new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
