@@ -1809,20 +1809,36 @@ namespace Bicep.Core.Diagnostics
                     true,
                     CodeFixKind.QuickFix,
                     new(accessExpression.Span, accessExpression.AsSafeAccess().ToTextPreserveFormatting())),
-                new CodeFix(
-                    "If you know the value will not be null at the start of the deployment, use a `!.` (non-null assertion) operator to inform the compiler that the value will not be null",
-                    false,
-                    CodeFixKind.QuickFix,
-                    new(accessExpression.BaseExpression.Span, SyntaxFactory.AsNonNullable(accessExpression.BaseExpression).ToTextPreserveFormatting())));
+                AsNonNullable(accessExpression.BaseExpression));
+
+            private static CodeFix AsNonNullable(SyntaxBase expression) => new(
+                "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
+                false,
+                CodeFixKind.QuickFix,
+                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
 
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,
                 "BCP319",
                 $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
 
-            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
+            public ErrorDiagnostic ModuleOutputResourcePropertyAccessDetected() => new(
                 TextSpan,
                 "BCP320",
+                "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
+
+            public FixableDiagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP321",
+                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: AsNonNullable(expression));
+
+            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
+                TextSpan,
+                "BCP322",
                 $@"The `.?` (safe dereference) operator may not be used to invoke instance functions.");
         }
 

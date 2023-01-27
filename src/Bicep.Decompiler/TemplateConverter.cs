@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Text.Json.Nodes;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
@@ -58,16 +59,7 @@ namespace Bicep.Decompiler
             string content,
             DecompileOptions options)
         {
-            JObject templateObject;
-            using (var reader = new JsonTextReader(new StringReader(content)))
-            {
-                reader.DateParseHandling = DateParseHandling.None;
-                templateObject = JObject.Load(reader, new JsonLoadSettings
-                {
-                    CommentHandling = CommentHandling.Ignore,
-                    LineInfoHandling = LineInfoHandling.Load,
-                });
-            }
+            JObject templateObject = LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
                 workspace,
@@ -78,6 +70,48 @@ namespace Bicep.Decompiler
                 options);
 
             return (instance.Parse(), instance.jsonTemplateUrisByModule);
+        }
+
+        public static SyntaxBase? DecompileJsonValue(
+            Workspace workspace,
+            IFileResolver fileResolver,
+            Uri bicepFileUri,
+            string jsonInput,
+            DecompileOptions options)
+        {
+            JToken jToken = LoadJson(jsonInput, JToken.Load, options.IgnoreTrailingInput);
+
+            var instance = new TemplateConverter(
+                workspace,
+                fileResolver,
+                bicepFileUri,
+                new JObject(),
+                new(),
+                options);
+
+            return instance.ParseJToken(jToken);
+        }
+
+        private static T LoadJson<T>(string jsonInput, Func<JsonReader, JsonLoadSettings, T> load, bool ignoreTrailingContent) where T : JToken
+        {
+            T jToken;
+            using (var reader = new JsonTextReader(new StringReader(jsonInput)))
+            {
+                reader.DateParseHandling = DateParseHandling.None;
+
+                jToken = load(reader, new JsonLoadSettings
+                {
+                    CommentHandling = CommentHandling.Ignore,
+                    LineInfoHandling = LineInfoHandling.Load,
+                });
+
+                if (!ignoreTrailingContent)
+                {
+                    // Force an exception if there's additional input past the object/value that's been read
+                    reader.Read();
+                }
+            }
+            return jToken;
         }
 
         private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs)
@@ -844,7 +878,7 @@ namespace Bicep.Decompiler
                     return null;
                 });
 
-        public MetadataDeclarationSyntax ParseMetadata(JProperty value)
+        private MetadataDeclarationSyntax ParseMetadata(JProperty value)
         {
             List<SyntaxBase> leadingNodes = new();
             return new MetadataDeclarationSyntax(
@@ -856,7 +890,7 @@ namespace Bicep.Decompiler
                 );
         }
 
-        public ParameterDeclarationSyntax ParseParam(JProperty value)
+        private ParameterDeclarationSyntax ParseParam(JProperty value)
         {
             // Metadata/description should be first
             var decoratorsAndNewLines = ProcessMetadataDescription(name => value.Value?[name]).ToList();
@@ -917,7 +951,7 @@ namespace Bicep.Decompiler
                 modifier);
         }
 
-        public VariableDeclarationSyntax ParseVariable(string name, JToken value, bool isCopyVariable)
+        private VariableDeclarationSyntax ParseVariable(string name, JToken value, bool isCopyVariable)
         {
             var identifier = nameResolver.TryLookupName(NameType.Variable, name) ?? throw new ConversionFailedException($"Unable to find variable {name}", value);
 
@@ -986,7 +1020,7 @@ namespace Bicep.Decompiler
         /// <summary>
         /// Used to generate a for-expression for a copy loop, where the copyIndex does not accept a 'name' parameter.
         /// </summary>
-        public ForSyntax ProcessUnnamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count)
+        private ForSyntax ProcessUnnamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count)
             where TToken : JToken
         {
             // Give it a fake name for now - it'll be replaced anyway.
@@ -998,7 +1032,7 @@ namespace Bicep.Decompiler
         /// <summary>
         /// Used to generate a for-expression for a copy loop, where the copyIndex requires a 'name' parameter.
         /// </summary>
-        public ForSyntax ProcessNamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count, string name)
+        private ForSyntax ProcessNamedCopySyntax<TToken>(TToken input, string indexIdentifier, Func<TToken, SyntaxBase> getSyntaxForInputFunc, JToken count, string name)
             where TToken : JToken
         {
             return PerformScopedAction(() =>
@@ -1454,7 +1488,7 @@ namespace Bicep.Decompiler
             throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
         }
 
-        public SyntaxBase ParseResource(IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
+        private SyntaxBase ParseResource(IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
         {
             var resource = (token as JObject) ?? throw new ConversionFailedException("Incorrect resource format", token);
 
@@ -1565,7 +1599,7 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreateObject(topLevelProperties);
         }
 
-        public OutputDeclarationSyntax ParseOutput(JProperty value)
+        private OutputDeclarationSyntax ParseOutput(JProperty value)
         {
             // Metadata/description should be first
             var decoratorsAndNewLines = ProcessMetadataDescription(name => value.Value?[name]).ToList();

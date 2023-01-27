@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -4172,6 +4173,70 @@ output fooAccess object = {
   ""type"": ""Microsoft.Storage/storageAccounts"",
   ""apiVersion"": ""2022-09-01""
 }"));
+        }
+
+        // https://github.com/Azure/bicep/issues/6065
+        [TestMethod]
+        public void Test_Issue6065()
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
+("main.bicep", @"
+module mymodule 'test.bicep' = {
+  name: 'mymodule'
+}
+
+resource myresource 'Microsoft.Sql/servers@2021-08-01-preview' = {
+  name: 'myothersql'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: mymodule.outputs.sql.properties.administratorLogin
+  }
+}
+"),
+("test.bicep", @"
+resource sql 'Microsoft.Sql/servers@2021-08-01-preview' existing = {
+  name: 'mysql'
+}
+
+output sql resource = sql
+"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+            });
+        }
+
+        // https://github.com/Azure/bicep/issues/9653
+        [TestMethod]
+        public void Test_9653()
+        {
+            var templateWithNullablyTypedName = @"
+param input string
+
+resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: last(split(input, '/'))
+}
+";
+            var templateWithNonNullAssertion = @"
+param input string
+
+resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: last(split(input, '/'))!
+}
+";
+
+            var result = CompilationHelper.Compile(templateWithNullablyTypedName);
+            result.Template.Should().NotBeNull();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
+            });
+
+            result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
+            result.ExcludingLinterDiagnostics().Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullablyTypedName, templateWithNonNullAssertion);
+
+            CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }

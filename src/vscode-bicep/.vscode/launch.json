@@ -96,21 +96,6 @@
       }
     },
     {
-      "name": "Launch Tests: Unit Tests (dev)",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--enable-proposed-api=ms-azuretools.vscode-bicep",
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
-      ],
-      "outFiles": [
-        "${workspaceRoot}/out/test/unit/**/*.js"
-      ],
-      "preLaunchTask": "build:unit:dev",
-      "env": {}
-    },
-    {
       "name": "Launch Tests: Unit Tests",
       "type": "node",
       "request": "launch",

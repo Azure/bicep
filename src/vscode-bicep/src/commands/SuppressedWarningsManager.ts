@@ -9,12 +9,14 @@ export class SuppressedWarningsManager {
     "suppressedWarnings";
 
   public static readonly keys = {
-    decompileOnPasteWarning: "decompile on paste",
+    decompileOnPasteWarning: "Decompile on paste",
   };
 
   public constructor(
     private readonly provideBicepConfiguration: () => WorkspaceConfiguration = getBicepConfiguration // override for unit testing
-  ) {}
+  ) {
+    // noop
+  }
 
   public isWarningSuppressed(key: string): boolean {
     const suppressedWarnings: string[] = this.getSuppressedWarnings();
