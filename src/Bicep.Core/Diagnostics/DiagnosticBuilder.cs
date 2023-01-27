@@ -1816,12 +1816,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP320",
                 "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
 
-            public FixableDiagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression)
-            {
-                var typeMismatchDiagnostic = ExpectedValueTypeMismatch(true, expectedType, actualType);
-
-                return new(TextSpan, typeMismatchDiagnostic.Level, typeMismatchDiagnostic.Code, typeMismatchDiagnostic.Message, typeMismatchDiagnostic.Uri, typeMismatchDiagnostic.Styling, AsNonNullable(expression));
-            }
+            public FixableDiagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP321",
+                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: AsNonNullable(expression));
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
