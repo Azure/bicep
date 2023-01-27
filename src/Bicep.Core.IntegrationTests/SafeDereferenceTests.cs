@@ -126,6 +126,7 @@ output outputData object = {
   vmPlanName: vm.?plan.name
   vmEvictionPolicy: vm.properties.?evictionPolicy
   vmMaxPrice: vm.properties.?billingProfile.maxPrice
+  maybeVmMaxPrice: vm.?properties.billingProfile.?maxPrice
 }
 ");
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
@@ -138,6 +139,7 @@ output outputData object = {
         compiledOutputData!["vmPlanName"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01', 'full'), 'plan', 'name')]");
         compiledOutputData!["vmEvictionPolicy"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01'), 'evictionPolicy')]");
         compiledOutputData!["vmMaxPrice"].Should().DeepEqual("[tryGet(reference(parameters('vm'), '2020-06-01'), 'billingProfile', 'maxPrice')]");
+        compiledOutputData!["maybeVmMaxPrice"].Should().DeepEqual("[tryGet(tryGet(reference(parameters('vm'), '2020-06-01', 'full'), 'properties', 'billingProfile'), 'maxPrice')]");
     }
 
     [TestMethod]
@@ -157,25 +159,26 @@ module mod './mod.bicep' = {
 }
 
 output outputData object = {
-  vmName: mod.outputs.vm.?name
-  vmId: mod.outputs.vm.?id
-  vmProperties: mod.outputs.vm.?properties
-  vmIdentity: mod.outputs.vm.?identity
-  vmPlanName: mod.outputs.vm.?plan.name
-  vmEvictionPolicy: mod.outputs.vm.properties.?evictionPolicy
-  vmMaxPrice: mod.outputs.vm.properties.?billingProfile.maxPrice
+  vmMaybeName: mod.outputs.vm.?name
+  maybeVmName: mod.outputs.?vm.name
+  maybeVmMaybeName: mod.outputs.?vm.?name
+  vmMaybeId: mod.outputs.vm.?id
+  maybeVmId: mod.outputs.?vm.id
+  maybeVmMaybeId: mod.outputs.?vm.?id
 }
 "));
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
         compiledOutputData.Should().NotBeNull();
 
-        compiledOutputData!["vmName"].Should().DeepEqual("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '/'))]");
-        compiledOutputData!["vmId"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value]");
-        compiledOutputData!["vmProperties"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01', 'full'), 'properties')]");
-        compiledOutputData!["vmIdentity"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01', 'full'), 'identity')]");
-        compiledOutputData!["vmPlanName"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01', 'full'), 'plan', 'name')]");
-        compiledOutputData!["vmEvictionPolicy"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01'), 'evictionPolicy')]");
-        compiledOutputData!["vmMaxPrice"].Should().DeepEqual("[tryGet(reference(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '2020-06-01'), 'billingProfile', 'maxPrice')]");
+        // there's no way for `.name` or `.id` to be null on a module output resource, hence the lack of `tryGet`
+        compiledOutputData!["vmMaybeName"].Should().DeepEqual("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '/'))]");
+        compiledOutputData!["vmMaybeId"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value]");
+
+        // if the output resource itself uses a safe dereference, though, the generated expressions get more complex
+        compiledOutputData!["maybeVmId"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs, 'vm', 'value')]");
+        compiledOutputData!["maybeVmMaybeId"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs, 'vm', 'value')]");
+        compiledOutputData!["maybeVmName"].Should().DeepEqual("[if(contains(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs, 'vm'), last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '/')), null())]");
+        compiledOutputData!["maybeVmMaybeName"].Should().DeepEqual("[if(contains(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs, 'vm'), last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2020-10-01').outputs.vm.value, '/')), null())]");
     }
 
     [TestMethod]

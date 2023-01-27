@@ -32,9 +32,9 @@ public static class ExpressionFactory
     public static PropertyAccessExpression CreatePropertyAccess(Expression baseExpression, string propertyName, SyntaxBase? sourceSyntax = null, AccessExpressionFlags flags = AccessExpressionFlags.None)
         => new(sourceSyntax ?? baseExpression.SourceSyntax, baseExpression, propertyName, flags);
 
-    public static PropertyAccessExpression CreateResourcePropertyAccess(ResourceMetadata metadata, IndexReplacementContext? indexContext, string propertyName, SyntaxBase? sourceSyntax = null, AccessExpressionFlags flags = AccessExpressionFlags.None)
+    public static PropertyAccessExpression CreateResourcePropertyAccess(ResourceMetadata metadata, IndexReplacementContext? indexContext, string propertyName, PropertyAccessSyntax? sourceSyntax = null, AccessExpressionFlags flags = AccessExpressionFlags.None)
         => CreatePropertyAccess(
-            new ResourceReferenceExpression(sourceSyntax, metadata, indexContext),
+            new ResourceReferenceExpression(sourceSyntax?.BaseExpression, metadata, indexContext),
             propertyName,
             sourceSyntax,
             flags);
