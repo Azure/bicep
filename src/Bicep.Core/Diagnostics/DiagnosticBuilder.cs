@@ -1839,7 +1839,13 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
                 TextSpan,
                 "BCP322",
-                $@"The `.?` (safe dereference) operator may not be used to invoke instance functions.");
+                "The `.?` (safe dereference) operator may not be used on instance function invocations.");
+
+            public ErrorDiagnostic SafeDereferenceNotPermittedOnResourceCollections() => new(
+                TextSpan,
+                "BCP323",
+                "The `[?]` (safe dereference) operator may not be used on resource or module collections."
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

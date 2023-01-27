@@ -22,6 +22,67 @@ public class SafeDereferenceTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
+    public void Safe_dereference_is_not_permitted_on_instance_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
+  name: 'sa'
+}
+
+output secret string = storageaccount.?listKeys().keys[0].value
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP322", DiagnosticLevel.Error, "The `.?` (safe dereference) operator may not be used on instance function invocations.")
+        });
+    }
+
+    [TestMethod]
+    public void Safe_dereference_is_not_permitted_on_resource_collections()
+    {
+        var result = CompilationHelper.Compile(@"
+resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = [for i in range(0, 10): {
+  name: 'name${i}'
+}]
+
+output data object = {
+  vm3Name: vm[?3].name
+}
+");
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP323", DiagnosticLevel.Error, "The `[?]` (safe dereference) operator may not be used on resource or module collections.")
+        });
+    }
+
+    [TestMethod]
+    public void Safe_dereference_is_not_permitted_on_module_collections()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+module mod './module.bicep' = [for (item, i) in []:  {
+    name: 'test-${i}'
+}]
+
+output data object = {
+  foo: mod[?0].outputs.data.foo
+}
+"),
+("module.bicep", @"
+output data object = {
+  foo: 'bar'
+}
+"));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP323", DiagnosticLevel.Error, "The `[?]` (safe dereference) operator may not be used on resource or module collections.")
+        });
+    }
+
+    [TestMethod]
     public void Safe_dereference_of_declared_resource_properties_converts_correctly()
     {
         var result = CompilationHelper.Compile(@"

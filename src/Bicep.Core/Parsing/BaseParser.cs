@@ -836,9 +836,14 @@ namespace Bicep.Core.Parsing
                         var functionCall = FunctionCallAccess(identifier, expressionFlags);
                         if (safeAccessMarker is not null)
                         {
-                            identifier = new IdentifierSyntax(new SkippedTriviaSyntax(TextSpan.Between(safeAccessMarker.Span, identifier.Span),
-                                new SyntaxBase[] { safeAccessMarker, identifier },
-                                DiagnosticBuilder.ForPosition(safeAccessMarker).SafeDereferenceNotPermittedOnInstanceFunctions().AsEnumerable()));
+                            functionCall = (
+                                new IdentifierSyntax(new SkippedTriviaSyntax(TextSpan.Between(safeAccessMarker.Span, identifier.Span),
+                                    new SyntaxBase[] { safeAccessMarker, identifier },
+                                    DiagnosticBuilder.ForPosition(safeAccessMarker).SafeDereferenceNotPermittedOnInstanceFunctions().AsEnumerable())),
+                                functionCall.OpenParen,
+                                functionCall.ArgumentNodes,
+                                functionCall.CloseParen
+                            );
                         }
 
                         // gets instance function call
