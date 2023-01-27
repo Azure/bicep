@@ -37,22 +37,22 @@ var resourceDependency = {
 //@[17:0118) | |           └─ArrayExpression
     resA.id
 //@[04:0011) | |             ├─PropertyAccessExpression { PropertyName = id }
-//@[04:0011) | |             | └─ResourceReferenceExpression
+//@[04:0008) | |             | └─ResourceReferenceExpression
     resA.name
 //@[04:0013) | |             ├─PropertyAccessExpression { PropertyName = name }
-//@[04:0013) | |             | └─ResourceReferenceExpression
+//@[04:0008) | |             | └─ResourceReferenceExpression
     resA.type
 //@[04:0013) | |             ├─PropertyAccessExpression { PropertyName = type }
-//@[04:0013) | |             | └─ResourceReferenceExpression
+//@[04:0008) | |             | └─ResourceReferenceExpression
     resA.properties.deployTime
 //@[04:0030) | |             ├─AccessChainExpression
 //@[04:0019) | |             | ├─PropertyAccessExpression { PropertyName = properties }
-//@[04:0019) | |             | | └─ResourceReferenceExpression
+//@[04:0008) | |             | | └─ResourceReferenceExpression
 //@[20:0030) | |             | └─StringLiteralExpression { Value = deployTime }
     resA.properties.eTag
 //@[04:0024) | |             └─AccessChainExpression
 //@[04:0019) | |               ├─PropertyAccessExpression { PropertyName = properties }
-//@[04:0019) | |               | └─ResourceReferenceExpression
+//@[04:0008) | |               | └─ResourceReferenceExpression
 //@[20:0024) | |               └─StringLiteralExpression { Value = eTag }
   ]
 }
@@ -60,7 +60,7 @@ var resourceDependency = {
 output resourceAType string = resA.type
 //@[00:0039) ├─DeclaredOutputExpression { Name = resourceAType }
 //@[30:0039) | └─PropertyAccessExpression { PropertyName = type }
-//@[30:0039) |   └─ResourceReferenceExpression
+//@[30:0034) |   └─ResourceReferenceExpression
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[00:0134) ├─DeclaredResourceExpression
 //@[50:0134) | └─ObjectExpression
@@ -83,7 +83,7 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 output resourceBId string = resB.id
 //@[00:0035) ├─DeclaredOutputExpression { Name = resourceBId }
 //@[28:0035) | └─PropertyAccessExpression { PropertyName = id }
-//@[28:0035) |   └─ResourceReferenceExpression
+//@[28:0032) |   └─ResourceReferenceExpression
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
 //@[00:0125) ├─DeclaredResourceExpression
 //@[50:0125) | ├─ObjectExpression
@@ -105,12 +105,12 @@ var resourceIds = {
 //@[02:0012) |   ├─ObjectPropertyExpression
 //@[02:0003) |   | ├─StringLiteralExpression { Value = a }
 //@[05:0012) |   | └─PropertyAccessExpression { PropertyName = id }
-//@[05:0012) |   |   └─ResourceReferenceExpression
+//@[05:0009) |   |   └─ResourceReferenceExpression
   b: resB.id
 //@[02:0012) |   └─ObjectPropertyExpression
 //@[02:0003) |     ├─StringLiteralExpression { Value = b }
 //@[05:0012) |     └─PropertyAccessExpression { PropertyName = id }
-//@[05:0012) |       └─ResourceReferenceExpression
+//@[05:0009) |       └─ResourceReferenceExpression
 }
 
 resource resC 'My.Rp/myResourceType@2020-01-01' = {
@@ -151,12 +151,12 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[04:0020) | |     └─ObjectPropertyExpression
 //@[04:0011) | |       ├─StringLiteralExpression { Value = resDRef }
 //@[13:0020) | |       └─PropertyAccessExpression { PropertyName = id }
-//@[13:0020) | |         └─ResourceReferenceExpression
+//@[13:0017) | |         └─ResourceReferenceExpression
   }
 }
 
 output resourceCProperties object = resC.properties
 //@[00:0051) └─DeclaredOutputExpression { Name = resourceCProperties }
 //@[36:0051)   └─PropertyAccessExpression { PropertyName = properties }
-//@[36:0051)     └─ResourceReferenceExpression
+//@[36:0040)     └─ResourceReferenceExpression
 

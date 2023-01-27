@@ -237,31 +237,31 @@ output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.
 //@[000:00101) ├─DeclaredOutputExpression { Name = indexedCollectionBlobEndpoint }
 //@[046:00101) | └─AccessChainExpression
 //@[046:00079) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[046:00079) |   | └─ResourceReferenceExpression
+//@[046:00068) |   | └─ResourceReferenceExpression
 //@[080:00096) |   ├─StringLiteralExpression { Value = primaryEndpoints }
 //@[097:00101) |   └─StringLiteralExpression { Value = blob }
 output indexedCollectionName string = storageAccounts[index].name
 //@[000:00065) ├─DeclaredOutputExpression { Name = indexedCollectionName }
 //@[038:00065) | └─PropertyAccessExpression { PropertyName = name }
-//@[038:00065) |   └─ResourceReferenceExpression
+//@[038:00060) |   └─ResourceReferenceExpression
 output indexedCollectionId string = storageAccounts[index].id
 //@[000:00061) ├─DeclaredOutputExpression { Name = indexedCollectionId }
 //@[036:00061) | └─PropertyAccessExpression { PropertyName = id }
-//@[036:00061) |   └─ResourceReferenceExpression
+//@[036:00058) |   └─ResourceReferenceExpression
 output indexedCollectionType string = storageAccounts[index].type
 //@[000:00065) ├─DeclaredOutputExpression { Name = indexedCollectionType }
 //@[038:00065) | └─PropertyAccessExpression { PropertyName = type }
-//@[038:00065) |   └─ResourceReferenceExpression
+//@[038:00060) |   └─ResourceReferenceExpression
 output indexedCollectionVersion string = storageAccounts[index].apiVersion
 //@[000:00074) ├─DeclaredOutputExpression { Name = indexedCollectionVersion }
 //@[041:00074) | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[041:00074) |   └─ResourceReferenceExpression
+//@[041:00063) |   └─ResourceReferenceExpression
 
 // general case property access
 output indexedCollectionIdentity object = storageAccounts[index].identity
 //@[000:00073) ├─DeclaredOutputExpression { Name = indexedCollectionIdentity }
 //@[042:00073) | └─PropertyAccessExpression { PropertyName = identity }
-//@[042:00073) |   └─ResourceReferenceExpression
+//@[042:00064) |   └─ResourceReferenceExpression
 
 // indexed access of two properties
 output indexedEndpointPair object = {
@@ -272,7 +272,7 @@ output indexedEndpointPair object = {
 //@[002:00009) |   | ├─StringLiteralExpression { Value = primary }
 //@[011:00066) |   | └─AccessChainExpression
 //@[011:00044) |   |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[011:00044) |   |   | └─ResourceReferenceExpression
+//@[011:00033) |   |   | └─ResourceReferenceExpression
 //@[045:00061) |   |   ├─StringLiteralExpression { Value = primaryEndpoints }
 //@[062:00066) |   |   └─StringLiteralExpression { Value = blob }
   secondary: storageAccounts[index + 1].properties.secondaryEndpoints.blob
@@ -280,7 +280,7 @@ output indexedEndpointPair object = {
 //@[002:00011) |     ├─StringLiteralExpression { Value = secondary }
 //@[013:00074) |     └─AccessChainExpression
 //@[013:00050) |       ├─PropertyAccessExpression { PropertyName = properties }
-//@[013:00050) |       | └─ResourceReferenceExpression
+//@[013:00039) |       | └─ResourceReferenceExpression
 //@[051:00069) |       ├─StringLiteralExpression { Value = secondaryEndpoints }
 //@[070:00074) |       └─StringLiteralExpression { Value = blob }
 }
@@ -290,7 +290,7 @@ output indexViaReference string = storageAccounts[int(storageAccounts[index].pro
 //@[000:00124) ├─DeclaredOutputExpression { Name = indexViaReference }
 //@[034:00124) | └─AccessChainExpression
 //@[034:00113) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[034:00113) |   | └─ResourceReferenceExpression
+//@[034:00102) |   | └─ResourceReferenceExpression
 //@[114:00124) |   └─StringLiteralExpression { Value = accessTier }
 
 // dependency on a resource collection
@@ -483,7 +483,7 @@ resource implicitDependencyOnSingleResourceByIndex 'Microsoft.Network/dnsZones@2
 //@[008:00029) | |           └─ObjectPropertyExpression
 //@[008:00010) | |             ├─StringLiteralExpression { Value = id }
 //@[012:00029) | |             └─PropertyAccessExpression { PropertyName = id }
-//@[012:00029) | |               └─ResourceReferenceExpression
+//@[012:00026) | |               └─ResourceReferenceExpression
       }
     ]
   }
@@ -512,7 +512,7 @@ resource combinedDependencies 'Microsoft.Network/dnsZones@2018-05-01' = {
 //@[008:00029) | |         | └─ObjectPropertyExpression
 //@[008:00010) | |         |   ├─StringLiteralExpression { Value = id }
 //@[012:00029) | |         |   └─PropertyAccessExpression { PropertyName = id }
-//@[012:00029) | |         |     └─ResourceReferenceExpression
+//@[012:00026) | |         |     └─ResourceReferenceExpression
       }
       {
 //@[006:00047) | |         └─ObjectExpression
@@ -520,7 +520,7 @@ resource combinedDependencies 'Microsoft.Network/dnsZones@2018-05-01' = {
 //@[008:00031) | |           └─ObjectPropertyExpression
 //@[008:00010) | |             ├─StringLiteralExpression { Value = id }
 //@[012:00031) | |             └─PropertyAccessExpression { PropertyName = id }
-//@[012:00031) | |               └─ResourceReferenceExpression
+//@[012:00028) | |               └─ResourceReferenceExpression
       }
     ]
   }
@@ -632,7 +632,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[020:00069) | |     |   └─ModuleReferenceExpression
 //@[088:00136) | |     └─AccessChainExpression
 //@[088:00125) | |       ├─PropertyAccessExpression { PropertyName = properties }
-//@[088:00125) | |       | └─ResourceReferenceExpression
+//@[088:00114) | |       | └─ResourceReferenceExpression
 //@[126:00136) | |       └─StringLiteralExpression { Value = accessTier }
   }
   dependsOn: [
@@ -663,7 +663,7 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for module
 //@[016:00065) | |     |   └─ModuleReferenceExpression
 //@[088:00136) | |     ├─AccessChainExpression
 //@[088:00125) | |     | ├─PropertyAccessExpression { PropertyName = properties }
-//@[088:00125) | |     | | └─ResourceReferenceExpression
+//@[088:00114) | |     | | └─ResourceReferenceExpression
 //@[126:00136) | |     | └─StringLiteralExpression { Value = accessTier }
 //@[142:00152) | |     └─ArrayAccessExpression
 //@[142:00152) | |       ├─CopyIndexExpression
@@ -695,28 +695,28 @@ resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' 
 output existingIndexedResourceName string = existingStorageAccounts[index * 0].name
 //@[000:00083) ├─DeclaredOutputExpression { Name = existingIndexedResourceName }
 //@[044:00083) | └─PropertyAccessExpression { PropertyName = name }
-//@[044:00083) |   └─ResourceReferenceExpression
+//@[044:00078) |   └─ResourceReferenceExpression
 output existingIndexedResourceId string = existingStorageAccounts[index * 1].id
 //@[000:00079) ├─DeclaredOutputExpression { Name = existingIndexedResourceId }
 //@[042:00079) | └─PropertyAccessExpression { PropertyName = id }
-//@[042:00079) |   └─ResourceReferenceExpression
+//@[042:00076) |   └─ResourceReferenceExpression
 output existingIndexedResourceType string = existingStorageAccounts[index+2].type
 //@[000:00081) ├─DeclaredOutputExpression { Name = existingIndexedResourceType }
 //@[044:00081) | └─PropertyAccessExpression { PropertyName = type }
-//@[044:00081) |   └─ResourceReferenceExpression
+//@[044:00076) |   └─ResourceReferenceExpression
 output existingIndexedResourceApiVersion string = existingStorageAccounts[index-7].apiVersion
 //@[000:00093) ├─DeclaredOutputExpression { Name = existingIndexedResourceApiVersion }
 //@[050:00093) | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[050:00093) |   └─ResourceReferenceExpression
+//@[050:00082) |   └─ResourceReferenceExpression
 output existingIndexedResourceLocation string = existingStorageAccounts[index/2].location
 //@[000:00089) ├─DeclaredOutputExpression { Name = existingIndexedResourceLocation }
 //@[048:00089) | └─PropertyAccessExpression { PropertyName = location }
-//@[048:00089) |   └─ResourceReferenceExpression
+//@[048:00080) |   └─ResourceReferenceExpression
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 //@[000:00104) ├─DeclaredOutputExpression { Name = existingIndexedResourceAccessTier }
 //@[050:00104) | └─AccessChainExpression
 //@[050:00093) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[050:00093) |   | └─ResourceReferenceExpression
+//@[050:00082) |   | └─ResourceReferenceExpression
 //@[094:00104) |   └─StringLiteralExpression { Value = accessTier }
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
@@ -971,7 +971,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 //@[012:00019) | |                     | ├─StringLiteralExpression { Value = address }
 //@[021:00093) | |                     | └─AccessChainExpression
 //@[021:00054) | |                     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[021:00054) | |                     |   | └─ResourceReferenceExpression
+//@[021:00043) | |                     |   | └─ResourceReferenceExpression
 //@[055:00071) | |                     |   ├─StringLiteralExpression { Value = primaryEndpoints }
 //@[072:00089) | |                     |   ├─StringLiteralExpression { Value = internetEndpoints }
 //@[090:00093) | |                     |   └─StringLiteralExpression { Value = web }
@@ -980,7 +980,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 //@[012:00029) | |                     | ├─StringLiteralExpression { Value = backendHostHeader }
 //@[031:00103) | |                     | └─AccessChainExpression
 //@[031:00064) | |                     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[031:00064) | |                     |   | └─ResourceReferenceExpression
+//@[031:00053) | |                     |   | └─ResourceReferenceExpression
 //@[065:00081) | |                     |   ├─StringLiteralExpression { Value = primaryEndpoints }
 //@[082:00099) | |                     |   ├─StringLiteralExpression { Value = internetEndpoints }
 //@[100:00103) | |                     |   └─StringLiteralExpression { Value = web }
@@ -1051,7 +1051,7 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 //@[014:00021) | |                       | ├─StringLiteralExpression { Value = address }
 //@[023:00095) | |                       | └─AccessChainExpression
 //@[023:00056) | |                       |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[023:00056) | |                       |   | └─ResourceReferenceExpression
+//@[023:00045) | |                       |   | └─ResourceReferenceExpression
 //@[057:00073) | |                       |   ├─StringLiteralExpression { Value = primaryEndpoints }
 //@[074:00091) | |                       |   ├─StringLiteralExpression { Value = internetEndpoints }
 //@[092:00095) | |                       |   └─StringLiteralExpression { Value = web }
@@ -1060,7 +1060,7 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 //@[014:00031) | |                       | ├─StringLiteralExpression { Value = backendHostHeader }
 //@[033:00105) | |                       | └─AccessChainExpression
 //@[033:00066) | |                       |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00066) | |                       |   | └─ResourceReferenceExpression
+//@[033:00055) | |                       |   | └─ResourceReferenceExpression
 //@[067:00083) | |                       |   ├─StringLiteralExpression { Value = primaryEndpoints }
 //@[084:00101) | |                       |   ├─StringLiteralExpression { Value = internetEndpoints }
 //@[102:00105) | |                       |   └─StringLiteralExpression { Value = web }
@@ -1177,7 +1177,7 @@ output lastNameServers array = filteredIndexedZones[length(accounts) - 1].proper
 //@[000:00096) ├─DeclaredOutputExpression { Name = lastNameServers }
 //@[031:00096) | └─AccessChainExpression
 //@[031:00084) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[031:00084) |   | └─ResourceReferenceExpression
+//@[031:00073) |   | └─ResourceReferenceExpression
 //@[085:00096) |   └─StringLiteralExpression { Value = nameServers }
 
 module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if(account.enabled) {

@@ -40,7 +40,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[06:0010) | |     | ├─StringLiteralExpression { Value = size }
 //@[12:0040) | |     | └─AccessChainExpression
 //@[12:0034) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[12:0034) | |     |   | └─ResourceReferenceExpression
+//@[12:0023) | |     |   | └─ResourceReferenceExpression
 //@[35:0040) | |     |   └─StringLiteralExpression { Value = large }
       style: 'cool'
 //@[06:0019) | |     └─ObjectPropertyExpression
@@ -61,14 +61,14 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[08:0012) | |     | ├─StringLiteralExpression { Value = size }
 //@[14:0041) | |     | └─AccessChainExpression
 //@[14:0036) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[14:0036) | |     |   | └─ResourceReferenceExpression
+//@[14:0025) | |     |   | └─ResourceReferenceExpression
 //@[37:0041) | |     |   └─StringLiteralExpression { Value = size }
         style: basicChild.properties.style
 //@[08:0042) | |     └─ObjectPropertyExpression
 //@[08:0013) | |       ├─StringLiteralExpression { Value = style }
 //@[15:0042) | |       └─AccessChainExpression
 //@[15:0036) | |         ├─PropertyAccessExpression { PropertyName = properties }
-//@[15:0036) | |         | └─ResourceReferenceExpression
+//@[15:0025) | |         | └─ResourceReferenceExpression
 //@[37:0042) | |         └─StringLiteralExpression { Value = style }
       }
     }
@@ -87,14 +87,14 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@[06:0010) | |     | ├─StringLiteralExpression { Value = size }
 //@[12:0039) | |     | └─AccessChainExpression
 //@[12:0034) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[12:0034) | |     |   | └─ResourceReferenceExpression
+//@[12:0023) | |     |   | └─ResourceReferenceExpression
 //@[35:0039) | |     |   └─StringLiteralExpression { Value = size }
       style: basicChild::basicGrandchild.properties.style
 //@[06:0057) | |     └─ObjectPropertyExpression
 //@[06:0011) | |       ├─StringLiteralExpression { Value = style }
 //@[13:0057) | |       └─AccessChainExpression
 //@[13:0051) | |         ├─PropertyAccessExpression { PropertyName = properties }
-//@[13:0051) | |         | └─ResourceReferenceExpression
+//@[13:0040) | |         | └─ResourceReferenceExpression
 //@[52:0057) | |         └─StringLiteralExpression { Value = style }
     }
   }
@@ -104,14 +104,14 @@ output referenceBasicChild string = basicParent::basicChild.properties.size
 //@[00:0075) ├─DeclaredOutputExpression { Name = referenceBasicChild }
 //@[36:0075) | └─AccessChainExpression
 //@[36:0070) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[36:0070) |   | └─ResourceReferenceExpression
+//@[36:0059) |   | └─ResourceReferenceExpression
 //@[71:0075) |   └─StringLiteralExpression { Value = size }
 // #completionTest(67) -> grandChildResources
 output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
 //@[00:0098) ├─DeclaredOutputExpression { Name = referenceBasicGrandchild }
 //@[41:0098) | └─AccessChainExpression
 //@[41:0092) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[41:0092) |   | └─ResourceReferenceExpression
+//@[41:0081) |   | └─ResourceReferenceExpression
 //@[93:0098) |   └─StringLiteralExpression { Value = style }
 
 resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
@@ -137,14 +137,14 @@ resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
 //@[08:0012) |       | ├─StringLiteralExpression { Value = size }
 //@[14:0044) |       | └─AccessChainExpression
 //@[14:0039) |       |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[14:0039) |       |   | └─ResourceReferenceExpression
+//@[14:0028) |       |   | └─ResourceReferenceExpression
 //@[40:0044) |       |   └─StringLiteralExpression { Value = size }
         style: existingChild.properties.style
 //@[08:0045) |       └─ObjectPropertyExpression
 //@[08:0013) |         ├─StringLiteralExpression { Value = style }
 //@[15:0045) |         └─AccessChainExpression
 //@[15:0039) |           ├─PropertyAccessExpression { PropertyName = properties }
-//@[15:0039) |           | └─ResourceReferenceExpression
+//@[15:0028) |           | └─ResourceReferenceExpression
 //@[40:0045) |           └─StringLiteralExpression { Value = style }
       }
     }
@@ -192,14 +192,14 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 //@[08:0012) | |       | ├─StringLiteralExpression { Value = size }
 //@[14:0045) | |       | └─AccessChainExpression
 //@[14:0040) | |       |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[14:0040) | |       |   | └─ResourceReferenceExpression
+//@[14:0029) | |       |   | └─ResourceReferenceExpression
 //@[41:0045) | |       |   └─StringLiteralExpression { Value = size }
         style: conditionChild.properties.style
 //@[08:0046) | |       └─ObjectPropertyExpression
 //@[08:0013) | |         ├─StringLiteralExpression { Value = style }
 //@[15:0046) | |         └─AccessChainExpression
 //@[15:0040) | |           ├─PropertyAccessExpression { PropertyName = properties }
-//@[15:0040) | |           | └─ResourceReferenceExpression
+//@[15:0029) | |           | └─ResourceReferenceExpression
 //@[41:0046) | |           └─StringLiteralExpression { Value = style }
       }
     }
@@ -231,4 +231,4 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
 output loopChildOutput string = loopParent::loopChild[0].name
 //@[00:0061) └─DeclaredOutputExpression { Name = loopChildOutput }
 //@[32:0061)   └─PropertyAccessExpression { PropertyName = name }
-//@[32:0061)     └─ResourceReferenceExpression
+//@[32:0056)     └─ResourceReferenceExpression

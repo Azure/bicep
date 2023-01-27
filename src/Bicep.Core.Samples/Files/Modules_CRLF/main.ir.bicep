@@ -270,7 +270,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[004:0018) | | | ├─StringLiteralExpression { Value = optionalString }
 //@[020:0097) | | | └─FunctionCallExpression { Name = concat }
 //@[027:0049) | | |   ├─PropertyAccessExpression { PropertyName = id }
-//@[027:0049) | | |   | └─ResourceReferenceExpression
+//@[027:0046) | | |   | └─ResourceReferenceExpression
 //@[051:0096) | | |   └─PropertyAccessExpression { PropertyName = name }
 //@[051:0091) | | |     └─ModuleReferenceExpression
     optionalInt: 42
@@ -305,7 +305,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@[004:0018) | | | ├─StringLiteralExpression { Value = optionalString }
 //@[020:0097) | | | └─FunctionCallExpression { Name = concat }
 //@[027:0049) | | |   ├─PropertyAccessExpression { PropertyName = id }
-//@[027:0049) | | |   | └─ResourceReferenceExpression
+//@[027:0046) | | |   | └─ResourceReferenceExpression
 //@[051:0096) | | |   └─PropertyAccessExpression { PropertyName = name }
 //@[051:0091) | | |     └─ModuleReferenceExpression
     optionalInt: 42
