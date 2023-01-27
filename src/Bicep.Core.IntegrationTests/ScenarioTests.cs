@@ -4230,7 +4230,7 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
             result.Template.Should().NotBeNull();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP321", DiagnosticLevel.Warning, @"The value of type ""null | string"" may be null at the start of the deployment, which would cause this assignment (and the overall deployment with it) to fail."),
+                ("BCP033", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
             });
 
             result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
