@@ -11,6 +11,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax.Visitors;
@@ -43,6 +44,7 @@ namespace Bicep.Core.Emit
             DetectInvalidValueForParentProperty(model, diagnostics);
             BlockLambdasOutsideFunctionArguments(model, diagnostics);
             BlockUnsupportedLambdaVariableUsage(model, diagnostics);
+            BlockModuleOutputResourcePropertyAccess(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -446,5 +448,11 @@ namespace Bicep.Core.Emit
                 ? IsLocalInvariant(itemVariable)
                 : IsLocalInvariant(itemVariable) && IsLocalInvariant(indexVariable);
         }
+
+        private static void BlockModuleOutputResourcePropertyAccess(SemanticModel model, IDiagnosticWriter diagnostics) =>
+            diagnostics.WriteMultiple(SyntaxAggregator.Aggregate(model.Root.Syntax, syntax => syntax is PropertyAccessSyntax propertyAccess &&
+                model.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata &&
+                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName))
+                .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
     }
 }

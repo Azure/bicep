@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as vscode from "vscode";
+import { sleep } from "../../utils/time";
 
 import { expectDefined, expectRange } from "../utils/assert";
-import { retryWhile, sleep } from "../utils/time";
+import { retryWhile } from "../utils/time";
 import { executeCloseAllEditors, executeHoverProvider } from "./commands";
 import { readExampleFile } from "./examples";
 

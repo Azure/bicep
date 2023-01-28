@@ -68,7 +68,7 @@ param oneOfSeveralStrings 'this one'|'that one'|'perhaps this one instead'
         var result = CompilationHelper.Compile(@"
 param nullableString string?
 ");
-        result.Should().ContainDiagnostic("BCP320", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.Should().ContainDiagnostic("BCP322", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
     }
 
     [TestMethod]
@@ -535,7 +535,7 @@ param myParam string? = 'foo'
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP322", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+            ("BCP324", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
         });
     }
 }

@@ -5,5 +5,6 @@ namespace Bicep.Decompiler;
 
 public record DecompileOptions(
     bool AllowMissingParamsAndVars = false,
-    bool AllowMissingParamsAndVarsInNestedTemplates = false
+    bool AllowMissingParamsAndVarsInNestedTemplates = false,
+    bool IgnoreTrailingInput = true
 );

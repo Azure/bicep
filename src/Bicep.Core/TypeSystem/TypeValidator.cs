@@ -270,6 +270,12 @@ namespace Bicep.Core.TypeSystem
             // basic assignability check
             if (AreTypesAssignable(expressionType, targetType) == false)
             {
+                if (TypeHelper.TryRemoveNullability(expressionType) is TypeSymbol nonNullableExpressionType && AreTypesAssignable(nonNullableExpressionType, targetType))
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).PossibleNullReferenceAssignment(targetType, expressionType.Type, expression));
+                    return NarrowType(config, expression, nonNullableExpressionType, targetType);
+                }
+
                 // fundamentally different types - cannot assign
                 if (config.OnTypeMismatch is not null)
                 {

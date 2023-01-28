@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DecompileAsPaste_AutoConvertWarning" xml:space="preserve">
-    <value>Note: The JSON pasted into the editor was automatically converted to Bicep using the Bicep decompiler.</value>
+    <value>The JSON pasted into the editor was automatically decompiled to Bicep. Use undo to revert.</value>
   </data>
   <data name="Decompile_CreatedNewSubfolder" xml:space="preserve">
     <value>Created new subfolder for output files: {0}</value>
