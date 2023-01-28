@@ -126,6 +126,16 @@ export class Survey {
         return false;
       }
 
+      if (state.lastTaken) {
+        const okayToAskAgainMs =
+          state.lastTaken.valueOf() +
+          daysToMs(this.surveyInfo.postponeAfterTakenInDays);
+        if (okayToAskAgainMs > now.valueOf()) {
+          context.telemetry.properties.shouldAsk = "alreadyTaken";
+          return false;
+        }
+      }
+
       const isAvailable = await this.inject?.getIsSurveyAvailable(
         context,
         Survey.getFullSurveyLink(this.surveyInfo.akaLinkToSurvey)
@@ -223,12 +233,6 @@ export class Survey {
         this.surveyInfo.postponeForLaterInDays
       );
     } else if (response.title === yes.title) {
-      await this.postponeSurvey(
-        context,
-        state,
-        now,
-        this.surveyInfo.postponeAfterTakenInDays
-      );
       state.lastTaken = now;
       await this.inject.launchSurvey(context, this.surveyInfo);
     } else {

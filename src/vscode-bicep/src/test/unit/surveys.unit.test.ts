@@ -131,7 +131,7 @@ describe("surveys-unittests", () => {
     expect(
       mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
         ?.postponedUntilMs
-    ).toBe(now.valueOf() + daysToMs(postponeAfterYes));
+    ).toBeFalsy();
     expect(
       mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
         ?.lastTakenMs
@@ -145,7 +145,7 @@ describe("surveys-unittests", () => {
 
     // Shouldn't have asked
     expect(mocks.showInformationMessageMock).not.toHaveBeenCalled();
-    expect(context.telemetry.properties.shouldAsk).toBe("postponed");
+    expect(context.telemetry.properties.shouldAsk).toBe("alreadyTaken");
 
     // Try again, a day after the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeAfterYes + 1));
