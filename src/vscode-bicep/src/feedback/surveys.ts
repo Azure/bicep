@@ -63,10 +63,10 @@ export class Survey {
       getIsSurveyAvailable: typeof Survey.getIsSurveyAvailable;
       launchSurvey: typeof Survey.launchSurvey;
     } = {
-      showInformationMessage: window.showInformationMessage,
-      getIsSurveyAvailable: Survey.getIsSurveyAvailable,
-      launchSurvey: Survey.launchSurvey,
-    }
+        showInformationMessage: window.showInformationMessage,
+        getIsSurveyAvailable: Survey.getIsSurveyAvailable,
+        launchSurvey: Survey.launchSurvey,
+      }
   ) {
     // noop
   }
@@ -79,21 +79,22 @@ export class Survey {
     now: Date
   ): Promise<void> {
     context.errorHandling.suppressDisplay = true;
+    context.telemetry.properties.isActivationEvent = "true";
     context.telemetry.properties.akaLink = this.surveyInfo.akaLinkToSurvey;
 
-    const persistedSurveyState = this.getPersistedSurveyState(context, now);
+    const surveyState = this.getPersistedSurveyState(context, now);
 
     const shouldShowSurvey = await this.shouldAskToTakeSurvey(
       context,
-      persistedSurveyState,
+      surveyState,
       now
     );
 
     if (shouldShowSurvey) {
-      await this.askToTakeSurvey(context, persistedSurveyState, now);
+      await this.askToTakeSurvey(context, surveyState, now);
     }
 
-    await this.updatePersistedSurveyState(context, persistedSurveyState);
+    await this.updatePersistedSurveyState(context, surveyState);
   }
 
   private static getFullSurveyLink(akaLink: string): string {
