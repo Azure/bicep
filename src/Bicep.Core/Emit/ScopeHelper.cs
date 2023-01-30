@@ -18,38 +18,19 @@ namespace Bicep.Core.Emit
 {
     public static class ScopeHelper
     {
-        public class ScopeData
-        {
-            /// <summary>
-            /// Type of scope requested by the resource.
-            /// </summary>
-            public ResourceScope RequestedScope { get; set; }
-
-            /// <summary>
-            /// Expression for the name of the Management Group or null.
-            /// </summary>
-            public SyntaxBase? ManagementGroupNameProperty { get; set; }
-
-            /// <summary>
-            /// Expression for the subscription ID or null.
-            /// </summary>
-            public SyntaxBase? SubscriptionIdProperty { get; set; }
-
-            /// <summary>
-            /// Expression for the resource group name or null.
-            /// </summary>
-            public SyntaxBase? ResourceGroupProperty { get; set; }
-
-            /// <summary>
-            /// The symbol of the resource being extended or null.
-            /// </summary>
-            public DeclaredResourceMetadata? ResourceScope { get; set; }
-
-            /// <summary>
-            /// The expression for the loop index. This is used with loops when indexing into resource collections.
-            /// </summary>
-            public SyntaxBase? IndexExpression { get; set; }
-        }
+        /// <param name="RequestedScope">Type of scope requested by the resource.</param>
+        /// <param name="ManagementGroupNameProperty">Expression for the name of the Management Group or null.</param>
+        /// <param name="SubscriptionIdProperty">Expression for the subscription ID or null.</param>
+        /// <param name="ResourceGroupProperty">Expression for the resource group name or null.</param>
+        /// <param name="ResourceScope">The symbol of the resource being extended or null.</param>
+        /// <param name="IndexExpression">The expression for the loop index. This is used with loops when indexing into resource collections.</param>
+        public record ScopeData(
+            ResourceScope RequestedScope,
+            SyntaxBase? ManagementGroupNameProperty = null,
+            SyntaxBase? SubscriptionIdProperty = null,
+            SyntaxBase? ResourceGroupProperty = null,
+            DeclaredResourceMetadata? ResourceScope = null,
+            SyntaxBase? IndexExpression = null);
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
@@ -88,7 +69,7 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return new ScopeData { RequestedScope = ResourceScope.Tenant, IndexExpression = indexExpression };
+                    return new ScopeData(ResourceScope.Tenant, IndexExpression: indexExpression);
 
                 case ManagementGroupScopeType type:
                     if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
@@ -99,8 +80,8 @@ namespace Bicep.Core.Emit
 
                     return type.Arguments.Length switch
                     {
-                        0 => new ScopeData { RequestedScope = ResourceScope.ManagementGroup, IndexExpression = indexExpression },
-                        _ => new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = type.Arguments[0].Expression, IndexExpression = indexExpression },
+                        0 => new ScopeData(ResourceScope.ManagementGroup, IndexExpression: indexExpression),
+                        _ => new ScopeData(ResourceScope.ManagementGroup, ManagementGroupNameProperty: type.Arguments[0].Expression, IndexExpression: indexExpression),
                     };
 
                 case SubscriptionScopeType type:
@@ -112,8 +93,8 @@ namespace Bicep.Core.Emit
 
                     return type.Arguments.Length switch
                     {
-                        0 => new ScopeData { RequestedScope = ResourceScope.Subscription, IndexExpression = indexExpression },
-                        _ => new ScopeData { RequestedScope = ResourceScope.Subscription, SubscriptionIdProperty = type.Arguments[0].Expression, IndexExpression = indexExpression },
+                        0 => new ScopeData(ResourceScope.Subscription, IndexExpression: indexExpression),
+                        _ => new ScopeData(ResourceScope.Subscription, SubscriptionIdProperty: type.Arguments[0].Expression, IndexExpression: indexExpression),
                     };
 
                 case ResourceGroupScopeType type:
@@ -125,9 +106,9 @@ namespace Bicep.Core.Emit
 
                     return type.Arguments.Length switch
                     {
-                        0 => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, IndexExpression = indexExpression },
-                        1 => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, ResourceGroupProperty = type.Arguments[0].Expression, IndexExpression = indexExpression },
-                        _ => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = type.Arguments[0].Expression, ResourceGroupProperty = type.Arguments[1].Expression, IndexExpression = indexExpression },
+                        0 => new ScopeData(ResourceScope.ResourceGroup, IndexExpression: indexExpression),
+                        1 => new ScopeData(ResourceScope.ResourceGroup, ResourceGroupProperty: type.Arguments[0].Expression, IndexExpression: indexExpression),
+                        _ => new ScopeData(ResourceScope.ResourceGroup, SubscriptionIdProperty: type.Arguments[0].Expression, ResourceGroupProperty: type.Arguments[1].Expression, IndexExpression: indexExpression),
                     };
                 case { } when scopeSymbol is ResourceSymbol targetResourceSymbol:
                     if (semanticModel.ResourceMetadata.TryLookup(targetResourceSymbol.DeclaringSyntax) is not DeclaredResourceMetadata targetResource)
@@ -156,7 +137,7 @@ namespace Bicep.Core.Emit
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = targetResource.TryGetNameSyntax(), IndexExpression = indexExpression };
+                            return new ScopeData(ResourceScope.ResourceGroup, SubscriptionIdProperty: rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty: targetResource.TryGetNameSyntax(), IndexExpression: indexExpression);
                         }
                     }
 
@@ -174,7 +155,7 @@ namespace Bicep.Core.Emit
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = targetResource.TryGetNameSyntax(), IndexExpression = indexExpression };
+                            return new ScopeData(ResourceScope.ManagementGroup, ManagementGroupNameProperty: targetResource.TryGetNameSyntax(), IndexExpression: indexExpression);
                         }
                     }
 
@@ -184,7 +165,7 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    return new ScopeData { RequestedScope = ResourceScope.Resource, ResourceScope = targetResource, IndexExpression = indexExpression };
+                    return new ScopeData(ResourceScope.Resource, ResourceScope: targetResource, IndexExpression: indexExpression);
 
                 case { } when scopeSymbol is ModuleSymbol targetModuleSymbol:
                     if (targetModuleSymbol.IsCollection == (indexExpression is not null))
@@ -415,7 +396,7 @@ namespace Bicep.Core.Emit
                     x => x,
                     x => semanticModel.ResourceAncestors.GetAncestors(x));
 
-            var defaultScopeData = new ScopeData { RequestedScope = semanticModel.TargetScope };
+            ScopeData defaultScopeData = new(semanticModel.TargetScope);
 
             // process symbols in order of ancestor depth.
             // this is because we want to avoid recomputing the scope for child resources which inherit it from their parents.
@@ -451,9 +432,23 @@ namespace Bicep.Core.Emit
                         continue;
                     }
 
-                    // we really just want the scope allocated to the oldest ancestor.
-                    // since we are looping in order of depth, we can just read back the value from a previous iteration.
-                    scopeInfo[resource] = scopeInfo[firstAncestor.Resource];
+                    // the immediate parent will have already been processed in this loop, so use its scope data (which has had index replacements applied) even
+                    // though the scope was originally specified on the first ancestor
+                    var immediateParent = ancestors.Last();
+                    var (_, parentManagementGroupName, parentSubscriptionId, parentResourceGroupName, _, _) = scopeInfo[immediateParent.Resource];
+                    scopeInfo[resource] = scopeInfo[immediateParent.Resource] with
+                    {
+                        ManagementGroupNameProperty = parentManagementGroupName is not null
+                            ? ExpressionBuilder.MoveSyntax(semanticModel, parentManagementGroupName, immediateParent.IndexExpression, resource.NameSyntax)
+                            : null,
+                        SubscriptionIdProperty = parentSubscriptionId is not null
+                            ? ExpressionBuilder.MoveSyntax(semanticModel, parentSubscriptionId, immediateParent.IndexExpression, resource.NameSyntax)
+                            : null,
+                        ResourceGroupProperty = parentResourceGroupName is not null
+                            ? ExpressionBuilder.MoveSyntax(semanticModel, parentResourceGroupName, immediateParent.IndexExpression, resource.NameSyntax)
+                            : null,
+                    };
+
                     continue;
                 }
 
@@ -560,7 +555,7 @@ namespace Bicep.Core.Emit
 
                 if (scopeData is null)
                 {
-                    scopeData = new ScopeData { RequestedScope = semanticModel.TargetScope };
+                    scopeData = new(semanticModel.TargetScope);
                 }
 
                 ValidateNestedTemplateScopeRestrictions(
