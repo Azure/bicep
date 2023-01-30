@@ -862,12 +862,15 @@ public class ExpressionBuilder
     /// </summary>
     /// <param name="resource">The resource</param>
     public IEnumerable<SyntaxBase> GetResourceNameSyntaxSegments(DeclaredResourceMetadata resource)
+        => GetResourceNameSyntaxSegments(this.Context.SemanticModel, resource);
+
+    public static IEnumerable<SyntaxBase> GetResourceNameSyntaxSegments(SemanticModel model, DeclaredResourceMetadata resource)
     {
-        var ancestors = this.Context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+        var ancestors = model.ResourceAncestors.GetAncestors(resource);
         var nameExpression = resource.NameSyntax;
 
         return ancestors
-            .Select((x, i) => GetResourceNameAncestorSyntaxSegment(resource, i))
+            .Select((x, i) => GetResourceNameAncestorSyntaxSegment(model, resource, i))
             .Concat(nameExpression);
     }
 
@@ -875,11 +878,12 @@ public class ExpressionBuilder
     /// Calculates the expression that represents the parent name corresponding to the specified ancestor of the specified resource.
     /// The expressions returned are modified by performing the necessary local variable replacements.
     /// </summary>
+    /// <param name="model">The model in which the resource is declared.</param>
     /// <param name="resource">The declared resource metadata</param>
     /// <param name="startingAncestorIndex">the index of the ancestor (0 means the ancestor closest to the root)</param>
-    private SyntaxBase GetResourceNameAncestorSyntaxSegment(DeclaredResourceMetadata resource, int startingAncestorIndex)
+    private static SyntaxBase GetResourceNameAncestorSyntaxSegment(SemanticModel model, DeclaredResourceMetadata resource, int startingAncestorIndex)
     {
-        var ancestors = this.Context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+        var ancestors = model.ResourceAncestors.GetAncestors(resource);
         if (startingAncestorIndex >= ancestors.Length)
         {
             // not enough ancestors
@@ -930,7 +934,7 @@ public class ExpressionBuilder
             // or the resource itself if we're on the last ancestor
             var newContext = i < ancestors.Length - 1 ? ancestors[i + 1].Resource : resource;
 
-            rewritten = MoveSyntax(this.Context.SemanticModel, rewritten, ancestor.IndexExpression, newContext.Symbol.NameIdentifier);
+            rewritten = MoveSyntax(model, rewritten, ancestor.IndexExpression, newContext.Symbol.NameIdentifier);
         }
 
         return rewritten;

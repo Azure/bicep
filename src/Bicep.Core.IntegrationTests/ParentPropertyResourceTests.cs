@@ -121,6 +121,43 @@ output res2childid string = res2child.id
         }
 
         [TestMethod]
+        public void Parent_property_works_with_extension_resource_collections()
+        {
+            var result = CompilationHelper.Compile(@"
+resource res 'Microsoft.Rp1/resource1@2020-06-01' = [for i in range(0, 10): {
+  name: 'res${i}'
+}]
+
+resource resChild 'Microsoft.Rp1/resource1/child1@2020-06-01' = [for j in range(10, 20): {
+  parent: res[j - 10]
+  name: 'child${j - 10}'
+}]
+
+resource otherRes 'Microsoft.Rp2/resource2@2020-06-01' = [for k in range(20, 30): {
+  scope: resChild[k - 20]
+  name: 'otherRes${k - 20}'
+}]
+
+resource otherResChild 'Microsoft.Rp2/resource2/child2@2020-06-01' = [for l in range(30, 40): {
+  parent: otherRes[l - 30]
+  name: 'otherResChild${l - 30}'
+}]
+
+output otherRes2childProp string = otherResChild[2].properties.someProp
+output otherRes2childName string = otherResChild[2].name
+output otherRes2childType string = otherResChild[2].type
+output otherRes2childId string = otherResChild[2].id
+");
+
+            result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
+
+            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childProp'].value", "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', format('res{0}', range(0, 10)[sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10)]), format('child{0}', sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10))), 'Microsoft.Rp2/resource2/child2', format('otherRes{0}', sub(range(20, 30)[sub(range(30, 40)[2], 30)], 20)), format('otherResChild{0}', sub(range(30, 40)[2], 30))), '2020-06-01').someProp]");
+            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childName'].value", "[format('otherResChild{0}', sub(range(30, 40)[2], 30))]");
+            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childType'].value", "Microsoft.Rp2/resource2/child2");
+            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', format('res{0}', range(0, 10)[sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10)]), format('child{0}', sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10))), 'Microsoft.Rp2/resource2/child2', format('otherRes{0}', sub(range(20, 30)[sub(range(30, 40)[2], 30)], 20)), format('otherResChild{0}', sub(range(30, 40)[2], 30)))]");
+        }
+
+        [TestMethod]
         public void Parent_property_works_with_existing_resources()
         {
             var (template, diags, _) = CompilationHelper.Compile(@"

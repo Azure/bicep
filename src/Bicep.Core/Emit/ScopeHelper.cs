@@ -23,6 +23,7 @@ namespace Bicep.Core.Emit
         /// <param name="SubscriptionIdProperty">Expression for the subscription ID or null.</param>
         /// <param name="ResourceGroupProperty">Expression for the resource group name or null.</param>
         /// <param name="ResourceScope">The symbol of the resource being extended or null.</param>
+        /// <param name="ResourceScopeNameSyntaxSegments">The name segments of the scoping resource. These may differ from the name segments of <see cref="ResourceScope" /> if any loop-local variables have been replaced.</param>
         /// <param name="IndexExpression">The expression for the loop index. This is used with loops when indexing into resource collections.</param>
         public record ScopeData(
             ResourceScope RequestedScope,
@@ -30,6 +31,7 @@ namespace Bicep.Core.Emit
             SyntaxBase? SubscriptionIdProperty = null,
             SyntaxBase? ResourceGroupProperty = null,
             DeclaredResourceMetadata? ResourceScope = null,
+            ImmutableArray<SyntaxBase>? ResourceScopeNameSyntaxSegments = null,
             SyntaxBase? IndexExpression = null);
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
@@ -250,12 +252,16 @@ namespace Bicep.Core.Emit
                         throw new InvalidOperationException("Cannot format resourceId with non-null resource scope symbol");
                     }
 
+                    var scopingResourceNameSegments = scopeData.ResourceScopeNameSyntaxSegments is {} segments
+                        ? converter.GetResourceNameSegments(resource, segments)
+                        : converter.GetResourceNameSegments(resource);
+
                     var parentResourceId = FormatFullyQualifiedResourceId(
                         context,
                         converter,
                         context.ResourceScopeData[resource],
                         resource.TypeReference.FormatType(),
-                        converter.GetResourceNameSegments(resource));
+                        scopingResourceNameSegments);
 
                     return ExpressionConverter.GenerateExtensionResourceId(
                         parentResourceId,
@@ -435,7 +441,7 @@ namespace Bicep.Core.Emit
                     // the immediate parent will have already been processed in this loop, so use its scope data (which has had index replacements applied) even
                     // though the scope was originally specified on the first ancestor
                     var immediateParent = ancestors.Last();
-                    var (_, parentManagementGroupName, parentSubscriptionId, parentResourceGroupName, _, _) = scopeInfo[immediateParent.Resource];
+                    var (_, parentManagementGroupName, parentSubscriptionId, parentResourceGroupName, parentResourceScope, parentResourceScopeNameSegments, parentIndexExpression) = scopeInfo[immediateParent.Resource];
                     scopeInfo[resource] = scopeInfo[immediateParent.Resource] with
                     {
                         ManagementGroupNameProperty = parentManagementGroupName is not null
@@ -446,6 +452,12 @@ namespace Bicep.Core.Emit
                             : null,
                         ResourceGroupProperty = parentResourceGroupName is not null
                             ? ExpressionBuilder.MoveSyntax(semanticModel, parentResourceGroupName, immediateParent.IndexExpression, resource.NameSyntax)
+                            : null,
+                        ResourceScopeNameSyntaxSegments = (parentResourceScopeNameSegments ?? (parentResourceScope is not null ? ExpressionBuilder.GetResourceNameSyntaxSegments(semanticModel, parentResourceScope) : null)) is {} syntaxSegments
+                            ? syntaxSegments.Select(segment => ExpressionBuilder.MoveSyntax(semanticModel, segment, immediateParent.IndexExpression, resource.NameSyntax)).ToImmutableArray()
+                            : null,
+                        IndexExpression = parentIndexExpression is not null
+                            ? ExpressionBuilder.MoveSyntax(semanticModel, parentIndexExpression, immediateParent.IndexExpression, resource.NameSyntax)
                             : null,
                     };
 
