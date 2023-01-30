@@ -91,7 +91,7 @@ describe("surveys-unittests", () => {
     expect(mocks.showInformationMessageMock).not.toHaveBeenCalled();
   });
 
-  it("doesn't promt if survey is not available", async () => {
+  it("doesn't prompt if survey is not available", async () => {
     const mocks = createMocks({
       isSurveyAvailable: false,
     });
