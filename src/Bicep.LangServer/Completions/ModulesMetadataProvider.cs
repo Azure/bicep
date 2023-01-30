@@ -15,7 +15,7 @@ namespace Bicep.LanguageServer.Providers
 {
     public record ModuleMetadata(string moduleName, List<string> tags, string readmeLink);
 
-    public class McrCompletionProvider : IMcrCompletionProvider
+    public class ModulesMetadataProvider : IModulesMetadataProvider
     {
         private List<ModuleMetadata> moduleMetadataCache = new List<ModuleMetadata>();
 

@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Completions
 {
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
-        private readonly IMcrCompletionProvider mcrCompletionProvider;
+        private readonly IModulesMetadataProvider modulesMetadataProvider;
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
 
         private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
@@ -38,9 +38,9 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        public ModuleReferenceCompletionProvider(IMcrCompletionProvider mcrCompletionProvider, IServiceClientCredentialsProvider serviceClientCredentialsProvider)
+        public ModuleReferenceCompletionProvider(IModulesMetadataProvider modulesMetadataProvider, IServiceClientCredentialsProvider serviceClientCredentialsProvider)
         {
-            this.mcrCompletionProvider = mcrCompletionProvider;
+            this.modulesMetadataProvider = modulesMetadataProvider;
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
         }
 
@@ -110,14 +110,14 @@ namespace Bicep.LanguageServer.Completions
                     var matches = McrPublicModuleRegistryAliasWithPath.Matches(entered);
                     var filePath = matches[0].Groups["filePath"].Value;
 
-                    return mcrCompletionProvider.GetTags(filePath);
+                    return modulesMetadataProvider.GetTags(filePath);
                 }
                 if (McrPublicModuleRegistryWithoutAliasWithPath.IsMatch(entered))
                 {
                     var matches = McrPublicModuleRegistryWithoutAliasWithPath.Matches(entered);
                     var filePath = matches[0].Groups["filePath"].Value;
 
-                    return mcrCompletionProvider.GetTags(filePath);
+                    return modulesMetadataProvider.GetTags(filePath);
                 }
             }
 
@@ -172,7 +172,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            return mcrCompletionProvider.GetModuleNames();
+            return modulesMetadataProvider.GetModuleNames();
         }
 
         private IEnumerable<CompletionItem> GetModuleRegistryAliasCompletions(BicepCompletionContext context)

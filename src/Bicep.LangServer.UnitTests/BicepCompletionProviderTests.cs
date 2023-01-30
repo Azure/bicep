@@ -36,6 +36,7 @@ namespace Bicep.LangServer.UnitTests
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddSingleton<BicepCompletionProvider>());
 

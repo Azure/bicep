@@ -16,20 +16,20 @@ using SharpYaml;
 namespace Bicep.LangServer.UnitTests.Completions
 {
     [TestClass]
-    public class McrCompletionProviderTests
+    public class ModulesMetadataProviderTests
     {
-        private static McrCompletionProvider mcrCompletionProvider = new McrCompletionProvider();
+        private static ModulesMetadataProvider modulesMetadataProvider = new ModulesMetadataProvider();
 
         [ClassInitialize]
         public static async Task ClassInitialize(TestContext testContext)
         {
-            await mcrCompletionProvider.Initialize();
+            await modulesMetadataProvider.Initialize();
         }
 
         [TestMethod]
         public void GetModuleNames_ShouldReturnAllModuleNames()
         {
-            List<CompletionItem> moduleNames = mcrCompletionProvider.GetModuleNames();
+            List<CompletionItem> moduleNames = modulesMetadataProvider.GetModuleNames();
 
             moduleNames.Should().NotBeEmpty();
             moduleNames.Should().Contain(x => x.Label == "app/dapr-containerapp");
@@ -43,7 +43,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         public void GetTags_WithInvalidModuleName_ShouldReturnEmptyList(string moduleName)
         {
-            List<CompletionItem> versions = mcrCompletionProvider.GetTags(moduleName);
+            List<CompletionItem> versions = modulesMetadataProvider.GetTags(moduleName);
 
             versions.Should().BeEmpty();
         }
@@ -51,7 +51,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [TestMethod]
         public void GetTags_WithValidModuleName_ShouldVersions()
         {
-            List<CompletionItem> versions = mcrCompletionProvider.GetTags("app/dapr-containerapp");
+            List<CompletionItem> versions = modulesMetadataProvider.GetTags("app/dapr-containerapp");
 
             versions.Should().NotBeEmpty();
             versions.Should().Contain(x => x.Label == "1.0.1");
