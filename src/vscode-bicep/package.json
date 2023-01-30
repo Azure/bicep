@@ -55,8 +55,7 @@
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
-  "enabledApiProposals": [
-  ],
+  "enabledApiProposals": [],
   "contributes": {
     "configurationDefaults": {
       "[bicep]": {
@@ -72,10 +71,15 @@
       "type": "object",
       "title": "Bicep",
       "properties": {
-        "bicep.decompileOnPaste": {
+        "bicep.experimental.decompileOnPaste": {
           "type": "boolean",
-          "description": "Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
+          "description": "(Experimental) NOTE: 'Enable Paste JSON as Bicep' must also be enabled. Automatically convert pasted JSON Azure templates or resources into Bicep (use Undo to revert)",
           "default": true
+        },
+        "bicep.experimental.enablePasteAsBicep": {
+          "type": "boolean",
+          "description": "(Experimental) Enable Paste JSON as Bicep",
+          "default": false
         },
         "bicep.enableOutputTimestamps": {
           "type": "boolean",
@@ -309,7 +313,7 @@
         },
         {
           "command": "bicep.pasteAsBicep",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && config.bicep.experimental.enablePasteAsBicep",
           "group": "9_cutcopypaste"
         },
         {
@@ -398,7 +402,7 @@
         },
         {
           "command": "bicep.pasteAsBicep",
-          "when": "resourceLangId == bicep",
+          "when": "resourceLangId == bicep && config.bicep.experimental.enablePasteAsBicep",
           "group": "9_cutcopypaste"
         },
         {
@@ -603,7 +607,7 @@
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.67.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.47.1",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.48.2",
     "@vscode/test-electron": "^2.2.1",
     "copy-webpack-plugin": "^11.0.0",
@@ -614,7 +618,7 @@
     "eslint-plugin-jest": "^27.1.7",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.0",
-    "fork-ts-checker-webpack-plugin": "^7.2.14",
+    "fork-ts-checker-webpack-plugin": "^7.3.0",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.1.1",
     "json-merger": "^1.1.9",
@@ -623,7 +627,7 @@
     "nerdbank-gitversioning": "^3.5.119",
     "prettier": "^2.8.3",
     "react-test-renderer": "^18.2.0",
-    "rimraf": "^4.1.1",
+    "rimraf": "^4.1.2",
     "semver": "^7.3.8",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.6",
