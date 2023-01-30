@@ -10,9 +10,10 @@ import {
   ISurveyInfo,
   Survey,
 } from "../../feedback/surveys";
-import { GlobalStateKeys } from "../../globalState";
+import { bicepConfigurationKeys } from "../../language/constants";
 import { daysToMs, monthsToDays, weeksToDays } from "../../utils/time";
 import { GlobalStateFake } from "../fakes/globalStateFake";
+import { WorkspaceConfigurationFake } from "../fakes/workspaceConfigurationFake";
 import { createActionContextMock } from "../mocks/actionContextMock";
 
 describe("surveys-unittests", () => {
@@ -42,6 +43,7 @@ describe("surveys-unittests", () => {
     const getIsSurveyAvailableMock =
       options.getIsSurveyAvailableMock ?? jest.fn();
     const launchSurveyMock = options.launchSurveyMock ?? jest.fn();
+    const workspaceConfigurationFake = new WorkspaceConfigurationFake();
 
     const survey = new Survey(globalStorageFake, surveyInfo, {
       showInformationMessage: showInformationMessageMock,
@@ -49,6 +51,7 @@ describe("surveys-unittests", () => {
         .fn()
         .mockImplementation(async () => options.isSurveyAvailable),
       launchSurvey: launchSurveyMock,
+      provideBicepConfiguration: () => workspaceConfigurationFake,
     });
 
     return {
@@ -56,6 +59,7 @@ describe("surveys-unittests", () => {
       survey,
       showInformationMessageMock,
       getIsSurveyAvailableMock,
+      workspaceConfigurationFake,
     };
   }
 
@@ -63,8 +67,10 @@ describe("surveys-unittests", () => {
     const mocks = createMocks({ isSurveyAvailable: true });
 
     expect(
-      mocks.globalStorageFake.get(GlobalStateKeys.neverShowSurveyKey)
-    ).toBeFalsy();
+      mocks.workspaceConfigurationFake.get<boolean>(
+        bicepConfigurationKeys.enableSurveys
+      )
+    ).toBeTruthy();
 
     // Show and respond with "Never"
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
@@ -74,8 +80,10 @@ describe("surveys-unittests", () => {
 
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
     expect(
-      mocks.globalStorageFake.get(GlobalStateKeys.neverShowSurveyKey)
-    ).toBeTruthy();
+      mocks.workspaceConfigurationFake.get<boolean>(
+        bicepConfigurationKeys.enableSurveys
+      )
+    ).toBeFalsy();
 
     // Try again, should not show
     mocks.showInformationMessageMock.mockClear();

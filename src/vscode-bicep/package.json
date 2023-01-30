@@ -95,6 +95,11 @@
             "type": "string"
           }
         },
+        "bicep.enableSurveys": {
+          "type": "boolean",
+          "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
+          "default": true
+        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [

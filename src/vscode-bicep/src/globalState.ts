@@ -4,7 +4,6 @@
 import { Memento } from "vscode";
 
 export enum GlobalStateKeys {
-  neverShowSurveyKey = "bicep.surveys.neverShowSurveys",
   annualSurveyStateKey = "bicep.surveys.annualSurveyState",
 }
 
@@ -21,8 +20,5 @@ export function setGlobalStateKeysToSyncBetweenMachines(
   globalState: GlobalState
 ) {
   // Any keys not in this list will remain separate for each local machine.
-  globalState.setKeysForSync([
-    GlobalStateKeys.neverShowSurveyKey,
-    GlobalStateKeys.annualSurveyStateKey,
-  ]);
+  globalState.setKeysForSync([GlobalStateKeys.annualSurveyStateKey]);
 }

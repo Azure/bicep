@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { commands, MessageItem, Uri, window } from "vscode";
+import {
+  commands,
+  ConfigurationTarget,
+  MessageItem,
+  Uri,
+  window,
+} from "vscode";
 import { parseError } from "@microsoft/vscode-azext-utils";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { callWithTelemetryAndErrorHandling } from "@microsoft/vscode-azext-utils";
@@ -10,6 +16,7 @@ import { GlobalState, GlobalStateKeys } from "../globalState";
 import https from "https";
 import { daysToMs, monthsToDays } from "../utils/time";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
+import { bicepConfigurationKeys } from "../language/constants";
 
 // ======================================================
 // DEBUGGING
@@ -118,10 +125,12 @@ export class Survey {
       showInformationMessage: typeof window.showInformationMessage;
       getIsSurveyAvailable: typeof Survey.getIsSurveyAvailable;
       launchSurvey: typeof Survey.launchSurvey;
+      provideBicepConfiguration: typeof getBicepConfiguration;
     } = {
         showInformationMessage: window.showInformationMessage,
         getIsSurveyAvailable: Survey.getIsSurveyAvailable,
         launchSurvey: Survey.launchSurvey,
+        provideBicepConfiguration: getBicepConfiguration,
       }
   ) {
     // noop
@@ -167,9 +176,10 @@ export class Survey {
     now: Date
   ): Promise<"ask" | "never" | "postponed" | "unavailable" | "alreadyTaken"> {
     {
-      const neverShowSurveys = this.getShouldNeverShowSurveys();
-      context.telemetry.properties.neverShowSurvey = String(neverShowSurveys);
-      if (neverShowSurveys) {
+      const areSurveysEnabled = this.areSurveysEnabled();
+      context.telemetry.properties.areSurveysEnabled =
+        String(areSurveysEnabled);
+      if (!areSurveysEnabled) {
         return "never";
       }
 
@@ -283,7 +293,7 @@ export class Survey {
     context.telemetry.properties.userResponse = String(response.title);
 
     if (response.title === neverAskAgain.title) {
-      await this.updateShouldNeverShowSurveys(context, true);
+      await this.disableSurveys();
     } else if (response.title === later.title) {
       await this.postponeSurvey(
         context,
@@ -379,32 +389,23 @@ export class Survey {
     }
   }
 
-  public getShouldNeverShowSurveys(): boolean {
-    return this.globalState.get<boolean>(
-      GlobalStateKeys.neverShowSurveyKey,
-      false
-    );
+  public areSurveysEnabled(): boolean {
+    return this.inject
+      .provideBicepConfiguration()
+      .get<boolean>(bicepConfigurationKeys.enableSurveys, true);
   }
 
-  private async updateShouldNeverShowSurveys(
-    context: IActionContext,
-    neverShowSurveys: boolean
-  ): Promise<void> {
-    const key = GlobalStateKeys.neverShowSurveyKey;
-    console.info(`Updating global state for ${key}:`, neverShowSurveys);
-
-    await this.globalState.update(key, neverShowSurveys);
+  private async disableSurveys(): Promise<void> {
+    return this.inject
+      .provideBicepConfiguration()
+      .update(
+        bicepConfigurationKeys.enableSurveys,
+        false,
+        ConfigurationTarget.Global
+      );
   }
 
   public async clearGlobalState(): Promise<void> {
-    console.info(
-      `Clearing global state for ${GlobalStateKeys.neverShowSurveyKey}`
-    );
-    await this.globalState.update(
-      GlobalStateKeys.neverShowSurveyKey,
-      undefined
-    );
-
     console.info(`Clearing global state for ${this.surveyInfo.surveyStateKey}`);
     await this.globalState.update(this.surveyInfo.surveyStateKey, undefined);
   }
