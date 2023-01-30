@@ -9,12 +9,28 @@ import assert from "assert";
 import { GlobalState, GlobalStateKeys } from "../globalState";
 import https from "https";
 import { daysToMs, monthsToDays } from "../utils/time";
+import { getBicepConfiguration } from "../language/getBicepConfiguration";
+
+// ======================================================
+// DEBUGGING
+//
+// To debug surveys, set the following in your settings.json:
+//   "bicep.debug.surveys.now": "2023-10-01 PDT" // or whatever date you want to pretend the current date/time is
+//                                               //   (assumes GMT if you don't specify a time zone)
+//   "bicep.debug.surveys.link:<old link>": "<new link>" // Use a different link for a survey
+//       // e.g., "bicep.debug.surveys.link:bicep/surveys/annual": "bicep/surveys/testLink"
+//
+// To reset global state for surveys, add this:
+//   "bicep.debug.surveys.clearState": true
+// The global state will be cleared the next time the extension is activated (i.e., do a reload)
+// You'll need to manually set it back to false if you don't want it to keep clearing on each startup
+// ======================================================
 
 // Annual HaTS survey
 const hatsAnnualSurveyInfo: ISurveyInfo = {
   akaLinkToSurvey: "bicep/surveys/annual",
   // Enough to be sure we don't ask again before the next survey, but still have flexibility about sending out the next
-  //   survey earlier in the year if we want to.
+  //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt:
     "Could you please take 2 minutes to tell us how well Bicep is working for you?",
@@ -22,16 +38,56 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
 
+const debugClearStateKey = "debug.surveys.clearState";
+const debugNowDateKey = "debug.surveys.now";
+const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
+
 export function showSurveys(globalState: GlobalState): void {
-  checkShowSurvey(new Survey(globalState, hatsAnnualSurveyInfo));
+  checkShowSurvey(globalState, hatsAnnualSurveyInfo);
 }
 
-export function checkShowSurvey(survey: Survey): void {
+export function checkShowSurvey(
+  globalState: GlobalState,
+  surveyInfo: ISurveyInfo
+): void {
   // Don't wait
   callWithTelemetryAndErrorHandling(
     "survey",
     async (context: IActionContext) => {
-      await survey.checkShowSurvey(context, new Date());
+      let now = new Date();
+
+      // Check debugging settings
+      const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
+      if (debugNowDate) {
+        now = new Date(debugNowDate);
+        assert.ok(
+          !isNaN(now.valueOf()),
+          `Invalid value for ${debugNowDateKey}`
+        );
+        console.warn(
+          `Debugging surveys: Pretending now is ${now.toLocaleString()}`
+        );
+        context.telemetry.properties.debugNowDate = debugNowDate;
+        context.telemetry.suppressAll = true;
+      }
+
+      const debugTestLink = getBicepConfiguration().get<string>(
+        debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey
+      );
+      if (debugTestLink) {
+        console.warn(
+          `Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`
+        );
+        surveyInfo.akaLinkToSurvey = debugTestLink;
+      }
+
+      const survey = new Survey(globalState, surveyInfo);
+
+      if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
+        await survey.clearGlobalState();
+      }
+
+      await survey.checkShowSurvey(context, now);
     }
   );
 }
@@ -84,17 +140,21 @@ export class Survey {
 
     const surveyState = this.getPersistedSurveyState(context, now);
 
-    const shouldShowSurvey = await this.shouldAskToTakeSurvey(
+    const shouldAsk = await this.shouldAskToTakeSurvey(
       context,
       surveyState,
       now
     );
+    context.telemetry.properties.shouldAsk = shouldAsk;
+    console.info(
+      `Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`
+    );
 
-    if (shouldShowSurvey) {
+    if (shouldAsk === "ask") {
       await this.askToTakeSurvey(context, surveyState, now);
     }
 
-    await this.updatePersistedSurveyState(context, surveyState);
+    await this.updatePersistedSurveyState(surveyState);
   }
 
   private static getFullSurveyLink(akaLink: string): string {
@@ -105,13 +165,12 @@ export class Survey {
     context: IActionContext,
     state: ISurveyState,
     now: Date
-  ): Promise<boolean> {
+  ): Promise<"ask" | "never" | "postponed" | "unavailable" | "alreadyTaken"> {
     {
       const neverShowSurveys = this.getShouldNeverShowSurveys();
       context.telemetry.properties.neverShowSurvey = String(neverShowSurveys);
       if (neverShowSurveys) {
-        context.telemetry.properties.shouldAsk = "never";
-        return false;
+        return "never";
       }
 
       context.telemetry.properties.lastTaken = state.lastTaken?.toUTCString();
@@ -122,8 +181,7 @@ export class Survey {
         state.postponedUntil &&
         state.postponedUntil.valueOf() > now.valueOf()
       ) {
-        context.telemetry.properties.shouldAsk = "postponed";
-        return false;
+        return "postponed";
       }
 
       if (state.lastTaken) {
@@ -131,8 +189,7 @@ export class Survey {
           state.lastTaken.valueOf() +
           daysToMs(this.surveyInfo.postponeAfterTakenInDays);
         if (okayToAskAgainMs > now.valueOf()) {
-          context.telemetry.properties.shouldAsk = "alreadyTaken";
-          return false;
+          return "alreadyTaken";
         }
       }
 
@@ -143,12 +200,10 @@ export class Survey {
       context.telemetry.properties.isAvailable = String(isAvailable);
       if (!isAvailable) {
         // Try again next time
-        context.telemetry.properties.shouldAsk = "unavailable";
-        return false;
+        return "unavailable";
       }
 
-      context.telemetry.properties.shouldAsk = "true";
-      return true;
+      return "ask";
     }
   }
 
@@ -156,9 +211,12 @@ export class Survey {
     context: IActionContext,
     now: Date
   ): ISurveyState {
+    let retrievedState: ISurveyState;
+    const key = this.surveyInfo.surveyStateKey;
+
     try {
       const persistedState = this.globalState.get<IPersistedSurveyState>(
-        this.surveyInfo.surveyStateKey,
+        key,
         {}
       );
 
@@ -181,26 +239,27 @@ export class Survey {
         throw new Error("Persisted survey state is invalid");
       }
 
-      return state;
+      retrievedState = state;
     } catch (err) {
       context.telemetry.properties.depersistStateError =
         parseError(err).message;
-      return {};
+      retrievedState = {};
     }
+
+    console.info(`Retrieved global state for ${key}:`, retrievedState);
+    return retrievedState;
   }
 
-  private async updatePersistedSurveyState(
-    context: IActionContext,
-    state: ISurveyState
-  ): Promise<void> {
+  private async updatePersistedSurveyState(state: ISurveyState): Promise<void> {
+    const key = this.surveyInfo.surveyStateKey;
+    console.info(`Updating global state for ${key}:`, state);
+
     const persistedState: IPersistedSurveyState = {
       lastTakenMs: state.lastTaken?.valueOf(),
       postponedUntilMs: state.postponedUntil?.valueOf(),
     };
-    await this.globalState.update(
-      this.surveyInfo.surveyStateKey,
-      persistedState
-    );
+
+    await this.globalState.update(key, persistedState);
   }
 
   // TODO: If the user never responds, the telemetry event isn't sent - can fix this with a different event
@@ -234,6 +293,7 @@ export class Survey {
       );
     } else if (response.title === yes.title) {
       state.lastTaken = now;
+      state.postponedUntil = undefined;
       await this.inject.launchSurvey(context, this.surveyInfo);
     } else {
       // Try again next time
@@ -266,7 +326,7 @@ export class Survey {
     now: Date,
     days: number
   ): Promise<void> {
-    assert(days > 0);
+    assert(days > 0, "postponeSurvey: days must be positive");
 
     let newDateMs = now.valueOf() + daysToMs(days);
     if (state.postponedUntil) {
@@ -330,9 +390,22 @@ export class Survey {
     context: IActionContext,
     neverShowSurveys: boolean
   ): Promise<void> {
+    const key = GlobalStateKeys.neverShowSurveyKey;
+    console.info(`Updating global state for ${key}:`, neverShowSurveys);
+
+    await this.globalState.update(key, neverShowSurveys);
+  }
+
+  public async clearGlobalState(): Promise<void> {
+    console.info(
+      `Clearing global state for ${GlobalStateKeys.neverShowSurveyKey}`
+    );
     await this.globalState.update(
       GlobalStateKeys.neverShowSurveyKey,
-      neverShowSurveys
+      undefined
     );
+
+    console.info(`Clearing global state for ${this.surveyInfo.surveyStateKey}`);
+    await this.globalState.update(this.surveyInfo.surveyStateKey, undefined);
   }
 }

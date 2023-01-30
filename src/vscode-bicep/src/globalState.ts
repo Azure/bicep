@@ -4,8 +4,8 @@
 import { Memento } from "vscode";
 
 export enum GlobalStateKeys {
-  neverShowSurveyKey = "bicep.neverShowSurveys",
-  annualSurveyStateKey = "bicep.annualSurveyState",
+  neverShowSurveyKey = "bicep.surveys.neverShowSurveys",
+  annualSurveyStateKey = "bicep.surveys.annualSurveyState",
 }
 
 export const globalStateKeys = {};

@@ -63,7 +63,7 @@ describe("surveys-unittests", () => {
     const mocks = createMocks({ isSurveyAvailable: true });
 
     expect(
-      mocks.globalStorageFake.get("GlobalStateKeys.neverShowSurveyKey")
+      mocks.globalStorageFake.get(GlobalStateKeys.neverShowSurveyKey)
     ).toBeFalsy();
 
     // Show and respond with "Never"
@@ -137,8 +137,8 @@ describe("surveys-unittests", () => {
         ?.lastTakenMs
     ).toBe(now.valueOf());
 
-    // Try again, a day before the postponement date
-    now = new Date(start.valueOf() + daysToMs(postponeAfterYes - 1));
+    // Try again, right before the postponement date
+    now = new Date(start.valueOf() + daysToMs(postponeAfterYes) - 1);
     mocks.showInformationMessageMock.mockReset();
     context = createActionContextMock();
     await mocks.survey.checkShowSurvey(context, now);
@@ -147,7 +147,13 @@ describe("surveys-unittests", () => {
     expect(mocks.showInformationMessageMock).not.toHaveBeenCalled();
     expect(context.telemetry.properties.shouldAsk).toBe("alreadyTaken");
 
-    // Try again, a day after the postponement date
+    // Try again, on the postponement date
+    now = new Date(start.valueOf() + daysToMs(postponeAfterYes));
+    mocks.showInformationMessageMock.mockReset();
+    context = createActionContextMock();
+    await mocks.survey.checkShowSurvey(context, now);
+
+    // Try again, the day after the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeAfterYes + 1));
     mocks.showInformationMessageMock.mockReset();
     context = createActionContextMock();
