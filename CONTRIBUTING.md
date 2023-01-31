@@ -87,7 +87,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 * On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep VSCode extension with the following:
   * `cd src/vscode-bicep`
   * `npm i`
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net6.0`.
+* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net7.0`.
 * If you want the ability to set breakpoints and step through the C# code, you can also use the "Attach" run configuration once the extension host has launched, and select the Bicep LanguageServer process by searching for "dotnet" processes with a command line containing "...\Bicep.LangServer.dll --pipe=..." (Windows) or "vscode-*.sock" (MacOs).
 
 ### Running the Bicep CLI

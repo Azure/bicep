@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/release/net6.0/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/release/net7.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
       
       - name: Upload Bicep project assets file
@@ -110,7 +110,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Bicep.LangServer
-          path: ./src/Bicep.LangServer/bin/release/net6.0/publish/*
+          path: ./src/Bicep.LangServer/bin/release/net7.0/publish/*
           if-no-files-found: error
       
       # needed to generate notice file
@@ -332,7 +332,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net6.0/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net7.0/bicep-setup-win-x64.exe
           if-no-files-found: error
 
   build-cli-nugets:

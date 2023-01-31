@@ -9,6 +9,11 @@
     <!-- enable custom targets to generate a NOTICE file and embed it as a resource -->
     <AddNoticeAsEmbeddedResource>true</AddNoticeAsEmbeddedResource>
     <AddLicenseAsEmbeddedResource>true</AddLicenseAsEmbeddedResource>
+
+    <!-- enable trimmer warnings for Bicep CLI and projects it references -->
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <!-- restore pre-.net7 trim behavior https://learn.microsoft.com/en-us/dotnet/core/compatibility/deployment/7.0/trim-all-assemblies -->
+    <TrimMode>partial</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>
