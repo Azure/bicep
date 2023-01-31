@@ -70,7 +70,7 @@ describe("surveys-unittests", () => {
       mocks.workspaceConfigurationFake.get<boolean>(
         bicepConfigurationKeys.enableSurveys
       )
-    ).toBeTruthy();
+    ).toBeUndefined();
 
     // Show and respond with "Never"
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
@@ -83,7 +83,7 @@ describe("surveys-unittests", () => {
       mocks.workspaceConfigurationFake.get<boolean>(
         bicepConfigurationKeys.enableSurveys
       )
-    ).toBeFalsy();
+    ).toBe(false);
 
     // Try again, should not show
     mocks.showInformationMessageMock.mockClear();
