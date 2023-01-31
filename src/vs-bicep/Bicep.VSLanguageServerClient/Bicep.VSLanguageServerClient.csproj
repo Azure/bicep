@@ -15,6 +15,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="16.3.43" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.6" />
+
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />
   </ItemGroup>
 
 </Project>

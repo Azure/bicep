@@ -26,6 +26,8 @@
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+
+		<PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" />
 	</ItemGroup>
 
 	<ItemGroup>
