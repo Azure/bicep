@@ -988,6 +988,15 @@ namespace Bicep.Core.TypeSystem
 
         private static ITypeReference GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
         {
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            {
+                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
+                // unlikely to hit this given that we've established that the tuple has a item at the given position
+                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long otherwise => baseType.Items[(int) otherwise].Type,
+            };
+
             switch (baseType)
             {
                 case TypeSymbol when TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType:
@@ -1012,6 +1021,22 @@ namespace Bicep.Core.TypeSystem
 
                     // index was of the wrong type
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+
+                case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
+                    return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression);
+
+                case TupleType baseTuple when indexType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
+                    var possibilities = indexUnion.Members.Select(t => t.Type)
+                        .OfType<IntegerLiteralType>()
+                        .Select(index => GetTypeAtIndex(baseTuple, index, syntax.IndexExpression))
+                        .ToImmutableArray();
+
+                    if (possibilities.OfType<ErrorType>().Any())
+                    {
+                        return ErrorType.Create(possibilities.SelectMany(p => p.GetDiagnostics()));
+                    }
+
+                    return TypeHelper.CreateTypeUnion(possibilities);
 
                 case ArrayType baseArray:
                     // we are indexing over an array
