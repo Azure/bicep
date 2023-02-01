@@ -165,7 +165,7 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void GetDocumentationUri_WithMcrModuleReference_WithNoDocumentationUriInManifestFile_ShouldReturnReadmeLink()
+        public void GetDocumentationUri_WithMcrModuleReferenceAndNoDocumentationUriInManifestFile_ShouldReturnReadmeLink()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
