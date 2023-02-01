@@ -35,7 +35,7 @@ using IOFileSystem = System.IO.Abstractions.FileSystem;
 namespace Bicep.LangServer.UnitTests
 {
     [TestClass]
-    public class BicepCompilationManagerTests
+    public class BicepCompilationManagerTests //asdfg
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
@@ -851,6 +851,112 @@ param location string = 'testLocation'";
             telemetryEvent.Should().NotBeNull();
             telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
             telemetryEvent.Properties.Should().Contain(properties);
+        }
+
+        [TestMethod]
+        public void UpsertCompilation_BicepFile_ShouldUpsertSuccessfully_asdfg()
+        {
+            PublishDiagnosticsParams? receivedParams = null;
+
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+            var uri = CreateUri(LanguageConstants.LanguageId); //asdfg
+            var workspace = new Workspace();
+
+            /*
+             *             
+             *             
+             *             
+             *             
+
+
+            module.bicep:
+            this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+
+            // first contents added:
+
+            // we have full sync enabled, so apparently first change is the whole document
+            var contents = request.ContentChanges.First().Text;
+            var documentUri = request.TextDocument.Uri;
+            this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
+
+            save main.bicep:
+
+            (blank contents)
+            this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+
+            then contents:
+            this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
+
+            then contents again
+            this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
+
+            request code action:
+            	request	{CodeActionParams { TextDocument = file:///Users/stephenweatherford/repos/ghi/main.bicep, Range = [start: (0, 0), end: (0, 0)], Context = CodeActionContext { Diagnostics = OmniSharp.Extensions.LanguageServer.Protocol.Models.Container`1[OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic], Only =  }, WorkDoneToken = , PartialResultToken =  }}	
+
+                var compilationContext = this.compilationManager.GetCompilation(documentUri);
+
+            then BicepDidChangeWatchedFilesHandler reports file changed
+                - ignored since they're open
+
+
+
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
+
+            var originalFile = SourceFileFactory.CreateArmTemplateFile(uri, "{}");
+            var workspace = new Workspace();
+            workspace.UpsertSourceFile(originalFile);
+
+
+            this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+
+
+
+              public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
+        {
+            // we have full sync enabled, so apparently first change is the whole document
+            var contents = request.ContentChanges.First().Text;
+
+            var documentUri = request.TextDocument.Uri;
+
+            this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
+
+
+
+            */
+
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, BicepCompilationManagerHelper.CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
+
+            // first get should not return anything
+            manager.GetCompilation(uri).Should().BeNull();
+
+            // upsert the compilation
+            manager.OpenCompilation(uri, BaseVersion, "param p string", LanguageConstants.LanguageId);
+            var upserted = manager.GetCompilation(uri);
+
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+
+            // there should have been 1 diagnostic
+            receivedParams.Should().NotBeNull();
+            receivedParams!.Uri.Should().Be(uri);
+            receivedParams.Version.Should().Be(BaseVersion);
+            receivedParams.Diagnostics.Should().NotBeNullOrEmpty();
+            receivedParams.Diagnostics.Count().Should().Be(string.Equals(LanguageConstants.LanguageId, LanguageConstants.ParamsLanguageId, StringComparison.Ordinal) ? 2 : 1);
+
+            // reset tracked calls
+            document.Invocations.Clear();
+
+            // get again
+            var actual = manager.GetCompilation(uri);
+            actual.Should().NotBeNull();
+
+            // should be the same object
+            actual.Should().BeSameAs(upserted);
+
+            // get should not have pushed diagnostics
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
         private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)

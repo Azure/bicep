@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -45,6 +46,9 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
+            //Trace.WriteLine($"{nameof(Handle)} hover: {request.ToString()}");
+            //Trace.WriteLine($"{nameof(Handle)} hover: {request.TextDocument.Uri}");
+
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null)
             {

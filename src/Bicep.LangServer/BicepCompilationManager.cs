@@ -167,7 +167,7 @@ namespace Bicep.LanguageServer
             CloseCompilationInternal(documentUri, 0, Enumerable.Empty<Diagnostic>());
         }
 
-        public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
+        public void HandleFileChanges(IEnumerable<FileEvent> fileEvents) //asdfg
         {
             var removedFiles = new HashSet<ISourceFile>();
             foreach (var change in fileEvents.Where(x => x.Type == FileChangeType.Changed || x.Type == FileChangeType.Deleted))

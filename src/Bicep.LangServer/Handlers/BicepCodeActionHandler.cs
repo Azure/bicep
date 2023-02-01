@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,6 +52,9 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
+            //Trace.WriteLine($"{nameof(Handle)} codeactions: {request.ToString()}");
+            //Trace.WriteLine($"{nameof(Handle)} codeactions: {request.TextDocument.Uri}");
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var documentUri = request.TextDocument.Uri;
