@@ -4238,5 +4238,22 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 
             CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/issues/9713
+        [TestMethod]
+        public void Test_9713()
+        {
+            var result = CompilationHelper.Compile(@"
+@allowed([
+  ['blob', 'file']
+  ['blob', 'file', 'table', 'queue']
+])
+param storageServices array = ['blob', 'file']
+
+output storageService string = storageServices[0]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }

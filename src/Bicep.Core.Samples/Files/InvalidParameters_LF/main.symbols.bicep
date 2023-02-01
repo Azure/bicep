@@ -350,7 +350,7 @@ param invalidPermutation array = [
 	]
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
-//@[06:045) Parameter invalidDefaultWithAllowedArrayDecorator. Type: (['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts'])[]. Declaration start char: 0, length: 245
+//@[06:045) Parameter invalidDefaultWithAllowedArrayDecorator. Type: ['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']. Declaration start char: 0, length: 245
 
 // unterminated multi-line comment
 /*    
