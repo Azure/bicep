@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public static OciArtifactModuleReference GetModuleReferenceAndSaveManifestFile(
             TestContext testContext,
-            string registory,
+            string registry,
             string repository,
             string manifestFileContents,
             string testOutputPath,
@@ -24,11 +24,11 @@ namespace Bicep.Core.UnitTests.Utils
 
             if (digest is not null)
             {
-                manifestFilePath = Path.Combine(testOutputPath, "br", registory, repository.Replace("/", "$"), digest.Replace(":", "#"));
+                manifestFilePath = Path.Combine(testOutputPath, "br", registry, repository.Replace("/", "$"), digest.Replace(":", "#"));
             }
             else if (tag is not null)
             {
-                manifestFilePath = Path.Combine(testOutputPath, "br", registory, repository.Replace("/", "$"), tag + "$");
+                manifestFilePath = Path.Combine(testOutputPath, "br", registry, repository.Replace("/", "$"), tag + "$");
             }
 
             if (!string.IsNullOrWhiteSpace(manifestFilePath))
@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Utils
                 FileHelper.SaveResultFile(testContext, "manifest", manifestFileContents, manifestFilePath);
             }
 
-            return new OciArtifactModuleReference(registory, repository, tag, digest, parentModuleUri);
+            return new OciArtifactModuleReference(registry, repository, tag, digest, parentModuleUri);
         }
     }
 }

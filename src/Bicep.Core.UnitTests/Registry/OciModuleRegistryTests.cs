@@ -201,13 +201,13 @@ namespace Bicep.Core.UnitTests.Registry
                 bicepFileContents,
                 manifestFileContents,
                 "mcr.microsoft.com",
-                "bicep/app/dapr-containerapps-environment",
+                "bicep/app/dapr-containerapps-environment/bicep/core",
                 tag: "1.0.1");
 
             var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.1/modules/app/dapr-containerapps-environment/README.md");
+            result.Should().BeEquivalentTo("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/bicep/core/1.0.1/modules/app/dapr-containerapps-environment/bicep/core/README.md");
         }
 
         private (OciModuleRegistry, OciArtifactModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(

@@ -107,12 +107,10 @@ namespace Bicep.Core.Registry
             if (!ociAnnotations.Any() || (ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri) &&
                 string.IsNullOrWhiteSpace(documentationUri)))
             {
-                if (ociArtifactModuleReference.Registry == "mcr.microsoft.com")
+                if (ociArtifactModuleReference.Registry == LanguageConstants.McrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix))
                 {
-                    var tag = ociArtifactModuleReference.Tag;
-                    var repository = Regex.Replace(ociArtifactModuleReference.Repository, "bicep/", string.Empty);
-
-                    return $"https://github.com/Azure/bicep-registry-modules/tree/{repository}/{tag}/modules/{repository}/README.md";
+                    var repository = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
+                    return $"https://github.com/Azure/bicep-registry-modules/tree/{repository}/{ociArtifactModuleReference.Tag}/modules/{repository}/README.md";
                 }
 
                 return null;
