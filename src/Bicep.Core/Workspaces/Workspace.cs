@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Core.Workspaces
 {
@@ -20,7 +21,7 @@ namespace Bicep.Core.Workspaces
 
         public IEnumerable<ISourceFile> GetSourceFilesForDirectory(Uri fileUri)
             => activeFiles
-                .Where(kvp => fileUri.IsBaseOf(kvp.Key))
+                .Where(kvp => PathHelper.IsSubPathOf(fileUri, kvp.Key))
                 .Select(kvp => kvp.Value);
 
         public ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri()
