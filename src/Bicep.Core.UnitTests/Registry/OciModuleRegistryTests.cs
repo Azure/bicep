@@ -223,7 +223,8 @@ namespace Bicep.Core.UnitTests.Registry
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
 
-            var ociArtifactModuleReference = GetModuleReferenceAndSaveManifestFile(
+            var ociArtifactModuleReference = OciArtifactModuleReferenceHelper.GetModuleReferenceAndSaveManifestFile(
+                TestContext,
                 registory,
                 repository,
                 manifestFileContents,
@@ -252,22 +253,6 @@ namespace Bicep.Core.UnitTests.Registry
             }
 
             return features.Object;
-        }
-
-        private OciArtifactModuleReference GetModuleReferenceAndSaveManifestFile(string registory, string repository, string manifestFileContents, string testOutputPath, Uri parentModuleUri, string? digest = null, string? tag = null)
-        {
-            if (digest is not null)
-            {
-                var manifestFilePath = Path.Combine(testOutputPath, "br", registory, repository.Replace("/", "$"), digest.Replace(":", "#"));
-                FileHelper.SaveResultFile(TestContext, "manifest", manifestFileContents, manifestFilePath);
-            }
-            else if (tag is not null)
-            {
-                var manifestFilePath = Path.Combine(testOutputPath, "br", registory, repository.Replace("/", "$"), tag + '$');
-                FileHelper.SaveResultFile(TestContext, "manifest", manifestFileContents, manifestFilePath);
-            }
-
-            return new OciArtifactModuleReference(registory, repository, tag, digest, parentModuleUri);
         }
     }
 }
