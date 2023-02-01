@@ -41,7 +41,7 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt:
     "Could you please take 2 minutes to tell us how well Bicep is working for you?",
-  postponeForLaterInDays: 1 * 7,
+  postponeForLaterInDays: 2 * 7,
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
 
