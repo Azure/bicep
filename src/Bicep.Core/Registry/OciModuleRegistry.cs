@@ -110,9 +110,9 @@ namespace Bicep.Core.Registry
                 if (ociArtifactModuleReference.Registry == "mcr.microsoft.com")
                 {
                     var tag = ociArtifactModuleReference.Tag;
-                    var artifact = Regex.Replace(ociArtifactModuleReference.Repository, "bicep/", string.Empty);
+                    var repository = Regex.Replace(ociArtifactModuleReference.Repository, "bicep/", string.Empty);
 
-                    return $"https://github.com/Azure/bicep-registry-modules/tree/{artifact}/{tag}/modules/{artifact}/README.md";
+                    return $"https://github.com/Azure/bicep-registry-modules/tree/{repository}/{tag}/modules/{repository}/README.md";
                 }
 
                 return null;

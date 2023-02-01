@@ -127,7 +127,7 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void GetDocumentationUri_WithValiddocumentationUriInManifestFile_ShouldDocumentationUri()
+        public void GetDocumentationUri_WithValidDocumentationUriInManifestFile_ShouldReturnDocumentationUri()
         {
             var documentationUri = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
             var manifestFileContents = @"{
@@ -165,7 +165,7 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void GetDocumentationUri_WithMcrModuleReferenceAndNoDocumentationUriInManifestFile_ShouldReturnReadmeLink()
+        public void GetDocumentationUri_WithMcrModuleReferenceAndNoDocumentationUriInManifestFile_ShouldReturnDocumentationUriThatPointsToReadmeLink()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
