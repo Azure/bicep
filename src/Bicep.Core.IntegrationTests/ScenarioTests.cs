@@ -4212,31 +4212,32 @@ output sql resource = sql
         public void Test_9653()
         {
             var templateWithNullablyTypedName = @"
-param input string
+param input (null | 'foo')[]
 
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))
+  name: input[0]
 }
 ";
             var templateWithNonNullAssertion = @"
-param input string
+param input (null | 'foo')[]
 
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))!
+  name: input[0]!
 }
 ";
 
-            var result = CompilationHelper.Compile(templateWithNullablyTypedName);
+            var services = Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true));
+            var result = CompilationHelper.Compile(services, templateWithNullablyTypedName);
             result.Template.Should().NotBeNull();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
+                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""'foo' | null""."),
             });
 
             result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
             result.ExcludingLinterDiagnostics().Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullablyTypedName, templateWithNonNullAssertion);
 
-            CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            CompilationHelper.Compile(services, templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }
