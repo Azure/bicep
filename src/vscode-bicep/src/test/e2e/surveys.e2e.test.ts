@@ -16,7 +16,7 @@ describe("surveys-e2etests", () => {
       );
 
       expect(isAvailable).toBeTruthy();
-      expect(context.telemetry.properties.linkStatus).toBe("available");
+      expect(context.telemetry.properties.surveyLinkStatus).toBe("available");
     });
 
     it("inactive aka survey link", async () => {
@@ -29,7 +29,7 @@ describe("surveys-e2etests", () => {
       );
 
       expect(isAvailable).toBeFalsy();
-      expect(context.telemetry.properties.linkStatus).toBe("unavailable");
+      expect(context.telemetry.properties.surveyLinkStatus).toBe("unavailable");
     });
 
     it("invalid aka link (indicating there's no survey link)", async () => {
@@ -41,7 +41,7 @@ describe("surveys-e2etests", () => {
       );
 
       expect(isAvailable).toBeFalsy();
-      expect(context.telemetry.properties.linkStatus).toBe("unavailable");
+      expect(context.telemetry.properties.surveyLinkStatus).toBe("unavailable");
     });
 
     it("host not found (or Internet not available)", async () => {
@@ -54,7 +54,7 @@ describe("surveys-e2etests", () => {
       );
 
       expect(isAvailable).toBeFalsy();
-      expect(context.telemetry.properties.linkStatus).toBe("ENOTFOUND");
+      expect(context.telemetry.properties.surveyLinkStatus).toBe("ENOTFOUND");
     });
 
     // eslint-disable-next-line jest/prefer-lowercase-title
@@ -67,7 +67,7 @@ describe("surveys-e2etests", () => {
       );
 
       expect(isAvailable).toBeFalsy();
-      expect(context.telemetry.properties.linkStatus).toBe(
+      expect(context.telemetry.properties.surveyLinkStatus).toBe(
         "ERR_INVALID_PROTOCOL"
       );
     });
@@ -81,7 +81,7 @@ describe("surveys-e2etests", () => {
       );
 
       expect(isAvailable).toBeFalsy();
-      expect(context.telemetry.properties.linkStatus).toBe("200");
+      expect(context.telemetry.properties.surveyLinkStatus).toBe("200");
     });
   });
 });

@@ -385,7 +385,7 @@ export class Survey {
       linkStatus = parseError(err).errorType;
       return false;
     } finally {
-      context.telemetry.properties.linkStatus = linkStatus;
+      context.telemetry.properties.surveyLinkStatus = linkStatus;
     }
   }
 
