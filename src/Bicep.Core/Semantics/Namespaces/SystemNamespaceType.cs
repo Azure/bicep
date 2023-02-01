@@ -282,10 +282,11 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("first")
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    return new(argumentTypes[0] switch 
+                    return new(argumentTypes[0] switch
                     {
                         TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
-                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                        // TODO update this next branch to only match when arrayType.minLength >= 1 (once types carry constraint data)
+                        ArrayType arrayType => arrayType.Item.Type,
                         _ => LanguageConstants.Any
                     });
                 }, LanguageConstants.Any)
@@ -304,10 +305,11 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("last")
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    return new(argumentTypes[0] switch 
+                    return new(argumentTypes[0] switch
                     {
                         TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
-                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                        // TODO update this next branch to only match when arrayType.minLength >= 1 (once types carry constraint data)
+                        ArrayType arrayType => arrayType.Item.Type,
                         _ => LanguageConstants.Any
                     });
                 }, LanguageConstants.Any)
