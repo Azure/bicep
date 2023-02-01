@@ -1469,10 +1469,20 @@ namespace Bicep.Core.TypeSystem
             FunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             IList<ErrorDiagnostic> errors,
+            IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
+                syntax,
+                // Recover argument type errors so we can continue type checking for the parent function call.
+                GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray(),
+                errors,
+                diagnosticWriter);
+
+        private TypeSymbol GetFunctionSymbolType(
+            FunctionSymbol function,
+            FunctionCallSyntaxBase syntax,
+            ImmutableArray<TypeSymbol> argumentTypes,
+            IList<ErrorDiagnostic> errors,
             IDiagnosticWriter diagnosticWriter)
         {
-            // Recover argument type errors so we can continue type checking for the parent function call.
-            var argumentTypes = this.GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray();
             var matches = FunctionResolver.GetMatches(
                 function,
                 argumentTypes,
@@ -1483,6 +1493,32 @@ namespace Bicep.Core.TypeSystem
             {
                 if (typeMismatches.Any())
                 {
+                    // if the type mismatch is because a nullably-typed argument was supplied for a non-nullable value, try again with a non-nullable arg type
+                    foreach (var tm in typeMismatches)
+                    {
+                        if (TypeHelper.TryRemoveNullability(tm.ArgumentType) is {} nonNullableArgType && TypeValidator.AreTypesAssignable(nonNullableArgType, tm.ParameterType))
+                        {
+                            // at least one of our type mismatches is purely due to nullability. Recur, passing in a non-nullable version of the arg type.
+                            // If *multiple* type mismatches are due to nullability, this function will recur for each mismatch, with each invocation supplying
+                            // a diagnostic. Only the last invocation will generate a return type.
+                            var resultSansNullability = GetFunctionSymbolType(function,
+                                syntax,
+                                Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i]).ToImmutableArray(),
+                                errors,
+                                diagnosticWriter);
+
+                            // if we couldn't find a match even after tweaking argument nullability, don't add any nullability warnings
+                            if (resultSansNullability is ErrorType error)
+                            {
+                                return error;
+                            }
+
+                            var offendingArgSyntax = syntax.Arguments[tm.ArgumentIndex];
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(offendingArgSyntax).PossibleNullReferenceAssignment(tm.ParameterType, tm.ArgumentType, offendingArgSyntax));
+                            return resultSansNullability;
+                        }
+                    }
+
                     if (typeMismatches.Count > 1 && typeMismatches.Skip(1).All(tm => tm.ArgumentIndex == typeMismatches[0].ArgumentIndex))
                     {
                         // All type mismatches are equally good (or bad).
