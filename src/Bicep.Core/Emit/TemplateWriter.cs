@@ -407,13 +407,12 @@ namespace Bicep.Core.Emit
         private ObjectExpression GetTypePropertiesForTupleType(TupleTypeSyntax syntax) => ExpressionFactory.CreateObject(new[]
         {
             TypeProperty(LanguageConstants.ArrayType),
-            // TODO uncomment the lines below when ARM w46 has finished rolling out
-            // SyntaxFactory.CreateObjectProperty("prefixItems",
-            //     SyntaxFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
-            //         item,
-            //         TypePropertiesForTypeExpression(item.Value),
-            //         Context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
-            // SyntaxFactory.CreateObjectProperty("items", SyntaxFactory.CreateBooleanLiteral(false)),
+            ExpressionFactory.CreateObjectProperty("prefixItems",
+                ExpressionFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
+                    item,
+                    TypePropertiesForTypeExpression(item.Value),
+                    Context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
+            ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false)),
         });
 
         private ObjectExpression GetTypePropertiesForStringSyntax(StringSyntax syntax) => ExpressionFactory.CreateObject(new[]
@@ -518,7 +517,7 @@ namespace Bicep.Core.Emit
                 foreach (var variable in nonLoopVariables)
                 {
                     emitter.EmitProperty(variable.Name, variable.Value);
-                }                
+                }
             });
         }
 
@@ -534,7 +533,7 @@ namespace Bicep.Core.Emit
                 {
                     var settings = import.NamespaceType.Settings;
 
-                    emitter.EmitObjectProperty(import.Name, () => 
+                    emitter.EmitObjectProperty(import.Name, () =>
                     {
                         emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
@@ -760,7 +759,7 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                emitter.EmitObjectProperty("properties", () => 
+                emitter.EmitObjectProperty("properties", () =>
                 {
                     emitter.EmitObjectProperty("expressionEvaluationOptions", () =>
                     {
