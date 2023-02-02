@@ -1777,10 +1777,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP310",
                 $@"Using a strongly-typed tuple type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
-            public ErrorDiagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought) => new(
-                TextSpan,
-                "BCP311",
-                $@"The provided index value of ""{indexSought}"" is not valid for type ""{typeName}"". Indexes for this type must be between 0 and {tupleLength - 1}");
+            public ErrorDiagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought)
+            {
+                var message = new StringBuilder("The provided index value of \"").Append(indexSought).Append("\" is not valid for type \"").Append(typeName).Append("\".");
+                if (tupleLength > 0)
+                {
+                    message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append(".");
+                }
+
+                return new(TextSpan, "BCP311", message.ToString());
+            }
 
             public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,

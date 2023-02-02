@@ -110,12 +110,6 @@ var functionOnIndexer1 = concat([
   's'
 ][0], 's')
 
-var functionOnIndexer2 = concat([
-][0], 's')
-
-var functionOnIndexer3 = concat([
-][0], any('s'))
-
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
 

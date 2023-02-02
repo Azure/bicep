@@ -1498,6 +1498,48 @@
     }
   },
   {
+    "label": "nonExistentIndex1",
+    "kind": "variable",
+    "detail": "nonExistentIndex1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonExistentIndex1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nonExistentIndex1"
+    }
+  },
+  {
+    "label": "nonExistentIndex2",
+    "kind": "variable",
+    "detail": "nonExistentIndex2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonExistentIndex2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nonExistentIndex2"
+    }
+  },
+  {
+    "label": "nonExistentIndex3",
+    "kind": "variable",
+    "detail": "nonExistentIndex3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonExistentIndex3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nonExistentIndex3"
+    }
+  },
+  {
     "label": "nonTopLevelLoop",
     "kind": "variable",
     "detail": "nonTopLevelLoop",

@@ -1,5 +1,5 @@
 
-//@[00:5538) ProgramSyntax
+//@[00:5681) ProgramSyntax
 //@[00:0001) ├─Token(NewLine) |\n|
 // unknown declaration
 //@[22:0023) ├─Token(NewLine) |\n|
@@ -488,6 +488,66 @@ var doubleString = "bad string"
 //@[24:0030) |   ├─Token(Identifier) |string|
 //@[30:0031) |   └─Token(Unrecognized) |"|
 //@[31:0033) ├─Token(NewLine) |\n\n|
+
+// invalid index on array literal
+//@[33:0034) ├─Token(NewLine) |\n|
+var nonExistentIndex1 = [][0]
+//@[00:0029) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0021) | ├─IdentifierSyntax
+//@[04:0021) | | └─Token(Identifier) |nonExistentIndex1|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0029) | └─ArrayAccessSyntax
+//@[24:0026) |   ├─ArraySyntax
+//@[24:0025) |   | ├─Token(LeftSquare) |[|
+//@[25:0026) |   | └─Token(RightSquare) |]|
+//@[26:0027) |   ├─Token(LeftSquare) |[|
+//@[27:0028) |   ├─IntegerLiteralSyntax
+//@[27:0028) |   | └─Token(Integer) |0|
+//@[28:0029) |   └─Token(RightSquare) |]|
+//@[29:0030) ├─Token(NewLine) |\n|
+var nonExistentIndex2 = ['foo'][1]
+//@[00:0034) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0021) | ├─IdentifierSyntax
+//@[04:0021) | | └─Token(Identifier) |nonExistentIndex2|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0034) | └─ArrayAccessSyntax
+//@[24:0031) |   ├─ArraySyntax
+//@[24:0025) |   | ├─Token(LeftSquare) |[|
+//@[25:0030) |   | ├─ArrayItemSyntax
+//@[25:0030) |   | | └─StringSyntax
+//@[25:0030) |   | |   └─Token(StringComplete) |'foo'|
+//@[30:0031) |   | └─Token(RightSquare) |]|
+//@[31:0032) |   ├─Token(LeftSquare) |[|
+//@[32:0033) |   ├─IntegerLiteralSyntax
+//@[32:0033) |   | └─Token(Integer) |1|
+//@[33:0034) |   └─Token(RightSquare) |]|
+//@[34:0035) ├─Token(NewLine) |\n|
+var nonExistentIndex3 = ['foo', 'bar'][-1]
+//@[00:0042) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0021) | ├─IdentifierSyntax
+//@[04:0021) | | └─Token(Identifier) |nonExistentIndex3|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0042) | └─ArrayAccessSyntax
+//@[24:0038) |   ├─ArraySyntax
+//@[24:0025) |   | ├─Token(LeftSquare) |[|
+//@[25:0030) |   | ├─ArrayItemSyntax
+//@[25:0030) |   | | └─StringSyntax
+//@[25:0030) |   | |   └─Token(StringComplete) |'foo'|
+//@[30:0031) |   | ├─Token(Comma) |,|
+//@[32:0037) |   | ├─ArrayItemSyntax
+//@[32:0037) |   | | └─StringSyntax
+//@[32:0037) |   | |   └─Token(StringComplete) |'bar'|
+//@[37:0038) |   | └─Token(RightSquare) |]|
+//@[38:0039) |   ├─Token(LeftSquare) |[|
+//@[39:0041) |   ├─UnaryOperationSyntax
+//@[39:0040) |   | ├─Token(Minus) |-|
+//@[40:0041) |   | └─IntegerLiteralSyntax
+//@[40:0041) |   |   └─Token(Integer) |1|
+//@[41:0042) |   └─Token(RightSquare) |]|
+//@[42:0044) ├─Token(NewLine) |\n\n|
 
 var resourceGroup = ''
 //@[00:0022) ├─VariableDeclarationSyntax

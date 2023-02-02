@@ -325,6 +325,44 @@ var doubleString = "bad string"
 //@[30:31) Unrecognized |"|
 //@[31:33) NewLine |\n\n|
 
+// invalid index on array literal
+//@[33:34) NewLine |\n|
+var nonExistentIndex1 = [][0]
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |nonExistentIndex1|
+//@[22:23) Assignment |=|
+//@[24:25) LeftSquare |[|
+//@[25:26) RightSquare |]|
+//@[26:27) LeftSquare |[|
+//@[27:28) Integer |0|
+//@[28:29) RightSquare |]|
+//@[29:30) NewLine |\n|
+var nonExistentIndex2 = ['foo'][1]
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |nonExistentIndex2|
+//@[22:23) Assignment |=|
+//@[24:25) LeftSquare |[|
+//@[25:30) StringComplete |'foo'|
+//@[30:31) RightSquare |]|
+//@[31:32) LeftSquare |[|
+//@[32:33) Integer |1|
+//@[33:34) RightSquare |]|
+//@[34:35) NewLine |\n|
+var nonExistentIndex3 = ['foo', 'bar'][-1]
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |nonExistentIndex3|
+//@[22:23) Assignment |=|
+//@[24:25) LeftSquare |[|
+//@[25:30) StringComplete |'foo'|
+//@[30:31) Comma |,|
+//@[32:37) StringComplete |'bar'|
+//@[37:38) RightSquare |]|
+//@[38:39) LeftSquare |[|
+//@[39:40) Minus |-|
+//@[40:41) Integer |1|
+//@[41:42) RightSquare |]|
+//@[42:44) NewLine |\n\n|
+
 var resourceGroup = ''
 //@[00:03) Identifier |var|
 //@[04:17) Identifier |resourceGroup|

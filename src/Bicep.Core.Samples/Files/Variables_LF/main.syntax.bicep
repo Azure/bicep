@@ -1,5 +1,5 @@
 
-//@[000:7513) ProgramSyntax
+//@[000:7416) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -937,68 +937,6 @@ var functionOnIndexer1 = concat([
 //@[006:0009) |   |   └─Token(StringComplete) |'s'|
 //@[009:0010) |   └─Token(RightParen) |)|
 //@[010:0012) ├─Token(NewLine) |\n\n|
-
-var functionOnIndexer2 = concat([
-//@[000:0044) ├─VariableDeclarationSyntax
-//@[000:0003) | ├─Token(Identifier) |var|
-//@[004:0022) | ├─IdentifierSyntax
-//@[004:0022) | | └─Token(Identifier) |functionOnIndexer2|
-//@[023:0024) | ├─Token(Assignment) |=|
-//@[025:0044) | └─FunctionCallSyntax
-//@[025:0031) |   ├─IdentifierSyntax
-//@[025:0031) |   | └─Token(Identifier) |concat|
-//@[031:0032) |   ├─Token(LeftParen) |(|
-//@[032:0038) |   ├─FunctionArgumentSyntax
-//@[032:0038) |   | └─ArrayAccessSyntax
-//@[032:0035) |   |   ├─ArraySyntax
-//@[032:0033) |   |   | ├─Token(LeftSquare) |[|
-//@[033:0034) |   |   | ├─Token(NewLine) |\n|
-][0], 's')
-//@[000:0001) |   |   | └─Token(RightSquare) |]|
-//@[001:0002) |   |   ├─Token(LeftSquare) |[|
-//@[002:0003) |   |   ├─IntegerLiteralSyntax
-//@[002:0003) |   |   | └─Token(Integer) |0|
-//@[003:0004) |   |   └─Token(RightSquare) |]|
-//@[004:0005) |   ├─Token(Comma) |,|
-//@[006:0009) |   ├─FunctionArgumentSyntax
-//@[006:0009) |   | └─StringSyntax
-//@[006:0009) |   |   └─Token(StringComplete) |'s'|
-//@[009:0010) |   └─Token(RightParen) |)|
-//@[010:0012) ├─Token(NewLine) |\n\n|
-
-var functionOnIndexer3 = concat([
-//@[000:0049) ├─VariableDeclarationSyntax
-//@[000:0003) | ├─Token(Identifier) |var|
-//@[004:0022) | ├─IdentifierSyntax
-//@[004:0022) | | └─Token(Identifier) |functionOnIndexer3|
-//@[023:0024) | ├─Token(Assignment) |=|
-//@[025:0049) | └─FunctionCallSyntax
-//@[025:0031) |   ├─IdentifierSyntax
-//@[025:0031) |   | └─Token(Identifier) |concat|
-//@[031:0032) |   ├─Token(LeftParen) |(|
-//@[032:0038) |   ├─FunctionArgumentSyntax
-//@[032:0038) |   | └─ArrayAccessSyntax
-//@[032:0035) |   |   ├─ArraySyntax
-//@[032:0033) |   |   | ├─Token(LeftSquare) |[|
-//@[033:0034) |   |   | ├─Token(NewLine) |\n|
-][0], any('s'))
-//@[000:0001) |   |   | └─Token(RightSquare) |]|
-//@[001:0002) |   |   ├─Token(LeftSquare) |[|
-//@[002:0003) |   |   ├─IntegerLiteralSyntax
-//@[002:0003) |   |   | └─Token(Integer) |0|
-//@[003:0004) |   |   └─Token(RightSquare) |]|
-//@[004:0005) |   ├─Token(Comma) |,|
-//@[006:0014) |   ├─FunctionArgumentSyntax
-//@[006:0014) |   | └─FunctionCallSyntax
-//@[006:0009) |   |   ├─IdentifierSyntax
-//@[006:0009) |   |   | └─Token(Identifier) |any|
-//@[009:0010) |   |   ├─Token(LeftParen) |(|
-//@[010:0013) |   |   ├─FunctionArgumentSyntax
-//@[010:0013) |   |   | └─StringSyntax
-//@[010:0013) |   |   |   └─Token(StringComplete) |'s'|
-//@[013:0014) |   |   └─Token(RightParen) |)|
-//@[014:0015) |   └─Token(RightParen) |)|
-//@[015:0017) ├─Token(NewLine) |\n\n|
 
 var singleQuote = '\''
 //@[000:0022) ├─VariableDeclarationSyntax

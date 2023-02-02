@@ -86,6 +86,11 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 // invalid string using double quotes
 var doubleString = "bad string"
 
+// invalid index on array literal
+var nonExistentIndex1 = [][0]
+var nonExistentIndex2 = [ 'foo' ][1]
+var nonExistentIndex3 = [ 'foo', 'bar' ][-1]
+
 var resourceGroup = ''
 var rgName = resourceGroup().name
 
