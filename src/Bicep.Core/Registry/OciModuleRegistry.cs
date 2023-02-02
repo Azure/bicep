@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
 using Bicep.Core.Configuration;
@@ -106,6 +107,12 @@ namespace Bicep.Core.Registry
             if (!ociAnnotations.Any() || (ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri) &&
                 string.IsNullOrWhiteSpace(documentationUri)))
             {
+                if (ociArtifactModuleReference.Registry == LanguageConstants.McrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
+                {
+                    var repository = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
+                    return $"https://github.com/Azure/bicep-registry-modules/tree/{repository}/{ociArtifactModuleReference.Tag}/modules/{repository}/README.md";
+                }
+
                 return null;
             }
 

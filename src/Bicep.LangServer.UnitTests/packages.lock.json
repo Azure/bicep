@@ -2062,6 +2062,7 @@
         "type": "Project",
         "dependencies": {
           "Bicep.Core.Samples": "[1.0.0, )",
+          "Bicep.Core.UnitTests": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
           "FluentAssertions": "[6.9.0, )",
           "MSTest.TestAdapter": "[3.0.2, )",
