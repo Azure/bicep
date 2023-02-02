@@ -42,7 +42,6 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     public static IServiceCollection AddCommands(this IServiceCollection services) =>
         // this is harcoded to make the code trim-safe
-        // TODO: Can replace with a code generator
         services
             .AddSingleton<BuildCommand>()
             .AddSingleton<DecompileCommand>()
