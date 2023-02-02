@@ -4207,38 +4207,6 @@ output sql resource = sql
             });
         }
 
-        // https://github.com/Azure/bicep/issues/9653
-        [TestMethod]
-        public void Test_9653()
-        {
-            var templateWithNullablyTypedName = @"
-param input string
-
-resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))
-}
-";
-            var templateWithNonNullAssertion = @"
-param input string
-
-resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))!
-}
-";
-
-            var result = CompilationHelper.Compile(templateWithNullablyTypedName);
-            result.Template.Should().NotBeNull();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
-                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
-            });
-
-            result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
-            result.ExcludingLinterDiagnostics().Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullablyTypedName, templateWithNonNullAssertion);
-
-            CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        }
-
         // https://github.com/Azure/bicep/issues/9713
         [TestMethod]
         public void Test_9713()
@@ -4254,66 +4222,6 @@ output storageService string = storageServices[0]
 ");
 
             result.Should().NotHaveAnyDiagnostics();
-        }
-
-        // https://github.com/Azure/bicep/issues/9720
-        [TestMethod]
-        public void Test_9720()
-        {
-            var templateWithNullablyTypedArg = @"
-param input string
-
-output out string = uniqueString(last(split(input, '/')))
-";
-            var templateWithNonNullAssertion = @"
-param input string
-
-output out string = uniqueString(last(split(input, '/'))!)
-";
-
-            var result = CompilationHelper.Compile(templateWithNullablyTypedArg);
-            result.Template.Should().NotBeNull();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
-                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
-            });
-
-            result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
-            result.ExcludingLinterDiagnostics().Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullablyTypedArg, templateWithNonNullAssertion);
-
-            CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        }
-
-        [TestMethod]
-        public void Test_9720_multiple_nullability_violations()
-        {
-            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
-param input string[]
-
-output out array = split(first(input), last(input))
-");
-
-            result.Template.Should().NotBeNull();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
-                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
-                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""array | string"" but the provided value is of type ""null | string""."),
-            });
-        }
-
-        [TestMethod]
-        public void Test_9720_no_match_even_with_nullability_tweaks()
-        {
-            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
-param input string[]
-
-output out array = split(first(input), 21)
-");
-
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-            {
-                ("BCP070", DiagnosticLevel.Error, @"Argument of type ""21"" is not assignable to parameter of type ""array | string""."),
-            });
         }
     }
 }

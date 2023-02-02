@@ -203,7 +203,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitForSyntax(ForSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var errors = new List<ErrorDiagnostic>();
 
@@ -230,8 +230,16 @@ namespace Bicep.Core.TypeSystem
 
                 if (!TypeValidator.AreTypesAssignable(arrayExpressionType, LanguageConstants.Array))
                 {
-                    // the array expression isn't actually an array
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Expression).LoopArrayExpressionTypeMismatch(arrayExpressionType));
+                    var builder = DiagnosticBuilder.ForPosition(syntax.Expression);
+                    if (TypeHelper.TryRemoveNullability(arrayExpressionType) is {} nonNullable && TypeValidator.AreTypesAssignable(nonNullable, LanguageConstants.Array))
+                    {
+                        diagnostics.Write(builder.PossibleNullReferenceAssignment(LanguageConstants.Array, arrayExpressionType, syntax.Expression));
+                    }
+                    else
+                    {
+                        // the array expression isn't actually an array
+                        return ErrorType.Create(builder.LoopArrayExpressionTypeMismatch(arrayExpressionType));
+                    }
                 }
 
                 if (PropagateErrorType(errors, loopItemType, arrayExpressionType, bodyType))
@@ -846,7 +854,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 if(this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
@@ -871,10 +879,20 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var expectedConditionType = LanguageConstants.Bool;
+                // if the condition is nullable, emit a fixable warning and proceed as if it had been non-nullable
+                if (TypeHelper.TryRemoveNullability(conditionType) is {} nonNullableConditionType && TypeValidator.AreTypesAssignable(nonNullableConditionType, expectedConditionType))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.ConditionExpression)
+                        .PossibleNullReferenceAssignment(expectedConditionType, conditionType, syntax.ConditionExpression));
+                    conditionType = nonNullableConditionType;
+                }
+
                 if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType));
                 }
+
+                // TODO if the condition is of a boolean literal type, return either `trueType` or `falseType`, not the union of both
 
                 // the return type is the union of true and false expression types
                 return TypeHelper.CreateTypeUnion(trueType, falseType);
@@ -988,6 +1006,19 @@ namespace Bicep.Core.TypeSystem
 
         private static ITypeReference GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
         {
+            // if the index type is nullable but otherwise valid, emit a fixable warning
+            if (TypeHelper.TryRemoveNullability(indexType) is {} nonNullableIndex)
+            {
+                var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, baseType, nonNullableIndex);
+
+                if (withNonNullableIndex is not ErrorType)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.IndexExpression).PossibleNullReferenceAssignment(nonNullableIndex, indexType, syntax.IndexExpression));
+                }
+
+                return withNonNullableIndex;
+            }
+
             static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
             {
                 < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
@@ -1639,7 +1670,15 @@ namespace Bicep.Core.TypeSystem
             // Avoid reporting an additional error if we failed to bind the output type.
             if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false && valueType is not ErrorType && assignedType is not ErrorType)
             {
-                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType, valueType).AsEnumerable();
+                var builder = DiagnosticBuilder.ForPosition(syntax.Value);
+                if (TypeHelper.TryRemoveNullability(valueType) is {} nonNullableValueType && TypeValidator.AreTypesAssignable(nonNullableValueType, assignedType))
+                {
+                    diagnostics.Add(builder.PossibleNullReferenceAssignment(assignedType, valueType, syntax.Value));
+                }
+                else
+                {
+                    return builder.OutputTypeMismatch(assignedType, valueType).AsEnumerable();
+                }
             }
 
             return diagnostics;
@@ -1703,7 +1742,15 @@ namespace Bicep.Core.TypeSystem
 
             if (!TypeValidator.AreTypesAssignable(conditionType, LanguageConstants.Bool))
             {
-                return DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
+                var builder = DiagnosticBuilder.ForPosition(syntax.ConditionExpression);
+                return TypeHelper.TryRemoveNullability(conditionType) is {} nonNullable && TypeValidator.AreTypesAssignable(nonNullable, LanguageConstants.Bool)
+                    ? builder.PossibleNullReferenceAssignment(LanguageConstants.Bool,
+                        conditionType,
+                        // syntax.ConditionExpression includes the parentheses surrounding the condition
+                        syntax.ConditionExpression is ParenthesizedExpressionSyntax parenthesized
+                            ? parenthesized.Expression
+                            : syntax.ConditionExpression).AsEnumerable()
+                    : builder.ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
             }
 
             return Enumerable.Empty<IDiagnostic>();
