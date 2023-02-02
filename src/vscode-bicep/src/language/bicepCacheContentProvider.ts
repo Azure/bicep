@@ -10,7 +10,8 @@ import { bicepCacheRequestType } from "./protocol";
 
 export class BicepCacheContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider {
+  implements vscode.TextDocumentContentProvider
+{
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(

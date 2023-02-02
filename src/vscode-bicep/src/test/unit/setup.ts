@@ -24,6 +24,8 @@ jest.mock(
       Window: 10,
     },
     StatusBarAlignment: { Left: 1, Right: 2 },
+    ThemeColor: jest.fn(),
+    ThemeIcon: jest.fn(),
     window: {
       createStatusBarItem: jest.fn(() => ({
         show: jest.fn(),
