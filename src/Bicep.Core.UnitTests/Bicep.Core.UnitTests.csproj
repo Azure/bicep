@@ -27,6 +27,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
       <Link>bicepconfig.schema.json</Link>
+      <WithCulture>false</WithCulture>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
