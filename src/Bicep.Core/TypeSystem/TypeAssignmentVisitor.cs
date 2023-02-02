@@ -231,7 +231,7 @@ namespace Bicep.Core.TypeSystem
                 if (!TypeValidator.AreTypesAssignable(arrayExpressionType, LanguageConstants.Array))
                 {
                     var builder = DiagnosticBuilder.ForPosition(syntax.Expression);
-                    if (TypeHelper.TryRemoveNullability(arrayExpressionType) is {} nonNullable && TypeValidator.AreTypesAssignable(nonNullable, LanguageConstants.Array))
+                    if (TypeHelper.WouldBeAssignableIfNonNullable(arrayExpressionType, LanguageConstants.Array, out var nonNullable))
                     {
                         diagnostics.Write(builder.PossibleNullReferenceAssignment(LanguageConstants.Array, arrayExpressionType, syntax.Expression));
                     }
@@ -880,7 +880,7 @@ namespace Bicep.Core.TypeSystem
 
                 var expectedConditionType = LanguageConstants.Bool;
                 // if the condition is nullable, emit a fixable warning and proceed as if it had been non-nullable
-                if (TypeHelper.TryRemoveNullability(conditionType) is {} nonNullableConditionType && TypeValidator.AreTypesAssignable(nonNullableConditionType, expectedConditionType))
+                if (TypeHelper.WouldBeAssignableIfNonNullable(conditionType, expectedConditionType, out var nonNullableConditionType))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.ConditionExpression)
                         .PossibleNullReferenceAssignment(expectedConditionType, conditionType, syntax.ConditionExpression));
@@ -1552,7 +1552,7 @@ namespace Bicep.Core.TypeSystem
                     // if the type mismatch is because a nullably-typed argument was supplied for a non-nullable value, try again with a non-nullable arg type
                     foreach (var tm in typeMismatches)
                     {
-                        if (TypeHelper.TryRemoveNullability(tm.ArgumentType) is {} nonNullableArgType && TypeValidator.AreTypesAssignable(nonNullableArgType, tm.ParameterType))
+                        if (TypeHelper.WouldBeAssignableIfNonNullable(tm.ArgumentType, tm.ParameterType, out var nonNullableArgType))
                         {
                             // at least one of our type mismatches is purely due to nullability. Recur, passing in a non-nullable version of the arg type.
                             // If *multiple* type mismatches are due to nullability, this function will recur for each mismatch, with each invocation supplying
@@ -1671,7 +1671,7 @@ namespace Bicep.Core.TypeSystem
             if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false && valueType is not ErrorType && assignedType is not ErrorType)
             {
                 var builder = DiagnosticBuilder.ForPosition(syntax.Value);
-                if (TypeHelper.TryRemoveNullability(valueType) is {} nonNullableValueType && TypeValidator.AreTypesAssignable(nonNullableValueType, assignedType))
+                if (TypeHelper.WouldBeAssignableIfNonNullable(valueType, assignedType, out var nonNullableValueType))
                 {
                     diagnostics.Add(builder.PossibleNullReferenceAssignment(assignedType, valueType, syntax.Value));
                 }
@@ -1743,7 +1743,7 @@ namespace Bicep.Core.TypeSystem
             if (!TypeValidator.AreTypesAssignable(conditionType, LanguageConstants.Bool))
             {
                 var builder = DiagnosticBuilder.ForPosition(syntax.ConditionExpression);
-                return TypeHelper.TryRemoveNullability(conditionType) is {} nonNullable && TypeValidator.AreTypesAssignable(nonNullable, LanguageConstants.Bool)
+                return TypeHelper.WouldBeAssignableIfNonNullable(conditionType, LanguageConstants.Bool, out var nonNullable)
                     ? builder.PossibleNullReferenceAssignment(LanguageConstants.Bool,
                         conditionType,
                         // syntax.ConditionExpression includes the parentheses surrounding the condition
