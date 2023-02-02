@@ -258,6 +258,15 @@ namespace Bicep.Core.Syntax
                 Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
                 RightParenToken);
 
+        public static InstanceFunctionCallSyntax CreateInstanceFunctionCall(SyntaxBase baseSyntax, string functionName, params SyntaxBase[] argumentExpressions)
+            => new(
+                baseSyntax,
+                DotToken,
+                CreateIdentifier(functionName),
+                LeftParenToken,
+                Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
+                RightParenToken);
+
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
             => new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
 
@@ -413,5 +422,8 @@ namespace Bicep.Core.Syntax
             NonNullAssertionSyntax alreadyNonNull => alreadyNonNull,
             _ => new NonNullAssertionSyntax(@base, ExclamationToken),
         };
+
+        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
+            => new(@base, DotToken, CreateIdentifier(propertyName));
     }
 }

@@ -16,6 +16,7 @@ resource base 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range(0
 }]
 
 output storageEndpoints array = [for i in range(0, storageCount): reference(resourceId('Microsoft.Storage/storageAccounts', concat(i, baseName))).primaryEndpoints.blob]
+//@[066:145) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "Bicep.Core.Syntax.IdentifierSyntax". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(resourceId('Microsoft.Storage/storageAccounts', concat(i, baseName)))|
 //@[124:143) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(i, baseName)|
 output copyIndex array = [for i in range(0, storageCount): i]
 output copyIndexWithInt array = [for i in range(0, storageCount): (i + 123)]

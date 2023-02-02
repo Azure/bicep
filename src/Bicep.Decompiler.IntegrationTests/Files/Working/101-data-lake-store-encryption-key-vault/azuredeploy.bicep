@@ -40,6 +40,7 @@ module addAccessPolicy './nested_addAccessPolicy.bicep' = {
   scope: resourceGroup(keyVaultResourceGroupName)
   params: {
     resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(dataLakeStore.id, '2016-11-01', 'Full')
+//@[78:127) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "Bicep.Core.Syntax.IdentifierSyntax". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(dataLakeStore.id, '2016-11-01', 'Full')|
     keyVaultName: keyVaultName
   }
 }

@@ -515,6 +515,16 @@
                     }
                   ]
                 },
+                "use-resource-symbol-reference": {
+                  "allOf": [
+                    {
+                      "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. See https://aka.ms/bicep/linter/use-resource-symbol-reference"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-parent-property": {
                   "allOf": [
                     {

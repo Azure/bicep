@@ -80,6 +80,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       bootDiagnostics: {
         enabled: true
         storageUri: reference(diagStorageAccount.id, '2019-06-01').primaryEndpoints.blob
+//@[20:66) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "Bicep.Core.Syntax.IdentifierSyntax". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(diagStorageAccount.id, '2019-06-01')|
       }
     }
   }

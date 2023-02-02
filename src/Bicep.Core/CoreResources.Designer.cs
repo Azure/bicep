@@ -664,6 +664,33 @@ namespace Bicep.Core {
         }
 
         /// <summary>
+        ///   Use a resource reference instead of invoking function &quot;{0}&quot;. This simplifies the syntax and allows Bicep to better understand your deployment dependency graph..
+        /// </summary>
+        internal static string UseResourceSymbolReferenceRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseResourceSymbolReferenceRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use a direct resource reference..
+        /// </summary>
+        internal static string UseResourceSymbolReferenceRule_CodeFix {
+            get {
+                return ResourceManager.GetString("UseResourceSymbolReferenceRule_CodeFix", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use a direct resource symbol reference instead of 'reference' or 'list*' functions..
+        /// </summary>
+        internal static string UseResourceSymbolReferenceRule_Description {
+            get {
+                return ResourceManager.GetString("UseResourceSymbolReferenceRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Resource &quot;{0}&quot; has its name formatted as a child of resource &quot;{1}&quot;. The syntax can be simplified by using the parent property..
         /// </summary>
         internal static string UseParentPropertyRule_MessageFormat {
@@ -675,18 +702,18 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Use parent property..
         /// </summary>
-        internal static string UseParentPropertyRuleCodeFix {
+        internal static string UseParentPropertyRule_CodeFix {
             get {
-                return ResourceManager.GetString("UseParentPropertyRuleCodeFix", resourceCulture);
+                return ResourceManager.GetString("UseParentPropertyRule_CodeFix", resourceCulture);
             }
         }
 
         /// <summary>
         ///   Looks up a localized string similar to Use the parent property instead of formatting child resource names with &apos;/&apos; characters..
         /// </summary>
-        internal static string UseParentPropertyRuleDescription {
+        internal static string UseParentPropertyRule_Description {
             get {
-                return ResourceManager.GetString("UseParentPropertyRuleDescription", resourceCulture);
+                return ResourceManager.GetString("UseParentPropertyRule_Description", resourceCulture);
             }
         }
 
