@@ -984,34 +984,6 @@
     }
   },
   {
-    "label": "functionOnIndexer2",
-    "kind": "variable",
-    "detail": "functionOnIndexer2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_functionOnIndexer2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "functionOnIndexer2"
-    }
-  },
-  {
-    "label": "functionOnIndexer3",
-    "kind": "variable",
-    "detail": "functionOnIndexer3",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_functionOnIndexer3",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "functionOnIndexer3"
-    }
-  },
-  {
     "label": "greater",
     "kind": "variable",
     "detail": "greater",

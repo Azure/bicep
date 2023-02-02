@@ -162,6 +162,17 @@ var doubleString = "bad string"
 //@[19:20) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. (CodeDescription: none) |"|
 //@[30:31) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. (CodeDescription: none) |"|
 
+// invalid index on array literal
+var nonExistentIndex1 = [][0]
+//@[04:21) [no-unused-vars (Warning)] Variable "nonExistentIndex1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nonExistentIndex1|
+//@[27:28) [BCP311 (Error)] The provided index value of "0" is not valid for type "<empty array>". (CodeDescription: none) |0|
+var nonExistentIndex2 = ['foo'][1]
+//@[04:21) [no-unused-vars (Warning)] Variable "nonExistentIndex2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nonExistentIndex2|
+//@[32:33) [BCP311 (Error)] The provided index value of "1" is not valid for type "['foo']". Indexes for this type must be between 0 and 0. (CodeDescription: none) |1|
+var nonExistentIndex3 = ['foo', 'bar'][-1]
+//@[04:21) [no-unused-vars (Warning)] Variable "nonExistentIndex3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nonExistentIndex3|
+//@[39:41) [BCP311 (Error)] The provided index value of "-1" is not valid for type "['foo', 'bar']". Indexes for this type must be between 0 and 1. (CodeDescription: none) |-1|
+
 var resourceGroup = ''
 var rgName = resourceGroup().name
 //@[04:10) [no-unused-vars (Warning)] Variable "rgName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |rgName|
@@ -226,6 +237,7 @@ var objectVarTopLevelCompletions2 = objectLiteralType.
 // #completionTest(60) -> mixedArrayProperties
 var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
 //@[04:29) [no-unused-vars (Warning)] Variable "mixedArrayTypeCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mixedArrayTypeCompletions|
+//@[59:60) [BCP053 (Error)] The type "object" does not contain property "o". Available properties include "one". (CodeDescription: none) |o|
 // #completionTest(60) -> mixedArrayProperties
 var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
 //@[04:30) [no-unused-vars (Warning)] Variable "mixedArrayTypeCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mixedArrayTypeCompletions2|

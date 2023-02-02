@@ -114,6 +114,14 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 var doubleString = "bad string"
 //@[04:16) Variable doubleString. Type: error. Declaration start char: 0, length: 31
 
+// invalid index on array literal
+var nonExistentIndex1 = [][0]
+//@[04:21) Variable nonExistentIndex1. Type: error. Declaration start char: 0, length: 29
+var nonExistentIndex2 = ['foo'][1]
+//@[04:21) Variable nonExistentIndex2. Type: error. Declaration start char: 0, length: 34
+var nonExistentIndex3 = ['foo', 'bar'][-1]
+//@[04:21) Variable nonExistentIndex3. Type: error. Declaration start char: 0, length: 42
+
 var resourceGroup = ''
 //@[04:17) Variable resourceGroup. Type: ''. Declaration start char: 0, length: 22
 var rgName = resourceGroup().name
@@ -172,10 +180,10 @@ var objectVarTopLevelCompletions2 = objectLiteralType.
 // this does not produce any completions because mixed array items are of type "any"
 // #completionTest(60) -> mixedArrayProperties
 var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
-//@[04:29) Variable mixedArrayTypeCompletions. Type: any. Declaration start char: 0, length: 60
+//@[04:29) Variable mixedArrayTypeCompletions. Type: error. Declaration start char: 0, length: 60
 // #completionTest(60) -> mixedArrayProperties
 var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
-//@[04:30) Variable mixedArrayTypeCompletions2. Type: any. Declaration start char: 0, length: 60
+//@[04:30) Variable mixedArrayTypeCompletions2. Type: error. Declaration start char: 0, length: 60
 
 // #completionTest(58) -> oneArrayItemProperties
 var oneArrayItemCompletions = objectLiteralType.sixth[0].t
