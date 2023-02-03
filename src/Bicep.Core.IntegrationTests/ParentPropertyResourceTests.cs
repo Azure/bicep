@@ -128,22 +128,21 @@ resource res 'Microsoft.Rp1/resource1@2020-06-01' = [for i in range(0, 10): {
   name: 'res${i}'
 }]
 
-resource resChild 'Microsoft.Rp1/resource1/child1@2020-06-01' = [for j in range(10, 20): {
+resource resChild 'Microsoft.Rp1/resource1/child1@2020-06-01' = [for j in range(10, 10): {
   parent: res[j - 10]
   name: 'child${j - 10}'
 }]
 
-resource otherRes 'Microsoft.Rp2/resource2@2020-06-01' = [for k in range(20, 30): {
+resource otherRes 'Microsoft.Rp2/resource2@2020-06-01' = [for k in range(20, 10): {
   scope: resChild[k - 20]
   name: 'otherRes${k - 20}'
 }]
 
-resource otherResChild 'Microsoft.Rp2/resource2/child2@2020-06-01' = [for l in range(30, 40): {
+resource otherResChild 'Microsoft.Rp2/resource2/child2@2020-06-01' = [for l in range(30, 10): {
   parent: otherRes[l - 30]
   name: 'otherResChild${l - 30}'
 }]
 
-output otherRes2childProp string = otherResChild[2].properties.someProp
 output otherRes2childName string = otherResChild[2].name
 output otherRes2childType string = otherResChild[2].type
 output otherRes2childId string = otherResChild[2].id
@@ -151,10 +150,15 @@ output otherRes2childId string = otherResChild[2].id
 
             result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
-            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childProp'].value", "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', format('res{0}', range(0, 10)[sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10)]), format('child{0}', sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10))), 'Microsoft.Rp2/resource2/child2', format('otherRes{0}', sub(range(20, 30)[sub(range(30, 40)[2], 30)], 20)), format('otherResChild{0}', sub(range(30, 40)[2], 30))), '2020-06-01').someProp]");
-            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childName'].value", "[format('otherResChild{0}', sub(range(30, 40)[2], 30))]");
-            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childType'].value", "Microsoft.Rp2/resource2/child2");
-            result.Template.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', format('res{0}', range(0, 10)[sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10)]), format('child{0}', sub(range(10, 20)[sub(range(30, 40)[2], 30)], 10))), 'Microsoft.Rp2/resource2/child2', format('otherRes{0}', sub(range(20, 30)[sub(range(30, 40)[2], 30)], 20)), format('otherResChild{0}', sub(range(30, 40)[2], 30)))]");
+            var compiled = result.Template;
+            var evaluated = TemplateEvaluator.Evaluate(compiled);
+
+            compiled.Should().HaveValueAtPath("$.outputs['otherRes2childName'].value", "[format('otherResChild{0}', sub(range(30, 10)[2], 30))]");
+            evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childName'].value", "otherResChild2");
+            compiled.Should().HaveValueAtPath("$.outputs['otherRes2childType'].value", "Microsoft.Rp2/resource2/child2");
+            evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childType'].value", "Microsoft.Rp2/resource2/child2");
+            compiled.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', format('res{0}', range(0, 10)[sub(range(10, 10)[sub(range(30, 10)[2], 30)], 10)]), format('child{0}', sub(range(10, 10)[sub(range(30, 10)[2], 30)], 10))), 'Microsoft.Rp2/resource2/child2', format('otherRes{0}', sub(range(20, 10)[sub(range(30, 10)[2], 30)], 20)), format('otherResChild{0}', sub(range(30, 10)[2], 30)))]");
+            evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Rp1/resource1/res2/child1/child2/providers/Microsoft.Rp2/resource2/otherRes2/child2/otherResChild2");
         }
 
         [TestMethod]
