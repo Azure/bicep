@@ -112,7 +112,10 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="IncludeLanguageServerDependencies" AfterTargets="GetVsixSourceItems">
     <ItemGroup>
-      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*">
+      <!-- We will exclude everything under runtimes folder as we don't want duplicates to get picked up.
+           E.g. System.Text.Encodings.Web.dll present in runtimes may only target browser version, which will cause 
+           PlatformNotSupportedException. See https://github.com/dotnet/runtime/blob/97203d38ba734d76d39984c5206f2747f792fa89/src/libraries/System.Text.Encodings.Web/src/System/Text/Encodings/Web/OptimizedInboxTextEncoder.Ascii.cs#L34-->
+      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\*" Exclude="..\..\Bicep.LangServer\bin\**\runtimes\**\*">
         <VSIXSubPath>LanguageServer</VSIXSubPath>
       </VSIXSourceItem>
     </ItemGroup>
