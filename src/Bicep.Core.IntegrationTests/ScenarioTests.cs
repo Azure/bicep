@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -11,6 +12,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -4241,6 +4243,40 @@ output values object = values[name]
 ");
 
             result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/9469
+        [TestMethod]
+        public void Test_Issue9469()
+        {
+            var referenceExpressionsExpected = new Dictionary<FeatureProviderOverrides, string>
+            {
+                // without symbolic names enabled, we should expect a reference using the well-formed resource ID
+                { new(), "reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('CertificateSubjects')[0].keyVault.subscriptionId, parameters('CertificateSubjects')[0].keyVault.resourceGroupName), 'Microsoft.KeyVault/vaults/secrets', parameters('CertificateSubjects')[0].keyVault.name, replace(replace(parameters('CertificateSubjects')[0].subject, '*', 'wild'), '.', '-')), '2022-07-01')" },
+                // with symbolic names enabled, we should expect a symbolic name reference
+                { new(SymbolicNameCodegenEnabled: true), "reference(format('Certificate[{0}]', 0))" }
+            };
+
+            foreach (var (featureset, referenceExpression) in referenceExpressionsExpected)
+            {
+                var result = CompilationHelper.Compile(Services.WithFeatureOverrides(featureset), @"
+param CertificateSubjects array
+
+resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
+  name: c.keyVault.name
+  scope: resourceGroup(c.keyVault.subscriptionId, c.keyVault.resourceGroupName)
+}]
+
+resource Certificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
+  name: replace(replace(c.subject, '*', 'wild'), '.', '-')
+  parent: CertificateVault[i]
+}]
+
+output firstCertEnabled bool = Certificate[0].properties.attributes.enabled
+");
+
+                result.Should().HaveTemplateWithOutput("firstCertEnabled", $"[{referenceExpression}.attributes.enabled]");
+            }
         }
     }
 }
