@@ -487,7 +487,7 @@ param invalidPermutation array = [
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
 //@[06:045) [no-unused-params (Warning)] Parameter "invalidDefaultWithAllowedArrayDecorator" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |invalidDefaultWithAllowedArrayDecorator|
-//@[54:058) [BCP033 (Error)] Expected a value of type "(['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts'])[]" but the provided value is of type "true". (CodeDescription: none) |true|
+//@[54:058) [BCP033 (Error)] Expected a value of type "['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']" but the provided value is of type "true". (CodeDescription: none) |true|
 
 // unterminated multi-line comment
 /*    

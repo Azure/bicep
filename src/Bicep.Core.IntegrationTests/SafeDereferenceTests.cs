@@ -242,10 +242,10 @@ output nestedAlt object = foo[?0].nested
 output deeplyNested string = foo[0].?nested.deeplyNested
 ");
         result.Should().HaveDiagnostics(new[] {
-            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"object\" but the provided value is of type \"null | { nested: { deeplyNested: 'value' } }\"."),
-            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
-            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
-            ("BCP026", DiagnosticLevel.Error, "The output expects a value of type \"string\" but the provided value is of type \"'value' | null\"."),
+            ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { nested: { deeplyNested: 'value' } }\"."),
+            ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
+            ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
+            ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"string\" but the provided value is of type \"'value' | null\"."),
         });
     }
 }

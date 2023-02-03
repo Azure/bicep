@@ -72,9 +72,19 @@ namespace Bicep.Core.Syntax
             } else if (ReferenceEquals(assignedType, LanguageConstants.Bool))
             {
                 assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, LanguageConstants.LooseBool, allowedItemTypes);
-            } else if (ReferenceEquals(assignedType, LanguageConstants.Array) && allowedItemTypes?.All(TypeHelper.IsLiteralType) is true)
+            } else if (ReferenceEquals(assignedType, LanguageConstants.Array) && allowedItemTypes is not null && allowedItemTypes.All(TypeHelper.IsLiteralType))
             {
-                assignedType = new TypedArrayType(TypeHelper.CreateTypeUnion(allowedItemTypes), TypeSymbolValidationFlags.Default);
+                // @allowed has special semantics when applied to an array if none of the allowed values are themselves arrays (ARM will permit any array containing
+                // a subset of the allowed values). If any of the allowed item types is a tuple, treat @allowed([...]) as supplying a list of allowed values;
+                // otherwise, treat it as supplying a list of allowed *item* values.
+                if (allowedItemTypes.Any(t => t is TupleType))
+                {
+                    assignedType = UnionIfLiterals<TupleType>(assignedType, LanguageConstants.Array, allowedItemTypes);
+                }
+                else
+                {
+                    assignedType = new TypedArrayType(TypeHelper.CreateTypeUnion(allowedItemTypes), TypeSymbolValidationFlags.Default);
+                }
             }
 
             return assignedType;

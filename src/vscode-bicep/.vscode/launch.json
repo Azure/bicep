@@ -103,6 +103,7 @@
       "args": [
         "--config",
         "jest.config.unit.js",
+        "--testTimeout=600000",
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
@@ -119,7 +120,8 @@
         "${fileBasenameNoExtension}",
         "--config",
         "jest.config.unit.js",
-        "--coverage=false"
+        "--coverage=false",
+        "--testTimeout=600000",
       ],
       "console": "integratedTerminal",
       "windows": {

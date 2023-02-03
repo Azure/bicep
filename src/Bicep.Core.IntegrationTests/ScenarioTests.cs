@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -11,6 +12,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -4207,36 +4209,74 @@ output sql resource = sql
             });
         }
 
-        // https://github.com/Azure/bicep/issues/9653
+        // https://github.com/Azure/bicep/issues/9713
         [TestMethod]
-        public void Test_9653()
+        public void Test_9713()
         {
-            var templateWithNullablyTypedName = @"
-param input string
+            var result = CompilationHelper.Compile(@"
+@allowed([
+  ['blob', 'file']
+  ['blob', 'file', 'table', 'queue']
+])
+param storageServices array = ['blob', 'file']
 
-resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))
+output storageService string = storageServices[0]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/9734
+        [TestMethod]
+        public void Test_9734()
+        {
+            var result = CompilationHelper.Compile(@"
+param name string
+param appsettings object
+
+var defaultValues = {
+  '${name}': { }
 }
-";
-            var templateWithNonNullAssertion = @"
-param input string
+var values = union(defaultValues, appsettings)
 
-resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))!
-}
-";
+output values object = values[name]
+");
 
-            var result = CompilationHelper.Compile(templateWithNullablyTypedName);
-            result.Template.Should().NotBeNull();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/9469
+        [TestMethod]
+        public void Test_Issue9469()
+        {
+            var referenceExpressionsExpected = new Dictionary<FeatureProviderOverrides, string>
             {
-                ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""string"" but the provided value is of type ""null | string""."),
-            });
+                // without symbolic names enabled, we should expect a reference using the well-formed resource ID
+                { new(), "reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('CertificateSubjects')[0].keyVault.subscriptionId, parameters('CertificateSubjects')[0].keyVault.resourceGroupName), 'Microsoft.KeyVault/vaults/secrets', parameters('CertificateSubjects')[0].keyVault.name, replace(replace(parameters('CertificateSubjects')[0].subject, '*', 'wild'), '.', '-')), '2022-07-01')" },
+                // with symbolic names enabled, we should expect a symbolic name reference
+                { new(SymbolicNameCodegenEnabled: true), "reference(format('Certificate[{0}]', 0))" }
+            };
 
-            result.ExcludingLinterDiagnostics().Diagnostics.Single().Should().BeAssignableTo<IFixable>();
-            result.ExcludingLinterDiagnostics().Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullablyTypedName, templateWithNonNullAssertion);
+            foreach (var (featureset, referenceExpression) in referenceExpressionsExpected)
+            {
+                var result = CompilationHelper.Compile(Services.WithFeatureOverrides(featureset), @"
+param CertificateSubjects array
 
-            CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
+  name: c.keyVault.name
+  scope: resourceGroup(c.keyVault.subscriptionId, c.keyVault.resourceGroupName)
+}]
+
+resource Certificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
+  name: replace(replace(c.subject, '*', 'wild'), '.', '-')
+  parent: CertificateVault[i]
+}]
+
+output firstCertEnabled bool = Certificate[0].properties.attributes.enabled
+");
+
+                result.Should().HaveTemplateWithOutput("firstCertEnabled", $"[{referenceExpression}.attributes.enabled]");
+            }
         }
     }
 }

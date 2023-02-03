@@ -10,6 +10,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -99,9 +100,45 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().Contain("The specified module target \"br:example.com/test@sha256:80f63ced0b80b63874c808a321f472755a3c9e93987d1fa0a51e13c65e4a52b9\" is not supported.");
         }
 
+        [TestMethod]
+        public async Task Publish_WithMissingDocumentationUri_ShouldProduceExpectedError()
+        {
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(@"The --documentationUri parameter expects an argument.");
+        }
+
+        [TestMethod]
+        public async Task Publish_WithDocumentationUriSpecifiedMoreThanOnce_ShouldProduceExpectedError()
+        {
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "https://example.com", "--documentationUri", "https://example.com");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(@"The --documentationUri parameter cannot be specified more than once.");
+        }
+
+        [TestMethod]
+        public async Task Publish_WithInvalidDocumentUri_ShouldProduceExpectedError()
+        {
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "invalid_uri");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(@"The --documentationUri should be a well formed uri string.");
+        }
+
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Publish_ValidFile_ShouldSucceed(DataSet dataSet)
+        [DynamicData(nameof(GetValidDataSetsWithDocumentationUri), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Publish_ValidFile_ShouldSucceed(DataSet dataSet, string documentationUri)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
@@ -120,7 +157,16 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
-            var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1");
+            List<string> requiredArgs = new List<string> { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
+
+            if (!string.IsNullOrWhiteSpace(documentationUri))
+            {
+                requiredArgs.AddRange(new List<string> { "--documentationUri", documentationUri });
+            }
+
+            string[] args = requiredArgs.ToArray();
+
+            var (output, error, result) = await Bicep(settings, args);
             result.Should().Be(0);
             output.Should().BeEmpty();
             AssertNoErrors(error);
@@ -131,7 +177,7 @@ namespace Bicep.Cli.IntegrationTests
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
 
             // publish the same content again
-            var (output2, error2, result2) = await Bicep(settings, "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1");
+            var (output2, error2, result2) = await Bicep(settings, args);
             result2.Should().Be(0);
             output2.Should().BeEmpty();
             AssertNoErrors(error2);
@@ -266,6 +312,17 @@ namespace Bicep.Cli.IntegrationTests
             .AllDataSets
             .Where(ds => ds.IsValid)
             .ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetValidDataSetsWithDocumentationUri()
+        {
+            var validDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid);
+
+            foreach (DataSet dataSet in validDataSets)
+            {
+                yield return new object[] { dataSet, "" };
+                yield return new object[] { dataSet, "https://example.com" };
+            }
+        }
 
         private static IEnumerable<object[]> GetInvalidDataSets() => DataSets
             .AllDataSets

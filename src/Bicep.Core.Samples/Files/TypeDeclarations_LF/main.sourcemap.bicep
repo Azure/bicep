@@ -48,7 +48,7 @@ type foo = {
 //@          "$ref": "#/definitions/foo"
 //@        }
 //@      },
-//@      "sealed": true,
+//@      "additionalProperties": false,
 //@      "metadata": {
 //@      }
 //@    },
@@ -261,12 +261,27 @@ param paramUsingType mixedArray
 
 type tuple = [
 //@    "tuple": {
-//@      "type": "array"
+//@      "type": "array",
+//@      "prefixItems": [
+//@        {
+//@          "type": "string",
+//@          "metadata": {
+//@          }
+//@        },
+//@        {
+//@          "$ref": "#/definitions/bar",
+//@          "metadata": {
+//@          }
+//@        }
+//@      ],
+//@      "items": false
 //@    },
     @description('A leading string')
+//@            "description": "A leading string"
     string
 
     @description('A second element using a type alias')
+//@            "description": "A second element using a type alias"
     bar
 ]
 

@@ -282,7 +282,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("first")
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    return new(argumentTypes[0] switch 
+                    return new(argumentTypes[0] switch
                     {
                         TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
                         ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
@@ -304,7 +304,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("last")
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
                 {
-                    return new(argumentTypes[0] switch 
+                    return new(argumentTypes[0] switch
                     {
                         TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
                         ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
@@ -1149,7 +1149,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     if (!TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array))
                     {
                         // the resource/module declaration is not a collection
-                        // (the compile-time constnat and resource/module placement is already enforced, so we don't need a deeper type check)
+                        // (the compile-time constant and resource/module placement is already enforced, so we don't need a deeper type check)
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).BatchSizeNotAllowed(decoratorName));
                     }
 
@@ -1181,9 +1181,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
                         }
                     })
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, new BooleanLiteralExpression(null, true)))
-                    // TODO delete the above line and uncomment the line below when ARM w46 has finished rolling out
-                    // .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))
+                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false)))
                     .Build();
             }
         }

@@ -402,7 +402,7 @@ public class ExpressionBuilder
             AddCondition(ConvertWithoutLowering(@if.ConditionExpression));
             body = @if.Body;
         }
-        
+
         var propertiesToOmit = resource.IsAzResource ? AzResourcePropertiesToOmit : NonAzResourcePropertiesToOmit;
         var properties = ((ObjectSyntax)body).Properties
             .Where(x => x.TryGetKeyText() is not {} key || !propertiesToOmit.Contains(key))
@@ -772,11 +772,13 @@ public class ExpressionBuilder
         };
     }
 
-    private ForSyntax GetEnclosingForExpression(LocalVariableSymbol localVariable)
+    private ForSyntax GetEnclosingForExpression(LocalVariableSymbol localVariable) => GetEnclosingForExpression(Context.SemanticModel, localVariable);
+
+    private static ForSyntax GetEnclosingForExpression(SemanticModel model, LocalVariableSymbol localVariable)
     {
         // we're following the symbol hierarchy rather than syntax hierarchy because
         // this guarantees a single hop in all cases
-        var symbolParent = this.Context.SemanticModel.GetSymbolParent(localVariable);
+        var symbolParent = model.GetSymbolParent(localVariable);
         if (symbolParent is not LocalScope localScope)
         {
             throw new NotImplementedException($"{nameof(LocalVariableSymbol)} has un unexpected parent of type '{symbolParent?.GetType().Name}'.");
@@ -906,12 +908,15 @@ public class ExpressionBuilder
     /// </summary>
     /// <param name="resource">The resource</param>
     public IEnumerable<SyntaxBase> GetResourceNameSyntaxSegments(DeclaredResourceMetadata resource)
+        => GetResourceNameSyntaxSegments(this.Context.SemanticModel, resource);
+
+    public static IEnumerable<SyntaxBase> GetResourceNameSyntaxSegments(SemanticModel model, DeclaredResourceMetadata resource)
     {
-        var ancestors = this.Context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+        var ancestors = model.ResourceAncestors.GetAncestors(resource);
         var nameExpression = resource.NameSyntax;
 
         return ancestors
-            .Select((x, i) => GetResourceNameAncestorSyntaxSegment(resource, i))
+            .Select((x, i) => GetResourceNameAncestorSyntaxSegment(model, resource, i))
             .Concat(nameExpression);
     }
 
@@ -919,11 +924,12 @@ public class ExpressionBuilder
     /// Calculates the expression that represents the parent name corresponding to the specified ancestor of the specified resource.
     /// The expressions returned are modified by performing the necessary local variable replacements.
     /// </summary>
+    /// <param name="model">The model in which the resource is declared.</param>
     /// <param name="resource">The declared resource metadata</param>
     /// <param name="startingAncestorIndex">the index of the ancestor (0 means the ancestor closest to the root)</param>
-    private SyntaxBase GetResourceNameAncestorSyntaxSegment(DeclaredResourceMetadata resource, int startingAncestorIndex)
+    private static SyntaxBase GetResourceNameAncestorSyntaxSegment(SemanticModel model, DeclaredResourceMetadata resource, int startingAncestorIndex)
     {
-        var ancestors = this.Context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+        var ancestors = model.ResourceAncestors.GetAncestors(resource);
         if (startingAncestorIndex >= ancestors.Length)
         {
             // not enough ancestors
@@ -974,46 +980,50 @@ public class ExpressionBuilder
             // or the resource itself if we're on the last ancestor
             var newContext = i < ancestors.Length - 1 ? ancestors[i + 1].Resource : resource;
 
-            var inaccessibleLocals = this.Context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(rewritten, newContext.Symbol.NameIdentifier);
-            var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
-
-            switch (inaccessibleLocalLoops.Count)
-            {
-                case 0:
-                    /*
-                        * Hardcoded index expression resulted in no more local vars to replace.
-                        * We can just bail out with the result.
-                        */
-                    return rewritten;
-
-                case 1 when ancestor.IndexExpression is not null:
-                    if (LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(this.Context.SemanticModel, rewritten).SingleOrDefault(s => s.LocalKind == LocalKind.ForExpressionItemVariable) is { } loopItemSymbol)
-                    {
-                        // rewrite the straggler from previous iteration
-                        // TODO: Nested loops will require DFA on the ForSyntax.Expression
-                        rewritten = SymbolReplacer.Replace(this.Context.SemanticModel, new Dictionary<Symbol, SyntaxBase> { [loopItemSymbol] = SyntaxFactory.CreateArrayAccess(GetEnclosingForExpression(loopItemSymbol).Expression, ancestor.IndexExpression) }, rewritten);
-                    }
-
-                    // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
-                    var @for = inaccessibleLocalLoops.Single();
-
-                    var replacements = inaccessibleLocals.ToDictionary(local => (Symbol)local, local => local.LocalKind switch
-                            {
-                                LocalKind.ForExpressionIndexVariable => ancestor.IndexExpression,
-                                LocalKind.ForExpressionItemVariable => SyntaxFactory.CreateArrayAccess(@for.Expression, ancestor.IndexExpression),
-                                _ => throw new NotImplementedException($"Unexpected local kind '{local.LocalKind}'.")
-                            });
-
-                    rewritten = SymbolReplacer.Replace(this.Context.SemanticModel, replacements, rewritten);
-
-                    break;
-
-                default:
-                    throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index expression rewriting.");
-            }
+            rewritten = MoveSyntax(model, rewritten, ancestor.IndexExpression, newContext.Symbol.NameIdentifier);
         }
 
         return rewritten;
+    }
+
+    public static SyntaxBase MoveSyntax(SemanticModel model, SyntaxBase original, SyntaxBase? indexExpression, SyntaxBase newParent)
+    {
+        DataFlowAnalyzer analyzer = new(model);
+        var inaccessibleLocals = analyzer.GetInaccessibleLocalsAfterSyntaxMove(original, newParent);
+        var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(model, local)).Distinct().ToList();
+
+        switch (inaccessibleLocalLoops.Count)
+        {
+            case 0:
+                /*
+                    * Hardcoded index expression resulted in no more local vars to replace.
+                    * We can just bail out with the result.
+                    */
+                return original;
+
+            case 1 when indexExpression is not null:
+                if (LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(model, original).SingleOrDefault(s => s.LocalKind == LocalKind.ForExpressionItemVariable) is { } loopItemSymbol)
+                {
+                    // rewrite the straggler from previous iteration
+                    // TODO: Nested loops will require DFA on the ForSyntax.Expression
+                    original = SymbolReplacer.Replace(model, new Dictionary<Symbol, SyntaxBase> { [loopItemSymbol] = SyntaxFactory.CreateArrayAccess(GetEnclosingForExpression(model, loopItemSymbol).Expression, indexExpression) }, original);
+                }
+
+                // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
+                var @for = inaccessibleLocalLoops.Single();
+
+                var replacements = inaccessibleLocals.ToDictionary(local => (Symbol)local, local => local.LocalKind switch
+                {
+                    LocalKind.ForExpressionIndexVariable => indexExpression,
+                    LocalKind.ForExpressionItemVariable => SyntaxFactory.CreateArrayAccess(@for.Expression, indexExpression),
+                    _ => throw new NotImplementedException($"Unexpected local kind '{local.LocalKind}'.")
+                });
+
+                return SymbolReplacer.Replace(model, replacements, original);
+
+            default:
+                throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index expression rewriting.");
+        }
     }
 
     public void EmitResourceScopeProperties(ExpressionEmitter expressionEmitter, DeclaredResourceExpression resource)
@@ -1050,7 +1060,7 @@ public class ExpressionBuilder
                 {
                     // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant or management group scope
                     var useFullyQualifiedResourceId = Context.SemanticModel.TargetScope != ResourceScope.Tenant && Context.SemanticModel.TargetScope != ResourceScope.ManagementGroup;
-                    
+
                     var indexContext = TryGetReplacementContext(scopeData.ManagementGroupNameProperty, scopeData.IndexExpression, newContext);
                     expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, indexContext, useFullyQualifiedResourceId));
                 }

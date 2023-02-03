@@ -182,14 +182,6 @@ var functionOnIndexer1 = concat([
   's'
 ][0], 's')
 
-var functionOnIndexer2 = concat([
-//@    "functionOnIndexer2": "[concat(createArray()[0], 's')]",
-][0], 's')
-
-var functionOnIndexer3 = concat([
-//@    "functionOnIndexer3": "[concat(createArray()[0], 's')]",
-][0], any('s'))
-
 var singleQuote = '\''
 //@    "singleQuote": "'",
 var myPropertyName = '${singleQuote}foo${singleQuote}'

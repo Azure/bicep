@@ -25,17 +25,17 @@ export class WorkspaceConfigurationFake implements WorkspaceConfiguration {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public inspect<T>(section: string):
     | {
-      key: string;
-      defaultValue?: T | undefined;
-      globalValue?: T | undefined;
-      workspaceValue?: T | undefined;
-      workspaceFolderValue?: T | undefined;
-      defaultLanguageValue?: T | undefined;
-      globalLanguageValue?: T | undefined;
-      workspaceLanguageValue?: T | undefined;
-      workspaceFolderLanguageValue?: T | undefined;
-      languageIds?: string[] | undefined;
-    }
+        key: string;
+        defaultValue?: T | undefined;
+        globalValue?: T | undefined;
+        workspaceValue?: T | undefined;
+        workspaceFolderValue?: T | undefined;
+        defaultLanguageValue?: T | undefined;
+        globalLanguageValue?: T | undefined;
+        workspaceLanguageValue?: T | undefined;
+        workspaceFolderLanguageValue?: T | undefined;
+        languageIds?: string[] | undefined;
+      }
     | undefined {
     throw new Error("Method not implemented.");
   }

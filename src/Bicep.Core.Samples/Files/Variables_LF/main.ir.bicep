@@ -1,5 +1,5 @@
 
-//@[000:7513) ProgramExpression
+//@[000:7416) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
@@ -315,24 +315,6 @@ var functionOnIndexer1 = concat([
 ][0], 's')
 //@[002:0003) |   | ├─IntegerLiteralExpression { Value = 0 }
 //@[006:0009) |   └─StringLiteralExpression { Value = s }
-
-var functionOnIndexer2 = concat([
-//@[000:0044) ├─DeclaredVariableExpression { Name = functionOnIndexer2 }
-//@[025:0044) | └─FunctionCallExpression { Name = concat }
-//@[032:0038) |   ├─ArrayAccessExpression
-//@[032:0035) |   | └─ArrayExpression
-][0], 's')
-//@[002:0003) |   | ├─IntegerLiteralExpression { Value = 0 }
-//@[006:0009) |   └─StringLiteralExpression { Value = s }
-
-var functionOnIndexer3 = concat([
-//@[000:0049) ├─DeclaredVariableExpression { Name = functionOnIndexer3 }
-//@[025:0049) | └─FunctionCallExpression { Name = concat }
-//@[032:0038) |   ├─ArrayAccessExpression
-//@[032:0035) |   | └─ArrayExpression
-][0], any('s'))
-//@[002:0003) |   | ├─IntegerLiteralExpression { Value = 0 }
-//@[010:0013) |   └─StringLiteralExpression { Value = s }
 
 var singleQuote = '\''
 //@[000:0022) ├─DeclaredVariableExpression { Name = singleQuote }

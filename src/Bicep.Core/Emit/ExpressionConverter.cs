@@ -353,22 +353,24 @@ namespace Bicep.Core.Emit
         };
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
+            => GetResourceNameSegments(resource, expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray());
+
+        public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource, ImmutableArray<SyntaxBase> nameSegments)
         {
             // TODO move this into az extension
             var typeReference = resource.TypeReference;
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            var nameExpression = ConvertExpression(resource.NameSyntax);
+            var nameExpression = ConvertExpression(nameSegments.Last());
 
             var typesAfterProvider = typeReference.TypeSegments.Skip(1).ToImmutableArray();
 
             if (ancestors.Length > 0)
             {
                 var firstAncestorNameLength = typesAfterProvider.Length - ancestors.Length;
-                var ancestorNames = expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray();
 
                 var parentNames = ancestors.SelectMany((x, i) =>
                 {
-                    var nameExpression = this.ConvertExpression(ancestorNames[i]);
+                    var nameExpression = this.ConvertExpression(nameSegments[i]);
 
                     if (i == 0 && firstAncestorNameLength > 1)
                     {

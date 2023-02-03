@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Azure Types Inaccuracy
+    url: https://aka.ms/bicep-type-issues
+    about: Report a problem with inaccurate type information, or issues deploying a particular service.

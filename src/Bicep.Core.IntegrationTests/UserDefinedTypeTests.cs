@@ -444,4 +444,50 @@ output quux string = foos[0].?bar.baz.quux
         result.Should().NotHaveAnyDiagnostics();
         result.Should().HaveTemplateWithOutput("quux", "[parameters('foos')[0].bar.baz.quux]");
     }
+
+    [TestMethod]
+    public void Tuples_with_a_literal_index_use_type_at_index()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+("main.bicep", @"
+var myArray = ['foo', 'bar']
+
+module mod './mod.bicep' = {
+  name: 'mod'
+  params: {
+    myParam: myArray[0]
+  }
+}
+"),
+("mod.bicep", @"
+param myParam 'foo'
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void Tuples_with_a_literal_union_index_use_type_at_indices()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+("main.bicep", @"
+param index 0 | 1
+
+var myArray = ['foo', 'bar', 'baz']
+
+module mod './mod.bicep' = {
+  name: 'mod'
+  params: {
+    myParam: myArray[index]
+  }
+}
+"),
+("mod.bicep", @"
+param myParam 'foo' | 'bar'
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
 }
