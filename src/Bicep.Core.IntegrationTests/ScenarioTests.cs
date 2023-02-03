@@ -4223,5 +4223,24 @@ output storageService string = storageServices[0]
 
             result.Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/issues/9734
+        [TestMethod]
+        public void Test_9734()
+        {
+            var result = CompilationHelper.Compile(@"
+param name string
+param appsettings object
+
+var defaultValues = {
+  '${name}': { }
+}
+var values = union(defaultValues, appsettings)
+
+output values object = values[name]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }
