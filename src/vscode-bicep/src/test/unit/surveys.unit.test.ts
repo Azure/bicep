@@ -45,7 +45,7 @@ describe("surveys-unittests", () => {
     const launchSurveyMock = options.launchSurveyMock ?? jest.fn();
     const workspaceConfigurationFake = new WorkspaceConfigurationFake();
 
-    const survey = new Survey(globalStorageFake, surveyInfo, {
+    const survey = new Survey(globalStorageFake, surveyInfo, undefined, {
       showInformationMessage: showInformationMessageMock,
       getIsSurveyAvailable: jest
         .fn()

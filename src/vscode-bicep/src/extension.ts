@@ -117,7 +117,7 @@ export async function activate(
         setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
 
         // Show appropriate surveys
-        surveys.showSurveys(extensionContext.globalState);
+        surveys.showSurveys(extensionContext.globalState, outputChannel);
 
         const viewManager = extension.register(
           new BicepVisualizerViewManager(extension.extensionUri, languageClient)

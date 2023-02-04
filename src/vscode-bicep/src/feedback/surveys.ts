@@ -8,7 +8,7 @@ import {
   Uri,
   window,
 } from "vscode";
-import { parseError } from "@microsoft/vscode-azext-utils";
+import { IAzExtOutputChannel, parseError } from "@microsoft/vscode-azext-utils";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { callWithTelemetryAndErrorHandling } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
@@ -22,6 +22,7 @@ import { bicepConfigurationKeys } from "../language/constants";
 // DEBUGGING
 //
 // To debug surveys, set the following in your settings.json:
+//   "bicep.debug.surveys.debug": true, // Show debugging information in the output window
 //   "bicep.debug.surveys.now": "2023-10-01 PDT" // or whatever date you want to pretend the current date/time is
 //                                               //   (assumes GMT if you don't specify a time zone)
 //   "bicep.debug.surveys.link:<old link>": "<new link>" // Use a different link for a survey
@@ -45,17 +46,24 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
 
+const debugModeKey = "debug.surveys.debug";
 const debugClearStateKey = "debug.surveys.clearState";
 const debugNowDateKey = "debug.surveys.now";
 const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
 
-export function showSurveys(globalState: GlobalState): void {
-  checkShowSurvey(globalState, hatsAnnualSurveyInfo);
+const debuggingPrefix = "Debugging surveys";
+
+export function showSurveys(
+  globalState: GlobalState,
+  outputChannel: IAzExtOutputChannel
+): void {
+  checkShowSurvey(globalState, hatsAnnualSurveyInfo, outputChannel);
 }
 
 export function checkShowSurvey(
   globalState: GlobalState,
-  surveyInfo: ISurveyInfo
+  surveyInfo: ISurveyInfo,
+  outputChannel: IAzExtOutputChannel // Will be used for debug output if debugModeKey setting is true
 ): void {
   // Don't wait
   callWithTelemetryAndErrorHandling(
@@ -64,6 +72,15 @@ export function checkShowSurvey(
       let now = new Date();
 
       // Check debugging settings
+      const debugOutputChannel = getBicepConfiguration().get<boolean>(
+        debugModeKey
+      )
+        ? outputChannel
+        : undefined;
+      debugOutputChannel?.appendLine(
+        `Checking survey status for ${surveyInfo.akaLinkToSurvey}...`
+      );
+
       const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
       if (debugNowDate) {
         now = new Date(debugNowDate);
@@ -71,8 +88,8 @@ export function checkShowSurvey(
           !isNaN(now.valueOf()),
           `Invalid value for ${debugNowDateKey}`
         );
-        console.warn(
-          `Debugging surveys: Pretending now is ${now.toLocaleString()}`
+        debugOutputChannel?.appendLine(
+          `${debuggingPrefix}: WARNING: Pretending current time is ${now.toLocaleString()} ($via {debugNowDateKey})`
         );
         context.telemetry.properties.debugNowDate = debugNowDate;
         context.telemetry.suppressAll = true;
@@ -82,13 +99,13 @@ export function checkShowSurvey(
         debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey
       );
       if (debugTestLink) {
-        console.warn(
-          `Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`
+        debugOutputChannel?.appendLine(
+          `${debuggingPrefix}: WARNING: Replacing survey link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`
         );
         surveyInfo.akaLinkToSurvey = debugTestLink;
       }
 
-      const survey = new Survey(globalState, surveyInfo);
+      const survey = new Survey(globalState, surveyInfo, debugOutputChannel);
 
       if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
         await survey.clearGlobalState();
@@ -121,17 +138,20 @@ export class Survey {
   public constructor(
     private readonly globalState: GlobalState,
     private readonly surveyInfo: ISurveyInfo,
+    private readonly debugOutputChannel:
+      | IAzExtOutputChannel
+      | undefined = undefined,
     private inject: {
       showInformationMessage: typeof window.showInformationMessage;
       getIsSurveyAvailable: typeof Survey.getIsSurveyAvailable;
       launchSurvey: typeof Survey.launchSurvey;
       provideBicepConfiguration: typeof getBicepConfiguration;
     } = {
-        showInformationMessage: window.showInformationMessage,
-        getIsSurveyAvailable: Survey.getIsSurveyAvailable,
-        launchSurvey: Survey.launchSurvey,
-        provideBicepConfiguration: getBicepConfiguration,
-      }
+      showInformationMessage: window.showInformationMessage,
+      getIsSurveyAvailable: Survey.getIsSurveyAvailable,
+      launchSurvey: Survey.launchSurvey,
+      provideBicepConfiguration: getBicepConfiguration,
+    }
   ) {
     // noop
   }
@@ -155,8 +175,8 @@ export class Survey {
       now
     );
     context.telemetry.properties.shouldAsk = shouldAsk;
-    console.info(
-      `Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`
+    this.debugOutputChannel?.appendLine(
+      `${debuggingPrefix}: Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`
     );
 
     if (shouldAsk === "ask") {
@@ -256,13 +276,21 @@ export class Survey {
       retrievedState = {};
     }
 
-    console.info(`Retrieved global state for ${key}:`, retrievedState);
+    this.debugOutputChannel?.appendLine(
+      `${debuggingPrefix}: Retrieved global state for ${key}: ${JSON.stringify(
+        retrievedState
+      )}`
+    );
     return retrievedState;
   }
 
   private async updatePersistedSurveyState(state: ISurveyState): Promise<void> {
     const key = this.surveyInfo.surveyStateKey;
-    console.info(`Updating global state for ${key}:`, state);
+    this.debugOutputChannel?.appendLine(
+      `${debuggingPrefix}: Updating global state for ${key}: ${JSON.stringify(
+        state
+      )}`
+    );
 
     const persistedState: IPersistedSurveyState = {
       lastTakenMs: state.lastTaken?.valueOf(),
@@ -406,7 +434,9 @@ export class Survey {
   }
 
   public async clearGlobalState(): Promise<void> {
-    console.info(`Clearing global state for ${this.surveyInfo.surveyStateKey}`);
+    this.debugOutputChannel?.appendLine(
+      `${debuggingPrefix} WARNING: Clearing global state for ${this.surveyInfo.surveyStateKey}`
+    );
     await this.globalState.update(this.surveyInfo.surveyStateKey, undefined);
   }
 }
