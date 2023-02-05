@@ -185,6 +185,8 @@ namespace Bicep.LangServer.UnitTests.Registry
                 throw new NotImplementedException();
             }
 
+            public bool CheckModuleExists(ModuleReference moduleReference) => throw new NotImplementedException();
+
             public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<ModuleReference> references)
             {
                 throw new NotImplementedException();

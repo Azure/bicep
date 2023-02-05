@@ -76,6 +76,24 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
+        public override bool CheckModuleExists(OciArtifactModuleReference reference)
+        {
+            try
+            {
+                return this.client.CheckArtifactExists(configuration, reference);
+            }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // will include several retry messages, but likely the best we can do
+                throw new ExternalModuleException(exception.Message, exception);
+            }
+            catch (RequestFailedException exception)
+            {
+                // can only happen if client retries are disabled
+                throw new ExternalModuleException(exception.Message, exception);
+            }
+        }
+
         public override bool TryGetLocalModuleEntryPointUri(OciArtifactModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;

@@ -193,6 +193,12 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(moduleReference, compiled, documentationUri);
         }
 
+        public bool CheckModuleExists(ModuleReference moduleReference)
+        {
+            var registry = this.GetRegistry(moduleReference);
+            return registry.CheckModuleExists(moduleReference);
+        }
+
         public void PruneRestoreStatuses()
         {
             // concurrent dictionary enumeration does NOT provide a point-in-time snapshot of values in the dictionary

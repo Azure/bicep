@@ -29,6 +29,8 @@ namespace Bicep.Core.Registry
 
         Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false);
 
+        bool CheckModuleExists(ModuleReference moduleReference);
+
         Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri = null);
 
         void PruneRestoreStatuses();

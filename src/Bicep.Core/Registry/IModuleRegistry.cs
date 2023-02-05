@@ -43,6 +43,12 @@ namespace Bicep.Core.Registry
         bool IsModuleRestoreRequired(ModuleReference reference);
 
         /// <summary>
+        /// Returns true if the specified module exists in the registry.
+        /// </summary>
+        /// <param name="reference">The reference to the module.</param>
+        bool CheckModuleExists(ModuleReference reference);
+
+        /// <summary>
         /// Returns a URI to the entry point module.
         /// </summary>
         /// <param name="reference">The module reference</param>
