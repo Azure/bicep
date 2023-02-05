@@ -515,6 +515,16 @@
                     }
                   ]
                 },
+                "simplify-json-null": {
+                  "allOf": [
+                    {
+                      "description": "Simplify json('null') to null. See https://aka.ms/bicep/linter/simplify-json-null"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-parent-property": {
                   "allOf": [
                     {

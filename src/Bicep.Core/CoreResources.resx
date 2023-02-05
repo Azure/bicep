@@ -261,6 +261,12 @@
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
   </data>
+  <data name="SimplifyJsonNullFixTitle" xml:space="preserve">
+    <value>Simplify json('null') to null</value>
+  </data>
+  <data name="SimplifyJsonNullRuleDescription" xml:space="preserve">
+    <value>Simplify json('null') to null</value>
+  </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
     <value>All variables must be used.</value>
   </data>
