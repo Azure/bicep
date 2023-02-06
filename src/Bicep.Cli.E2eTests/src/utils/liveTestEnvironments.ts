@@ -24,11 +24,7 @@ export const fairfax: LiveTestEnvironment = {
   registryUri: "biceptestff.azurecr.us",
   templateSpecSubscriptionId: "e21305d9-eef2-4990-8ed2-e2748236bee3",
   resourceSuffix: "ff",
-  environmentOverrides: {
-    AZURE_TENANT_ID: "63296244-ce2c-46d8-bc36-3e558792fbee",
-    AZURE_CLIENT_ID: "fbbb49e5-e59c-4fce-9d7b-13925a36ad7f",
-    AZURE_CLIENT_SECRET: process.env["BICEP_SPN_PASSWORD_FF"] ?? "",
-  },
+  environmentOverrides: {},
 };
 
 export function getEnvironment(): LiveTestEnvironment {
