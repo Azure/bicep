@@ -57,9 +57,9 @@ export function showSurveys(
   globalState: GlobalState,
   outputChannel: IAzExtOutputChannel
 ): void {
-  outputChannel?.appendLine("showSurveys start");
+  outputChannel?.appendLog("showSurveys start");
   checkShowSurvey(globalState, hatsAnnualSurveyInfo, outputChannel);
-  outputChannel?.appendLine("showSurveys end");
+  outputChannel?.appendLog("showSurveys end");
 }
 
 export function checkShowSurvey(
@@ -67,7 +67,7 @@ export function checkShowSurvey(
   surveyInfo: ISurveyInfo,
   outputChannel: IAzExtOutputChannel // Will be used for debug output if debugModeKey setting is true
 ): void {
-  outputChannel?.appendLine("checkShowSurvey start");
+  outputChannel?.appendLog("checkShowSurvey start");
   // Don't wait
   callWithTelemetryAndErrorHandling(
     "survey",
@@ -80,7 +80,7 @@ export function checkShowSurvey(
       )
         ? outputChannel
         : undefined;
-      debugOutputChannel?.appendLine(
+      debugOutputChannel?.appendLog(
         `Checking survey status for ${surveyInfo.akaLinkToSurvey}...`
       );
 
@@ -91,7 +91,7 @@ export function checkShowSurvey(
           !isNaN(now.valueOf()),
           `Invalid value for ${debugNowDateKey}`
         );
-        debugOutputChannel?.appendLine(
+        debugOutputChannel?.appendLog(
           `${debuggingPrefix}: WARNING: Pretending current time is ${now.toLocaleString()} ($via {debugNowDateKey})`
         );
         context.telemetry.properties.debugNowDate = debugNowDate;
@@ -102,7 +102,7 @@ export function checkShowSurvey(
         debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey
       );
       if (debugTestLink) {
-        debugOutputChannel?.appendLine(
+        debugOutputChannel?.appendLog(
           `${debuggingPrefix}: WARNING: Replacing survey link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`
         );
         surveyInfo.akaLinkToSurvey = debugTestLink;
@@ -117,7 +117,7 @@ export function checkShowSurvey(
       await survey.checkShowSurvey(context, now);
     }
   );
-  outputChannel?.appendLine("checkShowSurvey end");
+  outputChannel?.appendLog("checkShowSurvey end");
 }
 
 export interface ISurveyInfo {
@@ -167,7 +167,7 @@ export class Survey {
     context: IActionContext,
     now: Date
   ): Promise<void> {
-    this.debugOutputChannel?.appendLine("checkShowSurvey start");
+    this.debugOutputChannel?.appendLog("checkShowSurvey start");
     context.errorHandling.suppressDisplay = true;
     context.telemetry.properties.isActivationEvent = "true";
     context.telemetry.properties.akaLink = this.surveyInfo.akaLinkToSurvey;
@@ -180,7 +180,7 @@ export class Survey {
       now
     );
     context.telemetry.properties.shouldAsk = shouldAsk;
-    this.debugOutputChannel?.appendLine(
+    this.debugOutputChannel?.appendLog(
       `${debuggingPrefix}: Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`
     );
 
@@ -189,7 +189,7 @@ export class Survey {
     }
 
     await this.updatePersistedSurveyState(surveyState);
-    this.debugOutputChannel?.appendLine("checkShowSurvey end");
+    this.debugOutputChannel?.appendLog("checkShowSurvey end");
   }
 
   private static getFullSurveyLink(akaLink: string): string {
@@ -248,7 +248,7 @@ export class Survey {
     context: IActionContext,
     now: Date
   ): ISurveyState {
-    this.debugOutputChannel?.appendLine("getPersistedSurveyState start");
+    this.debugOutputChannel?.appendLog("getPersistedSurveyState start");
     let retrievedState: ISurveyState;
     const key = this.surveyInfo.surveyStateKey;
 
@@ -284,18 +284,18 @@ export class Survey {
       retrievedState = {};
     }
 
-    this.debugOutputChannel?.appendLine(
+    this.debugOutputChannel?.appendLog(
       `${debuggingPrefix}: Retrieved global state for ${key}: ${JSON.stringify(
         retrievedState
       )}`
     );
-    this.debugOutputChannel?.appendLine("getPersistedSurveyState end");
+    this.debugOutputChannel?.appendLog("getPersistedSurveyState end");
     return retrievedState;
   }
 
   private async updatePersistedSurveyState(state: ISurveyState): Promise<void> {
     const key = this.surveyInfo.surveyStateKey;
-    this.debugOutputChannel?.appendLine(
+    this.debugOutputChannel?.appendLog(
       `${debuggingPrefix}: Updating global state for ${key}: ${JSON.stringify(
         state
       )}`
@@ -315,7 +315,7 @@ export class Survey {
     state: ISurveyState, // this is modified
     now: Date
   ): Promise<void> {
-    this.debugOutputChannel?.appendLine("askToTakeSurvey start");
+    this.debugOutputChannel?.appendLog("askToTakeSurvey start");
     const neverAskAgain: MessageItem = { title: "Never ask again" };
     const later: MessageItem = { title: "Maybe later" };
     const yes: MessageItem = { title: "Sure" };
@@ -354,7 +354,7 @@ export class Survey {
         `Unexpected response: ${response.title}`
       );
     }
-    this.debugOutputChannel?.appendLine("askToTakeSurvey end");
+    this.debugOutputChannel?.appendLog("askToTakeSurvey end");
   }
 
   private static async launchSurvey(
@@ -363,7 +363,7 @@ export class Survey {
     surveyInfo: ISurveyInfo,
     outputChannel: IAzExtOutputChannel | undefined
   ): Promise<void> {
-    outputChannel?.appendLine("launchSurvey start");
+    outputChannel?.appendLog("launchSurvey start");
     context.telemetry.properties.launchSurvey = "true";
 
     await commands.executeCommand(
@@ -373,7 +373,7 @@ export class Survey {
         true /*strict*/
       )
     );
-    outputChannel?.appendLine("launchSurvey end");
+    outputChannel?.appendLog("launchSurvey end");
   }
 
   private async postponeSurvey(
@@ -382,7 +382,7 @@ export class Survey {
     now: Date,
     days: number
   ): Promise<void> {
-    this.debugOutputChannel?.appendLine("postponeSurvey start");
+    this.debugOutputChannel?.appendLog("postponeSurvey start");
     assert(days > 0, "postponeSurvey: days must be positive");
 
     let newDateMs = now.valueOf() + daysToMs(days);
@@ -392,7 +392,7 @@ export class Survey {
     const newDate = new Date(newDateMs);
 
     state.postponedUntil = newDate;
-    this.debugOutputChannel?.appendLine("postponeSurvey end");
+    this.debugOutputChannel?.appendLog("postponeSurvey end");
   }
 
   public static async getIsSurveyAvailable(
@@ -401,31 +401,31 @@ export class Survey {
     fullLink: string,
     outputChannel?: IAzExtOutputChannel
   ): Promise<boolean> {
-    outputChannel?.appendLine("getIsSurveyAvailable start");
+    outputChannel?.appendLog("getIsSurveyAvailable start");
     let linkStatus = "unknown";
 
     try {
       const statusCode: number | undefined = await new Promise(
         (resolve, reject) => {
-          outputChannel?.appendLine("getIsSurveyAvailable https");
+          outputChannel?.appendLog("getIsSurveyAvailable https");
           https
             .get(fullLink, function (res) {
-              outputChannel?.appendLine("getIsSurveyAvailable resolve");
+              outputChannel?.appendLog("getIsSurveyAvailable resolve");
               resolve(res.statusCode);
-              outputChannel?.appendLine("getIsSurveyAvailable resume");
+              outputChannel?.appendLog("getIsSurveyAvailable resume");
               res.resume(); // Allow the response to be garbage collected
-              outputChannel?.appendLine("getIsSurveyAvailable after resume");
+              outputChannel?.appendLog("getIsSurveyAvailable after resume");
             })
             .on("error", function (err) {
-              outputChannel?.appendLine("getIsSurveyAvailable reject");
+              outputChannel?.appendLog("getIsSurveyAvailable reject");
               // Among other errors, we end up here if the Internet is not available
               reject(err);
-              outputChannel?.appendLine("getIsSurveyAvailable after reject");
+              outputChannel?.appendLog("getIsSurveyAvailable after reject");
             });
         }
       );
 
-      outputChannel?.appendLine(
+      outputChannel?.appendLog(
         "getIsSurveyAvailable statuscode=" + statusCode
       );
       if (statusCode === 301 /* moved permanently */) {
@@ -442,25 +442,25 @@ export class Survey {
       }
     } catch (err) {
       linkStatus = parseError(err).errorType;
-      outputChannel?.appendLine(
+      outputChannel?.appendLog(
         "getIsSurveyAvailable catch: " + parseError(err).message
       );
       return false;
     } finally {
       context.telemetry.properties.surveyLinkStatus = linkStatus;
-      outputChannel?.appendLine("getIsSurveyAvailable end");
+      outputChannel?.appendLog("getIsSurveyAvailable end");
     }
   }
 
   public areSurveysEnabled(): boolean {
-    this.debugOutputChannel?.appendLine("areSurveysEnabled");
+    this.debugOutputChannel?.appendLog("areSurveysEnabled");
     return this.inject
       .provideBicepConfiguration()
       .get<boolean>(bicepConfigurationKeys.enableSurveys, true);
   }
 
   private async disableSurveys(): Promise<void> {
-    this.debugOutputChannel?.appendLine("disableSurveys start");
+    this.debugOutputChannel?.appendLog("disableSurveys start");
     const a = this.inject
       .provideBicepConfiguration()
       .update(
@@ -468,16 +468,16 @@ export class Survey {
         false,
         ConfigurationTarget.Global
       );
-    this.debugOutputChannel?.appendLine("disableSurveys end");
+    this.debugOutputChannel?.appendLog("disableSurveys end");
     return a;
   }
 
   public async clearGlobalState(): Promise<void> {
-    this.debugOutputChannel?.appendLine("clearGlobalState start");
-    this.debugOutputChannel?.appendLine(
+    this.debugOutputChannel?.appendLog("clearGlobalState start");
+    this.debugOutputChannel?.appendLog(
       `${debuggingPrefix} WARNING: Clearing global state for ${this.surveyInfo.surveyStateKey}`
     );
     await this.globalState.update(this.surveyInfo.surveyStateKey, undefined);
-    this.debugOutputChannel?.appendLine("clearGlobalState end");
+    this.debugOutputChannel?.appendLog("clearGlobalState end");
   }
 }

@@ -6,6 +6,7 @@ import { DecompileCommand } from "./commands/decompile";
 import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
+  IAzExtOutputChannel,
 } from "@microsoft/vscode-azext-utils";
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { bicepLanguageId } from "./language/constants";
@@ -17,8 +18,10 @@ const cachedCanPasteAsBicep = {
 
 export async function updateUiContext(
   currentDocument: TextDocument | undefined,
+  outputChannel: IAzExtOutputChannel,
   pasteAsBicepCommand?: PasteAsBicepCommand // Pass this in if you want to check for canPasteAsBicep
 ): Promise<void> {
+  outputChannel.appendLog("updateUiContext start");
   await callWithTelemetryAndErrorHandling(
     "updateUiContext",
     async (context: IActionContext) => {
@@ -39,10 +42,16 @@ export async function updateUiContext(
           break;
       }
 
+      outputChannel.appendLog(
+        "updateUiContext before setContext bicep.cannotDecompile"
+      );
       await commands.executeCommand(
         "setContext",
         "bicep.cannotDecompile",
         cannotDecompile
+      );
+      outputChannel.appendLog(
+        "updateUiContext after setContext bicep.cannotDecompile"
       );
 
       if (pasteAsBicepCommand) {
@@ -50,25 +59,35 @@ export async function updateUiContext(
 
         if (pasteAsBicepCommand?.isExperimentalPasteAsBicepEnabled()) {
           if (currentDocument?.languageId === bicepLanguageId) {
+            outputChannel.appendLog("updateUiContext before readText");
             const clipboardText = await env.clipboard.readText();
+            outputChannel.appendLog("updateUiContext after readText");
 
             if (cachedCanPasteAsBicep.clipboardText === clipboardText) {
               canPasteAsBicep = cachedCanPasteAsBicep.canPasteAsBicep;
             } else {
+              outputChannel.appendLog("updateUiContext before canPasteAsBicep");
               canPasteAsBicep = await pasteAsBicepCommand.canPasteAsBicep(
                 context,
                 clipboardText
               );
+              outputChannel.appendLog("updateUiContext after canPasteAsBicep");
               cachedCanPasteAsBicep.clipboardText = clipboardText;
               cachedCanPasteAsBicep.canPasteAsBicep = canPasteAsBicep;
             }
           }
         }
 
+        outputChannel.appendLog(
+          "updateUiContext before setContext bicep.canPasteAsBicep"
+        );
         await commands.executeCommand(
           "setContext",
           "bicep.canPasteAsBicep",
           canPasteAsBicep
+        );
+        outputChannel.appendLog(
+          "updateUiContext after setContext bicep.canPasteAsBicep"
         );
       }
     }

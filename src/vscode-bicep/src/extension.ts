@@ -98,6 +98,8 @@ export async function activate(
   await activateWithTelemetryAndErrorHandling(
     async (actionContext) =>
       await activateWithProgressReport(async () => {
+        outputChannel.appendLog("activateWithProgressReport start");
+
         languageClient = await createLanguageService(
           actionContext,
           extensionContext,
@@ -170,7 +172,7 @@ export async function activate(
           window.onDidChangeActiveTextEditor(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async (editor: TextEditor | undefined) => {
-              await updateUiContext(editor?.document, pasteAsBicepCommand);
+              await updateUiContext(editor?.document,outputChannel, pasteAsBicepCommand);
             }
           )
         );
@@ -179,7 +181,7 @@ export async function activate(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidCloseTextDocument(async (_d: TextDocument) => {
             await updateUiContext(
-              window.activeTextEditor?.document,
+              window.activeTextEditor?.document,outputChannel,
               pasteAsBicepCommand
             );
           })
@@ -189,7 +191,7 @@ export async function activate(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidOpenTextDocument(async (_d: TextDocument) => {
             await updateUiContext(
-              window.activeTextEditor?.document,
+              window.activeTextEditor?.document,outputChannel,
               pasteAsBicepCommand
             );
           })
@@ -198,20 +200,39 @@ export async function activate(
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidSaveTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(window.activeTextEditor?.document);
+            await updateUiContext(window.activeTextEditor?.document,outputChannel);
           })
         );
 
+        outputChannel.appendLog(
+          "activateWithProgressReport before languageClient.start"
+        );
         await languageClient.start();
         getLogger().info("Bicep language service started.");
+        outputChannel.appendLog(
+          "activateWithProgressReport after languageClient.start"
+        );
 
+        outputChannel.appendLog(
+          "activateWithProgressReport before updateUiContext"
+        );
         await updateUiContext(
           window.activeTextEditor?.document,
+          outputChannel,
           pasteAsBicepCommand
+        );
+        outputChannel.appendLog(
+          "activateWithProgressReport after updateUiContext"
         );
 
         // Show survey if appropriate
+        outputChannel.appendLog(
+          "activateWithProgressReport before showSurveys"
+        );
         surveys.showSurveys(extensionContext.globalState, outputChannel);
+        outputChannel.appendLog("activateWithProgressReport after showSurveys");
+
+        outputChannel.appendLog("activateWithProgressReport end");
       })
   );
 }
