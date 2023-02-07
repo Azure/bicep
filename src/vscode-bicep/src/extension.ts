@@ -116,9 +116,6 @@ export async function activate(
 
         setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
 
-        // Show appropriate surveys
-        surveys.showSurveys(extensionContext.globalState);
-
         const viewManager = extension.register(
           new BicepVisualizerViewManager(extension.extensionUri, languageClient)
         );
@@ -212,6 +209,9 @@ export async function activate(
           window.activeTextEditor?.document,
           pasteAsBicepCommand
         );
+
+        // Show survey if appropriate
+        surveys.showSurveys(extensionContext.globalState);
       })
   );
 }
