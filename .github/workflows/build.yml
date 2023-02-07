@@ -636,7 +636,6 @@ jobs:
 
       - name: Az CLI login
         uses: azure/login@v1
-        if: matrix.environment == 'prod'
         with:
           client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
           tenant-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_TENANT_ID_PROD) || secrets.LIVE_TEST_TENANT_ID_FF }}
@@ -682,7 +681,6 @@ jobs:
 
       - name: Az CLI login
         uses: azure/login@v1
-        if: matrix.environment == 'prod'
         with:
           client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
           tenant-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_TENANT_ID_PROD) || secrets.LIVE_TEST_TENANT_ID_FF }}
