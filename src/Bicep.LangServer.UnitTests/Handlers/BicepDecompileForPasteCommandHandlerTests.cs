@@ -1424,6 +1424,25 @@ abc: 1
                     expectedErrorMessage: null,
                     expectedBicep: null);
         }
+
+        [TestMethod]
+        public async Task Template_CreatesEmptyBicep()
+        {
+            await TestDecompileForPaste(
+                    @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": """",
+  ""apiProfile"": """",
+  ""parameters"": {  },
+  ""variables"": {  },
+  ""functions"": [  ],
+  ""resources"": [  ],
+  ""outputs"": {  }
+}",
+                    PasteType.None,
+                    expectedErrorMessage: null,
+                    expectedBicep: null);
+        }
     }
 }
 

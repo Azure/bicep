@@ -114,7 +114,11 @@ namespace Bicep.LanguageServer.Handlers
                 else
                 {
                     // It's a full or partial template and we have converted it into a full template to parse
-                    return await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
+                    var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
+                    if (result is not null)
+                    {
+                        return result;
+                    }
                 }
             }
 
@@ -126,7 +130,7 @@ namespace Bicep.LanguageServer.Handlers
                 GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType: null, bicep: null));
         }
 
-        private async Task<ResultAndTelemetry> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, string pasteType, bool queryCanPaste, string? constructedJsonTemplate)
+        private async Task<ResultAndTelemetry?> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, string pasteType, bool queryCanPaste, string? constructedJsonTemplate)
         {
             ImmutableDictionary<Uri, string> filesToSave;
             try
@@ -155,6 +159,11 @@ namespace Bicep.LanguageServer.Handlers
 
             // Get Bicep output from the main file (all others are currently ignored)
             string bicepOutput = filesToSave.Single(kvp => BicepDummyUri.Equals(kvp.Key)).Value;
+
+            if (string.IsNullOrWhiteSpace(bicepOutput))
+            {
+                return null;
+            }
 
             // Ensure ends with newline
             bicepOutput = bicepOutput.TrimEnd() + "\n";
