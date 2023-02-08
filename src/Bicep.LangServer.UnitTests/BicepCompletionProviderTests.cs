@@ -356,10 +356,12 @@ output length int =
         }
 
         [DataTestMethod]
+        [DataRow("module test |''", 14)]
+        [DataRow("module test ''|", 14)]
         [DataRow("module test '|'", 14)]
         [DataRow("module test '|", 13)]
         [DataRow("module test |", 12)]
-        public async Task VerifyModulePathCompletions(string inputWithCursors, int expectedEnd)
+        public async Task Verify_BicepRegistryAndTemplateSpecShemaCompletions(string inputWithCursors, int expectedEnd)
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
 

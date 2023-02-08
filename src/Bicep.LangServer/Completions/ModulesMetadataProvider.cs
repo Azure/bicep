@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public record ModuleMetadata(string moduleName, List<string> tags, string readmeLink);
+    public record ModuleMetadata(string moduleName, List<string> tags);
 
     public class ModulesMetadataProvider : IModulesMetadataProvider
     {
@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Providers
         {
             HttpClient client = new HttpClient();
 
-            var moduleMetadata = await client.GetStringAsync("https://modulesmetadata.bicep-df.azure.com/moduleNamesWithTags");
+            var moduleMetadata = await client.GetStringAsync("https://live-data.bicep.azure.com/modulesMetadata");
 
             var metadata = JsonConvert.DeserializeObject<List<ModuleMetadata>>(moduleMetadata);
 
