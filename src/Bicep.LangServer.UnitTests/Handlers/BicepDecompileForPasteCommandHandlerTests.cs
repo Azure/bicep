@@ -1191,6 +1191,30 @@ random characters
                         }");
         }
 
+        [TestMethod]
+        public async Task MultilineStrings_ShouldSucceed()
+        {
+            string json = @"{
+  ""type"": ""Microsoft.Compute/virtualMachines"",
+  ""apiVersion"": ""2018-10-01"",
+  ""name"": ""[variables('vmName')]"", // to customize name, change it in variables
+  ""location"": ""[
+    parameters('location')
+    ]"",
+}";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.SingleResource,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = {
+                          name: vmName
+                          location: location
+                        }
+");
+        }
+
         [DataRow(
             @"'just a string with single quotes'",
             null, // Already valid bicep so doesn't get converted
