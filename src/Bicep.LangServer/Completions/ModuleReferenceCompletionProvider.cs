@@ -182,9 +182,12 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, "public:")
-                    .WithSortText(GetSortText("public:", CompletionPriority.High))
-                    .Build();
+            var label = "public:";
+            var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                .WithSnippetEdit(context.ReplacementRange, "public:$0")
+                .WithSortText(GetSortText(label, CompletionPriority.High))
+                .Build();
+
             return new List<CompletionItem> { completionItem };
         }
 

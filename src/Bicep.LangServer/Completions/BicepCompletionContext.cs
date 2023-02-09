@@ -402,6 +402,10 @@ namespace Bicep.LanguageServer.Completions
                     {
                         return BicepCompletionContextKind.McrPublicModuleRegistryTag;
                     }
+                    if (text.Trim('\'') is string trimmedText && !string.IsNullOrWhiteSpace(trimmedText))
+                    {
+                        return BicepCompletionContextKind.None;
+                    }
                 }
 
                 // the most specific matching node is a module declaration
