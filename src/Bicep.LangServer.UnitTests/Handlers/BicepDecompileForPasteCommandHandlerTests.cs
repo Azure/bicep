@@ -49,6 +49,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             SingleResource,
             ResourceList,
             JsonValue,
+            BicepValue,
         }
 
         private async Task TestDecompileForPaste(
@@ -73,6 +74,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 PasteType.SingleResource => BicepDecompileForPasteCommandHandler.PasteType_SingleResource,
                 PasteType.ResourceList => BicepDecompileForPasteCommandHandler.PasteType_ResourceList,
                 PasteType.JsonValue => BicepDecompileForPasteCommandHandler.PasteType_JsonValue,
+                PasteType.BicepValue => BicepDecompileForPasteCommandHandler.PasteType_BicepValue,
                 _ => throw new NotImplementedException(),
             });
         }
@@ -1216,11 +1218,6 @@ random characters
         }
 
         [DataRow(
-            @"'just a string with single quotes'",
-            null, // Already valid bicep so doesn't get converted
-            DisplayName = "String with single quotes"
-        )]
-        [DataRow(
             @"""just a string with double quotes""",
             @"'just a string with double quotes'",
             DisplayName = "String with double quotes"
@@ -1405,9 +1402,6 @@ random characters
             @"",
             DisplayName = "Empty")]
         [DataRow(
-            @"null",
-            DisplayName = "null")]
-        [DataRow(
             "  \t  ",
             DisplayName = "just whitespace")]
         [DataRow(
@@ -1426,27 +1420,56 @@ random characters
         }
 
         [DataTestMethod]
-        [DataRow(@"{ abc: 1, def: 'def' }")] // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep so shouldn't be converted
-        [DataRow(@"{ abc: 1, /*hi*/ def: 'def' }")] // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep so shouldn't be converted
-        [DataRow(@"{
-abc: 1
-// comment
-  def: 'def'
-}")]
-        [DataRow(@"[1]")]
-        [DataRow(@"[1 1]")]
-        [DataRow(@"[      /* */  ]")]
-        [DataRow(@"[
-/* */  ]")]
-        [DataRow(@"[
-  1]")]
-        public async Task JsonValue_IsAlreadyLegalBicep_DontConvert_BecauseItWouldChangeJustFormatting(string json)
+        [DataRow(
+            @"{ abc: 1, def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            @"{
+                abc: 1
+                def: 'def'
+            }")]
+        [DataRow(
+            @"{ abc: 1, /*hi*/ def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            @"{
+                abc: 1
+                def: 'def'
+            }")]
+        [DataRow(
+            "[1]",
+            @"[
+                1
+            ]")]
+        [DataRow(
+            "[1, 1]",
+            @"[
+                1
+                1
+            ]")]
+        [DataRow("[      /* */  ]", "[]")]
+        [DataRow(
+            @"[
+/* */  ]",
+        "[]")]
+        [DataRow(
+            @"[
+  1]",
+            @"[
+                1
+            ]")]
+        [DataRow(
+            "null",
+            "null",
+            DisplayName = "null")]
+        [DataRow(
+            @"'just a string with single quotes'",
+            @"'just a string with single quotes'",
+            DisplayName = "String with single quotes"
+        )]
+        public async Task JsonValue_IsAlreadyLegalBicep(string json, string expectedBicep)
         {
             await TestDecompileForPaste(
                     json,
-                    PasteType.None,
-                    expectedErrorMessage: null,
-                    expectedBicep: null);
+                    PasteType.BicepValue,
+                    expectedBicep,
+                    expectedErrorMessage: null);
         }
 
         [TestMethod]
