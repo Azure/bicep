@@ -69,10 +69,17 @@ export class PasteAsBicepCommand implements Command {
       clipboardText,
       false /* queryCanPaste */
     );
+
+    if (!result.pasteType) {
+      throw new Error(
+        `The clipboard text does not appear to be valid JSON or is not in a format that can be pasted as Bicep.`
+      );
+    }
+
     if (result.errorMessage) {
       context.errorHandling.issueProperties.clipboardText = clipboardText;
       throw new Error(
-        `Could not paste clipboard text as Bicep because of an error: ${result.errorMessage}`
+        `Could not paste clipboard text as Bicep: ${result.errorMessage}`
       );
     }
 
@@ -85,17 +92,6 @@ export class PasteAsBicepCommand implements Command {
     extension.register(
       workspace.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this))
     );
-  }
-
-  public async canPasteAsBicep(
-    context: IActionContext,
-    jsonContent: string
-  ): Promise<boolean> {
-    const result = await this.callDecompileForPaste(
-      jsonContent,
-      true /* queryCanPaste */
-    );
-    return !!result.pasteType;
   }
 
   private async callDecompileForPaste(
@@ -199,13 +195,22 @@ export class PasteAsBicepCommand implements Command {
               clipboardText.length
             );
 
+            if (canPasteResult.pasteType === "bicepValue") {
+              // If the input was already a valid Bicep expression (i.e., the conversion looks the same as the original, once formatting
+              //   changes are ignored), then skip the conversion, otherwise the user will see formatting changes when copying Bicep values
+              //   to Bicep (e.g. [1] would get changed to a multi-line array).
+              // This will mainly happen with single-line arrays and objects, especially since the Newtonsoft parser accepts input that is
+              //   JavaScript but not technically JSON, such as '{ abc: 1, def: 'def' }, but which also happens to be valid Bicep.
+              return;
+            }
+
             if (canPasteResult.errorMessage || !canPasteResult.bicep) {
               // If we should be able to convert but there were errors in the JSON, show a message to the output window
               this.outputChannelManager.appendToOutputChannel(
                 canPasteResult.output
               );
               this.outputChannelManager.appendToOutputChannel(
-                `Could not convert pasted text into Bicep because of an error: ${canPasteResult.errorMessage}`
+                `Could not convert pasted text into Bicep: ${canPasteResult.errorMessage}`
               );
 
               // ... and register telemetry for the failure (don't show the error to the user again)

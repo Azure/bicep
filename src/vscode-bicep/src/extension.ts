@@ -173,7 +173,7 @@ export async function activate(
           window.onDidChangeActiveTextEditor(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async (editor: TextEditor | undefined) => {
-              await updateUiContext(editor?.document, pasteAsBicepCommand);
+              await updateUiContext(editor?.document);
             }
           )
         );
@@ -181,20 +181,14 @@ export async function activate(
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidCloseTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(
-              window.activeTextEditor?.document,
-              pasteAsBicepCommand
-            );
+            await updateUiContext(window.activeTextEditor?.document);
           })
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidOpenTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(
-              window.activeTextEditor?.document,
-              pasteAsBicepCommand
-            );
+            await updateUiContext(window.activeTextEditor?.document);
           })
         );
 
@@ -208,10 +202,8 @@ export async function activate(
         await languageClient.start();
         getLogger().info("Bicep language service started.");
 
-        await updateUiContext(
-          window.activeTextEditor?.document,
-          pasteAsBicepCommand
-        );
+        // Set initial UI context
+        await updateUiContext(window.activeTextEditor?.document);
       })
   );
 }
