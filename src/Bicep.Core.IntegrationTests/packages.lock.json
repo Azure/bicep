@@ -234,6 +234,17 @@
         "resolved": "8.1.0",
         "contentHash": "KJFnA0MV83bNOhvYbjIX1iDykhwFXoQu0KV7E1SVbNA/CmO2I7SAm2Baly0eS7VJ2GwlmStLajBfeiNgTpvYzQ=="
       },
+      "Microsoft.Azure.Management.ResourceGraph": {
+        "type": "Transitive",
+        "resolved": "2.1.0",
+        "contentHash": "YL/ECmtkuyxzuBR7qUm7ST76ETVa+IedqdIzFdoRwnxPBn0ItNC73JZMEZ+HFtJPmFu8ghoDDvoqm+faUyU7JA==",
+        "dependencies": {
+          "Microsoft.Rest.ClientRuntime": "[2.3.20, 3.0.0)",
+          "Microsoft.Rest.ClientRuntime.Azure": "[3.3.19, 4.0.0)",
+          "Newtonsoft.Json": "10.0.3",
+          "System.Net.Http": "4.3.0"
+        }
+      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -425,6 +436,23 @@
           "Microsoft.Windows.Compatibility": "6.0.1",
           "Newtonsoft.Json": "13.0.1",
           "WindowsAzure.Storage": "9.3.3"
+        }
+      },
+      "Microsoft.Rest.ClientRuntime": {
+        "type": "Transitive",
+        "resolved": "2.3.20",
+        "contentHash": "bw/H1nO4JdnhTagPHWIFQwtlQ6rb2jqw5RTrqPsPqzrjhJxc7P6MyNGdf4pgHQdzdpBSNOfZTEQifoUkxmzYXQ==",
+        "dependencies": {
+          "Newtonsoft.Json": "10.0.3"
+        }
+      },
+      "Microsoft.Rest.ClientRuntime.Azure": {
+        "type": "Transitive",
+        "resolved": "3.3.19",
+        "contentHash": "+NVBWvRXNwaAPTZUxjUlQggsrf3X0GbiRoxYfgc3kG9E55ZxZxvZPT3nIfC4DNqzGSXUEvmLbckdXgBBzGdUaA==",
+        "dependencies": {
+          "Microsoft.Rest.ClientRuntime": "[2.3.19, 3.0.0)",
+          "Newtonsoft.Json": "10.0.3"
         }
       },
       "Microsoft.SourceLink.Common": {
@@ -2042,6 +2070,7 @@
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "CommandLineParser": "[2.9.1, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.7, )",
+          "Microsoft.Azure.Management.ResourceGraph": "[2.1.0, )",
           "SharpYaml": "[2.1.0, )"
         }
       }

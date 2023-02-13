@@ -99,6 +99,10 @@ namespace Bicep.LanguageServer
 
             server.LogInfo($"Running on processId {Environment.ProcessId}");
 
+            var mcrCompletionProvider = server.GetRequiredService<IModulesMetadataProvider>();
+            server.LogInfo($"Initializing mcr completion provider {mcrCompletionProvider}");
+            await mcrCompletionProvider.Initialize();
+
             if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new ServerLogTraceListener(server));
@@ -133,7 +137,11 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
+                .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
+                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>();
         }
 
         public void Dispose()

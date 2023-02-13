@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
@@ -41,18 +42,21 @@ namespace Bicep.LanguageServer.Completions
 
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
+        public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
         private readonly INamespaceProvider namespaceProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
+            this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
             this.namespaceProvider = namespaceProvider;
         }
 
-        public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
             var model = compilation.GetEntrypointSemanticModel();
+            IEnumerable<CompletionItem> moduleReferenceCompletions = await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context);
 
             return GetDeclarationCompletions(model, context)
                 .Concat(GetSymbolCompletions(model, context))
@@ -80,7 +84,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context))
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
-                .Concat(GetUsingDeclarationPathCompletions(model, context));
+                .Concat(GetUsingDeclarationPathCompletions(model, context))
+                .Concat(moduleReferenceCompletions);
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -1389,7 +1394,6 @@ namespace Bicep.LanguageServer.Completions
             const string conditionLabel = "if-else";
             return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
                 .WithSnippetEdit(replacementRange, "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}")
-                .WithDetail(conditionLabel)
                 .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
                 .Build();
         }
