@@ -84,7 +84,7 @@ export class PasteAsBicepCommand implements Command {
     }
 
     await editor.edit((builder) => {
-      builder.insert(editor.selection.active, result.bicep ?? "");
+      builder.replace(editor.selection, result.bicep ?? "");
     });
   }
 
