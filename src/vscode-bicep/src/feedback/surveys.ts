@@ -40,7 +40,7 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
   //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt:
-    "Could you please take 2 minutes to tell us how well Bicep is working for you?",
+    "Do you have a few minutes to tell us about your experience with Bicep?",
   postponeForLaterInDays: 2 * 7,
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
@@ -286,7 +286,7 @@ export class Survey {
       id: "never",
     };
     const later: MessageItemWithId = { title: "Maybe later", id: "later" };
-    const yes: MessageItemWithId = { title: "Sure", id: "yes" };
+    const yes: MessageItemWithId = { title: "Yes", id: "yes" };
     const dismissed: MessageItemWithId = {
       title: "(dismissed)",
       id: "dismissed",
