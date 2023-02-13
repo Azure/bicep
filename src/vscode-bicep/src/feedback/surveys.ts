@@ -295,9 +295,9 @@ export class Survey {
     const response =
       (await this.inject?.showInformationMessage(
         this.surveyInfo.surveyPrompt,
-        neverAskAgain,
+        yes,
         later,
-        yes
+        neverAskAgain
       )) ?? dismissed;
     context.telemetry.properties.userResponse = String(response.id);
 
