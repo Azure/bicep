@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8068768144990634285"
+      "templateHash": "87364998234739268"
     }
   },
   "parameters": {
@@ -51,7 +51,7 @@
     "key1": {
       "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
       "apiVersion": "2020-07-01-preview",
-      "name": "[format('{0}/{1}', resourceInfo('config').name, parameters('keyValueNames')[0])]",
+      "name": "[format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0])]",
       "properties": {
         "value": "[parameters('keyValueValues')[0]]",
         "contentType": "[parameters('contentType')]"
@@ -63,7 +63,7 @@
     "key2": {
       "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
       "apiVersion": "2020-07-01-preview",
-      "name": "[format('{0}/{1}', resourceInfo('config').name, parameters('keyValueNames')[1])]",
+      "name": "[format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[1])]",
       "properties": {
         "value": "[parameters('keyValueValues')[1]]",
         "contentType": "[parameters('contentType')]"

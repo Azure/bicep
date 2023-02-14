@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10058717210123412779"
+      "templateHash": "4580692119464669188"
     }
   },
   "parameters": {
@@ -63,7 +63,7 @@
       "properties": {
         "publicIPAllocationMethod": "Static",
         "publicIPPrefix": {
-          "id": "[resourceInfo('fwipprefix').id]"
+          "id": "[resourceId('Microsoft.Network/publicIPPrefixes', parameters('ipprefixname'))]"
         }
       },
       "dependsOn": [
@@ -74,7 +74,7 @@
   "outputs": {
     "id": {
       "type": "string",
-      "value": "[resourceInfo('fwip').id]"
+      "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipname'))]"
     }
   }
 }

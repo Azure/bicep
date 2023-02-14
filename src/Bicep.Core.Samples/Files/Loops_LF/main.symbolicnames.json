@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14142443566278829152"
+      "templateHash": "16946259249638547988"
     }
   },
   "parameters": {
@@ -221,7 +221,7 @@
       "properties": {
         "resolutionVirtualNetworks": [
           {
-            "id": "[resourceInfo(format('vnets[{0}]', add(parameters('index'), 1))).id]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[add(parameters('index'), 1)].name)]"
           }
         ]
       },
@@ -237,10 +237,10 @@
       "properties": {
         "resolutionVirtualNetworks": [
           {
-            "id": "[resourceInfo(format('vnets[{0}]', sub(parameters('index'), 1))).id]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[sub(parameters('index'), 1)].name)]"
           },
           {
-            "id": "[resourceInfo(format('vnets[{0}]', mul(parameters('index'), 2))).id]"
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[mul(parameters('index'), 2)].name)]"
           }
         ]
       },
@@ -412,22 +412,22 @@
       ]
     },
     "filteredZones": {
-      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
       "copy": {
         "name": "filteredZones",
         "count": "[length(range(0, 10))]"
       },
+      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
       "type": "Microsoft.Network/dnsZones",
       "apiVersion": "2018-05-01",
       "name": "[format('zone{0}', range(0, 10)[copyIndex()])]",
       "location": "[resourceGroup().location]"
     },
     "filteredIndexedZones": {
-      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "copy": {
         "name": "filteredIndexedZones",
         "count": "[length(parameters('accounts'))]"
       },
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "type": "Microsoft.Network/dnsZones",
       "apiVersion": "2018-05-01",
       "name": "[format('indexedZone-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]",
@@ -716,11 +716,11 @@
       }
     },
     "filteredModules": {
-      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
       "copy": {
         "name": "filteredModules",
         "count": "[length(range(0, 6))]"
       },
+      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
@@ -762,11 +762,11 @@
       }
     },
     "filteredIndexedModules": {
-      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "copy": {
         "name": "filteredIndexedModules",
         "count": "[length(parameters('accounts'))]"
       },
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "[format('stuff-{0}', copyIndex())]",
@@ -815,19 +815,19 @@
     },
     "indexedCollectionName": {
       "type": "string",
-      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).name]"
+      "value": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)]"
     },
     "indexedCollectionId": {
       "type": "string",
-      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).id]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name))]"
     },
     "indexedCollectionType": {
       "type": "string",
-      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).type]"
+      "value": "Microsoft.Storage/storageAccounts"
     },
     "indexedCollectionVersion": {
       "type": "string",
-      "value": "[resourceInfo(format('storageAccounts[{0}]', parameters('index'))).apiVersion]"
+      "value": "2019-06-01"
     },
     "indexedCollectionIdentity": {
       "type": "object",
@@ -854,19 +854,19 @@
     },
     "existingIndexedResourceName": {
       "type": "string",
-      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', mul(parameters('index'), 0))).name]"
+      "value": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 0)].name)]"
     },
     "existingIndexedResourceId": {
       "type": "string",
-      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', mul(parameters('index'), 1))).id]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 1)].name))]"
     },
     "existingIndexedResourceType": {
       "type": "string",
-      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', add(parameters('index'), 2))).type]"
+      "value": "Microsoft.Storage/storageAccounts"
     },
     "existingIndexedResourceApiVersion": {
       "type": "string",
-      "value": "[resourceInfo(format('existingStorageAccounts[{0}]', sub(parameters('index'), 7))).apiVersion]"
+      "value": "2019-06-01"
     },
     "existingIndexedResourceLocation": {
       "type": "string",

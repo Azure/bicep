@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -40,7 +41,7 @@ namespace Bicep.Core.TypeSystem
         public FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax)
             => typeAssignmentVisitor.GetMatchedFunctionOverload(syntax);
 
-        public object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
+        public Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
             => typeAssignmentVisitor.GetMatchedFunctionResultValue(syntax);
 
     }

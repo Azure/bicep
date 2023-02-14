@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -28,7 +29,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
-        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, object> matchedFunctionResultValues;
+        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
         private readonly BicepSourceFileKind fileKind;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, Workspaces.BicepSourceFileKind fileKind)
@@ -71,7 +72,7 @@ namespace Bicep.Core.TypeSystem
             Visit(syntax);
             return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
         }
-        public object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
+        public Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
         {
             Visit(syntax);
             return matchedFunctionResultValues.TryGetValue(syntax, out var metadata) ? metadata : null;
@@ -202,7 +203,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitForSyntax(ForSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var errors = new List<ErrorDiagnostic>();
 
@@ -229,8 +230,16 @@ namespace Bicep.Core.TypeSystem
 
                 if (!TypeValidator.AreTypesAssignable(arrayExpressionType, LanguageConstants.Array))
                 {
-                    // the array expression isn't actually an array
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Expression).LoopArrayExpressionTypeMismatch(arrayExpressionType));
+                    var builder = DiagnosticBuilder.ForPosition(syntax.Expression);
+                    if (TypeHelper.WouldBeAssignableIfNonNullable(arrayExpressionType, LanguageConstants.Array, out var nonNullable))
+                    {
+                        diagnostics.Write(builder.PossibleNullReferenceAssignment(LanguageConstants.Array, arrayExpressionType, syntax.Expression));
+                    }
+                    else
+                    {
+                        // the array expression isn't actually an array
+                        return ErrorType.Create(builder.LoopArrayExpressionTypeMismatch(arrayExpressionType));
+                    }
                 }
 
                 if (PropagateErrorType(errors, loopItemType, arrayExpressionType, bodyType))
@@ -459,6 +468,17 @@ namespace Bicep.Core.TypeSystem
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
                 base.VisitObjectTypePropertySyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                base.VisitObjectTypeAdditionalPropertiesSyntax(syntax);
 
                 return declaredType;
             });
@@ -834,7 +854,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 if(this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
@@ -859,10 +879,20 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var expectedConditionType = LanguageConstants.Bool;
+                // if the condition is nullable, emit a fixable warning and proceed as if it had been non-nullable
+                if (TypeHelper.WouldBeAssignableIfNonNullable(conditionType, expectedConditionType, out var nonNullableConditionType))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.ConditionExpression)
+                        .PossibleNullReferenceAssignment(expectedConditionType, conditionType, syntax.ConditionExpression));
+                    conditionType = nonNullableConditionType;
+                }
+
                 if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType));
                 }
+
+                // TODO if the condition is of a boolean literal type, return either `trueType` or `falseType`, not the union of both
 
                 // the return type is the union of true and false expression types
                 return TypeHelper.CreateTypeUnion(trueType, falseType);
@@ -976,8 +1006,35 @@ namespace Bicep.Core.TypeSystem
 
         private static ITypeReference GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
         {
+            // if the index type is nullable but otherwise valid, emit a fixable warning
+            if (TypeHelper.TryRemoveNullability(indexType) is {} nonNullableIndex)
+            {
+                var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, baseType, nonNullableIndex);
+
+                if (withNonNullableIndex is not ErrorType)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.IndexExpression).PossibleNullReferenceAssignment(nonNullableIndex, indexType, syntax.IndexExpression));
+                }
+
+                return withNonNullableIndex;
+            }
+
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            {
+                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
+                // unlikely to hit this given that we've established that the tuple has a item at the given position
+                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long otherwise => baseType.Items[(int) otherwise].Type,
+            };
+
             switch (baseType)
             {
+                case TypeSymbol when TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType:
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax.BaseExpression));
+
+                    return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, indexType);
+
                 case AnyType:
                     // base expression is of type any
                     if (indexType.TypeKind == TypeKind.Any)
@@ -995,6 +1052,22 @@ namespace Bicep.Core.TypeSystem
 
                     // index was of the wrong type
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+
+                case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
+                    return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression);
+
+                case TupleType baseTuple when indexType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
+                    var possibilities = indexUnion.Members.Select(t => t.Type)
+                        .OfType<IntegerLiteralType>()
+                        .Select(index => GetTypeAtIndex(baseTuple, index, syntax.IndexExpression))
+                        .ToImmutableArray();
+
+                    if (possibilities.OfType<ErrorType>().Any())
+                    {
+                        return ErrorType.Create(possibilities.SelectMany(p => p.GetDiagnostics()));
+                    }
+
+                    return TypeHelper.CreateTypeUnion(possibilities);
 
                 case ArrayType baseArray:
                     // we are indexing over an array
@@ -1081,34 +1154,36 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                baseType = UnwrapType(baseType);
-
-                switch (baseType)
-                {
-                    case ObjectType objectType:
-                        if (!syntax.PropertyName.IsValid)
-                        {
-                            // the property is not valid
-                            // there's already a parse error for it, so we don't need to add a type error as well
-                            return ErrorType.Empty();
-                        }
-
-                        return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, TypeValidator.ShouldWarn(objectType), diagnostics);
-
-                    case DiscriminatedObjectType _:
-                        // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-                        return LanguageConstants.Any;
-
-                    case TypeSymbol _ when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object):
-                        // We can assign to an object, but we don't have a type for that object.
-                        // The best we can do is allow it and return the 'any' type.
-                        return LanguageConstants.Any;
-
-                    default:
-                        // can only access properties of objects
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
-                }
+                return GetNamedPropertyType(syntax, UnwrapType(baseType), diagnostics);
             });
+
+        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => baseType switch
+        {
+            TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
+
+            // the property is not valid
+            // there's already a parse error for it, so we don't need to add a type error as well
+            ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
+
+            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, TypeValidator.ShouldWarn(objectType), diagnostics),
+
+            // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
+            DiscriminatedObjectType => LanguageConstants.Any,
+
+            // We can assign to an object, but we don't have a type for that object.
+            // The best we can do is allow it and return the 'any' type.
+            TypeSymbol when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) => LanguageConstants.Any,
+
+            // can only access properties of objects
+            _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType)),
+        };
+
+        private static TypeSymbol EmitNullablePropertyAccessDiagnosticAndEraseNullability(PropertyAccessSyntax syntax, TypeSymbol originalBaseType, TypeSymbol nonNullableBaseType, IDiagnosticWriter diagnostics)
+        {
+            diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax.BaseExpression));
+
+            return GetNamedPropertyType(syntax, nonNullableBaseType, diagnostics);
+        }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -1434,6 +1509,13 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+                return TypeHelper.TryRemoveNullability(baseType) ?? baseType;
+            });
+
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
             errors.AddRange(reference.Type.GetDiagnostics());
@@ -1443,10 +1525,20 @@ namespace Bicep.Core.TypeSystem
             FunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             IList<ErrorDiagnostic> errors,
+            IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
+                syntax,
+                // Recover argument type errors so we can continue type checking for the parent function call.
+                GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray(),
+                errors,
+                diagnosticWriter);
+
+        private TypeSymbol GetFunctionSymbolType(
+            FunctionSymbol function,
+            FunctionCallSyntaxBase syntax,
+            ImmutableArray<TypeSymbol> argumentTypes,
+            IList<ErrorDiagnostic> errors,
             IDiagnosticWriter diagnosticWriter)
         {
-            // Recover argument type errors so we can continue type checking for the parent function call.
-            var argumentTypes = this.GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray();
             var matches = FunctionResolver.GetMatches(
                 function,
                 argumentTypes,
@@ -1457,6 +1549,32 @@ namespace Bicep.Core.TypeSystem
             {
                 if (typeMismatches.Any())
                 {
+                    // if the type mismatch is because a nullably-typed argument was supplied for a non-nullable value, try again with a non-nullable arg type
+                    foreach (var tm in typeMismatches)
+                    {
+                        if (TypeHelper.WouldBeAssignableIfNonNullable(tm.ArgumentType, tm.ParameterType, out var nonNullableArgType))
+                        {
+                            // at least one of our type mismatches is purely due to nullability. Recur, passing in a non-nullable version of the arg type.
+                            // If *multiple* type mismatches are due to nullability, this function will recur for each mismatch, with each invocation supplying
+                            // a diagnostic. Only the last invocation will generate a return type.
+                            var resultSansNullability = GetFunctionSymbolType(function,
+                                syntax,
+                                Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i]).ToImmutableArray(),
+                                errors,
+                                diagnosticWriter);
+
+                            // if we couldn't find a match even after tweaking argument nullability, don't add any nullability warnings
+                            if (resultSansNullability is ErrorType error)
+                            {
+                                return error;
+                            }
+
+                            var offendingArgSyntax = syntax.Arguments[tm.ArgumentIndex];
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(offendingArgSyntax).PossibleNullReferenceAssignment(tm.ParameterType, tm.ArgumentType, offendingArgSyntax));
+                            return resultSansNullability;
+                        }
+                    }
+
                     if (typeMismatches.Count > 1 && typeMismatches.Skip(1).All(tm => tm.ArgumentIndex == typeMismatches[0].ArgumentIndex))
                     {
                         // All type mismatches are equally good (or bad).
@@ -1552,7 +1670,15 @@ namespace Bicep.Core.TypeSystem
             // Avoid reporting an additional error if we failed to bind the output type.
             if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false && valueType is not ErrorType && assignedType is not ErrorType)
             {
-                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType, valueType).AsEnumerable();
+                var builder = DiagnosticBuilder.ForPosition(syntax.Value);
+                if (TypeHelper.WouldBeAssignableIfNonNullable(valueType, assignedType, out var nonNullableValueType))
+                {
+                    diagnostics.Add(builder.PossibleNullReferenceAssignment(assignedType, valueType, syntax.Value));
+                }
+                else
+                {
+                    return builder.OutputTypeMismatch(assignedType, valueType).AsEnumerable();
+                }
             }
 
             return diagnostics;
@@ -1616,7 +1742,15 @@ namespace Bicep.Core.TypeSystem
 
             if (!TypeValidator.AreTypesAssignable(conditionType, LanguageConstants.Bool))
             {
-                return DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
+                var builder = DiagnosticBuilder.ForPosition(syntax.ConditionExpression);
+                return TypeHelper.WouldBeAssignableIfNonNullable(conditionType, LanguageConstants.Bool, out var nonNullable)
+                    ? builder.PossibleNullReferenceAssignment(LanguageConstants.Bool,
+                        conditionType,
+                        // syntax.ConditionExpression includes the parentheses surrounding the condition
+                        syntax.ConditionExpression is ParenthesizedExpressionSyntax parenthesized
+                            ? parenthesized.Expression
+                            : syntax.ConditionExpression).AsEnumerable()
+                    : builder.ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
             }
 
             return Enumerable.Empty<IDiagnostic>();

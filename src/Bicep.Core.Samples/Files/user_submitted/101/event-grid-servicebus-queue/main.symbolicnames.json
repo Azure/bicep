@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9724077181442966594"
+      "templateHash": "1826317629308019292"
     }
   },
   "parameters": {
@@ -41,7 +41,7 @@
     "queue": {
       "type": "Microsoft.ServiceBus/namespaces/queues",
       "apiVersion": "2017-04-01",
-      "name": "[format('{0}/{1}', resourceInfo('serviceBusNamespace').name, parameters('serviceBusQueueName'))]",
+      "name": "[format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName'))]",
       "properties": {
         "lockDuration": "PT5M",
         "maxSizeInMegabytes": 1024,
@@ -74,7 +74,7 @@
         "destination": {
           "endpointType": "ServiceBusQueue",
           "properties": {
-            "resourceId": "[resourceInfo('queue').id]"
+            "resourceId": "[resourceId('Microsoft.ServiceBus/namespaces/queues', split(format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName')), '/')[0], split(format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName')), '/')[1])]"
           }
         },
         "eventDeliverySchema": "EventGridSchema",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5579091808331217000"
+      "templateHash": "154498926542874954"
     }
   },
   "parameters": {
@@ -163,10 +163,10 @@
             "name": "IpConf",
             "properties": {
               "subnet": {
-                "id": "[resourceInfo('subnet').id]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('bastionSubnetName'))]"
               },
               "publicIPAddress": {
-                "id": "[resourceInfo('publicIp').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddressName'))]"
               }
             }
           }

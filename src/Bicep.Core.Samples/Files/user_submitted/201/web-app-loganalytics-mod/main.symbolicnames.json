@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18242448488243876106"
+      "templateHash": "9667267869245389470"
     }
   },
   "parameters": {
@@ -40,7 +40,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4637137393056098823"
+              "templateHash": "9542820828638189911"
             }
           },
           "parameters": {
@@ -82,7 +82,7 @@
           "outputs": {
             "appServicePlanID": {
               "type": "string",
-              "value": "[resourceInfo('appServicePlan').id]"
+              "value": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
             }
           }
         }
@@ -117,7 +117,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "587423152998807340"
+              "templateHash": "3819470834506068566"
             }
           },
           "parameters": {
@@ -162,7 +162,7 @@
             "appServiceLogging": {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/logs', resourceInfo('appService').name)]",
+              "name": "[format('{0}/logs', variables('webSiteName'))]",
               "properties": {
                 "applicationLogs": {
                   "fileSystem": {
@@ -189,7 +189,7 @@
             "appServiceAppSettings": {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/appsettings', resourceInfo('appService').name)]",
+              "name": "[format('{0}/appsettings', variables('webSiteName'))]",
               "properties": {
                 "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('APPINSIGHTS_INSTRUMENTATIONKEY')]"
               },
@@ -200,7 +200,7 @@
             "appServiceSiteExtension": {
               "type": "Microsoft.Web/sites/siteextensions",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', resourceInfo('appService').name)]",
+              "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', variables('webSiteName'))]",
               "dependsOn": [
                 "appService"
               ]
@@ -309,7 +309,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7239376925861206286"
+              "templateHash": "15502974547644745936"
             }
           },
           "parameters": {
@@ -345,7 +345,7 @@
           "outputs": {
             "logAnalaticsWorkspaceResourceID": {
               "type": "string",
-              "value": "[resourceInfo('logAnalyticsWorkspace').id]"
+              "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
             }
           }
         }

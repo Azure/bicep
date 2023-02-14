@@ -2,21 +2,26 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax
 {
     public class SyntaxHierarchy : ISyntaxHierarchy
     {
-        private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap = new Dictionary<SyntaxBase, SyntaxBase?>();
+        private readonly ImmutableDictionary<SyntaxBase, SyntaxBase?> parentMap;
 
-        /// <summary>
-        /// Adds a root node and indexes the parents for all child nodes recursively.
-        /// </summary>
-        /// <param name="root">The root node.</param>
-        public void AddRoot(SyntaxBase root)
+        private SyntaxHierarchy(ImmutableDictionary<SyntaxBase, SyntaxBase?> parentMap)
         {
-            var visitor = new ParentTrackingVisitor(this.parentMap);
+            this.parentMap = parentMap;
+        }
+
+        public static ISyntaxHierarchy Build(SyntaxBase root)
+        {
+            var parentMap = new Dictionary<SyntaxBase, SyntaxBase?>();
+            var visitor = new ParentTrackingVisitor(parentMap);
             visitor.Visit(root);
+
+            return new SyntaxHierarchy(parentMap.ToImmutableDictionary());
         }
 
         /// <summary>
@@ -48,9 +53,7 @@ namespace Bicep.Core.Syntax
             return false;
         }
 
-        // SyntaxHierarchy is only used in semantic analysis, during which lexemes
-        // like parentheses and commas are not used, so the visitor doesn't need to be a CST visitor.
-        private sealed class ParentTrackingVisitor : AstVisitor
+        private sealed class ParentTrackingVisitor : CstVisitor
         {
             private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap;
             private readonly Stack<SyntaxBase> currentParents = new();

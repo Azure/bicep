@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
@@ -13,6 +14,9 @@ namespace Bicep.Core.Syntax
     public static class SyntaxFactory
     {
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
+
+        public static readonly IEnumerable<SyntaxTrivia> SingleSpaceTrivia = ImmutableArray.Create(
+            new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, " "));
 
         public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
 
@@ -35,10 +39,10 @@ namespace Bicep.Core.Syntax
                 Interleave(variables.Select(x => new LocalVariableSyntax(x)), () => CommaToken),
                 SyntaxFactory.RightParenToken);
 
-        public static UnboundVariableAccessSyntax CreateUnboundVariableAccess(string text) => new(CreateIdentifier(text));
-
         public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
+        public static Token GetNewlineToken(IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
+            => CreateToken(TokenType.NewLine, Environment.NewLine, leadingTrivia, trailingTrivia);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");
         public static Token RightBraceToken => CreateToken(TokenType.RightBrace, "}");
@@ -46,7 +50,9 @@ namespace Bicep.Core.Syntax
         public static Token RightParenToken => CreateToken(TokenType.RightParen, ")");
         public static Token LeftSquareToken => CreateToken(TokenType.LeftSquare, "[");
         public static Token RightSquareToken => CreateToken(TokenType.RightSquare, "]");
-        public static Token CommaToken => CreateToken(TokenType.Comma, ",");
+        public static Token CommaToken => GetCommaToken();
+        public static Token GetCommaToken(IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
+            => CreateToken(TokenType.Comma, ",", leadingTrivia, trailingTrivia);
         public static Token DotToken => CreateToken(TokenType.Dot, ".");
         public static Token QuestionToken => CreateToken(TokenType.Question, "?");
         public static Token ColonToken => CreateToken(TokenType.Colon, ":");
@@ -71,9 +77,17 @@ namespace Bicep.Core.Syntax
         public static Token TrueKeywordToken => CreateToken(TokenType.TrueKeyword, "true");
         public static Token FalseKeywordToken => CreateToken(TokenType.FalseKeyword, "false");
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword, "null");
+        public static Token ArrowToken => CreateToken(TokenType.Arrow, "=>");
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
-            => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":"), value);
+        {
+            if (value is SkippedTriviaSyntax)
+            {
+                return new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":", EmptyTrivia), value);
+            }
+
+            return new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":", EmptyTrivia, SingleSpaceTrivia), value);
+        }
 
         public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties)
         {
@@ -374,10 +388,30 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public static Token CreateNewLineWithIndent(string indent) => CreateToken(
-            TokenType.NewLine,
-            Environment.NewLine,
-            SyntaxFactory.EmptyTrivia,
-            new SyntaxTrivia[] { new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent) });
+        public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
+            trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
+
+        public static LambdaSyntax CreateLambdaSyntax(IEnumerable<string> parameterNames, SyntaxBase functionExpression)
+        {
+            SyntaxBase variableBlock = parameterNames.Count() switch {
+                1 => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(parameterNames.First())),
+                _ => new VariableBlockSyntax(
+                    SyntaxFactory.LeftParenToken,
+                    SyntaxFactory.Interleave(parameterNames
+                        .Select(name => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(name))), () => SyntaxFactory.CommaToken),
+                    SyntaxFactory.RightParenToken),
+            };
+
+            return new LambdaSyntax(
+                variableBlock,
+                SyntaxFactory.ArrowToken,
+                functionExpression);
+        }
+
+        public static NonNullAssertionSyntax AsNonNullable(SyntaxBase @base) => @base switch
+        {
+            NonNullAssertionSyntax alreadyNonNull => alreadyNonNull,
+            _ => new NonNullAssertionSyntax(@base, ExclamationToken),
+        };
     }
 }

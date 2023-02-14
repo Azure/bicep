@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17356835606305738272"
+      "templateHash": "10476492836388821853"
     }
   },
   "parameters": {
@@ -54,7 +54,7 @@
     "cosmosDB": {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
       "apiVersion": "2021-04-15",
-      "name": "[format('{0}/{1}', resourceInfo('cosmosAccount').name, toLower(parameters('databaseName')))]",
+      "name": "[format('{0}/{1}', toLower(parameters('accountName')), toLower(parameters('databaseName')))]",
       "properties": {
         "resource": {
           "id": "[parameters('databaseName')]"

@@ -11,6 +11,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.Core.Analyzers.Linter.Rules;
+using System;
+using System.Collections.Generic;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -99,6 +103,36 @@ randomToken
 
             response = await diagsListener.WaitNext();
             response.Diagnostics.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task Module_resolution_does_not_work_for_file_paths_containing_escaped_spaces()
+        {
+            // Here's a repro for https://github.com/Azure/bicep/issues/9466. It has not yet been fixed, but this test makes it simple to debug.
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var entryPointUri = new Uri("file:///src/demo%2520repo/main.bicep");
+            var fileSystemDict = new Dictionary<Uri, string>
+            {
+                [entryPointUri] = @"
+module asf './storage-account.bicep' = {
+  name: 'asf'
+}
+",
+                [new Uri("file:///src/demo%2520repo/storage-account.bicep")] = @"
+",
+            };
+
+            using var helper = await LanguageServerHelper.StartServer(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage),
+                services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
+
+            // open document
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(entryPointUri, fileSystemDict[entryPointUri], 1));
+
+            var diagnostics = await diagsListener.WaitNext();
+            diagnostics.Diagnostics.Should().Contain(x => x.Code == "BCP091" && x.Message == "An error occurred reading file. Could not find file '/src/demo repo/storage-account.bicep'.");
         }
     }
 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10480420087246664695"
+      "templateHash": "3308389195624837536"
     }
   },
   "parameters": {
@@ -127,7 +127,7 @@
       "name": "[variables('websiteName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[resourceInfo('hostingPlan').id]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "appSettings": [
             {
@@ -136,7 +136,7 @@
             },
             {
               "name": "CosmosDb:Key",
-              "value": "[listKeys(resourceInfo('cosmosAccount').id, '2021-04-15').primaryMasterKey]"
+              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), '2021-04-15').primaryMasterKey]"
             },
             {
               "name": "CosmosDb:DatabaseName",
@@ -157,7 +157,7 @@
     "srcControls": {
       "type": "Microsoft.Web/sites/sourcecontrols",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/web', resourceInfo('website').name)]",
+      "name": "[format('{0}/web', variables('websiteName'))]",
       "properties": {
         "repoUrl": "[parameters('repositoryUrl')]",
         "branch": "[parameters('branch')]",

@@ -4,7 +4,7 @@ import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
 import { BicepVisualizerView } from "./view";
-import { Disposable } from "../utils";
+import { Disposable } from "../utils/disposable";
 
 export class BicepVisualizerViewManager
   extends Disposable

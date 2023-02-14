@@ -46,7 +46,7 @@ public static class ArmFunctionReturnTypeEvaluator
 
         if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out var builderFunc, args))
         {
-            if (TryCastToLiteral(result) is {} literalType) {
+            if (TypeHelper.TryCreateTypeLiteral(result) is {} literalType) {
                 return literalType;
             }
         } else
@@ -74,6 +74,12 @@ public static class ArmFunctionReturnTypeEvaluator
 
     private static JToken? ToJToken(ObjectType objectType)
     {
+        // If an object allows additional properties (and is not the implicit fallback of an unsealed type), then it cannot be cast to a literal
+        if (objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+        {
+            return null;
+        }
+
         var target = new JObject();
         foreach (var (key, property) in objectType.Properties)
         {
@@ -126,57 +132,5 @@ public static class ArmFunctionReturnTypeEvaluator
             result = default;
             return false;
         }
-    }
-
-    private static TypeSymbol? TryCastToLiteral(JToken token) => token switch {
-        JValue { Value: bool boolValue } => new BooleanLiteralType(boolValue),
-        JValue { Value: int intValue } => new IntegerLiteralType(intValue),
-        JValue { Value: long longValue } => new IntegerLiteralType(longValue),
-        JValue { Value: ulong ulongValue } when ulongValue <= long.MaxValue => new IntegerLiteralType((long) ulongValue),
-        JValue { Value: char charValue } => new StringLiteralType(charValue.ToString()),
-        JValue { Value: string stringValue } => new StringLiteralType(stringValue),
-        JObject jObject => TryCastToLiteral(jObject),
-        JArray jArray=> TryCastToLiteral(jArray),
-        _ => default,
-    };
-
-    private static TypeSymbol? TryCastToLiteral(JObject jObject)
-    {
-        List<TypeProperty> convertedProperties = new();
-        ObjectTypeNameBuilder nameBuilder = new();
-        foreach (var prop in jObject.Properties())
-        {
-            if (TryCastToLiteral(prop.Value) is TypeSymbol propType)
-            {
-                convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required|TypePropertyFlags.DisallowAny));
-                nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
-    }
-
-    private static TypeSymbol? TryCastToLiteral(JArray jArray)
-    {
-        List<ITypeReference> convertedItems = new();
-        TupleTypeNameBuilder nameBuilder = new();
-        foreach (var item in jArray)
-        {
-            if (TryCastToLiteral(item) is TypeSymbol itemType)
-            {
-                convertedItems.Add(itemType);
-                nameBuilder.AppendItem(itemType.Name);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        return new TupleType(nameBuilder.ToString(), convertedItems.ToImmutableArray(), TypeSymbolValidationFlags.Default);
     }
 }

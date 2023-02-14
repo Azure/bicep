@@ -10,7 +10,8 @@ import {
   executeCompletionItemProvider,
 } from "./commands";
 import { expectDefined } from "../utils/assert";
-import { retryWhile, sleep } from "../utils/time";
+import { retryWhile } from "../utils/time";
+import { sleep } from "../../utils/time";
 
 describe("completion", (): void => {
   let document: vscode.TextDocument;

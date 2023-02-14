@@ -234,9 +234,21 @@ namespace Bicep.Core.Diagnostics
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                var newSyntax = objectSyntax.AddChildrenWithFormatting(
+                var newSyntax = SyntaxModifier.TryAddProperties(
+                    objectSyntax,
                     properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia))
                 );
+
+                if (newSyntax is null)
+                {
+                    // We're unable to come up with an automatic code fix - most likely because there are unhandled parse errors
+                    return new Diagnostic(
+                        TextSpan,
+                        warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                        "BCP035",
+                        $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
+                        showTypeInaccuracy ? TypeInaccuracyLink : null);
+                }
 
                 var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));
 
@@ -1739,7 +1751,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP306",
                 $@"The name ""{name}"" refers to a namespace, not to a type.");
 
-            public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
+            public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> runtimePropertyNames, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
             {
                 var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? @$" the accessible properties of ""{resourceSymbol}"" include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
                 var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? @$" The accessible functions of ""{resourceSymbol}"" include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
@@ -1747,7 +1759,7 @@ namespace Bicep.Core.Diagnostics
                 return new(
                     TextSpan,
                     "BCP307",
-                    $"The expression cannot be evaluated, because the \"name\" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation,{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
+                    $"The expression cannot be evaluated, because the identifier properties of the referenced existing resource including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment. In this situation,{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
             }
 
             public ErrorDiagnostic DecoratorMayNotTargetTypeAlias(string decoratorName) => new(
@@ -1765,10 +1777,65 @@ namespace Bicep.Core.Diagnostics
                 "BCP310",
                 $@"Using a strongly-typed tuple type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
-            public ErrorDiagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought) => new(
+            public ErrorDiagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought)
+            {
+                var message = new StringBuilder("The provided index value of \"").Append(indexSought).Append("\" is not valid for type \"").Append(typeName).Append("\".");
+                if (tupleLength > 0)
+                {
+                    message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append(".");
+                }
+
+                return new(TextSpan, "BCP311", message.ToString());
+            }
+
+            public ErrorDiagnostic MultipleAdditionalPropertiesDeclarations() => new(
                 TextSpan,
-                "BCP311",
-                $@"The provided index value of ""{indexSought}"" is not valid for type ""{typeName}"". Indexes for this type must be between 0 and {tupleLength - 1}");
+                "BCP315",
+                "An object type may have at most one additional properties declaration.");
+
+            public ErrorDiagnostic SealedIncompatibleWithAdditionalPropertiesDeclaration() => new(
+                TextSpan,
+                "BCP316",
+                $@"The ""{LanguageConstants.ParameterSealedPropertyName}"" decorator may not be used on object types with an explicit additional properties type declaration.");
+
+            public ErrorDiagnostic ExpectedPropertyNameOrMatcher() => new(
+                TextSpan,
+                "BCP317",
+                "Expected an identifier, a string, or an asterisk at this location.");
+
+            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, SyntaxBase baseExpression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP318",
+                $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: AsNonNullable(baseExpression));
+
+            public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
+                TextSpan,
+                "BCP319",
+                $@"The type at ""{errorSource}"" could not be resolved by the ARM JSON template engine. Original error message: ""{message}""");
+
+            public ErrorDiagnostic ModuleOutputResourcePropertyAccessDetected() => new(
+                TextSpan,
+                "BCP320",
+                "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
+
+            public FixableDiagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP321",
+                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".",
+                documentationUri: null,
+                styling: DiagnosticStyling.Default,
+                fix: AsNonNullable(expression));
+
+            private static CodeFix AsNonNullable(SyntaxBase expression) => new(
+                "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
+                false,
+                CodeFixKind.QuickFix,
+                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

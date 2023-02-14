@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8783959305394975706"
+      "templateHash": "17353621509052261789"
     }
   },
   "parameters": {
@@ -176,7 +176,7 @@
             "properties": {
               "addressPrefix": "[parameters('serversubnetprefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('servernsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('servernsgname'))]"
               }
             }
           },
@@ -185,7 +185,7 @@
             "properties": {
               "addressPrefix": "[parameters('bastionsubnetprefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('bastionnsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastionnsgname'))]"
               }
             }
           },
@@ -212,7 +212,7 @@
   "outputs": {
     "id": {
       "type": "string",
-      "value": "[resourceInfo('vnet').id]"
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
     },
     "subnets": {
       "type": "array",

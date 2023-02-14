@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13690952565402473036"
+      "templateHash": "8952424211803755990"
     }
   },
   "parameters": {
@@ -100,7 +100,7 @@
         ],
         "enableDdosProtection": "[parameters('ddosProtectionPlanEnabled')]",
         "ddosProtectionPlan": {
-          "id": "[resourceInfo('ddosProtectionPlan').id]"
+          "id": "[resourceId('Microsoft.Network/ddosProtectionPlans', parameters('ddosProtectionPlanName'))]"
         }
       },
       "dependsOn": [

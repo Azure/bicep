@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -139,6 +137,14 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Key);
             this.Visit(syntax.OptionalityMarker);
+            this.Visit(syntax.Colon);
+            this.Visit(syntax.Value);
+        }
+
+        public override void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Asterisk);
             this.Visit(syntax.Colon);
             this.Visit(syntax.Value);
         }
@@ -410,6 +416,12 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.VariableSection);
             this.Visit(syntax.Arrow);
             this.Visit(syntax.Body);
+        }
+
+        public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.AssertionOperator);
         }
     }
 }

@@ -72,6 +72,9 @@ namespace Bicep.Core.TypeSystem
                 case ObjectTypePropertySyntax typeProperty:
                     return GetTypePropertyType(typeProperty);
 
+                case ObjectTypeAdditionalPropertiesSyntax typeAdditionalProperties:
+                    return GetTypeAdditionalPropertiesType(typeAdditionalProperties);
+
                 case TupleTypeSyntax tupleType:
                     return new(GetTupleTypeType(tupleType), tupleType);
 
@@ -146,6 +149,9 @@ namespace Bicep.Core.TypeSystem
 
                 case ParenthesizedExpressionSyntax parenthesizedExpression:
                     return GetTypeAssignment(parenthesizedExpression.Expression);
+
+                case NonNullAssertionSyntax nonNullAssertion:
+                    return GetNonNullType(nonNullAssertion);
             }
 
             return null;
@@ -234,6 +240,9 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
+        private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
+            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
@@ -268,6 +277,8 @@ namespace Bicep.Core.TypeSystem
                 UnionTypeSyntax unionType => GetDeclaredTypeAssignment(unionType)?.Reference,
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
+                // Leave commented out pending https://github.com/Azure/bicep/pull/9454
+                // NonNullAssertionSyntax nonNullAssertion => GetDeclaredTypeAssignment(nonNullAssertion)?.Reference,
                 _ => null
             };
         }
@@ -386,21 +397,36 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
+            var additionalPropertiesDeclarations = syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().ToImmutableArray();
+            ITypeReference? additionalPropertiesType = additionalPropertiesDeclarations.Length switch
+            {
+                1 => GetDeclaredTypeAssignment(additionalPropertiesDeclarations[0])?.Reference
+                    ?? ErrorType.Create(DiagnosticBuilder.ForPosition(additionalPropertiesDeclarations[0].Value).InvalidTypeDefinition()),
+                _ when UnwrapUntilDecorable(syntax, HasSealedDecorator) => null,
+                _ => LanguageConstants.Any,
+            };
+            var additionalPropertiesFlags = additionalPropertiesDeclarations.Any() ? TypePropertyFlags.None : TypePropertyFlags.FallbackProperty;
+
+            if (additionalPropertiesDeclarations.Length > 1)
+            {
+                diagnostics.AddRange(additionalPropertiesDeclarations.Select(d => DiagnosticBuilder.ForPosition(d).MultipleAdditionalPropertiesDeclarations()));
+            }
+
+            if (additionalPropertiesType is not null && !additionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+            {
+                nameBuilder.AppendPropertyMatcher("*", GetPropertyTypeName(additionalPropertiesDeclarations[0].Value, additionalPropertiesType));
+            }
+
             if (diagnostics.Any())
             {
                 // foward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
-                // Errors hidden behind DeferredTypeReferences will unfortunately be dropped, as we can't call their type function without risking an infinite loop (in the case that a recursive object type has errors)
+                // Errors hidden behind DeferredTypeReferences will unfortunately be dropped, as we can't resolve their type without risking an infinite loop (in the case that a recursive object type has errors)
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            var parentSyntax = binder.GetParent(syntax);
-
             var typeFlags = UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default);
 
-            (TypeSymbol? type, TypePropertyFlags flags) additionalProperties
-                = UnwrapUntilDecorable(syntax, HasSealedDecorator, (null, TypePropertyFlags.None), (LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
-
-            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalProperties.type, additionalProperties.flags);
+            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalPropertiesType, additionalPropertiesFlags);
         }
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -421,6 +447,8 @@ namespace Bicep.Core.TypeSystem
                 => UnwrapUntilDecorable(ternary, condition, valueIfTrue, valueIfFalse),
             _ => valueIfFalse,
         };
+
+        private bool UnwrapUntilDecorable(SyntaxBase syntax, Predicate<DecorableSyntax> condition) => UnwrapUntilDecorable(syntax, condition, true, false);
 
         private bool HasSecureDecorator(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
@@ -532,6 +560,7 @@ namespace Bicep.Core.TypeSystem
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
         {
             ArrayTypeSyntax arrayType => RequiresDeferral(arrayType.Item.Value),
+            NonNullAssertionSyntax nonNullAssertion => RequiresDeferral(nonNullAssertion.BaseExpression),
             ParenthesizedExpressionSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
             TupleTypeSyntax tupleType => tupleType.Items.Any(i => RequiresDeferral(i.Value)),
             UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
@@ -804,6 +833,24 @@ namespace Bicep.Core.TypeSystem
                 body,
                 syntax.PropertyName.IdentifierName,
                 useSyntax: true);
+        }
+
+        private DeclaredTypeAssignment? GetNonNullType(NonNullAssertionSyntax syntax)
+        {
+            var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
+
+            return baseExpressionAssignment?.Reference switch
+            {
+                DeferredTypeReference deferredType => new(
+                    new DeferredTypeReference(() => TypeHelper.TryRemoveNullability(deferredType.Type) ?? deferredType.Type),
+                    syntax,
+                    baseExpressionAssignment.Flags),
+                ITypeReference otherwise => new(
+                    TypeHelper.TryRemoveNullability(otherwise.Type) ?? otherwise.Type,
+                    syntax,
+                    baseExpressionAssignment.Flags),
+                null => null,
+            };
         }
 
         private DeclaredTypeAssignment? GetResourceAccessType(ResourceAccessSyntax syntax)

@@ -162,58 +162,6 @@ namespace Bicep.Core.Syntax
                     : mergedObject);
         }
 
-        public static ObjectSyntax AddChildrenWithFormatting(this ObjectSyntax objectSyntax, IEnumerable<SyntaxBase> newChildren)
-        {
-            bool IsEmptyLine(Token token)
-            {
-                if (token.Type != TokenType.NewLine)
-                {
-                    return false;
-                }
-
-                foreach (var trivia in token.LeadingTrivia)
-                {
-                    if (trivia.Type != SyntaxTriviaType.Whitespace)
-                    {
-                        return false;
-                    }
-                }
-
-                foreach (var trivia in token.TrailingTrivia)
-                {
-                    if (trivia.Type != SyntaxTriviaType.Whitespace)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            var children = new List<SyntaxBase>(objectSyntax.Children);
-
-            // Remove trailing empty lines
-            Token? lastNode = null;
-            while (children.Count > 0 && children[^1] is Token token && IsEmptyLine(token))
-            {
-                lastNode ??= token;
-                children.Remove(token);
-            }
-
-            var indent = objectSyntax.GetBodyIndentation();
-
-            foreach (var newChild in newChildren)
-            {
-                children.Add(SyntaxFactory.CreateNewLineWithIndent(indent));
-                children.Add(newChild);
-            }
-
-
-            children.Add(SyntaxFactory.CreateToken(TokenType.NewLine, Environment.NewLine, lastNode?.LeadingTrivia, lastNode?.TrailingTrivia));
-
-            return new ObjectSyntax(objectSyntax.OpenBrace, children, objectSyntax.CloseBrace);
-        }
-
         public static string GetBodyIndentation(this ObjectSyntax sourceObject)
         {
             static string? GetIndent(SyntaxBase syntax)

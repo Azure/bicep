@@ -26,7 +26,7 @@ var bad = (null) ? :
 var bad = (null) ? !
 //@[4:07) Variable bad. Type: error. Declaration start char: 0, length: 20
 var bad = (null)!
-//@[4:07) Variable bad. Type: null. Declaration start char: 0, length: 16
+//@[4:07) Variable bad. Type: null. Declaration start char: 0, length: 17
 var bad = (null)[0]
 //@[4:07) Variable bad. Type: error. Declaration start char: 0, length: 19
 var bad = ()

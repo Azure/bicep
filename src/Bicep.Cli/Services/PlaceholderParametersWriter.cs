@@ -31,18 +31,13 @@ namespace Bicep.Cli.Services
             }
             using var fileStream = CreateFileStream(outputPath);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitParametersFile(fileStream, existingContent);
+            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(fileStream, existingContent);
         }
 
         public EmitResult ToStdout(Compilation compilation)
         {
-            using var writer = new JsonTextWriter(io.Output)
-            {
-                Formatting = Formatting.Indented
-            };
-
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitParametersFile(writer, string.Empty);
+            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(io.Output, string.Empty);
         }
 
         private static FileStream CreateFileStream(string path)

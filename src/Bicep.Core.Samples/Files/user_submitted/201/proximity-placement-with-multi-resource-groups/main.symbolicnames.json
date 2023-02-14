@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17610915880492382089"
+      "templateHash": "12614717428855112446"
     }
   },
   "parameters": {
@@ -71,7 +71,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2380358959994836781"
+              "templateHash": "5389517954861270855"
             }
           },
           "parameters": {
@@ -151,7 +151,7 @@
                     "properties": {
                       "addressPrefix": "10.0.0.0/24",
                       "networkSecurityGroup": {
-                        "id": "[resourceInfo('nsg').id]"
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'demo-nsg')]"
                       }
                     }
                   }
@@ -165,7 +165,7 @@
           "outputs": {
             "vnetId": {
               "type": "string",
-              "value": "[resourceInfo('vnet').id]"
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', 'demo-vnet')]"
             }
           }
         }
@@ -207,7 +207,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16079889332281336314"
+              "templateHash": "11723375933265431589"
             }
           },
           "parameters": {
@@ -273,7 +273,7 @@
                         "id": "[parameters('subnetId')]"
                       },
                       "publicIPAddress": {
-                        "id": "[resourceInfo('pip').id]"
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
                       }
                     }
                   }
@@ -295,7 +295,7 @@
                 "networkProfile": {
                   "networkInterfaces": [
                     {
-                      "id": "[resourceInfo('nic').id]"
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                     }
                   ]
                 },
@@ -315,7 +315,7 @@
                   }
                 },
                 "proximityPlacementGroup": {
-                  "id": "[resourceInfo('ppg').id]"
+                  "id": "[resourceId('Microsoft.Compute/proximityPlacementGroups', format('Zone-{0}', parameters('zone')))]"
                 },
                 "storageProfile": {
                   "imageReference": {
@@ -345,7 +345,7 @@
           "outputs": {
             "ppgId": {
               "type": "string",
-              "value": "[resourceInfo('ppg').id]"
+              "value": "[resourceId('Microsoft.Compute/proximityPlacementGroups', format('Zone-{0}', parameters('zone')))]"
             }
           }
         }
@@ -388,7 +388,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16602990965325228130"
+              "templateHash": "14746205280723861821"
             }
           },
           "parameters": {
@@ -452,7 +452,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "availabilitySet": {
-                  "id": "[resourceInfo('availabilitySets').id]"
+                  "id": "[resourceId('Microsoft.Compute/availabilitySets', 'as')]"
                 },
                 "hardwareProfile": {
                   "vmSize": "Standard_B4ms"
@@ -460,7 +460,7 @@
                 "networkProfile": {
                   "networkInterfaces": [
                     {
-                      "id": "[resourceInfo('nic').id]"
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                     }
                   ]
                 },
@@ -542,7 +542,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16602990965325228130"
+              "templateHash": "14746205280723861821"
             }
           },
           "parameters": {
@@ -606,7 +606,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "availabilitySet": {
-                  "id": "[resourceInfo('availabilitySets').id]"
+                  "id": "[resourceId('Microsoft.Compute/availabilitySets', 'as')]"
                 },
                 "hardwareProfile": {
                   "vmSize": "Standard_B4ms"
@@ -614,7 +614,7 @@
                 "networkProfile": {
                   "networkInterfaces": [
                     {
-                      "id": "[resourceInfo('nic').id]"
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
                     }
                   ]
                 },

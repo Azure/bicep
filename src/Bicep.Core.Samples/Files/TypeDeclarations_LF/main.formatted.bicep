@@ -62,3 +62,11 @@ type tuple = [
   @description('A second element using a type alias')
   bar
 ]
+
+type stringStringDictionary = {
+  *: string
+}
+
+param mightIncludeNull ({ key: 'value' } | null)[]
+
+var maybeNull = mightIncludeNull[0]!.key

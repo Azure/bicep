@@ -95,6 +95,10 @@ namespace Bicep.Core
 
         public const string ListFunctionPrefix = "list";
 
+        public const string McrRegistry = "mcr.microsoft.com";
+        public const string McrRepositoryPrefix = "bicep/";
+        public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
+
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,
@@ -255,7 +259,7 @@ namespace Bicep.Core
 
             var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
             if (moduleScope != containingScope)
             {
                 // If the module scope matches the parent scope, we can safely omit the scope property

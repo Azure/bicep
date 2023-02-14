@@ -48,7 +48,7 @@ type foo = {
 //@          "$ref": "#/definitions/foo"
 //@        }
 //@      },
-//@      "sealed": true,
+//@      "additionalProperties": false,
 //@      "metadata": {
 //@      }
 //@    },
@@ -81,6 +81,8 @@ type foo = {
 @description('An array of array of arrays of arrays of ints')
 //@        "description": "An array of array of arrays of arrays of ints"
 @metadata({
+//@      "metadata": {
+//@      },
   examples: [
 //@        "examples": [
 //@        ],
@@ -124,8 +126,6 @@ type bar = int[][][][]
 //@            }
 //@          }
 //@        }
-//@      },
-//@      "metadata": {
 //@      },
 //@    },
 
@@ -257,16 +257,55 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 param paramUsingType mixedArray
 //@    "paramUsingType": {
 //@      "$ref": "#/definitions/mixedArray"
-//@    }
+//@    },
 
 type tuple = [
 //@    "tuple": {
-//@      "type": "array"
-//@    }
+//@      "type": "array",
+//@      "prefixItems": [
+//@        {
+//@          "type": "string",
+//@          "metadata": {
+//@          }
+//@        },
+//@        {
+//@          "$ref": "#/definitions/bar",
+//@          "metadata": {
+//@          }
+//@        }
+//@      ],
+//@      "items": false
+//@    },
     @description('A leading string')
+//@            "description": "A leading string"
     string
 
     @description('A second element using a type alias')
+//@            "description": "A second element using a type alias"
     bar
 ]
+
+type stringStringDictionary = {
+//@    "stringStringDictionary": {
+//@      "type": "object",
+//@      "additionalProperties": {
+//@        "type": "string"
+//@      }
+//@    }
+    *: string
+}
+
+param mightIncludeNull ({key: 'value'} | null)[]
+//@    "mightIncludeNull": {
+//@      "type": "array",
+//@      "allowedValues": [
+//@        null,
+//@        {
+//@          "key": "value"
+//@        }
+//@      ]
+//@    }
+
+var maybeNull = mightIncludeNull[0]!.key
+//@    "maybeNull": "[parameters('mightIncludeNull')[0].key]"
 

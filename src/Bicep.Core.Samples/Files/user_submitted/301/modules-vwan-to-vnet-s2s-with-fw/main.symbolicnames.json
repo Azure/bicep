@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14532956574002831602"
+      "templateHash": "2801759771265342509"
     }
   },
   "parameters": {
@@ -111,7 +111,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8783959305394975706"
+              "templateHash": "17353621509052261789"
             }
           },
           "parameters": {
@@ -280,7 +280,7 @@
                     "properties": {
                       "addressPrefix": "[parameters('serversubnetprefix')]",
                       "networkSecurityGroup": {
-                        "id": "[resourceInfo('servernsg').id]"
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('servernsgname'))]"
                       }
                     }
                   },
@@ -289,7 +289,7 @@
                     "properties": {
                       "addressPrefix": "[parameters('bastionsubnetprefix')]",
                       "networkSecurityGroup": {
-                        "id": "[resourceInfo('bastionnsg').id]"
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastionnsgname'))]"
                       }
                     }
                   },
@@ -316,7 +316,7 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('vnet').id]"
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
             },
             "subnets": {
               "type": "array",
@@ -369,7 +369,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "73375902871047960"
+              "templateHash": "2943086781191583770"
             }
           },
           "parameters": {
@@ -425,7 +425,7 @@
                         "id": "[parameters('subnetref')]"
                       },
                       "publicIPAddress": {
-                        "id": "[resourceInfo('vpngwpip').id]"
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))]"
                       }
                     }
                   }
@@ -450,7 +450,7 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('vpngw').id]"
+              "value": "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))]"
             },
             "vpngwip": {
               "type": "string",
@@ -499,7 +499,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16382808908725383106"
+              "templateHash": "7632131684262106800"
             }
           },
           "parameters": {
@@ -537,7 +537,7 @@
             "platformrcgroup": {
               "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/Platform-Rules', resourceInfo('policy').name)]",
+              "name": "[format('{0}/Platform-Rules', parameters('policyname'))]",
               "properties": {
                 "priority": 100,
                 "ruleCollections": [
@@ -629,11 +629,11 @@
           "outputs": {
             "name": {
               "type": "string",
-              "value": "[resourceInfo('policy').name]"
+              "value": "[parameters('policyname')]"
             },
             "id": {
               "type": "string",
-              "value": "[resourceInfo('policy').id]"
+              "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
             }
           }
         }
@@ -675,7 +675,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10058717210123412779"
+              "templateHash": "4580692119464669188"
             }
           },
           "parameters": {
@@ -731,7 +731,7 @@
               "properties": {
                 "publicIPAllocationMethod": "Static",
                 "publicIPPrefix": {
-                  "id": "[resourceInfo('fwipprefix').id]"
+                  "id": "[resourceId('Microsoft.Network/publicIPPrefixes', parameters('ipprefixname'))]"
                 }
               },
               "dependsOn": [
@@ -742,7 +742,7 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('fwip').id]"
+              "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipname'))]"
             }
           }
         }
@@ -939,7 +939,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "410829462598088868"
+              "templateHash": "9878070999700807777"
             }
           },
           "parameters": {
@@ -979,7 +979,7 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('wan').id]"
+              "value": "[resourceId('Microsoft.Network/virtualWans', parameters('wanname'))]"
             }
           }
         }
@@ -1021,7 +1021,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "55639183118113648"
+              "templateHash": "10092071195997223235"
             }
           },
           "parameters": {
@@ -1063,11 +1063,11 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('hub').id]"
+              "value": "[resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))]"
             },
             "name": {
               "type": "string",
-              "value": "[resourceInfo('hub').name]"
+              "value": "[parameters('hubname')]"
             },
             "vhubaddress": {
               "type": "string",
@@ -1108,7 +1108,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16382808908725383106"
+              "templateHash": "7632131684262106800"
             }
           },
           "parameters": {
@@ -1146,7 +1146,7 @@
             "platformrcgroup": {
               "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/Platform-Rules', resourceInfo('policy').name)]",
+              "name": "[format('{0}/Platform-Rules', parameters('policyname'))]",
               "properties": {
                 "priority": 100,
                 "ruleCollections": [
@@ -1238,11 +1238,11 @@
           "outputs": {
             "name": {
               "type": "string",
-              "value": "[resourceInfo('policy').name]"
+              "value": "[parameters('policyname')]"
             },
             "id": {
               "type": "string",
-              "value": "[resourceInfo('policy').id]"
+              "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
             }
           }
         }
@@ -1441,7 +1441,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8384053763727493672"
+              "templateHash": "11538658444195466639"
             }
           },
           "parameters": {
@@ -1484,11 +1484,11 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('hubvpngw').id]"
+              "value": "[resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))]"
             },
             "name": {
               "type": "string",
-              "value": "[resourceInfo('hubvpngw').name]"
+              "value": "[parameters('hubvpngwname')]"
             },
             "gwpublicip": {
               "type": "string",
@@ -1552,7 +1552,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11144922396738746036"
+              "templateHash": "2570603069945209398"
             }
           },
           "parameters": {
@@ -1624,7 +1624,7 @@
           "outputs": {
             "id": {
               "type": "string",
-              "value": "[resourceInfo('vpnsite').id]"
+              "value": "[resourceId('Microsoft.Network/vpnSites', parameters('vpnsitename'))]"
             }
           }
         }
@@ -1759,7 +1759,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17024638405349992044"
+              "templateHash": "15928558416114035813"
             }
           },
           "parameters": {
@@ -1843,7 +1843,7 @@
                 "enableBgp": true,
                 "sharedKey": "[parameters('psk')]",
                 "localNetworkGateway2": {
-                  "id": "[resourceInfo('localnetworkgw').id]",
+                  "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]",
                   "properties": {}
                 }
               },

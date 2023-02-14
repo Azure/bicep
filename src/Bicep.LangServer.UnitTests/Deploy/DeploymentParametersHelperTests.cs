@@ -84,7 +84,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithNonEmptyBicepUpdatedDeploymentParametersAndNoParametersFile_ShouldCreateParametersFile()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("location", "eastus", false, ParameterType.String);
             var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("sku", "testSku", false, ParameterType.String);
@@ -129,7 +129,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithNonEmptyBicepUpdatedDeploymentParametersAndParametersFile_ShouldUpdateParametersFile()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   ""location"": {
@@ -173,7 +173,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithInvalidParametersFile_ShouldThrowException()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   ""location"": {
@@ -200,7 +200,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithParametersOfTypeIntAndBool_ShouldDoAppropriateConversionAndUpdateParametersFile()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   ""location"": {
@@ -242,7 +242,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithBicepDeploymentParameterThatIsAlreadyInParametersFile_DoesNothing()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   ""location"": {
@@ -270,7 +270,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithArmTemplateStyleParametersFile_ShouldUpdateParametersFile()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
@@ -334,7 +334,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithNonEmptyBicepUpdatedDeploymentParametersAndParametersFileWithComments_ShouldNotRemoveComments()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   // comment 1
@@ -396,7 +396,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetUpdatedParametersFileContents_WithOverwriteOptionAndParametersFileWithSameNameInCurrentDirectory_ShouldOverwriteParametersFile()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
             var parametersFileContents = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",

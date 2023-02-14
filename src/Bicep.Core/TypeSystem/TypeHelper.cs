@@ -3,11 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Numerics;
+using Azure.Deployments.Expression.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -104,6 +108,61 @@ namespace Bicep.Core.TypeSystem
 
             _ => false,
         };
+
+        /// <summary>
+        /// Attempt to create a type symbol for a literal value.
+        /// </summary>
+        /// <param name="token">The literal value (expressed as a Newtonsoft JToken)</param>
+        /// <returns></returns>
+        public static TypeSymbol? TryCreateTypeLiteral(JToken token) => token switch
+        {
+            JObject jObject => TryCreateTypeLiteral(jObject),
+            JArray jArray => TryCreateTypeLiteral(jArray),
+            _ when token.Type == JTokenType.Boolean => new BooleanLiteralType(token.ToObject<bool>()),
+            _ when token.IsTextBasedJTokenType() => new StringLiteralType(token.ToString()),
+            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => new IntegerLiteralType((long)intVal),
+            _ => null,
+        };
+
+        private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
+        {
+            List<TypeProperty> convertedProperties = new();
+            ObjectTypeNameBuilder nameBuilder = new();
+            foreach (var prop in jObject.Properties())
+            {
+                if (TryCreateTypeLiteral(prop.Value) is TypeSymbol propType)
+                {
+                    convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required | TypePropertyFlags.DisallowAny));
+                    nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
+        }
+
+        private static TypeSymbol? TryCreateTypeLiteral(JArray jArray)
+        {
+            List<ITypeReference> convertedItems = new();
+            TupleTypeNameBuilder nameBuilder = new();
+            foreach (var item in jArray)
+            {
+                if (TryCreateTypeLiteral(item) is TypeSymbol itemType)
+                {
+                    convertedItems.Add(itemType);
+                    nameBuilder.AppendItem(itemType.Name);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return new TupleType(nameBuilder.ToString(), convertedItems.ToImmutableArray(), TypeSymbolValidationFlags.Default);
+        }
 
         /// <summary>
         /// Gets the type of the property whose name we can obtain at compile-time.
@@ -273,6 +332,38 @@ namespace Bicep.Core.TypeSystem
             };
 
             return CalculateFlattenedType(typeToFlatten, typeToFlatten, argumentPosition);
+        }
+
+        /// <remarks>
+        /// If the provided type is a union of <code>null</code> and one or more other types, this function will return a union with the <code>null</code>
+        /// branch removed. For example, <code>null | string</code> would be transformed to <code>string</code>, and <code>null | string | int</code> would be
+        /// transformed to <code>string | int</code>.
+        /// Otherwise, this method will return null.
+        /// </remarks>
+        public static TypeSymbol? TryRemoveNullability(TypeSymbol type) => type switch
+        {
+            UnionType union when union.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is {} sansNull &&
+                sansNull.Length < union.Members.Length => CreateTypeUnion(sansNull),
+            _ => null,
+        };
+
+        /// <summary>
+        /// Determines if the provided candidate type would be assignable to the provided expected type if the former were stripped of its nullability.
+        /// </summary>
+        /// <remarks>
+        /// This function will return <code>false</code> if the provided candidate type is not nullable, even if it would be assignable to the provided expected
+        /// type without modification.
+        /// </remarks>
+        public static bool WouldBeAssignableIfNonNullable(TypeSymbol candidateType, TypeSymbol expectedType, [NotNullWhen(true)] out TypeSymbol? nonNullableCandidateType)
+        {
+            if (TryRemoveNullability(candidateType) is TypeSymbol nonNullable && TypeValidator.AreTypesAssignable(nonNullable, expectedType))
+            {
+                nonNullableCandidateType = nonNullable;
+                return true;
+            }
+
+            nonNullableCandidateType = null;
+            return false;
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)

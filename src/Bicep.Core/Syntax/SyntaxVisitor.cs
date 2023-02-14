@@ -57,6 +57,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
+        public abstract void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax);
+
         public abstract void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
 
         public abstract void VisitObjectPropertySyntax(ObjectPropertySyntax syntax);
@@ -64,6 +66,8 @@ namespace Bicep.Core.Syntax
         public abstract void VisitObjectSyntax(ObjectSyntax syntax);
 
         public abstract void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax);
+
+        public abstract void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax);
 
         public abstract void VisitObjectTypeSyntax(ObjectTypeSyntax syntax);
 

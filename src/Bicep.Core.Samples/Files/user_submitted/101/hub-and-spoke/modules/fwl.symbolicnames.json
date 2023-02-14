@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11041164400216467917"
+      "templateHash": "17250409949006673883"
     }
   },
   "parameters": {
@@ -46,7 +46,7 @@
                 "id": "[format('{0}/subnets/AzureFirewallSubnet', parameters('hubId'))]"
               },
               "publicIPAddress": {
-                "id": "[resourceInfo('publicIp').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-fwl-ip', parameters('prefix')))]"
               }
             }
           }

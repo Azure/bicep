@@ -33,6 +33,17 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(diagnosticLevel, kvp.Key, kvp.Value));
         }
 
+        public static SyntaxBase? TrySimplify(StringSyntax strSyntax)
+        {
+            if (strSyntax.Expressions.Length == 1
+                && strSyntax.SegmentValues.All(string.IsNullOrEmpty))
+            {
+                return strSyntax.Expressions[0];
+            }
+
+            return null;
+        }
+
         private sealed class Visitor : AstVisitor
         {
             private readonly Dictionary<TextSpan, CodeFix> spanFixes;
@@ -80,10 +91,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                 //   name: '${AutomationAccountName}'   <<= a string literal with a single interpolated value
 
-                if (valueSyntax is StringSyntax strSyntax
-                    && strSyntax.Expressions.Length == 1
-                    && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
-                    && strSyntax.Expressions.First() is ExpressionSyntax expression)
+                if (valueSyntax is StringSyntax strSyntax && TrySimplify(strSyntax) is {} expression)
                 {
                     // We only want to trigger if the expression is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')

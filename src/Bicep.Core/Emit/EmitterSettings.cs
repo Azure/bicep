@@ -8,20 +8,8 @@ namespace Bicep.Core.Emit
     {
         public EmitterSettings(IFeatureProvider features)
         {
-            AssemblyFileVersion = features.AssemblyVersion;
-            EnableSourceMapping = features.SourceMappingEnabled;
-            EnableSymbolicNames = features.ShouldEmitSymbolicNames();
+            EnableSymbolicNames = features.SymbolicNameCodegenEnabled || features.ExtensibilityEnabled || features.UserDefinedTypesEnabled;
         }
-
-        /// <summary>
-        /// Assembly File Version to emit into the metadata
-        /// </summary>
-        public string AssemblyFileVersion { get; }
-
-        /// <summary>
-        /// Generate source map during template output
-        /// </summary>
-        public bool EnableSourceMapping { get; }
 
         /// <summary>
         /// Generate symbolic names in template output?

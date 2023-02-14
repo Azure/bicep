@@ -204,8 +204,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
         {
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(@object);
+            var hierarchy = SyntaxHierarchy.Build(@object);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, @object, LanguageConstants.Object);
 
@@ -216,8 +215,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(@object);
+            var hierarchy = SyntaxHierarchy.Build(@object);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, @object, LanguageConstants.Int);
 
@@ -233,8 +231,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (_, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
@@ -254,8 +251,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
             diagnostics.Should().BeEmpty();
@@ -279,8 +275,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
@@ -296,8 +291,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
@@ -314,8 +308,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
@@ -335,8 +328,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
@@ -359,8 +351,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
@@ -376,8 +367,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("notInSchema", TestSyntaxFactory.CreateString("pong")),
             });
 
-            var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(obj);
+            var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
                 "additionalPropertiesFallbackTypeTest", 
@@ -418,9 +408,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
                 });
 
-                var hierarchy = new SyntaxHierarchy();
-                hierarchy.AddRoot(obj);
-
+                var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
                 diagnostics.Should().SatisfyRespectively(
@@ -439,9 +427,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
-                var hierarchy = new SyntaxHierarchy();
-                hierarchy.AddRoot(obj);
-
+                var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
                 diagnostics.Should().SatisfyRespectively(
@@ -459,9 +445,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
                 });
 
-                var hierarchy = new SyntaxHierarchy();
-                hierarchy.AddRoot(obj);
-
+                var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
                 diagnostics.Should().SatisfyRespectively(
@@ -479,9 +463,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
                 });
 
-                var hierarchy = new SyntaxHierarchy();
-                hierarchy.AddRoot(obj);
-
+                var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
                 diagnostics.Should().SatisfyRespectively(
@@ -507,9 +489,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
-                var hierarchy = new SyntaxHierarchy();
-                hierarchy.AddRoot(obj);
-
+                var hierarchy = SyntaxHierarchy.Build(obj);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, discriminatedType);
 
                 diagnostics.Should().BeEmpty();
@@ -533,11 +513,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 LanguageConstants.Int,
                 LanguageConstants.Bool);
 
-            var hierarchy = new SyntaxHierarchy();
-
             {
                 // pick a valid path (int) - we should narrow the union type to just int
                 var intSyntax = TestSyntaxFactory.CreateInt(1234);
+                var hierarchy = SyntaxHierarchy.Build(intSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, intSyntax, unionType);
 
                 diagnostics.Should().BeEmpty();
@@ -548,7 +527,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // pick an invalid path (object) - we should get diagnosticWriter
                 var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
-                hierarchy.AddRoot(objectSyntax);
+                var hierarchy = SyntaxHierarchy.Build(objectSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, objectSyntax, unionType);
 
                 diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
@@ -558,6 +537,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // try narrowing with a string
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("abc");
+                var hierarchy = SyntaxHierarchy.Build(stringLiteralSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, unionType);
 
                 diagnostics.Should().BeEmpty();
@@ -572,6 +552,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // union of string literals with matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("nora");
+                var hierarchy = SyntaxHierarchy.Build(stringLiteralSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, stringLiteralUnionType);
 
                 diagnostics.Should().BeEmpty();
@@ -582,6 +563,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // union of string literals with non-matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("zona");
+                var hierarchy = SyntaxHierarchy.Build(stringLiteralSyntax);
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, stringLiteralUnionType);
 
                 diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
@@ -636,7 +618,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
-        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
+        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
         {
             var binderMock = new Mock<IBinder>(MockBehavior.Strict);
             binderMock

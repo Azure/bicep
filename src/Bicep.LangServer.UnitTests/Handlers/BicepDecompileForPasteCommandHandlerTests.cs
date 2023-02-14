@@ -11,9 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using static Bicep.LangServer.UnitTests.Handlers.BicepDecompileForPasteCommandHandlerTests;
+using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 using System.Threading.Tasks;
+using System.Threading;
+using System.Diagnostics.CodeAnalysis;
+using SharpYaml.Tokens;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -41,6 +48,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             FullTemplate,
             SingleResource,
             ResourceList,
+            JsonValue,
+            BicepValue,
         }
 
         private async Task TestDecompileForPaste(
@@ -62,8 +71,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             {
                 PasteType.None => BicepDecompileForPasteCommandHandler.PasteType_None,
                 PasteType.FullTemplate => BicepDecompileForPasteCommandHandler.PasteType_FullTemplate,
-                PasteType.SingleResource=> BicepDecompileForPasteCommandHandler.PasteType_SingleResource,
+                PasteType.SingleResource => BicepDecompileForPasteCommandHandler.PasteType_SingleResource,
                 PasteType.ResourceList => BicepDecompileForPasteCommandHandler.PasteType_ResourceList,
+                PasteType.JsonValue => BicepDecompileForPasteCommandHandler.PasteType_JsonValue,
+                PasteType.BicepValue => BicepDecompileForPasteCommandHandler.PasteType_BicepValue,
                 _ => throw new NotImplementedException(),
             });
         }
@@ -135,7 +146,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #endregion
 
-        [DataTestMethod]
         [DataRow(
             jsonFullTemplate,
             PasteType.FullTemplate,
@@ -239,10 +249,21 @@ random characters
                     }}
                   }}
             }}",
-            PasteType.None,
-            null,
+            PasteType.JsonValue,
+            // Treats it simply as a JSON object
+            $@"{{
+                '$schema': {{
+                }}
+                parameters: {{
+                    location: {{
+                        type: 'string'
+                        defaultValue: resourceGroup().location
+                    }}
+                }}
+            }}",
             DisplayName = "Schema not a string"
         )]
+        [DataTestMethod]
         public async Task FullTemplate(string json, PasteType expectedPasteType, string expectedBicep, string? errorMessage = null)
         {
             await TestDecompileForPaste(
@@ -252,7 +273,7 @@ random characters
                     errorMessage);
         }
 
-        public async Task FullTemplate_ButNoSchema_CantPaste()
+        public async Task PasteFullTemplate_ButNoSchema_CantConvert()
         {
             const string json = @"
                 {
@@ -312,7 +333,6 @@ random characters
                     expectedBicep: null);
         }
 
-        [DataTestMethod]
         [DataRow(
             @"
                 {
@@ -354,13 +374,14 @@ random characters
             "[6:46]: The language expression 'bad-expression' is not valid: the string character 'x' at position '5' is not expected.",
             DisplayName = "Bad expression"
             )]
+        [DataTestMethod]
         public async Task Errors(string json, PasteType pasteType, string? expectedBicep, string? expectedErrorMessage)
         {
             await TestDecompileForPaste(json, pasteType, expectedBicep, expectedErrorMessage);
         }
 
         [TestMethod]
-        public async Task JustString_WithNoQuotes_CantPaste()
+        public async Task JustString_WithNoQuotes_CantConvert()
         {
             string json = @"just a string";
             await TestDecompileForPaste(
@@ -371,62 +392,50 @@ random characters
         }
 
         [TestMethod]
-        public async Task JustString_WithDoubleQuotes_CantPaste()
-        {
-            string json = @"""just a string with double quotes""";
-            await TestDecompileForPaste(
-                    json: json,
-                    PasteType.None,
-                    expectedErrorMessage: null,
-                    expectedBicep: null);
-        }
-
-        [TestMethod]
-        public async Task JustString_WithSingleQuotes_CantPaste()
-        {
-            string json = @"'just a string with double quotes'";
-            await TestDecompileForPaste(
-                    json: json,
-                    PasteType.None,
-                    expectedErrorMessage: null,
-                    expectedBicep: null);
-        }
-
-        [TestMethod]
-        public async Task NonResourceObject_CantPaste()
-        {
-            string json = @"{""hello"": ""there""}";
-            await TestDecompileForPaste(
-                    json: json,
-                    PasteType.None,
-                    expectedErrorMessage: null,
-                    expectedBicep: null);
-        }
-
-        [TestMethod]
-        public async Task NonResourceObject_WrongPropertyType_Object_CantPaste()
+        public async Task NonResourceObject_WrongPropertyType_Object_PastesAsSimpleObject()
         {
             string json = @$"
                 {Resource1Json.Replace("\"2021-02-01\"", "{}")}
             ";
             await TestDecompileForPaste(
                     json: json,
-                    PasteType.None,
+                    PasteType.JsonValue,
                     expectedErrorMessage: null,
-                    expectedBicep: null);
+                    expectedBicep: @"
+                        {
+                            type: 'Microsoft.Storage/storageAccounts'
+                            apiVersion: {
+                            }
+                            name: 'name1'
+                            location: 'eastus'
+                            kind: 'StorageV2'
+                            sku: {
+                                name: 'Premium_LRS'
+                            }
+                        }");
         }
 
         [TestMethod]
-        public async Task NonResourceObject_WrongPropertyType_Number_CantPaste()
+        public async Task NonResourceObject_WrongPropertyType_Number_PastesAsSimpleObject()
         {
             string json = @$"
                 {Resource1Json.Replace("\"2021-02-01\"", "1234")}
             ";
             await TestDecompileForPaste(
                     json: json,
-                    PasteType.None,
+                    PasteType.JsonValue,
                     expectedErrorMessage: null,
-                    expectedBicep: null);
+                    expectedBicep: @"
+                        {
+                            type: 'Microsoft.Storage/storageAccounts'
+                            apiVersion: 1234
+                            name: 'name1'
+                            location: 'eastus'
+                            kind: 'StorageV2'
+                            sku: {
+                                name: 'Premium_LRS'
+                            }
+                        }");
         }
 
         [TestMethod]
@@ -473,7 +482,7 @@ random characters
                           ""name"": ""Premium_LRS""
                         }
                 }
-            ";            
+            ";
 
             await TestDecompileForPaste(
                     json: json,
@@ -601,7 +610,7 @@ random characters
                     /* And this
                     also */
 
-            { Resource1Json}
+            {Resource1Json}
                     // This is a comment
                     // So is this
                     /* And this
@@ -616,7 +625,7 @@ random characters
                     // So is this
                     /* And this
                     also */";
-;
+            ;
             string expected = $@"
                 {Resource1Bicep}
 
@@ -1184,5 +1193,303 @@ random characters
                         }");
         }
 
+        [TestMethod]
+        public async Task MultilineStrings_ShouldSucceed()
+        {
+            string json = @"{
+  ""type"": ""Microsoft.Compute/virtualMachines"",
+  ""apiVersion"": ""2018-10-01"",
+  ""name"": ""[variables('vmName')]"", // to customize name, change it in variables
+  ""location"": ""[
+    parameters('location')
+    ]"",
+}";
+
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedPasteType: PasteType.SingleResource,
+                    expectedErrorMessage: null,
+                    expectedBicep: @"
+                        resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = {
+                          name: vmName
+                          location: location
+                        }
+");
+        }
+
+        [DataRow(
+            @"""just a string with double quotes""",
+            @"'just a string with double quotes'",
+            DisplayName = "String with double quotes"
+        )]
+        [DataRow(
+            @"{""hello"": ""there""}",
+            @"{
+                hello: 'there'
+            }",
+            DisplayName = "simple object"
+        )]
+        [DataRow(
+            @"{""hello there"": ""again""}",
+            @"{
+                'hello there': 'again'
+            }",
+            DisplayName = "object with properties needing quotes"
+        )]
+        [DataRow(
+            @"""[resourceGroup().location]""",
+            @"resourceGroup().location",
+            DisplayName = "String with ARM expression"
+        )]
+        [DataRow(
+            @"[""[resourceGroup().location]""]",
+            @"[
+  resourceGroup().location
+]",
+            DisplayName = "Array with string expression"
+        )]
+        [DataRow(
+            @"""[concat(variables('leftBracket'), 'dbo', variables('rightBracket'), '.', variables('leftBracket'), 'table', variables('rightBracket')) ]""",
+            @"'${leftBracket}dbo${rightBracket}.${leftBracket}table${rightBracket}'",
+            DisplayName = "concat changes to interpolated string"
+        )]
+        [DataRow(
+            @"""[concat('Correctly escaped single quotes ''here'' and ''''here'''' ', variables('and'), ' ''wherever''')]""",
+            @"'Correctly escaped single quotes \'here\' and \'\'here\'\' ${and} \'wherever\''",
+            DisplayName = "Correctly escaped single quotes"
+        )]
+        [DataRow(
+            @"""[concat('string', ' ', 'string')]""",
+            @"'string string'",
+            DisplayName = "Concat is simplified"
+        )]
+        [DataRow(
+            @"""[concat('''Something in single quotes - '' ', 'and something not ', variables('v1'))]""",
+            @"'\'Something in single quotes - \' and something not ${v1}'",
+            DisplayName = "Escaped and unescaped single quotes in string"
+        )]
+        [DataRow(
+            @"""[[this will be in brackets, not an expression - variables('blobName') should not be converted to Bicep, but single quotes should be escaped]""",
+            @"'[this will be in brackets, not an expression - variables(\'blobName\') should not be converted to Bicep, but single quotes should be escaped]'",
+            DisplayName = "string starting with [[ is not an expression, [[ should get converted to single ["
+        )]
+        [DataRow(
+            @"""[json(concat('{\""storageAccountType\"": \""Premium_LRS\""}'))]""",
+            @"json('{""storageAccountType"": ""Premium_LRS""}')",
+            DisplayName = "double quotes inside strings inside object"
+        )]
+        [DataRow(
+            @"""[concat(variables('blobName'),parameters('blobName'))]""",
+            "concat(blobName, blobName_param)",
+            DisplayName = "param and variable with same name"
+        )]
+        [DataRow(
+            @"""Double quotes \""here\""""",
+            @"'Double quotes ""here""'",
+            DisplayName = "Double quotes in string"
+        )]
+        [DataRow(
+            @"'Double quotes \""here\""'",
+            @"'Double quotes ""here""'",
+            DisplayName = "Double quotes in single-quote string"
+        )]
+        [DataRow(
+            @"""['Double quotes \""here\""']""",
+            @"'Double quotes ""here""'",
+            DisplayName = "Double quotes in string inside string expression"
+        )]
+        [DataRow(
+            @""" [A string that has whitespace before the bracket is not an expression]""",
+            @"' [A string that has whitespace before the bracket is not an expression]'",
+            DisplayName = "Whitespace before the bracket"
+        )]
+        [DataRow(
+            @"""[A string that has whitespace after the bracket is not an expression] """,
+            @"'[A string that has whitespace after the bracket is not an expression] '",
+            DisplayName = "Whitespace after the bracket"
+        )]
+        [DataRow(
+            @"[
+    1, 2,
+    3
+]",
+            @"[
+  1
+  2
+  3
+]",
+            DisplayName = "Multiline array"
+        )]
+        [DataRow(
+            "  \t \"abc\" \t  ",
+            "'abc'",
+            DisplayName = "Whitespace before/after")]
+        [DataRow(
+            "  /*comment*/\n // another comment\r\n /*hi*/\"abc\"// there\n/*and another*/ // but wait, there's more!\n// end",
+            "'abc'",
+            DisplayName = "Comments before/after")]
+        [DataRow(
+            "\t\"abc\"\t",
+            "'abc'",
+            DisplayName = "Tabs before/after")]
+        [DataRow(
+            "\"2012-03-21T05:40Z\"",
+            "'2012-03-21T05:40Z'",
+            DisplayName = "datetime string")]
+        [DataTestMethod]
+        public async Task JsonValue_Valid_ShouldSucceed(string json, string expectedBicep)
+        {
+            await TestDecompileForPaste(
+                    json: json,
+                    expectedBicep is null ? PasteType.None : PasteType.JsonValue,
+                    expectedErrorMessage: null,
+                    expectedBicep: expectedBicep);
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            @"{
+              ipConfigurations: [
+                {
+                  name: 'ipconfig1'
+                  properties: {
+                    subnet: {
+                      id: 'subnetRef'
+                    }
+                    privateIPAllocationMethod: 'Dynamic'
+                    publicIpAddress: {
+                      id: resourceId('Microsoft.Network/publicIPAddresses', 'publicIPAddressName')
+                    }
+                  }
+                }
+              ]
+              networkSecurityGroup: {
+                id: resourceId('Microsoft.Network/networkSecurityGroups', 'networkSecurityGroupName')
+              }
+            }",
+            DisplayName = "Bicep object"
+        )]
+        [DataRow(
+            @"3/14/2001",
+            DisplayName = "Date"
+        )]
+        [DataRow(
+            @"""kubernetesVersion"": ""1.15.7""",
+            DisplayName = "\"property\": \"value\""
+        )]
+        [DataRow(
+            @"// hello there",
+            DisplayName = "single-line comment"
+        )]
+        [DataRow(
+            @"/* hello
+                there */",
+            DisplayName = "multi-line comment"
+        )]
+        [DataRow(
+            @"resourceGroup().location",
+            DisplayName = "Invalid JSON expression"
+        )]
+        [DataRow(
+            @"[resourceGroup().location]",
+            DisplayName = "Invalid JSON expression inside array"
+        )]
+        [DataRow(
+            @"[concat('Unescaped single quotes 'here' ')]",
+            DisplayName = "Invalid unescaped single quotes"
+        )]
+        [DataRow(
+            @"",
+            DisplayName = "Empty")]
+        [DataRow(
+            "  \t  ",
+            DisplayName = "just whitespace")]
+        [DataRow(
+            @" /* hello there! */ // more comment",
+            DisplayName = "just a comment")]
+        [DataRow(
+            "2012-03-21T05:40Z",
+            DisplayName = "datetime")]
+        public async Task JsonValue_Invalid_CantConvert(string json)
+        {
+            await TestDecompileForPaste(
+                    json: json,
+                    PasteType.None,
+                    expectedErrorMessage: null,
+                    expectedBicep: null);
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            @"{ abc: 1, def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            @"{
+                abc: 1
+                def: 'def'
+            }")]
+        [DataRow(
+            @"{ abc: 1, /*hi*/ def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            @"{
+                abc: 1
+                def: 'def'
+            }")]
+        [DataRow(
+            "[1]",
+            @"[
+                1
+            ]")]
+        [DataRow(
+            "[1, 1]",
+            @"[
+                1
+                1
+            ]")]
+        [DataRow("[      /* */  ]", "[]")]
+        [DataRow(
+            @"[
+/* */  ]",
+        "[]")]
+        [DataRow(
+            @"[
+  1]",
+            @"[
+                1
+            ]")]
+        [DataRow(
+            "null",
+            "null",
+            DisplayName = "null")]
+        [DataRow(
+            @"'just a string with single quotes'",
+            @"'just a string with single quotes'",
+            DisplayName = "String with single quotes"
+        )]
+        public async Task JsonValue_IsAlreadyLegalBicep(string json, string expectedBicep)
+        {
+            await TestDecompileForPaste(
+                    json,
+                    PasteType.BicepValue,
+                    expectedBicep,
+                    expectedErrorMessage: null);
+        }
+
+        [TestMethod]
+        public async Task Template_CreatesEmptyBicep()
+        {
+            await TestDecompileForPaste(
+                    @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": """",
+  ""apiProfile"": """",
+  ""parameters"": {  },
+  ""variables"": {  },
+  ""functions"": [  ],
+  ""resources"": [  ],
+  ""outputs"": {  }
+}",
+                    PasteType.None,
+                    expectedErrorMessage: null,
+                    expectedBicep: null);
+        }
     }
 }
+

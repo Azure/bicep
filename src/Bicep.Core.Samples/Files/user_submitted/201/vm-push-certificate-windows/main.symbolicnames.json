@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14418460216769172143"
+      "templateHash": "9988305214679977467"
     }
   },
   "parameters": {
@@ -100,7 +100,7 @@
             "properties": {
               "addressPrefix": "10.0.0.0/24",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('nsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
               }
             }
           }
@@ -122,10 +122,10 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceInfo('pip').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'certPublicIp')]"
               },
               "subnet": {
-                "id": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, variables('subnet1Name'))]"
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), variables('subnet1Name'))]"
               }
             }
           }
@@ -178,7 +178,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceInfo('nic').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
             }
           ]
         }

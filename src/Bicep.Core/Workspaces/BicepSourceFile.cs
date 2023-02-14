@@ -15,8 +15,7 @@ namespace Bicep.Core.Workspaces
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
             FileUri = fileUri;
-            Hierarchy = new SyntaxHierarchy();
-            Hierarchy.AddRoot(ProgramSyntax);
+            Hierarchy = SyntaxHierarchy.Build(ProgramSyntax);
             DisabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
         }
 
@@ -37,7 +36,7 @@ namespace Bicep.Core.Workspaces
 
         public abstract BicepSourceFileKind FileKind { get; }
 
-        public SyntaxHierarchy Hierarchy { get; }
+        public ISyntaxHierarchy Hierarchy { get; }
 
         public DisabledDiagnosticsCache DisabledDiagnosticsCache { get; }
 

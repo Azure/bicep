@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10210124824570567716"
+      "templateHash": "12119456684933518376"
     }
   },
   "parameters": {
@@ -214,10 +214,10 @@
             "value": "[parameters('logAnalyticslocation')]"
           },
           "logAnalyticsResourceGroup": {
-            "value": "[resourceInfo('rdmon').name]"
+            "value": "[format('{0}MONITOR', parameters('resourceGroupPrefrix'))]"
           },
           "avdBackplaneResourceGroup": {
-            "value": "[resourceInfo('rgavd').name]"
+            "value": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]"
           }
         },
         "template": {
@@ -229,7 +229,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8384795648239187520"
+              "templateHash": "16124052747105188444"
             }
           },
           "parameters": {
@@ -309,7 +309,7 @@
               "properties": {
                 "friendlyName": "[parameters('appgroupNameFriendlyName')]",
                 "applicationGroupType": "[parameters('applicationgrouptype')]",
-                "hostPoolArmPath": "[resourceInfo('hp').id]"
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
               },
               "dependsOn": [
                 "hp"
@@ -323,7 +323,7 @@
               "properties": {
                 "friendlyName": "[parameters('workspaceNameFriendlyName')]",
                 "applicationGroupReferences": [
-                  "[resourceInfo('ag').id]"
+                  "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
                 ]
               },
               "dependsOn": [
@@ -351,10 +351,10 @@
                     "value": "[parameters('logAnalyticsWorkspaceSku')]"
                   },
                   "hostpoolName": {
-                    "value": "[resourceInfo('hp').name]"
+                    "value": "[parameters('hostpoolName')]"
                   },
                   "workspaceName": {
-                    "value": "[resourceInfo('ws').name]"
+                    "value": "[parameters('workspaceName')]"
                   },
                   "avdBackplaneResourceGroup": {
                     "value": "[parameters('avdBackplaneResourceGroup')]"
@@ -369,7 +369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10998119369109628373"
+                      "templateHash": "15422770400368608700"
                     }
                   },
                   "parameters": {
@@ -418,7 +418,7 @@
                         "mode": "Incremental",
                         "parameters": {
                           "logAnalyticsWorkspaceID": {
-                            "value": "[resourceInfo('avdla').id]"
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
                           },
                           "hostpoolName": {
                             "value": "[parameters('hostpoolName')]"
@@ -580,7 +580,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18364266643358370653"
+              "templateHash": "8377334280691214017"
             }
           },
           "parameters": {
@@ -653,7 +653,7 @@
             },
             "vnetId": {
               "type": "string",
-              "value": "[resourceInfo('vnet').id]"
+              "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
             }
           }
         }
@@ -698,7 +698,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13272301670869903501"
+              "templateHash": "6107639765738611258"
             }
           },
           "parameters": {
@@ -720,6 +720,9 @@
               "defaultValue": "profilecontainers"
             }
           },
+          "variables": {
+            "filesharelocation": "[format('{0}/default/{1}', parameters('storageaccountName'), parameters('fileshareFolderName'))]"
+          },
           "resources": {
             "sa": {
               "type": "Microsoft.Storage/storageAccounts",
@@ -734,7 +737,7 @@
             "fs": {
               "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
               "apiVersion": "2020-08-01-preview",
-              "name": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]",
+              "name": "[variables('filesharelocation')]",
               "dependsOn": [
                 "sa"
               ]
@@ -743,7 +746,7 @@
           "outputs": {
             "storageAccountId": {
               "type": "string",
-              "value": "[resourceInfo('sa').id]"
+              "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
             }
           }
         }
@@ -788,7 +791,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9001760369221735716"
+              "templateHash": "1046509696741722446"
             }
           },
           "parameters": {
@@ -827,7 +830,7 @@
                   {
                     "name": "config1",
                     "properties": {
-                      "privateDnsZoneId": "[resourceInfo('privateDNSZone').id]"
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDNSZoneName'))]"
                     }
                   }
                 ]
@@ -840,7 +843,7 @@
             "privateDNSZone::virtualNetworkLink": {
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "apiVersion": "2020-06-01",
-              "name": "[format('{0}/{1}', parameters('privateDNSZoneName'), format('{0}-link', resourceInfo('privateDNSZone').name))]",
+              "name": "[format('{0}/{1}', parameters('privateDNSZoneName'), format('{0}-link', parameters('privateDNSZoneName')))]",
               "location": "global",
               "properties": {
                 "registrationEnabled": false,
@@ -934,7 +937,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3313400328646416300"
+              "templateHash": "1270528138025457372"
             }
           },
           "parameters": {
@@ -1007,9 +1010,9 @@
             "galleryassignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "name": "[guid(resourceGroup().id, resourceInfo('gallerydef').id, resourceInfo('managedidentity').id)]",
+              "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
               "properties": {
-                "roleDefinitionId": "[resourceInfo('gallerydef').id]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
                 "principalId": "[reference('managedidentity').principalId]",
                 "principalType": "ServicePrincipal"
               },
@@ -1021,7 +1024,7 @@
             "avdid": {
               "type": "Microsoft.Compute/galleries/images",
               "apiVersion": "2019-07-01",
-              "name": "[format('{0}/{1}', resourceInfo('avdsig').name, parameters('imageDefinitionName'))]",
+              "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
               "location": "[parameters('sigLocation')]",
               "properties": {
                 "osType": "Windows",
@@ -1056,7 +1059,7 @@
             },
             "avdidoutput": {
               "type": "string",
-              "value": "[resourceInfo('avdid').id]"
+              "value": "[resourceId('Microsoft.Compute/galleries/images', split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[0], split(format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName')), '/')[1])]"
             }
           }
         }
@@ -1107,7 +1110,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3591148648264486228"
+              "templateHash": "4602590212295487082"
             }
           },
           "parameters": {
@@ -1172,7 +1175,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[format('{0}', resourceInfo('managedidentity').id)]": {}
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]": {}
                 }
               },
               "properties": {
@@ -1230,9 +1233,9 @@
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "name": "[guid(resourceGroup().id, resourceInfo('aibdef').id, resourceInfo('managedidentity').id)]",
+              "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
               "properties": {
-                "roleDefinitionId": "[resourceInfo('aibdef').id]",
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom')))]",
                 "principalId": "[reference('managedidentity').principalId]",
                 "principalType": "ServicePrincipal"
               },
@@ -1244,7 +1247,7 @@
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceInfo('managedidentity').id)]",
+              "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
               "properties": {
                 "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
                 "principalId": "[reference('managedidentity').principalId]",

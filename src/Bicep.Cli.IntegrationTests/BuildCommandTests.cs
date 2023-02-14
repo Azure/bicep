@@ -274,6 +274,43 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [TestMethod]
+        public async Task Build_Params_Without_Feature_Flag_Disabled_ShouldFail_WithExepectedErrorMessage()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
+            FileHelper.SaveResultFile(TestContext, "main.bicep", "", Path.GetDirectoryName(bicepparamsPath));
+
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            File.Exists(outputFilePath).Should().BeFalse();
+            var(output, error, result) = await Bicep("build", "--outfile", outputFilePath, bicepparamsPath);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain($"The specified input \"{bicepparamsPath}\" could not be compiled. Compilation of files with extension .bicepparam is only supported if experimental feature \"{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}\" is enabled.");
+        }
+
+        [TestMethod]
+        public async Task Build_Params_With_Feature_Flag_Enabled_ShouldSucceed()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
+            FileHelper.SaveResultFile(TestContext, "main.bicep", "", Path.GetDirectoryName(bicepparamsPath));
+
+            var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            File.Exists(outputFilePath).Should().BeFalse();
+            var(output, error, result) = await Bicep(settings, "build", "--outfile", outputFilePath, bicepparamsPath);
+
+            File.Exists(outputFilePath).Should().BeTrue();
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+        }
+
+
+
+        [TestMethod]
         public async Task Build_WithOutFile_ShouldSucceed()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
@@ -363,7 +400,7 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithEmptyBicepConfig_ShouldProduceConfigurationError()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
             var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", string.Empty, testOutputPath);
 
@@ -377,7 +414,7 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithInvalidBicepConfig_ShouldProduceConfigurationError()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
             var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
   ""analyzers"": {
@@ -399,7 +436,7 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError()
         {
-            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
             FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
   ""analyzers"": {

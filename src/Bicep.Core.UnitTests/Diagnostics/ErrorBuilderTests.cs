@@ -160,6 +160,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return TestSyntaxFactory.CreateObject(Array.Empty<ObjectPropertySyntax>());
             }
 
+            if (parameter.ParameterType == typeof(SyntaxBase))
+            {
+                return TestSyntaxFactory.CreateVariableAccess("identifier");
+            }
+
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
 
@@ -207,7 +212,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         // There is leading whitespace in this one
         [DataRow(@"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                  
+                  "+@"
                 }",
            @"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {

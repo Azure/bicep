@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18170097315916018511"
+      "templateHash": "9089331581017119406"
     }
   },
   "parameters": {
@@ -146,7 +146,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -194,8 +194,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -228,7 +228,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8343348345038017633"
+              "templateHash": "3908852693504940489"
             }
           },
           "parameters": {
@@ -247,7 +247,7 @@
           "outputs": {
             "myResourceId": {
               "type": "string",
-              "value": "[resourceInfo('myResource').id]"
+              "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
             }
           }
         }
@@ -280,7 +280,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8343348345038017633"
+              "templateHash": "3908852693504940489"
             }
           },
           "parameters": {
@@ -299,7 +299,7 @@
           "outputs": {
             "myResourceId": {
               "type": "string",
-              "value": "[resourceInfo('myResource').id]"
+              "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
             }
           }
         }
@@ -673,7 +673,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceInfo('resWithDependencies').id, 'optionalWithAllParamsAndManualDependency')]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
           },
           "optionalInt": {
             "value": 42
@@ -751,7 +751,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceInfo('resWithDependencies').id, 'optionalWithAllParamsAndManualDependency')]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
           },
           "optionalInt": {
             "value": 42
@@ -851,7 +851,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -899,8 +899,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -945,7 +945,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -993,8 +993,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1040,7 +1040,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1088,8 +1088,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1138,7 +1138,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1186,8 +1186,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1236,7 +1236,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1284,8 +1284,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1331,7 +1331,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1379,8 +1379,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1455,7 +1455,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1503,8 +1503,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1580,7 +1580,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1628,8 +1628,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -1708,7 +1708,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13974283364562914389"
+              "templateHash": "5119314944459844001"
             }
           },
           "parameters": {
@@ -1756,8 +1756,8 @@
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceInfo('basicStorage').id]",
-                "[resourceInfo('dnsZone').id]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }

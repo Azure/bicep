@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6551787062035757687"
+      "templateHash": "5681268842659059862"
     }
   },
   "parameters": {
@@ -104,7 +104,7 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, variables('vnetConfig').subnet.name)]"
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), variables('vnetConfig').subnet.name)]"
               },
               "privateIPAllocationMethod": "[variables('privateIPAllocationMethod')]"
             }
@@ -147,7 +147,7 @@
               "properties": {
                 "primary": true
               },
-              "id": "[resourceInfo('vmNic').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('defaultVmNicName'))]"
             }
           ]
         }
@@ -160,7 +160,7 @@
       "condition": "[parameters('installNVidiaGPUDriver')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/NvidiaGpuDriverWindows', resourceInfo('vm').name)]",
+      "name": "[format('{0}/NvidiaGpuDriverWindows', parameters('vmName'))]",
       "location": "[variables('defaultLocation')]",
       "properties": {
         "publisher": "Microsoft.HpcCompute",

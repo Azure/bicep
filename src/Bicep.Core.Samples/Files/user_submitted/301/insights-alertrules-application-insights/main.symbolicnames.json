@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "761625557707370289"
+      "templateHash": "9792754545948665500"
     }
   },
   "parameters": {
@@ -65,7 +65,7 @@
       "kind": "web",
       "properties": {
         "Application_Type": "web",
-        "WorkspaceResourceId": "[resourceInfo('workspace').id]"
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
       },
       "dependsOn": [
         "workspace"
@@ -81,7 +81,7 @@
         "severity": 0,
         "enabled": true,
         "scopes": [
-          "[resourceInfo('applicationInsights').id]"
+          "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
         ],
         "evaluationFrequency": "PT1M",
         "windowSize": "PT5M",
@@ -100,7 +100,7 @@
         },
         "actions": [
           {
-            "actionGroupId": "[resourceInfo('emailActionGroup').id]"
+            "actionGroupId": "[resourceId('microsoft.insights/actionGroups', 'emailActionGroup')]"
           }
         ]
       },

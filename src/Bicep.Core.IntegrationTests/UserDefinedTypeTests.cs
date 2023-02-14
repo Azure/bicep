@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -354,5 +356,119 @@ param anotherObject object = {prop: 'someVal'}
         result.Should().HaveDiagnostics(new[] {
             ("BCP037", DiagnosticLevel.Warning, "The property \"prop\" is not allowed on objects of type \"{ }\". No other properties are allowed."),
         });
+    }
+
+    [TestMethod]
+    public void Error_should_be_shown_when_setting_unknown_properties_that_do_not_match_additional_properties_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  *: int
+} = {prop: 'someVal'}
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP036", DiagnosticLevel.Error, @"The property ""prop"" expected a value of type ""int"" but the provided value is of type ""'someVal'""."),
+        });
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  *: string
+} = {prop: 'someVal'}
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Additional_properties_may_be_used_alongside_named_properties()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+#disable-next-line no-unused-params
+param aDict {
+  knownProp: int
+  *: string
+} = {
+  knownProp: 21
+  prop: 'someVal'
+}
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Nullably_typed_values_can_be_used_as_nonnullable_outputs_with_postfix_assertion()
+    {
+        var templateWithPossiblyNullDeref = @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+output quux string = foos[0].bar.baz.quux
+";
+        var templateWithNonNullAssertion = @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+output quux string = foos[0]!.bar.baz.quux
+";
+
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithPossiblyNullDeref);
+        result.Should().HaveDiagnostics(new []
+        {
+          ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
+        });
+        result.Diagnostics.Single().Should().BeAssignableTo<IFixable>();
+        result.Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithPossiblyNullDeref, templateWithNonNullAssertion);
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithNonNullAssertion);
+        result.Should().NotHaveAnyDiagnostics();
+        result.Should().HaveTemplateWithOutput("quux", "[parameters('foos')[0].bar.baz.quux]");
+    }
+
+    [TestMethod]
+    public void Tuples_with_a_literal_index_use_type_at_index()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+("main.bicep", @"
+var myArray = ['foo', 'bar']
+
+module mod './mod.bicep' = {
+  name: 'mod'
+  params: {
+    myParam: myArray[0]
+  }
+}
+"),
+("mod.bicep", @"
+param myParam 'foo'
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void Tuples_with_a_literal_union_index_use_type_at_indices()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+("main.bicep", @"
+param index 0 | 1
+
+var myArray = ['foo', 'bar', 'baz']
+
+module mod './mod.bicep' = {
+  name: 'mod'
+  params: {
+    myParam: myArray[index]
+  }
+}
+"),
+("mod.bicep", @"
+param myParam 'foo' | 'bar'
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
     }
 }

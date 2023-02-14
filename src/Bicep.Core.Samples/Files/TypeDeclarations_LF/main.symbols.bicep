@@ -74,3 +74,14 @@ type tuple = [
     bar
 ]
 
+type stringStringDictionary = {
+//@[5:27) TypeAlias stringStringDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 47
+    *: string
+}
+
+param mightIncludeNull ({key: 'value'} | null)[]
+//@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48
+
+var maybeNull = mightIncludeNull[0]!.key
+//@[4:13) Variable maybeNull. Type: 'value'. Declaration start char: 0, length: 40
+

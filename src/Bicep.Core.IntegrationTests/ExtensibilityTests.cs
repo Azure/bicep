@@ -465,7 +465,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""831867025312306238""
+      ""templateHash"": ""8036895127623403713""
     }
   },
   ""parameters"": {
@@ -495,7 +495,7 @@ Hello from Bicep!"));
         ""mode"": ""Incremental"",
         ""parameters"": {
           ""connectionString"": {
-            ""value"": ""[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('stgAccount').name, environment().suffixes.storage, listKeys(resourceInfo('stgAccount').id, '2019-06-01').keys[0].value)]""
+            ""value"": ""[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName'))), '2019-06-01').keys[0].value)]""
           }
         },
         ""template"": {

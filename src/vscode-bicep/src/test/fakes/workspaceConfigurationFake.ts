@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { ConfigurationTarget, WorkspaceConfiguration } from "vscode";
-import { sleep } from "../utils/time";
+import { sleep } from "../../utils/time";
 
 export class WorkspaceConfigurationFake implements WorkspaceConfiguration {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

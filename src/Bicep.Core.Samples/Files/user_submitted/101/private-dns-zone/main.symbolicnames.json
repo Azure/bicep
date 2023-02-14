@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10248908306285267520"
+      "templateHash": "13363178195081323433"
     }
   },
   "parameters": {
@@ -57,7 +57,7 @@
     "subnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', resourceInfo('virtualNetwork').name, parameters('subnetName'))]",
+      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetName'))]",
       "properties": {
         "addressPrefix": "[parameters('subnetAddressPrefix')]",
         "networkSecurityGroup": {
@@ -94,12 +94,12 @@
     "virtualNetworkLink": {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2018-09-01",
-      "name": "[format('{0}/{1}-link', resourceInfo('privateDnsZone').name, resourceInfo('privateDnsZone').name)]",
+      "name": "[format('{0}/{1}-link', parameters('privateDnsZoneName'), parameters('privateDnsZoneName'))]",
       "location": "global",
       "properties": {
         "registrationEnabled": "[parameters('autoVmRegistration')]",
         "virtualNetwork": {
-          "id": "[resourceInfo('virtualNetwork').id]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
         }
       },
       "dependsOn": [

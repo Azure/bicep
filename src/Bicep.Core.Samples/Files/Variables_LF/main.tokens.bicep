@@ -603,45 +603,6 @@ var functionOnIndexer1 = concat([
 //@[009:010) RightParen |)|
 //@[010:012) NewLine |\n\n|
 
-var functionOnIndexer2 = concat([
-//@[000:003) Identifier |var|
-//@[004:022) Identifier |functionOnIndexer2|
-//@[023:024) Assignment |=|
-//@[025:031) Identifier |concat|
-//@[031:032) LeftParen |(|
-//@[032:033) LeftSquare |[|
-//@[033:034) NewLine |\n|
-][0], 's')
-//@[000:001) RightSquare |]|
-//@[001:002) LeftSquare |[|
-//@[002:003) Integer |0|
-//@[003:004) RightSquare |]|
-//@[004:005) Comma |,|
-//@[006:009) StringComplete |'s'|
-//@[009:010) RightParen |)|
-//@[010:012) NewLine |\n\n|
-
-var functionOnIndexer3 = concat([
-//@[000:003) Identifier |var|
-//@[004:022) Identifier |functionOnIndexer3|
-//@[023:024) Assignment |=|
-//@[025:031) Identifier |concat|
-//@[031:032) LeftParen |(|
-//@[032:033) LeftSquare |[|
-//@[033:034) NewLine |\n|
-][0], any('s'))
-//@[000:001) RightSquare |]|
-//@[001:002) LeftSquare |[|
-//@[002:003) Integer |0|
-//@[003:004) RightSquare |]|
-//@[004:005) Comma |,|
-//@[006:009) Identifier |any|
-//@[009:010) LeftParen |(|
-//@[010:013) StringComplete |'s'|
-//@[013:014) RightParen |)|
-//@[014:015) RightParen |)|
-//@[015:017) NewLine |\n\n|
-
 var singleQuote = '\''
 //@[000:003) Identifier |var|
 //@[004:015) Identifier |singleQuote|

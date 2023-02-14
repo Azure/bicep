@@ -7,8 +7,10 @@ namespace Bicep.Core.TypeSystem
 {
     public class TypedArrayType : ArrayType
     {
-        public TypedArrayType(ITypeReference itemReference, TypeSymbolValidationFlags validationFlags)
-            : base(FormatTypeName(itemReference))
+        public TypedArrayType(ITypeReference itemReference, TypeSymbolValidationFlags validationFlags) : this(FormatTypeName(itemReference), itemReference, validationFlags) { }
+
+        public TypedArrayType(string name, ITypeReference itemReference, TypeSymbolValidationFlags validationFlags)
+            : base(name)
         {
             this.Item = itemReference;
             ValidationFlags = validationFlags;

@@ -47,6 +47,9 @@ namespace Bicep.Core.Semantics
         public SyntaxBase? GetParent(SyntaxBase syntax)
             => bicepFile.Hierarchy.GetParent(syntax);
 
+        public bool IsDescendant(SyntaxBase node, SyntaxBase potentialAncestor)
+            => bicepFile.Hierarchy.IsDescendant(node, potentialAncestor);
+
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.

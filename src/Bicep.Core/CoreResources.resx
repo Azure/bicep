@@ -186,6 +186,9 @@
   <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
     <value>No unnecessary dependsOn.</value>
   </data>
+  <data name="NoUnnecessaryDependsOnRuleCodeFix" xml:space="preserve">
+    <value>Remove unneccessary dependsOn.</value>
+  </data>
   <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
     <comment>Text for linter rule error. {0} is a programmatic expression</comment>
@@ -340,6 +343,12 @@
   <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
+  <data name="UseParentPropertyRuleDescription" xml:space="preserve">
+    <value>Use the parent property instead of formatting child resource names with '/' characters.</value>
+  </data>
+  <data name="UseParentPropertyRuleCodeFix" xml:space="preserve">
+    <value>Use parent property.</value>
+  </data>
   <data name="UseResourceIdFunctionsRule_Description" xml:space="preserve">
     <value>Properties representing a resource ID must be generated appropriately.</value>
   </data>
@@ -404,5 +413,10 @@
   </data>
   <data name="DecompilerImperfectionsRule_Variable" xml:space="preserve">
     <value>The name of variable '{0}' appears to have originated from a naming conflict during a decompilation from JSON.</value>
+  </data>
+  <data name="UseParentPropertyRule_MessageFormat" xml:space="preserve">
+    <value>Resource "{0}" has its name formatted as a child of resource "{1}". The syntax can be simplified by using the parent property.</value>
+    <comment>{0} child resource symbolic name
+{1} parent resource symbolic name</comment>
   </data>
 </root>

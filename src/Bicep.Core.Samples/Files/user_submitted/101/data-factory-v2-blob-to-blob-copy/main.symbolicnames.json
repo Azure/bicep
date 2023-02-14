@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9205253290059600425"
+      "templateHash": "15796731128401531734"
     }
   },
   "parameters": {
@@ -60,7 +60,7 @@
     "blobContainer": {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2021-04-01",
-      "name": "[format('{0}/default/{1}', resourceInfo('storageAccount').name, parameters('blobContainerName'))]",
+      "name": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName'))]",
       "dependsOn": [
         "storageAccount"
       ]
@@ -81,7 +81,7 @@
       "properties": {
         "type": "AzureBlobStorage",
         "typeProperties": {
-          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', resourceInfo('storageAccount').name, listKeys(resourceInfo('storageAccount').id, '2021-04-01').keys[0].value)]"
+          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01').keys[0].value)]"
         }
       },
       "dependsOn": [
@@ -95,14 +95,14 @@
       "name": "[format('{0}/{1}', parameters('dataFactoryName'), variables('dataFactoryDataSetInName'))]",
       "properties": {
         "linkedServiceName": {
-          "referenceName": "[resourceInfo('dataFactoryLinkedService').name]",
+          "referenceName": "[variables('dataFactoryLinkedServiceName')]",
           "type": "LinkedServiceReference"
         },
         "type": "Binary",
         "typeProperties": {
           "location": {
             "type": "AzureBlobStorageLocation",
-            "container": "[resourceInfo('blobContainer').name]",
+            "container": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName'))]",
             "folderPath": "input",
             "fileName": "emp.txt"
           }
@@ -120,14 +120,14 @@
       "name": "[format('{0}/{1}', parameters('dataFactoryName'), variables('dataFactoryDataSetOutName'))]",
       "properties": {
         "linkedServiceName": {
-          "referenceName": "[resourceInfo('dataFactoryLinkedService').name]",
+          "referenceName": "[variables('dataFactoryLinkedServiceName')]",
           "type": "LinkedServiceReference"
         },
         "type": "Binary",
         "typeProperties": {
           "location": {
             "type": "AzureBlobStorageLocation",
-            "container": "[resourceInfo('blobContainer').name]",
+            "container": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName'))]",
             "folderPath": "output"
           }
         }
@@ -172,13 +172,13 @@
             },
             "inputs": [
               {
-                "referenceName": "[resourceInfo('dataFactoryDataSetIn').name]",
+                "referenceName": "[variables('dataFactoryDataSetInName')]",
                 "type": "DatasetReference"
               }
             ],
             "outputs": [
               {
-                "referenceName": "[resourceInfo('dataFactoryDataSetOut').name]",
+                "referenceName": "[variables('dataFactoryDataSetOutName')]",
                 "type": "DatasetReference"
               }
             ]

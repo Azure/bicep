@@ -9,6 +9,11 @@ type resource = bool
 @sealed()
 type sealedString = string
 
+@sealed()
+type sealedDictionary = {
+  *: string
+}
+
 type disallowedUnion = 'foo' | 21
 
 type validStringLiteralUnion = 'foo' | 'bar' | 'baz'

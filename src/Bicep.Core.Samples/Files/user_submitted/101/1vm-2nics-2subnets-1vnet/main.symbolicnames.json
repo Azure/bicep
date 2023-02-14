@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7957561682324694647"
+      "templateHash": "2098153364201229574"
     }
   },
   "parameters": {
@@ -96,13 +96,13 @@
               "properties": {
                 "primary": true
               },
-              "id": "[resourceInfo('nic1').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]"
             },
             {
               "properties": {
                 "primary": false
               },
-              "id": "[resourceInfo('nic2').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]"
             }
           ]
         },
@@ -178,7 +178,7 @@
             "properties": {
               "addressPrefix": "10.0.1.0/24",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('nsg2').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
               }
             }
           }
@@ -199,17 +199,17 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnet1Name'))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnet1Name'))]"
               },
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceInfo('pip').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
               }
             }
           }
         ],
         "networkSecurityGroup": {
-          "id": "[resourceInfo('nsg').id]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
         }
       },
       "dependsOn": [
@@ -229,7 +229,7 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnet2Name'))]"
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnet2Name'))]"
               },
               "privateIPAllocationMethod": "Dynamic"
             }

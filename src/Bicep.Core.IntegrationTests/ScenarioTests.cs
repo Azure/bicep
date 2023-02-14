@@ -1,15 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -2923,7 +2926,7 @@ output bar string = server2::firewall.properties.startIpAddress
             result.Template.Should().HaveValueAtPath("$.resources['server2::db'].name", "[format('{0}/{1}', 'sql', 'cool-database2')]");
             result.Template.Should().HaveValueAtPath("$.resources['server2::firewall'].name", "[format('{0}/{1}', 'sql', 'test')]");
 
-            result.Template.Should().HaveValueAtPath("$.outputs['foo'].value", "[resourceInfo('server2::firewall').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['foo'].value", "test");
             result.Template.Should().HaveValueAtPath("$.outputs['bar'].value", "[reference('server2::firewall').startIpAddress]");
         }
 
@@ -4133,9 +4136,6 @@ var _subnets = {
 output aksRouteTable string = _subnets.aksPoolSys.routeTable
 "));
 
-            // verify the variable has been inlined
-            result.Template.Should().NotHaveValueAtPath("$.variables['_subnets']");
-
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.outputs['aksRouteTable'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Network/routeTables/aksRouteTable");
         }
@@ -4175,6 +4175,108 @@ output fooAccess object = {
   ""type"": ""Microsoft.Storage/storageAccounts"",
   ""apiVersion"": ""2022-09-01""
 }"));
+        }
+
+        // https://github.com/Azure/bicep/issues/6065
+        [TestMethod]
+        public void Test_Issue6065()
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
+("main.bicep", @"
+module mymodule 'test.bicep' = {
+  name: 'mymodule'
+}
+
+resource myresource 'Microsoft.Sql/servers@2021-08-01-preview' = {
+  name: 'myothersql'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: mymodule.outputs.sql.properties.administratorLogin
+  }
+}
+"),
+("test.bicep", @"
+resource sql 'Microsoft.Sql/servers@2021-08-01-preview' existing = {
+  name: 'mysql'
+}
+
+output sql resource = sql
+"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+            });
+        }
+
+        // https://github.com/Azure/bicep/issues/9713
+        [TestMethod]
+        public void Test_9713()
+        {
+            var result = CompilationHelper.Compile(@"
+@allowed([
+  ['blob', 'file']
+  ['blob', 'file', 'table', 'queue']
+])
+param storageServices array = ['blob', 'file']
+
+output storageService string = storageServices[0]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/9734
+        [TestMethod]
+        public void Test_9734()
+        {
+            var result = CompilationHelper.Compile(@"
+param name string
+param appsettings object
+
+var defaultValues = {
+  '${name}': { }
+}
+var values = union(defaultValues, appsettings)
+
+output values object = values[name]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/9469
+        [TestMethod]
+        public void Test_Issue9469()
+        {
+            var referenceExpressionsExpected = new Dictionary<FeatureProviderOverrides, string>
+            {
+                // without symbolic names enabled, we should expect a reference using the well-formed resource ID
+                { new(), "reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('CertificateSubjects')[0].keyVault.subscriptionId, parameters('CertificateSubjects')[0].keyVault.resourceGroupName), 'Microsoft.KeyVault/vaults/secrets', parameters('CertificateSubjects')[0].keyVault.name, replace(replace(parameters('CertificateSubjects')[0].subject, '*', 'wild'), '.', '-')), '2022-07-01')" },
+                // with symbolic names enabled, we should expect a symbolic name reference
+                { new(SymbolicNameCodegenEnabled: true), "reference(format('Certificate[{0}]', 0))" }
+            };
+
+            foreach (var (featureset, referenceExpression) in referenceExpressionsExpected)
+            {
+                var result = CompilationHelper.Compile(Services.WithFeatureOverrides(featureset), @"
+param CertificateSubjects array
+
+resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
+  name: c.keyVault.name
+  scope: resourceGroup(c.keyVault.subscriptionId, c.keyVault.resourceGroupName)
+}]
+
+resource Certificate 'Microsoft.KeyVault/vaults/secrets@2022-07-01' existing = [for (c, i) in CertificateSubjects: {
+  name: replace(replace(c.subject, '*', 'wild'), '.', '-')
+  parent: CertificateVault[i]
+}]
+
+output firstCertEnabled bool = Certificate[0].properties.attributes.enabled
+");
+
+                result.Should().HaveTemplateWithOutput("firstCertEnabled", $"[{referenceExpression}.attributes.enabled]");
+            }
         }
     }
 }

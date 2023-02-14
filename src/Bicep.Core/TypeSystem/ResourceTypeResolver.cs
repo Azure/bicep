@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -32,6 +33,29 @@ namespace Bicep.Core.TypeSystem
             var existingResourceBodyTypeOverrides = CreateExistingResourceBodyTypeOverrides(semanticModel);
 
             return new(semanticModel, existingResourceBodyTypeOverrides);
+        }
+
+        public (ResourceSymbol?, ObjectType?) TryResolveRuntimeExistingResourceSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax)
+        {
+            var resolved = this.TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax);
+
+            if (resolved is (ResourceSymbol resourceSymbol, { } bodyType) &&
+                resourceSymbol.DeclaringResource.IsExistingResource())
+            {
+
+                foreach (var identifierPropertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
+                {
+                    if (bodyType.Properties.TryGetValue(identifierPropertyName, out var identifierPropertyType) &&
+                        !identifierPropertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
+                    {
+                        // Found an existing resource whose identifier properties are not readable at deploy-time, for example,
+                        // the name/scope/parent property references a module output).
+                        return (resourceSymbol, bodyType);
+                    }
+                }
+            }
+
+            return (null, null);
         }
 
         public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax) =>
@@ -74,19 +98,25 @@ namespace Bicep.Core.TypeSystem
 
                     // if "name" property has a non-DTC value, then make an entry for the corresponding existing ResourceSymbol to a modified ObjectType in the dictionary
                     if (existingResourceSymbol.DeclaringResource.TryGetBody() is { } existingResourceBody &&
-                        existingResourceBody.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName) is { } nameProperty &&
                         existingResourceSymbol.TryGetBodyObjectType() is { } existingResourceBodyType)
                     {
-                        var diagnosticWriter = new SimpleDiagnosticWriter();
                         var resourceTypeResolver = new ResourceTypeResolver(semanticModel, existingResourceBodyTypeOverrides);
 
-                        DeployTimeConstantValidator.Validate(nameProperty, semanticModel, resourceTypeResolver, diagnosticWriter);
-
-                        // If a DTC diagnostic was caught, the existing resource name property contains a runtime value.
-                        // Remove ReadableAtDeployTime flag from the name property.
-                        if (diagnosticWriter.HasDiagnostics())
+                        foreach (var propertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
                         {
-                            existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearNamePropertyFlags(existingResourceBodyType, TypePropertyFlags.ReadableAtDeployTime);;
+                            if (existingResourceBody.TryGetPropertyByName(propertyName) is { } identifierProperty)
+                            {
+                                var diagnosticWriter = new SimpleDiagnosticWriter();
+
+                                DeployTimeConstantValidator.Validate(identifierProperty, semanticModel, resourceTypeResolver, diagnosticWriter);
+
+                                // If a DTC diagnostic was caught, the existing resource identifier property contains a runtime value.
+                                // Remove ReadableAtDeployTime flag from the name property.
+                                if (diagnosticWriter.HasDiagnostics())
+                                {
+                                    existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType);;
+                                }
+                            }
                         }
                     }
                 }
@@ -101,19 +131,40 @@ namespace Bicep.Core.TypeSystem
             // now map every resourceSymbol in the dictionary to the same ObjectType but with the DeployTimeConstant flag removed this time
             foreach (var (existingResourceSymbol, existingResourceBodyType) in existingResourceBodyTypeOverrides)
             {
-                existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearNamePropertyFlags(existingResourceBodyType, TypePropertyFlags.DeployTimeConstant);
+                existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearDeployTimeConstantFlagIfNotReadableAtDeployTime(existingResourceBodyType);
             }
 
             return existingResourceBodyTypeOverrides;
         }
 
-        private static ObjectType ClearNamePropertyFlags(ObjectType existingResourceBodyType, TypePropertyFlags flagsToClear)
+        private static ObjectType ClearReadableAtDeployTimeFlags(string propertyName, ObjectType existingResourceBodyType)
         {
-            var namePropertyType = existingResourceBodyType.Properties[AzResourceTypeProvider.ResourceNamePropertyName];
-            namePropertyType = namePropertyType.With(namePropertyType.Flags & ~flagsToClear);
+            if (existingResourceBodyType.Properties.TryGetValue(propertyName, out var propertyType))
+            {
+                propertyType = propertyType.With(propertyType.Flags & ~TypePropertyFlags.ReadableAtDeployTime);
 
-            return existingResourceBodyType.With(
-                properties: existingResourceBodyType.Properties.SetItem(AzResourceTypeProvider.ResourceNamePropertyName, namePropertyType).Values);
+                existingResourceBodyType = existingResourceBodyType.With(
+                    properties: existingResourceBodyType.Properties.SetItem(propertyName, propertyType).Values);
+            }
+
+            return existingResourceBodyType;
+        }
+
+        private static ObjectType ClearDeployTimeConstantFlagIfNotReadableAtDeployTime(ObjectType existingResourceBodyType)
+        {
+            foreach (var propertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
+            {
+                if (existingResourceBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
+                    !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
+                {
+                    propertyType = propertyType.With(propertyType.Flags & ~TypePropertyFlags.DeployTimeConstant);
+
+                    existingResourceBodyType = existingResourceBodyType.With(
+                        properties: existingResourceBodyType.Properties.SetItem(propertyName, propertyType).Values);
+                }
+            }
+
+            return existingResourceBodyType;
         }
     }
 }

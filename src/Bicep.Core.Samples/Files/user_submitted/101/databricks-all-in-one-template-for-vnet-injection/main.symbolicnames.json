@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14724832170672496651"
+      "templateHash": "8329915391087757270"
     }
   },
   "parameters": {
@@ -215,7 +215,7 @@
             "properties": {
               "addressPrefix": "[parameters('publicSubnetCidr')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('nsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
               },
               "delegations": [
                 {
@@ -232,7 +232,7 @@
             "properties": {
               "addressPrefix": "[parameters('privateSubnetCidr')]",
               "networkSecurityGroup": {
-                "id": "[resourceInfo('nsg').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
               },
               "delegations": [
                 {
@@ -259,10 +259,10 @@
         "name": "[parameters('pricingTier')]"
       },
       "properties": {
-        "managedResourceGroupId": "[resourceInfo('managedResourceGroup').id]",
+        "managedResourceGroupId": "[subscriptionResourceId('Microsoft.Resources/resourceGroups', variables('managedResourceGroupName'))]",
         "parameters": {
           "customVirtualNetworkId": {
-            "value": "[resourceInfo('vnet').id]"
+            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
           },
           "customPublicSubnetName": {
             "value": "[parameters('publicSubnetName')]"

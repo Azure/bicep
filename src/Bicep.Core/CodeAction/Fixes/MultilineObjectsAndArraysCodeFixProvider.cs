@@ -14,7 +14,7 @@ namespace Bicep.Core.CodeAction.Fixes
 {
     public class MultilineObjectsAndArraysCodeFixProvider : ICodeFixProvider
     {
-        public const string ConvertToMultiLineDescription = "Convert to multi line";
+        public const string ConvertToMultiLineDescription = "Convert to multiline";
         public const string ConvertToSingleLineDescription = "Convert to single line";
         private const int IndentSpaces = 2;
 

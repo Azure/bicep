@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14244886241558578206"
+      "templateHash": "12757951902521494572"
     }
   },
   "parameters": {
@@ -154,7 +154,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11085173111604338779"
+              "templateHash": "11116191754843948367"
             }
           },
           "parameters": {
@@ -199,11 +199,11 @@
           "outputs": {
             "actionGroupId": {
               "type": "string",
-              "value": "[resourceInfo('actionGroup').id]"
+              "value": "[resourceId('microsoft.insights/actionGroups', parameters('actionGroupName'))]"
             },
             "actionGroupName": {
               "type": "string",
-              "value": "[resourceInfo('actionGroup').name]"
+              "value": "[parameters('actionGroupName')]"
             }
           }
         }
@@ -287,7 +287,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18081516609564038783"
+              "templateHash": "18148507846623358518"
             }
           },
           "parameters": {
@@ -565,7 +565,7 @@
                 "parameters": {},
                 "policyDefinitions": [
                   {
-                    "policyDefinitionId": "[resourceInfo('bicepExampleDINEpolicy').id]",
+                    "policyDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'bicepExampleDINEpolicy')]",
                     "parameters": {}
                   }
                 ]
@@ -578,7 +578,7 @@
           "outputs": {
             "bicepExampleInitiativeId": {
               "type": "string",
-              "value": "[resourceInfo('bicepExampleInitiative').id]"
+              "value": "[subscriptionResourceId('Microsoft.Authorization/policySetDefinitions', 'bicepExampleInitiative')]"
             }
           }
         }
@@ -617,7 +617,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "444332721634326843"
+              "templateHash": "15295644524409115888"
             }
           },
           "parameters": {
@@ -659,7 +659,7 @@
             "roleAssignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
-              "name": "[guid(resourceInfo('bicepExampleAssignment').name, resourceInfo('bicepExampleAssignment').type, subscription().subscriptionId)]",
+              "name": "[guid('bicepExampleAssignment', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
               "properties": {
                 "principalId": "[reference('bicepExampleAssignment', '2020-09-01', 'full').identity.principalId]",
                 "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"

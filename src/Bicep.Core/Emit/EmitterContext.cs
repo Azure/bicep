@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.DataFlow;
-using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -12,14 +11,14 @@ namespace Bicep.Core.Emit
 {
     public class EmitterContext
     {
-        public EmitterContext(SemanticModel semanticModel, EmitterSettings settings)
+        public EmitterContext(SemanticModel semanticModel)
         {
-            Settings = settings;
+            Settings = new(semanticModel.Features);
             SemanticModel = semanticModel;
             DataFlowAnalyzer = new(semanticModel);
             VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
             ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
-            FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel).ToImmutableDictionary();
+            FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel);
         }
 
         public EmitterSettings Settings { get; }

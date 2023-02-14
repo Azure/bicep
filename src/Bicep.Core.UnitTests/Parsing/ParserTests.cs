@@ -458,6 +458,17 @@ type multilineUnion = 'a'
             }
         }
 
+        [DataTestMethod]
+        [DataRow("input!", "(input!)", typeof(NonNullAssertionSyntax))]
+        [DataRow("input.property!", "((input.property)!)", typeof(NonNullAssertionSyntax))]
+        [DataRow("input.nested!.property", "(((input.nested)!).property)", typeof(PropertyAccessSyntax))]
+        [DataRow("!input.nullableIntProperty!", "(!((input.nullableIntProperty)!))", typeof(UnaryOperationSyntax))]
+        [DataRow("first(input.arrayProp)!.nested", "((first((input.arrayProp))!).nested)", typeof(PropertyAccessSyntax))]
+        public void NonNullAssertionShouldHaveCorrectPrecedence(string text, string expected, Type expectedRootType)
+        {
+            RunExpressionTest(text, expected, expectedRootType);
+        }
+
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
             SyntaxBase expression = ParserHelper.ParseExpression(text);

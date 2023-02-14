@@ -13,20 +13,6 @@ import {
   workspace,
 } from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import {
-  BuildCommand,
-  CommandManager,
-  DeployCommand,
-  ForceModulesRestoreCommand,
-  GenerateParamsCommand,
-  InsertResourceCommand,
-  ShowSourceCommand,
-  ShowVisualizerCommand,
-  ShowVisualizerToSideCommand,
-  WalkthroughCopyToClipboardCommand,
-  WalkthroughCreateBicepFileCommand,
-  WalkthroughOpenBicepFileCommand,
-} from "./commands";
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 import { DecompileCommand } from "./commands/decompile";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
@@ -34,13 +20,6 @@ import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { BicepCacheContentProvider, createLanguageService } from "./language";
 import { TreeManager } from "./tree/TreeManager";
 import { updateUiContext } from "./updateUiContext";
-import {
-  activateWithTelemetryAndErrorHandling,
-  createLogger,
-  Disposable,
-  getLogger,
-  resetLogger,
-} from "./utils";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { BicepVisualizerViewManager } from "./visualizer";
@@ -49,6 +28,25 @@ import {
   bicepLanguageId,
 } from "./language/constants";
 import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
+import { Disposable } from "./utils/disposable";
+import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
+import { createLogger, getLogger, resetLogger } from "./utils/logger";
+import {
+  ShowVisualizerCommand,
+  ShowVisualizerToSideCommand,
+} from "./commands/showVisualizer";
+import { ShowSourceCommand } from "./commands/showSource";
+import { WalkthroughCopyToClipboardCommand } from "./commands/gettingStarted/WalkthroughCopyToClipboardCommand";
+import { WalkthroughCreateBicepFileCommand } from "./commands/gettingStarted/WalkthroughCreateBicepFileCommand";
+import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/WalkthroughOpenBicepFileCommand";
+import { ForceModulesRestoreCommand } from "./commands/forceModulesRestore";
+import { InsertResourceCommand } from "./commands/insertResource";
+import { DeployCommand } from "./commands/deploy";
+import { GenerateParamsCommand } from "./commands/generateParams";
+import { BuildCommand } from "./commands/build";
+import { CommandManager } from "./commands/commandManager";
+import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
+import * as surveys from "./feedback/surveys";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -77,30 +75,32 @@ export async function activateWithProgressReport(
   );
 }
 
-export async function activate(context: ExtensionContext): Promise<void> {
-  const extension = BicepExtension.create(context);
+export async function activate(
+  extensionContext: ExtensionContext
+): Promise<void> {
+  const extension = BicepExtension.create(extensionContext);
   const outputChannel = createAzExtOutputChannel(
     "Bicep",
     bicepConfigurationPrefix
   );
 
   extension.register(outputChannel);
-  extension.register(createLogger(context, outputChannel));
+  extension.register(createLogger(extensionContext, outputChannel));
 
-  registerUIExtensionVariables({ context, outputChannel });
+  registerUIExtensionVariables({ context: extensionContext, outputChannel });
   registerAzureUtilsExtensionVariables({
-    context,
+    context: extensionContext,
     outputChannel,
     prefix: bicepLanguageId,
   });
 
-  // Launch language server
+  // Activate and launch language server
   await activateWithTelemetryAndErrorHandling(
     async (actionContext) =>
       await activateWithProgressReport(async () => {
         languageClient = await createLanguageService(
           actionContext,
-          context,
+          extensionContext,
           outputChannel
         );
 
@@ -113,6 +113,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
             new BicepCacheContentProvider(languageClient)
           )
         );
+
+        setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
+
+        // Show appropriate surveys
+        surveys.showSurveys(extensionContext.globalState);
 
         const viewManager = extension.register(
           new BicepVisualizerViewManager(extension.extensionUri, languageClient)
@@ -135,7 +140,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
           suppressedWarningsManager
         );
         await extension
-          .register(new CommandManager(context))
+          .register(new CommandManager(extensionContext))
           .registerCommands(
             new BuildCommand(languageClient, outputChannelManager),
             new GenerateParamsCommand(languageClient, outputChannelManager),
@@ -161,13 +166,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
             new ImportKubernetesManifestCommand(languageClient)
           );
 
+        // Register events
         pasteAsBicepCommand.registerForPasteEvents(extension);
 
         extension.register(
           window.onDidChangeActiveTextEditor(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async (editor: TextEditor | undefined) => {
-              await updateUiContext(editor?.document, pasteAsBicepCommand);
+              await updateUiContext(editor?.document);
             }
           )
         );
@@ -175,20 +181,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidCloseTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(
-              window.activeTextEditor?.document,
-              pasteAsBicepCommand
-            );
+            await updateUiContext(window.activeTextEditor?.document);
           })
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidOpenTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(
-              window.activeTextEditor?.document,
-              pasteAsBicepCommand
-            );
+            await updateUiContext(window.activeTextEditor?.document);
           })
         );
 
@@ -199,13 +199,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
           })
         );
 
-        await updateUiContext(
-          window.activeTextEditor?.document,
-          pasteAsBicepCommand
-        );
-
         await languageClient.start();
         getLogger().info("Bicep language service started.");
+
+        // Set initial UI context
+        await updateUiContext(window.activeTextEditor?.document);
       })
   );
 }

@@ -58,6 +58,12 @@ namespace Bicep.Core.UnitTests.Parsing
             base.VisitArrayAccessSyntax(syntax);
             this.buffer.Append(')');
         }
+
+        public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
+        {
+            this.buffer.Append('(');
+            base.VisitNonNullAssertionSyntax(syntax);
+            this.buffer.Append(')');
+        }
     }
 }
-

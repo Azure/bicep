@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14338456154460389407"
+      "templateHash": "11805185149956814134"
     }
   },
   "parameters": {
@@ -55,7 +55,7 @@
     "blob": {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2019-06-01",
-      "name": "[format('{0}/default/{1}', resourceInfo('stg').name, variables('storageContainerName'))]",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('storageContainerName'))]",
       "properties": {
         "publicAccess": "None"
       },
@@ -83,7 +83,7 @@
           "endpoints": {
             "storageContainers": [
               {
-                "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceInfo('stg').id, '2019-06-01').keys[0].value)]",
+                "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]",
                 "containerName": "[variables('storageContainerName')]",
                 "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
                 "batchFrequencyInSeconds": 100,

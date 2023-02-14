@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -14,10 +15,10 @@ namespace Bicep.Core.Semantics
         IBinder binder,
         IDiagnosticWriter diagnosticWriter);
 
-    public delegate ObjectSyntax? DecoratorEvaluator(
-        DecoratorSyntax decoratorSyntax,
+    public delegate ObjectExpression? DecoratorEvaluator(
+        FunctionCallExpression functionCall,
         TypeSymbol targetType,
-        ObjectSyntax? targetObject);
+        ObjectExpression? targetObject);
 
     public class Decorator
     {
@@ -55,14 +56,14 @@ namespace Bicep.Core.Semantics
             this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
         }
 
-        public ObjectSyntax? Evaluate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ObjectSyntax? targetObject)
+        public ObjectExpression? Evaluate(FunctionCallExpression functionCall, TypeSymbol targetType, ObjectExpression? targetObject)
         {
             if (this.evaluator is null)
             {
                 return targetObject;
             }
 
-            return this.evaluator(decoratorSyntax, targetType, targetObject);
+            return this.evaluator(functionCall, targetType, targetObject);
         }
     }
 }

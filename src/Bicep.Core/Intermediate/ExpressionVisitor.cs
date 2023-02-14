@@ -16,7 +16,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitArrayExpression(ArrayExpression expression)
     {
-        VisitMultiple(expression.Items);
+        Visit(expression.Items);
     }
 
     public void VisitBinaryExpression(BinaryExpression expression)
@@ -39,9 +39,21 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Body);
     }
 
+    public void VisitConditionExpression(ConditionExpression expression)
+    {
+        Visit(expression.Expression);
+        Visit(expression.Body);
+    }
+
     public void VisitFunctionCallExpression(FunctionCallExpression expression)
     {
-        VisitMultiple(expression.Parameters);
+        Visit(expression.Parameters);
+    }
+
+    public void VisitResourceFunctionCallExpression(ResourceFunctionCallExpression expression)
+    {
+        Visit(expression.Resource);
+        Visit(expression.Parameters);
     }
 
     public void VisitIntegerLiteralExpression(IntegerLiteralExpression expression)
@@ -50,7 +62,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitInterpolatedStringExpression(InterpolatedStringExpression expression)
     {
-        VisitMultiple(expression.Expressions);
+        Visit(expression.Expressions);
     }
 
     public void VisitLambdaExpression(LambdaExpression expression)
@@ -77,7 +89,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitObjectExpression(ObjectExpression expression)
     {
-        VisitMultiple(expression.Properties);
+        Visit(expression.Properties);
     }
 
     public void VisitObjectPropertyExpression(ObjectPropertyExpression expression)
@@ -103,10 +115,6 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public void VisitSyntaxExpression(SyntaxExpression expression)
-    {
-    }
-
     public void VisitTernaryExpression(TernaryExpression expression)
     {
         Visit(expression.Condition);
@@ -123,18 +131,86 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public void Visit(Expression expression)
+    public void VisitSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
     {
-        RuntimeHelpers.EnsureSufficientExecutionStack();
-
-        expression.Accept(this);
     }
 
-    protected void VisitMultiple(IEnumerable<Expression> expressions)
+    public void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitDeclaredImportExpression(DeclaredImportExpression expression)
+    {
+        Visit(expression.Config);
+    }
+
+    public void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
+    {
+        Visit(expression.DefaultValue);
+    }
+
+    public void VisitDeclaredVariableExpression(DeclaredVariableExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitDeclaredOutputExpression(DeclaredOutputExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitDeclaredResourceExpression(DeclaredResourceExpression expression)
+    {
+        Visit(expression.Body);
+        Visit(expression.DependsOn);
+    }
+
+    public void VisitDeclaredModuleExpression(DeclaredModuleExpression expression)
+    {
+        Visit(expression.Body);
+        Visit(expression.Parameters);
+        Visit(expression.DependsOn);
+    }
+
+    public void VisitResourceDependencyExpression(ResourceDependencyExpression expression)
+    {
+        Visit(expression.Reference);
+    }
+
+    public void VisitProgramExpression(ProgramExpression expression)
+    {
+        Visit(expression.Metadata);
+        Visit(expression.Imports);
+        Visit(expression.Parameters);
+        Visit(expression.Variables);
+        Visit(expression.Resources);
+        Visit(expression.Modules);
+        Visit(expression.Outputs);
+    }
+
+    public void Visit(Expression? expression)
+    {
+        if (expression is null)
+        {
+            return;
+        }
+
+        RuntimeHelpers.EnsureSufficientExecutionStack();
+
+        VisitInternal(expression);
+    }
+
+    protected void Visit(IEnumerable<Expression> expressions)
     {
         foreach (var expression in expressions)
         {
             this.Visit(expression);
         }
+    }
+
+    protected virtual void VisitInternal(Expression expression)
+    {
+        expression.Accept(this);
     }
 }

@@ -27,18 +27,18 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
         public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";
+        public const string GetSecretFunctionName = "getSecret";
 
         /*
          * The following top-level properties must be set deploy-time constant values,
          * and it is safe to read them at deploy-time because their values cannot be changed.
          */
-        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
-        {
-            ResourceIdPropertyName,
-            ResourceNamePropertyName,
-            ResourceTypePropertyName,
-            ResourceApiVersionPropertyName,
-        };
+        public static readonly ImmutableSortedSet<string> ReadWriteDeployTimeConstantPropertyNames
+            = ImmutableSortedSet.Create(LanguageConstants.IdentifierComparer,
+                ResourceIdPropertyName,
+                ResourceNamePropertyName,
+                ResourceTypePropertyName,
+                ResourceApiVersionPropertyName);
 
         /*
          * The following top-level properties must be set deploy-time constant values
@@ -284,7 +284,7 @@ namespace Bicep.Core.TypeSystem.Az
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
             if (validParentScopes == ResourceScope.Resource)
             {
                 // resource can only be deployed as an extension resource - scope should be required
@@ -337,7 +337,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (typeReference.TypeSegments.Length > 2 && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
                 var parentType = new ResourceParentType(typeReference);
-                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
+                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
 
                 properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
             }
@@ -380,7 +380,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             if (StringComparer.OrdinalIgnoreCase.Equals(resourceType.FormatType(), ResourceTypeKeyVault))
             {
-                yield return new FunctionOverloadBuilder("getSecret")
+                yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
                     .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")

@@ -1,5 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+// WARNING: The unit tests run in parallel, so this mock is a singleton and shared among all the unit tests.
+// So don't use things like expect().toHaveBeenCalledTimes() in the unit tests, because they will interfere with each other.
+//
+// (This is not the case for the e2e tests, which run sequentially.)
 jest.mock(
   "vscode",
   () => ({
@@ -13,7 +18,14 @@ jest.mock(
       createDiagnosticCollection: jest.fn(),
       registerCodeLensProvider: jest.fn(),
     },
+    ProgressLocation: {
+      Notification: 15,
+      SourceControl: 1,
+      Window: 10,
+    },
     StatusBarAlignment: { Left: 1, Right: 2 },
+    ThemeColor: jest.fn(),
+    ThemeIcon: jest.fn(),
     window: {
       createStatusBarItem: jest.fn(() => ({
         show: jest.fn(),

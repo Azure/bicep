@@ -117,7 +117,7 @@ namespace Bicep.Core.Semantics
         {
             base.VisitOutputDeclarationSyntax(syntax);
 
-            var symbol = new OutputSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            var symbol = new OutputSymbol(this.context, syntax.Name.IdentifierName, syntax);
             DeclareSymbol(symbol);
         }
 

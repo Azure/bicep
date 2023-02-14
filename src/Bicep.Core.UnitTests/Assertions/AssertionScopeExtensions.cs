@@ -17,6 +17,12 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Prints the program syntax with line numbers and a cursor if a test fails in the given assertion scope.
         /// </summary>
+        public static AssertionScope WithVisualCursor(this AssertionScope assertionScope, BicepSourceFile bicepFile, int cursor)
+            => WithVisualCursor(assertionScope, bicepFile, new TextSpan(cursor, 0));
+
+        /// <summary>
+        /// Prints the program syntax with line numbers and a cursor if a test fails in the given assertion scope.
+        /// </summary>
         public static AssertionScope WithVisualCursor(this AssertionScope assertionScope, BicepSourceFile bicepFile, IPositionable cursorPosition)
             => WithAnnotatedSource(
                 assertionScope,

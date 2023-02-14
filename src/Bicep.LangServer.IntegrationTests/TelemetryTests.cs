@@ -506,7 +506,7 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
             IDictionary<string, string>? linterRuleStateOnBicepFileOpenTelemetryEventProperties,
             IDictionary<string, string> bicepFileOpenTelemetryEventProperties)
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             if (bicepConfigFileContents is not null)
             {

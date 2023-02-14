@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15241752625557139996"
+      "templateHash": "4598558986801209054"
     }
   },
   "parameters": {
@@ -101,7 +101,7 @@
       "location": "[parameters('location')]",
       "kind": "app",
       "properties": {
-        "serverFarmId": "[resourceInfo('appServicePlan').id]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       },
       "dependsOn": [
         "appServicePlan",

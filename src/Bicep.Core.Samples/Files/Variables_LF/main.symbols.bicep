@@ -146,14 +146,6 @@ var functionOnIndexer1 = concat([
   's'
 ][0], 's')
 
-var functionOnIndexer2 = concat([
-//@[04:22) Variable functionOnIndexer2. Type: string. Declaration start char: 0, length: 44
-][0], 's')
-
-var functionOnIndexer3 = concat([
-//@[04:22) Variable functionOnIndexer3. Type: array. Declaration start char: 0, length: 49
-][0], any('s'))
-
 var singleQuote = '\''
 //@[04:15) Variable singleQuote. Type: '\''. Declaration start char: 0, length: 22
 var myPropertyName = '${singleQuote}foo${singleQuote}'

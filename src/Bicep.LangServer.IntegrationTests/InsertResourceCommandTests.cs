@@ -190,6 +190,43 @@ output myOutput string = 'myOutput'
         }
 
         [TestMethod]
+        public async Task Insert_resource_command_works_for_empty_file()
+        {
+            var listeners = CreateListeners();
+            var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
+
+            var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch);
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+
+            using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
+            var client = helper.Client;
+
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
+            var mockResource = new JObject
+            {
+                ["id"] = resourceId.FullyQualifiedId,
+                ["name"] = resourceId.NameHierarchy.Last(),
+                ["type"] = resourceId.FormatFullyQualifiedType(),
+                ["properties"] = new JObject { },
+            };
+
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+                .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
+
+            var fileUri = new Uri("file:///template.bicep");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"|", resourceId.FullyQualifiedId);
+
+            var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
+            replacedFile.Should().Be(@"
+@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
+resource myName 'My.Rp/myTypes@2020-01-01' = {
+  name: 'myName'
+  properties: {
+  }
+}");
+        }
+
+        [TestMethod]
         public async Task Insert_resource_command_should_insert_resource_group()
         {
             var listeners = CreateListeners();

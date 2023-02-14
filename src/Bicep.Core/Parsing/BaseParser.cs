@@ -850,6 +850,12 @@ namespace Bicep.Core.Parsing
                     continue;
                 }
 
+                if (this.Check(TokenType.Exclamation))
+                {
+                    current = new NonNullAssertionSyntax(current, this.reader.Read());
+                    continue;
+                }
+
                 break;
             }
 
@@ -1247,7 +1253,8 @@ namespace Bicep.Core.Parsing
                         {
                             TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
                             TokenType.StringComplete or TokenType.StringLeftPiece => this.InterpolableString(),
-                            _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                            TokenType.Asterisk => this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
+                            _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyNameOrMatcher()),
                         }, b => b.ExpectedPropertyName()),
                 RecoveryFlags.None,
                 TokenType.Colon, TokenType.NewLine, TokenType.RightBrace);
@@ -1255,6 +1262,11 @@ namespace Bicep.Core.Parsing
             Token? optionalityMarker = Check(reader.Peek(), TokenType.Question) ? reader.Read() : default;
             var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(optionalityMarker ?? key), TokenType.NewLine, TokenType.RightBrace);
             var value = this.WithRecovery(() => Expression(flags), GetSuppressionFlag(colon), TokenType.NewLine, TokenType.RightBrace);
+
+            if (key is Token { Type: TokenType.Asterisk })
+            {
+                return new ObjectTypeAdditionalPropertiesSyntax(leadingNodes, key, colon, value);
+            }
 
             return new ObjectTypePropertySyntax(leadingNodes, key, optionalityMarker, colon, value);
         }

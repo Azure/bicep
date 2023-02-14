@@ -55,7 +55,7 @@ namespace Bicep.Core.Registry
         public override bool IsModuleRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override bool TryGetLocalModuleEntryPointUri(TemplateSpecModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -122,5 +122,7 @@ namespace Bicep.Core.Registry
         {
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
+
+        public override string? GetDocumentationUri(TemplateSpecModuleReference moduleReference) => null;
     }
 }

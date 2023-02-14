@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5423294562473628901"
+      "templateHash": "1412638833729620817"
     }
   },
   "parameters": {
@@ -107,7 +107,7 @@
       "properties": {
         "scope": "[subscription().id]",
         "enforcementMode": "Default",
-        "policyDefinitionId": "[resourceInfo('initiativeDefinition').id]",
+        "policyDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/policySetDefinitions', variables('initiativeDefinitionName'))]",
         "parameters": {
           "listOfAllowedLocations": {
             "value": "[parameters('listOfAllowedLocations')]"

@@ -380,6 +380,50 @@ type tuple = [
 //@[07:08) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
-//@[01:02) NewLine |\n|
+//@[01:03) NewLine |\n\n|
+
+type stringStringDictionary = {
+//@[00:04) Identifier |type|
+//@[05:27) Identifier |stringStringDictionary|
+//@[28:29) Assignment |=|
+//@[30:31) LeftBrace |{|
+//@[31:32) NewLine |\n|
+    *: string
+//@[04:05) Asterisk |*|
+//@[05:06) Colon |:|
+//@[07:13) Identifier |string|
+//@[13:14) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+param mightIncludeNull ({key: 'value'} | null)[]
+//@[00:05) Identifier |param|
+//@[06:22) Identifier |mightIncludeNull|
+//@[23:24) LeftParen |(|
+//@[24:25) LeftBrace |{|
+//@[25:28) Identifier |key|
+//@[28:29) Colon |:|
+//@[30:37) StringComplete |'value'|
+//@[37:38) RightBrace |}|
+//@[39:40) Pipe |||
+//@[41:45) NullKeyword |null|
+//@[45:46) RightParen |)|
+//@[46:47) LeftSquare |[|
+//@[47:48) RightSquare |]|
+//@[48:50) NewLine |\n\n|
+
+var maybeNull = mightIncludeNull[0]!.key
+//@[00:03) Identifier |var|
+//@[04:13) Identifier |maybeNull|
+//@[14:15) Assignment |=|
+//@[16:32) Identifier |mightIncludeNull|
+//@[32:33) LeftSquare |[|
+//@[33:34) Integer |0|
+//@[34:35) RightSquare |]|
+//@[35:36) Exclamation |!|
+//@[36:37) Dot |.|
+//@[37:40) Identifier |key|
+//@[40:41) NewLine |\n|
 
 //@[00:00) EndOfFile ||

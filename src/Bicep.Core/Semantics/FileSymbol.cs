@@ -26,7 +26,7 @@ namespace Bicep.Core.Semantics
             BicepSourceFile sourceFile,
             NamespaceResolver namespaceResolver,
             IEnumerable<LocalScope> outermostScopes,
-            IEnumerable<DeclaredSymbol> declarations)
+            ImmutableArray<DeclaredSymbol> declarations)
             : base(sourceFile.FileUri.LocalPath)
         {
             this.Context = context;
@@ -37,6 +37,7 @@ namespace Bicep.Core.Semantics
             this.LocalScopes = outermostScopes.ToImmutableArray();
 
             // TODO: Avoid looping 8 times?
+            this.DeclarationsBySyntax = declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
             this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
@@ -80,6 +81,8 @@ namespace Bicep.Core.Semantics
         public NamespaceResolver NamespaceResolver { get; }
 
         public ImmutableArray<LocalScope> LocalScopes { get; }
+
+        public ImmutableDictionary<SyntaxBase, DeclaredSymbol> DeclarationsBySyntax { get; }
 
         public ImmutableArray<ImportedNamespaceSymbol> ImportDeclarations { get; }
 

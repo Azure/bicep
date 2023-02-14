@@ -831,7 +831,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "generateIntermediateVariableOnIndirectAssignment",
     "typeSignature": "(filePath: string): string",
     "parameterTypeSignatures": [
       "filePath: string"
@@ -862,7 +862,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "generateIntermediateVariableAlways",
     "typeSignature": "(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
     "parameterTypeSignatures": [
       "filePath: string",
@@ -889,7 +889,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "generateIntermediateVariableOnIndirectAssignment",
     "typeSignature": "(filePath: string, [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): string",
     "parameterTypeSignatures": [
       "filePath: string",
