@@ -8,6 +8,7 @@ using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Bicep.Cli.Services
@@ -49,7 +50,7 @@ namespace Bicep.Cli.Services
                     return new TemplateEmitter(model).Emit(stream);
 
                 case BicepSourceFileKind.ParamsFile:
-                    return new ParametersEmitter(model).EmitParamsFile(stream);
+                    return new ParametersEmitter(model).Emit(stream);
 
                 default:
                     throw new NotImplementedException($"Unexpected file kind '{fileKind}'");
@@ -63,13 +64,8 @@ namespace Bicep.Cli.Services
                 var templateOutputBuffer = new StringBuilder();
                 using var templateOutputWriter = new StringWriter(templateOutputBuffer);
 
-                var sourceFileToTrack = bicepModel.Features.SourceMappingEnabled ? bicepModel.SourceFile : default;
-                using var templateWriter = new SourceAwareJsonTextWriter(bicepModel.FileResolver, templateOutputWriter, sourceFileToTrack)
-                {
-                    Formatting = Formatting.Indented
-                };
                 var templateEmitter = new TemplateEmitter(bicepModel);
-                var templateResult = templateEmitter.Emit(templateWriter);
+                var templateResult = templateEmitter.Emit(templateOutputWriter);
 
                 templateOutputWriter.Flush();
                 var templateOutput = templateOutputBuffer.ToString();
@@ -78,12 +74,8 @@ namespace Bicep.Cli.Services
                 var paramsOutputBuffer = new StringBuilder();
                 using var paramsOutputWriter = new StringWriter(paramsOutputBuffer);
 
-                using var paramsWriter = new JsonTextWriter(paramsOutputWriter)
-                {
-                    Formatting = Formatting.Indented
-                };
                 var paramsEmitter = new ParametersEmitter(paramsModel);
-                var paramsResult = paramsEmitter.EmitParamsFile(paramsWriter);
+                var paramsResult = paramsEmitter.Emit(paramsOutputWriter);
 
                 paramsOutputWriter.Flush();
                 var paramsOutput = paramsOutputBuffer.ToString();
@@ -103,7 +95,7 @@ namespace Bicep.Cli.Services
                 wrapperWriter.WriteValue(paramsOutput);
                 wrapperWriter.WriteEndObject();
 
-                var combinedDiagnostics = templateResult.Diagnostics.AddRange(paramsResult.Diagnostics);
+                var combinedDiagnostics = templateResult.Diagnostics.Concat(paramsResult.Diagnostics);
 
                 if(templateResult.Status == EmitStatus.Failed || paramsResult.Status == EmitStatus.Failed)
                 {
