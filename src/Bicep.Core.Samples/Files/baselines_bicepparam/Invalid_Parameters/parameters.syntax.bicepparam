@@ -1,5 +1,12 @@
+using './main.bicep'
+//@[00:61) ProgramSyntax
+//@[00:20) ├─UsingDeclarationSyntax
+//@[00:05) | ├─Token(Identifier) |using|
+//@[06:20) | └─StringSyntax
+//@[06:20) |   └─Token(StringComplete) |'./main.bicep'|
+//@[20:24) ├─Token(NewLine) |\r\n\r\n|
+
 param para1 = 'value
-//@[00:37) ProgramSyntax
 //@[00:20) ├─ParameterAssignmentSyntax
 //@[00:05) | ├─Token(Identifier) |param|
 //@[06:11) | ├─IdentifierSyntax
