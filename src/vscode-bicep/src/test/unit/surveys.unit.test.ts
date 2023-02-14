@@ -131,7 +131,7 @@ describe("surveys-unittests", () => {
 
     // Show and respond with yes
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
-      title: "Sure",
+      title: "Jawohl",
       id: "yes",
     });
     let context = createActionContextMock();
