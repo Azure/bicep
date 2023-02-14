@@ -15,7 +15,9 @@ namespace Bicep.LanguageServer.Providers
     {
         Task Initialize();
 
-        List<CompletionItem> GetModuleNames();
+        IEnumerable<string> GetModuleNames();
+
+        IEnumerable<string> GetVersions(string moduleName);
 
         List<CompletionItem> GetTags(string moduleName);
     }

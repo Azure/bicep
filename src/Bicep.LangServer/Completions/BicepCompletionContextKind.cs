@@ -198,6 +198,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location is after the output type.
         /// </summary>
-        OutputTypeFollower = 1UL << 36
+        OutputTypeFollower = 1UL << 36,
+
+        /// <summary>
+        /// The current location is after the output type.
+        /// </summary>
+        OciModuleRegistryReference = ((ulong)1) << 37
     }
 }

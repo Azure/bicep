@@ -24,11 +24,11 @@ namespace Bicep.LangServer.UnitTests.Completions
         [TestMethod]
         public void GetModuleNames_ShouldReturnAllModuleNames()
         {
-            List<CompletionItem> moduleNames = modulesMetadataProvider.GetModuleNames();
+            IEnumerable<string> moduleNames = modulesMetadataProvider.GetModuleNames();
 
             moduleNames.Should().NotBeEmpty();
-            moduleNames.Should().Contain(x => x.Label == "app/dapr-containerapp");
-            moduleNames.Should().Contain(x => x.Label == "app/dapr-containerapps-environment");
+            moduleNames.Should().Contain("app/dapr-containerapp");
+            moduleNames.Should().Contain("app/dapr-containerapps-environment");
         }
 
         [DataRow("")]

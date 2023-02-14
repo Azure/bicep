@@ -124,10 +124,11 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [TestMethod]
-        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems()
+        [DataTestMethod]
+        [DataRow("module test 'br/|'", "'br/public:$0'", 17)]
+        [DataRow("module test 'br/|", "'br/public:$0'", 16)]
+        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, string expectedText, int expectedEnd)
         {
-            var inputWithCursors = "module test 'br/|'";
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
 
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
@@ -146,18 +147,28 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("public:$0");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedText);
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
                     c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
                 });
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/public:|'", 14)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", 14)]
-        public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "app/dapr-containerapp", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:$0'", 0, 12, 0, 41)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-containerapp", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:$0'", 0, 12, 0, 40)]
+        [DataRow("module test 'br/public:|'", "app/dapr-containerapp", "'br/public:app/dapr-containerapp:$0'", 0, 12, 0, 24)]
+        [DataRow("module test 'br/public:|", "app/dapr-containerapp", "'br/public:app/dapr-containerapp:$0'", 0, 12, 0, 23)]
+
+        public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
+            string inputWithCursors,
+            string expectedLabel,
+            string expectedCompletionText,
+            int startLine,
+            int startCharacter,
+            int endLine,
+            int endCharacter)
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
@@ -169,13 +180,28 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            completions.Should().Contain(x => x.Label == "app/dapr-containerapp");
+            completions.Should().Contain(
+                x => x.Label == expectedLabel &&
+                x.Kind == CompletionItemKind.Snippet &&
+                x.InsertText == null &&
+                x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
+                x.TextEdit!.TextEdit!.Range.Start.Line == startLine  &&
+                x.TextEdit!.TextEdit!.Range.Start.Character == startCharacter &&
+                x.TextEdit!.TextEdit!.Range.End.Line == endLine &&
+                x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|'", 14)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", 14)]
-        public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
+        [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 46)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 45)]
+        public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(
+            string inputWithCursors,
+            string expectedLabel,
+            string expectedCompletionText,
+            int startLine,
+            int startCharacter,
+            int endLine,
+            int endCharacter)
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
@@ -187,8 +213,15 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            completions.Should().Contain(x => x.Label == "1.0.1");
-            completions.Should().Contain(x => x.Label == "1.0.2");
+            completions.Should().Contain(
+                x => x.Label == expectedLabel &&
+                x.Kind == CompletionItemKind.Snippet &&
+                x.InsertText == null &&
+                x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
+                x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&
+                x.TextEdit!.TextEdit!.Range.Start.Character == startCharacter &&
+                x.TextEdit!.TextEdit!.Range.End.Line == endLine &&
+                x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
     }
 }

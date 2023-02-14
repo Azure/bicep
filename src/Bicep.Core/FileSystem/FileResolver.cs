@@ -29,7 +29,7 @@ namespace Bicep.Core.FileSystem
 
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (!fileUri.IsFile)
+            if (!fileUri.IsFile || !File.Exists(fileUri.LocalPath))
             {
                 failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
                 fileContents = null;

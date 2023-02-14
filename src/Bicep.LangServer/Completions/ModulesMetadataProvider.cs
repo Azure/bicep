@@ -33,17 +33,29 @@ namespace Bicep.LanguageServer.Providers
             }
         }
 
-        public List<CompletionItem> GetModuleNames()
+        public IEnumerable<string> GetModuleNames()
         {
-            List<CompletionItem> completionItems = new List<CompletionItem>();
+            List<string> moduleNames = new List<string>();
 
-            foreach (var moduleName in moduleMetadataCache)
+            foreach (var moduleMetadataCacheEntry in moduleMetadataCache)
             {
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, moduleName.moduleName).Build();
-                completionItems.Add(completionItem);
+                moduleNames.Add(moduleMetadataCacheEntry.moduleName);
             }
 
-            return completionItems;
+            return moduleNames;
+        }
+
+        public IEnumerable<string> GetVersions(string moduleName)
+        {
+            List<string> versions = new List<string>();
+            ModuleMetadata? metadata = moduleMetadataCache.FirstOrDefault(x => x.moduleName.Equals(moduleName, StringComparison.Ordinal));
+
+            if (metadata is not null)
+            {
+                return metadata.tags;
+            }
+
+            return Enumerable.Empty<string>();
         }
 
         public List<CompletionItem> GetTags(string moduleName)
