@@ -75,6 +75,7 @@ namespace Bicep.Cli.Services
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, skipRestore, this.workspace);
+
             LogDiagnostics(compilation);
 
             return compilation;
