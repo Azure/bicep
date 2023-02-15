@@ -36,21 +36,19 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("invalid_name")]
         [DataRow(null)]
         [DataTestMethod]
-        public void GetTags_WithInvalidModuleName_ShouldReturnEmptyList(string moduleName)
+        public void GetVersions_WithInvalidModuleName_ShouldReturnEmptyList(string moduleName)
         {
-            List<CompletionItem> versions = modulesMetadataProvider.GetTags(moduleName);
-
-            versions.Should().BeEmpty();
+            modulesMetadataProvider.GetVersions(moduleName).Should().BeEmpty();
         }
 
         [TestMethod]
-        public void GetTags_WithValidModuleName_ShouldVersions()
+        public void GetVersions_WithValidModuleName_ShouldVersions()
         {
-            List<CompletionItem> versions = modulesMetadataProvider.GetTags("app/dapr-containerapp");
+            IEnumerable<string> versions = modulesMetadataProvider.GetVersions("app/dapr-containerapp");
 
             versions.Should().NotBeEmpty();
-            versions.Should().Contain(x => x.Label == "1.0.1");
-            versions.Should().Contain(x => x.Label == "1.0.2");
+            versions.Should().Contain("1.0.1");
+            versions.Should().Contain("1.0.2");
         }
     }
 }

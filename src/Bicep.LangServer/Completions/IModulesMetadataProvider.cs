@@ -18,7 +18,5 @@ namespace Bicep.LanguageServer.Providers
         IEnumerable<string> GetModuleNames();
 
         IEnumerable<string> GetVersions(string moduleName);
-
-        List<CompletionItem> GetTags(string moduleName);
     }
 }

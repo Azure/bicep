@@ -4,14 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Speech.Recognition;
 using System.Text;
 using System.Text.RegularExpressions;
+using Azure.Containers.ContainerRegistry;
+using Azure.Identity;
+using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
+using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Microsoft.Azure.Management.ResourceGraph.Models;
+using Microsoft.Azure.Management.ResourceGraph;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -42,7 +50,7 @@ namespace Bicep.LanguageServer.Completions
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
         }
 
-        public IEnumerable<CompletionItem> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
         {
             var replacementText = string.Empty;
 
@@ -51,9 +59,9 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            return GetPublicMcrModuleRegistryCompletions(context, replacementText)
+            return GetPathCompletions(context, replacementText)
                 .Concat(GetPublicMcrModuleRegistryVersionCompletions(context, replacementText))
-                .Concat(GetRegistryCompletions(context, replacementText, templateUri))
+                .Concat(await GetRegistryCompletions(context, replacementText, templateUri))
                 .Concat(GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText));
         }
 
@@ -149,7 +157,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryCompletions(BicepCompletionContext context, string replacementText)
+        private IEnumerable<CompletionItem> GetPathCompletions(BicepCompletionContext context, string replacementText)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
             {
@@ -163,28 +171,37 @@ namespace Bicep.LanguageServer.Completions
                 replacementText == "'br/public:" ||
                 replacementText == "'br:mcr.microsoft.com/bicep/")
             {
-                foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
-                {
-                    StringBuilder sb = new StringBuilder(replacementText.TrimEnd('\''));
-                    sb.Append(moduleName);
-                    sb.Append(":$0'");
-
-                    var insertText = sb.ToString();
-
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
-                        .WithSnippetEdit(context.ReplacementRange, insertText)
-                        .WithFilterText(insertText)
-                        .WithSortText(GetSortText(moduleName, CompletionPriority.High))
-                        .Build();
-
-                    completions.Add(completionItem);
-                }
+                completions.AddRange(GetMcrPathCompletions(replacementText, context));
             }
 
             return completions;
         }
 
-        private IEnumerable<CompletionItem> GetRegistryCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        private IEnumerable<CompletionItem> GetMcrPathCompletions(string replacementText, BicepCompletionContext context)
+        {
+            List<CompletionItem> completions = new List<CompletionItem>();
+
+            foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
+            {
+                StringBuilder sb = new StringBuilder(replacementText.TrimEnd('\''));
+                sb.Append(moduleName);
+                sb.Append(":$0'");
+
+                var insertText = sb.ToString();
+
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
+                    .WithSnippetEdit(context.ReplacementRange, insertText)
+                    .WithFilterText(insertText)
+                    .WithSortText(GetSortText(moduleName, CompletionPriority.High))
+                    .Build();
+
+                completions.Add(completionItem);
+            }
+
+            return completions;
+        }
+
+        private async Task<IEnumerable<CompletionItem>> GetRegistryCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
             {
@@ -222,9 +239,41 @@ namespace Bicep.LanguageServer.Completions
                     .Build();
 
                 completions.Add(mcrCompletionItem);
+
+                IEnumerable<CompletionItem> acrCompletions = await GetAcrModuleRegistriesCompletions(templateUri);
+                completions.AddRange(acrCompletions);
             }
 
             return completions;
+        }
+
+        private async Task<IEnumerable<CompletionItem>> GetAcrModuleRegistriesCompletions(Uri templateUri)
+        {
+            ClientCredentials clientCredentials = await serviceClientCredentialsProvider.GetServiceClientCredentials(templateUri); ;
+
+            ResourceGraphClient resourceGraphClient = new ResourceGraphClient(clientCredentials);
+            QueryRequest queryRequest = new QueryRequest(@"Resources
+| where type == ""microsoft.containerregistry/registries""
+| project properties[""loginServer""]
+");
+            QueryResponse queryResponse = resourceGraphClient.Resources(queryRequest);
+            JArray jArray = JArray.FromObject(queryResponse.Data);
+            List<CompletionItem> repositories = new List<CompletionItem>();
+
+            foreach (JObject item in jArray)
+            {
+                if (item is not null &&
+                    item.GetValue("properties_loginServer") is JToken jToken &&
+                    jToken is not null &&
+                    jToken.Value<string>() is string loginServer)
+                {
+                    repositories.Add(CompletionItemBuilder.Create(CompletionItemKind.Reference, loginServer)
+                        .WithSortText(GetSortText("mcr.microsoft.com/bicep/", CompletionPriority.Medium))
+                        .WithFilterText(loginServer).Build());
+                }
+            }
+
+            return repositories;
         }
 
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";

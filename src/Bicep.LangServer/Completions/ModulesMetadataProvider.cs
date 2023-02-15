@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Bicep.Core.Registry.Oci;
-using Bicep.LanguageServer.Completions;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
@@ -56,23 +53,6 @@ namespace Bicep.LanguageServer.Providers
             }
 
             return Enumerable.Empty<string>();
-        }
-
-        public List<CompletionItem> GetTags(string moduleName)
-        {
-            List<CompletionItem> completionItems = new List<CompletionItem>();
-            ModuleMetadata? metadata = moduleMetadataCache.FirstOrDefault(x => x.moduleName.Equals(moduleName, StringComparison.Ordinal));
-
-            if (metadata is not null)
-            {
-                foreach (var tag in metadata.tags)
-                {
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, tag).Build();
-                    completionItems.Add(completionItem);
-                }
-            }
-
-            return completionItems;
         }
     }
 }

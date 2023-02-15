@@ -10,6 +10,6 @@ namespace Bicep.LanguageServer.Completions
 {
     public interface ICompletionProvider
     {
-        IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context);
+        Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context);
     }
 }
