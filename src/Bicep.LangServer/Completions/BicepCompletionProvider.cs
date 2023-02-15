@@ -53,10 +53,9 @@ namespace Bicep.LanguageServer.Completions
             this.namespaceProvider = namespaceProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
+        public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
             var model = compilation.GetEntrypointSemanticModel();
-            IEnumerable<CompletionItem> moduleReferenceCompletions = await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context);
 
             return GetDeclarationCompletions(model, context)
                 .Concat(GetSymbolCompletions(model, context))
@@ -85,7 +84,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
-                .Concat(moduleReferenceCompletions);
+                .Concat(moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context));
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)

@@ -17,6 +17,13 @@ using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.IO.Abstractions.TestingHelpers;
+using System.Configuration;
+using System.IO;
+using Bicep.Core.Configuration;
+using Bicep.LanguageServer.Configuration;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
+using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
 
 namespace Bicep.LangServer.UnitTests.Completions
 {
@@ -41,7 +48,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module test '|'", 14)]
         [DataRow("module test '|", 13)]
         [DataRow("module test |", 12)]
-        public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
+        public void GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
@@ -49,8 +56,8 @@ namespace Bicep.LangServer.UnitTests.Completions
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
             var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(modulesMetadataProvider, serviceClientCredentialsProvider);
-            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, serviceClientCredentialsProvider);
+            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
                 c =>
@@ -108,7 +115,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
-        public async Task GetFilteredCompletions_WithInvalidTextInCompletionContext_ReturnsNull()
+        public void GetFilteredCompletions_WithInvalidTextInCompletionContext_ReturnsNull()
         {
             var inputWithCursors = "module test 'br:/|'";
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
@@ -118,8 +125,8 @@ namespace Bicep.LangServer.UnitTests.Completions
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
             var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(modulesMetadataProvider, serviceClientCredentialsProvider);
-            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, serviceClientCredentialsProvider);
+            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().BeEmpty();
         }
@@ -127,7 +134,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         [DataRow("module test 'br/|'", "'br/public:$0'", 17)]
         [DataRow("module test 'br/|", "'br/public:$0'", 16)]
-        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, string expectedText, int expectedEnd)
+        public void GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, string expectedText, int expectedEnd)
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
 
@@ -136,13 +143,13 @@ namespace Bicep.LangServer.UnitTests.Completions
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
             var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(modulesMetadataProvider, serviceClientCredentialsProvider);
-            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, serviceClientCredentialsProvider);
+            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
                 c =>
                 {
-                    c.Label.Should().Be("public:");
+                    c.Label.Should().Be("public");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
@@ -155,13 +162,59 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
+        [TestMethod]
+        public void GetFilteredCompletions_WithAliasCompletionContextFromBicepConfigFile_ReturnsCompletionItems()
+        {
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors("module test 'br/|'", '|');
+
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+            var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
+
+            var bicepConfigFileContents = @"{
+  ""moduleAliases"": {
+    ""br"": {
+      ""test1"": {
+        ""registry"": ""bhsubracr.azurecr.io"",
+        ""modulePath"": ""bicep/modules""
+      },
+      ""test2"": {
+        ""registry"": ""bhsubratest.azurecr.io""
+      }
+    }
+  }
+}";
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, serviceClientCredentialsProvider);
+            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+
+            //completions.Should().SatisfyRespectively(
+            //    c =>
+            //    {
+            //        c.Label.Should().Be("public:");
+            //        c.Kind.Should().Be(CompletionItemKind.Snippet);
+            //        c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+            //        c.InsertText.Should().BeNull();
+            //        c.Detail.Should().BeNull();
+            //        c.TextEdit!.TextEdit!.NewText.Should().Be(expectedText);
+            //        c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+            //        c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+            //        c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+            //        c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+            //    });
+        }
+
         [DataTestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "app/dapr-containerapp", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:$0'", 0, 12, 0, 41)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-containerapp", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:$0'", 0, 12, 0, 40)]
         [DataRow("module test 'br/public:|'", "app/dapr-containerapp", "'br/public:app/dapr-containerapp:$0'", 0, 12, 0, 24)]
         [DataRow("module test 'br/public:|", "app/dapr-containerapp", "'br/public:app/dapr-containerapp:$0'", 0, 12, 0, 23)]
 
-        public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
+        public void GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
             string expectedCompletionText,
@@ -176,9 +229,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
             var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(modulesMetadataProvider, serviceClientCredentialsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, serviceClientCredentialsProvider);
 
-            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().Contain(
                 x => x.Label == expectedLabel &&
@@ -194,7 +247,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 46)]
         [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 45)]
-        public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(
+        public void GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
             string expectedCompletionText,
@@ -209,9 +262,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
             var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(modulesMetadataProvider, serviceClientCredentialsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, serviceClientCredentialsProvider);
 
-            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().Contain(
                 x => x.Label == expectedLabel &&

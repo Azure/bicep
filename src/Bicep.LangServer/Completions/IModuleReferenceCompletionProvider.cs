@@ -13,6 +13,6 @@ namespace Bicep.LanguageServer.Completions
 {
     public interface IModuleReferenceCompletionProvider
     {
-        Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context);
+        IEnumerable<CompletionItem> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context);
     }
 }
