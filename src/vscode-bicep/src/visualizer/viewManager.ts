@@ -108,8 +108,9 @@ export class BicepVisualizerViewManager
   ): BicepVisualizerView {
     this.viewsByPath.set(documentUri.fsPath, view);
 
-    view.onDidChangeViewState(async (e) => {
-      await this.setVisualizerActiveContext(e.webviewPanel.active);
+    view.onDidChangeViewState((e) => {
+      // Don't wait
+      void this.setVisualizerActiveContext(e.webviewPanel.active);
       if (e.webviewPanel.active) {
         this.activeUri = documentUri;
         view.render();
@@ -118,7 +119,8 @@ export class BicepVisualizerViewManager
 
     view.onDidDispose(async () => {
       if (this.activeUri === documentUri) {
-        await this.setVisualizerActiveContext(false);
+        // Don't wait
+        void this.setVisualizerActiveContext(false);
         this.activeUri = undefined;
       }
 
