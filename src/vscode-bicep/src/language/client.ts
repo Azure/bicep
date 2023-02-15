@@ -144,8 +144,8 @@ export async function createLanguageService(
     writeDeploymentOutputMessageToBicepOperationsOutputChannel
   );
 
-  client.onNotification("bicep/triggerEditorCompletion", () => {
-    vscode.commands.executeCommand("editor.action.triggerSuggest");
+  client.onNotification("bicep/triggerEditorCompletion", async () => {
+    await vscode.commands.executeCommand("editor.action.triggerSuggest");
   });
 
   return client;

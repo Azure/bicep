@@ -74,7 +74,7 @@ export class CreateBicepConfigurationFile implements Command {
         selectedPath = response.fsPath;
 
         if (path.basename(selectedPath) !== bicepConfig) {
-          window.showErrorMessage(
+          await window.showErrorMessage(
             `A Bicep configuration file must be named ${bicepConfig}`
           );
           selectedPath = path.join(path.dirname(selectedPath), bicepConfig);
