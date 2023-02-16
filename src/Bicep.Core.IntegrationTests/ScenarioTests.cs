@@ -4278,5 +4278,63 @@ output firstCertEnabled bool = Certificate[0].properties.attributes.enabled
                 result.Should().HaveTemplateWithOutput("firstCertEnabled", $"[{referenceExpression}.attributes.enabled]");
             }
         }
+
+        // https://github.com/Azure/bicep/issues/9467
+        [TestMethod]
+        public void Test_Issue9467()
+        {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param CertificateSubjects = [{
+  subject: 'blah'
+  secretName: 'blah'
+  thumbprint: 'blah'
+  keyVault: {
+    name: 'myKv'
+    subscriptionId: 'mySub'
+    resourceGroupName: 'myRg'
+  }
+}]
+");
+
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
+@description('Used to identify a Key Vault and where it\'s deployed to')
+type keyVaultIdentifier = {
+  @description('The name of the Key Vault')
+  name: string
+  @description('The ID of the subscription the Key Vault is associated with')
+  subscriptionId: string
+  @description('The name of the resource group the Key Vault is associated with')
+  resourceGroupName: string
+}
+
+@description('Used to identify the details of a specific certificate')
+type certificateMapping = {
+  @description('The subject value of the certificate')
+  subject: string
+  @description('The name of the secret in the Key Vault')
+  secretName: string
+  @description('The thumbprint of the certificate')
+  thumbprint: string
+  @description('The identifier of the Key Vault instance')
+  keyVault: keyVaultIdentifier
+}
+
+@description('The various subjects for which certificates should be secured for downstream resources')
+param CertificateSubjects certificateMapping[]
+
+//Specifically pulls the certificates from the CertificateSubject vault as specified
+resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: first(map(CertificateSubjects, c => c.keyVault.name))
+  scope: resourceGroup(first(map(CertificateSubjects, c => c.keyVault.subscriptionId)), first(map(CertificateSubjects, c => c.keyVault.resourceGroupName)))
+}
+
+output vaultId string = CertificateVault.id
+");
+
+            result.Should().GenerateATemplate();
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);            
+            evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
+        }
     }
 }
