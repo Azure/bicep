@@ -60,7 +60,7 @@ namespace Bicep.Cli.Commands
 
             if(bicepInputPath != null && !IsBicepFile(bicepInputPath))
             {
-                throw new InvalidOperationException($"{bicepInputPath} is not is bicep file");
+                throw new CommandLineException($"{bicepInputPath} is not a bicep file");
             }
 
             if(features.ParamsFilesEnabled && IsBicepparamsFile(paramsInputPath)) 
@@ -75,7 +75,7 @@ namespace Bicep.Cli.Commands
                     
                     if(!bicepFilePath.Equals(PathHelper.FilePathToFileUrl(bicepInputPath)))
                     {
-                        throw new InvalidOperationException($"Bicep file {bicepInputPath} provided with --bicep-file option doesn't match the Bicep file {bicepFilePath} referenced by the using declaration in the parameters file");
+                        throw new CommandLineException($"Bicep file {bicepInputPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the using declaration in the parameters file");
                     }
                 }
 
@@ -96,11 +96,6 @@ namespace Bicep.Cli.Commands
                         var bicepOutputPath = bicepInputPath != null ? 
                                               PathHelper.ResolveDefaultOutputPath(bicepInputPath, null, args.OutputParamsFile, DefaultOutputPath)
                                               : null;
-
-                        if(bicepOutputPath != null && (paramsOutputPath == bicepOutputPath))
-                        {
-                            throw new Exception("JSON files for bicep template and parameters can not be generated with the same name");
-                        }
 
                         writer.ToFile(paramsCompilation, paramsOutputPath);
 

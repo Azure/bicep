@@ -32,7 +32,7 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --outfile-params parameter expects an argument");
                         }
-                        if (BicepFile is not null)
+                        if (OutputParamsFile is not null)
                         {
                             throw new CommandLineException($"The --outfile-params parameter cannot be specified twice");
                         }
@@ -45,7 +45,7 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --outfile-bicep parameter expects an argument");
                         }
-                        if (BicepFile is not null)
+                        if (OutputBicepFile is not null)
                         {
                             throw new CommandLineException($"The --outfile-bicep parameter cannot be specified twice");
                         }
@@ -82,7 +82,7 @@ namespace Bicep.Cli.Arguments
 
             if (OutputParamsFile is not null && OutputBicepFile is not null && OutputParamsFile == OutputBicepFile)
             {
-                throw new CommandLineException($"The output bicep and parameters file can not be the same file");
+                throw new CommandLineException($"The path for --outfile-params and --outfile-bicep can not be the same");
             }
 
             if ((OutputParamsFile is not null || OutputBicepFile is not null) && OutputToStdOut)
