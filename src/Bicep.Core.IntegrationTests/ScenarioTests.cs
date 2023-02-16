@@ -4245,6 +4245,19 @@ output values object = values[name]
             result.Should().NotHaveAnyDiagnostics();
         }
 
+        // https://github.com/Azure/bicep/issues/9855
+        [TestMethod]
+        public void Test_Issue9855()
+        {
+            var result = CompilationHelper.Compile(@"
+/*************
+* BLOCK     *
+**************/
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
         // https://github.com/Azure/bicep/issues/9469
         [TestMethod]
         public void Test_Issue9469()
