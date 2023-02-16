@@ -60,9 +60,8 @@ namespace Bicep.Cli.Commands
 
             if(bicepInputPath != null && !IsBicepFile(bicepInputPath))
             {
-                throw  new InvalidOperationException($"{bicepInputPath} is not is bicep file");
+                throw new InvalidOperationException($"{bicepInputPath} is not is bicep file");
             }
-
 
             if(features.ParamsFilesEnabled && IsBicepparamsFile(paramsInputPath)) 
             {
@@ -116,11 +115,12 @@ namespace Bicep.Cli.Commands
             }
 
 
-            if(!features.ParamsFilesEnabled && IsBicepparamsFile(paramsInputPath)) 
+            if(!features.ParamsFilesEnabled) 
             {
                 logger.LogError(CliResources.UnableToCompileParamsFile, paramsInputPath, nameof(ExperimentalFeaturesEnabled.ParamsFiles));
             }
-            else 
+
+            if (!IsBicepparamsFile(paramsInputPath))
             {
                 logger.LogError(CliResources.UnrecognizedFileExtensionMessage, paramsInputPath);
             }
