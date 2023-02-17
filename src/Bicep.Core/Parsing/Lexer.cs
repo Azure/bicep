@@ -544,7 +544,7 @@ namespace Bicep.Core.Parsing
                 var nextChar = textWindow.Peek();
                 textWindow.Advance();
 
-                if (nextChar != '*')
+                if (nextChar != '*' || textWindow.Peek() != '/')
                 {
                     continue;
                 }
