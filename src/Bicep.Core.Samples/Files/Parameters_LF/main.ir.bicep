@@ -227,7 +227,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 ])
 param decoratedString string
 
-@minValue(200)
+@minValue(100)
 //@[000:0043) ├─DeclaredParameterExpression { Name = decoratedInt }
 param decoratedInt int = 123
 //@[025:0028) | └─IntegerLiteralExpression { Value = 123 }

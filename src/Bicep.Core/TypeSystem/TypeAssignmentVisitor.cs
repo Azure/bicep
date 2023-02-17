@@ -393,11 +393,17 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                var allowedDecoratorSyntax = GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName);
+                long? GetSingleIntDecoratorArgValue(string name) =>
+                    GetNamedDecorator(syntax, name)?.Arguments.Single().Expression is {} argSyntax && GetTypeInfo(argSyntax) is IntegerLiteralType integerLiteralType
+                        ? integerLiteralType.Value
+                        : null;
 
-                var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedValuesSyntax
-                    ? syntax.GetAssignedType(this.typeManager, allowedValuesSyntax)
-                    : syntax.GetAssignedType(this.typeManager, null);
+                var assignedType = syntax.GetAssignedType(this.typeManager,
+                    GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName)?.Arguments.Single().Expression as ArraySyntax,
+                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMinValuePropertyName),
+                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMaxValuePropertyName),
+                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMinLengthPropertyName),
+                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMaxLengthPropertyName));
 
                 if (GetNamedDecorator(syntax, LanguageConstants.ParameterSecurePropertyName) is not null)
                 {
@@ -732,7 +738,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
             => AssignType(syntax, () => syntax.Value switch {
-                <= long.MaxValue => new IntegerLiteralType((long)syntax.Value),
+                <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)syntax.Value),
                 _ => LanguageConstants.Int,
             });
 

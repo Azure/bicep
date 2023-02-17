@@ -308,7 +308,7 @@ param nonConstantInDecorator string
   bool: !true
 })
 param unaryMinusOnFunction int
-//@[06:026) Parameter unaryMinusOnFunction. Type: int. Declaration start char: 0, length: 83
+//@[06:026) Parameter unaryMinusOnFunction. Type: >= -1. Declaration start char: 0, length: 83
 
 @minLength(1)
 @minLength(2)

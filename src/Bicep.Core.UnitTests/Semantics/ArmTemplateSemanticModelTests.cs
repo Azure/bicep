@@ -41,8 +41,7 @@ public class ArmTemplateSemanticModelTests
         properties.Should().HaveCount(3);
         properties["foo"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
         properties["foo"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
-        properties["bar"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["bar"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameInt);
+        properties["bar"].TypeReference.Type.Should().BeOfType<IntegerType>();
         properties["baz"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
         properties["baz"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
 
@@ -128,8 +127,7 @@ public class ArmTemplateSemanticModelTests
         items.Should().HaveCount(3);
         items[0].Type.Should().BeOfType<PrimitiveType>();
         items[0].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
-        items[1].Type.Should().BeOfType<PrimitiveType>();
-        items[1].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameInt);
+        items[1].Type.Should().BeOfType<IntegerType>();
         items[2].Type.Should().BeOfType<PrimitiveType>();
         items[2].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
     }
@@ -153,7 +151,11 @@ public class ArmTemplateSemanticModelTests
                     ""type"": ""object"",
                     ""properties"": {
                       ""foo"": { ""type"": ""string"" },
-                      ""bar"": { ""type"": ""int"" },
+                      ""bar"": {
+                        ""type"": ""int"",
+                        ""minValue"": 1,
+                        ""maxValue"": 10
+                      },
                       ""baz"": { ""type"": ""bool"" }
                     }
                   }
@@ -173,8 +175,9 @@ public class ArmTemplateSemanticModelTests
         properties.Should().HaveCount(3);
         properties["foo"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
         properties["foo"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
-        properties["bar"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["bar"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameInt);
+        properties["bar"].TypeReference.Type.Should().BeOfType<IntegerType>();
+        properties["bar"].TypeReference.Type.As<IntegerType>().MinValue.Should().Be(1);
+        properties["bar"].TypeReference.Type.As<IntegerType>().MaxValue.Should().Be(10);
         properties["baz"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
         properties["baz"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
     }

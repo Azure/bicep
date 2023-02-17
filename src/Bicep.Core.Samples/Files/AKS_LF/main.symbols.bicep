@@ -23,12 +23,12 @@ param location string = resourceGroup().location
 @minValue(0)
 @maxValue(1023)
 param osDiskSizeGB int = 0
-//@[6:18) Parameter osDiskSizeGB. Type: int. Declaration start char: 0, length: 55
+//@[6:18) Parameter osDiskSizeGB. Type: >= 0 && <= 1023. Declaration start char: 0, length: 55
 
 @minValue(1)
 @maxValue(50)
 param agentCount int = 3
-//@[6:16) Parameter agentCount. Type: int. Declaration start char: 0, length: 51
+//@[6:16) Parameter agentCount. Type: >= 1 && <= 50. Declaration start char: 0, length: 51
 
 param agentVMSize string = 'Standard_DS2_v2'
 //@[6:17) Parameter agentVMSize. Type: string. Declaration start char: 0, length: 44

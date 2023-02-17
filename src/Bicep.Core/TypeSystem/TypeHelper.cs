@@ -120,7 +120,7 @@ namespace Bicep.Core.TypeSystem
             JArray jArray => TryCreateTypeLiteral(jArray),
             _ when token.Type == JTokenType.Boolean => new BooleanLiteralType(token.ToObject<bool>()),
             _ when token.IsTextBasedJTokenType() => new StringLiteralType(token.ToString()),
-            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => new IntegerLiteralType((long)intVal),
+            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)intVal),
             _ => null,
         };
 

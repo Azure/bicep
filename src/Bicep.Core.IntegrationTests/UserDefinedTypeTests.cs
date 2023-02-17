@@ -465,7 +465,7 @@ module mod './mod.bicep' = {
 }
 "),
 ("mod.bicep", @"
-param myParam 'foo' | 'bar'
+param myParam 'foo' | 'bar' 
 "));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();

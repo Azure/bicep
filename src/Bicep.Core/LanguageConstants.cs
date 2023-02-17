@@ -171,9 +171,9 @@ namespace Bicep.Core
         public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
         public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol Int = new PrimitiveType(TypeNameInt, TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Int = TypeFactory.CreateIntegerType();
         // LooseInt should be regarded as equal to the 'int' type, but with different validation behavior
-        public static readonly TypeSymbol LooseInt = new PrimitiveType(TypeNameInt, TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol LooseInt = TypeFactory.CreateIntegerType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         public static readonly TypeSymbol Bool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.Default);
         // LooseBool should be regarded as equal to the 'bool' type, but with different validation behavior
         public static readonly TypeSymbol LooseBool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.AllowLooseAssignment);

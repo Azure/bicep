@@ -1,7 +1,7 @@
 @description('The foo type')
 @sealed()
 type foo = {
-//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
+//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: >= 1, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
   @minLength(3)
   @maxLength(10)
   @description('A string property')

@@ -46,7 +46,7 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public TypeSyntax? ParameterType => this.Type as TypeSyntax;
 
-        public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
+        public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax, long? minValue, long? maxValue, long? minLength, long? maxLength)
         {
             var assignedType = typeManager.GetDeclaredType(this);
             if (assignedType is null)
@@ -68,7 +68,7 @@ namespace Bicep.Core.Syntax
                 assignedType = UnionIfLiterals<StringLiteralType>(assignedType, LanguageConstants.LooseString, allowedItemTypes);
             } else if (ReferenceEquals(assignedType, LanguageConstants.Int))
             {
-                assignedType = UnionIfLiterals<IntegerLiteralType>(assignedType, LanguageConstants.LooseInt, allowedItemTypes);
+                assignedType = UnionIfLiterals<IntegerLiteralType>(assignedType, TypeFactory.CreateIntegerType(minValue, maxValue, TypeSymbolValidationFlags.AllowLooseAssignment), allowedItemTypes);
             } else if (ReferenceEquals(assignedType, LanguageConstants.Bool))
             {
                 assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, LanguageConstants.LooseBool, allowedItemTypes);

@@ -89,6 +89,6 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 
 // top-level output loops are supported
 output generatedArray array = [for i in range(0,10): i]
-//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
+//@[35:36) Local i. Type: >= 0 && <= 10. Declaration start char: 35, length: 1
 //@[07:21) Output generatedArray. Type: array. Declaration start char: 0, length: 55
 

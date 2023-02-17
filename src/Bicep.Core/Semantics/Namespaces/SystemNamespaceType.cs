@@ -117,7 +117,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(
                     (binder, fileResolver, diagnostics, functionCall, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
-                        TupleType tupleType => new(new IntegerLiteralType(tupleType.Items.Length)),
+                        TupleType tupleType => new(TypeFactory.CreateIntegerLiteralType(tupleType.Items.Length)),
                         _ => new(LanguageConstants.Int),
                     },
                     LanguageConstants.Int)
@@ -302,15 +302,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("last")
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => new(argumentTypes[0] switch
                 {
-                    return new(argumentTypes[0] switch
-                    {
-                        TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
-                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
-                        _ => LanguageConstants.Any
-                    });
-                }, LanguageConstants.Any)
+                    TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
+                    ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                    _ => LanguageConstants.Any
+                }), LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the last element.")
@@ -400,7 +397,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("range")
-                .WithReturnType(new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default))
+                .WithReturnResultBuilder(
+                    (binder, fileResolver, diagnostics, arguments, argumentTypes) => new(new TypedArrayType(
+                        argumentTypes.Length == 2 &&
+                            argumentTypes[0] is IntegerLiteralType startIndexLiteral &&
+                            argumentTypes[1] is IntegerLiteralType countLiteral
+                                ? TypeFactory.CreateIntegerType(startIndexLiteral.Value, startIndexLiteral.Value + countLiteral.Value)
+                                : LanguageConstants.Int,
+                        TypeSymbolValidationFlags.Default)),
+                    new TypedArrayType(LanguageConstants.Int, default))
                 .WithGenericDescription("Creates an array of integers from a starting integer and containing a number of items.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The first integer in the array. The sum of startIndex and count must be no greater than 2147483647.")
                 .WithRequiredParameter("count", LanguageConstants.Int, "The number of integers in the array. Must be non-negative integer up to 10000.")

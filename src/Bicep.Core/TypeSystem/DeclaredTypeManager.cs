@@ -238,7 +238,36 @@ namespace Bicep.Core.TypeSystem
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+        {
+            var declaredType = GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
+            ITypeReference modifiedType = declaredType is DeferredTypeReference
+                ? new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax))
+                : ApplyTypeModifyingDecorators(declaredType.Type, syntax);
+
+            return new(modifiedType, syntax);
+        }
+
+        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax) => declaredType switch
+        {
+            _ when !syntax.Decorators.Any() => declaredType,
+            IntegerType => TypeFactory.CreateIntegerType(
+                GetSingleIntDecoratorArgument(syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName),
+                GetSingleIntDecoratorArgument(syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName),
+                default),
+            _ => declaredType,
+        };
+
+        private long? GetSingleIntDecoratorArgument(DecorableSyntax syntax, string decoratorNamespace, string decoratorName)
+        {
+            if (SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, decoratorNamespace, decoratorName) is {} decorator &&
+                decorator.Arguments.Count() == 1 &&
+                typeManager.GetTypeInfo(decorator.Arguments.Single()) is IntegerLiteralType integerLiteral)
+            {
+                return integerLiteral.Value;
+            }
+
+            return null;
+        }
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
@@ -479,7 +508,14 @@ namespace Bicep.Core.TypeSystem
         }
 
         private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+        {
+            var declaredType = GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
+            ITypeReference modifiedType = declaredType is DeferredTypeReference
+                ? new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax))
+                : ApplyTypeModifyingDecorators(declaredType.Type, syntax);
+
+            return new(modifiedType, syntax);
+        }
 
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {

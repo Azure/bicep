@@ -326,8 +326,8 @@ param decoratedString string
 //@      "type": "securestring",
 //@    },
 
-@minValue(200)
-//@      "minValue": 200
+@minValue(100)
+//@      "minValue": 100
 param decoratedInt int = 123
 //@    "decoratedInt": {
 //@      "type": "int",

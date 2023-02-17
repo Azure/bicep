@@ -139,7 +139,7 @@ var objectMap = toObject([
 //@[05:19) [BCP070 (Error)] Argument of type "(123 | 456 | 789) => int" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => (i / 100)|
 var objectMap2 = toObject(range(0, 10), i => i, i => {
 //@[04:14) [no-unused-vars (Warning)] Variable "objectMap2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap2|
-//@[40:46) [BCP070 (Error)] Argument of type "int => int" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => i|
+//@[40:46) [BCP070 (Error)] Argument of type "(>= 0 && <= 10) => (>= 0 && <= 10)" is not assignable to parameter of type "any => string". (CodeDescription: none) |i => i|
     isEven: ((i % 2) == 0)
     isGreaterThan4: (i > 4)
   })

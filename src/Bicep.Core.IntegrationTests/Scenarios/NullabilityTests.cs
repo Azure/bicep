@@ -193,7 +193,7 @@ var arrayOfArrays = [for i in input: range(0, 10)]
 var arrayOfOneBuzz = [for i in first(arrayOfArrays)!: 'buzz']
 ",
                 LanguageConstants.Array,
-                TypeHelper.CreateTypeUnion(LanguageConstants.Null, new TypedArrayType(LanguageConstants.Int, default))
+                TypeHelper.CreateTypeUnion(LanguageConstants.Null, new TypedArrayType(TypeFactory.CreateIntegerType(0, 10), default))
             ),
 
             // nullably typed parameter defaults

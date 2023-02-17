@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -200,6 +201,90 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(literalVal1, looseString).Should().BeTrue();
         }
 
+        [TestMethod]
+        public void IntegerLiteralTypesShouldBeAssignableToInts()
+        {
+            var literalVal1 = TypeFactory.CreateIntegerLiteralType(0);
+            var literalVal2 = TypeFactory.CreateIntegerLiteralType(20);
+
+            // different int literals should not be assignable to each other
+            TypeValidator.AreTypesAssignable(literalVal1, literalVal2).Should().BeFalse();
+
+            // same-name int literals should be assignable to each other
+            TypeValidator.AreTypesAssignable(literalVal1, new IntegerLiteralType(0, default)).Should().BeTrue();
+
+            // int literals should be assignable to a primitive int
+            TypeValidator.AreTypesAssignable(literalVal1, LanguageConstants.Int).Should().BeTrue();
+
+            // int literals should not be assignable from a primitive int
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, literalVal1).Should().BeFalse();
+
+            // int literals should be assignable from a loose primitive int
+            TypeValidator.AreTypesAssignable(LanguageConstants.LooseInt, literalVal1).Should().BeTrue();
+
+            // int literals should not be assignable from a loose primitive int whose domain does not include the target
+            TypeValidator.AreTypesAssignable(TypeFactory.CreateIntegerType(1, 10, TypeSymbolValidationFlags.AllowLooseAssignment), literalVal1).Should().BeFalse();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetIntegerDomainNarrowingData), DynamicDataSourceType.Method)]
+        public void Integer_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        {
+            var expression = SyntaxFactory.CreateVariableAccess("foo");
+            var typeManagerMock = new Mock<ITypeManager>(MockBehavior.Strict);
+            typeManagerMock.Setup(t => t.GetTypeInfo(expression))
+                .Returns(sourceType);
+
+            var binderMock = new Mock<IBinder>(MockBehavior.Strict);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManagerMock.Object, binderMock.Object, diagnosticWriter, expression, targetType);
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            narrowedType.Should().Be(expectedType);
+            diagnostics.Should().HaveCount(expectedDiagnostics.Length);
+
+            for (int i = 0; i < expectedDiagnostics.Length; i++)
+            {
+                diagnostics[i].Code.Should().Be(expectedDiagnostics[i].code);
+                diagnostics[i].Level.Should().Be(expectedDiagnostics[i].level);
+                diagnostics[i].Message.Should().Be(expectedDiagnostics[i].message);
+            }
+        }
+
+        private static IEnumerable<object[]> GetIntegerDomainNarrowingData()
+        {
+            static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
+                => new object[] { sourceType, targetType, expectedType, diagnostics };
+
+            return new[]
+            {
+                // A matching source and target type should narrow to the same and produce no warnings
+                Row(LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
+                // A source type whose domain is a subset of the target type should narrow to the source
+                Row(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateIntegerType(0, 11), TypeFactory.CreateIntegerType(1, 10)),
+                // A source type whose domain overlaps but extends below the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateIntegerType(-1, 10),
+                    TypeFactory.CreateIntegerType(0, 11),
+                    TypeFactory.CreateIntegerType(0, 10),
+                    ("BCP322", DiagnosticLevel.Warning, @"A value of type "">= -1 && <= 10"" may be too small to assign to a target of type "">= 0 && <= 11"".")),
+                // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateIntegerType(0, 11),
+                    TypeFactory.CreateIntegerType(-5, 10),
+                    TypeFactory.CreateIntegerType(0, 10),
+                    ("BCP323", DiagnosticLevel.Warning, @"A value of type "">= 0 && <= 11"" may be too large to assign to a target of type "">= -5 && <= 10"".")),
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateIntegerType(),
+                    TypeFactory.CreateIntegerType(-5, 10),
+                    TypeFactory.CreateIntegerType(-5, 10),
+                    ("BCP322", DiagnosticLevel.Warning, @"A value of type ""int"" may be too small to assign to a target of type "">= -5 && <= 10""."),
+                    ("BCP323", DiagnosticLevel.Warning, @"A value of type ""int"" may be too large to assign to a target of type "">= -5 && <= 10"".")),
+                // A literal source type should narrow to the literal
+                Row(TypeFactory.CreateIntegerLiteralType(0), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(0)),
+            };
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
@@ -370,7 +455,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
-                "additionalPropertiesFallbackTypeTest", 
+                "additionalPropertiesFallbackTypeTest",
                 TypeSymbolValidationFlags.Default,
                 new[] { new TypeProperty("inSchema", LanguageConstants.String) },
                 LanguageConstants.Any,

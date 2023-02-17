@@ -1831,6 +1831,23 @@ namespace Bicep.Core.Diagnostics
                 styling: DiagnosticStyling.Default,
                 fix: AsNonNullable(expression));
 
+            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(string sourceType, string targetType) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP322",
+                $@"A value of type ""{sourceType}"" may be too small to assign to a target of type ""{targetType}"".");
+
+            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(string sourceType, string targetType) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP323",
+                $@"A value of type ""{sourceType}"" may be too large to assign to a target of type ""{targetType}"".");
+
+            public ErrorDiagnostic MinMayNotExceedMax(string minDecoratorName, long minValue, string maxDecoratorName, long maxValue) => new(
+                TextSpan,
+                "BCP324",
+                $@"A type's ""{minDecoratorName}"" must be less than or equal to its ""{maxDecoratorName}"", but a minimum of {minValue} and a maximum of {maxValue} were specified.");
+
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
                 false,
