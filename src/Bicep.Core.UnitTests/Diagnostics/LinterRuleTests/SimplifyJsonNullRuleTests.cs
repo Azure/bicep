@@ -50,6 +50,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
         [DataRow(
             @"
+                var myVar = json(' null  ')
+            ",
+            "null"
+        )]
+        [DataRow(
+            @"
+                var myVar = json( 'null')
+            ",
+            "null"
+        )]
+        [DataRow(
+            @"
                 resource stgAcct 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                     name: 'myStorageAccount'
                     properties: {
@@ -77,6 +89,33 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void DoesntHaveJsonNull_Passes()
         {
             ExpectPass("var test = 'test'");
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            @"
+                var a = json(null)
+            "
+        )]
+        [DataRow(
+            @"
+                var a = json('nullx')
+            "
+        )]
+        [DataRow(
+            @"
+                var a = 'json('null')'
+            "
+        )]
+        public void SyntaxErrors_ExpectNoFixes(string text)
+        {
+            ExpectPass(text, new Options(OnCompileErrors.Ignore));
+        }
+
+        [TestMethod]
+        public void FunctionAppearsInStringLiteratl_ExpectNoFixes()
+        {
+            ExpectPass("var a = '''json('null')'''");
         }
     }
 }

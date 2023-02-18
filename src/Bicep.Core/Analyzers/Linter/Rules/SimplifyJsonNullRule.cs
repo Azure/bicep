@@ -41,43 +41,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.spanFixes = spanFixes;
                 this.model = model;
             }
-
-            public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+            public override void VisitFunctionCallSyntax(FunctionCallSyntax functionCallSyntax)
             {
-                AddCodeFixIfJsonNull(syntax.Value);
-                base.VisitObjectPropertySyntax(syntax);
-            }
-
-            public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
-            {
-                AddCodeFixIfJsonNull(syntax.Value);
-                base.VisitVariableDeclarationSyntax(syntax);
-            }
-
-            public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
-            {
-                AddCodeFixIfJsonNull(syntax.Value);
-                base.VisitOutputDeclarationSyntax(syntax);
-            }
-
-            public override void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
-            {
-                AddCodeFixIfJsonNull(syntax.DefaultValue);
-                base.VisitParameterDefaultValueSyntax(syntax);
-            }
-
-            private void AddCodeFixIfJsonNull(SyntaxBase valueSyntax)
-            {
-                if (valueSyntax is FunctionCallSyntax functionCallSyntax)
+                if (functionCallSyntax.NameEquals("json") &&
+                    functionCallSyntax.Arguments.Length == 1 &&
+                    functionCallSyntax.Arguments[0].Expression is StringSyntax argSyntax)
                 {
-                    if (functionCallSyntax.Name.IdentifierName.Equals("json")
-                        && functionCallSyntax.Arguments.Single().Expression is StringSyntax argSyntax)
+                    var argValue = argSyntax.TryGetLiteralValue();
+                    if (argValue?.Trim() == "null")
                     {
-                        var argumentValue = argSyntax.SegmentValues.Single();
-                        if (argumentValue.Equals("null"))
-                        {
-                            AddCodeFix(valueSyntax.Span, argumentValue);
-                        }
+                        AddCodeFix(functionCallSyntax.Span, "null");
                     }
                 }
             }
