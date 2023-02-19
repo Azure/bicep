@@ -393,17 +393,8 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                long? GetSingleIntDecoratorArgValue(string name) =>
-                    GetNamedDecorator(syntax, name)?.Arguments.Single().Expression is {} argSyntax && GetTypeInfo(argSyntax) is IntegerLiteralType integerLiteralType
-                        ? integerLiteralType.Value
-                        : null;
-
                 var assignedType = syntax.GetAssignedType(this.typeManager,
-                    GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName)?.Arguments.Single().Expression as ArraySyntax,
-                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMinValuePropertyName),
-                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMaxValuePropertyName),
-                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMinLengthPropertyName),
-                    GetSingleIntDecoratorArgValue(LanguageConstants.ParameterMaxLengthPropertyName));
+                    GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName)?.Arguments.Single().Expression as ArraySyntax);
 
                 if (GetNamedDecorator(syntax, LanguageConstants.ParameterSecurePropertyName) is not null)
                 {

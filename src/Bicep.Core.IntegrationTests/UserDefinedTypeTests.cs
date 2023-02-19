@@ -465,10 +465,68 @@ module mod './mod.bicep' = {
 }
 "),
 ("mod.bicep", @"
-param myParam 'foo' | 'bar' 
+param myParam 'foo' | 'bar'
 "));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void Integer_assignments_whose_source_domain_contains_but_extends_beyond_target_domain_generate_warnings()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param paramA {
+  @minValue(0)
+  @maxValue(11)
+  prop: int
+}
+
+@minValue(1)
+@maxValue(10)
+param paramB int = paramA.prop
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP322", DiagnosticLevel.Warning, "A value of type \">= 0 && <= 11\" may be too small to assign to a target of type \">= 1 && <= 10\"."),
+            ("BCP323", DiagnosticLevel.Warning, "A value of type \">= 0 && <= 11\" may be too large to assign to a target of type \">= 1 && <= 10\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Integer_assignments_whose_source_domain_is_disjoint_from_target_domain_generate_errors()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param paramA {
+  @minValue(0)
+  @maxValue(9)
+  prop: int
+}
+
+@minValue(10)
+@maxValue(20)
+param paramB int = paramA.prop
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \">= 10 && <= 20\" but the provided value is of type \">= 0 && <= 9\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_integer_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minValue(1)
+@maxValue(0)
+param myParam int
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP324", DiagnosticLevel.Error, "A type's \"minValue\" must be less than or equal to its \"maxValue\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
     }
 }

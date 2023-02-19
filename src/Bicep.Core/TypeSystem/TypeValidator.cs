@@ -157,7 +157,6 @@ namespace Bicep.Core.TypeSystem
                     return targetType.Name == LanguageConstants.Bool.Name;
 
                 case (IntegerType sourceInt, IntegerType targetInt):
-                    // TODO warn when the domain of sourceInt overlaps with but expands beyond the domain of targetInt
                     return (targetInt.MinValue ?? long.MinValue) <= (sourceInt.MaxValue ?? long.MaxValue) &&
                         (targetInt.MaxValue ?? long.MaxValue) >= (sourceInt.MinValue ?? long.MinValue);
 

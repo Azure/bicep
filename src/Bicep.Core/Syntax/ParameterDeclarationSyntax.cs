@@ -46,7 +46,7 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public TypeSyntax? ParameterType => this.Type as TypeSyntax;
 
-        public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax, long? minValue, long? maxValue, long? minLength, long? maxLength)
+        public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
         {
             var assignedType = typeManager.GetDeclaredType(this);
             if (assignedType is null)
@@ -63,27 +63,27 @@ namespace Bicep.Core.Syntax
 
             var allowedItemTypes = allowedSyntax?.Items.Select(typeManager.GetTypeInfo);
 
-            if (ReferenceEquals(assignedType, LanguageConstants.String))
+            if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.String))
             {
-                assignedType = UnionIfLiterals<StringLiteralType>(assignedType, LanguageConstants.LooseString, allowedItemTypes);
-            } else if (ReferenceEquals(assignedType, LanguageConstants.Int))
+                assignedType = UnionIfLiterals<StringLiteralType>(assignedType, assignedType, allowedItemTypes);
+            } else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Int))
             {
-                assignedType = UnionIfLiterals<IntegerLiteralType>(assignedType, TypeFactory.CreateIntegerType(minValue, maxValue, TypeSymbolValidationFlags.AllowLooseAssignment), allowedItemTypes);
-            } else if (ReferenceEquals(assignedType, LanguageConstants.Bool))
+                assignedType = UnionIfLiterals<IntegerLiteralType>(assignedType, assignedType, allowedItemTypes);
+            } else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Bool))
             {
-                assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, LanguageConstants.LooseBool, allowedItemTypes);
-            } else if (ReferenceEquals(assignedType, LanguageConstants.Array) && allowedItemTypes is not null && allowedItemTypes.All(TypeHelper.IsLiteralType))
+                assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, assignedType, allowedItemTypes);
+            } else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Array) && allowedItemTypes is not null && allowedItemTypes.All(TypeHelper.IsLiteralType))
             {
                 // @allowed has special semantics when applied to an array if none of the allowed values are themselves arrays (ARM will permit any array containing
                 // a subset of the allowed values). If any of the allowed item types is a tuple, treat @allowed([...]) as supplying a list of allowed values;
                 // otherwise, treat it as supplying a list of allowed *item* values.
                 if (allowedItemTypes.Any(t => t is TupleType))
                 {
-                    assignedType = UnionIfLiterals<TupleType>(assignedType, LanguageConstants.Array, allowedItemTypes);
+                    assignedType = UnionIfLiterals<TupleType>(assignedType, assignedType, allowedItemTypes);
                 }
                 else
                 {
-                    assignedType = new TypedArrayType(TypeHelper.CreateTypeUnion(allowedItemTypes), TypeSymbolValidationFlags.Default);
+                    assignedType = new TypedArrayType(TypeHelper.CreateTypeUnion(allowedItemTypes), assignedType.ValidationFlags);
                 }
             }
 

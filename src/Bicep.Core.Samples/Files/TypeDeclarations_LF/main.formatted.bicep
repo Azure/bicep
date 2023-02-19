@@ -67,6 +67,10 @@ type stringStringDictionary = {
   *: string
 }
 
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
+
 param mightIncludeNull ({ key: 'value' } | null)[]
 
 var maybeNull = mightIncludeNull[0]!.key

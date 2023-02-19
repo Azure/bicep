@@ -162,7 +162,7 @@ namespace Bicep.Core.TypeSystem
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false);
             declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
-            return new(declaredType, syntax);
+            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax, TypeSymbolValidationFlags.AllowLooseAssignment), syntax);
         }
 
         private DeclaredTypeAssignment? GetParameterAssignmentType(ParameterAssignmentSyntax syntax)
@@ -216,7 +216,7 @@ namespace Bicep.Core.TypeSystem
             var typeRefType = type switch
             {
                 ErrorType => type,
-                _ => new TypeType(type),
+                _ => new TypeType(ApplyTypeModifyingDecorators(type, syntax)),
             };
 
             return new(typeRefType, syntax);
@@ -247,27 +247,60 @@ namespace Bicep.Core.TypeSystem
             return new(modifiedType, syntax);
         }
 
-        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax) => declaredType switch
+        // decorator diagnostics are raised by the TypeAssignmentVisitor, so we're only concerned in this method
+        // with the happy path or any errors that produce an invalid type
+        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
         {
-            _ when !syntax.Decorators.Any() => declaredType,
-            IntegerType => TypeFactory.CreateIntegerType(
-                GetSingleIntDecoratorArgument(syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName),
-                GetSingleIntDecoratorArgument(syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName),
-                default),
-            _ => declaredType,
-        };
-
-        private long? GetSingleIntDecoratorArgument(DecorableSyntax syntax, string decoratorNamespace, string decoratorName)
-        {
-            if (SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, decoratorNamespace, decoratorName) is {} decorator &&
-                decorator.Arguments.Count() == 1 &&
-                typeManager.GetTypeInfo(decorator.Arguments.Single()) is IntegerLiteralType integerLiteral)
+            if (HasSecureDecorator(syntax))
             {
-                return integerLiteral.Value;
+                validationFlags |= TypeSymbolValidationFlags.IsSecure;
             }
 
-            return null;
+            return declaredType switch
+            {
+                _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
+                IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
+                PrimitiveType primitive => new PrimitiveType(primitive.Name, validationFlags),
+                _ => declaredType,
+            };
         }
+
+        private TypeSymbol GetModifiedInteger(IntegerType declaredInteger, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            var minValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName);
+            var minValue = GetSingleIntDecoratorArgument(minValueDecorator) ?? declaredInteger.MinValue;
+            var maxValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName);
+            var maxValue = GetSingleIntDecoratorArgument(maxValueDecorator) ?? declaredInteger.MaxValue;
+
+            if (minValue.HasValue && maxValue.HasValue && minValue.Value > maxValue.Value)
+            {
+                // create at most one error diagnostic iff a min/maxValue decorator targets this statement.
+                if (minValueDecorator is not null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(minValueDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinValuePropertyName,
+                        minValue.Value,
+                        LanguageConstants.ParameterMaxValuePropertyName,
+                        maxValue.Value));
+                }
+
+                if (maxValueDecorator is not null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(maxValueDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinValuePropertyName,
+                        minValue.Value,
+                        LanguageConstants.ParameterMaxValuePropertyName,
+                        maxValue.Value));
+                }
+            }
+
+            return TypeFactory.CreateIntegerType(minValue, maxValue, validationFlags);
+        }
+
+        private long? GetSingleIntDecoratorArgument(DecoratorSyntax? syntax)
+            => syntax?.Arguments.Count() == 1 && typeManager.GetTypeInfo(syntax.Arguments.Single()) is IntegerLiteralType integerLiteral
+                ? integerLiteral.Value
+                : null;
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);

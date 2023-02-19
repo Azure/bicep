@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1261) ProgramExpression
+//@[00:1315) ProgramExpression
 @sealed()
 type foo = {
   @minLength(3)
@@ -84,6 +84,10 @@ type tuple = [
 type stringStringDictionary = {
     *: string
 }
+
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
 
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[00:0048) ├─DeclaredParameterExpression { Name = mightIncludeNull }

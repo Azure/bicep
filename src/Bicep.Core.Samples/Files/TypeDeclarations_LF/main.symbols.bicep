@@ -79,6 +79,11 @@ type stringStringDictionary = {
     *: string
 }
 
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
+//@[5:19) TypeAlias constrainedInt. Type: Type<>= 1 && <= 10>. Declaration start char: 0, length: 52
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48
 

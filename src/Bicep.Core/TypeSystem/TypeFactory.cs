@@ -18,19 +18,7 @@ public static class TypeFactory
     {
         if (minValue.HasValue && maxValue.HasValue && minValue.Value == maxValue.Value)
         {
-            if (minValue.Value == maxValue.Value)
-            {
-                return CreateIntegerLiteralType(minValue.Value, validationFlags);
-            }
-
-            if (minValue.Value > maxValue.Value)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().MinMayNotExceedMax(
-                    LanguageConstants.ParameterMinValuePropertyName,
-                    minValue.Value,
-                    LanguageConstants.ParameterMaxValuePropertyName,
-                    maxValue.Value));
-            }
+            return CreateIntegerLiteralType(minValue.Value, validationFlags);
         }
 
         return IntegerTypePool.GetOrAdd(new(minValue, maxValue, validationFlags), BuildIntegerType);
