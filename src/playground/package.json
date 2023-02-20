@@ -14,7 +14,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/node": "^18.11.19",
+    "@types/node": "^18.14.0",
     "@types/pako": "^2.0.0",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
