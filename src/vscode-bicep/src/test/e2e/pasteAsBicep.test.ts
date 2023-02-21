@@ -135,7 +135,7 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
     });
     await vscode.window.showTextDocument(textDocument);
 
-    vscode.env.clipboard.writeText(json);
+    await vscode.env.clipboard.writeText(json);
     await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
 
     try {
