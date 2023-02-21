@@ -4,9 +4,9 @@
     "net6.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.9.0, )",
-        "resolved": "6.9.0",
-        "contentHash": "Z+alhbX6FreF+buZlOpP4jt93wofAdAzyUngcDNHYcuVsDUh/rjIB9WcqXctxffh4XZ3xUG/Ew4UgULSP/kUZg==",
+        "requested": "[6.10.0, )",
+        "resolved": "6.10.0",
+        "contentHash": "Da3YsiRDnOHKBfxutjnupL1rOX0K/jnG6crn5AgwukeqZ/yi+HNCOFshic01ke0ztZFWzpfQMXH8fO9aAbG0Gw==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -2048,7 +2048,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "DiffPlex": "[1.7.1, )",
-          "FluentAssertions": "[6.9.0, )",
+          "FluentAssertions": "[6.10.0, )",
           "JsonPath.Net": "[0.2.1, )",
           "JsonSchema.Net": "[3.3.2, )",
           "Markdig": "[0.30.4, )",
