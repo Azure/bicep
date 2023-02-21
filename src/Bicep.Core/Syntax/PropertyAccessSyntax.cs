@@ -4,22 +4,24 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class PropertyAccessSyntax : ExpressionSyntax
+    public class PropertyAccessSyntax : AccessExpressionSyntax
     {
-        public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax propertyName)
+        public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, Token? safeAccessMarker, IdentifierSyntax propertyName)
+            : base(baseExpression, safeAccessMarker)
         {
             AssertTokenType(dot, nameof(dot), TokenType.Dot);
 
-            this.BaseExpression = baseExpression;
             this.Dot = dot;
             this.PropertyName = propertyName;
         }
 
-        public SyntaxBase BaseExpression { get; }
-
         public Token Dot { get; }
 
         public IdentifierSyntax PropertyName { get; }
+
+        public override PropertyAccessSyntax AsSafeAccess() => SafeAccessMarker is null
+            ? new(BaseExpression, Dot, SyntaxFactory.QuestionToken, PropertyName)
+            : this;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 

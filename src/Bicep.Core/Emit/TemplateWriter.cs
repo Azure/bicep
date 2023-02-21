@@ -700,7 +700,7 @@ namespace Bicep.Core.Emit
                     {
                         // This is a resource being passed into a module, we actually want to pass in its id
                         // rather than the whole resource.
-                        var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id");
+                        var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id", AccessExpressionFlags.None);
                         emitter.EmitProperty(keyName, ExpressionEmitter.ConvertModuleParameter(idExpression));
                     }
                     else
@@ -747,7 +747,8 @@ namespace Bicep.Core.Emit
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
                             new FunctionCallExpression(null, "resourceGroup", ImmutableArray<Expression>.Empty),
-                            "location"));
+                            "location",
+                            AccessExpressionFlags.None));
                     }
                     else
                     {
@@ -755,7 +756,8 @@ namespace Bicep.Core.Emit
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
                             new FunctionCallExpression(null, "deployment", ImmutableArray<Expression>.Empty),
-                            "location"));
+                            "location",
+                            AccessExpressionFlags.None));
                     }
                 }
 
@@ -948,7 +950,7 @@ namespace Bicep.Core.Emit
                 else if (output.Symbol.Type is ResourceType)
                 {
                     // Resource-typed outputs are serialized using the resource id.
-                    var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id");
+                    var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id", AccessExpressionFlags.None);
 
                     emitter.EmitProperty("value", value);
                 }

@@ -344,7 +344,7 @@ namespace Bicep.Core.Emit
         {
             var properties = new List<ObjectPropertyExpression>();
             properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new [] {
-                ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id")),
+                ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
             }, functionCall.SourceSyntax)));
             properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
             if (functionCall.Parameters.Length > 1)

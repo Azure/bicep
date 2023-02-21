@@ -34,6 +34,8 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ObjectPropertySyntax CreateProperty(IdentifierSyntax name, SyntaxBase value) => new(name, CreateToken(TokenType.Colon), value);
 
+        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase baseExpression, string propertyName) => new(baseExpression, CreateToken(TokenType.Dot), null, CreateIdentifier(propertyName));
+
         public static UnaryOperationSyntax CreateUnaryMinus(SyntaxBase operand) => new(CreateToken(TokenType.Minus), operand);
 
         public static Token CreateToken(TokenType type, string text = "") => new(type, TextSpan.Nil, text, ImmutableArray.Create<SyntaxTrivia>(), ImmutableArray.Create<SyntaxTrivia>());

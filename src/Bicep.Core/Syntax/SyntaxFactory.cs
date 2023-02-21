@@ -160,7 +160,7 @@ namespace Bicep.Core.Syntax
                 RightSquareToken);
         }
 
-        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression) => new(baseExpression, LeftSquareToken, indexExpression, RightSquareToken);
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression, bool safeAccess = false) => new(baseExpression, LeftSquareToken, safeAccess ? QuestionToken : null, indexExpression, RightSquareToken);
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
