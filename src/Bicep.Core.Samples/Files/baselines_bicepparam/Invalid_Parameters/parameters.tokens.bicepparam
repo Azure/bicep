@@ -1,3 +1,8 @@
+using './main.bicep'
+//@[00:05) Identifier |using|
+//@[06:20) StringComplete |'./main.bicep'|
+//@[20:24) NewLine |\r\n\r\n|
+
 param para1 = 'value
 //@[00:05) Identifier |param|
 //@[06:11) Identifier |para1|

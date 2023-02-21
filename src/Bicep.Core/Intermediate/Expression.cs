@@ -177,11 +177,19 @@ public record ResourceFunctionCallExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
+public abstract record AccessExpression(
+    SyntaxBase? SourceSyntax,
+    Expression Base,
+    Expression Access,
+    AccessExpressionFlags Flags
+) : Expression(SourceSyntax) { }
+
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
-    Expression Access
-) : Expression(SourceSyntax)
+    Expression Access,
+    AccessExpressionFlags Flags
+) : AccessExpression(SourceSyntax, Base, Access, Flags)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitArrayAccessExpression(this);
@@ -190,8 +198,9 @@ public record ArrayAccessExpression(
 public record PropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
-    string PropertyName
-) : Expression(SourceSyntax)
+    string PropertyName,
+    AccessExpressionFlags Flags
+) : AccessExpression(SourceSyntax, Base, new StringLiteralExpression(null, PropertyName), Flags)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitPropertyAccessExpression(this);
@@ -222,8 +231,9 @@ public record ModuleReferenceExpression(
 public record ModuleOutputPropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
-    string PropertyName)
-: Expression(SourceSyntax)
+    string PropertyName,
+    AccessExpressionFlags Flags
+) : AccessExpression(SourceSyntax, Base, new StringLiteralExpression(null, PropertyName), Flags)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitModuleOutputPropertyAccessExpression(this);
@@ -432,4 +442,14 @@ public record ProgramExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitProgramExpression(this);
+}
+
+public record AccessChainExpression(
+    SyntaxBase? SourceSyntax,
+    AccessExpression FirstLink,
+    ImmutableArray<Expression> AdditionalProperties
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitAccessChainExpression(this);
 }

@@ -59,8 +59,8 @@ export function checkShowSurvey(
   globalState: GlobalState,
   surveyInfo: ISurveyInfo
 ): void {
-  // Don't wait
-  callWithTelemetryAndErrorHandling(
+  // Don't wait, run asynchronously
+  void callWithTelemetryAndErrorHandling(
     "survey",
     async (context: IActionContext) => {
       let now = new Date();

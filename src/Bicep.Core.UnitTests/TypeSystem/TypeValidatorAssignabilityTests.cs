@@ -268,18 +268,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateIntegerType(-1, 10),
                     TypeFactory.CreateIntegerType(0, 11),
                     TypeFactory.CreateIntegerType(0, 10),
-                    ("BCP322", DiagnosticLevel.Warning, @"A value of type "">= -1 && <= 10"" may be too small to assign to a target of type "">= 0 && <= 11"".")),
+                    ("BCP324", DiagnosticLevel.Warning, @"A value of type "">= -1 && <= 10"" may be too small to assign to a target of type "">= 0 && <= 11"".")),
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateIntegerType(0, 11),
                     TypeFactory.CreateIntegerType(-5, 10),
                     TypeFactory.CreateIntegerType(0, 10),
-                    ("BCP323", DiagnosticLevel.Warning, @"A value of type "">= 0 && <= 11"" may be too large to assign to a target of type "">= -5 && <= 10"".")),
+                    ("BCP325", DiagnosticLevel.Warning, @"A value of type "">= 0 && <= 11"" may be too large to assign to a target of type "">= -5 && <= 10"".")),
                 // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateIntegerType(),
                     TypeFactory.CreateIntegerType(-5, 10),
                     TypeFactory.CreateIntegerType(-5, 10),
-                    ("BCP322", DiagnosticLevel.Warning, @"A value of type ""int"" may be too small to assign to a target of type "">= -5 && <= 10""."),
-                    ("BCP323", DiagnosticLevel.Warning, @"A value of type ""int"" may be too large to assign to a target of type "">= -5 && <= 10"".")),
+                    ("BCP324", DiagnosticLevel.Warning, @"A value of type ""int"" may be too small to assign to a target of type "">= -5 && <= 10""."),
+                    ("BCP325", DiagnosticLevel.Warning, @"A value of type ""int"" may be too large to assign to a target of type "">= -5 && <= 10"".")),
                 // A literal source type should narrow to the literal
                 Row(TypeFactory.CreateIntegerLiteralType(0), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(0)),
             };

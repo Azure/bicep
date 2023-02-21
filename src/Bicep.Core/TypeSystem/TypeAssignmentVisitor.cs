@@ -982,27 +982,21 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics =>
-            {
-                var errors = new List<ErrorDiagnostic>();
+            => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
-                CollectErrors(errors, baseType);
-
-                var indexType = typeManager.GetTypeInfo(syntax.IndexExpression);
-                CollectErrors(errors, indexType);
-
-                if (PropagateErrorType(errors, baseType, indexType))
-                {
-                    return ErrorType.Create(errors);
-                }
-
-                baseType = UnwrapType(baseType);
-                return GetArrayItemType(syntax, diagnostics, baseType, indexType);
-            });
-
-        private static ITypeReference GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
+        private static TypeSymbol GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
         {
+            var errors = new List<ErrorDiagnostic>();
+            CollectErrors(errors, baseType);
+            CollectErrors(errors, indexType);
+
+            if (PropagateErrorType(errors, baseType, indexType))
+            {
+                return ErrorType.Create(errors);
+            }
+
+            baseType = UnwrapType(baseType);
+            
             // if the index type is nullable but otherwise valid, emit a fixable warning
             if (TypeHelper.TryRemoveNullability(indexType) is {} nonNullableIndex)
             {
@@ -1028,7 +1022,7 @@ namespace Bicep.Core.TypeSystem
             switch (baseType)
             {
                 case TypeSymbol when TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType:
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax.BaseExpression));
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax));
 
                     return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, indexType);
 
@@ -1048,7 +1042,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // index was of the wrong type
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.SafeAccessMarker is not null);
 
                 case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
                     return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression);
@@ -1075,7 +1069,7 @@ namespace Bicep.Core.TypeSystem
                         return baseArray.Item.Type;
                     }
 
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
 
                 case ObjectType baseObject:
                     {
@@ -1100,7 +1094,7 @@ namespace Bicep.Core.TypeSystem
                             }
                         }
 
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
+                        return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
                     }
 
                 case DiscriminatedObjectType:
@@ -1112,7 +1106,7 @@ namespace Bicep.Core.TypeSystem
                         return LanguageConstants.Any;
                     }
 
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
 
                 case UnionType unionType:
                     {
@@ -1134,28 +1128,69 @@ namespace Bicep.Core.TypeSystem
 
                 default:
                     // base expression was of the wrong type
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType), diagnostics, syntax.SafeAccessMarker is not null);
             }
         }
 
-        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+        private static TypeSymbol InvalidAccessExpression(ErrorDiagnostic error, IDiagnosticWriter diagnostics, bool safeAccess)
+        {
+            if (safeAccess)
             {
-                var errors = new List<ErrorDiagnostic>();
+                diagnostics.Write(new Diagnostic(error.Span, DiagnosticLevel.Warning, error.Code, error.Message, error.Uri, error.Styling, error.Source));
+                return LanguageConstants.Null;
+            }
+            return ErrorType.Create(error);
+        }
 
-                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
-                CollectErrors(errors, baseType);
+        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-                if (PropagateErrorType(errors, baseType))
+        private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
+        {
+            Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
+
+            var baseType = typeManager.GetTypeInfo(chainedAccesses.Peek().BaseExpression);
+
+            var nullVariantRemoved = false;
+            AccessExpressionSyntax? prevAccess = null;
+            while (chainedAccesses.TryPop(out var nextAccess))
+            {
+                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
                 {
-                    return ErrorType.Create(errors);
+                    // if the first access definitely returns null, short-circuit the whole chain
+                    if (ReferenceEquals(baseType, LanguageConstants.Null))
+                    {
+                        return baseType;
+                    }
+
+                    // if the first access might return null, evaluate the rest of the chain as if it does not return null, the create a union of the result and null
+                    if (TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullable)
+                    {
+                        nullVariantRemoved = true;
+                        baseType = nonNullable;
+                    }
                 }
 
-                return GetNamedPropertyType(syntax, UnwrapType(baseType), diagnostics);
-            });
+                baseType = nextAccess switch
+                {
+                    ArrayAccessSyntax arrayAccess => GetArrayItemType(arrayAccess, diagnostics, baseType, typeManager.GetTypeInfo(arrayAccess.IndexExpression)),
+                    PropertyAccessSyntax propertyAccess => GetNamedPropertyType(propertyAccess, baseType, diagnostics),
+                    _ => throw new InvalidOperationException("Unrecognized access syntax"),
+                };
 
-        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => baseType switch
+                prevAccess = nextAccess;
+            }
+
+            return nullVariantRemoved
+                ? TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null)
+                : baseType;
+        }
+
+        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => UnwrapType(baseType) switch
         {
+            ErrorType error => error,
+            TypeSymbol withErrors when withErrors.GetDiagnostics().Any() => ErrorType.Create(withErrors.GetDiagnostics()),
+
             TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
             // the property is not valid
@@ -1169,15 +1204,15 @@ namespace Bicep.Core.TypeSystem
 
             // We can assign to an object, but we don't have a type for that object.
             // The best we can do is allow it and return the 'any' type.
-            TypeSymbol when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) => LanguageConstants.Any,
+            TypeSymbol maybeObject when TypeValidator.AreTypesAssignable(maybeObject, LanguageConstants.Object) => LanguageConstants.Any,
 
             // can only access properties of objects
-            _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType)),
+            TypeSymbol otherwise => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(otherwise)),
         };
 
         private static TypeSymbol EmitNullablePropertyAccessDiagnosticAndEraseNullability(PropertyAccessSyntax syntax, TypeSymbol originalBaseType, TypeSymbol nonNullableBaseType, IDiagnosticWriter diagnostics)
         {
-            diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax.BaseExpression));
+            diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax));
 
             return GetNamedPropertyType(syntax, nonNullableBaseType, diagnostics);
         }

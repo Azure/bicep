@@ -46,7 +46,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
-            
+
             var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
 
             try
@@ -71,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
             DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
-            TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#")
+            TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")
         };
     }
 }

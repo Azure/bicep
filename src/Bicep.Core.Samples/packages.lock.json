@@ -10,9 +10,9 @@
       },
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.9.0, )",
-        "resolved": "6.9.0",
-        "contentHash": "Z+alhbX6FreF+buZlOpP4jt93wofAdAzyUngcDNHYcuVsDUh/rjIB9WcqXctxffh4XZ3xUG/Ew4UgULSP/kUZg==",
+        "requested": "[6.10.0, )",
+        "resolved": "6.10.0",
+        "contentHash": "Da3YsiRDnOHKBfxutjnupL1rOX0K/jnG6crn5AgwukeqZ/yi+HNCOFshic01ke0ztZFWzpfQMXH8fO9aAbG0Gw==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -1110,11 +1110,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "tOS9FtA8fb/IAVjyaUc4+osF8IpK3i4dsOYJ4R2hoLyLS9D3qKR8nEVb/Y+nDQW5KEbTmLVpC6vEm2UnAZi/HQ==",
+        "resolved": "19.1.18",
+        "contentHash": "hqNsysHdkVD1siP6d+Xx/qIKa/BSvLM4QHYweHy205wYUGF+xC51Ldj7lc/TIRUSq5sUmfLDiktVr+J2It0aVA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.1.5",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.5"
+          "TestableIO.System.IO.Abstractions": "19.1.18",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.18"
         }
       },
       "System.IO.Abstractions.TestingHelpers": {
@@ -1943,8 +1943,8 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "jBsuhMdPQ51kbPrXbSPL8R38ARpTlxvUZNBo2XwelTu5XM0P3xEfjwjkTEfUx3EOHIkM1rEHi/Jg0sjt7hpekA=="
+        "resolved": "19.1.18",
+        "contentHash": "PzgSHBooAIogbixOXoCDcYQAPyWaUoK7vPd9fFSIVg3eiwsgEHYbMEbTrpCwM8FWc3hFF1L/cKsiR78XdVsQYg=="
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
@@ -1957,10 +1957,10 @@
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "hFJ3IYSMw9B6do5uYQSzlbvFVNFS7iS3H5nej8h/9QY468Z1rFWjgNK4aqInYO4Yvft1GpLnzcpsZbqX+TraeA==",
+        "resolved": "19.1.18",
+        "contentHash": "DR0h7LBPNH8mifrpFGXe0aSIJdOROWTarp06LfimrqbrqmZRsfdFaq5xgl5hN6cFKnXu8AYpixX10dP1IHFgnQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.1.5"
+          "TestableIO.System.IO.Abstractions": "19.1.18"
         }
       },
       "WindowsAzure.Storage": {
@@ -1991,7 +1991,7 @@
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.2, )",
           "System.Collections.Immutable": "[7.0.0, )",
-          "System.IO.Abstractions": "[19.1.5, )"
+          "System.IO.Abstractions": "[19.1.18, )"
         }
       },
       "Azure.Bicep.Decompiler": {
@@ -2014,7 +2014,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
           "DiffPlex": "[1.7.1, )",
-          "FluentAssertions": "[6.9.0, )",
+          "FluentAssertions": "[6.10.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest.TestAdapter": "[3.0.2, )",
           "MSTest.TestFramework": "[3.0.2, )",

@@ -27,7 +27,9 @@ export class ForceModulesRestoreCommand implements Command {
       // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
       // it won't be fixed in VS Code, so we need to handle it on our side.
       // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
-      vscode.window.showInformationMessage(
+
+      // Don't wait
+      void vscode.window.showInformationMessage(
         "We are unable to get restore modules in a Bicep file when the output panel is focused. Please focus a text editor first when running the command."
       );
 

@@ -489,6 +489,9 @@ namespace Bicep.LanguageServer.Completions
                         (propertyAccess, identifier, token) => ReferenceEquals(propertyAccess.PropertyName, identifier) && token.Type == TokenType.Identifier) ||
                     SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, Token>(
                         matchingNodes,
+                        (propertyAccess, token) => token.Type == TokenType.Question && ReferenceEquals(propertyAccess.SafeAccessMarker, token)) ||
+                    SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, Token>(
+                        matchingNodes,
                         (propertyAccess, token) => token.Type == TokenType.Dot && ReferenceEquals(propertyAccess.Dot, token)) ||
                     SyntaxMatcher.IsTailMatch<PropertyAccessSyntax>(
                         matchingNodes,

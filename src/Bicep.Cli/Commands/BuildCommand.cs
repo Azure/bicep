@@ -54,7 +54,7 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }
 
-            if (IsBicepFile(inputPath) || (features.ParamsFilesEnabled && IsBicepparamsFile(inputPath)))
+            if (IsBicepFile(inputPath))
             {
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
@@ -77,20 +77,11 @@ namespace Bicep.Cli.Commands
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
 
-            if(!features.ParamsFilesEnabled && IsBicepparamsFile(inputPath)) 
-            {
-                logger.LogError(CliResources.UnableToCompileParamsFile, inputPath, nameof(ExperimentalFeaturesEnabled.ParamsFiles));
-            }
-            else 
-            {
-                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
-            }
+            logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
 
             return 1;
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
-
-        private bool IsBicepparamsFile(string inputPath) => PathHelper.HasBicepparamsExension(PathHelper.FilePathToFileUrl(inputPath));
     }
 }

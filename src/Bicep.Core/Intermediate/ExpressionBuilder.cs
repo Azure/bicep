@@ -535,21 +535,47 @@ public class ExpressionBuilder
             }
         }
 
-        return new ArrayAccessExpression(
-            arrayAccess,
-            ConvertWithoutLowering(arrayAccess.BaseExpression),
-            ConvertWithoutLowering(arrayAccess.IndexExpression));
+        var convertedBase = ConvertWithoutLowering(arrayAccess.BaseExpression);
+        var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
+
+        // Looking for short-circuitable access chains
+        if (arrayAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
+        {
+            if (convertedBase is AccessExpression baseAccess)
+            {
+                return new AccessChainExpression(arrayAccess, baseAccess, ImmutableArray.Create(convertedIndex));
+            }
+
+            if (convertedBase is AccessChainExpression accessChain)
+            {
+                return new AccessChainExpression(arrayAccess, accessChain.FirstLink, accessChain.AdditionalProperties.Append(convertedIndex).ToImmutableArray());
+            }
+        }
+
+        return new ArrayAccessExpression(arrayAccess, convertedBase, convertedIndex, GetAccessExpressionFlags(arrayAccess, arrayAccess.SafeAccessMarker));
     }
 
-    private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName)
-        => ExpressionFactory.CreateResourcePropertyAccess(resource, indexContext, propertyName, sourceSyntax);
+    private bool IsAccessExpressionSyntax(SyntaxBase syntax) => syntax switch
+    {
+        AccessExpressionSyntax => true,
+
+        // type transformations with no runtime representation should be unwrapped and inspected
+        NonNullAssertionSyntax nonNullAssertion => IsAccessExpressionSyntax(nonNullAssertion.BaseExpression),
+
+        _ => false,
+    };
+
+    private Expression ConvertResourcePropertyAccess(PropertyAccessSyntax sourceSyntax, ResourceMetadata resource, IndexReplacementContext? indexContext, string propertyName, AccessExpressionFlags flags)
+        => ExpressionFactory.CreateResourcePropertyAccess(resource, indexContext, propertyName, sourceSyntax, flags);
 
     private Expression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
     {
+        var flags = GetAccessExpressionFlags(propertyAccess, propertyAccess.SafeAccessMarker);
+
         // Looking for: myResource.someProp (where myResource is a resource declared in-file)
         if (Context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
         {
-            return ConvertResourcePropertyAccess(propertyAccess, resource, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, resource, null, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myResource[blah].someProp (where myResource is a resource declared in-file)
@@ -557,13 +583,13 @@ public class ExpressionBuilder
             Context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is DeclaredResourceMetadata resourceCollection)
         {
             var indexContext = TryGetReplacementContext(resourceCollection, propArrayAccess.IndexExpression, propertyAccess);
-            return ConvertResourcePropertyAccess(propertyAccess, resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, resourceCollection, indexContext, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myResource.someProp (where myResource is a parameter of type resource)
         if (Context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ParameterResourceMetadata parameter)
         {
-            return ConvertResourcePropertyAccess(propertyAccess, parameter, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, parameter, null, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myMod.outputs.someProp (where someProp is an output of type resource)
@@ -571,7 +597,7 @@ public class ExpressionBuilder
             Context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleOutput &&
             !moduleOutput.Module.IsCollection)
         {
-            return ConvertResourcePropertyAccess(propertyAccess, moduleOutput, null, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, moduleOutput, null, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: myMod[blah].outputs.someProp (where someProp is an output of type resource)
@@ -582,7 +608,7 @@ public class ExpressionBuilder
             moduleCollectionOutputMetadata.Module.IsCollection)
         {
             var indexContext = TryGetReplacementContext(moduleCollectionOutputMetadata.NameSyntax, moduleArrayAccess.IndexExpression, propertyAccess);
-            return ConvertResourcePropertyAccess(propertyAccess, moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName);
+            return ConvertResourcePropertyAccess(propertyAccess, moduleCollectionOutputMetadata, indexContext, propertyAccess.PropertyName.IdentifierName, flags);
         }
 
         // Looking for: expr.outputs.blah (where expr is any expression of type module)
@@ -593,13 +619,33 @@ public class ExpressionBuilder
             return new ModuleOutputPropertyAccessExpression(
                 propertyAccess,
                 ConvertWithoutLowering(propertyAccess.BaseExpression),
-                propertyAccess.PropertyName.IdentifierName);
+                propertyAccess.PropertyName.IdentifierName,
+                flags);
+        }
+
+        var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
+
+        // Looking for short-circuitable access chains
+        if (propertyAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
+        {
+            Expression nextLink = new StringLiteralExpression(propertyAccess.PropertyName, propertyAccess.PropertyName.IdentifierName);
+
+            if (convertedBase is AccessExpression baseAccess)
+            {
+                return new AccessChainExpression(propertyAccess, baseAccess, ImmutableArray.Create(nextLink));
+            }
+
+            if (convertedBase is AccessChainExpression accessChain)
+            {
+                return new AccessChainExpression(propertyAccess, accessChain.FirstLink, accessChain.AdditionalProperties.Append(nextLink).ToImmutableArray());
+            }
         }
 
         return new PropertyAccessExpression(
             propertyAccess,
-            ConvertWithoutLowering(propertyAccess.BaseExpression),
-            propertyAccess.PropertyName.IdentifierName);
+            convertedBase,
+            propertyAccess.PropertyName.IdentifierName,
+            flags);
     }
 
     private Expression ConvertResourceAccess(ResourceAccessSyntax resourceAccessSyntax)
@@ -707,7 +753,7 @@ public class ExpressionBuilder
         // loop item variable should be replaced with <array expression>[<index expression>]
         var forExpression = ConvertWithoutLowering(@for.Expression);
 
-        return new ArrayAccessExpression(index.SourceSyntax, forExpression, index);
+        return new ArrayAccessExpression(index.SourceSyntax, forExpression, index, AccessExpressionFlags.None);
     }
 
     private Expression GetLoopVariable(LocalVariableSymbol localVariableSymbol, ForSyntax @for, Expression index)
@@ -1056,4 +1102,15 @@ public class ExpressionBuilder
             (1UL + long.MaxValue, true) => long.MinValue,
             _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),
         };
+
+    private static AccessExpressionFlags GetAccessExpressionFlags(SyntaxBase accessExpression, SyntaxBase? safeAccessMarker)
+    {
+        var flags = AccessExpressionFlags.None;
+        if (safeAccessMarker is not null)
+        {
+            flags |= AccessExpressionFlags.SafeAccess;
+        }
+
+        return flags;
+    }
 }
