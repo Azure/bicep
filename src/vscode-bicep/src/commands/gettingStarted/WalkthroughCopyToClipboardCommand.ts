@@ -42,6 +42,6 @@ export class WalkthroughCopyToClipboardCommand implements Command {
     context.telemetry.properties.step = step;
 
     const code = step === "params" ? paramsCode : resourcesCode;
-    vscode.env.clipboard.writeText(code);
+    await vscode.env.clipboard.writeText(code);
   }
 }

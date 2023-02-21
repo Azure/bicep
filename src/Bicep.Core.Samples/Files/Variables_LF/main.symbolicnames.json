@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5395482099151012215"
+      "templateHash": "408436272131712996"
     }
   },
   "parameters": {
@@ -148,8 +148,6 @@
     "namedPropertyIndexer": "[createObject('foo', 's').foo]",
     "intIndexer": "[createArray('s')[0]]",
     "functionOnIndexer1": "[concat(createArray('s')[0], 's')]",
-    "functionOnIndexer2": "[concat(createArray()[0], 's')]",
-    "functionOnIndexer3": "[concat(createArray()[0], 's')]",
     "singleQuote": "'",
     "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
     "previousEmitLimit": [

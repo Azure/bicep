@@ -270,7 +270,7 @@ namespace Bicep.Core.TypeSystem
             // basic assignability check
             if (AreTypesAssignable(expressionType, targetType) == false)
             {
-                if (TypeHelper.TryRemoveNullability(expressionType) is TypeSymbol nonNullableExpressionType && AreTypesAssignable(nonNullableExpressionType, targetType))
+                if (TypeHelper.WouldBeAssignableIfNonNullable(expressionType, targetType, out var nonNullableExpressionType))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).PossibleNullReferenceAssignment(targetType, expressionType.Type, expression));
                     return NarrowType(config, expression, nonNullableExpressionType, targetType);

@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure;
-using Azure.Containers.ContainerRegistry.Specialized;
-using Bicep.Core.Configuration;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Containers.ContainerRegistry.Specialized;
+using Bicep.Core.Configuration;
+using Bicep.Core.Modules;
+using Bicep.Core.Registry.Oci;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
 
 namespace Bicep.Core.Registry
@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, params StreamDescriptor[] layers)
+        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri = null, params StreamDescriptor[] layers)
         {
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
@@ -80,7 +80,21 @@ namespace Bicep.Core.Registry
                 var layerUploadResult = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-            var manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors);
+            OciManifest manifest;
+
+            if (string.IsNullOrWhiteSpace(documentationUri))
+            {
+                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors);
+            }
+            else
+            {
+                var annotations = new Dictionary<string, string>
+            {
+                { LanguageConstants.OciOpenContainerImageDocumentationAnnotation, documentationUri }
+            };
+                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, annotations);
+            }
+
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
 

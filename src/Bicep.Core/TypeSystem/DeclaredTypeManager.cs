@@ -111,14 +111,11 @@ namespace Bicep.Core.TypeSystem
                 case ForSyntax @for:
                     return GetForSyntaxType(@for);
 
-                case PropertyAccessSyntax propertyAccess:
-                    return GetPropertyAccessType(propertyAccess);
+                case AccessExpressionSyntax accessExpression:
+                    return GetAccessExpressionType(accessExpression);
 
                 case ResourceAccessSyntax resourceAccess:
                     return GetResourceAccessType(resourceAccess);
-
-                case ArrayAccessSyntax arrayAccess:
-                    return GetArrayAccessType(arrayAccess);
 
                 case LocalVariableSyntax localVariable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
@@ -802,21 +799,12 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment? GetPropertyAccessType(PropertyAccessSyntax syntax)
+        private DeclaredTypeAssignment? GetPropertyAccessType(DeclaredTypeAssignment baseExpressionAssignment, PropertyAccessSyntax syntax)
         {
             if (!syntax.PropertyName.IsValid)
             {
                 return null;
             }
-
-            if(syntax.BaseExpression is ForSyntax)
-            {
-                // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
-                // this leads to a stack overflow which we don't really want, so let's short circuit here.
-                return null;
-            }
-
-            var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
 
             // As a special case, a 'resource' parameter or output is a reference to an existing resource
             // we can't rely on it's syntax because it doesn't declare the resource body.
@@ -852,14 +840,8 @@ namespace Bicep.Core.TypeSystem
 
             return baseExpressionAssignment?.Reference switch
             {
-                DeferredTypeReference deferredType => new(
-                    new DeferredTypeReference(() => TypeHelper.TryRemoveNullability(deferredType.Type) ?? deferredType.Type),
-                    syntax,
-                    baseExpressionAssignment.Flags),
-                ITypeReference otherwise => new(
-                    TypeHelper.TryRemoveNullability(otherwise.Type) ?? otherwise.Type,
-                    syntax,
-                    baseExpressionAssignment.Flags),
+                DeferredTypeReference deferredType => new(new DeferredTypeReference(() => TypeHelper.TryRemoveNullability(deferredType.Type) ?? deferredType.Type), syntax, baseExpressionAssignment.Flags),
+                ITypeReference otherwise => new(TypeHelper.TryRemoveNullability(otherwise.Type) ?? otherwise.Type, syntax, baseExpressionAssignment.Flags),
                 null => null,
             };
         }
@@ -898,9 +880,8 @@ namespace Bicep.Core.TypeSystem
         }
 
 
-        private DeclaredTypeAssignment? GetArrayAccessType(ArrayAccessSyntax syntax)
+        private DeclaredTypeAssignment? GetArrayAccessType(DeclaredTypeAssignment baseExpressionAssignment, ArrayAccessSyntax syntax)
         {
-            var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
             var indexAssignedType = this.typeManager.GetTypeInfo(syntax.IndexExpression);
 
             static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
@@ -958,6 +939,58 @@ namespace Bicep.Core.TypeSystem
             }
 
             return null;
+        }
+
+        private DeclaredTypeAssignment? GetAccessExpressionType(AccessExpressionSyntax syntax)
+        {
+            Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
+            var baseAssignment = chainedAccesses.Peek() switch
+            {
+                PropertyAccessSyntax access when access.BaseExpression is ForSyntax
+                    // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
+                    // this leads to a stack overflow which we don't really want, so let's short circuit here.
+                    => null,
+                var otherwise => GetDeclaredTypeAssignment(otherwise.BaseExpression),
+            };
+
+            var nullVariantRemoved = false;
+            AccessExpressionSyntax? prevAccess = null;
+            while (chainedAccesses.TryPop(out var nextAccess))
+            {
+                if (baseAssignment is null)
+                {
+                    break;
+                }
+
+                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
+                {
+                    // if the first access definitely returns null, short-circuit the whole chain
+                    if (ReferenceEquals(baseAssignment.Reference.Type, LanguageConstants.Null))
+                    {
+                        return baseAssignment;
+                    }
+
+                    // if the first access might return null, evaluate the rest of the chain as if it does not return null, the create a union of the result and null
+                    if (TypeHelper.TryRemoveNullability(baseAssignment.Reference.Type) is TypeSymbol nonNullable)
+                    {
+                        nullVariantRemoved = true;
+                        baseAssignment = new(nonNullable, baseAssignment.DeclaringSyntax, baseAssignment.Flags);
+                    }
+                }
+
+                baseAssignment = nextAccess switch
+                {
+                    ArrayAccessSyntax arrayAccess => GetArrayAccessType(baseAssignment, arrayAccess),
+                    PropertyAccessSyntax propertyAccess => GetPropertyAccessType(baseAssignment, propertyAccess),
+                    _ => null,
+                };
+
+                prevAccess = nextAccess;
+            }
+
+            return nullVariantRemoved && baseAssignment is not null
+                ? new(TypeHelper.CreateTypeUnion(baseAssignment.Reference.Type, LanguageConstants.Null), baseAssignment.DeclaringSyntax, baseAssignment.Flags)
+                : baseAssignment;
         }
 
         private DeclaredTypeAssignment? GetArrayType(ArraySyntax syntax)

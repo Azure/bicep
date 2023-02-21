@@ -187,10 +187,10 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ModuleReference moduleReference, Stream compiled)
+        public async Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri)
         {
             var registry = this.GetRegistry(moduleReference);
-            await registry.PublishModule(moduleReference, compiled);
+            await registry.PublishModule(moduleReference, compiled, documentationUri);
         }
 
         public void PruneRestoreStatuses()

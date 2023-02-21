@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.CodeAction;
@@ -68,7 +69,7 @@ param oneOfSeveralStrings 'this one'|'that one'|'perhaps this one instead'
         var result = CompilationHelper.Compile(@"
 param nullableString string?
 ");
-        result.Should().ContainDiagnostic("BCP322", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.Should().ContainDiagnostic("BCP324", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
     }
 
     [TestMethod]
@@ -512,14 +513,32 @@ param foos (null | { bar: { baz: { quux: 'quux' } } })[]
 
 output quux string = foos[0]!.bar.baz.quux
 ";
+        var templateWithSafeDeref = @"
+param foos (null | { bar: { baz: { quux: 'quux' } } })[]
+
+output quux string = foos[0].?bar.baz.quux
+";
 
         var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithPossiblyNullDeref);
         result.Should().HaveDiagnostics(new []
         {
           ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
         });
+
         result.Diagnostics.Single().Should().BeAssignableTo<IFixable>();
-        result.Diagnostics.Single().As<IFixable>().Fixes.Single().Should().HaveResult(templateWithPossiblyNullDeref, templateWithNonNullAssertion);
+        var fixAlternatives = new HashSet<string> { templateWithNonNullAssertion, templateWithSafeDeref };
+        foreach (var fix in result.Diagnostics.Single().As<IFixable>().Fixes)
+        {
+            fix.Replacements.Should().HaveCount(1);
+            var replacement = fix.Replacements.Single();
+
+            var actualText = templateWithPossiblyNullDeref.Remove(replacement.Span.Position, replacement.Span.Length);
+            actualText = actualText.Insert(replacement.Span.Position, replacement.Text);
+
+            fixAlternatives.Remove(actualText);
+        }
+
+        fixAlternatives.Should().BeEmpty();
 
         result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithNonNullAssertion);
         result.Should().NotHaveAnyDiagnostics();
@@ -535,7 +554,53 @@ param myParam string? = 'foo'
 ");
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP324", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
+            ("BCP326", DiagnosticLevel.Error, "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden."),
         });
+    }
+
+    [TestMethod]
+    public void Tuples_with_a_literal_index_use_type_at_index()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+("main.bicep", @"
+var myArray = ['foo', 'bar']
+
+module mod './mod.bicep' = {
+  name: 'mod'
+  params: {
+    myParam: myArray[0]
+  }
+}
+"),
+("mod.bicep", @"
+param myParam 'foo'
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void Tuples_with_a_literal_union_index_use_type_at_indices()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+("main.bicep", @"
+param index 0 | 1
+
+var myArray = ['foo', 'bar', 'baz']
+
+module mod './mod.bicep' = {
+  name: 'mod'
+  params: {
+    myParam: myArray[index]
+  }
+}
+"),
+("mod.bicep", @"
+param myParam 'foo' | 'bar'
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
     }
 }

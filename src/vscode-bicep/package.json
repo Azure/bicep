@@ -34,7 +34,7 @@
     "theme": "light"
   },
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
-  "$activationEvents.comment": "When we start requiring VS Code 1.74.0 or higher, we can remove the onCommand and onLanguage activation events but will still need the onWebviewPanel event (see https://code.visualstudio.com/api/references/activation-events#onLanguage)",
+  "$activationEvents.comment": "When we start requiring VS Code 1.75.0 or higher, we can remove the onCommand and onLanguage activation events but will still need the onWebviewPanel event (see https://code.visualstudio.com/api/references/activation-events#onLanguage)",
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
@@ -94,6 +94,11 @@
           "items": {
             "type": "string"
           }
+        },
+        "bicep.enableSurveys": {
+          "type": "boolean",
+          "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
+          "default": true
         },
         "bicep.trace.server": {
           "type": "string",
@@ -216,8 +221,7 @@
         "command": "bicep.pasteAsBicep",
         "title": "Paste JSON as Bicep",
         "category": "Bicep",
-        "icon": "$(clippy)",
-        "enablement": "bicep.canPasteAsBicep"
+        "icon": "$(clippy)"
       },
       {
         "command": "bicep.createConfigFile",
@@ -598,27 +602,27 @@
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^18.11.18",
+    "@types/node": "^18.11.19",
     "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.10",
+    "@types/react-dom": "^18.0.11",
     "@types/react-test-renderer": "^18.0.0",
     "@types/semver": "^7.3.13",
     "@types/styled-components": "^5.1.26",
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.67.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.47.1",
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.48.2",
-    "@vscode/test-electron": "^2.2.1",
+    "@vscode/test-electron": "^2.2.3",
     "copy-webpack-plugin": "^11.0.0",
-    "esbuild-loader": "^2.21.0",
-    "eslint": "^8.32.0",
+    "esbuild-loader": "^3.0.0",
+    "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.1.7",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.0",
-    "fork-ts-checker-webpack-plugin": "^7.2.14",
+    "fork-ts-checker-webpack-plugin": "^7.3.0",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.1.1",
     "json-merger": "^1.1.9",
@@ -627,13 +631,13 @@
     "nerdbank-gitversioning": "^3.5.119",
     "prettier": "^2.8.3",
     "react-test-renderer": "^18.2.0",
-    "rimraf": "^4.1.1",
+    "rimraf": "^4.1.2",
     "semver": "^7.3.8",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.6",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.4",
+    "typescript": "^4.9.5",
     "vsce": "^2.15.0",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"
@@ -642,9 +646,9 @@
     "@azure/arm-managementgroups": "2.0.2",
     "@azure/arm-resources": "^5.1.0",
     "@azure/arm-subscriptions": "^5.1.0",
-    "@azure/identity": "^3.1.2",
+    "@azure/identity": "^3.1.3",
     "@microsoft/vscode-azext-azureutils": "^0.3.7",
-    "@microsoft/vscode-azext-utils": "^0.3.24",
+    "@microsoft/vscode-azext-utils": "^0.4.5",
     "cytoscape": "^3.23.0",
     "cytoscape-elk": "^2.1.0",
     "fs-extra": "^11.1.0",
@@ -653,7 +657,7 @@
     "react-icons": "^4.7.1",
     "styled-components": "^5.3.6",
     "triple-beam": "^1.3.0",
-    "vscode-languageclient": "^8.0.2",
+    "vscode-languageclient": "^8.1.0",
     "winston": "^3.8.2",
     "winston-transport": "^4.5.0"
   },

@@ -145,15 +145,6 @@ var functionOnIndexer1 = concat([
   's'
 ][0], 's')
 
-var functionOnIndexer2 = concat([
-//@[04:22) [no-unused-vars (Warning)] Variable "functionOnIndexer2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |functionOnIndexer2|
-//@[25:44) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat([\n][0], 's')|
-][0], 's')
-
-var functionOnIndexer3 = concat([
-//@[04:22) [no-unused-vars (Warning)] Variable "functionOnIndexer3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |functionOnIndexer3|
-][0], any('s'))
-
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
 //@[04:18) [no-unused-vars (Warning)] Variable "myPropertyName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myPropertyName|

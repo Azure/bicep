@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using Azure.Deployments.Expression.Extensions;
@@ -345,6 +346,25 @@ namespace Bicep.Core.TypeSystem
                 sansNull.Length < union.Members.Length => CreateTypeUnion(sansNull),
             _ => null,
         };
+
+        /// <summary>
+        /// Determines if the provided candidate type would be assignable to the provided expected type if the former were stripped of its nullability.
+        /// </summary>
+        /// <remarks>
+        /// This function will return <code>false</code> if the provided candidate type is not nullable, even if it would be assignable to the provided expected
+        /// type without modification.
+        /// </remarks>
+        public static bool WouldBeAssignableIfNonNullable(TypeSymbol candidateType, TypeSymbol expectedType, [NotNullWhen(true)] out TypeSymbol? nonNullableCandidateType)
+        {
+            if (TryRemoveNullability(candidateType) is TypeSymbol nonNullable && TypeValidator.AreTypesAssignable(nonNullable, expectedType))
+            {
+                nonNullableCandidateType = nonNullable;
+                return true;
+            }
+
+            nonNullableCandidateType = null;
+            return false;
+        }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {

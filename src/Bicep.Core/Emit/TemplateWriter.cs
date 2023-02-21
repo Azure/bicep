@@ -397,13 +397,12 @@ namespace Bicep.Core.Emit
         private ObjectExpression GetTypePropertiesForTupleType(TupleTypeSyntax syntax) => ExpressionFactory.CreateObject(new[]
         {
             TypeProperty(LanguageConstants.ArrayType),
-            // TODO uncomment the lines below when ARM w46 has finished rolling out
-            // SyntaxFactory.CreateObjectProperty("prefixItems",
-            //     SyntaxFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
-            //         item,
-            //         TypePropertiesForTypeExpression(item.Value),
-            //         Context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
-            // SyntaxFactory.CreateObjectProperty("items", SyntaxFactory.CreateBooleanLiteral(false)),
+            ExpressionFactory.CreateObjectProperty("prefixItems",
+                ExpressionFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
+                    item,
+                    TypePropertiesForTypeExpression(item.Value),
+                    Context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
+            ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false)),
         });
 
         private ObjectExpression GetTypePropertiesForStringSyntax(StringSyntax syntax) => ExpressionFactory.CreateObject(new[]
@@ -512,7 +511,7 @@ namespace Bicep.Core.Emit
                 foreach (var variable in nonLoopVariables)
                 {
                     emitter.EmitProperty(variable.Name, variable.Value);
-                }                
+                }
             });
         }
 
@@ -528,7 +527,7 @@ namespace Bicep.Core.Emit
                 {
                     var settings = import.NamespaceType.Settings;
 
-                    emitter.EmitObjectProperty(import.Name, () => 
+                    emitter.EmitObjectProperty(import.Name, () =>
                     {
                         emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
@@ -695,7 +694,7 @@ namespace Bicep.Core.Emit
                     {
                         // This is a resource being passed into a module, we actually want to pass in its id
                         // rather than the whole resource.
-                        var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id");
+                        var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id", AccessExpressionFlags.None);
                         emitter.EmitProperty(keyName, ExpressionEmitter.ConvertModuleParameter(idExpression));
                     }
                     else
@@ -742,7 +741,8 @@ namespace Bicep.Core.Emit
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
                             new FunctionCallExpression(null, "resourceGroup", ImmutableArray<Expression>.Empty),
-                            "location"));
+                            "location",
+                            AccessExpressionFlags.None));
                     }
                     else
                     {
@@ -750,11 +750,12 @@ namespace Bicep.Core.Emit
                         emitter.EmitProperty("location", new PropertyAccessExpression(
                             null,
                             new FunctionCallExpression(null, "deployment", ImmutableArray<Expression>.Empty),
-                            "location"));
+                            "location",
+                            AccessExpressionFlags.None));
                     }
                 }
 
-                emitter.EmitObjectProperty("properties", () => 
+                emitter.EmitObjectProperty("properties", () =>
                 {
                     emitter.EmitObjectProperty("expressionEvaluationOptions", () =>
                     {
@@ -943,7 +944,7 @@ namespace Bicep.Core.Emit
                 else if (output.Symbol.Type is ResourceType)
                 {
                     // Resource-typed outputs are serialized using the resource id.
-                    var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id");
+                    var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id", AccessExpressionFlags.None);
 
                     emitter.EmitProperty("value", value);
                 }

@@ -1,30 +1,45 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
+        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IModuleRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
 
         private const int MaxHoverMarkdownCodeBlockLength = 90000;
         //actual limit for hover in VS code is 100,000 characters.
 
-        public BicepHoverHandler(ISymbolResolver symbolResolver)
+        public BicepHoverHandler(
+            IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider,
+            ISymbolResolver symbolResolver)
         {
+            this.moduleDispatcher = moduleDispatcher;
+            this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
         }
 
@@ -36,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<Hover?>(null);
             }
 
-            var markdown = GetMarkdown(request, result);
+            var markdown = GetMarkdown(request, result, this.moduleDispatcher, this.moduleRegistryProvider);
             if (markdown == null)
             {
                 return Task.FromResult<Hover?>(null);
@@ -60,7 +75,11 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent? GetMarkdown(HoverParams request, SymbolResolutionResult result)
+        private static MarkedStringsOrMarkupContent? GetMarkdown(
+            HoverParams request,
+            SymbolResolutionResult result,
+            IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
@@ -99,8 +118,28 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
+
                     if (filePath != null)
                     {
+                        var uri = request.TextDocument.Uri.ToUri();
+                        var registries = moduleRegistryProvider.Registries(uri);
+
+                        if (registries != null &&
+                            registries.Any() &&
+                            moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                            moduleReference is not null)
+                        {
+                            foreach (var registry in registries)
+                            {
+                                if (registry.Scheme == moduleReference.Scheme &&
+                                    registry.GetDocumentationUri(moduleReference) is string documentationUri &&
+                                    !string.IsNullOrWhiteSpace(documentationUri))
+                                {
+                                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUri)})"));
+                                }
+                            }
+                        }
+
                         return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
                     }
 

@@ -241,19 +241,20 @@ var testJsonInt = testJson.int
 //@[18:0026) |   └─VariableReferenceExpression { Variable = testJson }
 var testJsonArrayVal = testJson.array[0]
 //@[00:0040) ├─DeclaredVariableExpression { Name = testJsonArrayVal }
-//@[23:0040) | └─ArrayAccessExpression
-//@[38:0039) |   ├─IntegerLiteralExpression { Value = 0 }
-//@[23:0037) |   └─PropertyAccessExpression { PropertyName = array }
-//@[23:0031) |     └─VariableReferenceExpression { Variable = testJson }
+//@[23:0040) | └─AccessChainExpression
+//@[23:0037) |   ├─PropertyAccessExpression { PropertyName = array }
+//@[23:0031) |   | └─VariableReferenceExpression { Variable = testJson }
+//@[38:0039) |   └─IntegerLiteralExpression { Value = 0 }
 var testJsonObject = testJson.object
 //@[00:0036) ├─DeclaredVariableExpression { Name = testJsonObject }
 //@[21:0036) | └─PropertyAccessExpression { PropertyName = object }
 //@[21:0029) |   └─VariableReferenceExpression { Variable = testJson }
 var testJsonNestedString = testJson.object.nestedString
 //@[00:0055) ├─DeclaredVariableExpression { Name = testJsonNestedString }
-//@[27:0055) | └─PropertyAccessExpression { PropertyName = nestedString }
-//@[27:0042) |   └─PropertyAccessExpression { PropertyName = object }
-//@[27:0035) |     └─VariableReferenceExpression { Variable = testJson }
+//@[27:0055) | └─AccessChainExpression
+//@[27:0042) |   ├─PropertyAccessExpression { PropertyName = object }
+//@[27:0035) |   | └─VariableReferenceExpression { Variable = testJson }
+//@[43:0055) |   └─StringLiteralExpression { Value = nestedString }
 
 var testJson2 = loadJsonContent('./Assets/test.json.txt')
 //@[16:0057) ├─DeclaredVariableExpression { Name = $fxv#16 }
@@ -277,10 +278,10 @@ var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
 //@[21:0070) | └─SynthesizedVariableReferenceExpression { Name = $fxv#18 }
 var testJsonArrayVal2 = testJson.array[0]
 //@[00:0041) ├─DeclaredVariableExpression { Name = testJsonArrayVal2 }
-//@[24:0041) | └─ArrayAccessExpression
-//@[39:0040) |   ├─IntegerLiteralExpression { Value = 0 }
-//@[24:0038) |   └─PropertyAccessExpression { PropertyName = array }
-//@[24:0032) |     └─VariableReferenceExpression { Variable = testJson }
+//@[24:0041) | └─AccessChainExpression
+//@[24:0038) |   ├─PropertyAccessExpression { PropertyName = array }
+//@[24:0032) |   | └─VariableReferenceExpression { Variable = testJson }
+//@[39:0040) |   └─IntegerLiteralExpression { Value = 0 }
 var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
 //@[26:0080) ├─DeclaredVariableExpression { Name = $fxv#19 }
 //@[00:0080) ├─DeclaredVariableExpression { Name = testJsonArrayVal2_1 }
@@ -295,9 +296,10 @@ var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
 //@[24:0076) | └─SynthesizedVariableReferenceExpression { Name = $fxv#20 }
 var testJsonNestedString2 = testJson.object.nestedString
 //@[00:0056) ├─DeclaredVariableExpression { Name = testJsonNestedString2 }
-//@[28:0056) | └─PropertyAccessExpression { PropertyName = nestedString }
-//@[28:0043) |   └─PropertyAccessExpression { PropertyName = object }
-//@[28:0036) |     └─VariableReferenceExpression { Variable = testJson }
+//@[28:0056) | └─AccessChainExpression
+//@[28:0043) |   ├─PropertyAccessExpression { PropertyName = object }
+//@[28:0036) |   | └─VariableReferenceExpression { Variable = testJson }
+//@[44:0056) |   └─StringLiteralExpression { Value = nestedString }
 var testJsonNestedString2_1 = testJsonObject2_1.nestedString
 //@[00:0060) ├─DeclaredVariableExpression { Name = testJsonNestedString2_1 }
 //@[30:0060) | └─PropertyAccessExpression { PropertyName = nestedString }

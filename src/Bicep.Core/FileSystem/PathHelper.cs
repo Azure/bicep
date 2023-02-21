@@ -182,5 +182,12 @@ namespace Bicep.Core.FileSystem
 
         private static string NormalizeExtension(string extension) =>
             extension.StartsWith(".") ? extension : $".{extension}";
+
+        public static bool IsSubPathOf(Uri parent, Uri child)
+        {
+            var parentPath = parent.AbsolutePath.EndsWith('/') ? parent.AbsolutePath : $"{parent.AbsolutePath}/";
+
+            return child.AbsolutePath.StartsWith(parentPath);
+        }
     }
 }

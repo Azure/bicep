@@ -12,9 +12,6 @@
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceRoot}/out/src/**/*.js"
-      ],
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
         "BICEP_TRACING_ENABLED": "true",
@@ -33,9 +30,6 @@
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceRoot}/out/src/**/*.js"
-      ],
       "preLaunchTask": "build:prod",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll"
@@ -51,9 +45,6 @@
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceRoot}/out/src/**/*.js"
-      ],
       "preLaunchTask": "watch",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll"
@@ -67,9 +58,6 @@
         "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
-      ],
-      "outFiles": [
-        "${workspaceRoot}/out/test/e2e/**/*.js"
       ],
       "preLaunchTask": "build:e2e",
       "env": {
@@ -86,9 +74,6 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
       ],
-      "outFiles": [
-        "${workspaceRoot}/out/test/e2e/**/*.js"
-      ],
       "preLaunchTask": "build:e2e:dev",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
@@ -103,6 +88,7 @@
       "args": [
         "--config",
         "jest.config.unit.js",
+        "--testTimeout=600000",
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
@@ -119,7 +105,8 @@
         "${fileBasenameNoExtension}",
         "--config",
         "jest.config.unit.js",
-        "--coverage=false"
+        "--coverage=false",
+        "--testTimeout=600000",
       ],
       "console": "integratedTerminal",
       "windows": {

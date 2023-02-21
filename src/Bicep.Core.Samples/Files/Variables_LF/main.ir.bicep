@@ -1,5 +1,5 @@
 
-//@[000:7513) ProgramExpression
+//@[000:7416) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
@@ -255,22 +255,25 @@ var deploymentName = deployment().name
 //@[021:0033) |   └─FunctionCallExpression { Name = deployment }
 var templateContentVersion = deployment().properties.template.contentVersion
 //@[000:0076) ├─DeclaredVariableExpression { Name = templateContentVersion }
-//@[029:0076) | └─PropertyAccessExpression { PropertyName = contentVersion }
-//@[029:0061) |   └─PropertyAccessExpression { PropertyName = template }
-//@[029:0052) |     └─PropertyAccessExpression { PropertyName = properties }
-//@[029:0041) |       └─FunctionCallExpression { Name = deployment }
+//@[029:0076) | └─AccessChainExpression
+//@[029:0052) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[029:0041) |   | └─FunctionCallExpression { Name = deployment }
+//@[053:0061) |   ├─StringLiteralExpression { Value = template }
+//@[062:0076) |   └─StringLiteralExpression { Value = contentVersion }
 var templateLinkUri = deployment().properties.templateLink.uri
 //@[000:0062) ├─DeclaredVariableExpression { Name = templateLinkUri }
-//@[022:0062) | └─PropertyAccessExpression { PropertyName = uri }
-//@[022:0058) |   └─PropertyAccessExpression { PropertyName = templateLink }
-//@[022:0045) |     └─PropertyAccessExpression { PropertyName = properties }
-//@[022:0034) |       └─FunctionCallExpression { Name = deployment }
+//@[022:0062) | └─AccessChainExpression
+//@[022:0045) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[022:0034) |   | └─FunctionCallExpression { Name = deployment }
+//@[046:0058) |   ├─StringLiteralExpression { Value = templateLink }
+//@[059:0062) |   └─StringLiteralExpression { Value = uri }
 var templateLinkId = deployment().properties.templateLink.id
 //@[000:0060) ├─DeclaredVariableExpression { Name = templateLinkId }
-//@[021:0060) | └─PropertyAccessExpression { PropertyName = id }
-//@[021:0057) |   └─PropertyAccessExpression { PropertyName = templateLink }
-//@[021:0044) |     └─PropertyAccessExpression { PropertyName = properties }
-//@[021:0033) |       └─FunctionCallExpression { Name = deployment }
+//@[021:0060) | └─AccessChainExpression
+//@[021:0044) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[021:0033) |   | └─FunctionCallExpression { Name = deployment }
+//@[045:0057) |   ├─StringLiteralExpression { Value = templateLink }
+//@[058:0060) |   └─StringLiteralExpression { Value = id }
 
 var portalEndpoint = environment().portal
 //@[000:0041) ├─DeclaredVariableExpression { Name = portalEndpoint }
@@ -278,9 +281,10 @@ var portalEndpoint = environment().portal
 //@[021:0034) |   └─FunctionCallExpression { Name = environment }
 var loginEndpoint = environment().authentication.loginEndpoint
 //@[000:0062) ├─DeclaredVariableExpression { Name = loginEndpoint }
-//@[020:0062) | └─PropertyAccessExpression { PropertyName = loginEndpoint }
-//@[020:0048) |   └─PropertyAccessExpression { PropertyName = authentication }
-//@[020:0033) |     └─FunctionCallExpression { Name = environment }
+//@[020:0062) | └─AccessChainExpression
+//@[020:0048) |   ├─PropertyAccessExpression { PropertyName = authentication }
+//@[020:0033) |   | └─FunctionCallExpression { Name = environment }
+//@[049:0062) |   └─StringLiteralExpression { Value = loginEndpoint }
 
 var namedPropertyIndexer = {
 //@[000:0048) ├─DeclaredVariableExpression { Name = namedPropertyIndexer }
@@ -311,24 +315,6 @@ var functionOnIndexer1 = concat([
 ][0], 's')
 //@[002:0003) |   | ├─IntegerLiteralExpression { Value = 0 }
 //@[006:0009) |   └─StringLiteralExpression { Value = s }
-
-var functionOnIndexer2 = concat([
-//@[000:0044) ├─DeclaredVariableExpression { Name = functionOnIndexer2 }
-//@[025:0044) | └─FunctionCallExpression { Name = concat }
-//@[032:0038) |   ├─ArrayAccessExpression
-//@[032:0035) |   | └─ArrayExpression
-][0], 's')
-//@[002:0003) |   | ├─IntegerLiteralExpression { Value = 0 }
-//@[006:0009) |   └─StringLiteralExpression { Value = s }
-
-var functionOnIndexer3 = concat([
-//@[000:0049) ├─DeclaredVariableExpression { Name = functionOnIndexer3 }
-//@[025:0049) | └─FunctionCallExpression { Name = concat }
-//@[032:0038) |   ├─ArrayAccessExpression
-//@[032:0035) |   | └─ArrayExpression
-][0], any('s'))
-//@[002:0003) |   | ├─IntegerLiteralExpression { Value = 0 }
-//@[010:0013) |   └─StringLiteralExpression { Value = s }
 
 var singleQuote = '\''
 //@[000:0022) ├─DeclaredVariableExpression { Name = singleQuote }

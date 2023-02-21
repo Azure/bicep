@@ -74,6 +74,12 @@ public static class ArmFunctionReturnTypeEvaluator
 
     private static JToken? ToJToken(ObjectType objectType)
     {
+        // If an object allows additional properties (and is not the implicit fallback of an unsealed type), then it cannot be cast to a literal
+        if (objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+        {
+            return null;
+        }
+
         var target = new JObject();
         foreach (var (key, property) in objectType.Properties)
         {

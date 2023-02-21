@@ -8,4 +8,5 @@ export const bicepConfigurationPrefix = "bicep";
 export const bicepConfigurationKeys = {
   decompileOnPaste: "experimental.decompileOnPaste",
   experimentalEnablePasteOnBicep: "experimental.enablePasteAsBicep",
+  enableSurveys: "enableSurveys",
 };

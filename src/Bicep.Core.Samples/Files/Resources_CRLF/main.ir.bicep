@@ -377,20 +377,20 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 var _siteApiVersion = site.apiVersion
 //@[000:00037) ├─DeclaredVariableExpression { Name = _siteApiVersion }
 //@[022:00037) | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[022:00037) |   └─ResourceReferenceExpression
+//@[022:00026) |   └─ResourceReferenceExpression
 var _siteType = site.type
 //@[000:00025) ├─DeclaredVariableExpression { Name = _siteType }
 //@[016:00025) | └─PropertyAccessExpression { PropertyName = type }
-//@[016:00025) |   └─ResourceReferenceExpression
+//@[016:00020) |   └─ResourceReferenceExpression
 
 output siteApiVersion string = site.apiVersion
 //@[000:00046) ├─DeclaredOutputExpression { Name = siteApiVersion }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[031:00046) |   └─ResourceReferenceExpression
+//@[031:00035) |   └─ResourceReferenceExpression
 output siteType string = site.type
 //@[000:00034) ├─DeclaredOutputExpression { Name = siteType }
 //@[025:00034) | └─PropertyAccessExpression { PropertyName = type }
-//@[025:00034) |   └─ResourceReferenceExpression
+//@[025:00029) |   └─ResourceReferenceExpression
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[000:00354) ├─DeclaredResourceExpression
@@ -439,29 +439,30 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[004:00022) | |     ├─ObjectPropertyExpression
 //@[004:00011) | |     | ├─StringLiteralExpression { Value = otherId }
 //@[013:00022) | |     | └─PropertyAccessExpression { PropertyName = id }
-//@[013:00022) | |     |   └─ResourceReferenceExpression
+//@[013:00019) | |     |   └─ResourceReferenceExpression
     otherName: nested.name
 //@[004:00026) | |     ├─ObjectPropertyExpression
 //@[004:00013) | |     | ├─StringLiteralExpression { Value = otherName }
 //@[015:00026) | |     | └─PropertyAccessExpression { PropertyName = name }
-//@[015:00026) | |     |   └─ResourceReferenceExpression
+//@[015:00021) | |     |   └─ResourceReferenceExpression
     otherVersion: nested.apiVersion
 //@[004:00035) | |     ├─ObjectPropertyExpression
 //@[004:00016) | |     | ├─StringLiteralExpression { Value = otherVersion }
 //@[018:00035) | |     | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[018:00035) | |     |   └─ResourceReferenceExpression
+//@[018:00024) | |     |   └─ResourceReferenceExpression
     otherType: nested.type
 //@[004:00026) | |     ├─ObjectPropertyExpression
 //@[004:00013) | |     | ├─StringLiteralExpression { Value = otherType }
 //@[015:00026) | |     | └─PropertyAccessExpression { PropertyName = type }
-//@[015:00026) | |     |   └─ResourceReferenceExpression
+//@[015:00021) | |     |   └─ResourceReferenceExpression
 
     otherThings: nested.properties.mode
 //@[004:00039) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = otherThings }
-//@[017:00039) | |       └─PropertyAccessExpression { PropertyName = mode }
-//@[017:00034) | |         └─PropertyAccessExpression { PropertyName = properties }
-//@[017:00034) | |           └─ResourceReferenceExpression
+//@[017:00039) | |       └─AccessChainExpression
+//@[017:00034) | |         ├─PropertyAccessExpression { PropertyName = properties }
+//@[017:00023) | |         | └─ResourceReferenceExpression
+//@[035:00039) | |         └─StringLiteralExpression { Value = mode }
   }
 }
 
@@ -489,27 +490,27 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[004:00021) | |     ├─ObjectPropertyExpression
 //@[004:00007) | |     | ├─StringLiteralExpression { Value = aId }
 //@[009:00021) | |     | └─PropertyAccessExpression { PropertyName = id }
-//@[009:00021) | |     |   └─ResourceReferenceExpression
+//@[009:00018) | |     |   └─ResourceReferenceExpression
     aType: resourceA.type
 //@[004:00025) | |     ├─ObjectPropertyExpression
 //@[004:00009) | |     | ├─StringLiteralExpression { Value = aType }
 //@[011:00025) | |     | └─PropertyAccessExpression { PropertyName = type }
-//@[011:00025) | |     |   └─ResourceReferenceExpression
+//@[011:00020) | |     |   └─ResourceReferenceExpression
     aName: resourceA.name
 //@[004:00025) | |     ├─ObjectPropertyExpression
 //@[004:00009) | |     | ├─StringLiteralExpression { Value = aName }
 //@[011:00025) | |     | └─PropertyAccessExpression { PropertyName = name }
-//@[011:00025) | |     |   └─ResourceReferenceExpression
+//@[011:00020) | |     |   └─ResourceReferenceExpression
     aApiVersion: resourceA.apiVersion
 //@[004:00037) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = aApiVersion }
 //@[017:00037) | |     | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[017:00037) | |     |   └─ResourceReferenceExpression
+//@[017:00026) | |     |   └─ResourceReferenceExpression
     bProperties: resourceB.properties
 //@[004:00037) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = bProperties }
 //@[017:00037) | |       └─PropertyAccessExpression { PropertyName = properties }
-//@[017:00037) | |         └─ResourceReferenceExpression
+//@[017:00026) | |         └─ResourceReferenceExpression
   }
 }
 
@@ -519,27 +520,27 @@ var varARuntime = {
 //@[002:00019) | |     |     ├─ObjectPropertyExpression
 //@[002:00005) | |     |     | ├─StringLiteralExpression { Value = bId }
 //@[007:00019) | |     |     | └─PropertyAccessExpression { PropertyName = id }
-//@[007:00019) | |     |     |   └─ResourceReferenceExpression
+//@[007:00016) | |     |     |   └─ResourceReferenceExpression
   bType: resourceB.type
 //@[002:00023) | |     |     ├─ObjectPropertyExpression
 //@[002:00007) | |     |     | ├─StringLiteralExpression { Value = bType }
 //@[009:00023) | |     |     | └─PropertyAccessExpression { PropertyName = type }
-//@[009:00023) | |     |     |   └─ResourceReferenceExpression
+//@[009:00018) | |     |     |   └─ResourceReferenceExpression
   bName: resourceB.name
 //@[002:00023) | |     |     ├─ObjectPropertyExpression
 //@[002:00007) | |     |     | ├─StringLiteralExpression { Value = bName }
 //@[009:00023) | |     |     | └─PropertyAccessExpression { PropertyName = name }
-//@[009:00023) | |     |     |   └─ResourceReferenceExpression
+//@[009:00018) | |     |     |   └─ResourceReferenceExpression
   bApiVersion: resourceB.apiVersion
 //@[002:00035) | |     |     ├─ObjectPropertyExpression
 //@[002:00013) | |     |     | ├─StringLiteralExpression { Value = bApiVersion }
 //@[015:00035) | |     |     | └─PropertyAccessExpression { PropertyName = apiVersion }
-//@[015:00035) | |     |     |   └─ResourceReferenceExpression
+//@[015:00024) | |     |     |   └─ResourceReferenceExpression
   aKind: resourceA.kind
 //@[002:00023) | |     |     └─ObjectPropertyExpression
 //@[002:00007) | |     |       ├─StringLiteralExpression { Value = aKind }
 //@[009:00023) | |     |       └─PropertyAccessExpression { PropertyName = kind }
-//@[009:00023) | |     |         └─ResourceReferenceExpression
+//@[009:00018) | |     |         └─ResourceReferenceExpression
 }
 
 var varBRuntime = [
@@ -554,7 +555,7 @@ var resourceCRef = {
 //@[002:00018) |   └─ObjectPropertyExpression
 //@[002:00004) |     ├─StringLiteralExpression { Value = id }
 //@[006:00018) |     └─PropertyAccessExpression { PropertyName = id }
-//@[006:00018) |       └─ResourceReferenceExpression
+//@[006:00015) |       └─ResourceReferenceExpression
 }
 var setResourceCRef = true
 //@[000:00026) ├─DeclaredVariableExpression { Name = setResourceCRef }
@@ -690,35 +691,38 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 //@[004:00028) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res1 }
 //@[010:00028) | |     | └─PropertyAccessExpression { PropertyName = id }
-//@[010:00028) | |     |   └─ResourceReferenceExpression
+//@[010:00025) | |     |   └─ResourceReferenceExpression
     res1runtime: vmWithCondition.properties.something
 //@[004:00053) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = res1runtime }
-//@[017:00053) | |     | └─PropertyAccessExpression { PropertyName = something }
-//@[017:00043) | |     |   └─PropertyAccessExpression { PropertyName = properties }
-//@[017:00043) | |     |     └─ResourceReferenceExpression
+//@[017:00053) | |     | └─AccessChainExpression
+//@[017:00043) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[017:00032) | |     |   | └─ResourceReferenceExpression
+//@[044:00053) | |     |   └─StringLiteralExpression { Value = something }
     res2: extension1.id
 //@[004:00023) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res2 }
 //@[010:00023) | |     | └─PropertyAccessExpression { PropertyName = id }
-//@[010:00023) | |     |   └─ResourceReferenceExpression
+//@[010:00020) | |     |   └─ResourceReferenceExpression
     res2runtime: extension1.properties.something
 //@[004:00048) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = res2runtime }
-//@[017:00048) | |     | └─PropertyAccessExpression { PropertyName = something }
-//@[017:00038) | |     |   └─PropertyAccessExpression { PropertyName = properties }
-//@[017:00038) | |     |     └─ResourceReferenceExpression
+//@[017:00048) | |     | └─AccessChainExpression
+//@[017:00038) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[017:00027) | |     |   | └─ResourceReferenceExpression
+//@[039:00048) | |     |   └─StringLiteralExpression { Value = something }
     res3: extension2.id
 //@[004:00023) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res3 }
 //@[010:00023) | |     | └─PropertyAccessExpression { PropertyName = id }
-//@[010:00023) | |     |   └─ResourceReferenceExpression
+//@[010:00020) | |     |   └─ResourceReferenceExpression
     res3runtime: extension2.properties.something
 //@[004:00048) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = res3runtime }
-//@[017:00048) | |       └─PropertyAccessExpression { PropertyName = something }
-//@[017:00038) | |         └─PropertyAccessExpression { PropertyName = properties }
-//@[017:00038) | |           └─ResourceReferenceExpression
+//@[017:00048) | |       └─AccessChainExpression
+//@[017:00038) | |         ├─PropertyAccessExpression { PropertyName = properties }
+//@[017:00027) | |         | └─ResourceReferenceExpression
+//@[039:00048) | |         └─StringLiteralExpression { Value = something }
   }
 }
 
@@ -1131,21 +1135,22 @@ resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 
 output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[000:00068) ├─DeclaredOutputExpression { Name = p1_subnet1prefix }
-//@[033:00068) | └─PropertyAccessExpression { PropertyName = addressPrefix }
-//@[033:00054) |   └─PropertyAccessExpression { PropertyName = properties }
-//@[033:00054) |     └─ResourceReferenceExpression
+//@[033:00068) | └─AccessChainExpression
+//@[033:00054) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[033:00043) |   | └─ResourceReferenceExpression
+//@[055:00068) |   └─StringLiteralExpression { Value = addressPrefix }
 output p1_subnet1name string = p1_subnet1.name
 //@[000:00046) ├─DeclaredOutputExpression { Name = p1_subnet1name }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = name }
-//@[031:00046) |   └─ResourceReferenceExpression
+//@[031:00041) |   └─ResourceReferenceExpression
 output p1_subnet1type string = p1_subnet1.type
 //@[000:00046) ├─DeclaredOutputExpression { Name = p1_subnet1type }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = type }
-//@[031:00046) |   └─ResourceReferenceExpression
+//@[031:00041) |   └─ResourceReferenceExpression
 output p1_subnet1id string = p1_subnet1.id
 //@[000:00042) ├─DeclaredOutputExpression { Name = p1_subnet1id }
 //@[029:00042) | └─PropertyAccessExpression { PropertyName = id }
-//@[029:00042) |   └─ResourceReferenceExpression
+//@[029:00039) |   └─ResourceReferenceExpression
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
@@ -1177,21 +1182,22 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 
 output p2_res2childprop string = p2_res2child.properties.someProp
 //@[000:00065) ├─DeclaredOutputExpression { Name = p2_res2childprop }
-//@[033:00065) | └─PropertyAccessExpression { PropertyName = someProp }
-//@[033:00056) |   └─PropertyAccessExpression { PropertyName = properties }
-//@[033:00056) |     └─ResourceReferenceExpression
+//@[033:00065) | └─AccessChainExpression
+//@[033:00056) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[033:00045) |   | └─ResourceReferenceExpression
+//@[057:00065) |   └─StringLiteralExpression { Value = someProp }
 output p2_res2childname string = p2_res2child.name
 //@[000:00050) ├─DeclaredOutputExpression { Name = p2_res2childname }
 //@[033:00050) | └─PropertyAccessExpression { PropertyName = name }
-//@[033:00050) |   └─ResourceReferenceExpression
+//@[033:00045) |   └─ResourceReferenceExpression
 output p2_res2childtype string = p2_res2child.type
 //@[000:00050) ├─DeclaredOutputExpression { Name = p2_res2childtype }
 //@[033:00050) | └─PropertyAccessExpression { PropertyName = type }
-//@[033:00050) |   └─ResourceReferenceExpression
+//@[033:00045) |   └─ResourceReferenceExpression
 output p2_res2childid string = p2_res2child.id
 //@[000:00046) ├─DeclaredOutputExpression { Name = p2_res2childid }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = id }
-//@[031:00046) |   └─ResourceReferenceExpression
+//@[031:00043) |   └─ResourceReferenceExpression
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
@@ -1209,21 +1215,22 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 
 output p3_res1childprop string = p3_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p3_res1childprop }
-//@[033:00062) | └─PropertyAccessExpression { PropertyName = someProp }
-//@[033:00053) |   └─PropertyAccessExpression { PropertyName = properties }
-//@[033:00053) |     └─ResourceReferenceExpression
+//@[033:00062) | └─AccessChainExpression
+//@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[033:00042) |   | └─ResourceReferenceExpression
+//@[054:00062) |   └─StringLiteralExpression { Value = someProp }
 output p3_res1childname string = p3_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p3_res1childname }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = name }
-//@[033:00047) |   └─ResourceReferenceExpression
+//@[033:00042) |   └─ResourceReferenceExpression
 output p3_res1childtype string = p3_child1.type
 //@[000:00047) ├─DeclaredOutputExpression { Name = p3_res1childtype }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = type }
-//@[033:00047) |   └─ResourceReferenceExpression
+//@[033:00042) |   └─ResourceReferenceExpression
 output p3_res1childid string = p3_child1.id
 //@[000:00043) ├─DeclaredOutputExpression { Name = p3_res1childid }
 //@[031:00043) | └─PropertyAccessExpression { PropertyName = id }
-//@[031:00043) |   └─ResourceReferenceExpression
+//@[031:00040) |   └─ResourceReferenceExpression
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
@@ -1242,19 +1249,20 @@ resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
 
 output p4_res1childprop string = p4_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p4_res1childprop }
-//@[033:00062) | └─PropertyAccessExpression { PropertyName = someProp }
-//@[033:00053) |   └─PropertyAccessExpression { PropertyName = properties }
-//@[033:00053) |     └─ResourceReferenceExpression
+//@[033:00062) | └─AccessChainExpression
+//@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
+//@[033:00042) |   | └─ResourceReferenceExpression
+//@[054:00062) |   └─StringLiteralExpression { Value = someProp }
 output p4_res1childname string = p4_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p4_res1childname }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = name }
-//@[033:00047) |   └─ResourceReferenceExpression
+//@[033:00042) |   └─ResourceReferenceExpression
 output p4_res1childtype string = p4_child1.type
 //@[000:00047) ├─DeclaredOutputExpression { Name = p4_res1childtype }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = type }
-//@[033:00047) |   └─ResourceReferenceExpression
+//@[033:00042) |   └─ResourceReferenceExpression
 output p4_res1childid string = p4_child1.id
 //@[000:00043) └─DeclaredOutputExpression { Name = p4_res1childid }
 //@[031:00043)   └─PropertyAccessExpression { PropertyName = id }
-//@[031:00043)     └─ResourceReferenceExpression
+//@[031:00040)     └─ResourceReferenceExpression
 

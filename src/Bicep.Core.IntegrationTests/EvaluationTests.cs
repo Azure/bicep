@@ -894,5 +894,41 @@ output foo object = {
             evaluated.Should().HaveValueAtPath("$.outputs['test4'].value", "abc");
             evaluated.Should().HaveValueAtPath("$.outputs['test5'].value", "abc");
         }
+
+        [TestMethod]
+        public void Safe_dereferences_are_evaluated_successfully()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+var obj = {
+  foo: [
+    {
+      bar: 'baz'
+    }
+  ]
+}
+
+resource testRes 'My.Rp/res1@2020-01-01' = {
+  name: 'testRes'
+  properties: obj
+}
+
+output properties object = {
+  exists: testRes.?properties.foo[0].bar
+  doesntExist: testRes.properties.?fizz[0].bar
+  existsArrayAccess: testRes.properties.foo[?0].bar
+  doesntExistArrayAccess: testRes.properties.foo[?10].bar
+}
+");
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template);
+
+                evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.exists", "baz");
+                evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExist", JValue.CreateNull());
+                evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.existsArrayAccess", "baz");
+                evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExistArrayAccess", JValue.CreateNull());
+            }
+        }
     }
 }

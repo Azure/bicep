@@ -70,6 +70,8 @@ namespace Bicep.Core.Registry
 
         public override bool IsModuleRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiled, string? documentationUri) => throw new NotSupportedException("Local modules cannot be published.");
+
+        public override string? GetDocumentationUri(LocalModuleReference moduleReference) => null;
     }
 }

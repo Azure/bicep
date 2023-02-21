@@ -19,11 +19,11 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.2.238, )",
-        "resolved": "0.2.238",
-        "contentHash": "6SlW+kGqncwHMeOMy3L8KRkFo2l82k0KJUF3ViBSGWU+Mx8SQWOXlnH1zy+90iS4t3SAjaiPxisya2fHvkrXSQ==",
+        "requested": "[0.2.324, )",
+        "resolved": "0.2.324",
+        "contentHash": "RuW8lHsvaPEKKEpc5ez7ItJR/NpsiibMl1tt50woCY5EPgulhnOyZ6TMho9HIztQncr5ZyiO3ei/EScEkPl75A==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.41"
+          "Azure.Bicep.Types": "0.3.99"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -205,12 +205,12 @@
       },
       "System.IO.Abstractions": {
         "type": "Direct",
-        "requested": "[19.1.5, )",
-        "resolved": "19.1.5",
-        "contentHash": "tOS9FtA8fb/IAVjyaUc4+osF8IpK3i4dsOYJ4R2hoLyLS9D3qKR8nEVb/Y+nDQW5KEbTmLVpC6vEm2UnAZi/HQ==",
+        "requested": "[19.1.18, )",
+        "resolved": "19.1.18",
+        "contentHash": "hqNsysHdkVD1siP6d+Xx/qIKa/BSvLM4QHYweHy205wYUGF+xC51Ldj7lc/TIRUSq5sUmfLDiktVr+J2It0aVA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.1.5",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.5"
+          "TestableIO.System.IO.Abstractions": "19.1.18",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.18"
         }
       },
       "Azure.Core": {
@@ -1705,15 +1705,15 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "jBsuhMdPQ51kbPrXbSPL8R38ARpTlxvUZNBo2XwelTu5XM0P3xEfjwjkTEfUx3EOHIkM1rEHi/Jg0sjt7hpekA=="
+        "resolved": "19.1.18",
+        "contentHash": "PzgSHBooAIogbixOXoCDcYQAPyWaUoK7vPd9fFSIVg3eiwsgEHYbMEbTrpCwM8FWc3hFF1L/cKsiR78XdVsQYg=="
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "hFJ3IYSMw9B6do5uYQSzlbvFVNFS7iS3H5nej8h/9QY468Z1rFWjgNK4aqInYO4Yvft1GpLnzcpsZbqX+TraeA==",
+        "resolved": "19.1.18",
+        "contentHash": "DR0h7LBPNH8mifrpFGXe0aSIJdOROWTarp06LfimrqbrqmZRsfdFaq5xgl5hN6cFKnXu8AYpixX10dP1IHFgnQ==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.1.5"
+          "TestableIO.System.IO.Abstractions": "19.1.18"
         }
       },
       "WindowsAzure.Storage": {

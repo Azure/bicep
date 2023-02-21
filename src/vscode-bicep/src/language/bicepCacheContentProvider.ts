@@ -10,7 +10,8 @@ import { bicepCacheRequestType } from "./protocol";
 
 export class BicepCacheContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider {
+  implements vscode.TextDocumentContentProvider
+{
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(
@@ -63,7 +64,7 @@ export class BicepCacheContentProvider
     return moduleReferenceWithLeadingSeparator.substring(1, colonIndex);
   }
 
-  private tryFixCacheContentLanguage(document: vscode.TextDocument) {
+  private tryFixCacheContentLanguage(document: vscode.TextDocument): void {
     if (
       document.uri.scheme === "bicep-cache" &&
       document.languageId === "plaintext"
@@ -71,7 +72,8 @@ export class BicepCacheContentProvider
       // the file is showing content from the bicep cache and the language is still set to plain text
       // we should try to correct it
       const scheme = this.getModuleReferenceScheme(document);
-      vscode.languages.setTextDocumentLanguage(
+      // Not necessary to wait for this to finish
+      void vscode.languages.setTextDocumentLanguage(
         document,
         this.getLanguageId(scheme)
       );

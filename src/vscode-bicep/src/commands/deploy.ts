@@ -438,11 +438,11 @@ export class DeployCommand implements Command {
     return undefined;
   }
 
-  private async sendDeployWaitForCompletionCommand(
+  private sendDeployWaitForCompletionCommand(
     deployId: string,
     deploymentStartResponse: BicepDeploymentStartResponse | undefined,
     documentPath: string
-  ) {
+  ): void {
     if (deploymentStartResponse) {
       this.outputChannelManager.appendToOutputChannel(
         deploymentStartResponse.outputMessage
@@ -462,7 +462,9 @@ export class DeployCommand implements Command {
             deployId,
             documentPath,
           };
-        this.client.sendRequest("workspace/executeCommand", {
+
+        // Intentionally not waiting for completion to avoid blocking language server
+        void this.client.sendRequest("workspace/executeCommand", {
           command: "deploy/waitForCompletion",
           arguments: [bicepDeploymentWaitForCompletionParams],
         });

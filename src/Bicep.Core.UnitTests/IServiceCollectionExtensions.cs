@@ -20,6 +20,8 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
+using Bicep.LanguageServer;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -65,6 +67,15 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithNamespaceProvider(this IServiceCollection services, INamespaceProvider namespaceProvider)
         => Register(services, namespaceProvider);
+
+    public static IServiceCollection WithFeatureProviderFactory(this IServiceCollection services, IFeatureProviderFactory featureProviderFactory)
+        => Register(services, featureProviderFactory);
+
+    public static IServiceCollection WithModuleDispatcher(this IServiceCollection services, IModuleDispatcher moduleDispatcher)
+        => Register(services, moduleDispatcher);
+
+    public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
+        => Register(services, compilationManager);
 
     public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
         => Register(services, patchFunc)
