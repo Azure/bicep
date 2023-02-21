@@ -10,12 +10,7 @@ import {
   IActionContext,
   parseError,
 } from "@microsoft/vscode-azext-utils";
-import {
-  ErrorHandlerResult,
-  Message,
-  CloseHandlerResult,
-  TransportKind,
-} from "vscode-languageclient/node";
+import { Message, TransportKind } from "vscode-languageclient/node";
 import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
 import { bicepLanguageId } from "./constants";
 
@@ -250,7 +245,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
       error: Error,
       message: Message | undefined,
       count: number | undefined
-    ): ErrorHandlerResult {
+    ) {
       callWithTelemetryAndErrorHandlingSync(
         "bicep.lsp-error",
         (context: IActionContext) => {
@@ -265,7 +260,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
       );
       return defaultErrorHandler.error(error, message, count);
     },
-    closed(): CloseHandlerResult {
+    closed() {
       callWithTelemetryAndErrorHandlingSync(
         "bicep.lsp-error",
         (context: IActionContext) => {
