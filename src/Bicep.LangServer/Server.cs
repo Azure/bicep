@@ -38,6 +38,8 @@ using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
+using BicepConfiguration = Bicep.LanguageServer.Settings.Configuration;
+using Bicep.LanguageServer.Settings;
 
 namespace Bicep.LanguageServer
 {
@@ -124,6 +126,7 @@ namespace Bicep.LanguageServer
             services
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddSingleton<BicepConfiguration>()
                 .AddSingleton<IWorkspace, Workspace>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
@@ -141,6 +144,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                .AddSingleton<IDidChangeConfigurationSettingsHandler, ConfigurationHandler>()
                 .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>();
         }
 

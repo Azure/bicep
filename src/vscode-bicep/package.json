@@ -100,6 +100,11 @@
           "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
           "default": true
         },
+        "bicep.ShowAllAcrModuleRegistryCompletions": {
+          "type": "boolean",
+          "description": "List all azure container registries when module registry reference completion is invoked.",
+          "default": false
+        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
