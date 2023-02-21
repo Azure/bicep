@@ -131,39 +131,8 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
-        [DataRow("module test 'br/|'", "'br/public:$0'", 17)]
-        [DataRow("module test 'br/|", "'br/public:$0'", 16)]
-        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, string expectedText, int expectedEnd)
-        {
-            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
-
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
-            var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, serviceClientCredentialsProvider);
-            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
-
-            completions.Should().SatisfyRespectively(
-                c =>
-                {
-                    c.Label.Should().Be("public");
-                    c.Kind.Should().Be(CompletionItemKind.Snippet);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.InsertText.Should().BeNull();
-                    c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedText);
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
-                });
-        }
-
         [TestMethod]
-        public void GetFilteredCompletions_WithAliasCompletionContextFromBicepConfigFile_ReturnsCompletionItems()
+        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems()
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors("module test 'br/|'", '|');
 
@@ -190,22 +159,48 @@ namespace Bicep.LangServer.UnitTests.Completions
             FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, serviceClientCredentialsProvider);
-            var completions = moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            //completions.Should().SatisfyRespectively(
-            //    c =>
-            //    {
-            //        c.Label.Should().Be("public:");
-            //        c.Kind.Should().Be(CompletionItemKind.Snippet);
-            //        c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-            //        c.InsertText.Should().BeNull();
-            //        c.Detail.Should().BeNull();
-            //        c.TextEdit!.TextEdit!.NewText.Should().Be(expectedText);
-            //        c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-            //        c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-            //        c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-            //        c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
-            //    });
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("public");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br/public:$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("test1");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br/test1:$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("test2");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br/test2:$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                });
         }
 
         [DataTestMethod]
