@@ -111,7 +111,7 @@ export async function createLanguageService(
         ),
     },
     synchronize: {
-      configurationSection: "bicep.ShowAllAcrModuleRegistryCompletions",
+      configurationSection: "bicep",
       // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHandler.cs
       fileEvents: [
         vscode.workspace.createFileSystemWatcher("**/"), // folder changes
