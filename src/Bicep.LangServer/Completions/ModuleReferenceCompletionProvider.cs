@@ -37,6 +37,7 @@ namespace Bicep.LanguageServer.Completions
             {"ts/", "Template spec schema name" },
         };
 
+        private static readonly Regex AcrPublicModuleRegistryAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
@@ -59,7 +60,7 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            return GetPathCompletions(context, replacementText)
+            return GetPathCompletions(context, replacementText, templateUri)
                 .Concat(GetPublicMcrModuleRegistryVersionCompletions(context, replacementText))
                 .Concat(await GetRegistryCompletions(context, replacementText, templateUri))
                 .Concat(GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText));
@@ -157,7 +158,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private IEnumerable<CompletionItem> GetPathCompletions(BicepCompletionContext context, string replacementText)
+        private IEnumerable<CompletionItem> GetPathCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
             {
@@ -172,6 +173,63 @@ namespace Bicep.LanguageServer.Completions
                 replacementText == "'br:mcr.microsoft.com/bicep/")
             {
                 completions.AddRange(GetMcrPathCompletions(replacementText, context));
+            }
+            else
+            {
+                completions.AddRange(GetAcrPathCompletions(replacementText, context, templateUri));
+            }
+
+            return completions;
+        }
+
+        private IEnumerable<CompletionItem> GetAcrPathCompletions(string replacementText, BicepCompletionContext context, Uri templateUri)
+        {
+            List<CompletionItem> completions = new List<CompletionItem>();
+
+            var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
+            if (!AcrPublicModuleRegistryAlias.IsMatch(replacementTextWithTrimmedEnd))
+            {
+                return completions;
+            }
+
+            var matches = AcrPublicModuleRegistryAlias.Matches(replacementTextWithTrimmedEnd);
+
+            if (!matches.Any())
+            {
+                return completions;
+            }
+
+            var registry = matches[0].Groups["registry"].Value;
+
+            if (registry is null)
+            {
+                return completions;
+            }
+            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var ociArtifactModuleAliases = rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
+
+            foreach (var kvp in ociArtifactModuleAliases)
+            {
+                if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
+                {
+                    var modulePath = kvp.Value.ModulePath;
+
+                    if (modulePath is null)
+                    {
+                        continue;
+                    }
+
+                    StringBuilder sb = new StringBuilder(replacementTextWithTrimmedEnd);
+                    sb.Append(modulePath);
+                    sb.Append("/$0'");
+
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, modulePath)
+                        .WithSnippetEdit(context.ReplacementRange, sb.ToString())
+                        .WithFilterText(modulePath)
+                        .WithSortText(GetSortText(modulePath, CompletionPriority.High))
+                        .Build();
+                    completions.Add(completionItem);
+                }
             }
 
             return completions;

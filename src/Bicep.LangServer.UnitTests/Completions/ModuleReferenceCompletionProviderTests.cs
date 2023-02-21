@@ -239,6 +239,58 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
+
+        [DataTestMethod]
+        [DataRow("module test 'br:bhsubracr.azurecr.io/|'", "bicep/modules", "'br:bhsubracr.azurecr.io/bicep/modules/$0'", 0, 12, 0, 38)]
+        [DataRow("module test 'br:bhsubracr.azurecr.io/|", "bicep/modules", "'br:bhsubracr.azurecr.io/bicep/modules/$0'", 0, 12, 0, 37)]
+        public async Task GetFilteredCompletions_WithPathCompletionContext_ReturnsCompletionItems(
+            string inputWithCursors,
+            string expectedLabel,
+            string expectedCompletionText,
+            int startLine,
+            int startCharacter,
+            int endLine,
+            int endCharacter)
+        {
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
+
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+            var completionContext = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]);
+
+            var bicepConfigFileContents = @"{
+  ""moduleAliases"": {
+    ""br"": {
+      ""test1"": {
+        ""registry"": ""bhsubracr.azurecr.io"",
+        ""modulePath"": ""bicep/modules""
+      },
+      ""test2"": {
+        ""registry"": ""bhsubratest.azurecr.io""
+      }
+    }
+  }
+}";
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, serviceClientCredentialsProvider);
+
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+
+            completions.Should().Contain(
+                x => x.Label == expectedLabel &&
+                x.Kind == CompletionItemKind.Snippet &&
+                x.InsertText == null &&
+                x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
+                x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&
+                x.TextEdit!.TextEdit!.Range.Start.Character == startCharacter &&
+                x.TextEdit!.TextEdit!.Range.End.Line == endLine &&
+                x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
+        }
+
         [DataTestMethod]
         [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 46)]
         [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 45)]
