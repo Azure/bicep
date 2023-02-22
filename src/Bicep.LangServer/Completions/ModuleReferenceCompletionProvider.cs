@@ -20,6 +20,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.Azure.Management.ResourceGraph.Models;
 using Microsoft.Azure.Management.ResourceGraph;
 using System.Threading.Tasks;
+using Bicep.LanguageServer.Settings;
+using System.Reflection.Emit;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -28,6 +30,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IConfigurationManager configurationManager;
         private readonly IModulesMetadataProvider modulesMetadataProvider;
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
+        private readonly ISettingsProvider settingsProvider;
 
         private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
         {
@@ -44,11 +47,13 @@ namespace Bicep.LanguageServer.Completions
         public ModuleReferenceCompletionProvider(
             IConfigurationManager configurationManager,
             IModulesMetadataProvider modulesMetadataProvider,
-            IServiceClientCredentialsProvider serviceClientCredentialsProvider)
+            IServiceClientCredentialsProvider serviceClientCredentialsProvider,
+            ISettingsProvider settingsProvider)
         {
             this.configurationManager = configurationManager;
             this.modulesMetadataProvider = modulesMetadataProvider;
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
+            this.settingsProvider = settingsProvider;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
@@ -298,15 +303,29 @@ namespace Bicep.LanguageServer.Completions
 
                 completions.Add(mcrCompletionItem);
 
-                IEnumerable<CompletionItem> acrCompletions = await GetAcrModuleRegistriesCompletions(templateUri);
+                IEnumerable<CompletionItem> acrCompletions = await GetAcrModuleRegistriesCompletions(replacementText, context, templateUri);
                 completions.AddRange(acrCompletions);
             }
 
             return completions;
         }
 
-        private async Task<IEnumerable<CompletionItem>> GetAcrModuleRegistriesCompletions(Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetAcrModuleRegistriesCompletions(string replacementText,BicepCompletionContext context,  Uri templateUri)
         {
+            if (settingsProvider.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting))
+            {
+                return await GetAcrModuleRegistriesCompletionsFromGraphClient(replacementText, context, templateUri);
+            }
+            else
+            {
+                return GetAcrModuleRegistriesCompletionsFromBicepConfig(replacementText, context, templateUri);
+            }
+        }
+
+        private async Task<IEnumerable<CompletionItem>> GetAcrModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri templateUri)
+        {
+            List<CompletionItem> completions = new List<CompletionItem>();
+
             ClientCredentials clientCredentials = await serviceClientCredentialsProvider.GetServiceClientCredentials(templateUri); ;
 
             ResourceGraphClient resourceGraphClient = new ResourceGraphClient(clientCredentials);
@@ -316,7 +335,6 @@ namespace Bicep.LanguageServer.Completions
 ");
             QueryResponse queryResponse = resourceGraphClient.Resources(queryRequest);
             JArray jArray = JArray.FromObject(queryResponse.Data);
-            List<CompletionItem> repositories = new List<CompletionItem>();
 
             foreach (JObject item in jArray)
             {
@@ -325,14 +343,48 @@ namespace Bicep.LanguageServer.Completions
                     jToken is not null &&
                     jToken.Value<string>() is string loginServer)
                 {
-                    repositories.Add(CompletionItemBuilder.Create(CompletionItemKind.Reference, loginServer)
-                        .WithSortText(GetSortText("mcr.microsoft.com/bicep/", CompletionPriority.Medium))
-                        .WithFilterText(loginServer).Build());
+                    var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
+                    var insertText = $"{replacementTextWithTrimmedEnd}{loginServer}/$0'";
+
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, loginServer)
+                        .WithFilterText(loginServer)
+                        .WithSnippetEdit(context.ReplacementRange, insertText)
+                        .WithSortText(GetSortText(loginServer, CompletionPriority.High))
+                        .Build();
+                    completions.Add(completionItem);
                 }
             }
 
-            return repositories;
+            return completions;
         }
+
+        private IEnumerable<CompletionItem> GetAcrModuleRegistriesCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
+        {
+            List<CompletionItem> completions = new List<CompletionItem>();
+
+            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var ociArtifactModuleAliases = rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
+
+            foreach (var kvp in ociArtifactModuleAliases)
+            {
+                var label = kvp.Value.Registry;
+
+                if (label is not null && !label.Equals("mcr.microsoft.com", StringComparison.Ordinal))
+                {
+                    var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
+                    var insertText = $"{replacementTextWithTrimmedEnd}{label}/$0'";
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                        .WithFilterText(insertText)
+                        .WithSnippetEdit(context.ReplacementRange, insertText)
+                        .WithSortText(GetSortText(label, CompletionPriority.High))
+                        .Build();
+                    completions.Add(completionItem);
+                }
+            }
+
+            return completions;
+        }
+
 
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
     }

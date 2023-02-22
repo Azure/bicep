@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Settings
 {
-    public interface IConfigurationProvider
+    public interface ISettingsProvider
     {
-        Configuration Configuration { get; }
+        void AddOrUpdateSetting(string name, bool value);
+
+        bool GetSetting(string name);
     }
 }
