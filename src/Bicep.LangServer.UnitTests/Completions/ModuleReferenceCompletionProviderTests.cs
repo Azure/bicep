@@ -451,6 +451,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 45)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 63)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 62)]
+        [DataRow("module test 'br/test1:dapr-containerapp:|'", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", 0, 12, 0, 41)]
+        [DataRow("module test 'br/test1:dapr-containerapp:|", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", 0, 12, 0, 40)]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
@@ -460,19 +462,34 @@ namespace Bicep.LangServer.UnitTests.Completions
             int endLine,
             int endCharacter)
         {
-            var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, settingsProvider);
+            var bicepConfigFileContents = @"{
+  ""moduleAliases"": {
+    ""br"": {
+      ""test1"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep/app""
+      },
+      ""test2"": {
+        ""registry"": ""mcr.microsoft.com""
+      }
+    }
+  }
+}";
+            var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            completions.Should().Contain(
-                x => x.Label == expectedLabel &&
-                x.Kind == CompletionItemKind.Snippet &&
-                x.InsertText == null &&
-                x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
-                x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&
-                x.TextEdit!.TextEdit!.Range.Start.Character == startCharacter &&
-                x.TextEdit!.TextEdit!.Range.End.Line == endLine &&
-                x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
+            CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
+            actualCompletionItem.Kind.Should().Be(CompletionItemKind.Snippet);
+            actualCompletionItem.InsertText.Should().BeNull();
+
+            var actualTextEdit = actualCompletionItem.TextEdit!.TextEdit;
+            actualTextEdit.Should().NotBeNull();
+            actualTextEdit!.NewText.Should().Be(expectedCompletionText);
+            actualTextEdit!.Range.Start.Line.Should().Be(startLine);
+            actualTextEdit!.Range.Start.Character.Should().Be(startCharacter);
+            actualTextEdit!.Range.End.Line.Should().Be(endLine);
+            actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
         }
 
         [DataTestMethod]

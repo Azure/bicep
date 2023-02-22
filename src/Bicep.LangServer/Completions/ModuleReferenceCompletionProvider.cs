@@ -36,6 +36,7 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex AcrPublicModuleRegistryAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex McrNonPublicModuleRegistryAliasWithPath = new Regex(@"'br/(.*):(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider,
@@ -59,7 +60,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return GetPathCompletions(context, replacementText, templateUri)
-                .Concat(GetMcrModuleRegistryVersionCompletions(context, replacementText))
+                .Concat(GetMcrModuleRegistryVersionCompletions(context, replacementText, templateUri))
                 .Concat(await GetRegistryCompletions(context, replacementText, templateUri))
                 .Concat(GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText));
         }
@@ -109,7 +110,7 @@ namespace Bicep.LanguageServer.Completions
             return completionItems;
         }
 
-        private IEnumerable<CompletionItem> GetMcrModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText)
+        private IEnumerable<CompletionItem> GetMcrModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
             {
@@ -123,10 +124,60 @@ namespace Bicep.LanguageServer.Completions
                 var matches = McrPublicModuleRegistryAliasWithPath.Matches(replacementText);
                 filePath = matches[0].Groups["filePath"].Value;
             }
-            if (McrPublicModuleRegistryWithoutAliasWithPath.IsMatch(replacementText))
+            else if (McrPublicModuleRegistryWithoutAliasWithPath.IsMatch(replacementText))
             {
                 var matches = McrPublicModuleRegistryWithoutAliasWithPath.Matches(replacementText);
                 filePath = matches[0].Groups["filePath"].Value;
+            }
+            else
+            {
+                var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+                var ociArtifactModuleAliases = rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
+
+                foreach (var kvp in ociArtifactModuleAliases)
+                {
+                    if (kvp.Value.Registry is string registry &&
+                        registry.Equals("mcr.microsoft.com", StringComparison.Ordinal))
+                    {
+                        var aliasFromBicepConfig = $"'br/{kvp.Key}:";
+                        var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
+
+                        if (replacementTextWithTrimmedEnd.StartsWith(aliasFromBicepConfig, StringComparison.Ordinal))
+                        {
+                            var matches = McrNonPublicModuleRegistryAliasWithPath.Matches(replacementTextWithTrimmedEnd);
+
+                            if (!matches.Any())
+                            {
+                                continue;
+                            }
+
+                            filePath = matches[0].Groups["filePath"].Value;
+
+                            if (filePath is null)
+                            {
+                                continue;
+                            }
+
+                            var modulePath = kvp.Value.ModulePath;
+
+                            if (modulePath is not null)
+                            {
+                                if (modulePath.StartsWith("bicep/"))
+                                {
+                                    modulePath = modulePath.Substring("bicep/".Length);
+                                    filePath = $"{modulePath}/{filePath}";
+                                }
+                            }
+                            else
+                            {
+                                if (filePath.StartsWith("bicep/"))
+                                {
+                                    filePath = filePath.Substring("bicep/".Length);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (filePath is null)
