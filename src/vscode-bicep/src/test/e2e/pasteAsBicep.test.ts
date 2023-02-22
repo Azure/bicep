@@ -22,13 +22,6 @@ describe("pasteAsBicep", (): void => {
       ConfigurationTarget.Global
     );
 
-    // Make sure experimental enable paste on bicep is on
-    await getBicepConfiguration().update(
-      bicepConfigurationKeys.experimentalEnablePasteOnBicep,
-      true,
-      ConfigurationTarget.Global
-    );
-
     // Make sure decompile on paste warning is on
     await getBicepConfiguration().update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
