@@ -117,7 +117,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            string? filePath = null;
+            string? filePath;
 
             if (McrPublicModuleRegistryAliasWithPath.IsMatch(replacementText))
             {
@@ -131,53 +131,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
-                var rootConfiguration = configurationManager.GetConfiguration(templateUri);
-                var ociArtifactModuleAliases = rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
-
-                foreach (var kvp in ociArtifactModuleAliases)
-                {
-                    if (kvp.Value.Registry is string registry &&
-                        registry.Equals("mcr.microsoft.com", StringComparison.Ordinal))
-                    {
-                        var aliasFromBicepConfig = $"'br/{kvp.Key}:";
-                        var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
-
-                        if (replacementTextWithTrimmedEnd.StartsWith(aliasFromBicepConfig, StringComparison.Ordinal))
-                        {
-                            var matches = McrNonPublicModuleRegistryAliasWithPath.Matches(replacementTextWithTrimmedEnd);
-
-                            if (!matches.Any())
-                            {
-                                continue;
-                            }
-
-                            filePath = matches[0].Groups["filePath"].Value;
-
-                            if (filePath is null)
-                            {
-                                continue;
-                            }
-
-                            var modulePath = kvp.Value.ModulePath;
-
-                            if (modulePath is not null)
-                            {
-                                if (modulePath.StartsWith("bicep/"))
-                                {
-                                    modulePath = modulePath.Substring("bicep/".Length);
-                                    filePath = $"{modulePath}/{filePath}";
-                                }
-                            }
-                            else
-                            {
-                                if (filePath.StartsWith("bicep/"))
-                                {
-                                    filePath = filePath.Substring("bicep/".Length);
-                                }
-                            }
-                        }
-                    }
-                }
+                filePath = GetNonPublicMcrFilePathForVersionCompletion(replacementText, templateUri);
             }
 
             if (filePath is null)
@@ -207,6 +161,59 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
+        private string? GetNonPublicMcrFilePathForVersionCompletion(string replacementText, Uri templateUri)
+        {
+            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var ociArtifactModuleAliases = rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
+
+            foreach (var kvp in ociArtifactModuleAliases)
+            {
+                if (kvp.Value.Registry is string registry &&
+                    registry.Equals("mcr.microsoft.com", StringComparison.Ordinal))
+                {
+                    var aliasFromBicepConfig = $"'br/{kvp.Key}:";
+                    var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
+
+                    if (replacementTextWithTrimmedEnd.StartsWith(aliasFromBicepConfig, StringComparison.Ordinal))
+                    {
+                        var matches = McrNonPublicModuleRegistryAliasWithPath.Matches(replacementTextWithTrimmedEnd);
+
+                        if (!matches.Any())
+                        {
+                            continue;
+                        }
+
+                        string filePath = matches[0].Groups["filePath"].Value;
+
+                        if (filePath is null)
+                        {
+                            continue;
+                        }
+
+                        var modulePath = kvp.Value.ModulePath;
+
+                        if (modulePath is not null)
+                        {
+                            if (modulePath.StartsWith("bicep/"))
+                            {
+                                modulePath = modulePath.Substring("bicep/".Length);
+                                return $"{modulePath}/{filePath}";
+                            }
+                        }
+                        else
+                        {
+                            if (filePath.StartsWith("bicep/"))
+                            {
+                                return filePath.Substring("bicep/".Length);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private IEnumerable<CompletionItem> GetPathCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
@@ -219,7 +226,7 @@ namespace Bicep.LanguageServer.Completions
                 replacementText == "'br/public:" ||
                 replacementText == "'br:mcr.microsoft.com/bicep/")
             {
-                return GetMcrPathCompletions(replacementText, context);
+                return GetPublicMcrPathCompletions(replacementText, context);
             }
             else
             {
@@ -388,7 +395,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private IEnumerable<CompletionItem> GetMcrPathCompletions(string replacementText, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetPublicMcrPathCompletions(string replacementText, BicepCompletionContext context)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
