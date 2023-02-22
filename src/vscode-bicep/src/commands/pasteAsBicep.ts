@@ -271,67 +271,64 @@ export class PasteAsBicepCommand implements Command {
     context: IActionContext,
     pasteResult: BicepDecompileForPasteCommandResult
   ): Promise<void> {
-    try {
-      // Always show this message
-      this.outputChannelManager.appendToOutputChannel(
-        "The JSON pasted into the editor was automatically decompiled to Bicep. Use undo to revert.",
-        true /*noFocus*/
+    // Always show this message
+    this.outputChannelManager.appendToOutputChannel(
+      "The JSON pasted into the editor was automatically decompiled to Bicep. Use undo to revert.",
+      true /*noFocus*/
+    );
+
+    if (!pasteResult.disclaimer) {
+      return;
+    }
+
+    // Show disclaimer only once per session
+    if (this.disclaimerShownThisSession) {
+      return;
+    }
+
+    // Always show disclaimer in output window
+    this.outputChannelManager.appendToOutputChannel(
+      pasteResult.disclaimer,
+      true /*noFocus*/
+    );
+
+    // Show disclaimer in a dialog until disabled
+    if (
+      this.suppressedWarningsManager.isWarningSuppressed(
+        SuppressedWarningsManager.keys.decompileOnPasteWarning
+      )
+    ) {
+      return;
+    }
+
+    const dontShowAgain: MessageItem = {
+      title: "Never show again",
+    };
+    const disable: MessageItem = {
+      title: "Disable automatic decompile on paste",
+    };
+
+    this.disclaimerShownThisSession = true;
+    const result = await context.ui.showWarningMessage(
+      pasteResult.disclaimer,
+      dontShowAgain,
+      disable
+    );
+    if (result === dontShowAgain) {
+      await this.suppressedWarningsManager.suppressWarning(
+        SuppressedWarningsManager.keys.decompileOnPasteWarning
+      );
+    } else if (result === disable) {
+      await getBicepConfiguration().update(
+        bicepConfigurationKeys.decompileOnPaste,
+        false,
+        ConfigurationTarget.Global
       );
 
-      if (!pasteResult.disclaimer) {
-        return;
-      }
-
-      // Show disclaimer only once per session
-      if (this.disclaimerShownThisSession) {
-        return;
-      }
-
-      // Always show disclaimer in output window
-      this.outputChannelManager.appendToOutputChannel(
-        pasteResult.disclaimer,
-        true /*noFocus*/
+      // Don't wait for this to finish
+      void window.showWarningMessage(
+        `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
       );
-
-      // Show disclaimer in a dialog until disabled
-      if (
-        this.suppressedWarningsManager.isWarningSuppressed(
-          SuppressedWarningsManager.keys.decompileOnPasteWarning
-        )
-      ) {
-        return;
-      }
-
-      const dontShowAgain: MessageItem = {
-        title: "Never show again",
-      };
-      const disable: MessageItem = {
-        title: "Disable automatic decompile on paste",
-      };
-
-      const result = await context.ui.showWarningMessage(
-        pasteResult.disclaimer,
-        dontShowAgain,
-        disable
-      );
-      if (result === dontShowAgain) {
-        await this.suppressedWarningsManager.suppressWarning(
-          SuppressedWarningsManager.keys.decompileOnPasteWarning
-        );
-      } else if (result === disable) {
-        await getBicepConfiguration().update(
-          bicepConfigurationKeys.decompileOnPaste,
-          false,
-          ConfigurationTarget.Global
-        );
-
-        // Don't wait for this to finish
-        void window.showWarningMessage(
-          `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
-        );
-      }
-    } finally {
-      this.disclaimerShownThisSession = true;
     }
   }
 }
