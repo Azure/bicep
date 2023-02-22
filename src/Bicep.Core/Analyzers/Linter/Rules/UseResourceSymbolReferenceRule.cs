@@ -161,7 +161,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             diagnosticLevel,
             functionCall.Span,
             new CodeFix(CoreResources.UseResourceSymbolReferenceRule_CodeFix, isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-            functionCall.Name);
+            functionCall.Name.IdentifierName);
     }
 
     private IDiagnostic? AnalyzeListCall(SemanticModel model, DiagnosticLevel diagnosticLevel, FunctionCallSyntaxBase functionCall)
@@ -197,6 +197,6 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             diagnosticLevel,
             functionCall.Span,
             new CodeFix(CoreResources.UseResourceSymbolReferenceRule_CodeFix, isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-            functionCall.Name);
+            functionCall.Name.IdentifierName);
     }
 }
