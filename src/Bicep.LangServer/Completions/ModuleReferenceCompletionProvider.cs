@@ -4,25 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Speech.Recognition;
 using System.Text;
 using System.Text.RegularExpressions;
-using Azure.Containers.ContainerRegistry;
-using Azure.Identity;
-using Azure;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Microsoft.Azure.Management.ResourceGraph.Models;
-using Microsoft.Azure.Management.ResourceGraph;
-using System.Threading.Tasks;
-using Bicep.LanguageServer.Settings;
-using System.Reflection.Emit;
-using Microsoft.Win32;
 
 namespace Bicep.LanguageServer.Completions
 {
