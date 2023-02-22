@@ -27,9 +27,9 @@ namespace Bicep.LanguageServer.Completions
 {
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
+        private readonly IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider;
         private readonly IConfigurationManager configurationManager;
         private readonly IModulesMetadataProvider modulesMetadataProvider;
-        private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
         private readonly ISettingsProvider settingsProvider;
 
         private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
@@ -45,14 +45,14 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         public ModuleReferenceCompletionProvider(
+            IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider,
             IConfigurationManager configurationManager,
             IModulesMetadataProvider modulesMetadataProvider,
-            IServiceClientCredentialsProvider serviceClientCredentialsProvider,
             ISettingsProvider settingsProvider)
         {
+            this.azureContainerRegistryNamesProvider = azureContainerRegistryNamesProvider;
             this.configurationManager = configurationManager;
             this.modulesMetadataProvider = modulesMetadataProvider;
-            this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
             this.settingsProvider = settingsProvider;
         }
 
@@ -310,7 +310,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private async Task<IEnumerable<CompletionItem>> GetAcrModuleRegistriesCompletions(string replacementText,BicepCompletionContext context,  Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetAcrModuleRegistriesCompletions(string replacementText, BicepCompletionContext context, Uri templateUri)
         {
             if (settingsProvider.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting))
             {
@@ -326,33 +326,19 @@ namespace Bicep.LanguageServer.Completions
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            ClientCredentials clientCredentials = await serviceClientCredentialsProvider.GetServiceClientCredentials(templateUri); ;
+            var registryNames = await azureContainerRegistryNamesProvider.GetRegistryNames(templateUri);
 
-            ResourceGraphClient resourceGraphClient = new ResourceGraphClient(clientCredentials);
-            QueryRequest queryRequest = new QueryRequest(@"Resources
-| where type == ""microsoft.containerregistry/registries""
-| project properties[""loginServer""]
-");
-            QueryResponse queryResponse = resourceGraphClient.Resources(queryRequest);
-            JArray jArray = JArray.FromObject(queryResponse.Data);
-
-            foreach (JObject item in jArray)
+            foreach (string registryName in registryNames)
             {
-                if (item is not null &&
-                    item.GetValue("properties_loginServer") is JToken jToken &&
-                    jToken is not null &&
-                    jToken.Value<string>() is string loginServer)
-                {
-                    var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
-                    var insertText = $"{replacementTextWithTrimmedEnd}{loginServer}/$0'";
+                var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
+                var insertText = $"{replacementTextWithTrimmedEnd}{registryName}/$0'";
 
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, loginServer)
-                        .WithFilterText(loginServer)
-                        .WithSnippetEdit(context.ReplacementRange, insertText)
-                        .WithSortText(GetSortText(loginServer, CompletionPriority.High))
-                        .Build();
-                    completions.Add(completionItem);
-                }
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
+                    .WithFilterText(registryName)
+                    .WithSnippetEdit(context.ReplacementRange, insertText)
+                    .WithSortText(GetSortText(registryName, CompletionPriority.High))
+                    .Build();
+                completions.Add(completionItem);
             }
 
             return completions;
@@ -384,7 +370,6 @@ namespace Bicep.LanguageServer.Completions
 
             return completions;
         }
-
 
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
     }
