@@ -216,9 +216,26 @@ namespace Bicep.LanguageServer.Completions
                     // }
                     if (modulePath is null)
                     {
-                        if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}/", StringComparison.Ordinal))
+                        if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                         {
-                            return GetMcrPathCompletions(replacementText, context);
+                            foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
+                            {
+                                var label = $"bicep/{moduleName}";
+                                StringBuilder sb = new StringBuilder(replacementText.TrimEnd('\''));
+                                sb.Append("bicep/");
+                                sb.Append(moduleName);
+                                sb.Append(":$0'");
+
+                                var insertText = sb.ToString();
+
+                                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                                    .WithSnippetEdit(context.ReplacementRange, insertText)
+                                    .WithFilterText(insertText)
+                                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                                    .Build();
+
+                                completions.Add(completionItem);
+                            }
                         }
                     }
                     // E.g bicepconfig.json

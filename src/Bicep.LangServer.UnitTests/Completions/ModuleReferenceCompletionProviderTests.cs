@@ -515,46 +515,49 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
-//        [DataTestMethod]
-//        [DataRow("module test 'br/test/|'", "app/dapr-containerapp", "'br/test/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
-//        [DataRow("module test 'br/test/|", "app/dapr-containerapp", "'br/test/app/dapr-containerapp:$0'", 0, 12, 0, 21)]
-//        public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
-//            string inputWithCursors,
-//            string expectedLabel,
-//            string expectedCompletionText,
-//            int startLine,
-//            int startCharacter,
-//            int endLine,
-//            int endCharacter)
-//        {
-//            var bicepConfigFileContents = @"{
-//  ""moduleAliases"": {
-//    ""br"": {
-//      ""test"": {
-//        ""registry"": ""mcr.microsoft.com""
-//      },
-//      ""test2"": {
-//        ""registry"": ""testacr2.azurecr.io""
-//      }
-//    }
-//  }
-//}";
-//            var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
-//            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
-//            IEnumerable<CompletionItem> completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+        [DataTestMethod]
+        [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
+        public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
+            string inputWithCursors,
+            string expectedLabel,
+            string expectedCompletionText,
+            int startLine,
+            int startCharacter,
+            int endLine,
+            int endCharacter)
+        {
+            var bicepConfigFileContents = @"{
+  ""moduleAliases"": {
+    ""br"": {
+      ""test1"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep/app""
+      },
+      ""test2"": {
+        ""registry"": ""mcr.microsoft.com""
+      }
+    }
+  }
+}";
+            var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
+            IEnumerable<CompletionItem> completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-//            CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
-//            actualCompletionItem.Kind.Should().Be(CompletionItemKind.Snippet);
-//            actualCompletionItem.InsertText.Should().BeNull();
+            CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
+            actualCompletionItem.Kind.Should().Be(CompletionItemKind.Snippet);
+            actualCompletionItem.InsertText.Should().BeNull();
 
-//            var actualTextEdit = actualCompletionItem.TextEdit!.TextEdit;
-//            actualTextEdit.Should().NotBeNull();
-//            actualTextEdit!.NewText.Should().Be(expectedCompletionText);
-//            actualTextEdit!.Range.Start.Line.Should().Be(startLine);
-//            actualTextEdit!.Range.Start.Character.Should().Be(startCharacter);
-//            actualTextEdit!.Range.End.Line.Should().Be(endLine);
-//            actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
-//        }
+            var actualTextEdit = actualCompletionItem.TextEdit!.TextEdit;
+            actualTextEdit.Should().NotBeNull();
+            actualTextEdit!.NewText.Should().Be(expectedCompletionText);
+            actualTextEdit!.Range.Start.Line.Should().Be(startLine);
+            actualTextEdit!.Range.Start.Character.Should().Be(startCharacter);
+            actualTextEdit!.Range.End.Line.Should().Be(endLine);
+            actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
+        }
 
         private BicepCompletionContext GetBicepCompletionContext(
             string inputWithCursors,

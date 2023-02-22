@@ -280,5 +280,23 @@ namespace Bicep.LanguageServer.Telemetry
                     ["exception"] = exception.ToString(),
                 }
             );
+
+        public static BicepTelemetryEvent MCRPathCompletion()
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.MCRPathCompletion,
+                properties: new()
+                {
+                }
+            );
+
+        public static BicepTelemetryEvent ACRPathCompletion()
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.ACRPathCompletion,
+                properties: new()
+                {
+                }
+            );
     }
 }
