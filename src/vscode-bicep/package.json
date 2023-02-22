@@ -73,7 +73,7 @@
       "properties": {
         "bicep.decompileOnPaste": {
           "type": "boolean",
-          "description": "Automatically convert pasted JSON values, Azure templates or Azure resources into Bicep (use Undo to revert)",
+          "description": "Automatically convert pasted JSON values, JSON ARM templates or resources from a JSON ARM template into Bicep (use Undo to revert)",
           "default": true
         },
         "bicep.enableOutputTimestamps": {
