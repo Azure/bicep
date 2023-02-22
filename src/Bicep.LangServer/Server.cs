@@ -101,8 +101,8 @@ namespace Bicep.LanguageServer
             server.LogInfo($"Running on processId {Environment.ProcessId}");
 
             var mcrCompletionProvider = server.GetRequiredService<IModulesMetadataProvider>();
-            server.LogInfo($"Initializing mcr completion provider {mcrCompletionProvider}");
-            await mcrCompletionProvider.Initialize();
+            var mcrModulesMetadatInitializationResult = await mcrCompletionProvider.Initialize();
+            server.LogInfo(mcrModulesMetadatInitializationResult);
 
             if (FeatureProvider.TracingEnabled)
             {
@@ -144,6 +144,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IDidChangeConfigurationSettingsHandler, ConfigurationSettingsHandler>()
+                .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
                 .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>();
         }
 
