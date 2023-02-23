@@ -164,7 +164,7 @@ namespace Bicep.Core.Syntax
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
-            if (Regex.IsMatch(text, "^[a-zA-Z][a-zA-Z0-9_]*$"))
+            if (Lexer.IsValidIdentifier(text))
             {
                 return CreateIdentifier(text);
             }
