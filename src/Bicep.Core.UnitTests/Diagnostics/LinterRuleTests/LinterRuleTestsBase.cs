@@ -127,7 +127,7 @@ public class LinterRuleTestsBase
         return diagnostic.Code.StartsWith("BCP");
     }
 
-    protected static void AssertCodeFix(string expectedCode, string expectedFixDescription, string inputFile, string resultFile)
+    protected static void AssertCodeFix(string expectedCode, string expectedFixTitle, string inputFile, string resultFile)
     {
         var (file, cursor) = ParserHelper.GetFileWithSingleCursor(inputFile, '|');
         var result = CompilationHelper.Compile(file);
@@ -141,8 +141,8 @@ public class LinterRuleTestsBase
             matchingDiagnostics.Should().ContainSingle(x => x.Code == expectedCode);
             var diagnostic = matchingDiagnostics.Single(x => x.Code == expectedCode);
 
-            diagnostic.Fixes.Should().ContainSingle(x => x.Description == expectedFixDescription);
-            var fix = diagnostic.Fixes.Single(x => x.Description == expectedFixDescription);
+            diagnostic.Fixes.Should().ContainSingle(x => x.Title == expectedFixTitle);
+            var fix = diagnostic.Fixes.Single(x => x.Title == expectedFixTitle);
             fix.Kind.Should().Be(CodeFixKind.QuickFix);
 
             fix.Should().HaveResult(file, resultFile);
