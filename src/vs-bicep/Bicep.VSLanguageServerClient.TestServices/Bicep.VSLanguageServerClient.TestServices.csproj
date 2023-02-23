@@ -14,6 +14,8 @@
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client.Implementation" Version="17.2.2105" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
+
   </ItemGroup>
 
   <ItemGroup>
