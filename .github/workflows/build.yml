@@ -252,9 +252,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.3
 
       - name: Build Bicep.sln
-        # disabling analyzers because of a Roslyn dependency issue that only occurs in msbuild in CI
-        # however we have already run the same analyzers in the dotnet build
-        run: msbuild Bicep.sln /restore /p:Configuration=Release /p:EnforceCodeStyleInBuild=false /p:EnableNETAnalyzers=false /v:m /bl:./src/binlog/bicep_build.binlog
+        run: dotnet build --configuration release
 
       - name: Upload Bicep.sln build binlog
         uses: actions/upload-artifact@v3
@@ -264,8 +262,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build BicepInVisualStudio.sln
-        # TODO: Find a way to re-enable analyzers
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /p:EnforceCodeStyleInBuild=false /p:EnableNETAnalyzers=false /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
 
       - name: Upload Bicep.sln build binlog
         uses: actions/upload-artifact@v3
