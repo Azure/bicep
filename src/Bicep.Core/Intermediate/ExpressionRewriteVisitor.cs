@@ -11,6 +11,16 @@ namespace Bicep.Core.Intermediate;
 
 public abstract class ExpressionRewriteVisitor : IExpressionVisitor
 {
+    void IExpressionVisitor.VisitAccessChainExpression(AccessChainExpression expression) => ReplaceCurrent(expression, ReplaceAccessChainExpression);
+    public virtual Expression ReplaceAccessChainExpression(AccessChainExpression expression)
+    {
+        var hasChanges =
+            TryRewriteStrict(expression.FirstLink, out var firstLink) |
+            TryRewriteStrict(expression.AdditionalProperties, out var additionalProperties);
+
+        return hasChanges ? expression with { FirstLink = firstLink, AdditionalProperties = additionalProperties } : expression;
+    }
+
     void IExpressionVisitor.VisitArrayAccessExpression(ArrayAccessExpression expression) => ReplaceCurrent(expression, ReplaceArrayAccessExpression);
     public virtual Expression ReplaceArrayAccessExpression(ArrayAccessExpression expression)
     {

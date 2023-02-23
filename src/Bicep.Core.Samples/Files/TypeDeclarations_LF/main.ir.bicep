@@ -90,8 +90,9 @@ param mightIncludeNull ({key: 'value'} | null)[]
 
 var maybeNull = mightIncludeNull[0]!.key
 //@[00:0040) └─DeclaredVariableExpression { Name = maybeNull }
-//@[16:0040)   └─PropertyAccessExpression { PropertyName = key }
-//@[16:0035)     └─ArrayAccessExpression
-//@[33:0034)       ├─IntegerLiteralExpression { Value = 0 }
-//@[16:0032)       └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+//@[16:0040)   └─AccessChainExpression
+//@[16:0035)     ├─ArrayAccessExpression
+//@[33:0034)     | ├─IntegerLiteralExpression { Value = 0 }
+//@[16:0032)     | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+//@[37:0040)     └─StringLiteralExpression { Value = key }
 

@@ -71,9 +71,10 @@ resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg
 //@[020:0034) | |           ├─PropertyAccessExpression { PropertyName = displayName }
 //@[020:0022) | |           | └─ArrayAccessExpression
 //@[020:0022) | |           |   ├─CopyIndexExpression
-//@[039:0073) | |           └─PropertyAccessExpression { PropertyName = displayName }
-//@[039:0061) | |             └─PropertyAccessExpression { PropertyName = properties }
-//@[039:0061) | |               └─ResourceReferenceExpression
+//@[039:0073) | |           └─AccessChainExpression
+//@[039:0061) | |             ├─PropertyAccessExpression { PropertyName = properties }
+//@[039:0050) | |             | └─ResourceReferenceExpression
+//@[062:0073) | |             └─StringLiteralExpression { Value = displayName }
   }
 }]
 
@@ -95,9 +96,10 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 //@[020:0034) | |           ├─PropertyAccessExpression { PropertyName = displayName }
 //@[020:0022) | |           | └─ArrayAccessExpression
 //@[020:0022) | |           |   ├─CopyIndexExpression
-//@[039:0073) | |           ├─PropertyAccessExpression { PropertyName = displayName }
-//@[039:0061) | |           | └─PropertyAccessExpression { PropertyName = properties }
-//@[039:0061) | |           |   └─ResourceReferenceExpression
+//@[039:0073) | |           ├─AccessChainExpression
+//@[039:0061) | |           | ├─PropertyAccessExpression { PropertyName = properties }
+//@[039:0050) | |           | | └─ResourceReferenceExpression
+//@[062:0073) | |           | └─StringLiteralExpression { Value = displayName }
 //@[093:0098) | |           └─CopyIndexExpression
   }
   dependsOn: [
@@ -123,9 +125,10 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 //@[020:0034) | |           ├─PropertyAccessExpression { PropertyName = displayName }
 //@[020:0022) | |           | └─ArrayAccessExpression
 //@[020:0022) | |           |   ├─CopyIndexExpression
-//@[039:0073) | |           └─PropertyAccessExpression { PropertyName = displayName }
-//@[039:0061) | |             └─PropertyAccessExpression { PropertyName = properties }
-//@[039:0061) | |               └─ResourceReferenceExpression
+//@[039:0073) | |           └─AccessChainExpression
+//@[039:0061) | |             ├─PropertyAccessExpression { PropertyName = properties }
+//@[039:0050) | |             | └─ResourceReferenceExpression
+//@[062:0073) | |             └─StringLiteralExpression { Value = displayName }
   }
   dependsOn: [
     anotherSet[0]
@@ -144,12 +147,13 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
 //@[002:0029)       ├─ObjectPropertyExpression
 //@[002:0006)       | ├─StringLiteralExpression { Value = name }
 //@[008:0029)       | └─PropertyAccessExpression { PropertyName = name }
-//@[008:0029)       |   └─ResourceReferenceExpression
+//@[008:0024)       |   └─ResourceReferenceExpression
   displayName: yetAnotherSet[i].properties.displayName
 //@[002:0054)       └─ObjectPropertyExpression
 //@[002:0013)         ├─StringLiteralExpression { Value = displayName }
-//@[015:0054)         └─PropertyAccessExpression { PropertyName = displayName }
-//@[015:0042)           └─PropertyAccessExpression { PropertyName = properties }
-//@[015:0042)             └─ResourceReferenceExpression
+//@[015:0054)         └─AccessChainExpression
+//@[015:0042)           ├─PropertyAccessExpression { PropertyName = properties }
+//@[015:0031)           | └─ResourceReferenceExpression
+//@[043:0054)           └─StringLiteralExpression { Value = displayName }
 }]
 

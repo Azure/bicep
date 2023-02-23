@@ -308,5 +308,8 @@ namespace Bicep.Decompiler.ArmHelpers
 
             return function;
         }
+
+        public static bool IsNamed(this FunctionExpression expression, string functionName)
+            => StringComparer.OrdinalIgnoreCase.Equals(expression.Function, functionName);
     }
 }

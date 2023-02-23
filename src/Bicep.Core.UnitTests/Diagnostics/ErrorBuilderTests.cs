@@ -165,6 +165,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return TestSyntaxFactory.CreateVariableAccess("identifier");
             }
 
+            if (parameter.ParameterType == typeof(AccessExpressionSyntax))
+            {
+                return TestSyntaxFactory.CreatePropertyAccess(TestSyntaxFactory.CreateVariableAccess("identifier"), "propertyName");
+            }
+
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
 

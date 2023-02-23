@@ -350,7 +350,7 @@ namespace Bicep.LanguageServer.Completions
             || syntax is IntegerLiteralSyntax
             || (syntax is StringSyntax @string && @string.TryGetLiteralValue() is string literal)
             || syntax is UnionTypeSyntax
-            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => p.OptionalityMarker is null && IsTypeLiteralSyntax(p.Value)));
+            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => IsTypeLiteralSyntax(p.Value)));
 
         private static StatementSyntax? CyclableTypeEnclosingDeclaration(IBinder binder, SyntaxBase? syntax) => syntax switch
         {
@@ -1000,6 +1000,11 @@ namespace Bicep.LanguageServer.Completions
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange));
             }
 
+            if (declaredType is not null && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
+            {
+                declaredType = nonNullable;
+            }
+
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
@@ -1455,8 +1460,14 @@ namespace Bicep.LanguageServer.Completions
                 // in bicep those types of properties are accessed via array indexer using a string as an index
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
+                var edit = new StringBuilder("[");
+                if (propertyAccess.SafeAccessMarker is not null)
+                {
+                    edit.Append('?');
+                }
+                edit.Append(StringUtils.EscapeBicepString(property.Name)).Append(']');
                 item
-                    .WithPlainTextEdit(replacementRange, $"[{StringUtils.EscapeBicepString(property.Name)}]")
+                    .WithPlainTextEdit(replacementRange, edit.ToString())
                     .WithAdditionalEdits(new TextEditContainer(
                         // remove the dot after the main text edit is applied
                         new TextEdit

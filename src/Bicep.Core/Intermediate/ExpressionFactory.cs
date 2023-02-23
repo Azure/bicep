@@ -29,12 +29,13 @@ public static class ExpressionFactory
     public static BooleanLiteralExpression CreateBooleanLiteral(bool value, SyntaxBase? sourceSyntax = null)
         => new(sourceSyntax, value);
 
-    public static PropertyAccessExpression CreatePropertyAccess(Expression baseExpression, string propertyName, SyntaxBase? sourceSyntax = null)
-        => new(sourceSyntax ?? baseExpression.SourceSyntax, baseExpression, propertyName);
+    public static PropertyAccessExpression CreatePropertyAccess(Expression baseExpression, string propertyName, SyntaxBase? sourceSyntax = null, AccessExpressionFlags flags = AccessExpressionFlags.None)
+        => new(sourceSyntax ?? baseExpression.SourceSyntax, baseExpression, propertyName, flags);
 
-    public static PropertyAccessExpression CreateResourcePropertyAccess(ResourceMetadata metadata, IndexReplacementContext? indexContext, string propertyName, SyntaxBase? sourceSyntax = null)
+    public static PropertyAccessExpression CreateResourcePropertyAccess(ResourceMetadata metadata, IndexReplacementContext? indexContext, string propertyName, PropertyAccessSyntax? sourceSyntax = null, AccessExpressionFlags flags = AccessExpressionFlags.None)
         => CreatePropertyAccess(
-            new ResourceReferenceExpression(sourceSyntax, metadata, indexContext),
+            new ResourceReferenceExpression(sourceSyntax?.BaseExpression, metadata, indexContext),
             propertyName,
-            sourceSyntax);
+            sourceSyntax,
+            flags);
 }

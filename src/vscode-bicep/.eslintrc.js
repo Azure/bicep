@@ -51,6 +51,7 @@ module.exports = {
           },
         ],
         "prettier/prettier": "warn",
+        '@typescript-eslint/no-floating-promises': ["error"],
       },
     },
     {

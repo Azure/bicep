@@ -120,14 +120,6 @@ export class PasteAsBicepCommand implements Command {
     );
   }
 
-  public isExperimentalPasteAsBicepEnabled(): boolean {
-    return (
-      getBicepConfiguration().get<boolean>(
-        bicepConfigurationKeys.experimentalEnablePasteOnBicep
-      ) ?? false
-    );
-  }
-
   private isAutoConvertOnPasteEnabled(): boolean {
     return (
       getBicepConfiguration().get<boolean>(
@@ -145,9 +137,6 @@ export class PasteAsBicepCommand implements Command {
       async (context) => {
         context.telemetry.suppressIfSuccessful = true;
 
-        if (!this.isExperimentalPasteAsBicepEnabled()) {
-          return;
-        }
         if (!this.isAutoConvertOnPasteEnabled()) {
           return;
         }
@@ -260,8 +249,7 @@ export class PasteAsBicepCommand implements Command {
             }
 
             // Don't wait for disclaimer/warning because our telemetry won't fire until we return
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.showWarning(context, canPasteResult);
+            void this.showWarning(context, canPasteResult);
           }
         }
       }
@@ -327,7 +315,7 @@ export class PasteAsBicepCommand implements Command {
         );
 
         // Don't wait for this to finish
-        window.showWarningMessage(
+        void window.showWarningMessage(
           `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
         );
       }

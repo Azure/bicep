@@ -18,7 +18,7 @@ public class ExpressionLoweringVisitor : ExpressionRewriteVisitor
     {
         if (expression.Access is StringLiteralExpression stringLiteral)
         {
-            return base.Replace(new PropertyAccessExpression(expression.SourceSyntax, expression.Base, stringLiteral.Value));
+            return base.Replace(new PropertyAccessExpression(expression.SourceSyntax, expression.Base, stringLiteral.Value, expression.Flags));
         }
 
         return base.ReplaceArrayAccessExpression(expression);

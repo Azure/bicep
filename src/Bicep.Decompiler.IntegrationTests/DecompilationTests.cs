@@ -6,7 +6,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.IO;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
@@ -14,7 +13,6 @@ using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
-using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
 using System.Threading;
@@ -128,29 +126,37 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("and(variables('a'), variables('b'))", "boolean", "a && b")]
-        [DataRow("and(variables('a'), variables('b'), variables('c'))", "boolean", "a && b && c")]
-        [DataRow("or(variables('a'), variables('b'))", "boolean", "a || b")]
-        [DataRow("or(variables('a'), variables('b'), variables('c'))", "boolean", "a || b || c")]
-        [DataRow("add(variables('a'), variables('b'))", "int", "a + b")]
-        [DataRow("sub(variables('a'), variables('b'))", "int", "a - b")]
-        [DataRow("mul(variables('a'), variables('b'))", "int", "a * b")]
-        [DataRow("div(variables('a'), variables('b'))", "int", "a / b")]
-        [DataRow("mod(variables('a'), variables('b'))", "int", "a % b")]
-        [DataRow("less(variables('a'), variables('b'))", "boolean", "a < b")]
-        [DataRow("lessOrEquals(variables('a'), variables('b'))", "boolean", "a <= b")]
-        [DataRow("greater(variables('a'), variables('b'))", "boolean", "a > b")]
-        [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "a >= b")]
-        [DataRow("equals(variables('a'), variables('b'))", "boolean", "a == b")]
-        [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "a =~ b")]
-        [DataRow("not(equals(variables('a'),variables('b')))", "boolean", "a != b")]
-        [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "a !~ b")]
+        [DataRow("and(variables('a'), variables('b'))", "boolean", "(a && b)")]
+        [DataRow("and(variables('a'), variables('b'), variables('c'))", "boolean", "(a && b && c)")]
+        [DataRow("or(variables('a'), variables('b'))", "boolean", "(a || b)")]
+        [DataRow("or(variables('a'), variables('b'), variables('c'))", "boolean", "(a || b || c)")]
+        [DataRow("add(variables('a'), variables('b'))", "int", "(a + b)")]
+        [DataRow("sub(variables('a'), variables('b'))", "int", "(a - b)")]
+        [DataRow("mul(variables('a'), variables('b'))", "int", "(a * b)")]
+        [DataRow("div(variables('a'), variables('b'))", "int", "(a / b)")]
+        [DataRow("mod(variables('a'), variables('b'))", "int", "(a % b)")]
+        [DataRow("less(variables('a'), variables('b'))", "boolean", "(a < b)")]
+        [DataRow("lessOrEquals(variables('a'), variables('b'))", "boolean", "(a <= b)")]
+        [DataRow("greater(variables('a'), variables('b'))", "boolean", "(a > b)")]
+        [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "(a >= b)")]
+        [DataRow("equals(variables('a'), variables('b'))", "boolean", "(a == b)")]
+        [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "(a =~ b)")]
+        [DataRow("not(equals(variables('a'),variables('b')))", "boolean", "(a != b)")]
+        [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "(a !~ b)")]
+        [DataRow("createArray(1, 2, 3)", "array", "[\n  1\n  2\n  3\n]")]
+        [DataRow("createObject('key', 'value')", "object", "{\n  key: 'value'\n}")]
+        [DataRow("tryGet(parameters('z'), 'y')", "int", "(z.?y)")]
+        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "(z.?y.x.w)")]
+        [DataRow("tryGet(tryGet(parameters('z'), 'y', 'x'), 'w', 'v')", "int", "((z.?y.x).?w.v)")]
+        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w').v", "int", "(z.?y.x.w).v")]
         public async Task Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{
     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
     ""contentVersion"": ""1.0.0.0"",
-    ""parameters"": {},
+    ""parameters"": {
+        ""z"": {""type"":""object""}
+    },
     ""variables"": {
         ""a"": true,
         ""b"": false,
@@ -174,7 +180,7 @@ namespace Bicep.Core.IntegrationTests
             var decompiler = CreateDecompiler(fileResolver);
             var (entryPointUri, filesToSave) = await decompiler.Decompile(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
-            filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
+            filesToSave[entryPointUri].Should().Contain($"output calculated {type} = {expectedValue}");
         }
 
         [TestMethod]

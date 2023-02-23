@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -99,6 +98,7 @@ namespace Bicep.Core.Rewriters
             return new PropertyAccessSyntax(
                 syntax.BaseExpression,
                 syntax.Dot,
+                syntax.SafeAccessMarker,
                 propertySyntax);
         }
 
