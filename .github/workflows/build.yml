@@ -254,22 +254,8 @@ jobs:
       - name: Build Bicep.sln
         run: dotnet build --configuration release
 
-      - name: Upload Bicep.sln build binlog
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-binlog-files
-          path: ./src/binlog/bicep_build.binlog
-          if-no-files-found: error
-
       - name: Build BicepInVisualStudio.sln
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
-
-      - name: Upload Bicep.sln build binlog
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-binlog-files
-          path: ./src/binlog/bicep_in_visual_studio_build.binlog
-          if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
         uses: actions/upload-artifact@v3
