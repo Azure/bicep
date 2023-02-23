@@ -449,19 +449,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to an array.")
                 .Build();
 
-            yield return new FunctionOverloadBuilder("coalesce")
-                .WithReturnType(LanguageConstants.Any)
-                .WithGenericDescription("Returns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null.")
-                .WithVariableParameter("arg", LanguageConstants.Any, minimumCount: 1, "The value to coalesce")
-                .Build();
-
-            // TODO: Requires number type
-            //yield return new FunctionOverloadBuilder("float")
-            //    .WithReturnType(LanguageConstants.Number)
-            //    .WithDescription("Converts the value to a floating point number. You only use this function when passing custom parameters to an application, such as a Logic App.")
-            //    .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to a floating point number.")
-            //    .Build();
-
             yield return new FunctionOverloadBuilder("bool")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription("Converts the parameter to a boolean.")
