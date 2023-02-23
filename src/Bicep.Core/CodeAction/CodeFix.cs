@@ -24,7 +24,7 @@ namespace Bicep.Core.CodeAction
             }
             if (title.EndsWith(".") || title.EndsWith("!"))
             {
-                throw new ArgumentException($"Code fix titles should not end with a period or exclamation mark: \"{title}\"", nameof(title));
+                throw new ArgumentException($"Code fix title should not end with a period or exclamation mark: \"{title}\"", nameof(title));
             }
             if (char.IsLower( title[0]))
             {
