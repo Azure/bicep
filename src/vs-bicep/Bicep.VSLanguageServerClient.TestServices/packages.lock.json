@@ -8,6 +8,12 @@
         "resolved": "3.3.4",
         "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
       },
+      "Microsoft.Net.Compilers.Toolset": {
+        "type": "Direct",
+        "requested": "[4.5.0-2.final, )",
+        "resolved": "4.5.0-2.final",
+        "contentHash": "5AKgCibYDYbiRdTdkNtBZnKZ5leEAJsbXl5bDPflqYNtrbdZcAW5GX/6kbmkUiqDiXwRxEf9x4tHgq1BsJUd+A=="
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.2.0, )",
@@ -135,6 +141,17 @@
           "Microsoft.VisualStudio.Threading": "17.1.42-alpha",
           "Microsoft.VisualStudio.Threading.Analyzers": "17.1.42-alpha",
           "System.Collections.Immutable": "5.0.0"
+        }
+      },
+      "Microsoft.VisualStudio.Workspace.VSIntegration": {
+        "type": "Direct",
+        "requested": "[17.1.11-preview-0002, )",
+        "resolved": "17.1.11-preview-0002",
+        "contentHash": "gZ74u5Qi06HfstKxq+wCGlssvMUdgVIzNq2ZXa5uzmswN2mibee5wIyB3VYs0JNXQizMJmZuhU+aiUFkV+kb5A==",
+        "dependencies": {
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.1.42-alpha",
+          "Microsoft.VisualStudio.Workspace": "17.1.11-preview-0002",
+          "Microsoft.VisualStudio.Workspace.Extensions": "17.1.11-preview-0002"
         }
       },
       "Nerdbank.GitVersioning": {
@@ -737,16 +754,6 @@
           "Microsoft.VisualStudio.Workspace": "17.1.11-preview-0002"
         }
       },
-      "Microsoft.VisualStudio.Workspace.VSIntegration": {
-        "type": "Transitive",
-        "resolved": "17.1.11-preview-0002",
-        "contentHash": "gZ74u5Qi06HfstKxq+wCGlssvMUdgVIzNq2ZXa5uzmswN2mibee5wIyB3VYs0JNXQizMJmZuhU+aiUFkV+kb5A==",
-        "dependencies": {
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.1.42-alpha",
-          "Microsoft.VisualStudio.Workspace": "17.1.11-preview-0002",
-          "Microsoft.VisualStudio.Workspace.Extensions": "17.1.11-preview-0002"
-        }
-      },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
         "resolved": "5.0.0",
@@ -1078,7 +1085,7 @@
           "Microsoft.VisualStudio.Shell.Interop": "[17.2.32505.113, )",
           "Microsoft.VisualStudio.Threading": "[17.2.32, )",
           "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
-          "Microsoft.VisualStudio.Workspace.VSIntegration": "[16.3.43, )",
+          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.6, )"
         }
