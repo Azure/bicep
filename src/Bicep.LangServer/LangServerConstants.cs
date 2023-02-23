@@ -20,5 +20,6 @@ namespace Bicep.LanguageServer
         public const string CreateConfigFile = "createConfigFile";
         // An internal-only command used in code actions to edit a particular rule in the bicepconfig.json file
         public const string EditLinterRuleCommandName = "bicep.EditLinterRule";
+        public const string IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting = "IncludeAllAccessibleAzureContainerRegistriesForCompletions";
     }
 }

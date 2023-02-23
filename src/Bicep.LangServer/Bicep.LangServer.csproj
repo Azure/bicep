@@ -12,9 +12,14 @@
     <ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <NoWarn>IDE0073</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.7" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="Microsoft.Azure.Management.ResourceGraph" Version="2.1.0" />
     <PackageReference Include="SharpYaml" Version="2.1.0" />
   </ItemGroup>
 

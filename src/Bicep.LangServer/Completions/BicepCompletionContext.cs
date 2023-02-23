@@ -343,7 +343,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.OutputType;
             }
 
-             // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
+            // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
             if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckOutputResourceTypeIsExpected(output)) ||
                 SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, ResourceTypeSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
             {
@@ -373,6 +373,18 @@ namespace Bicep.LanguageServer.Completions
                 SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
                 SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (module, skipped, _) => module.Path == skipped))
             {
+                if (matchingNodes.Count == 4 &&
+                    matchingNodes[^1] is Token token &&
+                    token.Type == TokenType.StringComplete)
+                {
+                    string text = token.Text;
+
+                    if (text.StartsWith("'br/") || text.StartsWith("'br:"))
+                    {
+                        return BicepCompletionContextKind.OciModuleRegistryReference;
+                    }
+                }
+
                 // the most specific matching node is a module declaration
                 // the declaration syntax is "module <identifier> '<path>' ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position

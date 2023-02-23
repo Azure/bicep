@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
@@ -12,10 +14,12 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -24,10 +28,16 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompletionProviderTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         private static BicepCompletionProvider CreateProvider()
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
+                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>()
+                .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddSingleton<BicepCompletionProvider>());
 
             return helper.Construct<BicepCompletionProvider>();
@@ -36,13 +46,13 @@ namespace Bicep.LangServer.UnitTests
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         [TestMethod]
-        public void DeclarationContextShouldReturnKeywordCompletions()
+        public async Task DeclarationContextShouldReturnKeywordCompletions()
         {
             var compilation = Services.BuildCompilation(string.Empty);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, 0));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, 0));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -116,7 +126,7 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void NonDeclarationContextShouldIncludeDeclaredSymbols()
+        public async Task NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
             var compilation = Services.BuildCompilation(@"
 param p string
@@ -130,7 +140,7 @@ output o int = 42
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, context).ToList();
+            var completions = (await completionProvider.GetFilteredCompletions(compilation, context)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
@@ -160,16 +170,16 @@ output o int = 42
         }
 
         [TestMethod]
-        public void CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
+        public async Task CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
             var compilation = Services.BuildCompilation(@"param p string = ");
 
             var offset = ((ParameterDefaultValueSyntax)compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Modifier!).DefaultValue.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(
+            var completions = (await completionProvider.GetFilteredCompletions(
                 compilation,
-                BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset)).ToList();
+                BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset))).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
 
@@ -186,7 +196,7 @@ output o int = 42
         }
 
         [TestMethod]
-        public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
+        public async Task DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
             var compilation = Services.BuildCompilation(@"
 param concat string
@@ -200,7 +210,7 @@ output length int =
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, context).ToList();
+            var completions = (await completionProvider.GetFilteredCompletions(compilation, context)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] { "sys.concat", "az.resourceGroup", "sys.base64" });
 
@@ -236,14 +246,14 @@ output length int =
         }
 
         [TestMethod]
-        public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
+        public async Task OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
             var compilation = Services.BuildCompilation("output test ");
 
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -252,14 +262,14 @@ output length int =
         }
 
         [TestMethod]
-        public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
+        public async Task ParameterTypeContextShouldReturnDeclarationTypeCompletions()
         {
             var compilation = Services.BuildCompilation("param foo ");
 
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -298,14 +308,14 @@ output length int =
         }
 
         [TestMethod]
-        public void VerifyParameterTypeCompletionWithPrecedingComment()
+        public async Task VerifyParameterTypeCompletionWithPrecedingComment()
         {
             var compilation = Services.BuildCompilation("/*test*/param foo ");
 
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -346,6 +356,142 @@ output length int =
         }
 
         [DataTestMethod]
+        [DataRow("module test |''", 14)]
+        [DataRow("module test ''|", 14)]
+        [DataRow("module test '|'", 14)]
+        [DataRow("module test '|", 13)]
+        [DataRow("module test |", 12)]
+        public async Task Verify_BicepRegistryAndTemplateSpecShemaCompletions(string inputWithCursors, int expectedEnd)
+        {
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+
+            var completionProvider = CreateProvider();
+
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]));
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("../");
+                    c.Kind.Should().Be(CompletionItemKind.Folder);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'../$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("br:");
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Bicep registry schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("br/");
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Bicep registry schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br/$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("ts:");
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Template spec schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'ts:$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                },
+                c =>
+                {
+                    c.Label.Should().Be("ts/");
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Template spec schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'ts/$0'");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                });
+        }
+
+        [TestMethod]
+        public async Task Verify_ModuleRegistryReferenceCompletion_WithInvalidText_ReturnsNull()
+        {
+            var inputWithCursors = "module test 'br:/|'";
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+
+            var completionProvider = CreateProvider();
+
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]));
+
+            completions.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task Verify_ModuleRegistryAliasCompletion()
+        {
+            var inputWithCursors = "module test 'br/|'";
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+
+            var completionProvider = CreateProvider();
+
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]));
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("public:");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("public:$0");
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                });
+        }
+
+        [DataTestMethod]
         [DataRow("// |")]
         [DataRow("/* |")]
         [DataRow("param foo // |")]
@@ -355,14 +501,14 @@ output length int =
 *
 * |
 */")]
-        public void CommentShouldNotGiveAnyCompletions(string codeFragment)
+        public async Task CommentShouldNotGiveAnyCompletions(string codeFragment)
         {
             var compilation = Services.BuildCompilation(codeFragment);
 
             var offset = codeFragment.IndexOf('|');
 
             var completionProvider = CreateProvider();
-            var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
 
             completions.Should().BeEmpty();
         }

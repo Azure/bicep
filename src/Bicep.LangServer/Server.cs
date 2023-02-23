@@ -38,6 +38,7 @@ using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
+using Bicep.LanguageServer.Settings;
 
 namespace Bicep.LanguageServer
 {
@@ -99,6 +100,10 @@ namespace Bicep.LanguageServer
 
             server.LogInfo($"Running on processId {Environment.ProcessId}");
 
+            var mcrCompletionProvider = server.GetRequiredService<IModulesMetadataProvider>();
+            var mcrModulesMetadatInitializationResult = await mcrCompletionProvider.Initialize();
+            server.LogInfo(mcrModulesMetadatInitializationResult);
+
             if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new ServerLogTraceListener(server));
@@ -133,7 +138,14 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
+                .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
+                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                .AddSingleton<ISettingsProvider, SettingsProvider>()
+                .AddSingleton<IDidChangeConfigurationSettingsHandler, ConfigurationSettingsHandler>()
+                .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
+                .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>();
         }
 
         public void Dispose()

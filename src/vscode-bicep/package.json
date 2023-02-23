@@ -95,6 +95,11 @@
           "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
           "default": true
         },
+        "bicep.IncludeAllAccessibleAzureContainerRegistriesForCompletions": {
+          "type": "boolean",
+          "description": "List all Azure Container Registries when module registry reference completion is invoked. Note: If this option is not selected, only registry login server names configured under moduleAliases in bicepconfig.json would be listed.",
+          "default": false
+        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
