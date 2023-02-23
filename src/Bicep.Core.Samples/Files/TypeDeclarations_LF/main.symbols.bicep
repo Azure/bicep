@@ -32,13 +32,13 @@ type bar = int[][][][]
 //@[5:08) TypeAlias bar. Type: Type<int[][][][]>. Declaration start char: 0, length: 163
 
 type aUnion = 'snap'|'crackle'|'pop'
-//@[5:11) TypeAlias aUnion. Type: Type<'crackle' | 'pop' | 'snap'>. Declaration start char: 0, length: 36
+//@[5:11) TypeAlias aUnion. Type: Type<('crackle' | 'pop' | 'snap')>. Declaration start char: 0, length: 36
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
-//@[5:18) TypeAlias expandedUnion. Type: Type<'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap'>. Declaration start char: 0, length: 47
+//@[5:18) TypeAlias expandedUnion. Type: Type<('buzz' | 'crackle' | 'fizz' | 'pop' | 'snap')>. Declaration start char: 0, length: 47
 
 type tupleUnion = ['foo', 'bar', 'baz']
-//@[5:15) TypeAlias tupleUnion. Type: Type<['fizz', 'buzz'] | ['foo', 'bar', 'baz'] | ['snap', 'crackle', 'pop']>. Declaration start char: 0, length: 85
+//@[5:15) TypeAlias tupleUnion. Type: Type<(['fizz', 'buzz'] | ['foo', 'bar', 'baz'] | ['snap', 'crackle', 'pop'])>. Declaration start char: 0, length: 85
 |['fizz', 'buzz']
 |['snap', 'crackle', 'pop']
 
@@ -82,7 +82,7 @@ type stringStringDictionary = {
 @minValue(1)
 @maxValue(10)
 type constrainedInt = int
-//@[5:19) TypeAlias constrainedInt. Type: Type<>= 1 && <= 10>. Declaration start char: 0, length: 52
+//@[5:19) TypeAlias constrainedInt. Type: Type<(>= 1 && <= 10)>. Declaration start char: 0, length: 52
 
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48

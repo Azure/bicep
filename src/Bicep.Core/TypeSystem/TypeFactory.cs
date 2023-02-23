@@ -24,11 +24,11 @@ public static class TypeFactory
         return IntegerTypePool.GetOrAdd(new(minValue, maxValue, validationFlags), BuildIntegerType);
     }
 
-    public static IntegerLiteralType CreateIntegerLiteralType(long value, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
-        => IntegerLiteralTypePool.GetOrAdd(new(value, validationFlags), BuildIntegerLiteralType);
-
     private static IntegerType BuildIntegerType(IntegerAttributes attributes)
         => new(attributes.MinValue, attributes.MaxValue, attributes.ValidationFlags);
+
+    public static IntegerLiteralType CreateIntegerLiteralType(long value, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+        => IntegerLiteralTypePool.GetOrAdd(new(value, validationFlags), BuildIntegerLiteralType);
 
     private static IntegerLiteralType BuildIntegerLiteralType(IntegerLiteralAttributes attributes)
         => new(attributes.Value, attributes.ValidationFlags);

@@ -308,7 +308,11 @@ namespace Bicep.Core.TypeSystem
                         {
                             diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsBelowTargetIntDomain(expressionType.Name, targetType.Name));
                         }
-                        var narrowedMin = Math.Max(expressionMin, targetMin);
+                        long? narrowedMin = Math.Max(expressionMin, targetMin) switch
+                        {
+                            long.MinValue => null,
+                            long otherwise => otherwise,
+                        };
 
                         var expressionMax = expressionInteger.MaxValue ?? long.MaxValue;
                         var targetMax = targetInteger.MaxValue ?? long.MaxValue;
@@ -316,11 +320,12 @@ namespace Bicep.Core.TypeSystem
                         {
                             diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsAboveTargetIntDomain(expressionType.Name, targetType.Name));
                         }
-                        var narrowedMax = Math.Min(expressionMax, targetMax);
+                        long? narrowedMax = Math.Min(expressionMax, targetMax) switch {
+                            long.MaxValue => null,
+                            long otherwise => otherwise,
+                        };
 
-                        return TypeFactory.CreateIntegerType(narrowedMin != long.MinValue ? narrowedMin : null,
-                            narrowedMax != long.MaxValue ? narrowedMax : null,
-                            targetInteger.ValidationFlags);
+                        return TypeFactory.CreateIntegerType(narrowedMin, narrowedMax, targetInteger.ValidationFlags);
                     case IntegerLiteralType expressionIntegerLiteral:
                         // if a integer literal was assignable to an integer, the literal will always be the most narrow type
                         return expressionIntegerLiteral;

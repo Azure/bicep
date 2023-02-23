@@ -12,7 +12,7 @@ public class TypeType : TypeSymbol
 {
     private readonly TypeSymbol wrappedType;
 
-    public TypeType(TypeSymbol toWrap) : base($"Type<{toWrap.Name}>")
+    public TypeType(TypeSymbol toWrap) : base($"Type<{toWrap.FormatNameForCompoundTypes()}>")
     {
         this.wrappedType = toWrap;
     }

@@ -528,6 +528,11 @@ namespace Bicep.Core.TypeSystem
             foreach (var item in syntax.Items)
             {
                 var itemType = GetDeclaredTypeAssignment(item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(item.Value).InvalidTypeDefinition());
+                itemType = itemType switch
+                {
+                    DeferredTypeReference => new DeferredTypeReference(() => ApplyTypeModifyingDecorators(itemType.Type, item)),
+                    _ => ApplyTypeModifyingDecorators(itemType.Type, item),
+                };
                 items.Add(itemType);
                 nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
             }
