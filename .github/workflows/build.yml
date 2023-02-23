@@ -262,6 +262,7 @@ jobs:
         with:
           name: build-binlog-files
           path: ./src/binlog/bicep_in_visual_studio_build.binlog
+          if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
         uses: actions/upload-artifact@v3
