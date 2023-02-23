@@ -632,6 +632,55 @@ namespace Bicep.LangServer.UnitTests.Completions
             actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
         }
 
+        [DataTestMethod]
+        [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
+        [DataRow("module foo 'br:test.azurecr.io/|", ModuleRegistryType.ACR)]
+        [DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
+        [DataRow("module foo 'br/test1:|", ModuleRegistryType.ACR)]
+        [DataRow("module foo 'br/test2:|", ModuleRegistryType.ACR)]
+        [DataRow("module foo 'br/test3:|", ModuleRegistryType.MCR)]
+        [DataRow("module foo 'br/test4:|", ModuleRegistryType.MCR)]
+        public async Task VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion(string inputWithCursors, string moduleRegistryType)
+        {
+            var bicepConfigFileContents = @"{
+  ""moduleAliases"": {
+    ""br"": {
+      ""test1"": {
+        ""registry"": ""bhsubracr.azurecr.io"",
+        ""modulePath"": ""bicep/modules""
+      },
+      ""test2"": {
+        ""registry"": ""bhsubratest.azurecr.io""
+      },
+      ""test3"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep/app""
+      },
+      ""test4"": {
+        ""registry"": ""mcr.microsoft.com""
+      }
+    }
+  }
+}";
+            var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
+            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
+
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProvider,
+                telemetryProvider.Object);
+            await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+
+            telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
+                p => p.EventName == TelemetryConstants.EventNames.ModuleRegistryPathCompletion &&
+                p.Properties != null &&
+                p.Properties["moduleRegistryType"] == moduleRegistryType)), Times.Exactly(1));
+        }
+
         private BicepCompletionContext GetBicepCompletionContext(
             string inputWithCursors,
             string? bicepConfigFileContents,
