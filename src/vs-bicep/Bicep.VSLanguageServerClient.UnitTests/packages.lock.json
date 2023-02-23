@@ -18,6 +18,12 @@
         "resolved": "3.3.4",
         "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
       },
+      "Microsoft.Net.Compilers.Toolset": {
+        "type": "Direct",
+        "requested": "[4.5.0-2.final, )",
+        "resolved": "4.5.0-2.final",
+        "contentHash": "5AKgCibYDYbiRdTdkNtBZnKZ5leEAJsbXl5bDPflqYNtrbdZcAW5GX/6kbmkUiqDiXwRxEf9x4tHgq1BsJUd+A=="
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.1.1, )",

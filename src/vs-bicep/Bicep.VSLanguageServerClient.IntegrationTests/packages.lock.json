@@ -18,6 +18,12 @@
         "resolved": "3.3.4",
         "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
       },
+      "Microsoft.Net.Compilers.Toolset": {
+        "type": "Direct",
+        "requested": "[4.5.0-2.final, )",
+        "resolved": "4.5.0-2.final",
+        "contentHash": "5AKgCibYDYbiRdTdkNtBZnKZ5leEAJsbXl5bDPflqYNtrbdZcAW5GX/6kbmkUiqDiXwRxEf9x4tHgq1BsJUd+A=="
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.2.0, )",
@@ -749,23 +755,23 @@
       },
       "Microsoft.VisualStudio.Workspace.Extensions": {
         "type": "Transitive",
-        "resolved": "17.1.11-preview-0002",
-        "contentHash": "8n9yl/wmaqWeX6V1MNWtPKEU9hYb2pP+Dw98sVAcGYYxc+QUAx442+7KHBsYIYPYf4Jz5pfV0242dUWCuVTNiw==",
+        "resolved": "17.0.62-preview-0004",
+        "contentHash": "6wW1anFbsC9B1jp+WGDFB3TIL1yLP+SSQBt5V4+y2sAUC7JM/4L/8K+eopvtYpX1eWlgkxyKlegSs3pcoTXFww==",
         "dependencies": {
           "Microsoft.Build": "16.8.0",
-          "Microsoft.VisualStudio.Threading": "17.1.42-alpha",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.1.42-alpha",
-          "Microsoft.VisualStudio.Workspace": "17.1.11-preview-0002"
+          "Microsoft.VisualStudio.Threading": "17.0.15-alpha",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.0.15-alpha",
+          "Microsoft.VisualStudio.Workspace": "17.0.62-preview-0004"
         }
       },
       "Microsoft.VisualStudio.Workspace.VSIntegration": {
         "type": "Transitive",
-        "resolved": "17.1.11-preview-0002",
-        "contentHash": "gZ74u5Qi06HfstKxq+wCGlssvMUdgVIzNq2ZXa5uzmswN2mibee5wIyB3VYs0JNXQizMJmZuhU+aiUFkV+kb5A==",
+        "resolved": "17.0.62-preview-0004",
+        "contentHash": "JmY48ERmwrWxn0RtsmAM75h+KQi6v5Kjilt5Mtz5Jz24WZRJGeH/SkegkflMj70A5yRNL67s+PYXCl1eM66FPw==",
         "dependencies": {
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.1.42-alpha",
-          "Microsoft.VisualStudio.Workspace": "17.1.11-preview-0002",
-          "Microsoft.VisualStudio.Workspace.Extensions": "17.1.11-preview-0002"
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.0.15-alpha",
+          "Microsoft.VisualStudio.Workspace": "17.0.62-preview-0004",
+          "Microsoft.VisualStudio.Workspace.Extensions": "17.0.62-preview-0004"
         }
       },
       "Microsoft.Win32.Registry": {
