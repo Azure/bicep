@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class UseParentPropertyRuleTests : LinterRuleTestsBase
 {
     private void AssertCodeFix(string inputFile, string resultFile)
-        => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property.", inputFile, resultFile);
+        => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property", inputFile, resultFile);
 
     private void AssertNoDiagnostics(string inputFile)
         => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, new string[] { }, new Options(OnCompileErrors.Ignore, IncludePosition.None));

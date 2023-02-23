@@ -74,7 +74,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<DiagnosticAssertions>(this);
         }
 
-        public AndConstraint<DiagnosticAssertions> HaveCodeFix(string description, string replacement, string because = "", params object[] becauseArgs)
+        public AndConstraint<DiagnosticAssertions> HaveCodeFix(string title, string replacement, string because = "", params object[] becauseArgs)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
@@ -87,8 +87,8 @@ namespace Bicep.Core.UnitTests.Assertions
                 .FailWith("Expected diagnostic to have exactly one fix {reason} but it had {0}", x => x.Fixes.Count())
                 .Then
                 .Given<IFixable>(_ => (IFixable)Subject)
-                .ForCondition(x => x.Fixes.Single().Description == description)
-                .FailWith("Expected diagnostic's fix to have description '{0}' {reason} but it was '{1}'", _ => description, x => x.Fixes.Single().Description)
+                .ForCondition(x => x.Fixes.Single().Title == title)
+                .FailWith("Expected diagnostic's fix to have title '{0}' {reason} but it was '{1}'", _ => title, x => x.Fixes.Single().Title)
                 .Then
                 .Given<IFixable>(_ => (IFixable)Subject)
                 .ForCondition(x => x.Fixes.Single().Replacements.Count() == 1)
