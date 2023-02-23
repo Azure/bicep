@@ -257,6 +257,12 @@ jobs:
       - name: Build BicepInVisualStudio.sln
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
 
+      - name: Upload BicepInVisualStudio.sln build binlog
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-binlog-files
+          path: ./src/binlog/bicep_in_visual_studio_build.binlog
+
       - name: Upload BicepLanguageServerClient VSIX
         uses: actions/upload-artifact@v3
         with:
