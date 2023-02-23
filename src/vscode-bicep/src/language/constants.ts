@@ -6,7 +6,6 @@ export const bicepLanguageId = "bicep";
 export const bicepConfigurationPrefix = "bicep";
 
 export const bicepConfigurationKeys = {
-  decompileOnPaste: "experimental.decompileOnPaste",
-  experimentalEnablePasteOnBicep: "experimental.enablePasteAsBicep",
+  decompileOnPaste: "decompileOnPaste",
   enableSurveys: "enableSurveys",
 };

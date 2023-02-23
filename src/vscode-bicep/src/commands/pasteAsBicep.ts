@@ -120,14 +120,6 @@ export class PasteAsBicepCommand implements Command {
     );
   }
 
-  public isExperimentalPasteAsBicepEnabled(): boolean {
-    return (
-      getBicepConfiguration().get<boolean>(
-        bicepConfigurationKeys.experimentalEnablePasteOnBicep
-      ) ?? false
-    );
-  }
-
   private isAutoConvertOnPasteEnabled(): boolean {
     return (
       getBicepConfiguration().get<boolean>(
@@ -145,9 +137,6 @@ export class PasteAsBicepCommand implements Command {
       async (context) => {
         context.telemetry.suppressIfSuccessful = true;
 
-        if (!this.isExperimentalPasteAsBicepEnabled()) {
-          return;
-        }
         if (!this.isAutoConvertOnPasteEnabled()) {
           return;
         }
