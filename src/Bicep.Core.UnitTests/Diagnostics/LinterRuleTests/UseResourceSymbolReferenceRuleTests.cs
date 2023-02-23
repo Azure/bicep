@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class UseResourceSymbolReferenceRuleTests : LinterRuleTestsBase
 {
     private void AssertCodeFix(string inputFile, string resultFile)
-        => AssertCodeFix(UseResourceSymbolReferenceRule.Code, "Use a direct resource reference.", inputFile, resultFile);
+        => AssertCodeFix(UseResourceSymbolReferenceRule.Code, "Use direct resource reference", inputFile, resultFile);
 
     private void AssertNoDiagnostics(string inputFile)
         => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, new string[] { }, new Options(OnCompileErrors.Ignore, IncludePosition.None));

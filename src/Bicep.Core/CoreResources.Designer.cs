@@ -673,7 +673,7 @@ namespace Bicep.Core {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use a direct resource reference..
+        ///   Looks up a localized string similar to Use direct resource reference.
         /// </summary>
         internal static string UseResourceSymbolReferenceRule_CodeFix {
             get {
