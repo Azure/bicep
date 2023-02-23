@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -54,7 +55,53 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("concat")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("concat", (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+                {
+                    BigInteger minLength = 0;
+                    BigInteger? maxLength = null;
+                    var itemTypes = new ITypeReference[argumentTypes.Length];
+
+                    for (int i = 0; i < argumentTypes.Length; i++)
+                    {
+                        if (argumentTypes[i] is not ArrayType arr)
+                        {
+                            return new(LanguageConstants.Array);
+                        }
+
+                        itemTypes[i] = arr.Item;
+
+                        minLength += arr.MinLength ?? 0;
+
+                        if (i == 0)
+                        {
+                            maxLength = arr.MaxLength;
+                        }
+                        else if (maxLength.HasValue && arr.MaxLength.HasValue)
+                        {
+                            maxLength = maxLength.Value + arr.MaxLength.Value;
+                        }
+                        else
+                        {
+                            maxLength = null;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(itemTypes),
+                        TypeSymbolValidationFlags.Default,
+                        minLength switch
+                        {
+                            var zero when zero == 0 => null,
+                            var tooBig when tooBig > long.MaxValue => long.MaxValue,
+                            var otherwise => (long) otherwise,
+                        },
+                        maxLength switch
+                        {
+                            null => null,
+                            var tooBig when tooBig > long.MaxValue => long.MaxValue,
+                            var otherwise => (long) otherwise,
+                        }));
+                }),
+                LanguageConstants.Array)
                 .WithGenericDescription(ConcatDescription)
                 .WithDescription("Combines multiple arrays and returns the concatenated array.")
                 .WithVariableParameter("arg", LanguageConstants.Array, minimumCount: 1, "The array for concatenation")
@@ -126,7 +173,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("split")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("split", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)), new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("split", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default, minLength: 1)), new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
                 .WithGenericDescription("Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The string to split.")
                 .WithRequiredParameter("delimiter", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
@@ -186,7 +233,34 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("take")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("take", LanguageConstants.Array), LanguageConstants.Array)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("take", (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+                {
+                    if (argumentTypes.FirstOrDefault() is not ArrayType original)
+                    {
+                        return new(LanguageConstants.Array);
+                    }
+
+                    if (argumentTypes.Skip(1).FirstOrDefault() is not IntegerLiteralType numToTake)
+                    {
+                        // any recorded min or max length is no longer valid; drop those refinements
+                        return new(TypeFactory.CreateArrayType(original.Item, original.ValidationFlags));
+                    }
+
+                    if (numToTake.Value < 0)
+                    {
+                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall.Arguments[1]).ArgumentMustNotBeNegative("numberToTake", numToTake.Value.ToString())));
+                    }
+
+                    return new(original switch
+                    {
+                        TupleType tupleType when numToTake.Value >= tupleType.Items.Length => tupleType,
+                        TupleType tupleType when numToTake.Value <= int.MaxValue => new TupleType(tupleType.Items.Take((int) numToTake.Value).ToImmutableArray(), tupleType.ValidationFlags),
+                        _ => TypeFactory.CreateArrayType(original.Item,
+                            original.ValidationFlags,
+                            original.MinLength.HasValue ? Math.Min(numToTake.Value, original.MinLength.Value) : null,
+                            Math.Min(numToTake.Value, original.MaxLength ?? long.MaxValue)),
+                    });
+                }), LanguageConstants.Array)
                 .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns an array with the specified number of elements from the start of the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to take the elements from.")
@@ -202,7 +276,33 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("skip")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("skip", (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+                {
+                    if (argumentTypes.FirstOrDefault() is not ArrayType original)
+                    {
+                        return new(LanguageConstants.Array);
+                    }
+
+                    if (argumentTypes.Skip(1).FirstOrDefault() is not IntegerLiteralType numToSkip)
+                    {
+                        // any recorded min length is no longer valid; drop that refinements
+                        return new(TypeFactory.CreateArrayType(original.Item, original.ValidationFlags, maxLength: original.MaxLength));
+                    }
+
+                    if (numToSkip.Value < 0)
+                    {
+                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall.Arguments[1]).ArgumentMustNotBeNegative("numberToSkip", numToSkip.Value.ToString())));
+                    }
+
+                    return new(original switch
+                    {
+                        TupleType tupleType when numToSkip.Value <= int.MaxValue => new TupleType(tupleType.Items.Skip((int) numToSkip.Value).ToImmutableArray(), tupleType.ValidationFlags),
+                        _ => TypeFactory.CreateArrayType(original.Item,
+                            original.ValidationFlags,
+                            original.MinLength.HasValue && original.MinLength.Value > numToSkip.Value ? original.MinLength.Value - numToSkip.Value : null,
+                            original.MaxLength.HasValue && original.MaxLength.Value > numToSkip.Value ? original.MaxLength.Value - numToSkip.Value : null),
+                    });
+                }), LanguageConstants.Array)
                 .WithGenericDescription(SkipDescription)
                 .WithDescription("Returns an array with all the elements after the specified number in the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to use for skipping.")
@@ -280,15 +380,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>
+                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>  new(argumentTypes[0] switch
                 {
-                    return new(argumentTypes[0] switch
-                    {
-                        TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
-                        ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
-                        _ => LanguageConstants.Any
-                    });
-                }, LanguageConstants.Any)
+                    TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
+                    ArrayType arrayType when arrayType.MinLength.HasValue && arrayType.MinLength.Value > 0 => arrayType.Item.Type,
+                    ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
+                    _ => LanguageConstants.Any
+                }), LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the first element.")
@@ -305,8 +403,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => new(argumentTypes[0] switch
                 {
                     TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
+                    ArrayType arrayType when arrayType.MinLength.HasValue && arrayType.MinLength.Value > 0 => arrayType.Item.Type,
                     ArrayType arrayType => TypeHelper.CreateTypeUnion(LanguageConstants.Null, arrayType.Item.Type),
-                    _ => LanguageConstants.Any
+                    _ => LanguageConstants.Any,
                 }), LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
@@ -560,7 +659,8 @@ namespace Bicep.Core.Semantics.Namespaces
                         // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
                         // For example, given a symbol `a` of type `[0, 1, 2, 3, 4]`, the expression `filter(a, x => x % 2 == 0)` returns an array in which each member is assignable to `0 | 1 | 2 | 3 | 4`,
                         // but the returned array (which has a concrete value of `[0, 2, 4]`) will not be assignable to the input tuple type of `[0, 1, 2, 3, 4]`
-                        TupleType tuple => tuple.ToTypedArray(),
+                        TupleType tuple => tuple.ToTypedArray(maxLength: tuple.Items.Length),
+                        ArrayType arrayType => TypeFactory.CreateArrayType(arrayType.Item, arrayType.ValidationFlags, minLength: null, maxLength: arrayType.MaxLength),
                         var otherwise => otherwise,
                     });
                 }, LanguageConstants.Array)
@@ -587,7 +687,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(argumentTypes[0] switch
                     {
                         // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
-                        TupleType tuple => tuple.ToTypedArray(),
+                        TupleType tuple => tuple.ToTypedArray(minLength: tuple.Items.Length, maxLength: tuple.Items.Length),
                         var otherwise => otherwise,
                     });
                 }, LanguageConstants.Array)
@@ -654,11 +754,14 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
+            TryDeriveLiteralReturnType(armFunctionName, (_, _, _, _, _) => new(nonLiteralReturnType));
+
+        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate nonLiteralReturnResultBuilder) =>
             (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
             {
                 FunctionResult returnType = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
                     ? new(literalReturnType)
-                    : new(nonLiteralReturnType);
+                    : nonLiteralReturnResultBuilder.Invoke(binder, fileResolver, diagnostics, functionCall, argumentTypes);
 
                 var diagnosticTarget = functionCall.Arguments.Any()
                     ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
@@ -1069,7 +1172,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, parentTypeSyntax, binder, diagnosticWriter);
                     EmitDiagnosticIfTargetingLiteral(decoratorName, decoratorSyntax, parentTypeSyntax, typeManager, diagnosticWriter);
 
-                    if (ReferenceEquals(targetType, LanguageConstants.Array) &&
+                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array) &&
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
                         allowedValues.Items.All(item => item.Value is not ArraySyntax))
                     {

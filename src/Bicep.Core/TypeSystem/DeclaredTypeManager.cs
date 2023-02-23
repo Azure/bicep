@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
@@ -257,6 +258,8 @@ namespace Bicep.Core.TypeSystem
             {
                 _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
                 IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
+                TupleType tupleType => tupleType,
+                ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
                 PrimitiveType primitive => new PrimitiveType(primitive.Name, validationFlags),
                 _ => declaredType,
             };
@@ -298,6 +301,51 @@ namespace Bicep.Core.TypeSystem
             => syntax?.Arguments.Count() == 1 && typeManager.GetTypeInfo(syntax.Arguments.Single()) is IntegerLiteralType integerLiteral
                 ? integerLiteral.Value
                 : null;
+
+        private TypeSymbol GetModifiedArray(ArrayType declaredArray, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (!GetLengthModifiers(syntax, declaredArray.MinLength, declaredArray.MaxLength, out var minLength, out var maxLength, out var errorType))
+            {
+                return errorType;
+            }
+
+            return TypeFactory.CreateArrayType(declaredArray.Item, validationFlags, minLength, maxLength);
+        }
+
+        private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
+        {
+            var minLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinLengthPropertyName);
+            minLength = GetSingleIntDecoratorArgument(minLengthDecorator) ?? defaultMinLength;
+            var maxLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxLengthPropertyName);
+            maxLength = GetSingleIntDecoratorArgument(maxLengthDecorator) ?? defaultMaxLength;
+
+            if (minLength.HasValue && maxLength.HasValue && minLength.Value > maxLength.Value)
+            {
+                // create at most one error diagnostic iff a min/maxLength decorator targets this statement.
+                if (minLengthDecorator is not null)
+                {
+                    error = ErrorType.Create(DiagnosticBuilder.ForPosition(minLengthDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinLengthPropertyName,
+                        minLength.Value,
+                        LanguageConstants.ParameterMaxLengthPropertyName,
+                        maxLength.Value));
+                    return false;
+                }
+
+                if (maxLengthDecorator is not null)
+                {
+                    error = ErrorType.Create(DiagnosticBuilder.ForPosition(maxLengthDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinLengthPropertyName,
+                        minLength.Value,
+                        LanguageConstants.ParameterMaxLengthPropertyName,
+                        maxLength.Value));
+                    return false;
+                }
+            }
+
+            error = null;
+            return true;
+        }
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);

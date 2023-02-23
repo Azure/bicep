@@ -54,14 +54,14 @@ public class NullabilityTests
 param input string
 
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))
+  name: last(filter(split(input, '/'), x => true))
 }
 ",
 @"
 param input string
 
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: last(split(input, '/'))!
+  name: last(filter(split(input, '/'), x => true))!
 }
 ",
                 LanguageConstants.String,
@@ -73,12 +73,12 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 @"
 param input string
 
-output out string = uniqueString(last(split(input, '/')))
+output out string = uniqueString(last(filter(split(input, '/'), x => true)))
 ",
 @"
 param input string
 
-output out string = uniqueString(last(split(input, '/'))!)
+output out string = uniqueString(last(filter(split(input, '/'), x => true))!)
 ",
                 LanguageConstants.String,
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.String)
@@ -89,12 +89,12 @@ output out string = uniqueString(last(split(input, '/'))!)
 @"
 param csv string
 
-output firstPrefix string = first(split(csv, ','))
+output firstPrefix string = first(filter(split(csv, ','), x => true))
 ",
 @"
 param csv string
 
-output firstPrefix string = first(split(csv, ','))!
+output firstPrefix string = first(filter(split(csv, ','), x => true))!
 ",
                 LanguageConstants.String,
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.String)
@@ -149,12 +149,12 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = if (first(
 @"
 param input array
 
-output something string = input[first(range(0, length(input)))]
+output something string = input[first(filter(range(0, length(input)), x => true))]
 ",
 @"
 param input array
 
-output something string = input[first(range(0, length(input)))!]
+output something string = input[first(filter(range(0, length(input)), x => true))!]
 ",
                 LanguageConstants.Int,
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.Int)
@@ -166,13 +166,13 @@ output something string = input[first(range(0, length(input)))!]
 param input object
 param csv string
 
-output something string = input[first(split(csv, ','))]
+output something string = input[first(filter(split(csv, ','), x => true))]
 ",
 @"
 param input object
 param csv string
 
-output something string = input[first(split(csv, ','))!]
+output something string = input[first(filter(split(csv, ','), x => true))!]
 ",
                 LanguageConstants.String,
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.String)
@@ -200,11 +200,11 @@ var arrayOfOneBuzz = [for i in first(arrayOfArrays)!: 'buzz']
             Case(
 @"
 param csv string
-param anotherParam string = first(split(csv, ','))
+param anotherParam string = first(filter(split(csv, ','), x => true))
 ",
 @"
 param csv string
-param anotherParam string = first(split(csv, ','))!
+param anotherParam string = first(filter(split(csv, ','), x => true))!
 ",
                 LanguageConstants.String,
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.String)

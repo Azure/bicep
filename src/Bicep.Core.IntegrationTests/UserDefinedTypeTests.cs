@@ -537,7 +537,7 @@ param paramB int = paramA.prop
     [TestMethod]
     public void Impossible_integer_domains_raise_descriptive_error()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minValue(1)
 @maxValue(0)
 param myParam int
@@ -546,6 +546,72 @@ param myParam int
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
             ("BCP326", DiagnosticLevel.Error, "A type's \"minValue\" must be less than or equal to its \"maxValue\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
+
+    [TestMethod]
+    public void Array_assignments_whose_source_may_be_too_short_for_target_generate_warnings()
+    {
+        var result = CompilationHelper.Compile(@"
+param paramA array
+
+@minLength(2)
+param paramB array = paramA
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP327", DiagnosticLevel.Warning, "A value of type \"array\" may be too short to assign to a target of type \"any[] {@minLength(2)}\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Array_assignments_whose_source_may_be_too_long_for_target_generate_warnings()
+    {
+        var result = CompilationHelper.Compile(@"
+param paramA array
+
+@maxLength(2)
+param paramB array = paramA
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP328", DiagnosticLevel.Warning, "A value of type \"array\" may be too long to assign to a target of type \"any[] {@maxLength(2)}\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Array_assignments_whose_source_and_target_lengths_are_disjoint_domains_generate_errors()
+    {
+        var result = CompilationHelper.Compile(@"
+@minLength(0)
+@maxLength(9)
+param paramA array
+
+@minLength(10)
+@maxLength(19)
+param paramB array = paramA
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"any[] {@minLength(10), @maxLength(19)}\" but the provided value is of type \"any[] {@minLength(0), @maxLength(9)}\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_array_length_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(1)
+@maxLength(0)
+param myParam array
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP326", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
         });
     }
 }

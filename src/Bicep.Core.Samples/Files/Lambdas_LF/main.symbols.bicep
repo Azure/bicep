@@ -54,25 +54,25 @@ var mapMultiLineArray = flatten(map(range(1, 3), i => [
 
 var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
 //@[056:059) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 56, length: 3
-//@[004:023) Variable filterEqualityCheck. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 76
+//@[004:023) Variable filterEqualityCheck. Type: ('abc' | 'def' | 'ghi')[] {@maxLength(3)}. Declaration start char: 0, length: 76
 var filterEmpty = filter([], foo => 'def' == foo)
 //@[029:032) Local foo. Type: never. Declaration start char: 29, length: 3
-//@[004:015) Variable filterEmpty. Type: never[]. Declaration start char: 0, length: 49
+//@[004:015) Variable filterEmpty. Type: never[] {@maxLength(0)}. Declaration start char: 0, length: 49
 
 var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
 //@[044:045) Local x. Type: -13 | 10 | 3 | 5 | 8. Declaration start char: 44, length: 1
 //@[047:048) Local y. Type: -13 | 10 | 3 | 5 | 8. Declaration start char: 47, length: 1
-//@[004:015) Variable sortNumeric. Type: (-13 | 10 | 3 | 5 | 8)[]. Declaration start char: 0, length: 59
+//@[004:015) Variable sortNumeric. Type: (-13 | 10 | 3 | 5 | 8)[] {@minLength(5), @maxLength(5)}. Declaration start char: 0, length: 59
 var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
 //@[045:046) Local x. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 45, length: 1
 //@[048:049) Local y. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 48, length: 1
-//@[004:013) Variable sortAlpha. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 60
+//@[004:013) Variable sortAlpha. Type: ('abc' | 'def' | 'ghi')[] {@minLength(3), @maxLength(3)}. Declaration start char: 0, length: 60
 var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
 //@[052:053) Local x. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 52, length: 1
 //@[055:056) Local y. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 55, length: 1
-//@[004:020) Variable sortAlphaReverse. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 67
+//@[004:020) Variable sortAlphaReverse. Type: ('abc' | 'def' | 'ghi')[] {@minLength(3), @maxLength(3)}. Declaration start char: 0, length: 67
 var sortByObjectKey = sort([
-//@[004:019) Variable sortByObjectKey. Type: (object | object | object | object)[]. Declaration start char: 0, length: 188
+//@[004:019) Variable sortByObjectKey. Type: (object | object | object | object)[] {@minLength(4), @maxLength(4)}. Declaration start char: 0, length: 188
   { key: 124, name: 'Second' }
   { key: 298, name: 'Third' }
   { key: 24, name: 'First' }
@@ -83,7 +83,7 @@ var sortByObjectKey = sort([
 var sortEmpty = sort([], (x, y) => int(x) < int(y))
 //@[026:027) Local x. Type: never. Declaration start char: 26, length: 1
 //@[029:030) Local y. Type: never. Declaration start char: 29, length: 1
-//@[004:013) Variable sortEmpty. Type: never[]. Declaration start char: 0, length: 51
+//@[004:013) Variable sortEmpty. Type: never[] {@minLength(0), @maxLength(0)}. Declaration start char: 0, length: 51
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
 //@[060:063) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 60, length: 3

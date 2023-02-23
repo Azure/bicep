@@ -170,10 +170,11 @@ namespace Bicep.Core.TypeSystem
                     // this function does not implement any schema validation, so this is far as we go
                     return true;
 
-                case (ArrayType, ArrayType):
+                case (ArrayType sourceArray, ArrayType targetArray):
                     // both types are arrays
                     // this function does not validate item types
-                    return true;
+                    return (targetArray.MinLength ?? 0) <= (sourceArray.MaxLength ?? long.MaxValue) &&
+                        (targetArray.MaxLength ?? long.MaxValue) >= (sourceArray.MinLength ?? 0);
 
                 case (DiscriminatedObjectType, DiscriminatedObjectType):
                     // validation left for later
@@ -365,9 +366,41 @@ namespace Bicep.Core.TypeSystem
             }
 
             // array assignability check
-            if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
+            if (targetType is ArrayType targetArrayType)
             {
-                return NarrowArrayAssignmentType(config, arrayValue, targetArrayType);
+                long? narrowedMinLength = null;
+                long? narrowedMaxLength = null;
+
+                if (expressionType is ArrayType expressionArrayType)
+                {
+                    var expressionMinLength = expressionArrayType.MinLength ?? 0;
+                    var targetMinLength = targetArrayType.MinLength ?? 0;
+                    if (expressionMinLength < targetMinLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.Name, targetArrayType.Name));
+                    }
+                    narrowedMinLength = Math.Max(expressionMinLength, targetMinLength) switch
+                    {
+                        0 => null,
+                        long otherwise => otherwise,
+                    };
+
+                    var expressionMaxLength = expressionArrayType.MaxLength ?? long.MaxValue;
+                    var targetMaxLength = targetArrayType.MaxLength ?? long.MaxValue;
+                    if (expressionMaxLength > targetMaxLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionType.Name, targetType.Name));
+                    }
+                    narrowedMaxLength = Math.Min(expressionMaxLength, targetMaxLength) switch {
+                        long.MaxValue => null,
+                        long otherwise => otherwise,
+                    };
+                }
+
+                if (expression is ArraySyntax arrayValue)
+                {
+                    return NarrowArrayAssignmentType(config, arrayValue, targetArrayType, narrowedMinLength, narrowedMaxLength);
+                }
             }
 
             if (expression is VariableAccessSyntax variableAccess)
@@ -409,7 +442,7 @@ namespace Bicep.Core.TypeSystem
             return true;
         }
 
-        private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType)
+        private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType, long? narrowedMinLength, long? narrowedMaxLength)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
@@ -434,7 +467,7 @@ namespace Bicep.Core.TypeSystem
                 arrayProperties.Add(narrowedType);
             }
 
-            return new TypedArrayType(TypeHelper.CreateTypeUnion(arrayProperties), targetType.ValidationFlags);
+            return new TypedArrayType(TypeHelper.CreateTypeUnion(arrayProperties), targetType.ValidationFlags, narrowedMinLength, narrowedMaxLength);
         }
 
         private TypeSymbol NarrowLambdaType(TypeValidatorConfig config, LambdaSyntax lambdaSyntax, LambdaType targetType)

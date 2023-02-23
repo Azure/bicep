@@ -29,7 +29,7 @@ type foo = {
   ]
 })
 type bar = int[][][][]
-//@[5:08) TypeAlias bar. Type: Type<int[][][][]>. Declaration start char: 0, length: 163
+//@[5:08) TypeAlias bar. Type: Type<int[][][][] {@minLength(3)}>. Declaration start char: 0, length: 163
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[5:11) TypeAlias aUnion. Type: Type<('crackle' | 'pop' | 'snap')>. Declaration start char: 0, length: 36

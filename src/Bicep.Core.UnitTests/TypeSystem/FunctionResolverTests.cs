@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -55,7 +55,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -160,6 +160,87 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
         }
 
+        [TestMethod]
+        public void SplitReturnsNonEmtpyArrayOfStrings()
+        {
+            var returnType = EvaluateFunction("split",
+                new List<TypeSymbol> { LanguageConstants.String, LanguageConstants.String },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MinLength.Should().BeGreaterThan(0);
+        }
+
+        [TestMethod]
+        public void ConcatDerivesMinLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 10), LanguageConstants.Array, TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 11) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MinLength.Should().Be(21);
+        }
+
+        [TestMethod]
+        public void ConcatDerivesMaxLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 10), TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 11) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().MaxLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MaxLength.Should().Be(21);
+        }
+
+        [TestMethod]
+        public void ConcatDoesNotDeriveMaxLengthOfReturnTypeIfAnyInputLacksAMaxLength()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 10), LanguageConstants.Array, TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 11) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().MaxLength.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void SkipDerivesMinAndMaxLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("skip",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 10, maxLength: 20), TypeFactory.CreateIntegerLiteralType(9) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MinLength.Should().Be(1);
+            returnType.As<ArrayType>().MaxLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MaxLength.Should().Be(11);
+        }
+
+        [TestMethod]
+        public void TakeDerivesMinAndMaxLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("take",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 5, maxLength: 20), TypeFactory.CreateIntegerLiteralType(9) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MinLength.Should().Be(5);
+            returnType.As<ArrayType>().MaxLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MaxLength.Should().Be(9);
+        }
+
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
         {
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
@@ -243,13 +324,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetFirstTestCases() => new[]
         {
-            // first(resourceGroup[]) -> resourceGroup
-            new object[] {
+            // first(resourceGroup[]) -> resourceGroup | null
+            new object[]
+            {
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
+            // first(string[] {@minLength(1)}) -> string
+            new object[]
+            {
+                new TypedArrayType(LanguageConstants.String, default, minLength: 1),
+                LanguageConstants.String,
+            },
             // first(['test', 3]) -> 'test'
-            new object[] {
+            new object[]
+            {
                 new TupleType("['test', 3]",
                     ImmutableArray.Create<ITypeReference>(
                         new StringLiteralType("test"),
@@ -259,7 +348,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new StringLiteralType("test")
             },
             // first([resourceGroup, subscription]) => resourceGroup
-            new object[] {
+            new object[]
+            {
                 new TupleType("[resourceGroup, subscription]",
                     ImmutableArray.Create<ITypeReference>(
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
@@ -276,6 +366,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             new object[] {
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
+            },
+            // last(string[] {@minLength(1)}) -> string
+            new object[]
+            {
+                new TypedArrayType(LanguageConstants.String, default, minLength: 1),
+                LanguageConstants.String,
             },
             // last(['test', 3]) -> 3
             new object[] {

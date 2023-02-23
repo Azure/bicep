@@ -4,13 +4,25 @@ namespace Bicep.Core.TypeSystem
 {
     public class ArrayType : TypeSymbol
     {
-        public ArrayType(string name) : base(name)
+        public ArrayType(string name, TypeSymbolValidationFlags validationFlags = default, long? minLength = null, long? maxLength = null)
+            : this(name, LanguageConstants.Any, validationFlags, minLength, maxLength) {}
+
+        public ArrayType(string name, ITypeReference item, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null) : base(name)
         {
-            Item = LanguageConstants.Any;
+            Item = item;
+            ValidationFlags = validationFlags;
+            MinLength = minLength;
+            MaxLength = maxLength;
         }
 
         public override TypeKind TypeKind => TypeKind.Primitive;
 
         public virtual ITypeReference Item { get; }
+
+        public override TypeSymbolValidationFlags ValidationFlags { get; }
+
+        public long? MinLength { get; }
+
+        public long? MaxLength { get; }
     }
 }

@@ -1868,6 +1868,23 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP326",
                 $@"A type's ""{minDecoratorName}"" must be less than or equal to its ""{maxDecoratorName}"", but a minimum of {minValue} and a maximum of {maxValue} were specified.");
+
+            public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(string sourceType, string targetType) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP327",
+                $@"A value of type ""{sourceType}"" may be too short to assign to a target of type ""{targetType}"".");
+
+            public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(string sourceType, string targetType) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP328",
+                $@"A value of type ""{sourceType}"" may be too long to assign to a target of type ""{targetType}"".");
+
+            public ErrorDiagnostic ArgumentMustNotBeNegative(string argumentName, string argumentType) => new(
+                TextSpan,
+                "BCP329",
+                $@"The ""{argumentName}"" argument expects a positive integer but received a value of type ""{argumentType}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

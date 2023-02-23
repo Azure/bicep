@@ -32,4 +32,14 @@ public static class TypeFactory
 
     private static IntegerLiteralType BuildIntegerLiteralType(IntegerLiteralAttributes attributes)
         => new(attributes.Value, attributes.ValidationFlags);
+
+    public static TypeSymbol CreateArrayType(ITypeReference itemType, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default, long? minLength = null, long? maxLength = null)
+    {
+        if (ReferenceEquals(itemType, LanguageConstants.Any) && !minLength.HasValue && !maxLength.HasValue)
+        {
+            return LanguageConstants.Array;
+        }
+
+        return new TypedArrayType(itemType, validationFlags, minLength, maxLength);
+    }
 }
