@@ -55,7 +55,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("concat")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("concat", (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("concat", (_, _, _, _, argumentTypes) =>
                 {
                     BigInteger minLength = 0;
                     BigInteger? maxLength = null;
@@ -163,8 +163,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(
-                    (binder, fileResolver, diagnostics, functionCall, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
+                    (_, _, _, _, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
                         TupleType tupleType => new(TypeFactory.CreateIntegerLiteralType(tupleType.Items.Length)),
+                        ArrayType arrayType => new(TypeFactory.CreateIntegerType(arrayType.MinLength ?? 0, arrayType.MaxLength)),
                         _ => new(LanguageConstants.Int),
                     },
                     LanguageConstants.Int)
@@ -233,7 +234,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("take")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("take", (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("take", (_, _, _, functionCall, argumentTypes) =>
                 {
                     if (argumentTypes.FirstOrDefault() is not ArrayType original)
                     {
@@ -248,7 +249,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                     if (numToTake.Value < 0)
                     {
-                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall.Arguments[1]).ArgumentMustNotBeNegative("numberToTake", numToTake.Value.ToString())));
+                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall.Arguments[1]).ArgumentMustNotBeNegative("numberToTake", numToTake.Name)));
                     }
 
                     return new(original switch
@@ -276,7 +277,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("skip")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("skip", (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("skip", (_, _, _, functionCall, argumentTypes) =>
                 {
                     if (argumentTypes.FirstOrDefault() is not ArrayType original)
                     {
@@ -285,13 +286,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                     if (argumentTypes.Skip(1).FirstOrDefault() is not IntegerLiteralType numToSkip)
                     {
-                        // any recorded min length is no longer valid; drop that refinements
+                        // any recorded min length is no longer valid; drop that refinement
                         return new(TypeFactory.CreateArrayType(original.Item, original.ValidationFlags, maxLength: original.MaxLength));
                     }
 
                     if (numToSkip.Value < 0)
                     {
-                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall.Arguments[1]).ArgumentMustNotBeNegative("numberToSkip", numToSkip.Value.ToString())));
+                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall.Arguments[1]).ArgumentMustNotBeNegative("numberToSkip", numToSkip.Name)));
                     }
 
                     return new(original switch
@@ -380,7 +381,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) =>  new(argumentTypes[0] switch
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) =>  new(argumentTypes[0] switch
                 {
                     TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
                     ArrayType arrayType when arrayType.MinLength.HasValue && arrayType.MinLength.Value > 0 => arrayType.Item.Type,
@@ -400,7 +401,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("last")
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => new(argumentTypes[0] switch
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => new(argumentTypes[0] switch
                 {
                     TupleType tupleType => tupleType.Items.LastOrDefault()?.Type ?? LanguageConstants.Null,
                     ArrayType arrayType when arrayType.MinLength.HasValue && arrayType.MinLength.Value > 0 => arrayType.Item.Type,
@@ -497,7 +498,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("range")
                 .WithReturnResultBuilder(
-                    (binder, fileResolver, diagnostics, arguments, argumentTypes) => new(new TypedArrayType(
+                    (_, _, _, _, argumentTypes) => new(new TypedArrayType(
                         argumentTypes.Length == 2 &&
                             argumentTypes[0] is IntegerLiteralType startIndexLiteral &&
                             argumentTypes[1] is IntegerLiteralType countLiteral
@@ -653,17 +654,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
                 .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Bool)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
-                    return new(argumentTypes[0] switch
-                    {
-                        // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
-                        // For example, given a symbol `a` of type `[0, 1, 2, 3, 4]`, the expression `filter(a, x => x % 2 == 0)` returns an array in which each member is assignable to `0 | 1 | 2 | 3 | 4`,
-                        // but the returned array (which has a concrete value of `[0, 2, 4]`) will not be assignable to the input tuple type of `[0, 1, 2, 3, 4]`
-                        TupleType tuple => tuple.ToTypedArray(maxLength: tuple.Items.Length),
-                        ArrayType arrayType => TypeFactory.CreateArrayType(arrayType.Item, arrayType.ValidationFlags, minLength: null, maxLength: arrayType.MaxLength),
-                        var otherwise => otherwise,
-                    });
-                }, LanguageConstants.Array)
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => new(argumentTypes[0] switch
+                {
+                    // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
+                    // For example, given a symbol `a` of type `[0, 1, 2, 3, 4]`, the expression `filter(a, x => x % 2 == 0)` returns an array in which each member is assignable to `0 | 1 | 2 | 3 | 4`,
+                    // but the returned array (which has a concrete value of `[0, 2, 4]`) will not be assignable to the input tuple type of `[0, 1, 2, 3, 4]`
+                    TupleType tuple => tuple.ToTypedArray(minLength: null, maxLength: tuple.MaxLength),
+                    ArrayType arrayType => TypeFactory.CreateArrayType(arrayType.Item, arrayType.ValidationFlags, minLength: null, maxLength: arrayType.MaxLength),
+                    var otherwise => otherwise,
+                }), LanguageConstants.Array)
                 .Build();
 
             yield return new FunctionOverloadBuilder("map")
@@ -683,14 +682,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
                 .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Bool)))
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
-                    return new(argumentTypes[0] switch
-                    {
-                        // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
-                        TupleType tuple => tuple.ToTypedArray(minLength: tuple.Items.Length, maxLength: tuple.Items.Length),
-                        var otherwise => otherwise,
-                    });
-                }, LanguageConstants.Array)
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => new(argumentTypes[0] switch
+                {
+                    // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
+                    TupleType tuple => tuple.ToTypedArray(),
+                    var otherwise => otherwise,
+                }), LanguageConstants.Array)
                 .Build();
 
             yield return new FunctionOverloadBuilder("reduce")
@@ -700,7 +697,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[2] switch
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => argumentTypes[2] switch
                 {
                     LambdaType lambdaType => new(lambdaType.ReturnType.Type),
                     _ => new(LanguageConstants.Any),
@@ -715,7 +712,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => {
                     if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType) {
                         return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
                     }

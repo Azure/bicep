@@ -83,7 +83,7 @@ param storageName string
 @minLength(3)
 @maxLength(24)
 param someArray array
-//@[6:15) Parameter someArray. Type: any[] {@minLength(3), @maxLength(24)}. Declaration start char: 0, length: 52
+//@[6:15) Parameter someArray. Type: array {@minLength(3), @maxLength(24)}. Declaration start char: 0, length: 52
 
 // empty metadata
 @metadata({})
@@ -212,7 +212,7 @@ param decoratedObject object = {
 @sys.maxLength(20)
 @sys.description('I will be overrode.')
 param decoratedArray array = [
-//@[6:20) Parameter decoratedArray. Type: any[] {@maxLength(20)}. Declaration start char: 0, length: 174
+//@[6:20) Parameter decoratedArray. Type: array {@maxLength(20)}. Declaration start char: 0, length: 174
     utcNow()
     newGuid()
 ]

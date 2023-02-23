@@ -258,7 +258,8 @@ namespace Bicep.Core.TypeSystem
             {
                 _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
                 IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
-                TupleType tupleType => tupleType,
+                // minLength/maxLength on a tuple are superfluous.
+                TupleType declaredTuple => declaredTuple,
                 ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
                 PrimitiveType primitive => new PrimitiveType(primitive.Name, validationFlags),
                 _ => declaredType,

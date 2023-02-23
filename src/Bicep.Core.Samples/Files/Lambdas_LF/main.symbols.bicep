@@ -123,7 +123,7 @@ resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
 }
 var mappedResProps = map(items(storageAcc.properties.secondaryEndpoints), item => item.value)
 //@[074:078) Local item. Type: object. Declaration start char: 74, length: 4
-//@[004:018) Variable mappedResProps. Type: any[]. Declaration start char: 0, length: 93
+//@[004:018) Variable mappedResProps. Type: array. Declaration start char: 0, length: 93
 
 module myMod './test.bicep' = {
 //@[007:012) Module myMod. Type: module. Declaration start char: 0, length: 117

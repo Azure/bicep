@@ -173,8 +173,8 @@ namespace Bicep.Core.TypeSystem
                 case (ArrayType sourceArray, ArrayType targetArray):
                     // both types are arrays
                     // this function does not validate item types
-                    return (targetArray.MinLength ?? 0) <= (sourceArray.MaxLength ?? long.MaxValue) &&
-                        (targetArray.MaxLength ?? long.MaxValue) >= (sourceArray.MinLength ?? 0);
+                    return (targetArray.MinLength ?? long.MinValue) <= (sourceArray.MaxLength ?? long.MaxValue) &&
+                        (targetArray.MaxLength ?? long.MaxValue) >= (sourceArray.MinLength ?? long.MinValue);
 
                 case (DiscriminatedObjectType, DiscriminatedObjectType):
                     // validation left for later

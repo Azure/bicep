@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Globalization;
 using System.Text;
 
 namespace Bicep.Core.TypeSystem;
@@ -10,10 +9,7 @@ namespace Bicep.Core.TypeSystem;
 public class IntegerType : TypeSymbol
 {
     public IntegerType(long? minValue, long? maxValue, TypeSymbolValidationFlags validationFlags)
-        : this(FormatName(minValue, maxValue), minValue, maxValue, validationFlags) {}
-
-    public IntegerType(string typeName, long? minValue, long? maxValue, TypeSymbolValidationFlags validationFlags) :
-        base(typeName)
+        : base(FormatName(minValue, maxValue))
     {
         ValidationFlags = validationFlags;
         MinValue = minValue;

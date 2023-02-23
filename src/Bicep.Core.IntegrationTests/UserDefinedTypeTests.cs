@@ -561,7 +561,7 @@ param paramB array = paramA
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
-            ("BCP327", DiagnosticLevel.Warning, "A value of type \"array\" may be too short to assign to a target of type \"any[] {@minLength(2)}\"."),
+            ("BCP327", DiagnosticLevel.Warning, "A value of type \"array\" may be too short to assign to a target of type \"array {@minLength(2)}\"."),
         });
     }
 
@@ -577,7 +577,7 @@ param paramB array = paramA
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
-            ("BCP328", DiagnosticLevel.Warning, "A value of type \"array\" may be too long to assign to a target of type \"any[] {@maxLength(2)}\"."),
+            ("BCP328", DiagnosticLevel.Warning, "A value of type \"array\" may be too long to assign to a target of type \"array {@maxLength(2)}\"."),
         });
     }
 
@@ -596,7 +596,7 @@ param paramB array = paramA
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
-            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"any[] {@minLength(10), @maxLength(19)}\" but the provided value is of type \"any[] {@minLength(0), @maxLength(9)}\"."),
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"array {@minLength(10), @maxLength(19)}\" but the provided value is of type \"array {@minLength(0), @maxLength(9)}\"."),
         });
     }
 
