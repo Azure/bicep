@@ -12,11 +12,18 @@ namespace Bicep.LanguageServer.Settings
 {
     public class SettingsProvider : ISettingsProvider
     {
-        private readonly ConcurrentDictionary<string, bool> SettingsCache = new();
+        private readonly Dictionary<string, bool> SettingsCache = new();
 
         public void AddOrUpdateSetting(string name, bool value)
         {
-            SettingsCache.AddOrUpdate(name, name => value, (name, value) => value);
+            if (SettingsCache.ContainsKey(name))
+            {
+                SettingsCache[name] = value;
+            }
+            else
+            {
+                SettingsCache.Add(name, value);
+            }
         }
 
         public bool GetSetting(string name)

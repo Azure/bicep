@@ -24,6 +24,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IConfigurationManager configurationManager;
         private readonly IModulesMetadataProvider modulesMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
+        private readonly ITelemetryProvider telemetryProvider;
 
         private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
         {
@@ -33,7 +34,7 @@ namespace Bicep.LanguageServer.Completions
             {"ts/", "Template spec schema name" },
         };
 
-        private static readonly Regex AcrPublicModuleRegistryAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex AcrModuleRegistryNonAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrNonPublicModuleRegistryAliasWithPath = new Regex(@"'br/(.*):(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
@@ -42,12 +43,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider,
             IConfigurationManager configurationManager,
             IModulesMetadataProvider modulesMetadataProvider,
-            ISettingsProvider settingsProvider)
+            ISettingsProvider settingsProvider,
+            ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistryNamesProvider = azureContainerRegistryNamesProvider;
             this.configurationManager = configurationManager;
             this.modulesMetadataProvider = modulesMetadataProvider;
             this.settingsProvider = settingsProvider;
+            this.telemetryProvider = telemetryProvider;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
@@ -89,20 +92,11 @@ namespace Bicep.LanguageServer.Completions
 
                 var completionText = sb.ToString();
 
-                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateBicepRegistryOrTemplateSpecShemaCompletion(text);
-                var command = TelemetryHelper.CreateCommand
-                (
-                    title: "Bicep registry or template spec shema completion",
-                    name: TelemetryConstants.CommandName,
-                    args: JArray.FromObject(new List<object> { telemetryEvent })
-                );
-
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(completionText)
                     .WithSortText(GetSortText(text, CompletionPriority.Medium))
                     .WithSnippetEdit(context.ReplacementRange, completionText)
                     .WithDetail(kvp.Value)
-                    .WithCommand(command)
                     .Build();
                 completionItems.Add(completionItem);
             }
@@ -246,7 +240,7 @@ namespace Bicep.LanguageServer.Completions
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            if (AcrPublicModuleRegistryAlias.IsMatch(replacementTextWithTrimmedEnd))
+            if (AcrModuleRegistryNonAlias.IsMatch(replacementTextWithTrimmedEnd))
             {
                 return completions;
             }
@@ -256,87 +250,102 @@ namespace Bicep.LanguageServer.Completions
 
             foreach (var kvp in ociArtifactModuleAliases)
             {
-                if (kvp.Value.Registry is string registry &&
-                    registry.Equals("mcr.microsoft.com", StringComparison.Ordinal) &&
-                    replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
+                if (kvp.Value.Registry is string registry)
                 {
-                    var modulePath = kvp.Value.ModulePath;
-
-                    // E.g bicepconfig.json
-                    // {
-                    //   "moduleAliases": {
-                    //     "br": {
-                    //       "test": {
-                    //         "registry": "mcr.microsoft.com"
-                    //       }
-                    //     }
-                    //   }
-                    // }
-                    if (modulePath is null)
+                    // We currently don't support path completion for ACR, but we'll go ahead and log telemetry.
+                    if (registry.EndsWith("azurecr.io", StringComparison.Ordinal) &&
+                        replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
-                        if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
+                        telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
+                        break;
+                    }
+
+                    if (registry.Equals("mcr.microsoft.com", StringComparison.Ordinal) &&
+                        replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
+                    {
+                        var modulePath = kvp.Value.ModulePath;
+
+                        // E.g bicepconfig.json
+                        // {
+                        //   "moduleAliases": {
+                        //     "br": {
+                        //       "test": {
+                        //         "registry": "mcr.microsoft.com"
+                        //       }
+                        //     }
+                        //   }
+                        // }
+                        if (modulePath is null)
                         {
-                            foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
+                            if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
-                                var label = $"bicep/{moduleName}";
-                                StringBuilder sb = new StringBuilder(replacementText.TrimEnd('\''));
-                                sb.Append("bicep/");
-                                sb.Append(moduleName);
-                                sb.Append(":$0'");
+                                foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
+                                {
+                                    var label = $"bicep/{moduleName}";
+                                    StringBuilder sb = new StringBuilder(replacementText.TrimEnd('\''));
+                                    sb.Append("bicep/");
+                                    sb.Append(moduleName);
+                                    sb.Append(":$0'");
 
+                                    var insertText = sb.ToString();
+
+                                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                                        .WithSnippetEdit(context.ReplacementRange, insertText)
+                                        .WithFilterText(insertText)
+                                        .WithSortText(GetSortText(label, CompletionPriority.High))
+                                        .Build();
+
+                                    completions.Add(completionItem);
+                                }
+                            }
+                        }
+                        // E.g bicepconfig.json
+                        // {
+                        //   "moduleAliases": {
+                        //     "br": {
+                        //       "test": {
+                        //         "registry": "mcr.microsoft.com",
+                        //         "modulePath": "bicep/app"
+                        //       }
+                        //     }
+                        //   }
+                        // }
+                        else
+                        {
+                            if (modulePath.Equals("bicep", StringComparison.Ordinal) || !modulePath.StartsWith("bicep/", StringComparison.Ordinal))
+                            {
+                                continue;
+                            }
+
+                            var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
+                            var matchingModuleNames = modulesMetadataProvider.GetModuleNames().Where(x => x.StartsWith($"{modulePathWithoutBicepKeyword}/"));
+
+                            foreach (var moduleName in matchingModuleNames)
+                            {
+                                var label = moduleName.Substring($"{modulePathWithoutBicepKeyword}/".Length);
+                                StringBuilder sb = new StringBuilder(replacementTextWithTrimmedEnd);
+
+                                if (!replacementTextWithTrimmedEnd.EndsWith(":"))
+                                {
+                                    sb.Append(":");
+                                }
+                                sb.Append($"{label}:$0'");
                                 var insertText = sb.ToString();
-
                                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
                                     .WithSortText(GetSortText(label, CompletionPriority.High))
                                     .Build();
-
                                 completions.Add(completionItem);
                             }
                         }
                     }
-                    // E.g bicepconfig.json
-                    // {
-                    //   "moduleAliases": {
-                    //     "br": {
-                    //       "test": {
-                    //         "registry": "mcr.microsoft.com",
-                    //         "modulePath": "bicep/app"
-                    //       }
-                    //     }
-                    //   }
-                    // }
-                    else
-                    {
-                        if (modulePath.Equals("bicep", StringComparison.Ordinal) || !modulePath.StartsWith("bicep/", StringComparison.Ordinal))
-                        {
-                            continue;
-                        }
-
-                        var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
-                        var matchingModuleNames = modulesMetadataProvider.GetModuleNames().Where(x => x.StartsWith($"{modulePathWithoutBicepKeyword}/"));
-
-                        foreach (var moduleName in matchingModuleNames)
-                        {
-                            var label = moduleName.Substring($"{modulePathWithoutBicepKeyword}/".Length);
-                            StringBuilder sb = new StringBuilder(replacementTextWithTrimmedEnd);
-
-                            if (!replacementTextWithTrimmedEnd.EndsWith(":"))
-                            {
-                                sb.Append(":");
-                            }
-                            sb.Append($"{label}:$0'");
-                            var insertText = sb.ToString();
-                            var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
-                                .WithSnippetEdit(context.ReplacementRange, insertText)
-                                .WithFilterText(insertText)
-                                .WithSortText(GetSortText(label, CompletionPriority.High))
-                                .Build();
-                            completions.Add(completionItem);
-                        }
-                    }
                 }
+            }
+
+            if (completions.Any())
+            {
+                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR));
             }
 
             return completions;
@@ -347,12 +356,14 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new List<CompletionItem>();
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
-            if (!AcrPublicModuleRegistryAlias.IsMatch(replacementTextWithTrimmedEnd))
+            if (!AcrModuleRegistryNonAlias.IsMatch(replacementTextWithTrimmedEnd))
             {
                 return completions;
             }
 
-            var matches = AcrPublicModuleRegistryAlias.Matches(replacementTextWithTrimmedEnd);
+            telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
+
+            var matches = AcrModuleRegistryNonAlias.Matches(replacementTextWithTrimmedEnd);
 
             if (!matches.Any())
             {
@@ -414,6 +425,11 @@ namespace Bicep.LanguageServer.Completions
                     .Build();
 
                 completions.Add(completionItem);
+            }
+
+            if (completions.Any())
+            {
+                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR));
             }
 
             return completions;
@@ -486,10 +502,10 @@ namespace Bicep.LanguageServer.Completions
             foreach (string registryName in registryNames)
             {
                 var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
-                var insertText = $"{replacementTextWithTrimmedEnd}{registryName}/$0'";
+                var insertText = $"'{replacementTextWithTrimmedEnd}{registryName}/$0'";
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
-                    .WithFilterText(registryName)
+                    .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithSortText(GetSortText(registryName, CompletionPriority.High))
                     .Build();

@@ -8,6 +8,7 @@ using Bicep.LanguageServer;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
+using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -47,7 +48,12 @@ namespace Bicep.LangServer.UnitTests.Completions
         public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
         {
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
@@ -109,7 +115,12 @@ namespace Bicep.LangServer.UnitTests.Completions
         public async Task GetFilteredCompletions_WithInvalidTextInCompletionContext_ReturnsNull()
         {
             var completionContext = GetBicepCompletionContext("module test 'br:/|'", null, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().BeEmpty();
@@ -132,7 +143,12 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext("module test 'br/|'", bicepConfigFileContents, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
@@ -202,7 +218,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             var settingsProviderMock = StrictMock.Of<ISettingsProvider>();
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProviderMock.Object);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProviderMock.Object,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
@@ -284,7 +305,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             var azureContainerRegistryNamesProvider = StrictMock.Of<IAzureContainerRegistryNamesProvider>();
             azureContainerRegistryNamesProvider.Setup(x => x.GetRegistryNames(documentUri.ToUri())).ReturnsAsync(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" });
 
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider.Object, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProviderMock.Object);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider.Object,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProviderMock.Object,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
@@ -357,7 +383,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             var azureContainerRegistryNamesProvider = StrictMock.Of<IAzureContainerRegistryNamesProvider>();
             azureContainerRegistryNamesProvider.Setup(x => x.GetRegistryNames(documentUri.ToUri())).ReturnsAsync(new List<string>());
 
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider.Object, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProviderMock.Object);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider.Object,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProviderMock.Object,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().SatisfyRespectively(
@@ -392,7 +423,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             int endCharacter)
         {
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, BicepTestConstants.BuiltInOnlyConfigurationManager, modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().Contain(
@@ -432,7 +468,12 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().Contain(
@@ -476,7 +517,12 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
@@ -518,7 +564,12 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             completions.Should().Contain(
@@ -560,7 +611,12 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(azureContainerRegistryNamesProvider, new ConfigurationManager(new IOFileSystem()), modulesMetadataProvider, settingsProvider);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                modulesMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
             IEnumerable<CompletionItem> completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
             CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);

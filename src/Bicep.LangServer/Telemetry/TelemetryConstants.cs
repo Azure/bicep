@@ -43,8 +43,7 @@ namespace Bicep.LanguageServer.Telemetry
             public const string LinterRuleStateOnBicepFileOpen = "linter/rulestateonopen";
             public const string UnhandledException = "unhandledException";
 
-            public const string MCRPathCompletion = "mcrPathCompletion";
-            public const string ACRPathCompletion = "acrPathCompletion";
+            public const string ModuleRegistryPathCompletion = "ModuleRegistryPathCompletion";
         }
     }
 }
