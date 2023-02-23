@@ -35,7 +35,7 @@ const config: Configuration = {
     new CopyPlugin({
       patterns: [
         // copy across the Blazor code for the compiler
-        { from: '../Bicep.Wasm/bin/Release/net6.0/wwwroot/_framework', to: './_framework/' },
+        { from: '../Bicep.Wasm/bin/Release/net7.0/wwwroot/_framework', to: './_framework/' },
       ],
     }),
     new HtmlWebpackPlugin({

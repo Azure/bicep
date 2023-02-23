@@ -40,23 +40,17 @@ public static class ServiceCollectionExtensions
     ///
     /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
     /// </remarks>
-    public static IServiceCollection AddCommands(this IServiceCollection services)
-    {
-        Type grabCommandType = typeof(BuildCommand);
-        Type commandType = typeof(ICommand);
-
-        IEnumerable<Type> commands = grabCommandType
-            .Assembly
-            .GetExportedTypes()
-            .Where(x => x.Namespace == grabCommandType.Namespace && x.GetInterfaces().Contains(commandType));
-
-        foreach (Type command in commands)
-        {
-            services.AddSingleton(command);
-        }
-
-        return services;
-    }
+    public static IServiceCollection AddCommands(this IServiceCollection services) =>
+        // this is harcoded to make the code trim-safe
+        services
+            .AddSingleton<BuildCommand>()
+            .AddSingleton<BuildParamsCommand>()
+            .AddSingleton<DecompileCommand>()
+            .AddSingleton<FormatCommand>()
+            .AddSingleton<GenerateParametersFileCommand>()
+            .AddSingleton<PublishCommand>()
+            .AddSingleton<RestoreCommand>()
+            .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()

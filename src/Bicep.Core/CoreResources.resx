@@ -166,7 +166,7 @@
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>
   <data name="InterpolateNotConcatFixTitle" xml:space="preserve">
-    <value>Use string interpolation: {0}.</value>
+    <value>Use string interpolation: {0}</value>
     <comment>{0} is a programmatic language expression</comment>
   </data>
   <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
@@ -187,7 +187,7 @@
     <value>No unnecessary dependsOn.</value>
   </data>
   <data name="NoUnnecessaryDependsOnRuleCodeFix" xml:space="preserve">
-    <value>Remove unneccessary dependsOn.</value>
+    <value>Remove unneccessary dependsOn</value>
   </data>
   <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
@@ -250,13 +250,13 @@
     <comment>{0} is the parameter name. This string appears in the middle of a sentence, so it doesn't start with a capital letter. Something similar to: Found: secure parameter 'parameter1'</comment>
   </data>
   <data name="SecureParameterDefaultFixTitle" xml:space="preserve">
-    <value>Remove insecure default value.</value>
+    <value>Remove insecure default value</value>
   </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
   </data>
   <data name="SimplifyInterpolationFixTitle" xml:space="preserve">
-    <value>Remove unnecessary string interpolation.</value>
+    <value>Remove unnecessary string interpolation</value>
   </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
@@ -356,7 +356,7 @@
     <value>Use the parent property instead of formatting child resource names with '/' characters.</value>
   </data>
   <data name="UseParentPropertyRule_CodeFix" xml:space="preserve">
-    <value>Use parent property.</value>
+    <value>Use parent property</value>
   </data>
   <data name="UseParentPropertyRule_MessageFormat" xml:space="preserve">
     <value>Resource "{0}" has its name formatted as a child of resource "{1}". The syntax can be simplified by using the parent property.</value>
