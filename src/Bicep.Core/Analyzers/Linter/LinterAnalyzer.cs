@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
@@ -35,6 +36,8 @@ namespace Bicep.Core.Analyzers.Linter
 
         private bool LinterVerbose(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterVerboseSetting, false);
 
+
+        [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "List of types comes from a source generator.")]
         private ImmutableArray<IBicepAnalyzerRule> CreateLinterRules()
         {
             var rules = new List<IBicepAnalyzerRule>();

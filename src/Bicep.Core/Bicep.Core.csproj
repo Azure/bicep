@@ -5,6 +5,9 @@
     <EnableNuget>true</EnableNuget>
     <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
     <Description>Bicep compiler core functionality</Description>
+
+    <!-- enable trimmer warnings for Bicep CLI and projects it references -->
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\bicepconfig.json" />
+    <EmbeddedResource Include="Configuration\bicepconfig.json" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,7 +39,7 @@
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.324" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
     <PackageReference Include="System.IO.Abstractions" Version="19.1.18" />
-    <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.17" PrivateAssets="all" />
+    <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.31" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

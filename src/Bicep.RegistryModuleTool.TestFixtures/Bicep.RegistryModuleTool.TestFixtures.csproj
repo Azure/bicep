@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="SampleFiles/**/*" />
+    <EmbeddedResource Include="SampleFiles/**/*" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>

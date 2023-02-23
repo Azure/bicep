@@ -14,7 +14,7 @@ import { Message, TransportKind } from "vscode-languageclient/node";
 import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
 import { bicepLanguageId } from "./constants";
 
-const dotnetRuntimeVersion = "6.0";
+const dotnetRuntimeVersion = "7.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 const dotnetAcquisitionExtensionSetting = "dotnetAcquisitionExtension";

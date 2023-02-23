@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Deterministic>true</Deterministic>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
@@ -22,12 +22,12 @@
 
   <!-- set default framework - each project can still override -->
   <PropertyGroup Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
     <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
-    <GenerateNoticePackageVersion>0.1.13</GenerateNoticePackageVersion>
+    <GenerateNoticePackageVersion>0.1.31</GenerateNoticePackageVersion>
     
     <!-- settings of the GenerateNotice tool -->
     <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>

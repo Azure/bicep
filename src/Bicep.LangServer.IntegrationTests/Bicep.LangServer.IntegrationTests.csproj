@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <None Remove="./Files/**/*.*" />
-    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>
