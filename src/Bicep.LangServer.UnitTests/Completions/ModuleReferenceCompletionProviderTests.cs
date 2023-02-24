@@ -44,6 +44,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("module test ''|", 14)]
         [DataRow("module test '|'", 14)]
         [DataRow("module test '|", 13)]
+        [DataRow("module test |'", 13)]
         [DataRow("module test |", 12)]
         public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
         {
