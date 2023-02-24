@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -14,10 +18,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
 using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
@@ -126,8 +126,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [TestMethod]
-        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems()
+        [DataTestMethod]
+        [DataRow("module test 'br/|'", 17)]
+        [DataRow("module test 'br/|", 16)]
+        public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
         {
             var bicepConfigFileContents = @"{
   ""moduleAliases"": {
@@ -142,7 +144,7 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
-            var completionContext = GetBicepCompletionContext("module test 'br/|'", bicepConfigFileContents, out DocumentUri documentUri);
+            var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistryNamesProvider,
                 new ConfigurationManager(new IOFileSystem()),
@@ -163,7 +165,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
                     c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
                 },
                 c =>
                 {
@@ -176,7 +178,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
                     c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
                 },
                 c =>
                 {
@@ -189,14 +191,14 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
                     c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(17);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
                 });
         }
 
         [DataTestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
-        public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(string inputWithCursors)
+        public async Task GetFilteredCompletions_WithACRCompletionSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(string inputWithCursors)
         {
             var bicepConfigFileContents = @"{
   ""moduleAliases"": {

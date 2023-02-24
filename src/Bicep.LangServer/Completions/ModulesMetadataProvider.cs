@@ -15,8 +15,13 @@ namespace Bicep.LanguageServer.Providers
 {
     public record ModuleMetadata(string moduleName, List<string> tags);
 
+    /// <summary>
+    /// Provider to get modules metadata from this endpoint - https://live-data.bicep.azure.com/modulesMetadata
+    /// The above endpoint helps fetch module names and versions of modules available in this github repository - https://github.com/Azure/bicep-registry-modules
+    /// </summary>
     public class ModulesMetadataProvider : IModulesMetadataProvider
     {
+        private const string LiveDataEndpoint = "https://live-data.bicep.azure.com/modulesMetadata";
         private List<ModuleMetadata> moduleMetadataCache = new List<ModuleMetadata>();
 
         public async Task<string> Initialize()
@@ -24,7 +29,7 @@ namespace Bicep.LanguageServer.Providers
             try
             {
                 HttpClient httpClient = new HttpClient();
-                var moduleMetadata = await httpClient.GetStringAsync("https://live-data.bicep.azure.com/modulesMetadata");
+                var moduleMetadata = await httpClient.GetStringAsync(LiveDataEndpoint);
                 var metadata = JsonConvert.DeserializeObject<List<ModuleMetadata>>(moduleMetadata);
 
                 if (metadata is not null)

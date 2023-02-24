@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Settings
 {
+    /// <summary>
+    /// Provider used to cache settings information received from <see cref="ConfigurationSettingsHandler"/>
+    /// </summary>
     public class SettingsProvider : ISettingsProvider
     {
         private readonly Dictionary<string, bool> SettingsCache = new();

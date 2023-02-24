@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
+using Microsoft.Azure.Management.ResourceGraph;
 using Microsoft.Rest;
 
 namespace Bicep.LanguageServer.Providers
 {
+    /// <summary>
+    /// Represents the credentials required for authenticating <see cref="ResourceGraphClient"/> to Azure.
+    /// </summary>
     public class ClientCredentials : ServiceClientCredentials
     {
         private string accessToken;

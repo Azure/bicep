@@ -46,15 +46,6 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent CreateBicepRegistryOrTemplateSpecShemaCompletion(string schemaName)
-            => new BicepTelemetryEvent(
-                eventName: TelemetryConstants.EventNames.TopLevelDeclarationSnippetInsertion,
-                properties: new()
-                {
-                    ["schema"] = schemaName,
-                }
-            );
-
         public static BicepTelemetryEvent CreateNestedResourceDeclarationSnippetInsertion(string name)
             => new BicepTelemetryEvent
             (

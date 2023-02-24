@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
@@ -32,9 +30,6 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompletionProviderTests
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         private static readonly ILanguageServerFacade server = StrictMock.Of<ILanguageServerFacade>().Object;
 
         private static BicepCompletionProvider CreateProvider()

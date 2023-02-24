@@ -36,13 +36,13 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("invalid_name")]
         [DataRow(null)]
         [DataTestMethod]
-        public void GetVersions_WithInvalidModuleName_ShouldReturnEmptyList(string moduleName)
+        public void GetVersions_WithInvalidModuleName_ShouldReturnNothing(string moduleName)
         {
             modulesMetadataProvider.GetVersions(moduleName).Should().BeEmpty();
         }
 
         [TestMethod]
-        public void GetVersions_WithValidModuleName_ShouldVersions()
+        public void GetVersions_WithValidModuleName_ShouldReturnVersions()
         {
             IEnumerable<string> versions = modulesMetadataProvider.GetVersions("app/dapr-containerapp");
 

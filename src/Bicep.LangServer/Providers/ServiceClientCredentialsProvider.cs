@@ -8,9 +8,15 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
+using Microsoft.Azure.Management.ResourceGraph;
 
 namespace Bicep.LanguageServer.Providers
 {
+    /// <summary>
+    /// Creates <see cref="ClientCredentials"/> that is used for authenticating <see cref="ResourceGraphClient"/> to Azure.
+    /// <see cref="AccessToken"/> used for credentials creation is cached and reused as long as it's valid.
+    /// New <see cref="AccessToken"/> is fetched on expiration.
+    /// </summary>
     public class ServiceClientCredentialsProvider : IServiceClientCredentialsProvider
     {
         private readonly ITokenCredentialFactory tokenCredentialFactory;

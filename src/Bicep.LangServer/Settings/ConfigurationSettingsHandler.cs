@@ -1,19 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.LanguageServer.Handlers;
+using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Settings
 {
@@ -24,6 +17,9 @@ namespace Bicep.LanguageServer.Settings
         public JToken? Settings;
     }
 
+    /// <summary>
+    /// Handles settings change notification from client.
+    /// </summary>
     public class ConfigurationSettingsHandler: IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
     {
         private readonly ISettingsProvider settingsProvider;
@@ -37,6 +33,8 @@ namespace Bicep.LanguageServer.Settings
         {
             var jObject = JObject.FromObject(request);
 
+            // We currently only require - IncludeAllAccessibleAzureContainerRegistriesForCompletions settings information for module registry
+            // reference completion scenarios
             if (jObject["settings"] is JObject settingsObject &&
                 settingsObject["bicep"] is JObject bicepObject &&
                 bicepObject["IncludeAllAccessibleAzureContainerRegistriesForCompletions"] is JToken jToken)

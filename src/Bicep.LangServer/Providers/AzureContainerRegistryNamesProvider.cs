@@ -6,10 +6,15 @@ using Microsoft.Azure.Management.ResourceGraph.Models;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Providers
 {
+    /// <summary>
+    /// This provider helps fetch all the Azure Container Registries(ACR) names that the user has access to.
+    /// 
+    /// </summary>
     public class AzureContainerRegistryNamesProvider: IAzureContainerRegistryNamesProvider
     {
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
@@ -19,9 +24,9 @@ namespace Bicep.LanguageServer.Providers
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
         }
 
-        public async Task<List<string>> GetRegistryNames(Uri templateUri)
+        public async Task<IEnumerable<string>> GetRegistryNames(Uri templateUri)
         {
-            ClientCredentials clientCredentials = await serviceClientCredentialsProvider.GetServiceClientCredentials(templateUri); ;
+            ClientCredentials clientCredentials = await serviceClientCredentialsProvider.GetServiceClientCredentials(templateUri);
 
             ResourceGraphClient resourceGraphClient = new ResourceGraphClient(clientCredentials);
             QueryRequest queryRequest = new QueryRequest(@"Resources
@@ -29,6 +34,12 @@ namespace Bicep.LanguageServer.Providers
 | project properties[""loginServer""]
 ");
             QueryResponse queryResponse = resourceGraphClient.Resources(queryRequest);
+
+            if (queryResponse is null || queryResponse.Data is null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             JArray jArray = JArray.FromObject(queryResponse.Data);
             List<string> registryNames = new();
 
