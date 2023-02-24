@@ -88,6 +88,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
+                    .WithHandler<ConfigurationSettingsHandler>()
                     .WithServices(RegisterServices);
 
                 onOptionsFunc(options);
@@ -143,7 +144,6 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
-                .AddSingleton<IDidChangeConfigurationSettingsHandler, ConfigurationSettingsHandler>()
                 .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
                 .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>();
         }

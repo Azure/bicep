@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.LanguageServer.Handlers;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using System;
 using System.Collections.Generic;
@@ -14,7 +17,14 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Settings
 {
-    public sealed class ConfigurationSettingsHandler: IDidChangeConfigurationSettingsHandler
+    [Method("workspace/didChangeConfiguration", Direction.ClientToServer)]
+    public record DidChangeConfigurationObjectParams : IRequest
+    {
+        [JsonProperty("settings")]
+        public JToken? Settings;
+    }
+
+    public class ConfigurationSettingsHandler: IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
     {
         private readonly ISettingsProvider settingsProvider;
 
@@ -35,16 +45,6 @@ namespace Bicep.LanguageServer.Settings
             }
 
             return Unit.Task;
-        }
-
-        public object GetRegistrationOptions(ClientCapabilities clientCapabilities)
-        {
-            return null!;
-        }
-
-        public void SetCapability(DidChangeConfigurationCapability capability, ClientCapabilities clientCapabilities)
-        {
-
         }
     }
 }
