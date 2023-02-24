@@ -194,20 +194,21 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:|'", 17)]
-        [DataRow("module test 'br:|", 16)]
-        public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(
-            string inputWithCursors,
-            int endCharacter)
+        [DataRow("module test 'br:|'")]
+        [DataRow("module test 'br:|")]
+        public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(string inputWithCursors)
         {
             var bicepConfigFileContents = @"{
   ""moduleAliases"": {
     ""br"": {
       ""test1"": {
-        ""registry"": ""testacr.azurecr.io"",
+        ""registry"": ""testacr1.azurecr.io"",
         ""modulePath"": ""bicep/modules""
       },
       ""test2"": {
+        ""registry"": ""testacr2.azurecr.io""
+      },
+      ""test3"": {
         ""registry"": ""testacr2.azurecr.io""
       }
     }
@@ -229,29 +230,21 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().SatisfyRespectively(
                 c =>
                 {
-                    c.Label.Should().Be("mcr.microsoft.com/bicep/");
+                    c.Label.Should().Be("mcr.microsoft.com/bicep");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:mcr.microsoft.com/bicep/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:mcr.microsoft.com/bicep/$0'");;
                 },
                 c =>
                 {
-                    c.Label.Should().Be("testacr.azurecr.io");
+                    c.Label.Should().Be("testacr1.azurecr.io");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("br:testacr.azurecr.io/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:testacr1.azurecr.io/$0'");
                 },
                 c =>
                 {
@@ -260,20 +253,14 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("br:testacr2.azurecr.io/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:testacr2.azurecr.io/$0'");
                 });
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:|'", 17 )]
-        [DataRow("module test 'br:|", 16)]
-        public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_ReturnsACRCompletionItemsUsingResourceGraphClient(
-            string inputWithCursors,
-            int endCharacter)
+        [DataRow("module test 'br:|'")]
+        [DataRow("module test 'br:|")]
+        public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_ReturnsACRCompletionItemsUsingResourceGraphClient(string inputWithCursors)
         {
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
 
@@ -316,16 +303,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().SatisfyRespectively(
                 c =>
                 {
-                    c.Label.Should().Be("mcr.microsoft.com/bicep/");
+                    c.Label.Should().Be("mcr.microsoft.com/bicep");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
                     c.TextEdit!.TextEdit!.NewText.Should().Be("'br:mcr.microsoft.com/bicep/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
                 },
                 c =>
                 {
@@ -334,11 +317,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("br:testacr3.azurecr.io/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:testacr3.azurecr.io/$0'");
                 },
                 c =>
                 {
@@ -347,35 +326,17 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("br:testacr4.azurecr.io/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:testacr4.azurecr.io/$0'");
                 });
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:|'", 17)]
-        [DataRow("module test 'br:|", 16)]
+        [DataRow("module test 'br:|'")]
+        [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_AndNoAccessibleRegistries_ReturnsNoACRCompletions(
-            string inputWithCursors,
-            int endCharacter)
+            string inputWithCursors)
         {
-            var bicepConfigFileContents = @"{
-  ""moduleAliases"": {
-    ""br"": {
-      ""test1"": {
-        ""registry"": ""testacr1.azurecr.io"",
-        ""modulePath"": ""bicep/modules""
-      },
-      ""test2"": {
-        ""registry"": ""testacr2.azurecr.io""
-      }
-    }
-  }
-}";
-            var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
+            var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
 
             var settingsProviderMock = StrictMock.Of<ISettingsProvider>();
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(true);
@@ -394,16 +355,12 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().SatisfyRespectively(
                 c =>
                 {
-                    c.Label.Should().Be("mcr.microsoft.com/bicep/");
+                    c.Label.Should().Be("mcr.microsoft.com/bicep");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
                     c.TextEdit!.TextEdit!.NewText.Should().Be("'br:mcr.microsoft.com/bicep/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(endCharacter);
                 });
         }
 

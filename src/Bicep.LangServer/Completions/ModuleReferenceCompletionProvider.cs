@@ -94,7 +94,7 @@ namespace Bicep.LanguageServer.Completions
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(completionText)
-                    .WithSortText(GetSortText(text, CompletionPriority.Medium))
+                    .WithSortText(GetSortText(text, CompletionPriority.Low))
                     .WithSnippetEdit(context.ReplacementRange, completionText)
                     .WithDetail(kvp.Value)
                     .Build();
@@ -464,8 +464,8 @@ namespace Bicep.LanguageServer.Completions
             }
             else if (replacementTextWithTrimmedEnd == "'br:")
             {
-                var label = "mcr.microsoft.com/bicep/";
-                var insertText = $"{replacementTextWithTrimmedEnd}{label}$0'";
+                var label = "mcr.microsoft.com/bicep";
+                var insertText = $"{replacementTextWithTrimmedEnd}{label}/$0'";
                 var mcrCompletionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
@@ -507,7 +507,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(registryName, CompletionPriority.High))
+                    .WithSortText(GetSortText(registryName, CompletionPriority.Medium))
                     .Build();
                 completions.Add(completionItem);
             }
@@ -522,20 +522,27 @@ namespace Bicep.LanguageServer.Completions
             var rootConfiguration = configurationManager.GetConfiguration(templateUri);
             var ociArtifactModuleAliases = rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
 
+            HashSet<string> aliases = new HashSet<string>();
+
             foreach (var kvp in ociArtifactModuleAliases)
             {
                 var label = kvp.Value.Registry;
 
                 if (label is not null && !label.Equals("mcr.microsoft.com", StringComparison.Ordinal))
                 {
-                    var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
-                    var insertText = $"{replacementTextWithTrimmedEnd}{label}/$0'";
-                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
-                        .WithFilterText(insertText)
-                        .WithSnippetEdit(context.ReplacementRange, insertText)
-                        .WithSortText(GetSortText(label, CompletionPriority.High))
-                        .Build();
-                    completions.Add(completionItem);
+                    if (!aliases.TryGetValue(label, out _))
+                    {
+                        var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
+                        var insertText = $"'{replacementTextWithTrimmedEnd}{label}/$0'";
+                        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                            .WithFilterText(insertText)
+                            .WithSnippetEdit(context.ReplacementRange, insertText)
+                            .WithSortText(GetSortText(label, CompletionPriority.Medium))
+                            .Build();
+                        completions.Add(completionItem);
+
+                        aliases.Add(label);
+                    }
                 }
             }
 
