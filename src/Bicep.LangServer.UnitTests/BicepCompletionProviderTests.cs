@@ -8,18 +8,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
@@ -30,13 +35,19 @@ namespace Bicep.LangServer.UnitTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        private static readonly ILanguageServerFacade server = StrictMock.Of<ILanguageServerFacade>().Object;
+
         private static BicepCompletionProvider CreateProvider()
         {
             var helper = ServiceBuilder.Create(services => services
+                .AddSingleton<ILanguageServerFacade>(server)
+                .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
+                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>());
 
             return helper.Construct<BicepCompletionProvider>();
