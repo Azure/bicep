@@ -1413,11 +1413,17 @@ type b = string
             var fileWithCursors = @"
 type a = 'fizz'|'buzz'|ǂ
 type b = 'pop'
+type c = ['foo', 'bar']
+type d = {
+  key: 'a'|'union'|'of'|'values'
+}
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
             var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
+            completions.Should().Contain(x => x.Label == "c");
+            completions.Should().Contain(x => x.Label == "d");
         }
 
         [TestMethod]
@@ -1440,12 +1446,19 @@ type b = 'pop'
 type a = 'fizz'|'buzz'|ǂ
 type b = 'pop'
 type c = string[]
+type d = [1, 2, int]
+type e = {
+  key: 'value'
+  anotherKey: string
+}
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
             var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
             completions.Should().NotContain(x => x.Label == "c");
+            completions.Should().NotContain(x => x.Label == "d");
+            completions.Should().NotContain(x => x.Label == "e");
             completions.Should().NotContain(x => x.Label == "string");
             completions.Should().NotContain(x => x.Label == "int");
             completions.Should().NotContain(x => x.Label == "bool");

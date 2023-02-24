@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
@@ -44,6 +43,10 @@ namespace Bicep.Core.Semantics
 
         public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
         {
+            // The following line makes the simplifying assumption that nullability does not impact decorator validity. This assumption is true at the moment
+            // because aside from @metadata and @description (which are attachable to targets of any type), all decorators represent validation constraints
+            // (which are no-ops on null values within the ARM runtime). This assumption may or may not hold when 3P extensibility providers define their own
+            // decorators, at which point we'll probably want a .AllowsNullableTargets property on decorators or the like.
             targetType = RemoveImplicitNull(targetType);
 
             if (targetType is ErrorType)
@@ -70,11 +73,6 @@ namespace Bicep.Core.Semantics
             return this.evaluator(functionCall, RemoveImplicitNull(targetType), targetObject);
         }
 
-        private static TypeSymbol RemoveImplicitNull(TypeSymbol type) => type switch
-        {
-            UnionType union when union.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToArray() is { } sansNull
-                && sansNull.Length < union.Members.Length => TypeHelper.CreateTypeUnion(sansNull),
-            _ => type,
-        };
+        private static TypeSymbol RemoveImplicitNull(TypeSymbol type) => TypeHelper.TryRemoveNullability(type) ?? type;
     }
 }
