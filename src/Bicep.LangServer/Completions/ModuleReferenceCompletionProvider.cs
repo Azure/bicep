@@ -63,10 +63,10 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            return GetPathCompletions(context, replacementText, templateUri)
-                .Concat(GetMCRModuleRegistryVersionCompletions(context, replacementText, templateUri))
-                .Concat(await GetRegistryCompletions(context, replacementText, templateUri))
-                .Concat(GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText));
+            return GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText)
+                .Concat(await GetPathCompletions(context, replacementText, templateUri))
+                .Concat(await GetMCRModuleRegistryVersionCompletions(context, replacementText, templateUri))
+                .Concat(await GetRegistryCompletions(context, replacementText, templateUri));
         }
 
         // Handles bicep registry and template spec schema completions.
@@ -101,7 +101,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles version completions for Microsoft Container Registries(MCR).
-        private IEnumerable<CompletionItem> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
             {
@@ -132,7 +132,9 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completions = new List<CompletionItem>();
             replacementText = replacementText.TrimEnd('\'');
-            foreach (var version in modulesMetadataProvider.GetVersions(filePath))
+
+            var versions = await modulesMetadataProvider.GetVersions(filePath);
+            foreach (var version in versions)
             {
                 var insertText = $"{replacementText}{version}'$0";
 
@@ -206,7 +208,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles path completions.
-        private IEnumerable<CompletionItem> GetPathCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetPathCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
             {
@@ -218,21 +220,21 @@ namespace Bicep.LanguageServer.Completions
                 replacementText == "'br/public:" ||
                 replacementText == "'br:mcr.microsoft.com/bicep/")
             {
-                return GetPublicMCRPathCompletions(replacementText, context);
+                return await GetPublicMCRPathCompletions(replacementText, context);
             }
             else
             {
                 List<CompletionItem> completions = new List<CompletionItem>();
 
                 completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, templateUri));
-                completions.AddRange(GetMCRPathCompletionFromBicepConfig(replacementText, context, templateUri));
+                completions.AddRange(await GetMCRPathCompletionFromBicepConfig(replacementText, context, templateUri));
 
                 return completions;
             }
         }
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
-        private IEnumerable<CompletionItem> GetMCRPathCompletionFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetMCRPathCompletionFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
@@ -274,7 +276,8 @@ namespace Bicep.LanguageServer.Completions
                         {
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
-                                foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
+                                var moduleNames = await modulesMetadataProvider.GetModuleNames();
+                                foreach (var moduleName in moduleNames)
                                 {
                                     var label = $"bicep/{moduleName}";
                                     var insertText = $"{replacementTextWithTrimmedEnd}bicep/{moduleName}:$0'";
@@ -308,7 +311,9 @@ namespace Bicep.LanguageServer.Completions
                             }
 
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
-                            var matchingModuleNames = modulesMetadataProvider.GetModuleNames().Where(x => x.StartsWith($"{modulePathWithoutBicepKeyword}/"));
+                            var moduleNames = await modulesMetadataProvider.GetModuleNames();
+
+                            var matchingModuleNames = moduleNames.Where(x => x.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
                             foreach (var moduleName in matchingModuleNames)
                             {
@@ -393,13 +398,14 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles path completions for MCR.
-        private IEnumerable<CompletionItem> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context)
+        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            foreach (var moduleName in modulesMetadataProvider.GetModuleNames())
+            var moduleNames = await modulesMetadataProvider.GetModuleNames();
+            foreach (var moduleName in moduleNames)
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
 

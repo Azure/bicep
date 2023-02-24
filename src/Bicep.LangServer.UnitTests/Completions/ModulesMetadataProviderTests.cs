@@ -22,9 +22,9 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
-        public void GetModuleNames_ShouldReturnAllModuleNames()
+        public async Task GetModuleNames_ShouldReturnAllModuleNames()
         {
-            IEnumerable<string> moduleNames = modulesMetadataProvider.GetModuleNames();
+            IEnumerable<string> moduleNames = await modulesMetadataProvider.GetModuleNames();
 
             moduleNames.Should().NotBeEmpty();
             moduleNames.Should().Contain("app/dapr-containerapp");
@@ -36,15 +36,16 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataRow("invalid_name")]
         [DataRow(null)]
         [DataTestMethod]
-        public void GetVersions_WithInvalidModuleName_ShouldReturnNothing(string moduleName)
+        public async Task GetVersions_WithInvalidModuleName_ShouldReturnNothing(string moduleName)
         {
-            modulesMetadataProvider.GetVersions(moduleName).Should().BeEmpty();
+            var versions = await modulesMetadataProvider.GetVersions(moduleName);
+            versions.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void GetVersions_WithValidModuleName_ShouldReturnVersions()
+        public async Task GetVersions_WithValidModuleName_ShouldReturnVersions()
         {
-            IEnumerable<string> versions = modulesMetadataProvider.GetVersions("app/dapr-containerapp");
+            IEnumerable<string> versions = await modulesMetadataProvider.GetVersions("app/dapr-containerapp");
 
             versions.Should().NotBeEmpty();
             versions.Should().Contain("1.0.1");

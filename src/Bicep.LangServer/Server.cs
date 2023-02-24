@@ -101,10 +101,6 @@ namespace Bicep.LanguageServer
 
             server.LogInfo($"Running on processId {Environment.ProcessId}");
 
-            var mcrCompletionProvider = server.GetRequiredService<IModulesMetadataProvider>();
-            var mcrModulesMetadatInitializationResult = await mcrCompletionProvider.Initialize();
-            server.LogInfo(mcrModulesMetadatInitializationResult);
-
             if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new ServerLogTraceListener(server));

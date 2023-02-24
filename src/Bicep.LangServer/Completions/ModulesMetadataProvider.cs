@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer.Providers
         private const string LiveDataEndpoint = "https://live-data.bicep.azure.com/modulesMetadata";
         private List<ModuleMetadata> moduleMetadataCache = new List<ModuleMetadata>();
 
-        public async Task<string> Initialize()
+        public async Task Initialize()
         {
             try
             {
@@ -35,20 +35,24 @@ namespace Bicep.LanguageServer.Providers
                 if (metadata is not null)
                 {
                     moduleMetadataCache = metadata;
-                    return "Initialized MCR modules metadata";
                 }
             }
             catch (Exception e)
             {
-                return string.Format("Encountered following exception while intializing MCR modules metadata: {0}", e.Message);
+                Trace.WriteLine(string.Format("Encountered following exception while intializing MCR modules metadata: {0}", e.Message));
             }
 
-            return "Unable to initialize MCR modules metadata.";
+            Trace.WriteLine("Unable to initialize MCR modules metadata.");
         }
 
-        public IEnumerable<string> GetModuleNames()
+        public async Task<IEnumerable<string>> GetModuleNames()
         {
             List<string> moduleNames = new List<string>();
+
+            if (!moduleMetadataCache.Any())
+            {
+                await Initialize();
+            }
 
             foreach (var moduleMetadataCacheEntry in moduleMetadataCache)
             {
@@ -58,9 +62,15 @@ namespace Bicep.LanguageServer.Providers
             return moduleNames;
         }
 
-        public IEnumerable<string> GetVersions(string moduleName)
+        public async Task<IEnumerable<string>> GetVersions(string moduleName)
         {
             List<string> versions = new List<string>();
+
+            if (!moduleMetadataCache.Any())
+            {
+                await Initialize();
+            }
+
             ModuleMetadata? metadata = moduleMetadataCache.FirstOrDefault(x => x.moduleName.Equals(moduleName, StringComparison.Ordinal));
 
             if (metadata is not null)
