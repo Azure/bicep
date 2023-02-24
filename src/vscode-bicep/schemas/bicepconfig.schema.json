@@ -515,10 +515,10 @@
                     }
                   ]
                 },
-                "use-resource-symbol-reference": {
+                "simplify-json-null": {
                   "allOf": [
                     {
-                      "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. See https://aka.ms/bicep/linter/use-resource-symbol-reference"
+                      "description": "Simplify json('null') to null. See https://aka.ms/bicep/linter/simplify-json-null"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -549,6 +549,16 @@
                   "allOf": [
                     {
                       "description": "Properties representing a resource ID must be generated appropriately. See https://aka.ms/bicep/linter/use-resource-id-functions"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-resource-symbol-reference": {
+                  "allOf": [
+                    {
+                      "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. See https://aka.ms/bicep/linter/use-resource-symbol-reference"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"

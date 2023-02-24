@@ -625,6 +625,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;json(&apos;null&apos;)&apos;..
+        /// </summary>
+        internal static string SimplifyJsonNullFixTitle {
+            get {
+                return ResourceManager.GetString("SimplifyJsonNullFixTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;json(&apos;null&apos;)&apos;..
+        /// </summary>
+        internal static string SimplifyJsonNullRuleDescription {
+            get {
+                return ResourceManager.GetString("SimplifyJsonNullRuleDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to All existing resources must be used..
         /// </summary>
         internal static string UnusedExistingResourceRuleDescription {
