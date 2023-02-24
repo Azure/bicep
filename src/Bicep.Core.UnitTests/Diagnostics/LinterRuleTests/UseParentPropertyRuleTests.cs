@@ -187,4 +187,28 @@ resource child 'Microsoft.Network/networkInterfaces/ipConfigurations@2022-07-01'
   name: '${a}'
 }
 ");
+
+    [TestMethod]
+    public void Codefix_handles_parent_dot_name_expression() => AssertCodeFix(@"
+param stgName string
+
+resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: stgName
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  name: '${stg.name}/bl|ah'
+}
+", @"
+param stgName string
+
+resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: stgName
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  parent: stg
+  name: 'blah'
+}
+");
 }

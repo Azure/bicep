@@ -175,11 +175,13 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/typeA/typeB@2020-01-01'|
   name: '${resourceA.name}/myName'
+//@[08:34) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-parent-property)) |'${resourceA.name}/myName'|
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. (CodeDescription: none) |'My.Rp/typeA/typeB@2020-01-01'|
   name: '${resourceA.name}/myName'
+//@[08:34) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-parent-property)) |'${resourceA.name}/myName'|
   properties: {
     aId: resourceA.id
     aType: resourceA.type
