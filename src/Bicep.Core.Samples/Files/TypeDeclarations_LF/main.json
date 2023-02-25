@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15765383443185590258"
+      "templateHash": "5588942066312387409"
     }
   },
   "definitions": {
@@ -183,6 +183,14 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "nullable": {
+      "type": "string",
+      "nullable": true
+    },
+    "nonNullable": {
+      "$ref": "#/definitions/nullable",
+      "nullable": false
     }
   },
   "parameters": {
@@ -237,10 +245,6 @@
           "key": "value"
         }
       ]
-    },
-    "nullableParam": {
-      "type": "string",
-      "nullable": true
     }
   },
   "variables": {

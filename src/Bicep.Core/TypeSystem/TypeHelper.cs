@@ -92,6 +92,7 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
+            PrimitiveType { Name: LanguageConstants.NullKeyword } => true,
 
             // A tuple can be a literal only if each item contained therein is also a literal
             TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),

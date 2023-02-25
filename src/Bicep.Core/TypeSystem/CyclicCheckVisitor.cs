@@ -15,18 +15,13 @@ namespace Bicep.Core.TypeSystem
     {
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly ISyntaxHierarchy syntaxHierarchy;
-
         private readonly IDictionary<DeclaredSymbol, IList<SyntaxBase>> declarationAccessDict;
 
         private Stack<DeclaredSymbol> currentDeclarations;
 
         public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
-            => FindCycles(programSyntax, SyntaxHierarchy.Build(programSyntax), bindings);
-
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, ISyntaxHierarchy syntaxHierarchy, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
-            var visitor = new CyclicCheckVisitor(bindings, syntaxHierarchy);
+            var visitor = new CyclicCheckVisitor(bindings);
             visitor.Visit(programSyntax);
 
             return visitor.FindCycles();
@@ -41,10 +36,9 @@ namespace Bicep.Core.TypeSystem
             return CycleDetector<DeclaredSymbol>.FindCycles(symbolGraph);
         }
 
-        private CyclicCheckVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, ISyntaxHierarchy syntaxHierarchy)
+        private CyclicCheckVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             this.bindings = bindings;
-            this.syntaxHierarchy = syntaxHierarchy;
             this.declarationAccessDict = new Dictionary<DeclaredSymbol, IList<SyntaxBase>>();
             this.currentDeclarations = new Stack<DeclaredSymbol>();
         }
@@ -155,47 +149,19 @@ namespace Bicep.Core.TypeSystem
             base.VisitFunctionCallSyntax(syntax);
         }
 
-        public override void VisitNullableTypeSyntax(NullableTypeSyntax syntax)
+        public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
         {
-            // A nullable type may be omitted at deployment time, so its presence may mark a symbol loop as *recursive* rather than *cyclic*.
+            // recursive types are permitted. pass
+        }
 
-            static bool IsTypeContainerSyntax(SyntaxBase syntax) => syntax switch
-            {
-                ArrayTypeSyntax or ObjectTypeSyntax or TupleTypeSyntax => true,
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
+        {
+            // recursive types are permitted. pass
+        }
 
-                // Descend into type syntax that is eagerly evaluated 
-                UnionTypeSyntax union => union.Members.Any(m => IsTypeContainerSyntax(m.Value)),
-                UnaryOperationSyntax unaryOperation => IsTypeContainerSyntax(unaryOperation.Expression),
-                PropertyAccessSyntax propertyAccess => IsTypeContainerSyntax(propertyAccess.BaseExpression),
-                ArrayAccessSyntax arrayAccess => IsTypeContainerSyntax(arrayAccess.BaseExpression),
-                ParenthesizedExpressionSyntax parenthesized => IsTypeContainerSyntax(parenthesized.Expression),
-
-                // anything else is not a container
-                _ => false,
-            };
-
-            SyntaxBase current = syntax;
-            while (syntaxHierarchy.GetParent(current) is SyntaxBase parent)
-            {
-                if (parent is ArrayTypeMemberSyntax || parent is ObjectTypePropertySyntax || parent is TupleTypeItemSyntax)
-                {
-                    // hitting syntax representing a deferrable type container confirms this syntax as recursive, not cyclic. Stop visiting.
-                    break;
-                }
-
-                if (parent is TypeDeclarationSyntax)
-                {
-                    // if this is a top-level declaration, go ahead and check for cycles unless what's nullable is a type container
-                    if (!IsTypeContainerSyntax(syntax.Base))
-                    {
-                        base.VisitNullableTypeSyntax(syntax);
-                    }
-
-                    break;
-                }
-
-                current = parent;
-            }
+        public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
+        {
+            // recursive types are permitted. pass
         }
     }
 }

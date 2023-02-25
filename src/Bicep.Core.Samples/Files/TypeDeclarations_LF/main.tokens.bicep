@@ -426,11 +426,20 @@ var maybeNull = mightIncludeNull[0]!.key
 //@[37:40) Identifier |key|
 //@[40:42) NewLine |\n\n|
 
-param nullableParam string?
-//@[00:05) Identifier |param|
-//@[06:19) Identifier |nullableParam|
-//@[20:26) Identifier |string|
-//@[26:27) Question |?|
-//@[27:28) NewLine |\n|
+type nullable = string?
+//@[00:04) Identifier |type|
+//@[05:13) Identifier |nullable|
+//@[14:15) Assignment |=|
+//@[16:22) Identifier |string|
+//@[22:23) Question |?|
+//@[23:25) NewLine |\n\n|
+
+type nonNullable = nullable!
+//@[00:04) Identifier |type|
+//@[05:16) Identifier |nonNullable|
+//@[17:18) Assignment |=|
+//@[19:27) Identifier |nullable|
+//@[27:28) Exclamation |!|
+//@[28:29) NewLine |\n|
 
 //@[00:00) EndOfFile ||

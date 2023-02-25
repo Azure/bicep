@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1291) ProgramExpression
+//@[00:1317) ProgramExpression
 @sealed()
 type foo = {
   @minLength(3)
@@ -96,6 +96,7 @@ var maybeNull = mightIncludeNull[0]!.key
 //@[16:0032)     | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
 //@[37:0040)     └─StringLiteralExpression { Value = key }
 
-param nullableParam string?
-//@[00:0027) ├─DeclaredParameterExpression { Name = nullableParam }
+type nullable = string?
+
+type nonNullable = nullable!
 

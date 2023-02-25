@@ -85,6 +85,9 @@ param mightIncludeNull ({key: 'value'} | null)[]
 var maybeNull = mightIncludeNull[0]!.key
 //@[4:13) Variable maybeNull. Type: 'value'. Declaration start char: 0, length: 40
 
-param nullableParam string?
-//@[6:19) Parameter nullableParam. Type: null | string. Declaration start char: 0, length: 27
+type nullable = string?
+//@[5:13) TypeAlias nullable. Type: Type<null | string>. Declaration start char: 0, length: 23
+
+type nonNullable = nullable!
+//@[5:16) TypeAlias nonNullable. Type: Type<string>. Declaration start char: 0, length: 28
 

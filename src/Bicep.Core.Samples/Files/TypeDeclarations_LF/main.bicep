@@ -71,4 +71,6 @@ param mightIncludeNull ({key: 'value'} | null)[]
 
 var maybeNull = mightIncludeNull[0]!.key
 
-param nullableParam string?
+type nullable = string?
+
+type nonNullable = nullable!

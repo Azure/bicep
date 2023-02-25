@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1291) ProgramSyntax
+//@[00:1317) ProgramSyntax
 //@[00:0299) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -732,16 +732,30 @@ var maybeNull = mightIncludeNull[0]!.key
 //@[37:0040) |     └─Token(Identifier) |key|
 //@[40:0042) ├─Token(NewLine) |\n\n|
 
-param nullableParam string?
-//@[00:0027) ├─ParameterDeclarationSyntax
-//@[00:0005) | ├─Token(Identifier) |param|
-//@[06:0019) | ├─IdentifierSyntax
-//@[06:0019) | | └─Token(Identifier) |nullableParam|
-//@[20:0027) | └─NullableTypeSyntax
-//@[20:0026) |   ├─VariableAccessSyntax
-//@[20:0026) |   | └─IdentifierSyntax
-//@[20:0026) |   |   └─Token(Identifier) |string|
-//@[26:0027) |   └─Token(Question) |?|
-//@[27:0028) ├─Token(NewLine) |\n|
+type nullable = string?
+//@[00:0023) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0013) | ├─IdentifierSyntax
+//@[05:0013) | | └─Token(Identifier) |nullable|
+//@[14:0015) | ├─Token(Assignment) |=|
+//@[16:0023) | └─NullableTypeSyntax
+//@[16:0022) |   ├─VariableAccessSyntax
+//@[16:0022) |   | └─IdentifierSyntax
+//@[16:0022) |   |   └─Token(Identifier) |string|
+//@[22:0023) |   └─Token(Question) |?|
+//@[23:0025) ├─Token(NewLine) |\n\n|
+
+type nonNullable = nullable!
+//@[00:0028) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0016) | ├─IdentifierSyntax
+//@[05:0016) | | └─Token(Identifier) |nonNullable|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0028) | └─NonNullAssertionSyntax
+//@[19:0027) |   ├─VariableAccessSyntax
+//@[19:0027) |   | └─IdentifierSyntax
+//@[19:0027) |   |   └─Token(Identifier) |nullable|
+//@[27:0028) |   └─Token(Exclamation) |!|
+//@[28:0029) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

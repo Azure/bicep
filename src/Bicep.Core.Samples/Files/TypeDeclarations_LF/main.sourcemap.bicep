@@ -279,7 +279,7 @@ type stringStringDictionary = {
 //@      "additionalProperties": {
 //@        "type": "string"
 //@      }
-//@    }
+//@    },
     *: string
 }
 
@@ -292,14 +292,20 @@ param mightIncludeNull ({key: 'value'} | null)[]
 //@          "key": "value"
 //@        }
 //@      ]
-//@    },
+//@    }
 
 var maybeNull = mightIncludeNull[0]!.key
 //@    "maybeNull": "[parameters('mightIncludeNull')[0].key]"
 
-param nullableParam string?
-//@    "nullableParam": {
+type nullable = string?
+//@    "nullable": {
 //@      "type": "string",
 //@      "nullable": true
+//@    },
+
+type nonNullable = nullable!
+//@    "nonNullable": {
+//@      "$ref": "#/definitions/nullable",
+//@      "nullable": false
 //@    }
 

@@ -1484,9 +1484,21 @@ namespace Bicep.Core.Parsing
         {
             var candidate = UnaryTypeBaseExpression();
 
-            if (Check(TokenType.Question))
+            while (true)
             {
-                return new NullableTypeSyntax(candidate, Expect(TokenType.Question, b => b.ExpectedCharacter("?")));
+                if (Check(TokenType.Question))
+                {
+                    candidate = new NullableTypeSyntax(candidate, Expect(TokenType.Question, b => b.ExpectedCharacter("?")));
+                    continue;
+                }
+
+                if (Check(TokenType.Exclamation))
+                {
+                    candidate = new NonNullAssertionSyntax(candidate, Expect(TokenType.Exclamation, b => b.ExpectedCharacter("!")));
+                    continue;
+                }
+
+                break;
             }
 
             return candidate;

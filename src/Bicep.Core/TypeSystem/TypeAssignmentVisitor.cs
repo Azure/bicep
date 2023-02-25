@@ -16,7 +16,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -506,6 +505,105 @@ namespace Bicep.Core.TypeSystem
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
                 base.VisitArrayTypeMemberSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                base.VisitUnionTypeSyntax(syntax);
+
+                var memberTypes = syntax.Members.Select(memberSyntax => (GetTypeInfo(memberSyntax), memberSyntax))
+                    .SelectMany(t => FlattenUnionMemberType(t.Item1, t.memberSyntax)).ToImmutableArray();
+
+                switch (TypeHelper.CreateTypeUnion(memberTypes.Select(t => GetNonLiteralType(t.memberType)).WhereNotNull()))
+                {
+                    case UnionType union when TypeHelper.TryRemoveNullability(union) is {} nonNullable && LanguageConstants.DeclarationTypes.ContainsValue(nonNullable):
+                        ValidateAllowedValuesUnion(union, memberTypes, diagnostics);
+                        break;
+
+                    case UnionType union when MightBeArrayAny(syntax) &&
+                        union.Members.Any() &&
+                        !union.Members.Any(m => ReferenceEquals(m.Type, LanguageConstants.Array)):
+                        ValidateAllowedValuesSubsetUnion(memberTypes, diagnostics);
+                        break;
+
+                    case TypeSymbol ts when LanguageConstants.DeclarationTypes.ContainsValue(ts):
+                        ValidateAllowedValuesUnion(ts, memberTypes, diagnostics);
+                        break;
+
+                    default:
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(syntax).InvalidTypeUnion());
+                        break;
+                }
+
+                return declaredType;
+            });
+
+        private static IEnumerable<(TypeSymbol memberType, UnionTypeMemberSyntax memberSyntax)>
+        FlattenUnionMemberType(ITypeReference memberType, UnionTypeMemberSyntax memberSyntax) => memberType.Type switch
+        {
+            UnionType union => union.Members.SelectMany(m => FlattenUnionMemberType(m, memberSyntax)),
+            TypeSymbol otherwise => (otherwise, memberSyntax).AsEnumerable(),
+        };
+
+        private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch {
+            StringLiteralType => LanguageConstants.String,
+            IntegerLiteralType => LanguageConstants.Int,
+            BooleanLiteralType => LanguageConstants.Bool,
+            ObjectType => LanguageConstants.Object,
+            TupleType => LanguageConstants.Array,
+            PrimitiveType { Name: LanguageConstants.NullKeyword } => LanguageConstants.Null,
+            _ => null,
+        };
+
+        private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => MightBeArrayAny(parenthesized),
+            ArrayTypeMemberSyntax arrayTypeMember => MightBeArrayAny(arrayTypeMember),
+            ArrayTypeSyntax => true,
+            _ => false,
+        };
+
+        private static void ValidateAllowedValuesSubsetUnion(ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, IDiagnosticWriter diagnostics)
+        {
+            foreach (var (memberType, memberSyntax) in memberTypes)
+            {
+                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is {} diagnostic)
+                {
+                    diagnostics.Write(diagnostic);
+                }
+            }
+        }
+
+        private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, IDiagnosticWriter diagnostics)
+        {
+            foreach (var (memberType, memberSyntax) in memberTypes)
+            {
+                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is {} diagnostic)
+                {
+                    diagnostics.Write(diagnostic);
+                }
+                else if (!TypeValidator.AreTypesAssignable(memberType, keystoneType))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).InvalidUnionTypeMember(keystoneType.Name));
+                }
+            }
+        }
+
+        private static ErrorDiagnostic? GetNonLiteralUnionMemberDiagnostic(TypeSymbol memberType, UnionTypeMemberSyntax memberSyntax)
+            => TypeHelper.IsLiteralType(memberType) ? null : DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember();
+
+        public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitUnionTypeMemberSyntax(syntax);
 
                 return declaredType;
             });
@@ -1004,7 +1102,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             baseType = UnwrapType(baseType);
-            
+
             // if the index type is nullable but otherwise valid, emit a fixable warning
             if (TypeHelper.TryRemoveNullability(indexType) is {} nonNullableIndex)
             {

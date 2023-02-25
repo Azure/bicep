@@ -226,7 +226,7 @@ type anObject = {
 
         blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+            ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
         });
 
         var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -250,17 +250,6 @@ type anObject = {
 ");
 
         blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
-            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
-        });
-
-        var blockedBecauseOfUnaryOperationSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
-type anObject = {
-    recur: !anObject?
-}
-");
-
-        blockedBecauseOfUnaryOperationSemantics.Should().HaveDiagnostics(new[] {
             ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
         });
     }
@@ -276,7 +265,6 @@ type anObject = {
 
         blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
         var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -323,7 +311,6 @@ type anObject = {
 
         blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
         var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -368,7 +355,6 @@ type anObject = {
 
         blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
         var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -395,6 +381,44 @@ type anObject = {
 type anObject = {
     recurEventually: {
         recurNow: anObject
+    }
+}?
+");
+
+        permitted.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Cyclic_check_understands_nullability_modifiers()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: {
+        recurNow: anObject!
+    }
+}?
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+        });
+
+        blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: {
+        recurNow: anObject
+    }
+}?!
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+        });
+
+        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: {
+        recurNow: anObject!?
     }
 }?
 ");
