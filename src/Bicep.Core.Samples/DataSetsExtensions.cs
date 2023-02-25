@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Containers.ContainerRegistry.Specialized;
+using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -45,8 +47,8 @@ namespace Bicep.Core.Samples
         {
             features ??= new(testContext, RegistryEnabled: dataSet.HasExternalModules);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(testContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, testContext);
+            var clientFactory = dataSet.CreateMockRegistryClients();
+            await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
 
             var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features)).GetCompiler();
@@ -57,7 +59,7 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, params (Uri registryUri, string repository)[] additionalClients)
         {
             var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -83,7 +85,8 @@ namespace Bicep.Core.Samples
 
             var repoToClient = clientsBuilder.ToImmutable();
 
-            var clientFactory = new Mock<IContainerRegistryClientFactory>(MockBehavior.Strict);
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+
             clientFactory
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
@@ -93,7 +96,19 @@ namespace Bicep.Core.Samples
                         return client;
                     }
 
-                    throw new InvalidOperationException($"No mock client was registered for Uri '{registryUri}' and repository '{repository}'.");
+                    throw new InvalidOperationException($"No mock authenticated client was registered for Uri '{registryUri}' and repository '{repository}'.");
+                });
+
+            clientFactory
+                .Setup(m => m.CreateAnonymouosBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
+                {
+                    if (repoToClient.TryGetValue((registryUri, repository), out var client))
+                    {
+                        return client;
+                    }
+
+                    throw new InvalidOperationException($"No mock anonymous client was registered for Uri '{registryUri}' and repository '{repository}'.");
                 });
 
             return clientFactory.Object;
@@ -131,7 +146,7 @@ namespace Bicep.Core.Samples
             return repositoryFactoryMock.Object;
         }
 
-        public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, TestContext testContext)
+        public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
