@@ -593,7 +593,7 @@
   },
   "devDependencies": {
     "@types/cytoscape": "^3.19.9",
-    "@types/fs-extra": "^9.0.13",
+    "@types/fs-extra": "^11.0.1",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.19",
