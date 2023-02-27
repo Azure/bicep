@@ -624,7 +624,7 @@
     "moment": "^2.29.4",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.5.119",
-    "prettier": "^2.8.3",
+    "prettier": "^2.8.4",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^4.1.2",
     "semver": "^7.3.8",
