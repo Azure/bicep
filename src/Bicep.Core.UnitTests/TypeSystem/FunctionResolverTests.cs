@@ -386,7 +386,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(1, "min", new[] { 10, 4, 1, 6 }),
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
                 CreateRow("foo/bar/baz", "join", new[] { "foo", "bar", "baz"}, "/"),
-                CreateRow("abc/123/true", "join", new object[] { "abc", 123, true }, "/"),
+                CreateRow("abc/123/True", "join", new object[] { "abc", 123, true }, "/"),
             };
         }
 
