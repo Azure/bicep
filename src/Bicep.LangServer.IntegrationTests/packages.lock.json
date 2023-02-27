@@ -1127,10 +1127,10 @@
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "EsxATRfeyoK6Wyda9cofTyeXpSwZ5DoKla11mZ+CdVMxnsL/EXIDh7YH3ULQwZ76N7If4xb2Q5IY7alWzo6J9A==",
+        "resolved": "19.1.18",
+        "contentHash": "R50JT3Eqq77rQ4ElDt7GMItt/DsP/mlRqG+iUI2OCxHls5pNy0Makm/j9QfbfHtJ7ejoSsqkpZ+pQhFpJdVxog==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions.TestingHelpers": "19.1.5"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "19.1.18"
         }
       },
       "System.IO.Compression": {
@@ -1952,11 +1952,11 @@
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "19.1.5",
-        "contentHash": "a7LLIcLnn1dn8GmJedo3sjPU713EMmGeFg4Bor9YZtyppNedOGKyoDN4TiNa5Pj9w7p3U9N8mh4pgNCwEMsE8Q==",
+        "resolved": "19.1.18",
+        "contentHash": "A7J3kLLZr37bTKhj3rK65rAVl2CFjH8AIM3xlSK3mOgqvCgYc7IYpSM9BBu5XhOxTipaMg3gSy0xBl+E/7UvBA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.1.5",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.5"
+          "TestableIO.System.IO.Abstractions": "19.1.18",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.1.18"
         }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
@@ -2036,7 +2036,7 @@
           "MSTest.TestFramework": "[3.0.2, )",
           "Microsoft.NET.Test.Sdk": "[17.4.1, )",
           "Moq": "[4.18.4, )",
-          "System.IO.Abstractions.TestingHelpers": "[19.1.5, )"
+          "System.IO.Abstractions.TestingHelpers": "[19.1.18, )"
         }
       },
       "bicep.langserver": {
