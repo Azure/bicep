@@ -925,7 +925,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\njoin(inputArray: string[], delimiter: string): string\n\n```\nJoins multiple strings into a single string, separated using a delimiter.\n"
+      "value": "```bicep\njoin(inputArray: (bool | int | string)[], delimiter: string): string\n\n```\nJoins multiple strings into a single string, separated using a delimiter.\n"
     },
     "deprecated": false,
     "preselect": false,

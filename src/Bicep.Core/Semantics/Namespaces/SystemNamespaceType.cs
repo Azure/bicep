@@ -135,7 +135,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("join")
                 .WithReturnResultBuilder(TryDeriveLiteralReturnType("join", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Joins multiple strings into a single string, separated using a delimiter.")
-                .WithRequiredParameter("inputArray", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), "An array of strings to join.")
+                .WithRequiredParameter("inputArray", new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), TypeSymbolValidationFlags.Default), "An array of strings to join.")
                 .WithRequiredParameter("delimiter", LanguageConstants.String, "The delimiter to use to join the string.")
                 .Build();
 
