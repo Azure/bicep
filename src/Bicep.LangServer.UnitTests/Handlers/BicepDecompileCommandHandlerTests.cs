@@ -236,15 +236,15 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public void WithInvalidPath_ShouldThrowArgumentException(string path)
+        public async Task WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             var server = new LanguageServerMock();
 
             ICompilationManager bicepCompilationManager = StrictMock.Of<ICompilationManager>().Object;
             var (handler, _) = CreateHandlers(server);
 
-            Action action = () => handler.Handle(new(DocumentUri.File(path)), CancellationToken.None);
-            action.Should().Throw<Exception>();
+            Func<Task> action = () => handler.Handle(new(DocumentUri.File(path)), CancellationToken.None);
+            await action.Should().ThrowAsync<Exception>();
         }
 
         [TestMethod]

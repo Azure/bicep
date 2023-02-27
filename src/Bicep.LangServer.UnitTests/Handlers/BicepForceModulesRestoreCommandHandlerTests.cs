@@ -41,14 +41,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public void Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
+        public async Task Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             var compilationManager = StrictMock.Of<ICompilationManager>().Object;
             var handler = CreateHandler(compilationManager);
 
-            Action sut = () => handler.Handle(path, CancellationToken.None);
+            Func<Task> sut = () => handler.Handle(path, CancellationToken.None);
 
-            sut.Should().Throw<ArgumentException>().WithMessage("Invalid input file path");
+            await sut.Should().ThrowAsync<ArgumentException>().WithMessage("Invalid input file path");
         }
 
         [TestMethod]
