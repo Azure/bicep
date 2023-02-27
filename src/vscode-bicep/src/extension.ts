@@ -17,7 +17,11 @@ import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile
 import { DecompileCommand } from "./commands/decompile";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
-import { BicepCacheContentProvider, createLanguageService } from "./language";
+import {
+  BicepCacheContentProvider,
+  createLanguageService,
+  ensureDotnetRuntimeInstalled,
+} from "./language";
 import { TreeManager } from "./tree/TreeManager";
 import { updateUiContext } from "./updateUiContext";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
@@ -63,18 +67,6 @@ class BicepExtension extends Disposable {
   }
 }
 
-export async function activateWithProgressReport(
-  activateFunc: () => Promise<void>
-): Promise<void> {
-  return await window.withProgress(
-    {
-      title: "Launching Bicep language service...",
-      location: ProgressLocation.Notification,
-    },
-    activateFunc
-  );
-}
-
 export async function activate(
   extensionContext: ExtensionContext
 ): Promise<void> {
@@ -95,15 +87,26 @@ export async function activate(
   });
 
   // Activate and launch language server
-  await activateWithTelemetryAndErrorHandling(
-    async (actionContext) =>
-      await activateWithProgressReport(async () => {
+  await activateWithTelemetryAndErrorHandling(async (actionContext) => {
+    await window.withProgress(
+      {
+        location: ProgressLocation.Window,
+      },
+      async (progress) => {
+        progress.report({ message: "Acquiring dotnet runtime" });
+        const dotnetCommandPath = await ensureDotnetRuntimeInstalled(
+          actionContext
+        );
+
+        progress.report({ message: "Launching language service" });
         languageClient = await createLanguageService(
           actionContext,
           extensionContext,
-          outputChannel
+          outputChannel,
+          dotnetCommandPath
         );
 
+        progress.report({ message: "Registering commands" });
         // go2def links that point to the bicep cache will have the bicep-cache scheme in their document URIs
         // this content provider will allow VS code to understand that scheme
         // and surface the content as a read-only file
@@ -204,8 +207,9 @@ export async function activate(
 
         // Set initial UI context
         await updateUiContext(window.activeTextEditor?.document);
-      })
-  );
+      }
+    );
+  });
 }
 
 export async function deactivate(): Promise<void> {
