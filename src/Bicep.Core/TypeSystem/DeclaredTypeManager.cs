@@ -261,6 +261,7 @@ namespace Bicep.Core.TypeSystem
                 // minLength/maxLength on a tuple are superfluous.
                 TupleType declaredTuple => declaredTuple,
                 ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
+                StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
                 PrimitiveType primitive => new PrimitiveType(primitive.Name, validationFlags),
                 _ => declaredType,
             };
@@ -310,7 +311,17 @@ namespace Bicep.Core.TypeSystem
                 return errorType;
             }
 
-            return TypeFactory.CreateArrayType(declaredArray.Item, validationFlags, minLength, maxLength);
+            return TypeFactory.CreateArrayType(declaredArray.Item, minLength, maxLength, validationFlags);
+        }
+
+        private TypeSymbol GetModifiedString(StringType declaredString, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (!GetLengthModifiers(syntax, declaredString.MinLength, declaredString.MaxLength, out var minLength, out var maxLength, out var errorType))
+            {
+                return errorType;
+            }
+
+            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
         }
 
         private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)

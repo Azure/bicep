@@ -98,7 +98,7 @@ param intEnum int
 @minLength(3)
 @maxLength(24)
 param storageName string
-//@[6:17) Parameter storageName. Type: string. Declaration start char: 0, length: 53
+//@[6:17) Parameter storageName. Type: string {@minLength(3), @maxLength(24)}. Declaration start char: 0, length: 53
 
 // length constraint on an array
 @minLength(3)

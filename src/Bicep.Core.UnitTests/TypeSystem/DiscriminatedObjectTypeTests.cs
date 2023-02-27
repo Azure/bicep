@@ -15,13 +15,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var objectA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
             }, null);
 
             var objectB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
             }, null);
 
@@ -30,8 +30,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             discObj.UnionMembersByKey.Keys.Should().BeEquivalentTo("'keyA'", "'keyB'");
             discObj.TypeKind.Should().Be(TypeKind.DiscriminatedObject);
 
-            discObj.UnionMembersByKey[new StringLiteralType("keyA").Name].Type.Should().Be(objectA);
-            discObj.UnionMembersByKey[new StringLiteralType("keyB").Name].Type.Should().Be(objectB);
+            discObj.UnionMembersByKey[TypeFactory.CreateStringLiteralType("keyA").Name].Type.Should().Be(objectA);
+            discObj.UnionMembersByKey[TypeFactory.CreateStringLiteralType("keyB").Name].Type.Should().Be(objectB);
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var objectA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
             }, null);
 
@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var duplicateKeyObject = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
             }, null);
             Action duplicateKeyConstructorAction = () => new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectA, duplicateKeyObject });

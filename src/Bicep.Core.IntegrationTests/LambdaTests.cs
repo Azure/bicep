@@ -99,7 +99,7 @@ var fo|o2 = map([123], a|bc => 'Hello ${abc}')
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("123[]"),
                 x => x.Type.Name.Should().Be("123"),
-                x => x.Type.Name.Should().Be("string[]"),
+                x => x.Type.Name.Should().Be("'Hello 123'[]"),
                 x => x.Type.Name.Should().Be("123"));
         }
 
@@ -139,7 +139,7 @@ var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("never[]"),
                 x => x.Type.Name.Should().Be("never"),
-                x => x.Type.Name.Should().Be("string[]"),
+                x => x.Type.Name.Should().Be("string {@minLength(4)}[]"),
                 x => x.Type.Name.Should().Be("any"));
         }
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -16,7 +17,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -704,17 +704,30 @@ namespace Bicep.Core.TypeSystem
                 if (syntax.TryGetLiteralValue() is string literalValue)
                 {
                     // uninterpolated strings have a known type
-                    return new StringLiteralType(literalValue);
+                    return TypeFactory.CreateStringLiteralType(literalValue);
                 }
 
                 var errors = new List<ErrorDiagnostic>();
                 var expressionTypes = new List<TypeSymbol>();
+                long minLength = syntax.SegmentValues.Sum(s => s.Length);
+                long? maxLength = minLength;
 
                 foreach (var interpolatedExpression in syntax.Expressions)
                 {
                     var expressionType = typeManager.GetTypeInfo(interpolatedExpression);
                     CollectErrors(errors, expressionType);
                     expressionTypes.Add(expressionType);
+
+                    (long expressionMinLength, long? expressionMaxLength) = TypeHelper.GetMinAndMaxLengthOfStringified(expressionType);
+                    minLength += expressionMinLength;
+                    if (maxLength.HasValue && expressionMaxLength.HasValue)
+                    {
+                        maxLength += expressionMaxLength.Value;
+                    }
+                    else
+                    {
+                        maxLength = null;
+                    }
                 }
 
                 if (PropagateErrorType(errors, expressionTypes))
@@ -722,9 +735,19 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
+                // if the value of this string expression can be determined at compile time, use that
+                if (ArmFunctionReturnTypeEvaluator.TryEvaluate("format", out _, TypeFactory.CreateStringLiteralType(StringFormatConverter.BuildFormatString(syntax.SegmentValues)).AsEnumerable().Concat(expressionTypes)) is {} folded)
+                {
+                    return folded;
+                }
+
                 // normally we would also do an assignability check, but we allow "any" type in string interpolation expressions
                 // so the assignability check cannot possibly fail (we already collected type errors from the inner expressions at this point)
-                return LanguageConstants.String;
+                return TypeFactory.CreateStringType(maxLength: maxLength, minLength: minLength switch
+                {
+                    <= 0 => null,
+                    _ => minLength,
+                });
             });
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
@@ -996,7 +1019,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             baseType = UnwrapType(baseType);
-            
+
             // if the index type is nullable but otherwise valid, emit a fixable warning
             if (TypeHelper.TryRemoveNullability(indexType) is {} nonNullableIndex)
             {

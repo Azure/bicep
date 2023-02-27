@@ -129,11 +129,13 @@ namespace Bicep.Core.TypeSystem
                 case (BooleanLiteralType sourceBool, BooleanLiteralType targetBool):
                     return sourceBool.Value == targetBool.Value;
 
-                case (PrimitiveType, StringLiteralType):
+                case (StringType sourceString, StringLiteralType targetStringLiteral):
                     // We allow primitive to like-typed literal assignment only in the case where the "AllowLooseAssignment" validation flag has been set.
                     // This is to allow parameters without 'allowed' values to be assigned to fields expecting enums.
                     // At some point we may want to consider flowing the enum type backwards to solve this more elegantly.
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.String.Name;
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) &&
+                        (!sourceString.MinLength.HasValue || sourceString.MinLength.Value <= targetStringLiteral.RawStringValue.Length) &&
+                        (!sourceString.MaxLength.HasValue || sourceString.MaxLength.Value >= targetStringLiteral.RawStringValue.Length);
 
                 case (IntegerType sourceInt, IntegerLiteralType targetIntLiteral):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) &&
@@ -143,9 +145,9 @@ namespace Bicep.Core.TypeSystem
                 case (PrimitiveType, BooleanLiteralType):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Bool.Name;
 
-                case (StringLiteralType, PrimitiveType):
-                    // string literals can be assigned to strings
-                    return targetType.Name == LanguageConstants.String.Name;
+                case (StringLiteralType sourceStringLiteral, StringType targetString):
+                    return (!targetString.MinLength.HasValue || sourceStringLiteral.RawStringValue.Length >= targetString.MinLength.Value) &&
+                        (!targetString.MaxLength.HasValue || sourceStringLiteral.RawStringValue.Length <= targetString.MaxLength.Value);
 
                 case (IntegerLiteralType sourceIntLiteral, IntegerType targetInt):
                     // integer literals can be assigned to ints
@@ -160,15 +162,14 @@ namespace Bicep.Core.TypeSystem
                     return (targetInt.MinValue ?? long.MinValue) <= (sourceInt.MaxValue ?? long.MaxValue) &&
                         (targetInt.MaxValue ?? long.MaxValue) >= (sourceInt.MinValue ?? long.MinValue);
 
+                case (StringType sourceString, StringType targetString):
+                    return (targetString.MinLength ?? long.MinValue) <= (sourceString.MaxLength ?? long.MaxValue) &&
+                        (targetString.MaxLength ?? long.MaxValue) >= (sourceString.MinLength ?? long.MinValue);
+
                 case (PrimitiveType, PrimitiveType):
                     // both types are primitive
                     // compare by type name
                     return string.Equals(sourceType.Name, targetType.Name, StringComparison.Ordinal);
-
-                case (ObjectType, ObjectType):
-                    // both types are objects
-                    // this function does not implement any schema validation, so this is far as we go
-                    return true;
 
                 case (ArrayType sourceArray, ArrayType targetArray):
                     // both types are arrays
@@ -176,11 +177,10 @@ namespace Bicep.Core.TypeSystem
                     return (targetArray.MinLength ?? long.MinValue) <= (sourceArray.MaxLength ?? long.MaxValue) &&
                         (targetArray.MaxLength ?? long.MaxValue) >= (sourceArray.MinLength ?? long.MinValue);
 
+                case (ObjectType, ObjectType):
                 case (DiscriminatedObjectType, DiscriminatedObjectType):
-                    // validation left for later
-                    return true;
-
                 case (ObjectType, DiscriminatedObjectType):
+                case (DiscriminatedObjectType, ObjectType):
                     // validation left for later
                     return true;
 
@@ -333,10 +333,54 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            if (targetType is IntegerLiteralType targetIntegerLiteral)
+            if (targetType is IntegerLiteralType)
             {
                 // if anything was assignable to an integer literal target, the target will always be the most narrow type
-                return targetIntegerLiteral;
+                return targetType;
+            }
+
+            // string assignability check
+            if (targetType is StringType targetString)
+            {
+                switch (expressionType)
+                {
+                    case StringType expressionString:
+                        var expressionMinLength = expressionString.MinLength ?? 0;
+                        var targetMinLength = targetString.MinLength ?? 0;
+                        if (expressionMinLength < targetMinLength)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionType.Name, targetType.Name));
+                        }
+
+                        var expressionMaxLength = expressionString.MaxLength ?? long.MaxValue;
+                        var targetMaxLength = targetString.MaxLength ?? long.MaxValue;
+                        if (expressionMaxLength > targetMaxLength)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionType.Name, targetType.Name));
+                        }
+
+                        return TypeFactory.CreateStringType(
+                            minLength: Math.Max(expressionMinLength, targetMinLength) switch
+                            {
+                                0 => null,
+                                long otherwise => otherwise,
+                            },
+                            maxLength: Math.Min(expressionMaxLength, targetMaxLength) switch
+                            {
+                                long.MaxValue => null,
+                                long otherwise => otherwise,
+                            },
+                            validationFlags: targetType.ValidationFlags);
+                    case StringLiteralType expressionStringLiteral:
+                        // if a literal was assignable to a string-typed target, the literal will always be the most narrow type
+                        return expressionStringLiteral;
+                }
+            }
+
+            if (targetType is StringLiteralType)
+            {
+                // if anything was assignable to a literal target, the target will always be the most narrow type
+                return targetType;
             }
 
             // object assignability check

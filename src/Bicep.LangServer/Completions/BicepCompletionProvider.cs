@@ -1187,7 +1187,7 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case PrimitiveType _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;

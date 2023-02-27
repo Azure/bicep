@@ -715,7 +715,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nguid(... : string): string\n\n```\nCreates a value in the format of a globally unique identifier based on the values provided as parameters.\n"
+      "value": "```bicep\nguid(... : string): string {@minLength(36), @maxLength(36)}\n\n```\nCreates a value in the format of a globally unique identifier based on the values provided as parameters.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -946,7 +946,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\njoin(inputArray: string[], delimiter: string): string\n\n```\nJoins multiple strings into a single string, separated using a delimiter.\n"
+      "value": "```bicep\njoin(inputArray: (bool | int | string)[], delimiter: string): string\n\n```\nJoins multiple values into a single string, separated using a delimiter.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2377,7 +2377,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nuniqueString(... : string): string\n\n```\nCreates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.\n"
+      "value": "```bicep\nuniqueString(... : string): string {@minLength(13), @maxLength(13)}\n\n```\nCreates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.\n"
     },
     "deprecated": false,
     "preselect": false,

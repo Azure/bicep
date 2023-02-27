@@ -480,8 +480,8 @@ namespace Bicep.Core.Emit
         };
 
         private string GetNonLiteralTypeName(TypeSymbol? type) => type switch {
-            StringLiteralType => "string",
-            IntegerLiteralType => "int",
+            StringLiteralType or StringType => "string",
+            IntegerLiteralType or IntegerType => "int",
             BooleanLiteralType => "bool",
             ObjectType => "object",
             ArrayType => "array",

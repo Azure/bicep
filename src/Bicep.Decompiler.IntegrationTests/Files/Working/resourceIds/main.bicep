@@ -44,6 +44,6 @@ resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
   }
   dependsOn: [
     'Foo.Rp/bar${fooName}bar'
-//@[04:29) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |'Foo.Rp/bar${fooName}bar'|
+//@[04:29) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'Foo.Rp/barFoo!bar'". (CodeDescription: none) |'Foo.Rp/bar${fooName}bar'|
   ]
 }

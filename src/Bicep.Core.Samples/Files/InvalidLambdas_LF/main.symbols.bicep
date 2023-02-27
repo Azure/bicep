@@ -147,7 +147,7 @@ module modLoop './empty.bicep' = [for item in range(0, 5): {
 
 var modLoopNames = map(modLoop, i => i.name)
 //@[32:33) Local i. Type: module. Declaration start char: 32, length: 1
-//@[04:16) Variable modLoopNames. Type: string[]. Declaration start char: 0, length: 44
+//@[04:16) Variable modLoopNames. Type: string {@minLength(4), @maxLength(4)}[]. Declaration start char: 0, length: 44
 output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[43:44) Local i. Type: >= 0 && <= 5. Declaration start char: 43, length: 1
 //@[07:17) Output modOutputs. Type: array. Declaration start char: 0, length: 71

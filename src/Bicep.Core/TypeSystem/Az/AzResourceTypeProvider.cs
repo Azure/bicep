@@ -85,8 +85,8 @@ namespace Bicep.Core.TypeSystem.Az
 
             yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource id");
             yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty, "The resource name");
-            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource type");
-            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource api version");
+            yield return new TypeProperty(ResourceTypePropertyName, TypeFactory.CreateStringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource type");
+            yield return new TypeProperty(ResourceApiVersionPropertyName, TypeFactory.CreateStringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource api version");
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
@@ -135,10 +135,10 @@ namespace Bicep.Core.TypeSystem.Az
             yield return new TypeProperty("managedByExtended", stringArray);
 
             var extendedLocationType = TypeHelper.CreateTypeUnion(
-                new StringLiteralType("NotSpecified"),
-                new StringLiteralType("EdgeZone"),
-                new StringLiteralType("CustomLocation"),
-                new StringLiteralType("ArcZone"),
+                TypeFactory.CreateStringLiteralType("NotSpecified"),
+                TypeFactory.CreateStringLiteralType("EdgeZone"),
+                TypeFactory.CreateStringLiteralType("CustomLocation"),
+                TypeFactory.CreateStringLiteralType("ArcZone"),
                 LanguageConstants.String);
 
             yield return new TypeProperty("extendedLocation", new ObjectType("extendedLocation", TypeSymbolValidationFlags.Default, new[]
@@ -161,11 +161,11 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
 
             var resourceIdentityType = TypeHelper.CreateTypeUnion(
-                new StringLiteralType("NotSpecified"),
-                new StringLiteralType("SystemAssigned"),
-                new StringLiteralType("UserAssigned"),
-                new StringLiteralType("None"),
-                new StringLiteralType("Actor"),
+                TypeFactory.CreateStringLiteralType("NotSpecified"),
+                TypeFactory.CreateStringLiteralType("SystemAssigned"),
+                TypeFactory.CreateStringLiteralType("UserAssigned"),
+                TypeFactory.CreateStringLiteralType("None"),
+                TypeFactory.CreateStringLiteralType("Actor"),
                 LanguageConstants.String);
 
             var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new []
@@ -212,7 +212,7 @@ namespace Bicep.Core.TypeSystem.Az
             {
                 case ObjectType bodyObjectType:
                     if (bodyObjectType.Properties.TryGetValue(ResourceNamePropertyName, out var nameProperty) &&
-                        nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString } &&
+                        nameProperty.TypeReference.Type is not StringType &&
                         !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).

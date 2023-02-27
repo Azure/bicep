@@ -164,11 +164,11 @@ namespace Bicep.Core
         // the type of the dependsOn property in module and resource bodies
         public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
 
-        public static readonly TypeSymbol String = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol String = TypeFactory.CreateStringType();
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
-        public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol LooseString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
-        public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
+        public static readonly TypeSymbol SecureString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
         public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol Int = TypeFactory.CreateIntegerType();
@@ -182,8 +182,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = TypeFactory.CreateArrayType();
 
-        public static readonly TypeSymbol StringFilePath = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.IsStringFilePath);
-        public static readonly TypeSymbol StringJsonFilePath = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
+        public static readonly TypeSymbol StringFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath);
+        public static readonly TypeSymbol StringJsonFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
 
         //Type for available loadTextContent encoding
 
@@ -196,7 +196,7 @@ namespace Bicep.Core
             ["utf-16"] = Encoding.Unicode,
         }.ToImmutableSortedDictionary(IdentifierComparer);
 
-        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Keys.Select(s => new StringLiteralType(s)));
+        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Keys.Select(s => TypeFactory.CreateStringLiteralType(s)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);

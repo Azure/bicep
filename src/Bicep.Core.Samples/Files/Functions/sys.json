@@ -516,7 +516,7 @@
       "minimumCount": 1
     },
     "flags": "default",
-    "typeSignature": "(... : string): string",
+    "typeSignature": "(... : string): string {@minLength(36), @maxLength(36)}",
     "parameterTypeSignatures": [
       "... : string"
     ]
@@ -647,12 +647,12 @@
   },
   {
     "name": "join",
-    "description": "Joins multiple strings into a single string, separated using a delimiter.",
+    "description": "Joins multiple values into a single string, separated using a delimiter.",
     "fixedParameters": [
       {
         "name": "inputArray",
-        "description": "An array of strings to join.",
-        "type": "string[]",
+        "description": "An array of values to join.",
+        "type": "(bool | int | string)[]",
         "required": true
       },
       {
@@ -665,9 +665,9 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(inputArray: string[], delimiter: string): string",
+    "typeSignature": "(inputArray: (bool | int | string)[], delimiter: string): string",
     "parameterTypeSignatures": [
-      "inputArray: string[]",
+      "inputArray: (bool | int | string)[]",
       "delimiter: string"
     ]
   },
@@ -1001,7 +1001,7 @@
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "paramDefaultsOnly",
-    "typeSignature": "(): string",
+    "typeSignature": "(): string {@minLength(36), @maxLength(36)}",
     "parameterTypeSignatures": []
   },
   {
@@ -1499,7 +1499,7 @@
       "minimumCount": 1
     },
     "flags": "default",
-    "typeSignature": "(... : string): string",
+    "typeSignature": "(... : string): string {@minLength(13), @maxLength(13)}",
     "parameterTypeSignatures": [
       "... : string"
     ]

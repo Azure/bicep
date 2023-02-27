@@ -142,8 +142,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.Bool).Should().BeFalse();
             TypeValidator.AreTypesAssignable(stringUnion, boolIntUnion).Should().BeFalse();
 
-            var logLevelsUnion = TypeHelper.CreateTypeUnion(new StringLiteralType("Error"), new StringLiteralType("Warning"), new StringLiteralType("Info"));
-            var failureLogLevelsUnion = TypeHelper.CreateTypeUnion(new StringLiteralType("Error"), new StringLiteralType("Warning"));
+            var logLevelsUnion = TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("Error"), TypeFactory.CreateStringLiteralType("Warning"), TypeFactory.CreateStringLiteralType("Info"));
+            var failureLogLevelsUnion = TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("Error"), TypeFactory.CreateStringLiteralType("Warning"));
             TypeValidator.AreTypesAssignable(logLevelsUnion, LanguageConstants.String).Should().BeTrue();
             TypeValidator.AreTypesAssignable(logLevelsUnion, stringUnion).Should().BeTrue();
             TypeValidator.AreTypesAssignable(logLevelsUnion, boolIntUnion).Should().BeFalse();
@@ -158,14 +158,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void StringLiteralTypesShouldBeAssignableToStrings()
         {
-            var literalVal1 = new StringLiteralType("evie");
-            var literalVal2 = new StringLiteralType("casper");
+            var literalVal1 = TypeFactory.CreateStringLiteralType("evie");
+            var literalVal2 = TypeFactory.CreateStringLiteralType("casper");
 
             // different string literals should not be assignable to each other
             TypeValidator.AreTypesAssignable(literalVal1, literalVal2).Should().BeFalse();
 
             // same-name string literals should be assignable to each other
-            TypeValidator.AreTypesAssignable(literalVal1, new StringLiteralType("evie")).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(literalVal1, TypeFactory.CreateStringLiteralType("evie")).Should().BeTrue();
 
             // string literals should be assignable to a primitive string
             TypeValidator.AreTypesAssignable(literalVal1, LanguageConstants.String).Should().BeTrue();
@@ -177,8 +177,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void Generic_strings_can_be_assigned_to_string_literals_with_loose_assignment()
         {
-            var literalVal1 = new StringLiteralType("evie");
-            var literalVal2 = new StringLiteralType("casper");
+            var literalVal1 = TypeFactory.CreateStringLiteralType("evie");
+            var literalVal2 = TypeFactory.CreateStringLiteralType("casper");
             var literalUnion = TypeHelper.CreateTypeUnion(literalVal1, literalVal2);
 
             var genericString = LanguageConstants.String;
@@ -476,12 +476,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 {
                     new ObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
+                        new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valA")),
                         new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
                     }, null),
                     new ObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
+                        new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valB")),
                         new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
                     }, null),
                 });
@@ -631,8 +631,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             }
 
             var stringLiteralUnionType = TypeHelper.CreateTypeUnion(
-                new StringLiteralType("dave"),
-                new StringLiteralType("nora"));
+                TypeFactory.CreateStringLiteralType("dave"),
+                TypeFactory.CreateStringLiteralType("nora"));
 
             {
                 // union of string literals with matching type

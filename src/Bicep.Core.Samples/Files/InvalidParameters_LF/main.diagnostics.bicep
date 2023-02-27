@@ -280,6 +280,7 @@ param expressionInModifier string = 2 + 3
 //@[11:021) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |length([])|
 @allowed([
   resourceGroup().id
+//@[02:020) [BCP328 (Warning)] A value of type "string" may be too long to assign to a target of type "string {@minLength(0), @maxLength(5)}". (CodeDescription: none) |resourceGroup().id|
 //@[02:020) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |resourceGroup().id|
 ])
 param nonCompileTimeConstant string
@@ -449,9 +450,9 @@ param unaryMinusOnFunction int
 param duplicateDecorators string
 //@[06:025) [no-unused-params (Warning)] Parameter "duplicateDecorators" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |duplicateDecorators|
 
-@minLength(-1)
+@maxLength(-1)
 //@[11:013) [BCP168 (Error)] Length must not be a negative value. (CodeDescription: none) |-1|
-@maxLength(-100)
+@minLength(-100)
 //@[11:015) [BCP168 (Error)] Length must not be a negative value. (CodeDescription: none) |-100|
 param invalidLength string
 //@[06:019) [no-unused-params (Warning)] Parameter "invalidLength" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |invalidLength|

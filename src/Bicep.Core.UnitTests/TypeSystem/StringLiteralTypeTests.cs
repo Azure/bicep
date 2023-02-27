@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void StringLiteral_name_should_be_correctly_formatted()
         {
-            var literal = new StringLiteralType("a'b\\c$d\re\nf\tg${h");
+            var literal = TypeFactory.CreateStringLiteralType("a'b\\c$d\re\nf\tg${h");
 
             literal.Name.Should().StartWith("'", "literal type name should be quoted");
             literal.Name.Should().EndWith("'", "literal type name should be quoted");
