@@ -45,13 +45,13 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Direct",
-        "requested": "[17.4.33, )",
-        "resolved": "17.4.33",
-        "contentHash": "y6p/7Xt2wqeSS1Q1WiUv9BynA/qhYMSt3X7Mn4Cy6hz5+v5zZ91WPkn+BVlMNBWrF/0tzDS7eHW2OD8aC/32NQ==",
+        "requested": "[17.5.22, )",
+        "resolved": "17.5.22",
+        "contentHash": "+HG6xvTfyHP4W/ltbNDKmbryp0V30nfsisDMVAc2JJ45TCK3dtJjWy1m9VJKBIAZmrwCJNpU+8ysNMkX8HyusQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.4.33",
-          "Microsoft.VisualStudio.Validation": "17.0.64",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.5.22",
+          "Microsoft.VisualStudio.Validation": "17.0.65",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
@@ -483,13 +483,13 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Transitive",
-        "resolved": "17.4.33",
-        "contentHash": "gpf500WFCqnhJmbIEDvVYgeNLpHZ6PAyhcewyqqpE8UoKNHoCDdMgogulYuJERbRaGqywqD1pRwPNplVteNZ8g=="
+        "resolved": "17.5.22",
+        "contentHash": "WzCsniKpC6S9yAerB+Od8pK8RytxW+fFSZ+GjL0y0XdIb7H/os71bWFbKMXxB1omDLZHNm1IdBlcLQm4KmS/AQ=="
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
-        "resolved": "17.0.64",
-        "contentHash": "tjh3zXOKXKXCeWNGMh+gq+B4SR9WBQPxoj37NY9klrJ8i8hmYZEIcb1khFkLRu988YHs0q6iawjk9Q/RvMdz3g=="
+        "resolved": "17.0.65",
+        "contentHash": "h5s/Fx0hYYZIs2QQc6quuwXkXfV9mHD0RP+C5JhVgIySkbjY1MLRsKSP1js0DDgTyO6JSehprniT/Ej24LIzlw=="
       },
       "Microsoft.Win32.Primitives": {
         "type": "Transitive",
