@@ -370,7 +370,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = SyntaxHierarchy.Build(obj);
 
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
-                "additionalPropertiesFallbackTypeTest", 
+                "additionalPropertiesFallbackTypeTest",
                 TypeSymbolValidationFlags.Default,
                 new[] { new TypeProperty("inSchema", LanguageConstants.String) },
                 LanguageConstants.Any,
@@ -392,12 +392,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     new ObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
-                        new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
+                        new TypeProperty("fieldA", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                     new ObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
-                        new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
+                        new TypeProperty("fieldB", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                 });
 

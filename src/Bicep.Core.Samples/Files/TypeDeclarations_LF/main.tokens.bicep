@@ -62,16 +62,16 @@ type foo = {
 //@[13:16) Identifier |int|
 //@[16:18) NewLine |\n\n|
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
 //@[04:21) Identifier |intArrayArrayProp|
-//@[21:22) Question |?|
-//@[22:23) Colon |:|
-//@[24:27) Identifier |int|
-//@[28:29) LeftSquare |[|
-//@[29:30) RightSquare |]|
-//@[31:32) LeftSquare |[|
-//@[32:33) RightSquare |]|
-//@[33:34) NewLine |\n|
+//@[21:22) Colon |:|
+//@[23:26) Identifier |int|
+//@[27:28) LeftSquare |[|
+//@[28:29) RightSquare |]|
+//@[30:31) LeftSquare |[|
+//@[31:32) RightSquare |]|
+//@[33:34) Question |?|
+//@[34:35) NewLine |\n|
   }
 //@[02:03) RightBrace |}|
 //@[03:05) NewLine |\n\n|
@@ -88,11 +88,11 @@ type foo = {
 //@[15:24) StringComplete |'literal'|
 //@[24:26) NewLine |\n\n|
 
-  recursion?: foo
+  recursion: foo?
 //@[02:11) Identifier |recursion|
-//@[11:12) Question |?|
-//@[12:13) Colon |:|
-//@[14:17) Identifier |foo|
+//@[11:12) Colon |:|
+//@[13:16) Identifier |foo|
+//@[16:17) Question |?|
 //@[17:18) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
@@ -424,6 +424,22 @@ var maybeNull = mightIncludeNull[0]!.key
 //@[35:36) Exclamation |!|
 //@[36:37) Dot |.|
 //@[37:40) Identifier |key|
-//@[40:41) NewLine |\n|
+//@[40:42) NewLine |\n\n|
+
+type nullable = string?
+//@[00:04) Identifier |type|
+//@[05:13) Identifier |nullable|
+//@[14:15) Assignment |=|
+//@[16:22) Identifier |string|
+//@[22:23) Question |?|
+//@[23:25) NewLine |\n\n|
+
+type nonNullable = nullable!
+//@[00:04) Identifier |type|
+//@[05:16) Identifier |nonNullable|
+//@[17:18) Assignment |=|
+//@[19:27) Identifier |nullable|
+//@[27:28) Exclamation |!|
+//@[28:29) NewLine |\n|
 
 //@[00:00) EndOfFile ||

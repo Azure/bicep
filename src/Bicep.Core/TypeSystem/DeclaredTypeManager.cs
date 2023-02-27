@@ -87,6 +87,9 @@ namespace Bicep.Core.TypeSystem
                 case UnionTypeSyntax unionType:
                     return new(GetUnionTypeType(unionType), unionType);
 
+                case UnionTypeMemberSyntax unionTypeMember:
+                    return GetTypeMemberType(unionTypeMember);
+
                 case UnaryOperationSyntax unaryOperation:
                     return new(GetUnaryOperationType(unaryOperation), unaryOperation);
 
@@ -243,6 +246,14 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
+        private DeclaredTypeAssignment? GetTypeMemberType(UnionTypeMemberSyntax syntax)
+            => new(syntax.Value switch
+            {
+                // A `null` literal is usually too ambiguous to be a valid type (a `null` value could be valid for any nullable type), but it is permitted as a member of a union of literals.
+                NullLiteralSyntax => LanguageConstants.Null,
+                _ => GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false),
+            }, syntax);
+
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
@@ -272,10 +283,11 @@ namespace Bicep.Core.TypeSystem
                 BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
                 UnaryOperationSyntax unaryOperation => GetDeclaredTypeAssignment(unaryOperation)?.Reference,
                 UnionTypeSyntax unionType => GetDeclaredTypeAssignment(unionType)?.Reference,
+                UnionTypeMemberSyntax unionTypeMember => GetDeclaredTypeAssignment(unionTypeMember)?.Reference,
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
-                // Leave commented out pending https://github.com/Azure/bicep/pull/9454
-                // NonNullAssertionSyntax nonNullAssertion => GetDeclaredTypeAssignment(nonNullAssertion)?.Reference,
+                NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
+                NonNullAssertionSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
                 _ => null
             };
         }
@@ -340,26 +352,19 @@ namespace Bicep.Core.TypeSystem
             return signifiedType;
         });
 
-        private ITypeReference ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
             }
 
-            if (RequiresDeferral(syntax))
-            {
-                return new DeferredTypeReference(() => FinalizeArrayType(syntax));
-            }
+            var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
+            var flags = TypeSymbolValidationFlags.Default;
 
-            return FinalizeArrayType(syntax);
-        }
-
-        private TypeSymbol FinalizeArrayType(ArrayTypeSyntax syntax)
-        {
-            var memberType = GetDeclaredType(syntax.Item) ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
-
-            return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
+            return memberType is DeferredTypeReference
+                ? new TypedArrayType(syntax.ToText(), memberType, flags)
+                : new TypedArrayType(memberType, flags);
         }
 
         private TypeSymbol GetObjectTypeType(ObjectTypeSyntax syntax)
@@ -380,9 +385,8 @@ namespace Bicep.Core.TypeSystem
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
-                    var propertyFlags = prop.OptionalityMarker is null ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                    properties.Add(new(propertyName, propertyType, propertyFlags, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
-                    nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType), prop.OptionalityMarker is not null);
+                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
+                    nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 } else
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).NonConstantTypeProperty());
@@ -556,10 +560,9 @@ namespace Bicep.Core.TypeSystem
 
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
         {
-            ArrayTypeSyntax arrayType => RequiresDeferral(arrayType.Item.Value),
             NonNullAssertionSyntax nonNullAssertion => RequiresDeferral(nonNullAssertion.BaseExpression),
             ParenthesizedExpressionSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
-            TupleTypeSyntax tupleType => tupleType.Items.Any(i => RequiresDeferral(i.Value)),
+            NullableTypeSyntax nullableType => RequiresDeferral(nullableType.Base),
             UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
             UnionTypeSyntax unionType => unionType.Members.Any(m => RequiresDeferral(m.Value)),
             VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol => true,
@@ -582,121 +585,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol FinalizeUnionType(UnionTypeSyntax syntax)
-        {
-            // ARM's allowedValues constraint permits mixed type arrays (so long as none of the members are themselves arrays).
-            // The runtime in that case will validate that the submitted array contains a subset of the allowed values
-            // (e.g., `[1, 2]` or `[2, 3]` would both be permitted with `"type": "array", "allowedValues": [1, 2, 3]`)
-            // Ergo, syntax like `type foo = (1|true|'a string')[]` should bypass the validity checker
-            var mightBeArrayAny = MightBeArrayAny(syntax);
-
-            TypeSymbol? keystoneType = null;
-            List<ITypeReference> matchingMembers = new();
-            List<(ITypeReference, UnionTypeMemberSyntax)> nonMatchingMembers = new();
-            List<ErrorDiagnostic> memberDiagnostics = new();
-
-            foreach (var member in syntax.Members)
-            {
-                // Array<any> is the only location in which a null literal is a valid type
-                var memberType = mightBeArrayAny && IsNullLiteral(member.Value)
-                    ? LanguageConstants.Null
-                    : GetTypeFromTypeSyntax(member.Value, allowNamespaceReferences: false).Type;
-
-                if (memberType is ErrorType error)
-                {
-                    memberDiagnostics.AddRange(error.GetDiagnostics());
-                    continue;
-                }
-
-                foreach (var flattenedType in FlattenUnionMemberType(memberType))
-                {
-                    // null complicates the type check and is only permissible in a specific circumstance. Treat it as non-matching and skip the check
-                    if (mightBeArrayAny && ReferenceEquals(flattenedType, LanguageConstants.Null))
-                    {
-                        nonMatchingMembers.Add((flattenedType, member));
-                        continue;
-                    }
-
-                    if (!TypeHelper.IsLiteralType(flattenedType))
-                    {
-                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
-                        break;
-                    }
-
-                    if (keystoneType is null)
-                    {
-                        if (GetNonLiteralType(flattenedType) is not {} nonLiteral)
-                        {
-                            memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
-                            break;
-                        }
-
-                        keystoneType = nonLiteral;
-                    }
-
-                    if (mightBeArrayAny && flattenedType is ArrayType)
-                    {
-                        mightBeArrayAny = false;
-                        var mismatchForCurrentMember = false;
-                        foreach (var nonMatchingMemberSyntax in nonMatchingMembers.Select(t => t.Item2).Distinct())
-                        {
-                            memberDiagnostics.Add(DiagnosticBuilder.ForPosition(nonMatchingMemberSyntax).InvalidUnionTypeMember(keystoneType.Name));
-                            mismatchForCurrentMember = mismatchForCurrentMember || nonMatchingMemberSyntax == member;
-                        }
-
-                        if (mismatchForCurrentMember)
-                        {
-                            break;
-                        }
-                    }
-
-                    if (TypeValidator.AreTypesAssignable(flattenedType, keystoneType))
-                    {
-                        matchingMembers.Add(flattenedType);
-                    } else if (mightBeArrayAny)
-                    {
-                        nonMatchingMembers.Add((flattenedType, member));
-                    } else
-                    {
-                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).InvalidUnionTypeMember(keystoneType.Name));
-                        break;
-                    }
-                }
-            }
-
-            if (memberDiagnostics.Any())
-            {
-                return ErrorType.Create(memberDiagnostics);
-            }
-
-            return TypeHelper.CreateTypeUnion(matchingMembers.Concat(nonMatchingMembers.Select(t => t.Item1)));
-        }
-
-        private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch
-        {
-            ParenthesizedExpressionSyntax parenthesized => MightBeArrayAny(parenthesized),
-            ArrayTypeMemberSyntax arrayTypeMember => MightBeArrayAny(arrayTypeMember),
-            ArrayTypeSyntax => true,
-            _ => false,
-        };
-
-        private bool IsNullLiteral(SyntaxBase syntax) => syntax switch
-        {
-            ParenthesizedExpressionSyntax parenthesized => IsNullLiteral(parenthesized.Expression),
-            NullLiteralSyntax => true,
-            _ => false,
-        };
-
-        private TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch {
-            StringLiteralType => LanguageConstants.String,
-            IntegerLiteralType => LanguageConstants.Int,
-            BooleanLiteralType => LanguageConstants.Bool,
-            ObjectType => LanguageConstants.Object,
-            TupleType => LanguageConstants.Array,
-            _ => null,
-        };
-
-        private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
-            => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
+            => TypeHelper.CreateTypeUnion(syntax.Members.Select(m => GetTypeFromTypeSyntax(m, allowNamespaceReferences: false)));
 
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
             => GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences);
@@ -722,6 +611,46 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbol otherwise => otherwise,
             };
         }
+
+        private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NullableTypesUnsupported());
+            }
+
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Base, allowNamespaceReferences: false);
+
+            return baseExpressionType is DeferredTypeReference
+                ? new DeferredTypeReference(() => FinalizeNullableType(baseExpressionType))
+                : FinalizeNullableType(baseExpressionType);
+        }
+
+        private TypeSymbol FinalizeNullableType(ITypeReference baseType) => baseType.Type switch
+        {
+            ErrorType errorType => errorType,
+            TypeSymbol otherwise => TypeHelper.CreateTypeUnion(otherwise, LanguageConstants.Null)
+        };
+
+        private ITypeReference ConvertTypeExpressionToType(NonNullAssertionSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NullableTypesUnsupported());
+            }
+
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: false);
+
+            return baseExpressionType is DeferredTypeReference
+                ? new DeferredTypeReference(() => FinalizeNonNullableType(baseExpressionType))
+                : FinalizeNonNullableType(baseExpressionType);
+        }
+
+        private TypeSymbol FinalizeNonNullableType(ITypeReference baseType) => baseType.Type switch
+        {
+            TypeSymbol maybeNullable when TypeHelper.TryRemoveNullability(maybeNullable) is TypeSymbol nonNullable => nonNullable,
+            TypeSymbol otherwise => otherwise,
+        };
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {

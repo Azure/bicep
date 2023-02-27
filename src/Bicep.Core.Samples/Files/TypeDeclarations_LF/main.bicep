@@ -10,14 +10,14 @@ type foo = {
     @minValue(1)
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
 
   literalProp: 'literal'
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -70,3 +70,7 @@ type stringStringDictionary = {
 param mightIncludeNull ({key: 'value'} | null)[]
 
 var maybeNull = mightIncludeNull[0]!.key
+
+type nullable = string?
+
+type nonNullable = nullable!

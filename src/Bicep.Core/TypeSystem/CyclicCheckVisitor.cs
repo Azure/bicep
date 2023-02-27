@@ -149,15 +149,19 @@ namespace Bicep.Core.TypeSystem
             base.VisitFunctionCallSyntax(syntax);
         }
 
+        public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
+        {
+            // recursive types are permitted. pass
+        }
+
         public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
         {
-            if (syntax.OptionalityMarker is not null)
-            {
-                // Optionally recursive types are not considered cyclic, so stop visiting.
-                return;
-            }
+            // recursive types are permitted. pass
+        }
 
-            base.VisitObjectTypePropertySyntax(syntax);
+        public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
+        {
+            // recursive types are permitted. pass
         }
     }
 }

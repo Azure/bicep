@@ -694,9 +694,8 @@ namespace Bicep.Core.TypeSystem
             var namedPropertyMap = expression.ToNamedPropertyDictionary();
 
             var missingRequiredProperties = targetType.Properties.Values
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
+                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !TypeValidator.AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) && !namedPropertyMap.ContainsKey(p.Name))
                 .ToList();
-
 
             if (missingRequiredProperties.Count > 0)
             {

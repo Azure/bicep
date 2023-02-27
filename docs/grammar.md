@@ -141,6 +141,7 @@ typeExpression -> singularTypeExpression ("|" singularTypeExpression)*
 singularTypeExpression ->
   primaryTypeExpression |
   singularTypeExpression "[]" |
+  singularTypeExpression "?" |
   parenthesizedTypeExpression
 
 primaryTypeExpression ->

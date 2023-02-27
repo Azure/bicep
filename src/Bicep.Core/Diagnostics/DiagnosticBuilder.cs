@@ -1850,8 +1850,22 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic SafeDereferenceNotPermittedOnResourceCollections() => new(
                 TextSpan,
                 "BCP323",
-                "The `[?]` (safe dereference) operator may not be used on resource or module collections."
-            );
+                "The `[?]` (safe dereference) operator may not be used on resource or module collections.");
+
+            public ErrorDiagnostic NullableTypesUnsupported() => new(
+                TextSpan,
+                "BCP324",
+                $@"Using nullable types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
+
+            public ErrorDiagnostic ExpectedTypeIdentifier() => new(
+                TextSpan,
+                "BCP325",
+                "Expected a type identifier at this location.");
+
+            public ErrorDiagnostic NullableTypedParamsMayNotHaveDefaultValues() => new(
+                TextSpan,
+                "BCP326",
+                "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

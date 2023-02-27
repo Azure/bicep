@@ -46,6 +46,7 @@ namespace Bicep.Core.Emit
             BlockUnsupportedLambdaVariableUsage(model, diagnostics);
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
+            BlockCyclicAggregateTypeReferences(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -468,5 +469,15 @@ namespace Bicep.Core.Emit
                     : null)
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
+
+        private static void BlockCyclicAggregateTypeReferences(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            var cycles = CyclicTypeCheckVisitor.FindCycles(model);
+            diagnostics.WriteMultiple(cycles.Select(kvp => kvp.Value.Length switch
+            {
+                1 => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicTypeSelfReference(),
+                _ => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicType(kvp.Value.Select(s => s.Name)),
+            }));
+        }
     }
 }

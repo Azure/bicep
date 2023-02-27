@@ -111,7 +111,7 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.EnableSymbolicNames)
             {
-                emitter.EmitProperty("languageVersion", "1.9-experimental");
+                emitter.EmitProperty("languageVersion", "1.10-experimental");
             }
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
@@ -261,6 +261,8 @@ namespace Bicep.Core.Emit
             UnaryOperationSyntax unaryOperation => GetTypePropertiesForUnaryOperationSyntax(unaryOperation),
             UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType),
             ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression),
+            NullableTypeSyntax nullableType => GetTypePropertiesForNullableTypeSyntax(nullableType),
+            NonNullAssertionSyntax nonNullableType => GetTypePropertiesForNonNullableTypeSyntax(nonNullableType),
             // this should have been caught by the parser
             _ => throw new ArgumentException("Invalid type syntax encountered."),
         };
@@ -361,7 +363,6 @@ namespace Bicep.Core.Emit
         private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax)
         {
             var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType) };
-            List<Expression> required = new();
             List<ObjectPropertyExpression> propertySchemata = new();
 
             foreach (var property in syntax.Properties)
@@ -372,20 +373,10 @@ namespace Bicep.Core.Emit
                     throw new ArgumentException("Invalid object type key encountered during serialization.");
                 }
 
-                if (property.OptionalityMarker is null)
-                {
-                    required.Add(ExpressionFactory.CreateStringLiteral(keyText));
-                }
-
                 var propertySchema = TypePropertiesForTypeExpression(property.Value);
                 propertySchema = AddDecoratorsToBody(property, propertySchema, Context.SemanticModel.GetDeclaredType(property) ?? ErrorType.Empty());
 
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(keyText, propertySchema));
-            }
-
-            if (required.Any())
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("required", ExpressionFactory.CreateArray(required)));
             }
 
             if (propertySchemata.Any())
@@ -457,11 +448,25 @@ namespace Bicep.Core.Emit
                 throw new ArgumentException("Invalid union encountered during template serialization");
             }
 
-            return ExpressionFactory.CreateObject(new[]
+            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(unionType) switch
             {
-                TypeProperty(GetNonLiteralTypeName(unionType.Members.First().Type)),
+                UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
+                TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
+                _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
+            };
+
+            var properties = new List<ObjectPropertyExpression>
+            {
+                TypeProperty(nonLiteralTypeName),
                 ExpressionFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)),
-            });
+            };
+
+            if (nullable)
+            {
+                properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true)));
+            }
+
+            return ExpressionFactory.CreateObject(properties);
         }
 
         private ObjectPropertyExpression AllowedValuesForTypeExpression(SyntaxBase syntax) => ExpressionFactory.CreateObjectProperty("allowedValues",
@@ -479,7 +484,8 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
         };
 
-        private string GetNonLiteralTypeName(TypeSymbol? type) => type switch {
+        private string GetNonLiteralTypeName(TypeSymbol? type) => type switch
+        {
             StringLiteralType => "string",
             IntegerLiteralType => "int",
             BooleanLiteralType => "bool",
@@ -489,6 +495,12 @@ namespace Bicep.Core.Emit
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };
+
+        private ObjectExpression GetTypePropertiesForNullableTypeSyntax(NullableTypeSyntax syntax)
+            => TypePropertiesForTypeExpression(syntax.Base).MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true));
+
+        private ObjectExpression GetTypePropertiesForNonNullableTypeSyntax(NonNullAssertionSyntax syntax)
+            => TypePropertiesForTypeExpression(syntax.BaseExpression).MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(false));
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
         {
