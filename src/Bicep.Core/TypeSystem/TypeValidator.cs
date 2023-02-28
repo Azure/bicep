@@ -138,9 +138,7 @@ namespace Bicep.Core.TypeSystem
                         (!sourceString.MaxLength.HasValue || sourceString.MaxLength.Value >= targetStringLiteral.RawStringValue.Length);
 
                 case (IntegerType sourceInt, IntegerLiteralType targetIntLiteral):
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) &&
-                        (!sourceInt.MinValue.HasValue || sourceInt.MinValue.Value <= targetIntLiteral.Value) &&
-                        (!sourceInt.MaxValue.HasValue || sourceInt.MaxValue.Value >= targetIntLiteral.Value);
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
 
                 case (PrimitiveType, BooleanLiteralType):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Bool.Name;
@@ -151,16 +149,14 @@ namespace Bicep.Core.TypeSystem
 
                 case (IntegerLiteralType sourceIntLiteral, IntegerType targetInt):
                     // integer literals can be assigned to ints
-                    return (!targetInt.MinValue.HasValue || sourceIntLiteral.Value >= targetInt.MinValue.Value) &&
-                        (!targetInt.MaxValue.HasValue || sourceIntLiteral.Value <= targetInt.MaxValue.Value);
+                    return true;
 
                 case (BooleanLiteralType, PrimitiveType):
                     // boolean literals can be assigned to bools
                     return targetType.Name == LanguageConstants.Bool.Name;
 
-                case (IntegerType sourceInt, IntegerType targetInt):
-                    return (targetInt.MinValue ?? long.MinValue) <= (sourceInt.MaxValue ?? long.MaxValue) &&
-                        (targetInt.MaxValue ?? long.MaxValue) >= (sourceInt.MinValue ?? long.MinValue);
+                case (IntegerType, IntegerType):
+                    return true;
 
                 case (StringType sourceString, StringType targetString):
                     return (targetString.MinLength ?? long.MinValue) <= (sourceString.MaxLength ?? long.MaxValue) &&
@@ -300,41 +296,28 @@ namespace Bicep.Core.TypeSystem
             // integer assignability check
             if (targetType is IntegerType targetInteger)
             {
-                switch (expressionType)
-                {
-                    case IntegerType expressionInteger:
-                        var expressionMin = expressionInteger.MinValue ?? long.MinValue;
-                        var targetMin = targetInteger.MinValue ?? long.MinValue;
-                        if (expressionMin < targetMin)
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsBelowTargetIntDomain(expressionType.Name, targetType.Name));
-                        }
-                        long? narrowedMin = Math.Max(expressionMin, targetMin) switch
-                        {
-                            long.MinValue => null,
-                            long otherwise => otherwise,
-                        };
-
-                        var expressionMax = expressionInteger.MaxValue ?? long.MaxValue;
-                        var targetMax = targetInteger.MaxValue ?? long.MaxValue;
-                        if (expressionMax > targetMax)
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsAboveTargetIntDomain(expressionType.Name, targetType.Name));
-                        }
-                        long? narrowedMax = Math.Min(expressionMax, targetMax) switch {
-                            long.MaxValue => null,
-                            long otherwise => otherwise,
-                        };
-
-                        return TypeFactory.CreateIntegerType(narrowedMin, narrowedMax, targetInteger.ValidationFlags);
-                    case IntegerLiteralType expressionIntegerLiteral:
-                        // if a integer literal was assignable to an integer, the literal will always be the most narrow type
-                        return expressionIntegerLiteral;
-                }
+                return NarrowIntegerAssignmentType(expression, expressionType, targetInteger);
             }
 
-            if (targetType is IntegerLiteralType)
+            if (targetType is IntegerLiteralType targetIntegerLiteral)
             {
+                if (expressionType is IntegerType expressionInteger)
+                {
+                    if (expressionInteger.MinValue.HasValue && expressionInteger.MinValue.Value > targetIntegerLiteral.Value)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionInteger.MinValue.Value, targetIntegerLiteral.Value));
+                        return expressionType;
+                    }
+
+                    if (expressionInteger.MaxValue.HasValue && expressionInteger.MaxValue.Value < targetIntegerLiteral.Value)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionInteger.MaxValue.Value, targetIntegerLiteral.Value));
+                        return expressionType;
+                    }
+                }
+
                 // if anything was assignable to an integer literal target, the target will always be the most narrow type
                 return targetType;
             }
@@ -484,6 +467,74 @@ namespace Bicep.Core.TypeSystem
             }
 
             return true;
+        }
+
+        private TypeSymbol NarrowIntegerAssignmentType(SyntaxBase expression, TypeSymbol expressionType, IntegerType targetType)
+        {
+            var targetMin = targetType.MinValue ?? long.MinValue;
+            var targetMax = targetType.MaxValue ?? long.MaxValue;
+            switch (expressionType)
+            {
+                case IntegerType expressionInteger:
+                    var expressionMin = expressionInteger.MinValue ?? long.MinValue;
+                    var expressionMax = expressionInteger.MaxValue ?? long.MaxValue;
+
+                    if (expressionMin > targetMax)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionMin, targetMax));
+                        break;
+                    }
+
+                    if (expressionMax < targetMin)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionMax, targetMin));
+                        break;
+                    }
+
+                    if (expressionMin < targetMin)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsBelowTargetIntDomain(expressionInteger.MinValue, targetMin));
+                    }
+
+                    if (expressionMax > targetMax)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsAboveTargetIntDomain(expressionInteger.MaxValue, targetMax));
+                    }
+
+                    return TypeFactory.CreateIntegerType(
+                        minValue: Math.Max(expressionMin, targetMin) switch
+                        {
+                            long.MinValue => null,
+                            long otherwise => otherwise,
+                        },
+                        maxValue: Math.Min(expressionMax, targetMax) switch
+                        {
+                            long.MaxValue => null,
+                            long otherwise => otherwise,
+                        },
+                        targetType.ValidationFlags);
+                case IntegerLiteralType expressionIntegerLiteral:
+                    if (expressionIntegerLiteral.Value > targetMax)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetMax));
+                        break;
+                    }
+
+                    if (expressionIntegerLiteral.Value < targetMin)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetMin));
+                        break;
+                    }
+
+                    // if a integer literal falls within the target int's domain, the literal will always be the most narrow type
+                    return expressionIntegerLiteral;
+            }
+
+            return expressionType;
         }
 
         private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType, long? narrowedMinLength, long? narrowedMaxLength)

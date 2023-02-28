@@ -160,13 +160,13 @@ param decoratedString string
 
 @minValue(100)
 param decoratedInt int = 123
-//@[6:18) Parameter decoratedInt. Type: >= 100. Declaration start char: 0, length: 44
+//@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 44
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)
 @maxValue(-3)
 param negativeValues int
-//@[6:20) Parameter negativeValues. Type: >= -10 && <= -3. Declaration start char: 0, length: 55
+//@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 55
 
 @sys.description('A boolean.')
 @metadata({

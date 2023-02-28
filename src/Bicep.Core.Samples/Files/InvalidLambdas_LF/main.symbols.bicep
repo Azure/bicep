@@ -24,7 +24,7 @@ var filter3 = filter(range(0, 10), 'def')
 var filter4 = filter(range(0, 10), () => null)
 //@[04:11) Variable filter4. Type: error. Declaration start char: 0, length: 46
 var filter5 = filter(range(0, 10), i => i)
-//@[35:36) Local i. Type: >= 0 && <= 10. Declaration start char: 35, length: 1
+//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
 //@[04:11) Variable filter5. Type: error. Declaration start char: 0, length: 42
 var filter6 = filter([true, 'hello!'], i => i)
 //@[39:40) Local i. Type: 'hello!' | true. Declaration start char: 39, length: 1
@@ -39,11 +39,11 @@ var sort3 = sort(range(0, 10), 'def')
 var sort4 = sort(range(0, 10), () => null)
 //@[04:09) Variable sort4. Type: error. Declaration start char: 0, length: 42
 var sort5 = sort(range(0, 10), i => i)
-//@[31:32) Local i. Type: >= 0 && <= 10. Declaration start char: 31, length: 1
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
 //@[04:09) Variable sort5. Type: error. Declaration start char: 0, length: 38
 var sort6 = sort(range(0, 10), (i, j) => i)
-//@[32:33) Local i. Type: >= 0 && <= 10. Declaration start char: 32, length: 1
-//@[35:36) Local j. Type: >= 0 && <= 10. Declaration start char: 35, length: 1
+//@[32:33) Local i. Type: int. Declaration start char: 32, length: 1
+//@[35:36) Local j. Type: int. Declaration start char: 35, length: 1
 //@[04:09) Variable sort6. Type: error. Declaration start char: 0, length: 43
 
 var reduce1 = reduce('abc')
@@ -55,7 +55,7 @@ var reduce3 = reduce(range(0, 10), 0, 'def')
 var reduce4 = reduce(range(0, 10), 0, () => null)
 //@[04:11) Variable reduce4. Type: error. Declaration start char: 0, length: 49
 var reduce5 = reduce(range(0, 10), 0, i => i)
-//@[38:39) Local i. Type: >= 0 && <= 10. Declaration start char: 38, length: 1
+//@[38:39) Local i. Type: int. Declaration start char: 38, length: 1
 //@[04:11) Variable reduce5. Type: error. Declaration start char: 0, length: 45
 
 var toObject1 = toObject('abc')
@@ -67,13 +67,13 @@ var toObject3 = toObject(range(0, 10), 'def')
 var toObject4 = toObject(range(0, 10), () => null)
 //@[04:13) Variable toObject4. Type: error. Declaration start char: 0, length: 50
 var toObject5 = toObject(range(0, 10), i => i)
-//@[39:40) Local i. Type: >= 0 && <= 10. Declaration start char: 39, length: 1
+//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
 //@[04:13) Variable toObject5. Type: error. Declaration start char: 0, length: 46
 var toObject6 = toObject(range(0, 10), i => '${i}', 'def')
-//@[39:40) Local i. Type: >= 0 && <= 10. Declaration start char: 39, length: 1
+//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
 //@[04:13) Variable toObject6. Type: error. Declaration start char: 0, length: 58
 var toObject7 = toObject(range(0, 10), i => '${i}', () => null)
-//@[39:40) Local i. Type: >= 0 && <= 10. Declaration start char: 39, length: 1
+//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
 //@[04:13) Variable toObject7. Type: error. Declaration start char: 0, length: 63
 
 var ternary = map([123], true ? i => '${i}' : i => 'hello!')
@@ -109,7 +109,7 @@ var inArray = [
 ]
 
 resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0, 2): {
-//@[67:68) Local i. Type: >= 0 && <= 2. Declaration start char: 67, length: 1
+//@[67:68) Local i. Type: int. Declaration start char: 67, length: 1
 //@[09:12) Resource stg. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 194
   name: 'antteststg${i}'
   location: 'West US'
@@ -120,27 +120,27 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0,
 }]
 
 output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
-//@[40:41) Local i. Type: >= 0 && <= 2. Declaration start char: 40, length: 1
+//@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
 //@[07:14) Output stgKeys. Type: array. Declaration start char: 0, length: 77
 output stgKeys2 array = map(range(0, 2), j => stg[((j + 2) % 123)].listKeys().keys[0].value)
-//@[41:42) Local j. Type: >= 0 && <= 2. Declaration start char: 41, length: 1
+//@[41:42) Local j. Type: int. Declaration start char: 41, length: 1
 //@[07:15) Output stgKeys2. Type: array. Declaration start char: 0, length: 92
 output stgKeys3 array = map(ids, id => listKeys(id, stg[0].apiVersion).keys[0].value)
 //@[33:35) Local id. Type: any. Declaration start char: 33, length: 2
 //@[07:15) Output stgKeys3. Type: array. Declaration start char: 0, length: 85
 output accessTiers array = map(range(0, 2), k => stg[k].properties.accessTier)
-//@[44:45) Local k. Type: >= 0 && <= 2. Declaration start char: 44, length: 1
+//@[44:45) Local k. Type: int. Declaration start char: 44, length: 1
 //@[07:18) Output accessTiers. Type: array. Declaration start char: 0, length: 78
 output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / y].properties.accessTier))
-//@[67:68) Local y. Type: >= 0 && <= 2. Declaration start char: 67, length: 1
-//@[45:46) Local x. Type: >= 0 && <= 2. Declaration start char: 45, length: 1
+//@[67:68) Local y. Type: int. Declaration start char: 67, length: 1
+//@[45:46) Local x. Type: int. Declaration start char: 45, length: 1
 //@[07:19) Output accessTiers2. Type: array. Declaration start char: 0, length: 106
 output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 //@[37:40) Local foo. Type: any. Declaration start char: 37, length: 3
 //@[07:19) Output accessTiers3. Type: array. Declaration start char: 0, length: 75
 
 module modLoop './empty.bicep' = [for item in range(0, 5): {
-//@[38:42) Local item. Type: >= 0 && <= 5. Declaration start char: 38, length: 4
+//@[38:42) Local item. Type: int. Declaration start char: 38, length: 4
 //@[07:14) Module modLoop. Type: module[]. Declaration start char: 0, length: 84
   name: 'foo${item}'
 }]
@@ -149,6 +149,6 @@ var modLoopNames = map(modLoop, i => i.name)
 //@[32:33) Local i. Type: module. Declaration start char: 32, length: 1
 //@[04:16) Variable modLoopNames. Type: string {@minLength(4), @maxLength(4)}[]. Declaration start char: 0, length: 44
 output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
-//@[43:44) Local i. Type: >= 0 && <= 5. Declaration start char: 43, length: 1
+//@[43:44) Local i. Type: int. Declaration start char: 43, length: 1
 //@[07:17) Output modOutputs. Type: array. Declaration start char: 0, length: 71
 

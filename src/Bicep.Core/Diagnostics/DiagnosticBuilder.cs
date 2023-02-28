@@ -1852,39 +1852,46 @@ namespace Bicep.Core.Diagnostics
                 "BCP323",
                 "The `[?]` (safe dereference) operator may not be used on resource or module collections.");
 
-            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(string sourceType, string targetType) => new(
+            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(bool warnInsteadOfError, long sourceMin, long targetMax) => new(
                 TextSpan,
-                DiagnosticLevel.Warning,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP324",
-                $@"A value of type ""{sourceType}"" may be too small to assign to a target of type ""{targetType}"".");
+                $@"The provided value (which will always be greater than or equal to {sourceMin}) is too large to assign to a target for which the maximum allowable value is {targetMax}.");
 
-            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(string sourceType, string targetType) => new(
+            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceLow(bool warnInsteadOfError, long sourceMax, long targetMin) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP325",
+                $@"The provided value (which will always be less than or equal to {sourceMax}) is too small to assign to a target for which the minimum allowable value is {targetMin}.");
+
+            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(long? sourceMin, long targetMin) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
-                "BCP325",
-                $@"A value of type ""{sourceType}"" may be too large to assign to a target of type ""{targetType}"".");
+                "BCP326",
+                $"The provided value {(sourceMin.HasValue ? $"may be as small as {sourceMin.Value}" : "has no configured minimum")} and may be too small to assign to a target with a configured minimum of {targetMin}.");
+
+            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(long? sourceMax, long targetMax) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP327",
+                $"The provided value {(sourceMax.HasValue ? $"may be as large as {sourceMax.Value}" : "has no configured maximum")} and may be too large to assign to a target with a configured maximum of {targetMax}.");
 
             public ErrorDiagnostic MinMayNotExceedMax(string minDecoratorName, long minValue, string maxDecoratorName, long maxValue) => new(
                 TextSpan,
-                "BCP326",
+                "BCP328",
                 $@"A type's ""{minDecoratorName}"" must be less than or equal to its ""{maxDecoratorName}"", but a minimum of {minValue} and a maximum of {maxValue} were specified.");
 
             public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(string sourceType, string targetType) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
-                "BCP327",
+                "BCP329",
                 $@"A value of type ""{sourceType}"" may be too short to assign to a target of type ""{targetType}"".");
 
             public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(string sourceType, string targetType) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
-                "BCP328",
+                "BCP330",
                 $@"A value of type ""{sourceType}"" may be too long to assign to a target of type ""{targetType}"".");
-
-            public ErrorDiagnostic ArgumentMustNotBeNegative(string argumentName, string argumentType) => new(
-                TextSpan,
-                "BCP329",
-                $@"The ""{argumentName}"" argument expects a positive integer but received a value of type ""{argumentType}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

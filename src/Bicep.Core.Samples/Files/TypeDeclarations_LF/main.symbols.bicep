@@ -1,7 +1,7 @@
 @description('The foo type')
 @sealed()
 type foo = {
-//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string {@minLength(3), @maxLength(10)}, objectProp: { intProp: >= 1, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
+//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string {@minLength(3), @maxLength(10)}, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
   @minLength(3)
   @maxLength(10)
   @description('A string property')
@@ -82,7 +82,7 @@ type stringStringDictionary = {
 @minValue(1)
 @maxValue(10)
 type constrainedInt = int
-//@[5:19) TypeAlias constrainedInt. Type: Type<(>= 1 && <= 10)>. Declaration start char: 0, length: 52
+//@[5:19) TypeAlias constrainedInt. Type: Type<int>. Declaration start char: 0, length: 52
 
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48
