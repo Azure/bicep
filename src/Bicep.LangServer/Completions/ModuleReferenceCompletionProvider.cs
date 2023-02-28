@@ -27,13 +27,13 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
-        private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
+        private static readonly ImmutableDictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
         {
             {"br:", "Bicep registry schema name" },
             {"br/", "Bicep registry schema name" },
             {"ts:", "Template spec schema name" },
             {"ts/", "Template spec schema name" },
-        };
+        }.ToImmutableDictionary();
 
         private static readonly Regex ACRModuleRegistryWithoutAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex MCRModuleRegistryWithAlias = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
