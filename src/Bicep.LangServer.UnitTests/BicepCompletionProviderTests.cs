@@ -40,7 +40,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
-                .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>()
+                .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>());

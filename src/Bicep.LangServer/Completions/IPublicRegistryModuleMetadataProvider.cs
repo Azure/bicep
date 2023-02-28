@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public interface IModulesMetadataProvider
+    public interface IPublicRegistryModuleMetadataProvider
     {
         Task Initialize();
 

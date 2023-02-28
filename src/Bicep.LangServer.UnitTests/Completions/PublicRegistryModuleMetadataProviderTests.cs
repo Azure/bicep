@@ -11,20 +11,20 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LangServer.UnitTests.Completions
 {
     [TestClass]
-    public class ModulesMetadataProviderTests
+    public class PublicRegistryModuleMetadataProviderTests
     {
-        private static ModulesMetadataProvider modulesMetadataProvider = new ModulesMetadataProvider();
+        private static PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider = new PublicRegistryModuleMetadataProvider();
 
         [ClassInitialize]
         public static async Task ClassInitialize(TestContext testContext)
         {
-            await modulesMetadataProvider.Initialize();
+            await publicRegistryModuleMetadataProvider.Initialize();
         }
 
         [TestMethod]
         public async Task GetModuleNames_ShouldReturnAllModuleNames()
         {
-            IEnumerable<string> moduleNames = await modulesMetadataProvider.GetModuleNames();
+            IEnumerable<string> moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
 
             moduleNames.Should().NotBeEmpty();
             moduleNames.Should().Contain("app/dapr-containerapp");
@@ -38,14 +38,14 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         public async Task GetVersions_WithInvalidModuleName_ShouldReturnNothing(string moduleName)
         {
-            var versions = await modulesMetadataProvider.GetVersions(moduleName);
+            var versions = await publicRegistryModuleMetadataProvider.GetVersions(moduleName);
             versions.Should().BeEmpty();
         }
 
         [TestMethod]
         public async Task GetVersions_WithValidModuleName_ShouldReturnVersions()
         {
-            IEnumerable<string> versions = await modulesMetadataProvider.GetVersions("app/dapr-containerapp");
+            IEnumerable<string> versions = await publicRegistryModuleMetadataProvider.GetVersions("app/dapr-containerapp");
 
             versions.Should().NotBeEmpty();
             versions.Should().Contain("1.0.1");

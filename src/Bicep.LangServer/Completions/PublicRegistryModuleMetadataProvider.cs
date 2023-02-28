@@ -19,7 +19,7 @@ namespace Bicep.LanguageServer.Providers
     /// Provider to get modules metadata from this endpoint - https://live-data.bicep.azure.com/modulesMetadata
     /// The above endpoint helps fetch module names and versions of modules available in this github repository - https://github.com/Azure/bicep-registry-modules
     /// </summary>
-    public class ModulesMetadataProvider : IModulesMetadataProvider
+    public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
     {
         private const string LiveDataEndpoint = "https://live-data.bicep.azure.com/modulesMetadata";
         private List<ModuleMetadata> moduleMetadataCache = new List<ModuleMetadata>();

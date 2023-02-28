@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Completions
     {
         private readonly IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly IModulesMetadataProvider modulesMetadataProvider;
+        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
@@ -43,13 +43,13 @@ namespace Bicep.LanguageServer.Completions
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider,
             IConfigurationManager configurationManager,
-            IModulesMetadataProvider modulesMetadataProvider,
+            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistryNamesProvider = azureContainerRegistryNamesProvider;
             this.configurationManager = configurationManager;
-            this.modulesMetadataProvider = modulesMetadataProvider;
+            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
         }
@@ -133,7 +133,7 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new List<CompletionItem>();
             replacementText = replacementText.TrimEnd('\'');
 
-            var versions = await modulesMetadataProvider.GetVersions(filePath);
+            var versions = await publicRegistryModuleMetadataProvider.GetVersions(filePath);
             foreach (var version in versions)
             {
                 var insertText = $"{replacementText}{version}'$0";
@@ -276,7 +276,7 @@ namespace Bicep.LanguageServer.Completions
                         {
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
-                                var moduleNames = await modulesMetadataProvider.GetModuleNames();
+                                var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
                                 foreach (var moduleName in moduleNames)
                                 {
                                     var label = $"bicep/{moduleName}";
@@ -311,7 +311,7 @@ namespace Bicep.LanguageServer.Completions
                             }
 
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
-                            var moduleNames = await modulesMetadataProvider.GetModuleNames();
+                            var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
 
                             var matchingModuleNames = moduleNames.Where(x => x.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
@@ -404,7 +404,7 @@ namespace Bicep.LanguageServer.Completions
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            var moduleNames = await modulesMetadataProvider.GetModuleNames();
+            var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
             foreach (var moduleName in moduleNames)
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";

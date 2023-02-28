@@ -141,7 +141,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
-                .AddSingleton<IModulesMetadataProvider, ModulesMetadataProvider>();
+                .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
         }
 
         public void Dispose()
