@@ -635,7 +635,7 @@
       {
         "name": "inputArray",
         "description": "An array of strings to join.",
-        "type": "string[]",
+        "type": "(bool | int | string)[]",
         "required": true
       },
       {
@@ -648,9 +648,9 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(inputArray: string[], delimiter: string): string",
+    "typeSignature": "(inputArray: (bool | int | string)[], delimiter: string): string",
     "parameterTypeSignatures": [
-      "inputArray: string[]",
+      "inputArray: (bool | int | string)[]",
       "delimiter: string"
     ]
   },
