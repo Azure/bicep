@@ -516,7 +516,7 @@
       "minimumCount": 1
     },
     "flags": "default",
-    "typeSignature": "(... : string): string {@minLength(36), @maxLength(36)}",
+    "typeSignature": "(... : string): string",
     "parameterTypeSignatures": [
       "... : string"
     ]
@@ -1001,7 +1001,7 @@
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "paramDefaultsOnly",
-    "typeSignature": "(): string {@minLength(36), @maxLength(36)}",
+    "typeSignature": "(): string",
     "parameterTypeSignatures": []
   },
   {
@@ -1499,7 +1499,7 @@
       "minimumCount": 1
     },
     "flags": "default",
-    "typeSignature": "(... : string): string {@minLength(13), @maxLength(13)}",
+    "typeSignature": "(... : string): string",
     "parameterTypeSignatures": [
       "... : string"
     ]

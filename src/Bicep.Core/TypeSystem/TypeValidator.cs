@@ -129,13 +129,11 @@ namespace Bicep.Core.TypeSystem
                 case (BooleanLiteralType sourceBool, BooleanLiteralType targetBool):
                     return sourceBool.Value == targetBool.Value;
 
-                case (StringType sourceString, StringLiteralType targetStringLiteral):
+                case (StringType, StringLiteralType):
                     // We allow primitive to like-typed literal assignment only in the case where the "AllowLooseAssignment" validation flag has been set.
                     // This is to allow parameters without 'allowed' values to be assigned to fields expecting enums.
                     // At some point we may want to consider flowing the enum type backwards to solve this more elegantly.
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) &&
-                        (!sourceString.MinLength.HasValue || sourceString.MinLength.Value <= targetStringLiteral.RawStringValue.Length) &&
-                        (!sourceString.MaxLength.HasValue || sourceString.MaxLength.Value >= targetStringLiteral.RawStringValue.Length);
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
 
                 case (IntegerType, IntegerLiteralType):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
@@ -143,9 +141,8 @@ namespace Bicep.Core.TypeSystem
                 case (PrimitiveType, BooleanLiteralType):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Bool.Name;
 
-                case (StringLiteralType sourceStringLiteral, StringType targetString):
-                    return (!targetString.MinLength.HasValue || sourceStringLiteral.RawStringValue.Length >= targetString.MinLength.Value) &&
-                        (!targetString.MaxLength.HasValue || sourceStringLiteral.RawStringValue.Length <= targetString.MaxLength.Value);
+                case (StringLiteralType, StringType):
+                    return true;
 
                 case (IntegerLiteralType, IntegerType):
                     // integer literals can be assigned to ints
@@ -158,9 +155,8 @@ namespace Bicep.Core.TypeSystem
                 case (IntegerType, IntegerType):
                     return true;
 
-                case (StringType sourceString, StringType targetString):
-                    return (targetString.MinLength ?? long.MinValue) <= (sourceString.MaxLength ?? long.MaxValue) &&
-                        (targetString.MaxLength ?? long.MaxValue) >= (sourceString.MinLength ?? long.MinValue);
+                case (StringType, StringType):
+                    return true;
 
                 case (PrimitiveType, PrimitiveType):
                     // both types are primitive
@@ -324,43 +320,28 @@ namespace Bicep.Core.TypeSystem
             // string assignability check
             if (targetType is StringType targetString)
             {
-                switch (expressionType)
-                {
-                    case StringType expressionString:
-                        var expressionMinLength = expressionString.MinLength ?? 0;
-                        var targetMinLength = targetString.MinLength ?? 0;
-                        if (expressionMinLength < targetMinLength)
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionType.Name, targetType.Name));
-                        }
-
-                        var expressionMaxLength = expressionString.MaxLength ?? long.MaxValue;
-                        var targetMaxLength = targetString.MaxLength ?? long.MaxValue;
-                        if (expressionMaxLength > targetMaxLength)
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionType.Name, targetType.Name));
-                        }
-
-                        return TypeFactory.CreateStringType(
-                            minLength: Math.Max(expressionMinLength, targetMinLength) switch
-                            {
-                                0 => null,
-                                long otherwise => otherwise,
-                            },
-                            maxLength: Math.Min(expressionMaxLength, targetMaxLength) switch
-                            {
-                                long.MaxValue => null,
-                                long otherwise => otherwise,
-                            },
-                            validationFlags: targetType.ValidationFlags);
-                    case StringLiteralType expressionStringLiteral:
-                        // if a literal was assignable to a string-typed target, the literal will always be the most narrow type
-                        return expressionStringLiteral;
-                }
+                return NarrowStringAssignmentType(expression, expressionType, targetString);
             }
 
-            if (targetType is StringLiteralType)
+            if (targetType is StringLiteralType targetStringLiteral)
             {
+                if (expressionType is StringType expressionString)
+                {
+                    if (expressionString.MinLength.HasValue && expressionString.MinLength.Value > targetStringLiteral.RawStringValue.Length)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionString.MinLength.Value, targetStringLiteral.RawStringValue.Length));
+                        return expressionType;
+                    }
+
+                    if (expressionString.MaxLength.HasValue && expressionString.MaxLength.Value < targetStringLiteral.RawStringValue.Length)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionString.MaxLength.Value, targetStringLiteral.RawStringValue.Length));
+                        return expressionType;
+                    }
+                }
+
                 // if anything was assignable to a literal target, the target will always be the most narrow type
                 return targetType;
             }
@@ -546,6 +527,75 @@ namespace Bicep.Core.TypeSystem
 
                     // if a integer literal falls within the target int's domain, the literal will always be the most narrow type
                     return expressionIntegerLiteral;
+            }
+
+            return expressionType;
+        }
+
+        private TypeSymbol NarrowStringAssignmentType(SyntaxBase expression, TypeSymbol expressionType, StringType targetType)
+        {
+            var targetMinLength = targetType.MinLength ?? 0;
+            var targetMaxLength = targetType.MaxLength ?? long.MaxValue;
+
+            switch (expressionType)
+            {
+                case StringType expressionString:
+                    var expressionMinLength = expressionString.MinLength ?? 0;
+                    var expressionMaxLength = expressionString.MaxLength ?? long.MaxValue;
+
+                    if (expressionMinLength > targetMaxLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionMinLength, targetMaxLength));
+                        return expressionType;
+                    }
+
+                    if (expressionMaxLength < targetMinLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionMaxLength, targetMinLength));
+                        return expressionType;
+                    }
+
+                    if (expressionMinLength < targetMinLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionString.MinLength, targetMinLength));
+                    }
+
+                    if (expressionMaxLength > targetMaxLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionString.MaxLength, targetMaxLength));
+                    }
+
+                    return TypeFactory.CreateStringType(
+                        minLength: Math.Max(expressionMinLength, targetMinLength) switch
+                        {
+                            0 => null,
+                            long otherwise => otherwise,
+                        },
+                        maxLength: Math.Min(expressionMaxLength, targetMaxLength) switch
+                        {
+                            long.MaxValue => null,
+                            long otherwise => otherwise,
+                        },
+                        validationFlags: targetType.ValidationFlags);
+                case StringLiteralType expressionStringLiteral:
+                    if (expressionStringLiteral.RawStringValue.Length > targetMaxLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionStringLiteral.RawStringValue.Length, targetMaxLength));
+                        return expressionType;
+                    }
+
+                    if (expressionStringLiteral.RawStringValue.Length < targetMinLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionStringLiteral.RawStringValue.Length, targetMinLength));
+                        return expressionType;
+                    }
+
+                    // if a literal was assignable to a string-typed target, the literal will always be the most narrow type
+                    return expressionStringLiteral;
             }
 
             return expressionType;

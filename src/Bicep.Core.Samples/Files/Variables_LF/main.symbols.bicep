@@ -348,7 +348,7 @@ var loopInput = [
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
 //@[34:38) Local name. Type: 'one' | 'two'. Declaration start char: 34, length: 4
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
-//@[04:25) Variable arrayOfStringsViaLoop. Type: string {@minLength(12), @maxLength(31)}[]. Declaration start char: 0, length: 79
+//@[04:25) Variable arrayOfStringsViaLoop. Type: string[]. Declaration start char: 0, length: 79
 var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 //@[34:38) Local name. Type: 'one' | 'two'. Declaration start char: 34, length: 4
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
@@ -360,7 +360,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
 //@[33:37) Local name. Type: 'one' | 'two'. Declaration start char: 33, length: 4
 //@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
-//@[04:24) Variable arrayOfArraysViaLoop. Type: [int, 'one' | 'two', string {@minLength(19), @maxLength(38)}][]. Declaration start char: 0, length: 102
+//@[04:24) Variable arrayOfArraysViaLoop. Type: [int, 'one' | 'two', string][]. Declaration start char: 0, length: 102
   i
   name
   'prefix-${i}-${name}-suffix'

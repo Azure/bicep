@@ -11,7 +11,7 @@ var numbers = range(0, 4)
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
 //@[027:028) Local i. Type: 'Casper' | 'Evie' | 'Indy' | 'Kira'. Declaration start char: 27, length: 1
-//@[004:012) Variable sayHello. Type: string {@minLength(11), @maxLength(13)}[]. Declaration start char: 0, length: 46
+//@[004:012) Variable sayHello. Type: string[]. Declaration start char: 0, length: 46
 
 var isEven = filter(numbers, i => 0 == i % 2)
 //@[029:030) Local i. Type: int. Declaration start char: 29, length: 1
@@ -30,10 +30,10 @@ var flattenedEmptyArray = flatten([])
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[042:045) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 42, length: 3
-//@[004:012) Variable mapSayHi. Type: string {@minLength(7), @maxLength(7)}[]. Declaration start char: 0, length: 62
+//@[004:012) Variable mapSayHi. Type: string[]. Declaration start char: 0, length: 62
 var mapEmpty = map([], foo => 'Hi ${foo}!')
 //@[023:026) Local foo. Type: never. Declaration start char: 23, length: 3
-//@[004:012) Variable mapEmpty. Type: string {@minLength(4), @maxLength(4)}[]. Declaration start char: 0, length: 43
+//@[004:012) Variable mapEmpty. Type: string[]. Declaration start char: 0, length: 43
 var mapObject = map(range(0, length(doggos)), i => {
 //@[046:047) Local i. Type: int. Declaration start char: 46, length: 1
 //@[004:013) Variable mapObject. Type: object[]. Declaration start char: 0, length: 115
@@ -135,7 +135,7 @@ module myMod './test.bicep' = {
 }
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')
 //@[057:062) Local doggo. Type: any. Declaration start char: 57, length: 5
-//@[004:024) Variable mappedModOutputProps. Type: string {@minLength(10)}[]. Declaration start char: 0, length: 87
+//@[004:024) Variable mappedModOutputProps. Type: string[]. Declaration start char: 0, length: 87
 
 var parentheses = map([123], (i => '${i}'))
 //@[030:031) Local i. Type: any. Declaration start char: 30, length: 1

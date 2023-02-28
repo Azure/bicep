@@ -1897,13 +1897,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP331",
-                $"The provided value {(sourceMinLength.HasValue ? $"may be as short as {sourceMinLength.Value}" : "has no configured minimum length")} and may be too short to assign to a target with a configured minimum length of {targetMinLength}.");
+                $"The provided value {(sourceMinLength.HasValue ? $"may have a length as small as {sourceMinLength.Value}" : "has no configured minimum length")} and may be too short to assign to a target with a configured minimum length of {targetMinLength}.");
 
             public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(long? sourceMaxLength, long targetMaxLength) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP332",
-                $"The provided value {(sourceMaxLength.HasValue ? $"may be as long as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
+                $"The provided value {(sourceMaxLength.HasValue ? $"may have a length as large as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

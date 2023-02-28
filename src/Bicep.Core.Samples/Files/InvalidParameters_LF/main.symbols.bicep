@@ -187,7 +187,7 @@ param expressionInModifier string = 2 + 3
   resourceGroup().id
 ])
 param nonCompileTimeConstant string
-//@[06:028) Parameter nonCompileTimeConstant. Type: string {@minLength(0), @maxLength(5)}. Declaration start char: 0, length: 111
+//@[06:028) Parameter nonCompileTimeConstant. Type: string. Declaration start char: 0, length: 111
 
 
 @allowed([])
@@ -316,12 +316,12 @@ param unaryMinusOnFunction int
 @maxLength(3)
 @maxLength(4)
 param duplicateDecorators string
-//@[06:025) Parameter duplicateDecorators. Type: string {@minLength(1), @maxLength(3)}. Declaration start char: 0, length: 98
+//@[06:025) Parameter duplicateDecorators. Type: string. Declaration start char: 0, length: 98
 
 @maxLength(-1)
 @minLength(-100)
 param invalidLength string
-//@[06:019) Parameter invalidLength. Type: string {@minLength(-100), @maxLength(-1)}. Declaration start char: 0, length: 58
+//@[06:019) Parameter invalidLength. Type: string. Declaration start char: 0, length: 58
 
 @allowed([
 	'Microsoft.AnalysisServices/servers'
