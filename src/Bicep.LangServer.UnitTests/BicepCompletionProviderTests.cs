@@ -38,7 +38,6 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ILanguageServerFacade>(server)
                 .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
-                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()

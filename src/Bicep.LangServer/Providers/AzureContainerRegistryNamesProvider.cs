@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Azure.Management.ResourceGraph;
-using Microsoft.Azure.Management.ResourceGraph.Models;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
+using Azure.ResourceManager;
+using Azure.ResourceManager.ResourceGraph;
+using Azure.ResourceManager.ResourceGraph.Models;
+using Bicep.Core.Configuration;
+using Bicep.Core.Registry.Auth;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.LanguageServer.Providers
 {
@@ -15,46 +19,64 @@ namespace Bicep.LanguageServer.Providers
     /// This provider helps fetch all the Azure Container Registries(ACR) names that the user has access to.
     /// 
     /// </summary>
-    public class AzureContainerRegistryNamesProvider: IAzureContainerRegistryNamesProvider
+    public class AzureContainerRegistryNamesProvider : IAzureContainerRegistryNamesProvider
     {
-        private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
+        private readonly IConfigurationManager configurationManager;
+        private readonly ITokenCredentialFactory tokenCredentialFactory;
 
-        public AzureContainerRegistryNamesProvider(IServiceClientCredentialsProvider serviceClientCredentialsProvider)
+        private const string queryToGetRegistryNames = @"Resources
+| where type == ""microsoft.containerregistry/registries""
+| project properties[""loginServer""]";
+
+        public AzureContainerRegistryNamesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
         {
-            this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
+            this.configurationManager = configurationManager;
+            this.tokenCredentialFactory = tokenCredentialFactory;
         }
 
         public async Task<IEnumerable<string>> GetRegistryNames(Uri templateUri)
         {
-            ClientCredentials clientCredentials = await serviceClientCredentialsProvider.GetServiceClientCredentials(templateUri);
+            var armClient = GetArmClient(templateUri);
+            var tenantCollection = armClient.GetTenants();
 
-            ResourceGraphClient resourceGraphClient = new ResourceGraphClient(clientCredentials);
-            QueryRequest queryRequest = new QueryRequest(@"Resources
-| where type == ""microsoft.containerregistry/registries""
-| project properties[""loginServer""]
-");
-            QueryResponse queryResponse = resourceGraphClient.Resources(queryRequest);
-
-            if (queryResponse is null || queryResponse.Data is null)
+            if (tenantCollection.Any())
             {
-                return Enumerable.Empty<string>();
-            }
+                var tenant = tenantCollection.First();
+                var queryContent = new ResourceQueryContent(queryToGetRegistryNames);
+                Response<ResourceQueryResult> queryResponse1 = await tenant.GetResourcesAsync(queryContent);
 
-            JArray jArray = JArray.FromObject(queryResponse.Data);
-            List<string> registryNames = new();
-
-            foreach (JObject item in jArray)
-            {
-                if (item is not null &&
-                    item.GetValue("properties_loginServer") is JToken jToken &&
-                    jToken is not null &&
-                    jToken.Value<string>() is string loginServer)
+                if (queryResponse1.Value is ResourceQueryResult resourceQueryResult &&
+                    resourceQueryResult.TotalRecords > 0 &&
+                    resourceQueryResult.Data is BinaryData data)
                 {
-                    registryNames.Add(loginServer);
+                    JArray jArray = JArray.Parse(data.ToString());
+
+                    List<string> registryNames = new();
+
+                    foreach (JObject item in jArray)
+                    {
+                        if (item is not null &&
+                            item.GetValue("properties_loginServer") is JToken jToken &&
+                            jToken is not null &&
+                            jToken.Value<string>() is string loginServer)
+                        {
+                            registryNames.Add(loginServer);
+                        }
+                    }
+
+                    return registryNames;
                 }
             }
 
-            return registryNames;
+            return Enumerable.Empty<string>();
+        }
+
+        private ArmClient GetArmClient(Uri templateUri)
+        {
+            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var credential = tokenCredentialFactory.CreateChain(rootConfiguration.Cloud.CredentialPrecedence, rootConfiguration.Cloud.ActiveDirectoryAuthorityUri);
+
+            return new ArmClient(credential);
         }
     }
 }

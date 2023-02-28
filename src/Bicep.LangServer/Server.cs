@@ -137,7 +137,6 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
                 .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
-                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
