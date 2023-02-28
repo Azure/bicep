@@ -296,25 +296,7 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType is IntegerLiteralType targetIntegerLiteral)
             {
-                if (expressionType is IntegerType expressionInteger)
-                {
-                    if (expressionInteger.MinValue.HasValue && expressionInteger.MinValue.Value > targetIntegerLiteral.Value)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionInteger.MinValue.Value, targetIntegerLiteral.Value));
-                        return expressionType;
-                    }
-
-                    if (expressionInteger.MaxValue.HasValue && expressionInteger.MaxValue.Value < targetIntegerLiteral.Value)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionInteger.MaxValue.Value, targetIntegerLiteral.Value));
-                        return expressionType;
-                    }
-                }
-
-                // if anything was assignable to an integer literal target, the target will always be the most narrow type
-                return targetType;
+                return NarrowIntegerLiteralAssignmentType(expression, expressionType, targetIntegerLiteral);
             }
 
             // string assignability check
@@ -325,25 +307,7 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType is StringLiteralType targetStringLiteral)
             {
-                if (expressionType is StringType expressionString)
-                {
-                    if (expressionString.MinLength.HasValue && expressionString.MinLength.Value > targetStringLiteral.RawStringValue.Length)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionString.MinLength.Value, targetStringLiteral.RawStringValue.Length));
-                        return expressionType;
-                    }
-
-                    if (expressionString.MaxLength.HasValue && expressionString.MaxLength.Value < targetStringLiteral.RawStringValue.Length)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionString.MaxLength.Value, targetStringLiteral.RawStringValue.Length));
-                        return expressionType;
-                    }
-                }
-
-                // if anything was assignable to a literal target, the target will always be the most narrow type
-                return targetType;
+                return NarrowStringLiteralAssignmentType(expression, expressionType, targetStringLiteral);
             }
 
             // object assignability check
@@ -373,56 +337,10 @@ namespace Bicep.Core.TypeSystem
             }
 
             // array assignability check
-            if (targetType is ArrayType targetArrayType)
+            if (targetType is ArrayType targetArrayType &&
+                NarrowArrayAssignmentType(config, expression, expressionType, targetArrayType) is TypeSymbol narrowedArray)
             {
-                long? narrowedMinLength = null;
-                long? narrowedMaxLength = null;
-
-                if (expressionType is ArrayType expressionArrayType)
-                {
-                    var expressionMinLength = expressionArrayType.MinLength ?? 0;
-                    var targetMinLength = targetArrayType.MinLength ?? 0;
-                    var expressionMaxLength = expressionArrayType.MaxLength ?? long.MaxValue;
-                    var targetMaxLength = targetArrayType.MaxLength ?? long.MaxValue;
-
-                    if (expressionMinLength > targetMaxLength)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionMinLength, targetMaxLength));
-                        return expressionType;
-                    }
-
-                    if (expressionMaxLength < targetMinLength)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionMaxLength, targetMinLength));
-                        return expressionType;
-                    }
-
-                    if (expressionMinLength < targetMinLength)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.MinLength, targetMinLength));
-                    }
-                    narrowedMinLength = Math.Max(expressionMinLength, targetMinLength) switch
-                    {
-                        0 => null,
-                        long otherwise => otherwise,
-                    };
-
-                    if (expressionMaxLength > targetMaxLength)
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionArrayType.MaxLength, targetMaxLength));
-                    }
-                    narrowedMaxLength = Math.Min(expressionMaxLength, targetMaxLength) switch {
-                        long.MaxValue => null,
-                        long otherwise => otherwise,
-                    };
-                }
-
-                if (expression is ArraySyntax arrayValue)
-                {
-                    return NarrowArrayAssignmentType(config, arrayValue, targetArrayType, narrowedMinLength, narrowedMaxLength);
-                }
+                return narrowedArray;
             }
 
             if (expression is VariableAccessSyntax variableAccess)
@@ -532,6 +450,29 @@ namespace Bicep.Core.TypeSystem
             return expressionType;
         }
 
+        private TypeSymbol NarrowIntegerLiteralAssignmentType(SyntaxBase expression, TypeSymbol expressionType, IntegerLiteralType targetType)
+        {
+            if (expressionType is IntegerType expressionInteger)
+            {
+                if (expressionInteger.MinValue.HasValue && expressionInteger.MinValue.Value > targetType.Value)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                        .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionInteger.MinValue.Value, targetType.Value));
+                    return expressionType;
+                }
+
+                if (expressionInteger.MaxValue.HasValue && expressionInteger.MaxValue.Value < targetType.Value)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                        .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionInteger.MaxValue.Value, targetType.Value));
+                    return expressionType;
+                }
+            }
+
+            // outside of the cases handled above, if anything was assignable to an integer literal target, the target will always be the most narrow type
+            return targetType;
+        }
+
         private TypeSymbol NarrowStringAssignmentType(SyntaxBase expression, TypeSymbol expressionType, StringType targetType)
         {
             var targetMinLength = targetType.MinLength ?? 0;
@@ -547,14 +488,14 @@ namespace Bicep.Core.TypeSystem
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
                             .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionMinLength, targetMaxLength));
-                        return expressionType;
+                        break;
                     }
 
                     if (expressionMaxLength < targetMinLength)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
                             .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionMaxLength, targetMinLength));
-                        return expressionType;
+                        break;
                     }
 
                     if (expressionMinLength < targetMinLength)
@@ -582,16 +523,17 @@ namespace Bicep.Core.TypeSystem
                 case StringLiteralType expressionStringLiteral:
                     if (expressionStringLiteral.RawStringValue.Length > targetMaxLength)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionStringLiteral.RawStringValue.Length, targetMaxLength));
-                        return expressionType;
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
+                            ShouldWarn(targetType),
+                            expressionStringLiteral.RawStringValue.Length,
+                            targetMaxLength));
                     }
-
-                    if (expressionStringLiteral.RawStringValue.Length < targetMinLength)
+                    else if (expressionStringLiteral.RawStringValue.Length < targetMinLength)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionStringLiteral.RawStringValue.Length, targetMinLength));
-                        return expressionType;
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
+                            ShouldWarn(targetType),
+                            expressionStringLiteral.RawStringValue.Length,
+                            targetMinLength));
                     }
 
                     // if a literal was assignable to a string-typed target, the literal will always be the most narrow type
@@ -601,7 +543,120 @@ namespace Bicep.Core.TypeSystem
             return expressionType;
         }
 
-        private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType, long? narrowedMinLength, long? narrowedMaxLength)
+        private TypeSymbol NarrowStringLiteralAssignmentType(SyntaxBase expression, TypeSymbol expressionType, StringLiteralType targetType)
+        {
+            if (expressionType is StringType expressionString)
+            {
+                if (expressionString.MinLength.HasValue && expressionString.MinLength.Value > targetType.RawStringValue.Length)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
+                        ShouldWarn(targetType),
+                        expressionString.MinLength.Value,
+                        targetType.RawStringValue.Length));
+                    return expressionType;
+                }
+
+                if (expressionString.MaxLength.HasValue && expressionString.MaxLength.Value < targetType.RawStringValue.Length)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
+                        ShouldWarn(targetType),
+                        expressionString.MaxLength.Value,
+                        targetType.RawStringValue.Length));
+                    return expressionType;
+                }
+            }
+
+            // outside of the cases handled above, if anything was assignable to a literal target, the target will always be the most narrow type
+            return targetType;
+    }
+
+        private TypeSymbol? NarrowArrayAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, ArrayType targetType)
+        {
+            switch (expression)
+            {
+                case ArraySyntax arrayValue:
+                    return NarrowArrayAssignmentType(config, arrayValue, targetType);
+                case VariableAccessSyntax variableAccess when DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax:
+                    var newConfig = new TypeValidatorConfig(
+                        skipConstantCheck: config.SkipConstantCheck,
+                        skipTypeErrors: config.SkipTypeErrors,
+                        disallowAny: config.DisallowAny,
+                        originSyntax: variableAccess,
+                        onTypeMismatch: config.OnTypeMismatch,
+                        isResourceDeclaration: config.IsResourceDeclaration);
+                    return NarrowType(newConfig, declaringSyntax, targetType);
+            }
+
+            if (expressionType is TupleType expressionTuple && targetType is TupleType targetTuple)
+            {
+                if (expressionTuple.Items.Length != targetTuple.Items.Length)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
+                        ShouldWarn(targetType),
+                        expressionTuple.Items.Length,
+                        targetTuple.Items.Length));
+                    return expressionType;
+                }
+
+                return new TupleType(validationFlags: targetTuple.ValidationFlags,
+                    items: Enumerable.Range(0, expressionTuple.Items.Length)
+                        .Select(idx => NarrowType(config, expression, expressionTuple.Items[idx].Type, targetTuple.Items[idx].Type))
+                        .ToImmutableArray<ITypeReference>());
+            }
+
+            if (expressionType is ArrayType expressionArrayType)
+            {
+                var expressionMinLength = expressionArrayType.MinLength ?? 0;
+                var targetMinLength = targetType.MinLength ?? 0;
+                var expressionMaxLength = expressionArrayType.MaxLength ?? long.MaxValue;
+                var targetMaxLength = targetType.MaxLength ?? long.MaxValue;
+
+                if (expressionMinLength > targetMaxLength)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
+                        ShouldWarn(targetType),
+                        expressionMinLength,
+                        targetMaxLength));
+                    return expressionType;
+                }
+
+                if (expressionMaxLength < targetMinLength)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
+                        ShouldWarn(targetType),
+                        expressionMaxLength,
+                        targetMinLength));
+                    return expressionType;
+                }
+
+                if (expressionMinLength < targetMinLength)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.MinLength, targetMinLength));
+                }
+
+                if (expressionMaxLength > targetMaxLength)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionArrayType.MaxLength, targetMaxLength));
+                }
+
+                return new TypedArrayType(NarrowType(config, expression, expressionArrayType.Item.Type, targetType.Item.Type),
+                    targetType.ValidationFlags,
+                    minLength: Math.Max(expressionMinLength, targetMinLength) switch
+                    {
+                        0 => null,
+                        long otherwise => otherwise,
+                    },
+                    maxLength: Math.Min(expressionMaxLength, targetMaxLength) switch
+                    {
+                        long.MaxValue => null,
+                        long otherwise => otherwise,
+                    });
+            }
+
+            return null;
+        }
+
+        private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
@@ -610,7 +665,7 @@ namespace Bicep.Core.TypeSystem
                 return targetType;
             }
 
-            var arrayProperties = new List<TypeSymbol>();
+            var arrayProperties = new List<ITypeReference>();
             foreach (var arrayItemSyntax in expression.Items)
             {
                 var newConfig = new TypeValidatorConfig(
@@ -626,7 +681,22 @@ namespace Bicep.Core.TypeSystem
                 arrayProperties.Add(narrowedType);
             }
 
-            return new TypedArrayType(TypeHelper.CreateTypeUnion(arrayProperties), targetType.ValidationFlags, narrowedMinLength, narrowedMaxLength);
+            if (targetType.MaxLength.HasValue && targetType.MaxLength.Value < arrayProperties.Count)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
+                    ShouldWarn(targetType),
+                    arrayProperties.Count,
+                    targetType.MaxLength.Value));
+            }
+            else if (targetType.MinLength.HasValue && targetType.MinLength.Value > arrayProperties.Count)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
+                    ShouldWarn(targetType),
+                    arrayProperties.Count,
+                    targetType.MinLength.Value));
+            }
+
+            return new TupleType(arrayProperties.ToImmutableArray(), targetType.ValidationFlags);
         }
 
         private TypeSymbol NarrowLambdaType(TypeValidatorConfig config, LambdaSyntax lambdaSyntax, LambdaType targetType)
@@ -651,25 +721,28 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
         {
-            var newConfig = new TypeValidatorConfig(
-                skipConstantCheck: config.SkipConstantCheck,
-                skipTypeErrors: config.SkipTypeErrors,
-                disallowAny: config.DisallowAny,
-                originSyntax: variableAccess,
-                onTypeMismatch: config.OnTypeMismatch,
-                isResourceDeclaration: config.IsResourceDeclaration);
-
-            // TODO: Implement for non-variable variable access (resource, module, param)
-            switch (binder.GetSymbolInfo(variableAccess))
+            if (DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax)
             {
-                case VariableSymbol variableSymbol:
-                    return NarrowType(newConfig, variableSymbol.DeclaringVariable.Value, targetType);
-                case LocalVariableSymbol localVariableSymbol:
-                    return NarrowType(newConfig, localVariableSymbol.DeclaringLocalVariable, targetType);
+                var newConfig = new TypeValidatorConfig(
+                    skipConstantCheck: config.SkipConstantCheck,
+                    skipTypeErrors: config.SkipTypeErrors,
+                    disallowAny: config.DisallowAny,
+                    originSyntax: variableAccess,
+                    onTypeMismatch: config.OnTypeMismatch,
+                    isResourceDeclaration: config.IsResourceDeclaration);
+                return NarrowType(newConfig, declaringSyntax, targetType);
             }
 
             return targetType;
         }
+
+        // TODO: Implement for non-variable variable access (resource, module, param)
+        private SyntaxBase? DeclaringSyntax(VariableAccessSyntax variableAccess) => binder.GetSymbolInfo(variableAccess) switch
+        {
+            VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
+            LocalVariableSymbol localVariableSymbol => localVariableSymbol.DeclaringLocalVariable,
+            _ => null,
+        };
 
 
         private TypeSymbol NarrowUnionType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, UnionType targetType)
