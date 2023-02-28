@@ -57,59 +57,122 @@ namespace Bicep.LangServer.UnitTests.Completions
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            completions.Should().SatisfyRespectively(
-                c =>
-                {
-                    c.Label.Should().Be("br:");
-                    c.Kind.Should().Be(CompletionItemKind.Reference);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.InsertText.Should().BeNull();
-                    c.Detail.Should().Be("Bicep registry schema name");
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
-                },
-                c =>
-                {
-                    c.Label.Should().Be("br/");
-                    c.Kind.Should().Be(CompletionItemKind.Reference);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.InsertText.Should().BeNull();
-                    c.Detail.Should().Be("Bicep registry schema name");
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
-                },
-                c =>
-                {
-                    c.Label.Should().Be("ts:");
-                    c.Kind.Should().Be(CompletionItemKind.Reference);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.InsertText.Should().BeNull();
-                    c.Detail.Should().Be("Template spec schema name");
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("'ts:$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
-                },
-                c =>
-                {
-                    c.Label.Should().Be("ts/");
-                    c.Kind.Should().Be(CompletionItemKind.Reference);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.InsertText.Should().BeNull();
-                    c.Detail.Should().Be("Template spec schema name");
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("'ts/$0'");
-                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
-                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
-                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
-                });
+            completions.Count().Should().Be(3);
+
+            completions.Should().Contain(
+                c => c.Label == "br:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Bicep registry schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+
+            completions.Should().Contain(
+                c => c.Label == "br/" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Bicep registry schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+
+            completions.Should().Contain(
+                c => c.Label == "ts:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
+        }
+
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithBicepRegistryAndTemplateSpecShemaCompletionContext_AndTemplateSpecAliasInBicepConfigFile_ReturnsCompletionItems()
+        {
+            var bicepConfigFileContents = @"{
+  ""moduleAliases"": {
+    ""br"": {
+      ""test"": {
+        ""registry"": ""testacr.azurecr.io"",
+        ""modulePath"": ""bicep/modules""
+      }
+    },
+    ""ts"": {
+      ""mySpecRG"": {
+        ""subscription"": ""00000000-0000-0000-0000-000000000000"",
+        ""resourceGroup"": ""test-rg""
+      }
+    }
+  }
+}";
+            var completionContext = GetBicepCompletionContext("module test '|'", bicepConfigFileContents, out DocumentUri documentUri);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                publicRegistryModuleMetadataProvider,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+
+            completions.Count().Should().Be(4);
+
+            completions.Should().Contain(
+                c => c.Label == "br:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Bicep registry schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == 14);
+
+            completions.Should().Contain(
+                c => c.Label == "br/" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Bicep registry schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == 14);
+
+            completions.Should().Contain(
+                c => c.Label == "ts:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == 14);
+
+            completions.Should().Contain(
+                c => c.Label == "ts/" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Template spec schema name" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts/$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == 14);
         }
 
         [TestMethod]

@@ -59,6 +59,11 @@ namespace Bicep.Core.Configuration
             return this.Data.OciArtifactModuleAliases;
         }
 
+        public ImmutableSortedDictionary<string, TemplateSpecModuleAlias> GetTemplateSpecModuleAliases()
+        {
+            return this.Data.TemplateSpecModuleAliases;
+        }
+
         public bool TryGetTemplateSpecModuleAlias(string aliasName, [NotNullWhen(true)] out TemplateSpecModuleAlias? alias, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)
         {
             if (!ValidateAliasName(aliasName, out errorBuilder))

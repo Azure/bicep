@@ -30,12 +30,11 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
-        private static readonly ImmutableDictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
+        private static readonly ImmutableDictionary<string, (string, CompletionPriority)> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, (string, CompletionPriority)>()
         {
-            {"br:", "Bicep registry schema name" },
-            {"br/", "Bicep registry schema name" },
-            {"ts:", "Template spec schema name" },
-            {"ts/", "Template spec schema name" },
+            {"br:", ("Bicep registry schema name", CompletionPriority.VeryHigh) },
+            {"br/", ("Bicep registry schema name", CompletionPriority.High) },
+            {"ts:", ("Template spec schema name", CompletionPriority.VeryHigh) }
         }.ToImmutableDictionary();
 
         private static readonly Regex ACRModuleRegistryWithoutAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
@@ -66,14 +65,14 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            return GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText)
+            return GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText, templateUri)
                 .Concat(await GetPathCompletions(context, replacementText, templateUri))
                 .Concat(await GetMCRModuleRegistryVersionCompletions(context, replacementText, templateUri))
                 .Concat(await GetRegistryCompletions(context, replacementText, templateUri));
         }
 
         // Handles bicep registry and template spec schema completions.
-        private IEnumerable<CompletionItem> GetBicepRegistryAndTemplateSpecShemaCompletions(BicepCompletionContext context, string replacementText)
+        private IEnumerable<CompletionItem> GetBicepRegistryAndTemplateSpecShemaCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
             {
@@ -85,17 +84,27 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
+            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var templateSpecModuleAliases = rootConfiguration.ModuleAliases.GetTemplateSpecModuleAliases();
+
+            var completionLabelsWithDetails = BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails;
+            if (templateSpecModuleAliases.Any())
+            {
+                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", ("Template spec schema name", CompletionPriority.High));
+            }
+
             List<CompletionItem> completionItems = new List<CompletionItem>();
-            foreach (var kvp in BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails)
+            foreach (var kvp in completionLabelsWithDetails)
             {
                 var text = kvp.Key;
                 var insertionText = $"'{text}$0'";
+                (var details, CompletionPriority completionPriority) = kvp.Value;
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(insertionText)
-                    .WithSortText(GetSortText(text, CompletionPriority.VeryHigh))
+                    .WithSortText(GetSortText(text, completionPriority))
                     .WithSnippetEdit(context.ReplacementRange, insertionText)
-                    .WithDetail(kvp.Value)
+                    .WithDetail(details)
                     .Build();
                 completionItems.Add(completionItem);
             }
