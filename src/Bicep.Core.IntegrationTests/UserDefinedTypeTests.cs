@@ -596,7 +596,7 @@ param paramB array = paramA
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
-            ("BCP329", DiagnosticLevel.Warning, "A value of type \"array\" may be too short to assign to a target of type \"array {@minLength(2)}\"."),
+            ("BCP331", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 2."),
         });
     }
 
@@ -612,7 +612,7 @@ param paramB array = paramA
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
-            ("BCP330", DiagnosticLevel.Warning, "A value of type \"array\" may be too long to assign to a target of type \"array {@maxLength(2)}\"."),
+            ("BCP332", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 2."),
         });
     }
 
@@ -620,18 +620,53 @@ param paramB array = paramA
     public void Array_assignments_whose_source_and_target_lengths_are_disjoint_domains_generate_errors()
     {
         var result = CompilationHelper.Compile(@"
-@minLength(0)
-@maxLength(9)
+@minLength(20)
 param paramA array
 
-@minLength(10)
 @maxLength(19)
 param paramB array = paramA
 ");
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
         {
-            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"array {@minLength(10), @maxLength(19)}\" but the provided value is of type \"array {@minLength(0), @maxLength(9)}\"."),
+            ("BCP329", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 20) is too long to assign to a target for which the maximum allowable length is 19."),
+        });
+
+        result = CompilationHelper.Compile(@"
+@maxLength(9)
+param paramA array
+
+@minLength(10)
+param paramB array = paramA
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP330", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10."),
+        });
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param paramA [string, int, bool]
+
+@minLength(10)
+param paramB array = paramA
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP330", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 3) is too short to assign to a target for which the minimum allowable length is 10."),
+        });
+
+        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+param paramA [string, int, bool]
+
+@maxLength(2)
+param paramB array = paramA
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP329", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
         });
     }
 

@@ -8,10 +8,10 @@ namespace Bicep.Core.TypeSystem
     public class TypedArrayType : ArrayType
     {
         public TypedArrayType(ITypeReference itemReference, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
-            : base(null, itemReference, validationFlags, minLength, maxLength) {}
+            : base(FormatTypeName(itemReference), itemReference, validationFlags, minLength, maxLength) {}
 
         public TypedArrayType(string name, ITypeReference itemReference, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
-            : base(ApplyRefinementsToName(name, minLength, maxLength), itemReference, validationFlags, minLength, maxLength) {}
+            : base(name, itemReference, validationFlags, minLength, maxLength) {}
 
         public override IEnumerable<Symbol> Descendants
         {
@@ -20,5 +20,11 @@ namespace Bicep.Core.TypeSystem
                 yield return this.Item.Type;
             }
         }
+
+        private static string FormatTypeName(ITypeReference itemReference) => itemReference.Type switch
+        {
+            TypeSymbol typeSymbol when ReferenceEquals(typeSymbol, LanguageConstants.Any) => LanguageConstants.ArrayType,
+            TypeSymbol otherwise => $"{itemReference.Type.FormatNameForCompoundTypes()}[]",
+        };
     }
 }

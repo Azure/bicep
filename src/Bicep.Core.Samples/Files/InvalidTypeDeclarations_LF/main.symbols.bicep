@@ -24,7 +24,7 @@ type disallowedUnion = 'foo'|21
 //@[5:20) TypeAlias disallowedUnion. Type: error. Declaration start char: 0, length: 31
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
-//@[5:28) TypeAlias validStringLiteralUnion. Type: Type<('bar' | 'baz' | 'foo')>. Declaration start char: 0, length: 48
+//@[5:28) TypeAlias validStringLiteralUnion. Type: Type<'bar' | 'baz' | 'foo'>. Declaration start char: 0, length: 48
 
 type validUnionInvalidAddition = validStringLiteralUnion|10
 //@[5:30) TypeAlias validUnionInvalidAddition. Type: error. Declaration start char: 0, length: 59

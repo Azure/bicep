@@ -29,16 +29,16 @@ type foo = {
   ]
 })
 type bar = int[][][][]
-//@[5:08) TypeAlias bar. Type: Type<int[][][][] {@minLength(3)}>. Declaration start char: 0, length: 163
+//@[5:08) TypeAlias bar. Type: Type<int[][][][]>. Declaration start char: 0, length: 163
 
 type aUnion = 'snap'|'crackle'|'pop'
-//@[5:11) TypeAlias aUnion. Type: Type<('crackle' | 'pop' | 'snap')>. Declaration start char: 0, length: 36
+//@[5:11) TypeAlias aUnion. Type: Type<'crackle' | 'pop' | 'snap'>. Declaration start char: 0, length: 36
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
-//@[5:18) TypeAlias expandedUnion. Type: Type<('buzz' | 'crackle' | 'fizz' | 'pop' | 'snap')>. Declaration start char: 0, length: 47
+//@[5:18) TypeAlias expandedUnion. Type: Type<'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap'>. Declaration start char: 0, length: 47
 
 type tupleUnion = ['foo', 'bar', 'baz']
-//@[5:15) TypeAlias tupleUnion. Type: Type<(['fizz', 'buzz'] | ['foo', 'bar', 'baz'] | ['snap', 'crackle', 'pop'])>. Declaration start char: 0, length: 85
+//@[5:15) TypeAlias tupleUnion. Type: Type<['fizz', 'buzz'] | ['foo', 'bar', 'baz'] | ['snap', 'crackle', 'pop']>. Declaration start char: 0, length: 85
 |['fizz', 'buzz']
 |['snap', 'crackle', 'pop']
 

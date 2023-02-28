@@ -137,7 +137,7 @@ namespace Bicep.Core.TypeSystem
                         (!sourceString.MinLength.HasValue || sourceString.MinLength.Value <= targetStringLiteral.RawStringValue.Length) &&
                         (!sourceString.MaxLength.HasValue || sourceString.MaxLength.Value >= targetStringLiteral.RawStringValue.Length);
 
-                case (IntegerType sourceInt, IntegerLiteralType targetIntLiteral):
+                case (IntegerType, IntegerLiteralType):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
 
                 case (PrimitiveType, BooleanLiteralType):
@@ -147,7 +147,7 @@ namespace Bicep.Core.TypeSystem
                     return (!targetString.MinLength.HasValue || sourceStringLiteral.RawStringValue.Length >= targetString.MinLength.Value) &&
                         (!targetString.MaxLength.HasValue || sourceStringLiteral.RawStringValue.Length <= targetString.MaxLength.Value);
 
-                case (IntegerLiteralType sourceIntLiteral, IntegerType targetInt):
+                case (IntegerLiteralType, IntegerType):
                     // integer literals can be assigned to ints
                     return true;
 
@@ -170,8 +170,7 @@ namespace Bicep.Core.TypeSystem
                 case (ArrayType sourceArray, ArrayType targetArray):
                     // both types are arrays
                     // this function does not validate item types
-                    return (targetArray.MinLength ?? long.MinValue) <= (sourceArray.MaxLength ?? long.MaxValue) &&
-                        (targetArray.MaxLength ?? long.MaxValue) >= (sourceArray.MinLength ?? long.MinValue);
+                    return true;
 
                 case (ObjectType, ObjectType):
                 case (DiscriminatedObjectType, DiscriminatedObjectType):
@@ -402,9 +401,26 @@ namespace Bicep.Core.TypeSystem
                 {
                     var expressionMinLength = expressionArrayType.MinLength ?? 0;
                     var targetMinLength = targetArrayType.MinLength ?? 0;
+                    var expressionMaxLength = expressionArrayType.MaxLength ?? long.MaxValue;
+                    var targetMaxLength = targetArrayType.MaxLength ?? long.MaxValue;
+
+                    if (expressionMinLength > targetMaxLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionMinLength, targetMaxLength));
+                        return expressionType;
+                    }
+
+                    if (expressionMaxLength < targetMinLength)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionMaxLength, targetMinLength));
+                        return expressionType;
+                    }
+
                     if (expressionMinLength < targetMinLength)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.Name, targetArrayType.Name));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.MinLength, targetMinLength));
                     }
                     narrowedMinLength = Math.Max(expressionMinLength, targetMinLength) switch
                     {
@@ -412,11 +428,9 @@ namespace Bicep.Core.TypeSystem
                         long otherwise => otherwise,
                     };
 
-                    var expressionMaxLength = expressionArrayType.MaxLength ?? long.MaxValue;
-                    var targetMaxLength = targetArrayType.MaxLength ?? long.MaxValue;
                     if (expressionMaxLength > targetMaxLength)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionType.Name, targetType.Name));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionArrayType.MaxLength, targetMaxLength));
                     }
                     narrowedMaxLength = Math.Min(expressionMaxLength, targetMaxLength) switch {
                         long.MaxValue => null,
