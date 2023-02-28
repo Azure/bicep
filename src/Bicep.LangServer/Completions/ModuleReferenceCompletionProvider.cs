@@ -90,7 +90,7 @@ namespace Bicep.LanguageServer.Completions
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(insertionText)
-                    .WithSortText(GetSortText(text, CompletionPriority.Low))
+                    .WithSortText(GetSortText(text, CompletionPriority.VeryHigh))
                     .WithSnippetEdit(context.ReplacementRange, insertionText)
                     .WithDetail(kvp.Value)
                     .Build();
@@ -526,7 +526,7 @@ namespace Bicep.LanguageServer.Completions
                         var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                             .WithFilterText(insertText)
                             .WithSnippetEdit(context.ReplacementRange, insertText)
-                            .WithSortText(GetSortText(label, CompletionPriority.Medium))
+                            .WithSortText(GetSortText(label, CompletionPriority.High))
                             .Build();
                         completions.Add(completionItem);
 

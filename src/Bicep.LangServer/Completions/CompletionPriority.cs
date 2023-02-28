@@ -9,6 +9,8 @@ namespace Bicep.LanguageServer.Completions
     /// <remarks>The enum values are used to calculate completion sortText.</remarks>
     public enum CompletionPriority
     {
+        VeryHigh = 0,
+
         High = 1,
 
         Medium = 2,
