@@ -8,16 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Azure.ResourceManager;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Completions
@@ -37,10 +33,12 @@ namespace Bicep.LanguageServer.Completions
             {"ts:", ("Template spec schema name", CompletionPriority.VeryHigh) }
         }.ToImmutableDictionary();
 
-        private static readonly Regex ACRModuleRegistryWithoutAlias = new Regex(@"br:(?<registry>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithoutAlias = new Regex(@"br:(?<registry>(.*?))/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex MCRModuleRegistryWithAlias = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
-        private static readonly Regex MCRModuleRegistryWithoutAlias = new Regex(@"br:MCR.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex MCRModuleRegistryWithoutAlias = new Regex($"br:{MCRRegistry}/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex ModuleRegistryAliasWithPath = new Regex(@"'br/(.*):(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+
+        private const string MCRRegistry = "mcr.microsoft.com";
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider,
@@ -168,7 +166,7 @@ namespace Bicep.LanguageServer.Completions
             foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
             {
                 if (kvp.Value.Registry is string registry &&
-                    registry.Equals("mcr.microsoft.com", StringComparison.Ordinal))
+                    registry.Equals(MCRRegistry, StringComparison.Ordinal))
                 {
                     var aliasFromBicepConfig = $"'br/{kvp.Key}:";
                     var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
@@ -228,9 +226,9 @@ namespace Bicep.LanguageServer.Completions
             }
 
             if (replacementText == "'br/public:'" ||
-                replacementText == "'br:mcr.microsoft.com/bicep/'" ||
+                replacementText == $"'br:{MCRRegistry}/bicep/'" ||
                 replacementText == "'br/public:" ||
-                replacementText == "'br:mcr.microsoft.com/bicep/")
+                replacementText == $"'br:{MCRRegistry}/bicep/")
             {
                 return await GetPublicMCRPathCompletions(replacementText, context);
             }
@@ -245,6 +243,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
         private async Task<IEnumerable<CompletionItem>> GetMCRPathCompletionFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
         {
@@ -252,7 +251,7 @@ namespace Bicep.LanguageServer.Completions
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            if (ACRModuleRegistryWithoutAlias.IsMatch(replacementTextWithTrimmedEnd))
+            if (IsAcrRegistryReference(replacementTextWithTrimmedEnd, out _))
             {
                 return completions;
             }
@@ -269,7 +268,7 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
-                    if (registry.Equals("mcr.microsoft.com", StringComparison.Ordinal) &&
+                    if (registry.Equals(MCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
                         var modulePath = kvp.Value.ModulePath;
@@ -358,32 +357,37 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
+        private bool IsAcrRegistryReference(string replacementTextWithTrimmedEnd, out string? registry)
+        {
+            registry = null;
+
+            if (ModuleRegistryWithoutAlias.IsMatch(replacementTextWithTrimmedEnd))
+            {
+                var matches = ModuleRegistryWithoutAlias.Matches(replacementTextWithTrimmedEnd);
+                if (!matches.Any())
+                {
+                    return false;
+                }
+                registry = matches[0].Groups["registry"].Value;
+
+                return !registry.Equals(MCRRegistry, StringComparison.Ordinal);
+            }
+
+            return false;
+        }
+
         // We only support partial path completions for ACR using module paths listed in bicepconfig.json
         private IEnumerable<CompletionItem> GetACRPartialPathCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
-            if (!ACRModuleRegistryWithoutAlias.IsMatch(replacementTextWithTrimmedEnd))
+            if (!IsAcrRegistryReference(replacementTextWithTrimmedEnd, out string? registry) || string.IsNullOrWhiteSpace(registry))
             {
                 return completions;
             }
 
             telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
-
-            var matches = ACRModuleRegistryWithoutAlias.Matches(replacementTextWithTrimmedEnd);
-
-            if (!matches.Any())
-            {
-                return completions;
-            }
-
-            var registry = matches[0].Groups["registry"].Value;
-
-            if (registry is null)
-            {
-                return completions;
-            }
 
             foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
             {
@@ -466,7 +470,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else if (replacementTextWithTrimmedEnd == "'br:")
             {
-                var label = "mcr.microsoft.com/bicep";
+                var label = $"{MCRRegistry}/bicep";
                 var insertText = $"{replacementTextWithTrimmedEnd}{label}/$0'";
                 var mcrCompletionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                     .WithFilterText(insertText)
@@ -529,7 +533,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 var label = kvp.Value.Registry;
 
-                if (label is not null && !label.Equals("mcr.microsoft.com", StringComparison.Ordinal))
+                if (label is not null && !label.Equals(MCRRegistry, StringComparison.Ordinal))
                 {
                     if (!aliases.TryGetValue(label, out _))
                     {
