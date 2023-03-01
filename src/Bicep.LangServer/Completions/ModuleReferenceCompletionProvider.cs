@@ -15,6 +15,7 @@ using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -114,10 +115,20 @@ namespace Bicep.LanguageServer.Completions
             return completionItems;
         }
 
+        private bool IsOciModuleRegistryReference(string replacementText)
+        {
+            if (replacementText.StartsWith("'br/") || replacementText.StartsWith("'br:"))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         // Handles version completions for Microsoft Container Registries(MCR).
         private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
+            if (!IsOciModuleRegistryReference(replacementText))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -224,7 +235,7 @@ namespace Bicep.LanguageServer.Completions
         // Handles path completions.
         private async Task<IEnumerable<CompletionItem>> GetPathCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
+            if (!IsOciModuleRegistryReference(replacementText))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -451,7 +462,7 @@ namespace Bicep.LanguageServer.Completions
         {
             var completions = new List<CompletionItem>();
 
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.OciModuleRegistryReference))
+            if (!IsOciModuleRegistryReference(replacementText))
             {
                 return completions;
             }
