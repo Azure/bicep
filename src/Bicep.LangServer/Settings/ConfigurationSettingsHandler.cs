@@ -20,7 +20,7 @@ namespace Bicep.LanguageServer.Settings
     /// <summary>
     /// Handles settings change notification from client.
     /// </summary>
-    public class ConfigurationSettingsHandler: IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
+    public class ConfigurationSettingsHandler : IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
     {
         private readonly ISettingsProvider settingsProvider;
 
@@ -33,13 +33,20 @@ namespace Bicep.LanguageServer.Settings
         {
             var jObject = JObject.FromObject(request);
 
-            // We currently only require - IncludeAllAccessibleAzureContainerRegistriesForCompletions settings information for module registry
+            // We currently only require - EnableModuleRegistryReferenceCompletion and IncludeAllAccessibleAzureContainerRegistriesForCompletions settings information for module registry
             // reference completion scenarios
             if (jObject["settings"] is JObject settingsObject &&
                 settingsObject["bicep"] is JObject bicepObject &&
-                bicepObject["IncludeAllAccessibleAzureContainerRegistriesForCompletions"] is JToken jToken)
+                bicepObject["experimental"] is JObject experimentalObject)
             {
-                settingsProvider.AddOrUpdateSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting, jToken.Value<bool>());
+                if (experimentalObject[LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting] is JToken includeAllAccessibleAzureContainerRegistriesForCompletionsSettingToken)
+                {
+                    settingsProvider.AddOrUpdateSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting, includeAllAccessibleAzureContainerRegistriesForCompletionsSettingToken.Value<bool>());
+                }
+                if (experimentalObject[LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting] is JToken enableModuleRegistryReferenceCompletionJToken)
+                {
+                    settingsProvider.AddOrUpdateSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting, enableModuleRegistryReferenceCompletionJToken.Value<bool>());
+                }
             }
 
             return Unit.Task;
