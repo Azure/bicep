@@ -139,7 +139,7 @@ var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("never[]"),
                 x => x.Type.Name.Should().Be("never"),
-                x => x.Type.Name.Should().Be("string {@minLength(4)}[]"),
+                x => x.Type.Name.Should().Be("string[]"),
                 x => x.Type.Name.Should().Be("any"));
         }
 
@@ -197,9 +197,9 @@ var fo|o2 = filter(['abc', 'def'], a|bc => abc == '123')
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("123[] {@maxLength(1)}"),
+                x => x.Type.Name.Should().Be("123[]"),
                 x => x.Type.Name.Should().Be("123"),
-                x => x.Type.Name.Should().Be("('abc' | 'def')[] {@maxLength(2)}"),
+                x => x.Type.Name.Should().Be("('abc' | 'def')[]"),
                 x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }
 
@@ -217,9 +217,9 @@ var fo|o2 = sort(['bar', 'foo'], (abc, def) => abc < d|ef)
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("123[] {@minLength(1), @maxLength(1)}"),
+                x => x.Type.Name.Should().Be("123[]"),
                 x => x.Type.Name.Should().Be("123"),
-                x => x.Type.Name.Should().Be("('bar' | 'foo')[] {@minLength(2), @maxLength(2)}"),
+                x => x.Type.Name.Should().Be("('bar' | 'foo')[]"),
                 x => x.Type.Name.Should().Be("'bar' | 'foo'"));
         }
 
