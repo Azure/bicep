@@ -740,13 +740,16 @@ namespace Bicep.LangServer.UnitTests.Completions
 }";
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
 
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-cntrapp1", "app/dapr-cntrapp2" });
+
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistryNamesProvider,
                 new ConfigurationManager(new IOFileSystem()),
-                publicRegistryModuleMetadataProvider,
+                publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 telemetryProvider.Object);
             await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
