@@ -629,6 +629,22 @@ param myParam 'foo' | 'bar'
     }
 
     [TestMethod]
+    public void Type_aliases_incorporate_modifiers_into_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@maxLength(2)
+type shortString = string
+
+param myString shortString = 'foo'
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+        });
+    }
+
+    [TestMethod]
     public void Impossible_integer_domains_raise_descriptive_error()
     {
         var result = CompilationHelper.Compile(@"

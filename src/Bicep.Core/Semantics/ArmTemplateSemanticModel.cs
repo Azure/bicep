@@ -156,12 +156,13 @@ namespace Bicep.Core.Semantics
                 var bicepType = resolved.Type.Value switch
                 {
                     TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(resolved.Metadata?.Value, out var resourceType) => resourceType,
-                    TemplateParameterType.String => GetPrimitiveType(resolved, t => t.IsTextBasedJTokenType(), LanguageConstants.TypeNameString, allowLooseAssignment ? LanguageConstants.LooseString : LanguageConstants.String),
+                    TemplateParameterType.String => GetStringType(resolved, allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : default),
                     TemplateParameterType.Int => GetIntegerType(resolved, allowLooseAssignment),
                     TemplateParameterType.Bool => GetPrimitiveType(resolved, t => t.Type == JTokenType.Boolean, LanguageConstants.TypeNameBool, allowLooseAssignment ? LanguageConstants.LooseBool : LanguageConstants.Bool),
                     TemplateParameterType.Array => GetArrayType(resolved),
                     TemplateParameterType.Object => GetObjectType(SourceFile.Template!, resolved),
-                    TemplateParameterType.SecureString => LanguageConstants.SecureString,
+                    TemplateParameterType.SecureString => GetStringType(resolved,
+                        TypeSymbolValidationFlags.IsSecure & (allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default)),
                     TemplateParameterType.SecureObject => GetObjectType(SourceFile.Template!, resolved, TypeSymbolValidationFlags.IsSecure),
                     _ => ErrorType.Empty(),
                 };
@@ -245,6 +246,16 @@ namespace Bicep.Core.Semantics
                 allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default);
         }
 
+        private static TypeSymbol GetStringType(ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
+        {
+            if (schemaNode.AllowedValues?.Value is JArray jArray)
+            {
+                return TryGetLiteralUnionType(jArray, t => t.IsTextBasedJTokenType(), b => b.InvalidUnionTypeMember(LanguageConstants.TypeNameString));
+            }
+
+            return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, flags);
+        }
+
         private TypeSymbol GetArrayType(ITemplateSchemaNode schemaNode)
         {
             if (schemaNode.AllowedValues?.Value is JArray allowedValues)
@@ -274,13 +285,13 @@ namespace Bicep.Core.Semantics
                     return new TypedArrayType($"{typeName}[]", type, default);
                 }
 
-                return new TypedArrayType(GetType(items), default);
+                return new TypedArrayType(GetType(items), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
             }
 
             // TODO it's possible to encounter an array with a defined prefix and either a schema or a boolean for "items."
             // TupleType does not support an "AdditionalItemsType" for items after the tuple, but when it does, update this type reader to handle the combination of "items" and "prefixItems"
 
-            return LanguageConstants.Array;
+            return TypeFactory.CreateArrayType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
         }
 
         private static TypeSymbol GetArrayLiteralType(JArray allowedValues)

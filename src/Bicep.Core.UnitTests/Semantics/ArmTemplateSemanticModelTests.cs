@@ -146,13 +146,21 @@ public class ArmTemplateSemanticModelTests
                   ""items"": {
                     ""type"": ""object"",
                     ""properties"": {
-                      ""foo"": { ""type"": ""string"" },
+                      ""foo"": {
+                        ""type"": ""string"",
+                        ""minLength"": 2,
+                        ""maxLength"": 4
+                      },
                       ""bar"": {
                         ""type"": ""int"",
                         ""minValue"": 1,
                         ""maxValue"": 10
                       },
-                      ""baz"": { ""type"": ""bool"" }
+                      ""baz"": {
+                        ""type"": ""array"",
+                        ""minLength"": 6,
+                        ""maxLength"": 8
+                      }
                     }
                   }
                 }
@@ -169,12 +177,9 @@ public class ArmTemplateSemanticModelTests
 
         var properties = parameterType.As<TypedArrayType>().Item.As<ObjectType>().AdditionalPropertiesType.As<TypedArrayType>().Item.As<ObjectType>().Properties;
         properties.Should().HaveCount(3);
-        properties["foo"].TypeReference.Type.Should().BeOfType<StringType>();
-        properties["bar"].TypeReference.Type.Should().BeOfType<IntegerType>();
-        properties["bar"].TypeReference.Type.As<IntegerType>().MinValue.Should().Be(1);
-        properties["bar"].TypeReference.Type.As<IntegerType>().MaxValue.Should().Be(10);
-        properties["baz"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["baz"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
+        properties["foo"].TypeReference.Type.Should().Be(TypeFactory.CreateStringType(minLength: 2, maxLength: 4));
+        properties["bar"].TypeReference.Type.Should().Be(TypeFactory.CreateIntegerType(minValue: 1, maxValue: 10));
+        properties["baz"].TypeReference.Type.Should().Be(TypeFactory.CreateArrayType(minLength: 6, maxLength: 8));
     }
 
     [TestMethod]

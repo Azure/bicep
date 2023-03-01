@@ -217,7 +217,7 @@ namespace Bicep.Core.TypeSystem
             var typeRefType = type switch
             {
                 ErrorType => type,
-                _ => new TypeType(ApplyTypeModifyingDecorators(type, syntax)),
+                _ => new TypeType(type),
             };
 
             return new(typeRefType, syntax);
@@ -235,7 +235,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type;
+            return ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type, symbol.DeclaringType);
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
@@ -260,6 +260,8 @@ namespace Bicep.Core.TypeSystem
             return declaredType switch
             {
                 _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
+                _ when TypeHelper.TryRemoveNullability(declaredType) is {} nonNullable
+                    => TypeHelper.CreateTypeUnion(LanguageConstants.Null, ApplyTypeModifyingDecorators(nonNullable, syntax, validationFlags)),
                 IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
                 // minLength/maxLength on a tuple are superfluous.
                 TupleType declaredTuple => declaredTuple,
