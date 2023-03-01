@@ -72,7 +72,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         var fix = fixable.Fixes.First();
 
                         fix.Kind.Should().Be(CodeFixKind.QuickFix);
-                        fix.Description.Should().Be(expected.ExpectedFixTitle);
+                        fix.Title.Should().Be(expected.ExpectedFixTitle);
 
                         fix.Replacements.Should().HaveCount(1, "Expecting 1 replacement");
                         var replacement = fix.Replacements.First();

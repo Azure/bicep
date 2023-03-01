@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class UseParentPropertyRuleTests : LinterRuleTestsBase
 {
     private void AssertCodeFix(string inputFile, string resultFile)
-        => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property.", inputFile, resultFile);
+        => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property", inputFile, resultFile);
 
     private void AssertNoDiagnostics(string inputFile)
         => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, new string[] { }, new Options(OnCompileErrors.Ignore, IncludePosition.None));
@@ -185,6 +185,30 @@ resource parent 'Microsoft.Network/networkInterfaces@2022-07-01' = {
 resource child 'Microsoft.Network/networkInterfaces/ipConfigurations@2022-07-01' existing = {
   parent: parent
   name: '${a}'
+}
+");
+
+    [TestMethod]
+    public void Codefix_handles_parent_dot_name_expression() => AssertCodeFix(@"
+param stgName string
+
+resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: stgName
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  name: '${stg.name}/bl|ah'
+}
+", @"
+param stgName string
+
+resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: stgName
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  parent: stg
+  name: 'blah'
 }
 ");
 }

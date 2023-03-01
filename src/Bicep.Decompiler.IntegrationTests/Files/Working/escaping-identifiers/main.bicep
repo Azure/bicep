@@ -11,8 +11,7 @@ var _doNotStripUnderscoresFromUserNames__var = '_doNotStripUnderscoresFromUserNa
 module nestedInnerDeployment './nested_nestedInnerDeployment.bicep' = {
   name: 'nestedInnerDeployment'
   params: {
-    '_doNotStripUnderscoresFromUserNames_': _doNotStripUnderscoresFromUserNames_
-//@[4:42) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'_doNotStripUnderscoresFromUserNames_'|
+    _doNotStripUnderscoresFromUserNames_: _doNotStripUnderscoresFromUserNames_
   }
 }
 

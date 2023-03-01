@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.0": {
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
-        "requested": "[0.1.13, )",
-        "resolved": "0.1.13",
-        "contentHash": "l9bZLZxtzNF33jexI8o9IKUoxenIh9rqO96ApaZ0AoXhPe0OL7tJ+fwsNHIOk4f1Ysyq85+A0kbzef2wQLd9Cw=="
+        "requested": "[0.1.31, )",
+        "resolved": "0.1.31",
+        "contentHash": "j/l71hjQxU3v5CqLpvw+ZkfcsQchWVOqWBjH9/LcyPvuiqNVmNNYOoQ17UjAVZA8AeYV1dFVPyR+c/wVaDIFXA=="
       },
       "Microsoft.Build.Framework": {
         "type": "Direct",

@@ -4,7 +4,7 @@
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
     <!-- Ensure the package supports multi-targeting -->
-    <TargetFrameworks>net6.0;net472</TargetFrameworks>
+    <TargetFrameworks>net7.0;net472</TargetFrameworks>
     <LanguageTargets>$(MSBuildThisFileDirectory)\multitarget-mitigation.targets</LanguageTargets> <!-- https://github.com/microsoft/MSBuildSdks/issues/155 -->
     <BicepOutputPath>bin\$(Configuration)\templates\$(TargetFramework)</BicepOutputPath>
   </PropertyGroup>

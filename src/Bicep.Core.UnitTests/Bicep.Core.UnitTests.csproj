@@ -16,7 +16,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.1.5" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.1.18" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +27,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
       <Link>bicepconfig.schema.json</Link>
+      <WithCulture>false</WithCulture>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

@@ -5,6 +5,9 @@
     <EnableNuget>true</EnableNuget>
     <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
     <Description>Bicep compiler decompile functionality</Description>
+
+    <!-- enable trimmer warnings for Bicep CLI and projects it references -->
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>

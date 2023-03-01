@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1315) ProgramExpression
+//@[00:1371) ProgramExpression
 @sealed()
 type foo = {
   @minLength(3)
@@ -11,14 +11,14 @@ type foo = {
     @minValue(1)
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
 
   literalProp: 'literal'
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -99,4 +99,8 @@ var maybeNull = mightIncludeNull[0]!.key
 //@[33:0034)     | ├─IntegerLiteralExpression { Value = 0 }
 //@[16:0032)     | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
 //@[37:0040)     └─StringLiteralExpression { Value = key }
+
+type nullable = string?
+
+type nonNullable = nullable!
 

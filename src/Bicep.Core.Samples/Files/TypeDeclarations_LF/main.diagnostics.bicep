@@ -10,14 +10,14 @@ type foo = {
     @minValue(1)
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
 
   literalProp: 'literal'
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -78,4 +78,8 @@ param mightIncludeNull ({key: 'value'} | null)[]
 
 var maybeNull = mightIncludeNull[0]!.key
 //@[4:13) [no-unused-vars (Warning)] Variable "maybeNull" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |maybeNull|
+
+type nullable = string?
+
+type nonNullable = nullable!
 

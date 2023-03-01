@@ -346,7 +346,7 @@ namespace Bicep.Core.Semantics
                     var (type, typeName) = GetDeferrableTypeInfo(schema);
 
                     properties.Add(new(propertyName, type, flags, description));
-                    nameBuilder.AppendProperty(propertyName, typeName, isOptional: !required);
+                    nameBuilder.AppendProperty(propertyName, typeName);
                 }
             }
 

@@ -24,22 +24,21 @@ type sealedDictionary = {
 }
 
 type disallowedUnion = 'foo'|21
-//@[29:31) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'string' type. (CodeDescription: none) |21|
+//@[23:31) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |'foo'|21|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 
 type validUnionInvalidAddition = validStringLiteralUnion|10
-//@[57:59) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'string' type. (CodeDescription: none) |10|
+//@[33:59) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |validStringLiteralUnion|10|
 
 type invalidUnionInvalidAddition = disallowedUnion|true
-//@[35:50) [BCP062 (Error)] The referenced declaration with name "disallowedUnion" is not valid. (CodeDescription: none) |disallowedUnion|
+//@[35:55) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |disallowedUnion|true|
 
 type nullLiteral = null
 //@[19:23) [BCP289 (Error)] The type definition is not valid. (CodeDescription: none) |null|
 
 type unionOfNulls = null|null
-//@[20:24) [BCP289 (Error)] The type definition is not valid. (CodeDescription: none) |null|
-//@[25:29) [BCP289 (Error)] The type definition is not valid. (CodeDescription: none) |null|
+//@[20:29) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |null|null|
 
 @minLength(3)
 //@[00:13) [BCP124 (Error)] The decorator "minLength" can only be attached to targets of type "array | string", but the target has type "int". (CodeDescription: none) |@minLength(3)|
@@ -54,10 +53,10 @@ type tautology = tautology
 
 type tautologicalUnion = tautologicalUnion|'foo'
 //@[05:22) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |tautologicalUnion|
+//@[25:42) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |tautologicalUnion|
 
 type tautologicalArray = tautologicalArray[]
 //@[05:22) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |tautologicalArray|
-//@[25:42) [BCP062 (Error)] The referenced declaration with name "tautologicalArray" is not valid. (CodeDescription: none) |tautologicalArray|
 
 type directCycleStart = directCycleReturn
 //@[05:21) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("directCycleStart" -> "directCycleReturn"). (CodeDescription: none) |directCycleStart|
@@ -91,11 +90,9 @@ type objectWithInvalidPropertyDecorators = {
 type objectWithInvalidRecursion = {
 //@[05:31) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |objectWithInvalidRecursion|
   requiredAndRecursiveProp: objectWithInvalidRecursion
-//@[28:54) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 }
 
 type arrayWithInvalidMember = objectWithInvalidRecursion[]
-//@[30:56) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 
 @sealed()
 //@[00:09) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (CodeDescription: none) |@sealed()|
@@ -104,9 +101,8 @@ param sealedStringParam string
 
 param disallowedUnionParam 'foo'|-99
 //@[06:26) [no-unused-params (Warning)] Parameter "disallowedUnionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |disallowedUnionParam|
-//@[33:36) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'string' type. (CodeDescription: none) |-99|
+//@[27:36) [BCP294 (Error)] Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool'). (CodeDescription: none) |'foo'|-99|
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[06:37) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectWithInvalidRecursionParam|
-//@[38:64) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 

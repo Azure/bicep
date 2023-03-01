@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             x.Should().BeEquivalentTo(
                 new
                 {
-                    Description = "Create new parameter 'location' with default value 'non-global'",
+                    Title = "Create new parameter 'location' with default value 'non-global'",
                     Replacements = new[] {
                         // Replacement 1: change 'non-global' to 'location'
                         new { Text = "location" },
@@ -118,7 +118,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             x.Should().BeEquivalentTo(
                 new
                 {
-                    Description = "Create new parameter 'location5' with default value 'non-global'",
+                    Title = "Create new parameter 'location5' with default value 'non-global'",
                     Replacements = new[] {
                         // Replacement 1: change 'non-global' to 'location5'
                         new { Text = "location5" },

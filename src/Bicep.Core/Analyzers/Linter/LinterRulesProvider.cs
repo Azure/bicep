@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Analyzers.Interfaces;
@@ -22,6 +23,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.linterRulesLazy = new Lazy<ImmutableDictionary<string, string>>(() => GetLinterRulesInternal().ToImmutableDictionary());
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "List of types comes from a source analyzer")]
         private Dictionary<string, string> GetLinterRulesInternal()
         {
             var rules = new Dictionary<string, string>();

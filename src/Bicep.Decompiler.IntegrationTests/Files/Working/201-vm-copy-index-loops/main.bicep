@@ -172,6 +172,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
       adminUsername: adminUsername
       adminPassword: adminPasswordOrKey
       linuxConfiguration: ((authenticationType == 'password') ? json('null') : linuxConfiguration)
+//@[64:76) [simplify-json-null (Warning)] Simplify json('null') to null (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-json-null)) |json('null')|
     }
     storageProfile: {
       imageReference: imageReference[OS]
@@ -189,7 +190,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   }
   dependsOn: [
     resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
-//@[4:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+//@[04:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
     availabilitySet
   ]
 }]

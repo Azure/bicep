@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.10" />
     <PackageReference Include="System.Net.Http.Json" Version="7.0.0" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.1.5" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.1.18" />
   </ItemGroup>
 
   <ItemGroup>

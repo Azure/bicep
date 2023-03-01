@@ -10,16 +10,13 @@ namespace Bicep.Core.Syntax;
 
 public class ObjectTypePropertySyntax : DecorableSyntax
 {
-    public ObjectTypePropertySyntax(IEnumerable<SyntaxBase> leadingNodes, SyntaxBase key, SyntaxBase? optionalityMarker, SyntaxBase colon, SyntaxBase value) : base(leadingNodes)
+    public ObjectTypePropertySyntax(IEnumerable<SyntaxBase> leadingNodes, SyntaxBase key, SyntaxBase colon, SyntaxBase value) : base(leadingNodes)
     {
         AssertSyntaxType(key, nameof(key), typeof(IdentifierSyntax), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
-        AssertSyntaxType(optionalityMarker, nameof(optionalityMarker), typeof(Token));
-        AssertTokenType(optionalityMarker as Token, nameof(optionalityMarker), TokenType.Question);
         AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
         AssertTokenType(colon as Token, nameof(colon), TokenType.Colon);
 
         Key = key;
-        OptionalityMarker = optionalityMarker;
         Colon = colon;
         Value = value;
     }
@@ -34,8 +31,6 @@ public class ObjectTypePropertySyntax : DecorableSyntax
     };
 
     public SyntaxBase Key { get; }
-
-    public SyntaxBase? OptionalityMarker { get; }
 
     public SyntaxBase Colon { get; }
 

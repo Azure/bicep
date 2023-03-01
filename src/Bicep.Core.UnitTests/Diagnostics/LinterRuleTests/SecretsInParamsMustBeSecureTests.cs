@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var fixable = diag.Should().BeAssignableTo<IBicepAnalyerFixableDiagnostic>().Which;
             fixable.Fixes.Should().HaveCount(1);
             var fix = fixable.Fixes.First();
-            fix.Description.Should().Be("Mark parameter as secure");
+            fix.Title.Should().Be("Mark parameter as secure");
             fix.Kind.Should().Be(CodeFixKind.QuickFix);
             fix.Replacements.Should().HaveCount(1);
             fix.Replacements.First().Text.Should().Be("@secure()\n");

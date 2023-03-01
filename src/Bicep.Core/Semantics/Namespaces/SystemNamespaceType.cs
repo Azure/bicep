@@ -267,8 +267,8 @@ namespace Bicep.Core.Semantics.Namespaces
                         _ => minLength,
                     }));
                 }), LanguageConstants.String)
-                .WithGenericDescription("Joins multiple values into a single string, separated using a delimiter.")
-                .WithRequiredParameter("inputArray", new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), TypeSymbolValidationFlags.Default), "An array of values to join.")
+                .WithGenericDescription("Joins multiple strings into a single string, separated using a delimiter.")
+                .WithRequiredParameter("inputArray", new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), TypeSymbolValidationFlags.Default), "An array of strings to join.")
                 .WithRequiredParameter("delimiter", LanguageConstants.String, "The delimiter to use to join the string.")
                 .Build();
 
@@ -758,19 +758,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Array)
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to an array.")
                 .Build();
-
-            yield return new FunctionOverloadBuilder("coalesce")
-                .WithReturnType(LanguageConstants.Any)
-                .WithGenericDescription("Returns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null.")
-                .WithVariableParameter("arg", LanguageConstants.Any, minimumCount: 1, "The value to coalesce")
-                .Build();
-
-            // TODO: Requires number type
-            //yield return new FunctionOverloadBuilder("float")
-            //    .WithReturnType(LanguageConstants.Number)
-            //    .WithDescription("Converts the value to a floating point number. You only use this function when passing custom parameters to an application, such as a Logic App.")
-            //    .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to a floating point number.")
-            //    .Build();
 
             yield return new FunctionOverloadBuilder("bool")
                 .WithReturnType(LanguageConstants.Bool)
@@ -1306,9 +1293,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => null,
             };
 
+            static SyntaxBase? UnwrapNullableSyntax(SyntaxBase? maybeNullable) => maybeNullable switch
+            {
+                NullableTypeSyntax nullable => nullable.Base,
+                var otherwise => otherwise,
+            };
+
             static void EmitDiagnosticIfTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
-                if (decoratorParentTypeSyntax is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
+                if (UnwrapNullableSyntax(decoratorParentTypeSyntax) is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
                 }
@@ -1316,7 +1309,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static void EmitDiagnosticIfTargetingLiteral(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
             {
-                if (IsLiteralSyntax(decoratorParentTypeSyntax, typeManager))
+                if (IsLiteralSyntax(UnwrapNullableSyntax(decoratorParentTypeSyntax), typeManager))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
                 }

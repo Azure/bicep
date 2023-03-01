@@ -99,9 +99,9 @@ namespace Bicep.LangServer.IntegrationTests
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>().ToList();
+            var allFixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>().ToList();
 
-            foreach (var fixable in fixables)
+            foreach (var fixable in allFixables)
             {
                 foreach (var span in GetOverlappingSpans(fixable.Span))
                 {
@@ -127,12 +127,12 @@ namespace Bicep.LangServer.IntegrationTests
                             return f.Span.GetEndPosition() >= span.Position;
                         };
 
-                        var bicepFixes = fixables.Where(spansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
+                        var bicepFixes = allFixables.Where(spansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
                         var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
-                        var bicepFixDescriptions = bicepFixes.Select(f => f.Description);
+                        var bicepFixTitles = bicepFixes.Select(f => f.Title);
                         var quickFixTitles = quickFixList.Select(f => f.CodeAction?.Title);
-                        bicepFixDescriptions.Should().BeEquivalentTo(quickFixTitles);
+                        bicepFixTitles.Should().BeEquivalentTo(quickFixTitles);
 
                         for (int i = 0; i < quickFixList.Count; i++)
                         {
@@ -146,7 +146,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                             bicepFixes.RemoveWhere(fix =>
                             {
-                                if (fix.Description != quickFix.CodeAction.Title)
+                                if (fix.Title != quickFix.CodeAction.Title)
                                 {
                                     return false;
                                 }

@@ -93,6 +93,7 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
+            PrimitiveType { Name: LanguageConstants.NullKeyword } => true,
 
             // A tuple can be a literal only if each item contained therein is also a literal
             TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),
@@ -134,7 +135,7 @@ namespace Bicep.Core.TypeSystem
                 if (TryCreateTypeLiteral(prop.Value) is TypeSymbol propType)
                 {
                     convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required | TypePropertyFlags.DisallowAny));
-                    nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
+                    nameBuilder.AppendProperty(prop.Name, propType.Name);
                 }
                 else
                 {

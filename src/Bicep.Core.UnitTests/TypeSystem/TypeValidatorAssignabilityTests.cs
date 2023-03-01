@@ -259,46 +259,46 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateStringType(1, 10),
                     TypeFactory.CreateStringType(2, 11),
                     TypeFactory.CreateStringType(2, 10),
-                    ("BCP331", DiagnosticLevel.Warning, "The provided value may have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value may have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
 
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateStringType(3, 11),
                     TypeFactory.CreateStringType(2, 10),
                     TypeFactory.CreateStringType(3, 10),
-                    ("BCP332", DiagnosticLevel.Warning, "The provided value may have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value may have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
 
                 // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateStringType(),
                     TypeFactory.CreateStringType(5, 10),
                     TypeFactory.CreateStringType(5, 10),
-                    ("BCP331", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 5."),
-                    ("BCP332", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 10.")),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 5."),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 10.")),
 
                 // A source type whose domain is disjoint from the domain of the target should error and not narrow
                 Row(TypeFactory.CreateStringType(minLength: 10),
                     TypeFactory.CreateStringType(maxLength: 9),
                     TypeFactory.CreateStringType(minLength: 10),
-                    ("BCP329", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
                 Row(TypeFactory.CreateStringType(maxLength: 9),
                     TypeFactory.CreateStringType(minLength: 10),
                     TypeFactory.CreateStringType(maxLength: 9),
-                    ("BCP330", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
                 Row(TypeFactory.CreateStringLiteralType("0123456789"),
                     TypeFactory.CreateStringType(maxLength: 9),
                     TypeFactory.CreateStringLiteralType("0123456789"),
-                    ("BCP329", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
                 Row(TypeFactory.CreateStringLiteralType("012345678"),
                     TypeFactory.CreateStringType(minLength: 10),
                     TypeFactory.CreateStringLiteralType("012345678"),
-                    ("BCP330", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
                 Row(TypeFactory.CreateStringType(minLength: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
                     TypeFactory.CreateStringLiteralType("012345678"),
                     TypeFactory.CreateStringType(minLength: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
-                    ("BCP329", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
                 Row(TypeFactory.CreateStringType(maxLength: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
                     TypeFactory.CreateStringLiteralType("0123456789"),
                     TypeFactory.CreateStringType(maxLength: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
-                    ("BCP330", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
 
                 // A literal source type should narrow to the literal
                 Row(TypeFactory.CreateStringLiteralType("boo!"), LanguageConstants.String, TypeFactory.CreateStringLiteralType("boo!")),
@@ -351,46 +351,46 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateIntegerType(-1, 10),
                     TypeFactory.CreateIntegerType(0, 11),
                     TypeFactory.CreateIntegerType(0, 10),
-                    ("BCP326", DiagnosticLevel.Warning, "The provided value may be as small as -1 and may be too small to assign to a target with a configured minimum of 0.")),
+                    ("BCP329", DiagnosticLevel.Warning, "The provided value may be as small as -1 and may be too small to assign to a target with a configured minimum of 0.")),
 
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateIntegerType(0, 11),
                     TypeFactory.CreateIntegerType(-5, 10),
                     TypeFactory.CreateIntegerType(0, 10),
-                    ("BCP327", DiagnosticLevel.Warning, "The provided value may be as large as 11 and may be too large to assign to a target with a configured maximum of 10.")),
+                    ("BCP330", DiagnosticLevel.Warning, "The provided value may be as large as 11 and may be too large to assign to a target with a configured maximum of 10.")),
 
                 // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateIntegerType(),
                     TypeFactory.CreateIntegerType(-5, 10),
                     TypeFactory.CreateIntegerType(-5, 10),
-                    ("BCP326", DiagnosticLevel.Warning, "The provided value has no configured minimum and may be too small to assign to a target with a configured minimum of -5."),
-                    ("BCP327", DiagnosticLevel.Warning, "The provided value has no configured maximum and may be too large to assign to a target with a configured maximum of 10.")),
+                    ("BCP329", DiagnosticLevel.Warning, "The provided value has no configured minimum and may be too small to assign to a target with a configured minimum of -5."),
+                    ("BCP330", DiagnosticLevel.Warning, "The provided value has no configured maximum and may be too large to assign to a target with a configured maximum of 10.")),
 
                 // A source type whose domain is disjoint from the domain of the target should error and not narrow
                 Row(TypeFactory.CreateIntegerType(minValue: 10),
                     TypeFactory.CreateIntegerType(maxValue: 9),
                     TypeFactory.CreateIntegerType(minValue: 10),
-                    ("BCP324", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
+                    ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
                 Row(TypeFactory.CreateIntegerType(maxValue: 9),
                     TypeFactory.CreateIntegerType(minValue: 10),
                     TypeFactory.CreateIntegerType(maxValue: 9),
-                    ("BCP325", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
                 Row(TypeFactory.CreateIntegerLiteralType(10),
                     TypeFactory.CreateIntegerType(maxValue: 9),
                     TypeFactory.CreateIntegerLiteralType(10),
-                    ("BCP324", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
+                    ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
                 Row(TypeFactory.CreateIntegerLiteralType(9),
                     TypeFactory.CreateIntegerType(minValue: 10),
                     TypeFactory.CreateIntegerLiteralType(9),
-                    ("BCP325", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
                 Row(TypeFactory.CreateIntegerType(minValue: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
                     TypeFactory.CreateIntegerLiteralType(9),
                     TypeFactory.CreateIntegerType(minValue: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
-                    ("BCP324", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
+                    ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
                 Row(TypeFactory.CreateIntegerType(maxValue: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
                     TypeFactory.CreateIntegerLiteralType(10),
                     TypeFactory.CreateIntegerType(maxValue: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
-                    ("BCP325", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
 
                 // A literal source type should narrow to the literal
                 Row(TypeFactory.CreateIntegerLiteralType(0), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(0)),
@@ -535,52 +535,52 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateArrayType(1, 10),
                     TypeFactory.CreateArrayType(2, 11),
                     TypeFactory.CreateArrayType(2, 10),
-                    ("BCP331", DiagnosticLevel.Warning, "The provided value may have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value may have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
 
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateArrayType(3, 11),
                     TypeFactory.CreateArrayType(2, 10),
                     TypeFactory.CreateArrayType(3, 10),
-                    ("BCP332", DiagnosticLevel.Warning, "The provided value may have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value may have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
 
                 // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateArrayType(),
                     TypeFactory.CreateArrayType(5, 10),
                     TypeFactory.CreateArrayType(5, 10),
-                    ("BCP331", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 5."),
-                    ("BCP332", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 10.")),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 5."),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 10.")),
 
                 // A source type whose domain is disjoint from the domain of the target should error and not narrow
                 Row(TypeFactory.CreateArrayType(minLength: 10),
                     TypeFactory.CreateArrayType(maxLength: 9),
                     TypeFactory.CreateArrayType(minLength: 10),
-                    ("BCP329", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
                 Row(TypeFactory.CreateArrayType(maxLength: 9),
                     TypeFactory.CreateArrayType(minLength: 10),
                     TypeFactory.CreateArrayType(maxLength: 9),
-                    ("BCP330", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
                 new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default) switch
                 {
                     TupleType tt => Row(tt,
                         TypeFactory.CreateArrayType(maxLength: tt.Items.Length - 1),
                         tt,
-                        ("BCP329", DiagnosticLevel.Error, $"The provided value (whose length will always be greater than or equal to {tt.Items.Length}) is too long to assign to a target for which the maximum allowable length is {tt.Items.Length - 1}.")),
+                        ("BCP332", DiagnosticLevel.Error, $"The provided value (whose length will always be greater than or equal to {tt.Items.Length}) is too long to assign to a target for which the maximum allowable length is {tt.Items.Length - 1}.")),
                 },
                 new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default) switch
                 {
                     TupleType tt => Row(tt,
                         TypeFactory.CreateArrayType(minLength: tt.Items.Length + 1),
                         tt,
-                        ("BCP330", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {tt.Items.Length}) is too short to assign to a target for which the minimum allowable length is {tt.Items.Length + 1}.")),
+                        ("BCP333", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {tt.Items.Length}) is too short to assign to a target for which the minimum allowable length is {tt.Items.Length + 1}.")),
                 },
                 Row(TypeFactory.CreateArrayType(minLength: LanguageConstants.DeclarationTypes.Count + 1),
                     new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default),
                     TypeFactory.CreateArrayType(minLength: LanguageConstants.DeclarationTypes.Count + 1),
-                    ("BCP329", DiagnosticLevel.Error, $"The provided value (whose length will always be greater than or equal to {LanguageConstants.DeclarationTypes.Count + 1}) is too long to assign to a target for which the maximum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
+                    ("BCP332", DiagnosticLevel.Error, $"The provided value (whose length will always be greater than or equal to {LanguageConstants.DeclarationTypes.Count + 1}) is too long to assign to a target for which the maximum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
                 Row(TypeFactory.CreateArrayType(maxLength: LanguageConstants.DeclarationTypes.Count - 1),
                     new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default),
                     TypeFactory.CreateArrayType(maxLength: LanguageConstants.DeclarationTypes.Count - 1),
-                    ("BCP330", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {LanguageConstants.DeclarationTypes.Count - 1}) is too short to assign to a target for which the minimum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
+                    ("BCP333", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {LanguageConstants.DeclarationTypes.Count - 1}) is too short to assign to a target for which the minimum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
             };
         }
 
@@ -690,12 +690,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     new ObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valA")),
-                        new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
+                        new TypeProperty("fieldA", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                     new ObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valB")),
-                        new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
+                        new TypeProperty("fieldB", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                 });
 

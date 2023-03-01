@@ -280,7 +280,7 @@ param expressionInModifier string = 2 + 3
 //@[11:021) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |length([])|
 @allowed([
   resourceGroup().id
-//@[02:020) [BCP332 (Warning)] The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 5. (CodeDescription: none) |resourceGroup().id|
+//@[02:020) [BCP335 (Warning)] The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 5. (CodeDescription: none) |resourceGroup().id|
 //@[02:020) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |resourceGroup().id|
 ])
 param nonCompileTimeConstant string

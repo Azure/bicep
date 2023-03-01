@@ -28,7 +28,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build CLI",
-            "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net6.0/bicep",
+            "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net7.0/bicep",
             "args": [
                 "build",
                 "${file}"

@@ -47,13 +47,13 @@ jobs:
       
       # this command is not correct for releasing the binaries but is sufficient for the purposes of this job
       - name: Windows Installer prerequisites
-        run: mkdir ./src/installer-win/bicep && copy ./src/Bicep.Cli/obj/project.assets.json ./src/installer-win/bicep/ && copy ./src/Bicep.Cli/bin/Release/net6.0/bicep.* ./src/installer-win/bicep/
+        run: mkdir ./src/installer-win/bicep && copy ./src/Bicep.Cli/obj/project.assets.json ./src/installer-win/bicep/ && copy ./src/Bicep.Cli/bin/Release/net7.0/bicep.* ./src/installer-win/bicep/
 
       - name: Build Windows Installer
         run: dotnet build --configuration Release ./src/installer-win/installer.proj
       
       - name: CLI Package prerequisites
-        run:  mkdir ./src/Bicep.Cli.Nuget/tools && copy ./src/Bicep.Cli/obj/project.assets.json ./src/Bicep.Cli.Nuget/tools/ && copy ./src/Bicep.Cli/bin/Release/net6.0/bicep.* ./src/Bicep.Cli.Nuget/tools/
+        run:  mkdir ./src/Bicep.Cli.Nuget/tools && copy ./src/Bicep.Cli/obj/project.assets.json ./src/Bicep.Cli.Nuget/tools/ && copy ./src/Bicep.Cli/bin/Release/net7.0/bicep.* ./src/Bicep.Cli.Nuget/tools/
 
       - name: Build CLI Package
         run: dotnet build --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj

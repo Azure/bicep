@@ -229,7 +229,7 @@ namespace Bicep.LanguageServer.Handlers
             return new CodeAction
             {
                 Kind = codeActionKind,
-                Title = fix.Description,
+                Title = fix.Title,
                 IsPreferred = fix.IsPreferred,
                 Edit = new WorkspaceEdit
                 {
