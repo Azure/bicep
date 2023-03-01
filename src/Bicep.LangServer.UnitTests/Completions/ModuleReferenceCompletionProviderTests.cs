@@ -29,15 +29,9 @@ namespace Bicep.LangServer.UnitTests.Completions
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static PublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider = new PublicRegistryModuleMetadataProvider();
         private IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider = StrictMock.Of<IAzureContainerRegistryNamesProvider>().Object;
+        private static IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>().Object;
         private ISettingsProvider settingsProvider = StrictMock.Of<ISettingsProvider>().Object;
-
-        [ClassInitialize]
-        public static async Task ClassInitialize(TestContext testContext)
-        {
-            await publicRegistryModuleMetadataProvider.Initialize();
-        }
 
         [DataTestMethod]
         [DataRow("module test |''", 14)]
@@ -176,7 +170,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
-        public async Task GetFilteredCompletions_WithInvalidTextInCompletionContext_ReturnsNull()
+        public async Task GetFilteredCompletions_WithInvalidTextInCompletionContext_ReturnsEmptyListOfCompletionItems()
         {
             var completionContext = GetBicepCompletionContext("module test 'br:/|'", null, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -301,7 +295,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:mcr.microsoft.com/bicep/$0'");;
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:mcr.microsoft.com/bicep/$0'"); ;
                 },
                 c =>
                 {
@@ -431,38 +425,58 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "app/dapr-containerapp", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:$0'", 0, 12, 0, 41)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-containerapp", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:$0'", 0, 12, 0, 40)]
-        [DataRow("module test 'br/public:|'", "app/dapr-containerapp", "'br/public:app/dapr-containerapp:$0'", 0, 12, 0, 24)]
-        [DataRow("module test 'br/public:|", "app/dapr-containerapp", "'br/public:app/dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
+        [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
+        [DataRow("module test 'br/public:|", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
 
         public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
-            string expectedLabel,
-            string expectedCompletionText,
-            int startLine,
-            int startCharacter,
-            int endLine,
-            int endCharacter)
+            string expectedLabel1,
+            string expectedCompletionText1,
+            string expectedLabel2,
+            string expectedCompletionText2,
+            int expectedEnd)
         {
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-cntrapp1", "app/dapr-cntrapp2" });
+
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistryNamesProvider,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                publicRegistryModuleMetadataProvider,
+                publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            completions.Should().Contain(
-                x => x.Label == expectedLabel &&
-                x.Kind == CompletionItemKind.Snippet &&
-                x.InsertText == null &&
-                x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
-                x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&
-                x.TextEdit!.TextEdit!.Range.Start.Character == startCharacter &&
-                x.TextEdit!.TextEdit!.Range.End.Line == endLine &&
-                x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabel1);
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText1);
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                },
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabel2);
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText2);
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                });
         }
 
         [DataTestMethod]
@@ -511,20 +525,19 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 46)]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 45)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 63)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", 0, 12, 0, 62)]
-        [DataRow("module test 'br/test1:dapr-containerapp:|'", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", 0, 12, 0, 41)]
-        [DataRow("module test 'br/test1:dapr-containerapp:|", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", 0, 12, 0, 40)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", 46)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", 45)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", 63)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", 62)]
+        [DataRow("module test 'br/test1:dapr-containerapp:|'", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", "1.0.2", "'br/test1:dapr-containerapp:1.0.2'$0", 41)]
+        [DataRow("module test 'br/test1:dapr-containerapp:|", "1.0.1", "'br/test1:dapr-containerapp:1.0.1'$0", "1.0.2", "'br/test1:dapr-containerapp:1.0.2'$0", 40)]
         public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
-            string expectedLabel,
-            string expectedCompletionText,
-            int startLine,
-            int startCharacter,
-            int endLine,
-            int endCharacter)
+            string expectedLabel1,
+            string expectedCompletionText1,
+            string expectedLabel2,
+            string expectedCompletionText2,
+            int expectedEnd)
         {
             var bicepConfigFileContents = @"{
   ""moduleAliases"": {
@@ -539,26 +552,63 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.1", "1.0.2" });
+
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistryNamesProvider,
                 new ConfigurationManager(new IOFileSystem()),
-                publicRegistryModuleMetadataProvider,
+                publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
-            CompletionItem actualCompletionItem = completions.First(x => x.Label == expectedLabel);
-            actualCompletionItem.Kind.Should().Be(CompletionItemKind.Snippet);
-            actualCompletionItem.InsertText.Should().BeNull();
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabel1);
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText1);
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                },
+                c =>
+                {
+                    c.Label.Should().Be(expectedLabel2);
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText2);
+                    c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                    c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                    c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
+                });
+        }
 
-            var actualTextEdit = actualCompletionItem.TextEdit!.TextEdit;
-            actualTextEdit.Should().NotBeNull();
-            actualTextEdit!.NewText.Should().Be(expectedCompletionText);
-            actualTextEdit!.Range.Start.Line.Should().Be(startLine);
-            actualTextEdit!.Range.Start.Character.Should().Be(startCharacter);
-            actualTextEdit!.Range.End.Line.Should().Be(endLine);
-            actualTextEdit!.Range.End.Character.Should().Be(endCharacter);
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithMcrVersionCompletionContext_AndNoMatchingModuleName_ReturnsEmptyListOfCompletionItems()
+        {
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerappapp")).ReturnsAsync(new List<string>());
+
+            var completionContext = GetBicepCompletionContext("module test 'br/public:app/dapr-containerappapp:|'", null, out DocumentUri documentUri);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                publicRegistryModuleMetadataProvider.Object,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+
+            completions.Should().BeEmpty();
         }
 
         [DataTestMethod]
@@ -607,10 +657,10 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
-        [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
-        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
-        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test1:|'", "dapr-containerappapp", "'br/test1:dapr-containerappapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test1:|", "dapr-containerappapp", "'br/test1:dapr-containerappapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerappapp", "'br/test2:bicep/app/dapr-containerappapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerappapp", "'br/test2:bicep/app/dapr-containerappapp:$0'", 0, 12, 0, 22)]
         public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
@@ -633,11 +683,14 @@ namespace Bicep.LangServer.UnitTests.Completions
     }
   }
 }";
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-containerappapp" });
+
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistryNamesProvider,
                 new ConfigurationManager(new IOFileSystem()),
-                publicRegistryModuleMetadataProvider,
+                publicRegistryModuleMetadataProvider.Object,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             IEnumerable<CompletionItem> completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
