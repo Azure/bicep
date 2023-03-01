@@ -18,13 +18,17 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Settings;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -71,7 +75,10 @@ namespace Bicep.LangServer.IntegrationTests
         {
             ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithNamespaceAndTestResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+            ServerWithNamespaceAndTestResolver.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    testContext,
+                    services => services.AddSingleton<ISettingsProvider>(GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled())));
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
@@ -1531,11 +1538,7 @@ module a '|' = {
                 x => x.Label.Should().Be("percentage%file.bicep"),
                 x => x.Label.Should().Be("already%20escaped.bicep"),
                 x => x.Label.Should().Be("folder with space/"),
-                x => x.Label.Should().Be("../"),
-                x => x.Label.Should().Be("br:"),
-                x => x.Label.Should().Be("br/"),
-                x => x.Label.Should().Be("ts:"),
-                x => x.Label.Should().Be("ts/"));
+                x => x.Label.Should().Be("../"));
         }
 
         [TestMethod]
@@ -2751,6 +2754,13 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == expectedLabel, $"\"{fileWithCursors}\" should have completion");
             var updatedFile = file.ApplyCompletion(completions, expectedLabel);
             updatedFile.Should().HaveSourceText(expectedResult);
+        }
+        private static ISettingsProvider GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled()
+        {
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
+
+            return settingsProvider.Object;
         }
     }
 }
