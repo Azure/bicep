@@ -9,8 +9,10 @@ using Azure;
 using Azure.ResourceManager;
 using Azure.ResourceManager.ResourceGraph;
 using Azure.ResourceManager.ResourceGraph.Models;
+using Azure.ResourceManager.Resources;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
+using Bicep.Core.Tracing;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.LanguageServer.Providers
@@ -37,15 +39,14 @@ namespace Bicep.LanguageServer.Providers
         public async Task<IEnumerable<string>> GetRegistryNames(Uri templateUri)
         {
             var armClient = GetArmClient(templateUri);
-            var tenantCollection = armClient.GetTenants();
+            TenantCollection tenants = armClient.GetTenants();
 
-            if (tenantCollection.Any())
+            await foreach (TenantResource tenant in tenants)
             {
-                var tenant = tenantCollection.First();
                 var queryContent = new ResourceQueryContent(queryToGetRegistryNames);
-                Response<ResourceQueryResult> queryResponse1 = await tenant.GetResourcesAsync(queryContent);
+                Response<ResourceQueryResult> queryResponse = await tenant.GetResourcesAsync(queryContent);
 
-                if (queryResponse1.Value is ResourceQueryResult resourceQueryResult &&
+                if (queryResponse.Value is ResourceQueryResult resourceQueryResult &&
                     resourceQueryResult.TotalRecords > 0 &&
                     resourceQueryResult.Data is BinaryData data)
                 {
@@ -75,6 +76,10 @@ namespace Bicep.LanguageServer.Providers
         {
             var rootConfiguration = configurationManager.GetConfiguration(templateUri);
             var credential = tokenCredentialFactory.CreateChain(rootConfiguration.Cloud.CredentialPrecedence, rootConfiguration.Cloud.ActiveDirectoryAuthorityUri);
+
+            var options = new ArmClientOptions();
+            options.Diagnostics.ApplySharedResourceManagerSettings();
+            options.Environment = new ArmEnvironment(rootConfiguration.Cloud.ResourceManagerEndpointUri, rootConfiguration.Cloud.AuthenticationScope);
 
             return new ArmClient(credential);
         }
