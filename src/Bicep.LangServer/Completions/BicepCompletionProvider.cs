@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
@@ -39,6 +40,9 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
+
+        private static readonly Regex ModuleRegistryWithAlias = new Regex(@"br/(.*?):(.*?):$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithoutAlias = new Regex(@"br:(.*?):$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
@@ -602,6 +606,11 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private bool IsVersionCompletionContextForModuleRegistry(string entered)
+        {
+            return ModuleRegistryWithAlias.IsMatch(entered) || ModuleRegistryWithoutAlias.IsMatch(entered);
+        }
+
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -617,10 +626,8 @@ namespace Bicep.LanguageServer.Completions
                 entered = "";
             }
 
-            // These should only fail if:
-            // 1. we're not able to resolve cwd path or the entered string
-            // 2. entered starts with br schema.
-            if (entered.StartsWith("br/", StringComparison.Ordinal) || entered.StartsWith("br:", StringComparison.Ordinal) || TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            // These should only fail if we're not able to resolve cwd path or the entered string
+            if (IsVersionCompletionContextForModuleRegistry(entered) || TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }

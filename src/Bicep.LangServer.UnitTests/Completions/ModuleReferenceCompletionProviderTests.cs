@@ -669,6 +669,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
 
+            completions.Count().Should().Be(2);
             completions.Should().Contain(
                 x => x.Label == expectedLabel1 &&
                 x.Kind == CompletionItemKind.Snippet &&
@@ -679,7 +680,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&
                 x.TextEdit!.TextEdit!.Range.End.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.End.Character == expectedEnd);
-
             completions.Should().Contain(
                 x => x.Label == expectedLabel2 &&
                 x.Kind == CompletionItemKind.Snippet &&
