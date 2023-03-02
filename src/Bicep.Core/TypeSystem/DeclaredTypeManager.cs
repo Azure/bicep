@@ -264,7 +264,7 @@ namespace Bicep.Core.TypeSystem
                     => TypeHelper.CreateTypeUnion(LanguageConstants.Null, ApplyTypeModifyingDecorators(nonNullable, syntax, validationFlags)),
                 IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
                 // minLength/maxLength on a tuple are superfluous.
-                TupleType declaredTuple => declaredTuple,
+                TupleType declaredTuple => declaredTuple.ValidationFlags == validationFlags ? declaredTuple : new TupleType(declaredTuple.Items, validationFlags),
                 ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
                 StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
                 PrimitiveType primitive => new PrimitiveType(primitive.Name, validationFlags),
@@ -594,18 +594,11 @@ namespace Bicep.Core.TypeSystem
             foreach (var item in syntax.Items)
             {
                 var itemType = GetDeclaredTypeAssignment(item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(item.Value).InvalidTypeDefinition());
-                itemType = itemType switch
-                {
-                    DeferredTypeReference => new DeferredTypeReference(() => ApplyTypeModifyingDecorators(itemType.Type, item)),
-                    _ => ApplyTypeModifyingDecorators(itemType.Type, item),
-                };
                 items.Add(itemType);
                 nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
             }
 
-            return new TupleType(nameBuilder.ToString(),
-                items.ToImmutableArray(),
-                UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default));
+            return new TupleType(nameBuilder.ToString(), items.ToImmutableArray(), default);
         }
 
         private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)

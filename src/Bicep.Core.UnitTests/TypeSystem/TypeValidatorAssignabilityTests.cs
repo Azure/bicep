@@ -483,6 +483,26 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
         }
 
+        [TestMethod]
+        public void InvalidTupleValuesShouldBeRejected()
+        {
+            var arrayLiteral = TestSyntaxFactory.CreateArray(new SyntaxBase[] { TestSyntaxFactory.CreateString("foo"), TestSyntaxFactory.CreateInt(5), TestSyntaxFactory.CreateNull() });
+
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(SyntaxHierarchy.Build(arrayLiteral), arrayLiteral, new TupleType(
+                ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)),
+                default));
+
+            diagnostics.Should().HaveDiagnostics(new[]
+            {
+                // the string at index 0 is too long
+                ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+                // the int at index 1 is too small
+                ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 5) is too small to assign to a target for which the minimum allowable value is 6."),
+                // the whole array is too long
+                ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+            });
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetArrayDomainNarrowingData), DynamicDataSourceType.Method)]
         public void Array_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedReturnType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)

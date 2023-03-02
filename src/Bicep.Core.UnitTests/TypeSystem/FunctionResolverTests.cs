@@ -169,6 +169,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Type;
 
             returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().Item.Type.Should().Be(LanguageConstants.String);
             returnType.As<ArrayType>().MinLength.Should().NotBeNull();
             returnType.As<ArrayType>().MinLength.Should().BeGreaterThan(0);
         }
@@ -209,6 +210,24 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             returnType.Should().BeAssignableTo<ArrayType>();
             returnType.As<ArrayType>().MaxLength.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void ConcatConcatenatesTuples()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol>
+                {
+                    new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int), default),
+                    new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.Bool), default),
+                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123)), default),
+                },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<TupleType>();
+            returnType.As<TupleType>().Items.Should()
+                .ContainInOrder(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool, TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123));
         }
 
         [TestMethod]

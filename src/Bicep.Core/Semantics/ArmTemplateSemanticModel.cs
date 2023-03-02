@@ -260,7 +260,7 @@ namespace Bicep.Core.Semantics
         {
             if (schemaNode.AllowedValues?.Value is JArray allowedValues)
             {
-                return GetArrayLiteralType(allowedValues);
+                return GetArrayLiteralType(allowedValues, schemaNode);
             }
 
             if (schemaNode.PrefixItems is { } prefixItems)
@@ -282,7 +282,7 @@ namespace Bicep.Core.Semantics
                 if (items.Ref?.Value is { } @ref)
                 {
                     var (type, typeName) = GetDeferrableTypeInfo(items);
-                    return new TypedArrayType($"{typeName}[]", type, default);
+                    return new TypedArrayType($"{typeName}[]", type, default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
                 }
 
                 return new TypedArrayType(GetType(items), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
@@ -294,7 +294,7 @@ namespace Bicep.Core.Semantics
             return TypeFactory.CreateArrayType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
         }
 
-        private static TypeSymbol GetArrayLiteralType(JArray allowedValues)
+        private static TypeSymbol GetArrayLiteralType(JArray allowedValues, ITemplateSchemaNode schemaNode)
         {
             // For allowedValues on an array, either all or none of the allowed values need to be arrays.
             if (allowedValues.Any(t => t.Type == JTokenType.Array))
@@ -327,7 +327,7 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            return new TypedArrayType(TypeHelper.CreateTypeUnion(elements), default);
+            return new TypedArrayType(TypeHelper.CreateTypeUnion(elements), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
         }
 
         private TypeSymbol GetObjectType(Template template, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags symbolValidationFlags = TypeSymbolValidationFlags.Default)

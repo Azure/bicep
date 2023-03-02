@@ -59,6 +59,11 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("concat")
                 .WithReturnResultBuilder(TryDeriveLiteralReturnType("concat", (_, _, _, _, argumentTypes) =>
                 {
+                    if (argumentTypes.All(t => t is TupleType))
+                    {
+                        return new(new TupleType(argumentTypes.OfType<TupleType>().SelectMany(tt => tt.Items).ToImmutableArray(), default));
+                    }
+
                     BigInteger minLength = 0;
                     BigInteger? maxLength = null;
                     var itemTypes = new ITypeReference[argumentTypes.Length];
@@ -91,7 +96,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(TypeFactory.CreateArrayType(TypeHelper.CreateTypeUnion(itemTypes),
                         minLength switch
                         {
-                            var zero when zero == 0 => null,
+                            var zero when zero <= 0 => null,
                             var tooBig when tooBig > long.MaxValue => long.MaxValue,
                             var otherwise => (long) otherwise,
                         },
@@ -133,12 +138,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnResultBuilder(
                     TryDeriveLiteralReturnType("padLeft", (_, _, _, _, argumentTypes) =>
                     {
+                        (long? minLength, long? maxLength) = TypeHelper.GetMinAndMaxLengthOfStringified(argumentTypes[0]);
+
                         if (argumentTypes[1] is not IntegerLiteralType literalLength)
                         {
-                            return new(TypeFactory.CreateStringType(validationFlags: argumentTypes[0].ValidationFlags));
+                            return new(TypeFactory.CreateStringType(minLength: minLength, validationFlags: argumentTypes[0].ValidationFlags));
                         }
-
-                        (long? minLength, long? maxLength) = TypeHelper.GetMinAndMaxLengthOfStringified(argumentTypes[0]);
 
                         return new(TypeFactory.CreateStringType(
                             minLength.HasValue ? Math.Max(minLength.Value, literalLength.Value) : null,

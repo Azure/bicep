@@ -666,7 +666,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var arrayProperties = new List<ITypeReference>();
-            foreach (var arrayItemSyntax in expression.Items)
+            foreach (var (idx, arrayItemSyntax) in expression.Items.Select((item, i) => (i, item)))
             {
                 var newConfig = new TypeValidatorConfig(
                     skipConstantCheck: config.SkipConstantCheck,
@@ -676,7 +676,12 @@ namespace Bicep.Core.TypeSystem
                     onTypeMismatch: (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType), expected, actual)),
                     isResourceDeclaration: config.IsResourceDeclaration);
 
-                var narrowedType = NarrowType(newConfig, arrayItemSyntax.Value, targetType.Item.Type);
+                var narrowedType = NarrowType(newConfig, arrayItemSyntax.Value, targetType switch
+                {
+                    // if the target is a tuple, find the correct target type by index. If we walk off the end of the tuple schema, just use `any` and report a length violation
+                    TupleType tt => tt.Items.Skip(idx).FirstOrDefault()?.Type ?? LanguageConstants.Any,
+                    _ => targetType.Item.Type,
+                });
 
                 arrayProperties.Add(narrowedType);
             }
