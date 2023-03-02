@@ -19,7 +19,7 @@ namespace Bicep.LanguageServer.Settings
 
         public void AddOrUpdateSetting(string name, bool value)
         {
-            SettingsCache.AddOrUpdate(name, value, (name, value) => value);
+            SettingsCache.AddOrUpdate(name, value, (name, prev) => value);
         }
 
         public bool GetSetting(string name)
