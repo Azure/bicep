@@ -15,18 +15,11 @@ namespace Bicep.LanguageServer.Settings
     /// </summary>
     public class SettingsProvider : ISettingsProvider
     {
-        private readonly Dictionary<string, bool> SettingsCache = new();
+        private readonly ConcurrentDictionary<string, bool> SettingsCache = new();
 
         public void AddOrUpdateSetting(string name, bool value)
         {
-            if (SettingsCache.ContainsKey(name))
-            {
-                SettingsCache[name] = value;
-            }
-            else
-            {
-                SettingsCache.Add(name, value);
-            }
+            SettingsCache.AddOrUpdate(name, value, (name, value) => value);
         }
 
         public bool GetSetting(string name)
