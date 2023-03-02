@@ -159,14 +159,16 @@ namespace Bicep.LanguageServer.Completions
             replacementText = replacementText.TrimEnd('\'');
 
             var versions = await publicRegistryModuleMetadataProvider.GetVersions(filePath);
-            foreach (var version in versions)
+            for (int i = versions.Count() - 1; i >= 0; i --)
             {
+                var version = versions.ElementAt(i);
+
                 var insertText = $"{replacementText}{version}'$0";
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
-                    .WithSortText(GetSortText(version, CompletionPriority.High))
+                    .WithSortText(GetSortText(version, i))
                     .Build();
 
                 completions.Add(completionItem);
@@ -568,6 +570,8 @@ namespace Bicep.LanguageServer.Completions
 
             return completions;
         }
+
+        private static string GetSortText(string label, int priority) => $"{priority}_{label}";
 
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
     }

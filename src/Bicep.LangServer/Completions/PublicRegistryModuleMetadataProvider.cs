@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Providers
 
             if (metadata is not null)
             {
-                return metadata.tags;
+                return metadata.tags.OrderDescending();
             }
 
             return Enumerable.Empty<string>();
