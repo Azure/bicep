@@ -617,8 +617,10 @@ namespace Bicep.LanguageServer.Completions
                 entered = "";
             }
 
-            // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            // These should only fail if:
+            // 1. we're not able to resolve cwd path or the entered string
+            // 2. entered starts with br schema.
+            if (entered.StartsWith("br/", StringComparison.Ordinal) || entered.StartsWith("br:", StringComparison.Ordinal) || TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }

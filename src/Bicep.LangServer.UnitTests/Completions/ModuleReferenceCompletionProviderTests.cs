@@ -218,6 +218,28 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
+        [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|")]
+        [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|'")]
+        [DataRow("module test |'br/public:app/dapr-containerapp:1.0.1'")]
+        [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1'|")]
+        public async Task GetFilteredCompletions_WithInvalidCompletionContext_ReturnsEmptyList(string inputWithCursors)
+        {
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.1", "1.0.2" });
+
+            var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistryNamesProvider,
+                new ConfigurationManager(new IOFileSystem()),
+                publicRegistryModuleMetadataProvider.Object,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext);
+
+            completions.Should().BeEmpty();
+        }
+
+        [DataTestMethod]
         [DataRow("module test 'br/|'", 17)]
         [DataRow("module test 'br/|", 16)]
         public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
