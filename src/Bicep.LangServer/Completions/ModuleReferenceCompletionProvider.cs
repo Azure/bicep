@@ -276,7 +276,7 @@ namespace Bicep.LanguageServer.Completions
                 if (kvp.Value.Registry is string registry)
                 {
                     // We currently don't support path completion for ACR, but we'll go ahead and log telemetry to track usage.
-                    if (registry.EndsWith("azurecr.io", StringComparison.Ordinal) &&
+                    if (!registry.Equals(MCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
                         telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
