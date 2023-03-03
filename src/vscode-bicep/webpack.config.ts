@@ -120,8 +120,12 @@ module.exports = (env: unknown, argv: { mode: string }) => {
     // Note that any "eval" options cannot be used because it will be blocked by
     // the content security policy that we set in /visualizer/view.ts.
     const developmentDevtool = "cheap-module-source-map";
-    extensionConfig.devtool = developmentDevtool;
     visualizerConfig.devtool = developmentDevtool;
+
+    // I don't notice any difference in F5 time when using the cheap version, but using it
+    // causes many problems settings breakpoints in some code, especially tests, so don't use for
+    // the extension.
+    //extensionConfig.devtool = developmentDevtool;
   }
 
   return [extensionConfig, visualizerConfig];
