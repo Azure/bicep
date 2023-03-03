@@ -74,19 +74,19 @@ jobs:
 
       - name: Build BicepInVisualStudio.sln
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m
-      
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+
+      - name: Create branch and force push
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          committer: GitHub <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-          signoff: false
-          add-paths: '**/local-tpn.txt'
+          commit_message: Update Local TPN Files
+          commit_user_name: ${{ github.actor }}
+          commit_user_email: ${{ github.actor }}@users.noreply.github.com
+          commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          file_pattern: '*.txt'
           branch: update-local-tpn-files
-          delete-branch: true
-          title: |
-            Update Local TPN Files
-          commit-message: |
-            Update Local TPN Files
-          labels: dependencies
-          draft: false
+          commit_options: '--no-verify --signoff'
+          status_options: '--untracked-files=no'
+          push_options: '--force'
+          skip_fetch: true
+          skip_checkout: true
+          create_branch: true
