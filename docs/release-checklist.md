@@ -4,14 +4,14 @@
     1. Run the [Update Types](https://github.com/Azure/bicep-types-az/actions/workflows/update-types.yml) GitHub Action to generate the latest type definitions.
     1. Wait ~3hrs for the previous step to complete. Ensure it runs successfully, and generates + merges a PR (example [here](https://github.com/Azure/bicep-types-az/pull/1299)).
     1. Run the Official Build (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
-    1. Publish Bicep.Types NuGet packages to nuget.org. Follow the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az).
-    1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
-    1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
-    1. Run `./scripts/UploadPackages.ps1 -PackageDirectory <downloads>/drop_build_main -NuGetPath <nuget_tool_directory>`
-    1. You need to be part of the armdeployments org on nuget.org. (Ask one of the admins to be added) You must generate an API key and then use that as the password for when the popup window appears after running the above command. (Username can be anything)
+    1. Publish Bicep.Types NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
+        1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
+        1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
+        1. Run `./scripts/UploadPackages.ps1 -PackageDirectory <downloads>/drop_build_main -NuGetPath <nuget_tool_directory>`
+        1. You need to be part of the armdeployments org on nuget.org. (Ask one of the admins to be added) You must generate an API key and then use that as the password for when the popup window appears after running the above command. (Username can be anything)
     1. Bump the Bicep.Types NuGet package version in this project in this [file](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) by creating and merging a PR
-    1. Might need to run a `dotnet refresh` to update the packages.lock.json files
-    1. Might also need to update baseline tests (run `bicep/scripts/SetBaseline.ps1`)
+        1. Might need to run a `dotnet refresh` to update the packages.lock.json files
+        1. Might also need to update baseline tests (run `bicep/scripts/SetBaseline.ps1`)
 1. Verify the latest build on the `main` branch is green: ![Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main).
 1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Raise an issue for any recently-added linter rules which do not have public documentation.
 1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
