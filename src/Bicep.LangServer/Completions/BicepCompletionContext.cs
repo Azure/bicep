@@ -343,7 +343,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.OutputType;
             }
 
-             // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
+            // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
             if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckOutputResourceTypeIsExpected(output)) ||
                 SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, ResourceTypeSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
             {

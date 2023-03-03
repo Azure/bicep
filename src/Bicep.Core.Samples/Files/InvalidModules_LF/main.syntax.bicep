@@ -1,5 +1,5 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[000:13682) ProgramSyntax
+//@[000:13814) ProgramSyntax
 //@[000:00054) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00025) | ├─IdentifierSyntax
@@ -1779,8 +1779,8 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:00053) ├─Token(NewLine) |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:00086) ├─Token(NewLine) |\n|
 module completionB ''
 //@[000:00021) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
@@ -1792,8 +1792,8 @@ module completionB ''
 //@[021:00021) | └─SkippedTriviaSyntax
 //@[021:00023) ├─Token(NewLine) |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:00053) ├─Token(NewLine) |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:00086) ├─Token(NewLine) |\n|
 module completionC '' =
 //@[000:00023) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
@@ -1805,8 +1805,8 @@ module completionC '' =
 //@[023:00023) | └─SkippedTriviaSyntax
 //@[023:00025) ├─Token(NewLine) |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:00053) ├─Token(NewLine) |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:00086) ├─Token(NewLine) |\n|
 module completionD '' = {}
 //@[000:00026) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
@@ -1820,8 +1820,8 @@ module completionD '' = {}
 //@[025:00026) |   └─Token(RightBrace) |}|
 //@[026:00028) ├─Token(NewLine) |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:00053) ├─Token(NewLine) |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:00086) ├─Token(NewLine) |\n|
 module completionE '' = {
 //@[000:00043) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
