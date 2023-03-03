@@ -32,8 +32,8 @@ namespace Bicep.Core.Parsing
 
         public ImmutableArray<SyntaxTrivia> TrailingTrivia { get; }
 
-        public IEnumerable<SyntaxTrivia> LeadingComments => this.LeadingTrivia.Where(SyntaxExtensions.IsComment);
+        public IEnumerable<SyntaxTrivia> LeadingComments => this.LeadingTrivia.Where(SyntaxFacts.IsComment);
 
-        public IEnumerable<SyntaxTrivia> TrailingComments => this.TrailingTrivia.Where(SyntaxExtensions.IsComment);
+        public IEnumerable<SyntaxTrivia> TrailingComments => this.TrailingTrivia.Where(SyntaxFacts.IsComment);
     }
 }

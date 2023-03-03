@@ -7,16 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bicep.Core.Syntax
+namespace Bicep.Core.PrettyPrintV2.Options
 {
-    public enum CommentStickiness
+    public enum NewlineKind
     {
-        None,
-
-        Leading,
-
-        Trailing,
-
-        Bidirectional,
+        Auto,
+        LF,
+        CRLF,
+        CR
     }
 }
