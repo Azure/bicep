@@ -47,7 +47,7 @@ public class Visitors
         this.cstVisitor = new();
     }
 
-    [Benchmark(Description = "Visit concret syntax tree.", Baseline = true)]
+    [Benchmark(Description = "Visit concrete syntax tree.", Baseline = true)]
     public void Visit_cst()
     {
         foreach (var programSyntax in this.benchmarkData)
