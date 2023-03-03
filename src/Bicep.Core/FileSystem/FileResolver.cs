@@ -229,7 +229,7 @@ namespace Bicep.Core.FileSystem
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {
-            if (!DirExists(fileUri))
+            if (!fileUri.IsFile)
             {
                 return Enumerable.Empty<Uri>();
             }
@@ -238,7 +238,7 @@ namespace Bicep.Core.FileSystem
 
         public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
         {
-            if (!DirExists(fileUri))
+            if (!fileUri.IsFile)
             {
                 return Enumerable.Empty<Uri>();
             }
