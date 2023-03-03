@@ -42,7 +42,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
-        private static readonly Regex ModuleRegistryPattern = new Regex(@"'br(:|/)(.*?)(:|/)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithoutAliasPattern = new Regex(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithAliasPattern = new Regex(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
@@ -686,7 +687,7 @@ namespace Bicep.LanguageServer.Completions
         {
             return context.ReplacementTarget is Token token &&
                 token.Text is string text &&
-                ModuleRegistryPattern.IsMatch(text.TrimEnd('\''));
+                (ModuleRegistryWithoutAliasPattern.IsMatch(text) || ModuleRegistryWithAliasPattern.IsMatch(text));
         }
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)

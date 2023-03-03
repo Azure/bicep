@@ -2799,6 +2799,35 @@ var file = " + functionName + @"(templ|)
         }
 
         [TestMethod]
+        public async Task ModuleRegistryReferenceCompletions_GetCompletionsForFolderInsideBr()
+        {
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("module test 'br/foo/|'", '|');
+
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+
+            FileHelper.SaveResultFile(TestContext, "bar.bicep", string.Empty, Path.Combine(testOutputPath, Path.Combine(testOutputPath, "br", "foo")));
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
+                .WithFileResolver(new FileResolver(new IOFileSystem())));
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(2);
+            completions.Should().Contain(x => x.Label == "bar.bicep" && x.Kind == CompletionItemKind.File);
+            completions.Should().Contain(x => x.Label == "../" && x.Kind == CompletionItemKind.Folder);
+        }
+
+        [DataTestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|'")]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|")]
         [DataRow("module test 'br/public:|'")]
@@ -2833,7 +2862,6 @@ var file = " + functionName + @"(templ|)
             completions.Count().Should().Be(2);
             completions.Should().Contain(x => x.Label == "app/dapr-containerapp" && x.Kind == CompletionItemKind.Snippet);
             completions.Should().Contain(x => x.Label == "app/dapr-containerapp-env" && x.Kind == CompletionItemKind.Snippet);
-
         }
 
         [DataTestMethod]
