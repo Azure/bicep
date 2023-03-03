@@ -123,8 +123,8 @@ module.exports = (env: unknown, argv: { mode: string }) => {
     visualizerConfig.devtool = developmentDevtool;
 
     // I don't notice any difference in F5 time when using the cheap version, but using it
-    // causes many problems settings breakpoints in some code, especially tests, so don't use for
-    // the extension.
+    // causes many problems recognizing breakpoints in some code, especially tests, so don't use for
+    // the main extension code.
     //extensionConfig.devtool = developmentDevtool;
   }
 
