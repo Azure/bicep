@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
@@ -39,6 +41,8 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
+
+        private static readonly Regex ModuleRegistryPattern = new Regex(@"'br(:|/)(.*?)(:|/)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
@@ -609,6 +613,11 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
+            if (IsOciModuleRegistryReference(context))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
             // To provide intellisense before the quotes are typed
             if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
                 || declarationSyntax.Path is not StringSyntax stringSyntax
@@ -617,25 +626,29 @@ namespace Bicep.LanguageServer.Completions
                 entered = "";
             }
 
-            // These should only fail if:
-            // 1. we're not able to resolve cwd path or the entered string
-            // 2. entered starts with br schema.
-            if (entered.StartsWith("br/", StringComparison.Ordinal) || entered.StartsWith("br:", StringComparison.Ordinal) || TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            try
+            {
+                // These should only fail if we're not able to resolve cwd path or the entered string
+                if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
+                {
+                    return Enumerable.Empty<CompletionItem>();
+                }
+
+                var replacementRange = context.EnclosingDeclaration is ModuleDeclarationSyntax module ? module.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
+
+                // Prioritize .bicep files higher than other files.
+                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
+                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
+                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
+
+                return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
+            }
+            catch (DirectoryNotFoundException)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var replacementRange = context.EnclosingDeclaration is ModuleDeclarationSyntax module ? module.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
-
-            // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-            var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
-            var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
-
-            return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
-
             // Local functions.
-
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
 
@@ -667,6 +680,13 @@ namespace Bicep.LanguageServer.Completions
 
                 return false;
             }
+        }
+
+        private bool IsOciModuleRegistryReference(BicepCompletionContext context)
+        {
+            return context.ReplacementTarget is Token token &&
+                token.Text is string text &&
+                ModuleRegistryPattern.IsMatch(text.TrimEnd('\''));
         }
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)

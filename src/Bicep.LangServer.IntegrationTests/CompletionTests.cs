@@ -25,17 +25,20 @@ using Bicep.LangServer.IntegrationTests.Completions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -2755,6 +2758,119 @@ var file = " + functionName + @"(templ|)
             var updatedFile = file.ApplyCompletion(completions, expectedLabel);
             updatedFile.Should().HaveSourceText(expectedResult);
         }
+
+        [DataTestMethod]
+        [DataRow("module test 'br/|'", "groups.bicep", CompletionItemKind.File, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
+        [DataRow("module test 'br/|", "br/", CompletionItemKind.Folder, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
+        public async Task ModuleRegistryReferenceCompletions_GetCompletionsAfterBrSchema(
+            string inputWithCursors,
+            string expectedLabel1,
+            CompletionItemKind completionItemKind1,
+            string expectedLabel2,
+            CompletionItemKind completionItemKind2,
+            string expectedLabel3,
+            CompletionItemKind completionItemKind3)
+        {
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
+
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+
+            FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
+                .WithFileResolver(new FileResolver(new IOFileSystem())));
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(3);
+            completions.Should().Contain(x => x.Label == expectedLabel1 && x.Kind == completionItemKind1);
+            completions.Should().Contain(x => x.Label == expectedLabel2 && x.Kind == completionItemKind2);
+            completions.Should().Contain(x => x.Label == expectedLabel3 && x.Kind == completionItemKind3);
+        }
+
+        [TestMethod]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|")]
+        [DataRow("module test 'br/public:|'")]
+        [DataRow("module test 'br/public:|")]
+        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors)
+        {
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
+
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+
+            FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-containerapp", "app/dapr-containerapp-env" });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
+                .WithFileResolver(new FileResolver(new IOFileSystem())));
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(2);
+            completions.Should().Contain(x => x.Label == "app/dapr-containerapp" && x.Kind == CompletionItemKind.Snippet);
+            completions.Should().Contain(x => x.Label == "app/dapr-containerapp-env" && x.Kind == CompletionItemKind.Snippet);
+
+        }
+
+        [DataTestMethod]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|'")]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'")]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|")]
+        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors)
+        {
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
+
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+
+            var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.2", "1.0.1" });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services
+                .AddSingleton<IPublicRegistryModuleMetadataProvider>(publicRegistryModuleMetadataProvider.Object)
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
+                .WithFileResolver(new FileResolver(new IOFileSystem())));
+
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Count().Should().Be(2);
+            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet);
+            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet);
+        }
+
         private static ISettingsProvider GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled()
         {
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
