@@ -38,6 +38,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
+        private readonly Lazy<StrictModeAnalyzer.Result> strictModeAnalysis;
 
         public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features, IApiVersionProvider apiVersionProvider)
         {
@@ -81,6 +82,7 @@ namespace Bicep.Core.Semantics
 
             this.assignmentsByDeclaration = new Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>>(InitializeDeclarationToAssignmentDictionary);
             this.declarationsByAssignment = new Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>>(InitializeAssignmentToDeclarationDictionary);
+            this.strictModeAnalysis = new(() => StrictModeAnalyzer.Create(this));
 
             // lazy load single use diagnostic set
             this.allDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => AssembleDiagnostics());
@@ -168,6 +170,8 @@ namespace Bicep.Core.Semantics
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
+
+        public StrictModeAnalyzer.Result StrictModeAnalysis => this.strictModeAnalysis.Value;
 
         /// <summary>
         /// Gets the metadata of all resources for the semantic model including parameters and outputs of modules.

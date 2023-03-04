@@ -731,6 +731,24 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseParentPropertyRule_Description", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Module &quot;{0}&quot; uses parameter &quot;{1}&quot; to generate the name or scope of a resource. Supply a value that is known at the start of the deployment to ensure full preflight or what-if validation..
+        /// </summary>
+        internal static string StrictMode_MessageFormat {
+            get {
+                return ResourceManager.GetString("StrictMode_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use only values that are known at the start of the deployment to generate the name or scope of a resource..
+        /// </summary>
+        internal static string StrictMode_Description {
+            get {
+                return ResourceManager.GetString("StrictMode_Description", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Acceptable versions: {0}.

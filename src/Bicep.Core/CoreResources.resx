@@ -369,6 +369,14 @@
     <comment>{0} child resource symbolic name
 {1} parent resource symbolic name</comment>
   </data>
+  <data name="StrictMode_Description" xml:space="preserve">
+    <value>Use only values that are known at the start of the deployment to generate the name or scope of a resource.</value>
+  </data>
+  <data name="StrictMode_MessageFormat" xml:space="preserve">
+    <value>Module "{0}" uses parameter "{1}" to generate the name or scope of a resource. Supply a value that is known at the start of the deployment to ensure full preflight or what-if validation.</value>
+    <comment>{0} module symbolic name
+{1} parameter symbolic name</comment>
+  </data>
   <data name="UseResourceIdFunctionsRule_Description" xml:space="preserve">
     <value>Properties representing a resource ID must be generated appropriately.</value>
   </data>
