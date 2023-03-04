@@ -559,7 +559,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-Azure.Deployments.Internal.GenerateNotice 0.1.13 - MIT
+Azure.Deployments.Internal.GenerateNotice 0.1.31 - MIT
 
 
 Copyright (c) 2019, App
@@ -583,10 +583,13 @@ Copyright (c) Microsoft Corporation
 Copyright LibGit2Sharp contributors
 Copyright (c) 2007 James Newton-King
 Copyright (c) 2012-2014, Yann Collet
-Copyright (c) 1991-2020 Unicode, Inc.
+Copyright (c) 1991-2022 Unicode, Inc.
 Copyright (c) 2013-2017, Alfred Klomp
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
 Copyright (c) 2011-2020 Microsoft Corp
 Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
 Copyright (c) 2005-2007, Nick Galbreath
 Copyright (c) 2015 The Chromium Authors
 Copyright (c) 2018 Alexander Chermyanin
@@ -599,12 +602,15 @@ Copyright (c) The Internet Society (2003)
 Copyright James Newton-King 2008 Json.NET
 Copyright (c) .NET Foundation Contributors
 Copyright 1995-2017 Mark Adler +3 CScs DEFG
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
 Copyright (c) .NET Foundation and Contributors
 Copyright AssemblyCompany AssemblyConfiguration
 Copyright 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
 Copyright (c) 2019 Microsoft Corporation, Daan Leijen
 Copyright (c) 2011 Novell, Inc (http://www.novell.com)
 Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
 Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
 Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
 Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
@@ -613,6 +619,7 @@ Copyright (c) 2019, App vNext HttpClient HttpClientFactory
 Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
 Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
 Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
 Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
 Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
 Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
