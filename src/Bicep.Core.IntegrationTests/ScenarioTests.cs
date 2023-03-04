@@ -1893,7 +1893,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
-                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\").")
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"name\" is not valid.")
             });
         }
 
@@ -4365,7 +4365,7 @@ resource asdf 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
-                ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"foo\" is not valid."),
             });
         }
     }
