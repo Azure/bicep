@@ -224,7 +224,7 @@ namespace Bicep.Core.Syntax
             return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
         }
 
-        public static Token CreateStringLiteralToken(string value)
+        public static Token CreateStringLiteralToken(string value) //asdfg
         {
             return CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'");
         }
@@ -273,7 +273,7 @@ namespace Bicep.Core.Syntax
         private static IEnumerable<SyntaxBase> Interleave(IEnumerable<SyntaxBase> elements, Func<SyntaxBase> getInterleaveSyntax)
             => elements.SelectMany((x, i) => i > 0 ? getInterleaveSyntax().AsEnumerable().Concat(x) : x.AsEnumerable());
 
-        private static string EscapeBicepString(string value)
+        public static string EscapeBicepString(string value)
             => value
             .Replace("\\", "\\\\") // must do this first!
             .Replace("\r", "\\r")

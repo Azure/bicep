@@ -28,6 +28,7 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Security.Policy;
@@ -75,6 +76,7 @@ namespace Bicep.LanguageServer.Handlers
         public const string PasteType_ResourceList = "resourceList"; // List of multiple resources
         public const string PasteType_JsonValue = "jsonValue"; // Single JSON value (number, object, array etc)
         public const string PasteType_BicepValue = "bicepValue"; // JSON value that is also valid Bicep (e.g. "[1, {}]")
+        public const string PasteType_EscapedString = "escapedString"; // String with "'"/etc escaped
 
         public enum PasteContext
         {
@@ -175,12 +177,23 @@ namespace Bicep.LanguageServer.Handlers
 
             if (pasteContext == PasteContext.String)
             {
-                // Don't convert to Bicep if inside a string
+                //asdfg don't do for multi-line
+                //asdfg I think we should only handle escaping apostrophes.  E.g. not \n
+
+                // Don't convert to Bicep if inside a string. Instead, assume it's a regular string and escape characters in it (e.g. changing "'" to "\'")
+                string encodedString = SyntaxFactory.EscapeBicepString(json);
+                string pasteType = PasteType_EscapedString;
                 return new ResultAndTelemetry(
                     new BicepDecompileForPasteCommandResult(
-                        decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteType: null, ErrorMessage: null,
-                        Bicep: null, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
+                        decompileId, output.ToString(), PasteContextToString(pasteContext), pasteType, ErrorMessage: null,
+                        Bicep: encodedString, Disclaimer: null),
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType, bicep: encodedString));
+
+                //return new ResultAndTelemetry(
+                //    new BicepDecompileForPasteCommandResult(
+                //        decompileId, output.ToString(), PasteContextToString(pasteContext), PasteType: null, ErrorMessage: null,
+                //        Bicep: null, Disclaimer: null),
+                //    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
             }
 
             if (!string.IsNullOrWhiteSpace(json))
@@ -209,7 +222,7 @@ namespace Bicep.LanguageServer.Handlers
             // It's not anything we know how to convert to Bicep
             return new ResultAndTelemetry(
                 new BicepDecompileForPasteCommandResult(
-                    decompileId, output.ToString(), PasteContextAsString(pasteContext), PasteType: null, ErrorMessage: null,
+                    decompileId, output.ToString(), PasteContextToString(pasteContext), PasteType: null, ErrorMessage: null,
                     Bicep: null, Disclaimer: null),
                 GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType: null, bicep: null));
         }
@@ -237,7 +250,7 @@ namespace Bicep.LanguageServer.Handlers
                 Log(output, $"Decompilation failed: {message}");
 
                 return new ResultAndTelemetry(
-                    new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType, message, Bicep: null, Disclaimer: null),
+                    new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), PasteContextToString(pasteContext), pasteType, message, Bicep: null, Disclaimer: null),
                     GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType, bicep: null));
             }
 
@@ -255,11 +268,11 @@ namespace Bicep.LanguageServer.Handlers
             // Show disclaimer and return result
             Log(output, DisclaimerMessage);
             return new ResultAndTelemetry(
-                new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType, null, bicepOutput, DisclaimerMessage),
+                new BicepDecompileForPasteCommandResult(decompileId, output.ToString(), PasteContextToString(pasteContext), pasteType, null, bicepOutput, DisclaimerMessage),
                 GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType, bicepOutput));
         }
 
-        private string? PasteContextAsString(PasteContext pasteContext)
+        private string? PasteContextToString(PasteContext pasteContext)
         {
             return pasteContext switch
             {
@@ -277,7 +290,7 @@ namespace Bicep.LanguageServer.Handlers
             // TODO: but we don't call back for telemetry if we use the result
             return queryCanPaste ?
                 null :
-                BicepTelemetryEvent.DecompileForPaste(decompileId, PasteContextAsString(pasteContext), pasteType, json.Length, bicep?.Length);
+                BicepTelemetryEvent.DecompileForPaste(decompileId, PasteContextToString(pasteContext), pasteType, json.Length, bicep?.Length);
         }
 
         private DecompileOptions GetDecompileOptions(string pasteType)
@@ -315,7 +328,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 return new ResultAndTelemetry(
                     new BicepDecompileForPasteCommandResult(
-                        decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType,
+                        decompileId, output.ToString(), PasteContextToString(pasteContext), pasteType,
                         ErrorMessage: null, bicep, Disclaimer: null),
                     GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType, bicep: null));
             }

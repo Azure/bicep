@@ -1007,7 +1007,7 @@ namespace Bicep.Decompiler
             /*
              * If there exist another nested template with the same path and filename but a different extension,
              * append ".bicep" to path of the current nested template to avoid the generate bicep files overwrite each other.
-             * Otherwise, change the extenstion of the nested template to ".bicep".
+             * Otherwise, change the extension of the nested template to ".bicep".
              */
             var moduleFilePath = (existIdenticalUrisWithDifferentExtensions
                 ? nestedRelativePath + ".bicep"
@@ -1024,7 +1024,7 @@ namespace Bicep.Decompiler
             where TToken : JToken
         {
             // Give it a fake name for now - it'll be replaced anyway.
-            // This avoids a lot of code duplication to be able to handle the unamed copy loop.
+            // This avoids a lot of code duplication to be able to handle the unnamed copy loop.
 
             return ProcessNamedCopySyntax(input, indexIdentifier, getSyntaxForInputFunc, count, "__BICEP_REPLACE");
         }
