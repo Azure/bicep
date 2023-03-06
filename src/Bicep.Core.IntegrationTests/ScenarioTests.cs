@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
-using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -1894,7 +1893,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"nameCopy\" -> \"name\")."),
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\")."),
-                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"name\" -> \"nameCopy\").")
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"name\" is not valid.")
             });
         }
 
@@ -4346,8 +4345,28 @@ output vaultId string = CertificateVault.id
 
             result.Should().GenerateATemplate();
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);            
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
             evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
+        }
+
+        // https://github.com/Azure/bicep/issues/9978
+        [TestMethod]
+        public void Test_Issue9978()
+        {
+            var result = CompilationHelper.Compile(@"
+param foo string = guid(foo)
+
+#disable-next-line no-unused-existing-resources
+resource asdf 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: foo
+}
+");
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"foo\" is not valid."),
+            });
         }
     }
 }

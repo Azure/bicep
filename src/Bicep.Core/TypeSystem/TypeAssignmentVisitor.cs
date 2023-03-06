@@ -111,6 +111,13 @@ namespace Bicep.Core.TypeSystem
             if (this.binder.TryGetCycle(declaredSymbol) is { } cycle)
             {
                 // there's a cycle. stop visiting now or we never will!
+
+                if (!cycle.Any(symbol => this.binder.IsDescendant(syntax, symbol.DeclaringSyntax)))
+                {
+                    // the supplied syntax is not part of the cycle, just a reference to the cyclic symbol.
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ReferencedSymbolHasErrors(declaredSymbol.Name));
+                }
+
                 if (cycle.Length == 1)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).CyclicExpressionSelfReference());

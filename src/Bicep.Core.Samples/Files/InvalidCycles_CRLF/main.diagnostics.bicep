@@ -52,7 +52,7 @@ var two = one.f
 // #completionTest(17) -> empty
 var twotwo = one.
 //@[04:10) [no-unused-vars (Warning)] Variable "twotwo" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |twotwo|
-//@[13:16) [BCP080 (Error)] The expression is involved in a cycle ("one" -> "two"). (CodeDescription: none) |one|
+//@[13:16) [BCP062 (Error)] The referenced declaration with name "one" is not valid. (CodeDescription: none) |one|
 //@[17:17) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // resource completion cycles
