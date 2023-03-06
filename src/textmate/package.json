@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "tmlanguage-generator": "^0.3.2",
+    "tmlanguage-generator": "^0.4.0",
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^28.1.8",
     "@types/node": "^18.14.6",
