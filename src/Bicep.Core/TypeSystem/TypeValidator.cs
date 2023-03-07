@@ -83,14 +83,12 @@ namespace Bicep.Core.TypeSystem
                 return false;
             }
 
-            if (sourceType is AnyType)
-            {
-                // "any" type is assignable to all types
-                return true;
-            }
-
             switch (sourceType, targetType)
             {
+                case (AnyType, _):
+                    // "any" type is assignable to all types except never
+                    return targetType != LanguageConstants.Never;
+
                 case (_, AnyType):
                     // values of all types can be assigned to the "any" type
                     return true;

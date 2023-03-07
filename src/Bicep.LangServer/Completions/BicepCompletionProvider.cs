@@ -1674,9 +1674,10 @@ namespace Bicep.LanguageServer.Completions
             var completion = CompletionItemBuilder.Create(kind, insertText);
 
             CompletionPriority priority;
-            if (symbol is ITypeReference symbolTypeRef
-                && contextAcceptingType != null
+            if (contextAcceptingType != null
                 && contextAcceptingType.TypeKind != TypeKind.Any
+                && symbol is ITypeReference symbolTypeRef
+                && symbolTypeRef.Type.TypeKind != TypeKind.Any
                 && TypeValidator.AreTypesAssignable(symbolTypeRef.Type, contextAcceptingType, true))
             {
                 priority = CompletionPriority.VeryHigh;
