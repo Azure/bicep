@@ -192,6 +192,7 @@ aaa: bbb
             $"var foo = bar{Environment.NewLine}",
             new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true));
 
+        // TODO: fix in formatter v2.
         [TestMethod]
         public void PrintProgram_CommentAfterOpenSyntax_ShouldMoveToNextLineAndIndent() => this.TestPrintProgram(
 // Raw.
@@ -226,32 +227,32 @@ param bar array = [     /*I can be anywhere */          // I can be anywhere
   false
 ]",
 // Formatted.
-@"param foo object = { // I can be anywhere
-}
+@"param foo object = {// I can be anywhere
+  }
 
-param foo object = { // I can be anywhere
+param foo object = {// I can be anywhere
   abc: true
 }
 
-param foo object = { /* I can be anywhere */
+param foo object = {/* I can be anywhere */
   abc: true
   xyz: false
 }
 
-param foo object = { /* I can
+param foo object = {/* I can
   be anywhere */
   abc: true
   xyz: false
 }
 
-param bar array = [ // I can be anywhere
-]
+param bar array = [// I can be anywhere
+  ]
 
-param bar array = [ // I can be anywhere
+param bar array = [// I can be anywhere
   true
 ]
 
-param bar array = [ /*I can be anywhere */ // I can be anywhere
+param bar array = [/*I can be anywhere */ // I can be anywhere
   true
   false
 ]");
@@ -295,7 +296,7 @@ param bar array = [
   false
    /* I can be anywhere */       /* I can be anywhere */]",
 // Formatted.
-@"param foo object = { /* I can be anywhere */}
+@"param foo object = {/* I can be anywhere */ }
 
 param foo object = {
 /* I can be anywhere */}
@@ -320,7 +321,7 @@ param foo object = {
 param bar array = [
 /* I can be anywhere */]
 
-param bar array = [ /* I can be anywhere */]
+param bar array = [/* I can be anywhere */ ]
 
 param bar array = [
   true
@@ -588,13 +589,13 @@ var foo = {
 // I can be anywhere
 param foo string // I can be anywhere
 // I can be anywhere
-param bar string = { /* I can be
+param bar string = {/* I can be
 anywhere */ /* I can be anywhere */
   foo: true
   bar /* I can be anywhere */: false
   /* I can be anywhere */baz: [
     bar
-    az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[ /* I can be anywhere */1 /* I can be anywhere */] /* I can be anywhere */. /* I can be anywhere */baz // I can be anywhere
+    az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[/* I can be anywhere */ 1 /* I can be anywhere */] /* I can be anywhere */./* I can be anywhere */ baz // I can be anywhere
     true
     {
       m: [
