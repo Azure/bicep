@@ -870,42 +870,16 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
-        private static IEnumerable<TypeSymbol> GetContextualSymbolTypes(SemanticModel model, BicepCompletionContext context)
+        private static IEnumerable<TypeSymbol> GetContextualAssignableTypes(SemanticModel model, BicepCompletionContext context)
         {
-            // TODO: clean this up
-            var contextualTypes = new List<TypeSymbol>();
-
-            if (context.Property != null)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ArrayItem) && context.Array != null)
             {
-                var declaredType = model.GetDeclaredType(context.Property);
-
-                void CollectBaseTypes(TypeSymbol currentType, List<TypeSymbol> allTypes)
+                var arrayItemType = model.GetDeclaredType(context.Array)?.UnwrapArrayType();
+                if (arrayItemType != null)
                 {
-                    if (currentType is ArrayType arrayType)
-                    {
-                        currentType = arrayType.Item.Type;
-                    }
-
-                    if (currentType is UnionType unionType)
-                    {
-                        foreach (var memberType in unionType.Members)
-                        {
-                            CollectBaseTypes(memberType.Type, allTypes);
-                        }
-                    }
-                    else
-                    {
-                        allTypes.Add(currentType.Type);
-                    }
-                }
-
-                if (declaredType != null)
-                {
-                    CollectBaseTypes(declaredType, contextualTypes);
+                    yield return arrayItemType;
                 }
             }
-
-            return contextualTypes;
         }
 
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
@@ -921,7 +895,7 @@ namespace Bicep.LanguageServer.Completions
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
-            var contextualSymbolTypes = GetContextualSymbolTypes(model, context).ToImmutableList();
+            var contextAssignableTypes = GetContextualAssignableTypes(model, context).ToImmutableList();
 
             // local function
             void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
@@ -934,7 +908,7 @@ namespace Bicep.LanguageServer.Completions
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, contextAssignableTypes: contextualSymbolTypes));
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, contextAssignableTypes: contextAssignableTypes));
                     }
                 }
             }
