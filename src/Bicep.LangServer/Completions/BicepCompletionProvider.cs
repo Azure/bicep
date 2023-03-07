@@ -870,6 +870,44 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
+        private static IEnumerable<TypeSymbol> GetContextualSymbolTypes(SemanticModel model, BicepCompletionContext context)
+        {
+            // TODO: clean this up
+            var contextualTypes = new List<TypeSymbol>();
+
+            if (context.Property != null)
+            {
+                var declaredType = model.GetDeclaredType(context.Property);
+
+                void CollectBaseTypes(TypeSymbol currentType, List<TypeSymbol> allTypes)
+                {
+                    if (currentType is ArrayType arrayType)
+                    {
+                        currentType = arrayType.Item.Type;
+                    }
+
+                    if (currentType is UnionType unionType)
+                    {
+                        foreach (var memberType in unionType.Members)
+                        {
+                            CollectBaseTypes(memberType.Type, allTypes);
+                        }
+                    }
+                    else
+                    {
+                        allTypes.Add(currentType.Type);
+                    }
+                }
+
+                if (declaredType != null)
+                {
+                    CollectBaseTypes(declaredType, contextualTypes);
+                }
+            }
+
+            return contextualTypes;
+        }
+
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // maps insert text to the completion item
@@ -883,6 +921,8 @@ namespace Bicep.LanguageServer.Completions
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
+            var contextualSymbolTypes = GetContextualSymbolTypes(model, context).ToImmutableList();
+
             // local function
             void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
             {
@@ -894,7 +934,7 @@ namespace Bicep.LanguageServer.Completions
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange));
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, contextAssignableTypes: contextualSymbolTypes));
                     }
                 }
             }
@@ -1649,14 +1689,26 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, IEnumerable<TypeSymbol>? contextAssignableTypes = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
-            var priority = GetCompletionPriority(symbol);
+            var completion = CompletionItemBuilder.Create(kind, insertText);
 
-            var completion = CompletionItemBuilder.Create(kind, insertText)
-                .WithSortText(GetSortText(insertText, priority));
+            CompletionPriority priority;
+            if (symbol is ITypeReference symbolTypeRef
+                && contextAssignableTypes != null
+                && contextAssignableTypes.Any((t) => TypeValidator.AreTypesAssignable(symbolTypeRef.Type, t)))
+            {
+                priority = CompletionPriority.VeryHigh;
+                completion.Preselect();
+            }
+            else
+            {
+                priority = GetCompletionPriority(symbol);
+            }
+
+            completion.WithSortText(GetSortText(insertText, priority));
 
             if (symbol is ResourceSymbol)
             {
