@@ -24,6 +24,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
@@ -2385,13 +2386,28 @@ Returns the unique identifier of a resource. You use this function when the reso
         }
 
         [TestMethod]
-        public async Task VerifyCompletionRequestResourceDependsOn()
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority()
         {
-            string fileWithCursors = @"
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            string mainContent = @"
 resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'bar'
 }
 var notAResource = 'I\'m a string!'
+module aModule 'mod.bicep' = {
+  name: 'someModule'
+}
+resource storageArr 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
+  name: 'storage${i}'
+  kind: 'StorageV2'
+}]
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'foo'
   dependsOn: [
@@ -2399,11 +2415,29 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   ]
 }";
 
-            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
-            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [mainUri] = text
+            };
 
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursors[0]);
-            completions.First().Should().Match<CompletionItem>((c) => c.Label == "aResource");
+
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().Contain(c => c.Label == "aModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aModule");
+            completions.Should().Contain(c => c.Label == "storageArr" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_storageArr");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
         }
 
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
