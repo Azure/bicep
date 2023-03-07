@@ -1,0 +1,177 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Linq;
+using System.Threading.Tasks;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
+using Bicep.Core.UnitTests.Assertions;
+using FluentAssertions;
+using Json.More;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
+
+namespace Bicep.Core.UnitTests;
+
+[TestClass]
+public class JsonElementTests
+{
+    [TestMethod]
+    [Ignore("Suspected to be caused by https://github.com/dotnet/runtime/issues/77421. Verify this has been fixed once System.Text.Json >7.0.3 is incorporated")]
+    public void Merge_can_operate_in_parallel()
+    {
+        var source = @"{
+  // This is the base configuration which provides the defaults for all values (end users don't see this file).
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
+      }
+    }
+  },
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""api.loganalytics.io"",
+            ""azuredatalakeanalytics.net"",
+            ""azuredatalakestore.net"",
+            ""batch.core.windows.net"",
+            ""core.windows.net"",
+            ""database.windows.net"",
+            ""datalake.azure.net"",
+            ""gallery.azure.com"",
+            ""graph.windows.net"",
+            ""login.microsoftonline.com"",
+            ""management.azure.com"",
+            ""management.core.windows.net"",
+            ""region.asazure.windows.net"",
+            ""trafficmanager.net"",
+            ""vault.azure.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        }
+      }
+    }
+  },
+  ""experimentalFeaturesEnabled"": {}
+}";
+
+            var target = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var element = JsonElementFactory.CreateElement(target);
+            var config = JsonElementFactory.CreateElement(source);
+
+            Parallel.ForEach(Enumerable.Range(1, 1000000).ToList().AsParallel(), i =>
+            {
+                var result = config.Merge(element);
+                JToken.Parse(result.ToJsonString()).Should().DeepEqual(JToken.Parse(@"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
+      }
+    }
+  },
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""api.loganalytics.io"",
+            ""azuredatalakeanalytics.net"",
+            ""azuredatalakestore.net"",
+            ""batch.core.windows.net"",
+            ""core.windows.net"",
+            ""database.windows.net"",
+            ""datalake.azure.net"",
+            ""gallery.azure.com"",
+            ""graph.windows.net"",
+            ""login.microsoftonline.com"",
+            ""management.azure.com"",
+            ""management.core.windows.net"",
+            ""region.asazure.windows.net"",
+            ""trafficmanager.net"",
+            ""vault.azure.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        },
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  },
+  ""experimentalFeaturesEnabled"": {}
+}"));
+        });
+    }
+}
