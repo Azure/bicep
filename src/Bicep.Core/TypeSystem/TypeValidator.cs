@@ -1,5 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -7,11 +13,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -73,8 +74,9 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         /// <param name="sourceType">The source type</param>
         /// <param name="targetType">The target type</param>
+        /// <param name="isSymbolReference">Is the context of the type check for a symbol reference?</param>
         /// <returns>Returns true if values of the specified source type are assignable to the target type. Returns false otherwise or null if assignability cannot be determined.</returns>
-        public static bool AreTypesAssignable(TypeSymbol sourceType, TypeSymbol targetType)
+        public static bool AreTypesAssignable(TypeSymbol sourceType, TypeSymbol targetType, bool isSymbolReference = false)
         {
             if (sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment) || targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment))
             {
@@ -111,11 +113,11 @@ namespace Bicep.Core.TypeSystem
                     // Assigning a resource to a parameter ignores the API Version
                     return sourceResourceType.TypeReference.FormatType().Equals(resourceParameterType.TypeReference.FormatType(), StringComparison.OrdinalIgnoreCase);
 
-                case (ResourceType sourceResourceType, _):
+                case (ResourceType sourceResourceType, _) when !isSymbolReference:
                     // When assigning a resource, we're really assigning the value of the resource body.
                     return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
 
-                case (ModuleType sourceModuleType, _):
+                case (ModuleType sourceModuleType, _) when !isSymbolReference:
                     // When assigning a module, we're really assigning the value of the module body.
                     return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
 
