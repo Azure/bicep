@@ -870,20 +870,20 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
-        private static TypeSymbol GetContextualAssignableTypeUnion(SemanticModel model, BicepCompletionContext context)
+        private static TypeSymbol GetContextAcceptingTypeUnion(SemanticModel model, BicepCompletionContext context)
         {
-            List<TypeSymbol> assignableTypes = new();
+            List<TypeSymbol> acceptedTypes = new();
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ArrayItem) && context.Array != null)
             {
                 var arrayItemType = model.GetDeclaredType(context.Array)?.UnwrapArrayType();
                 if (arrayItemType != null)
                 {
-                    assignableTypes.Add(arrayItemType);
+                    acceptedTypes.Add(arrayItemType);
                 }
             }
 
-            return TypeHelper.CreateTypeUnion(assignableTypes);
+            return TypeHelper.CreateTypeUnion(acceptedTypes);
         }
 
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
@@ -899,7 +899,7 @@ namespace Bicep.LanguageServer.Completions
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
-            var contextAssignableType = GetContextualAssignableTypeUnion(model, context);
+            var contextAcceptingType = GetContextAcceptingTypeUnion(model, context);
 
             // local function
             void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
@@ -912,7 +912,7 @@ namespace Bicep.LanguageServer.Completions
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, contextAssignableType: contextAssignableType));
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, contextAcceptingType: contextAcceptingType));
                     }
                 }
             }
@@ -1667,7 +1667,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, TypeSymbol? contextAssignableType = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, TypeSymbol? contextAcceptingType = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
@@ -1675,9 +1675,9 @@ namespace Bicep.LanguageServer.Completions
 
             CompletionPriority priority;
             if (symbol is ITypeReference symbolTypeRef
-                && contextAssignableType != null
-                && contextAssignableType.TypeKind != TypeKind.Any
-                && TypeValidator.AreTypesAssignable(symbolTypeRef.Type, contextAssignableType, true))
+                && contextAcceptingType != null
+                && contextAcceptingType.TypeKind != TypeKind.Any
+                && TypeValidator.AreTypesAssignable(symbolTypeRef.Type, contextAcceptingType, true))
             {
                 priority = CompletionPriority.VeryHigh;
                 completion.Preselect();
