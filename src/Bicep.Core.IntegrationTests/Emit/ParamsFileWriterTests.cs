@@ -207,7 +207,7 @@ param myInt = 1", @"
                 result.Parameters.Should().BeNull();
                 result.Diagnostics.Should().HaveDiagnostics(new[]
                 {
-                    ("BCP261", DiagnosticLevel.Warning, "No using declaration is present in this parameters file. Parameter validation/completions will not be available"),
+                    ("BCP261", DiagnosticLevel.Error, "A using declaration must be present in this parameters file."),
                     ("BCP252", DiagnosticLevel.Error, "Binary operator is not allowed in Bicep parameter file.")
                 });
             }
