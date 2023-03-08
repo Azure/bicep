@@ -97,7 +97,6 @@ namespace Bicep.Cli.Commands
                             var bicepOutputPath = PathHelper.ResolveDefaultOutputPath(bicepFileUsingPathUri.AbsolutePath, null, args.OutputParamsFile, DefaultOutputPath);
 
                             writer.ToFile(paramsCompilation, paramsOutputPath);
-
                             writer.ToFile(bicepSemanticModel, bicepOutputPath);
                         }
                     }
