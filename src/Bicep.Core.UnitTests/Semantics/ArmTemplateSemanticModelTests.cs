@@ -7,7 +7,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Semantics;
 
@@ -208,9 +207,9 @@ public class ArmTemplateSemanticModelTests
     }
 
     [TestMethod]
-    public void Model_handles_missing_type_reference_targets()
+    public void Model_with_missing_type_reference_targets_is_a_load_error()
     {
-        var parameterType = GetLoadedParameterType(@"{
+        var model = LoadModel(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
           ""languageVersion"": ""1.10-experimental"",
@@ -223,18 +222,15 @@ public class ArmTemplateSemanticModelTests
             }
           }
         }
-        ", "refParam");
+        ");
 
-        parameterType.Type.Should().BeOfType<ErrorType>();
-        var loadError = parameterType.Type.GetDiagnostics().Single();
-        loadError.Code.Should().Be("BCP319");
-        loadError.Message.Should().Be("The type at \"parameters.refParam.$ref\" could not be resolved by the ARM JSON template engine. Original error message: \"Invalid reference encountered at 'parameters.refParam.$ref'. '#/definitions' not found in template. Please see https://aka.ms/arm-syntax-parameters for usage details.\"");
+        model.HasErrors().Should().BeTrue();
     }
 
     [TestMethod]
-    public void Model_handles_cyclic_type_references()
+    public void Model_with_cyclic_type_references_is_a_load_error()
     {
-        var parameterType = GetLoadedParameterType(@"{
+        var model = LoadModel(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
           ""languageVersion"": ""1.10-experimental"",
@@ -253,9 +249,9 @@ public class ArmTemplateSemanticModelTests
             }
           }
         }
-        ", "refParam");
+        ");
 
-        parameterType.Type.Should().BeOfType<ErrorType>();
+        model.HasErrors().Should().BeTrue();
     }
 
     [TestMethod]
@@ -371,8 +367,11 @@ public class ArmTemplateSemanticModelTests
 
     private static TypeSymbol GetLoadedParameterType(string jsonTemplate, string parameterName)
     {
-        ArmTemplateSemanticModel model = new(SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
+        var model = LoadModel(jsonTemplate);
         model.Parameters.TryGetValue(parameterName, out var parameter).Should().BeTrue();
         return parameter!.TypeReference.Type;
     }
+
+    private static ArmTemplateSemanticModel LoadModel(string jsonTemplate)
+        => new(SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
 }

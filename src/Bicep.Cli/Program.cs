@@ -47,8 +47,6 @@ namespace Bicep.Cli
             ProfileOptimization.StartProfile("bicep.profile");
             Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
-            BicepDeploymentsInterop.Initialize();
-
             if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
