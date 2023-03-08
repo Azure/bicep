@@ -193,10 +193,10 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(moduleReference, compiled, documentationUri);
         }
 
-        public bool CheckModuleExists(ModuleReference moduleReference)
+        public async Task<bool> CheckModuleExists(ModuleReference moduleReference)
         {
             var registry = this.GetRegistry(moduleReference);
-            return registry.CheckModuleExists(moduleReference);
+            return await registry.CheckModuleExists(moduleReference);
         }
 
         public void PruneRestoreStatuses()

@@ -20,7 +20,7 @@ namespace Bicep.Core.Registry
 
         public abstract bool IsModuleRestoreRequired(T reference);
 
-        public abstract bool CheckModuleExists(T reference);
+        public abstract Task<bool> CheckModuleExists(T reference);
 
         public abstract Task PublishModule(T reference, Stream compiled, string? documentationUri);
 
@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
 
         public bool IsModuleRestoreRequired(ModuleReference reference) => this.IsModuleRestoreRequired(ConvertReference(reference));
 
-        public bool CheckModuleExists(ModuleReference reference) => this.CheckModuleExists(ConvertReference(reference));
+        public Task<bool> CheckModuleExists(ModuleReference reference) => this.CheckModuleExists(ConvertReference(reference));
 
         public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri) => this.PublishModule(ConvertReference(moduleReference), compiled, documentationUri);
 

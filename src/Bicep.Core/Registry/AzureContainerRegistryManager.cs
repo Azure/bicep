@@ -105,44 +105,11 @@ namespace Bicep.Core.Registry
             var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(tag: moduleReference.Tag));
         }
 
-        public bool CheckArtifactExists(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
-        {
-            var client = this.CreateRegistryClient(configuration, moduleReference);
-
-            try
-            {
-                Trace.WriteLine($"Authenticated attempt to check if artifact exists for module {moduleReference.FullyQualifiedReference}.");
-                // Try authenticated client first.
-                // Check if there is an artifact with the expected tag
-                var artifact = client.GetArtifact(moduleReference.Repository, moduleReference.Tag);
-                var tagInfo = artifact.GetTagProperties(moduleReference.Tag);
-                return artifact.GetAllTagProperties().Any(a => a.Name == moduleReference.Tag);
-            }
-            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
-            {
-                Trace.WriteLine($"Authenticated attempt to check if artifact exists for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous attempt.");
-                // Fall back to anonymous client.
-                client = this.CreateRegistryClient(configuration, moduleReference, anonymousAccess: true);
-                var artifact = client.GetArtifact(moduleReference.Repository, moduleReference.Tag);
-                var tagInfo = artifact.GetTagProperties(moduleReference.Tag);
-                return artifact.GetAllTagProperties().Any(a => a.Name == moduleReference.Tag);
-            }
-            catch (RequestFailedException exception) when (exception.Status == 404)
-            {
-                // Found no module with tag
-                return false;
-            }
-        }
-
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
 
         private ContainerRegistryBlobClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess = false) => anonymousAccess
             ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
-
-        private ContainerRegistryClient CreateRegistryClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess = false) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousRegistryClient(configuration, GetRegistryUri(moduleReference))
-            : this.clientFactory.CreateAuthenticatedRegistryClient(configuration, GetRegistryUri(moduleReference));
 
         private static async Task<(OciManifest, Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryBlobClient client)
         {

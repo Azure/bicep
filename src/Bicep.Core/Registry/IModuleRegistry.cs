@@ -43,12 +43,6 @@ namespace Bicep.Core.Registry
         bool IsModuleRestoreRequired(ModuleReference reference);
 
         /// <summary>
-        /// Returns true if the specified module exists in the registry.
-        /// </summary>
-        /// <param name="reference">The reference to the module.</param>
-        bool CheckModuleExists(ModuleReference reference);
-
-        /// <summary>
         /// Returns a URI to the entry point module.
         /// </summary>
         /// <param name="reference">The module reference</param>
@@ -56,6 +50,12 @@ namespace Bicep.Core.Registry
         /// <param name="failureBuilder">set to an error builder if parsing fails</param>
         /// <returns></returns>
         bool TryGetLocalModuleEntryPointUri(ModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+
+        /// <summary>
+        /// Returns true if the specified module exists in the registry.
+        /// </summary>
+        /// <param name="reference">The reference to the module.</param>
+        Task<bool> CheckModuleExists(ModuleReference reference);
 
         /// <summary>
         /// Downloads the specified modules from the registry and caches them locally.

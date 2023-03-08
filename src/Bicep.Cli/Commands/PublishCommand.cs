@@ -83,7 +83,7 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && this.moduleDispatcher.CheckModuleExists(target))
+                if (!overwriteIfExists && await this.moduleDispatcher.CheckModuleExists(target))
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
