@@ -18,12 +18,14 @@ namespace Bicep.Core.UnitTests.Emit
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private const string Text = @"
+param resourceParam resource 'MyApi@2022-02-02'
 var things = ''
 var keys = listKeys('fake','fake')
 var indirection = concat(things, keys)
 
 var runtimeLoop = [for (item, index) in []: indirection]
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
+var resourceParamProp = resourceParam.properties.prop
 ";
         [TestMethod]
         public void VisitorShouldCalculateInliningInBulk()
@@ -37,7 +39,8 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
                 GetVariableSymbolByName(compilation, "keys"),
                 GetVariableSymbolByName(compilation, "indirection"),
                 GetVariableSymbolByName(compilation, "runtimeLoop"),
-                GetVariableSymbolByName(compilation, "runtimeLoop2")
+                GetVariableSymbolByName(compilation, "runtimeLoop2"),
+                GetVariableSymbolByName(compilation, "resourceParamProp")
             });
         }
 

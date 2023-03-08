@@ -146,6 +146,16 @@ namespace Bicep.Core.Emit
 
             switch (model.GetSymbolInfo(syntax))
             {
+                case ParameterSymbol parameterSymbol:
+                    // The the parameter is a resource type this call needs to be inlined
+                    // because references cannot be used in variables.
+                    if (parameterSymbol.DeclaringParameter.Type is ResourceTypeSyntax)
+                    {
+                        SetInlineCache(true);
+                    }
+                    
+                    return;
+
                 case VariableSymbol variableSymbol:
                     var previousStack = this.currentStack;
                     if (!shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline))
