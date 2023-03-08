@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1317) ProgramSyntax
+//@[00:1480) ProgramSyntax
 //@[00:0299) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -610,6 +610,20 @@ param paramUsingType mixedArray
 //@[21:0031) |     └─Token(Identifier) |mixedArray|
 //@[31:0033) ├─Token(NewLine) |\n\n|
 
+output outputUsingType mixedArray = paramUsingType
+//@[00:0050) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0022) | ├─IdentifierSyntax
+//@[07:0022) | | └─Token(Identifier) |outputUsingType|
+//@[23:0033) | ├─VariableAccessSyntax
+//@[23:0033) | | └─IdentifierSyntax
+//@[23:0033) | |   └─Token(Identifier) |mixedArray|
+//@[34:0035) | ├─Token(Assignment) |=|
+//@[36:0050) | └─VariableAccessSyntax
+//@[36:0050) |   └─IdentifierSyntax
+//@[36:0050) |     └─Token(Identifier) |paramUsingType|
+//@[50:0052) ├─Token(NewLine) |\n\n|
+
 type tuple = [
 //@[00:0129) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
@@ -710,27 +724,78 @@ param mightIncludeNull ({key: 'value'} | null)[]
 //@[47:0048) |   └─Token(RightSquare) |]|
 //@[48:0050) ├─Token(NewLine) |\n\n|
 
-var maybeNull = mightIncludeNull[0]!.key
+var nonNull = mightIncludeNull[0]!.key
+//@[00:0038) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0011) | ├─IdentifierSyntax
+//@[04:0011) | | └─Token(Identifier) |nonNull|
+//@[12:0013) | ├─Token(Assignment) |=|
+//@[14:0038) | └─PropertyAccessSyntax
+//@[14:0034) |   ├─NonNullAssertionSyntax
+//@[14:0033) |   | ├─ArrayAccessSyntax
+//@[14:0030) |   | | ├─VariableAccessSyntax
+//@[14:0030) |   | | | └─IdentifierSyntax
+//@[14:0030) |   | | |   └─Token(Identifier) |mightIncludeNull|
+//@[30:0031) |   | | ├─Token(LeftSquare) |[|
+//@[31:0032) |   | | ├─IntegerLiteralSyntax
+//@[31:0032) |   | | | └─Token(Integer) |0|
+//@[32:0033) |   | | └─Token(RightSquare) |]|
+//@[33:0034) |   | └─Token(Exclamation) |!|
+//@[34:0035) |   ├─Token(Dot) |.|
+//@[35:0038) |   └─IdentifierSyntax
+//@[35:0038) |     └─Token(Identifier) |key|
+//@[38:0040) ├─Token(NewLine) |\n\n|
+
+output nonNull string = nonNull
+//@[00:0031) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0014) | ├─IdentifierSyntax
+//@[07:0014) | | └─Token(Identifier) |nonNull|
+//@[15:0021) | ├─VariableAccessSyntax
+//@[15:0021) | | └─IdentifierSyntax
+//@[15:0021) | |   └─Token(Identifier) |string|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0031) | └─VariableAccessSyntax
+//@[24:0031) |   └─IdentifierSyntax
+//@[24:0031) |     └─Token(Identifier) |nonNull|
+//@[31:0033) ├─Token(NewLine) |\n\n|
+
+var maybeNull = mightIncludeNull[0].?key
 //@[00:0040) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0013) | ├─IdentifierSyntax
 //@[04:0013) | | └─Token(Identifier) |maybeNull|
 //@[14:0015) | ├─Token(Assignment) |=|
 //@[16:0040) | └─PropertyAccessSyntax
-//@[16:0036) |   ├─NonNullAssertionSyntax
-//@[16:0035) |   | ├─ArrayAccessSyntax
-//@[16:0032) |   | | ├─VariableAccessSyntax
-//@[16:0032) |   | | | └─IdentifierSyntax
-//@[16:0032) |   | | |   └─Token(Identifier) |mightIncludeNull|
-//@[32:0033) |   | | ├─Token(LeftSquare) |[|
-//@[33:0034) |   | | ├─IntegerLiteralSyntax
-//@[33:0034) |   | | | └─Token(Integer) |0|
-//@[34:0035) |   | | └─Token(RightSquare) |]|
-//@[35:0036) |   | └─Token(Exclamation) |!|
-//@[36:0037) |   ├─Token(Dot) |.|
+//@[16:0035) |   ├─ArrayAccessSyntax
+//@[16:0032) |   | ├─VariableAccessSyntax
+//@[16:0032) |   | | └─IdentifierSyntax
+//@[16:0032) |   | |   └─Token(Identifier) |mightIncludeNull|
+//@[32:0033) |   | ├─Token(LeftSquare) |[|
+//@[33:0034) |   | ├─IntegerLiteralSyntax
+//@[33:0034) |   | | └─Token(Integer) |0|
+//@[34:0035) |   | └─Token(RightSquare) |]|
+//@[35:0036) |   ├─Token(Dot) |.|
+//@[36:0037) |   ├─Token(Question) |?|
 //@[37:0040) |   └─IdentifierSyntax
 //@[37:0040) |     └─Token(Identifier) |key|
 //@[40:0042) ├─Token(NewLine) |\n\n|
+
+output maybeNull string? = maybeNull
+//@[00:0036) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0016) | ├─IdentifierSyntax
+//@[07:0016) | | └─Token(Identifier) |maybeNull|
+//@[17:0024) | ├─NullableTypeSyntax
+//@[17:0023) | | ├─VariableAccessSyntax
+//@[17:0023) | | | └─IdentifierSyntax
+//@[17:0023) | | |   └─Token(Identifier) |string|
+//@[23:0024) | | └─Token(Question) |?|
+//@[25:0026) | ├─Token(Assignment) |=|
+//@[27:0036) | └─VariableAccessSyntax
+//@[27:0036) |   └─IdentifierSyntax
+//@[27:0036) |     └─Token(Identifier) |maybeNull|
+//@[36:0038) ├─Token(NewLine) |\n\n|
 
 type nullable = string?
 //@[00:0023) ├─TypeDeclarationSyntax

@@ -627,4 +627,31 @@ param myParam 'foo' | 'bar'
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
     }
+
+    [TestMethod]
+    public void Constraint_decorators_permitted_on_outputs()
+    {
+        var result = CompilationHelper.Compile(@"
+@minLength(3)
+@maxLength(5)
+@description('A string with a bunch of constraints')
+output foo string = 'foo'
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void User_defined_types_may_be_used_with_outputs()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(3)
+@maxLength(4)
+type constrainedString = string
+
+output arrayOfConstrainedStrings constrainedString[] = ['fizz', 'buzz', 'pop']
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

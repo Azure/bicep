@@ -907,11 +907,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP145",
                 $"Output \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic ExpectedOutputType() => new(
-                TextSpan,
-                "BCP146",
-                $"Expected an output type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
-
             public ErrorDiagnostic ExpectedParameterDeclarationAfterDecorator() => new(
                 TextSpan,
                 "BCP147",

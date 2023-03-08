@@ -56,7 +56,8 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 //@[6:16) [no-unused-params (Warning)] Parameter "unionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |unionParam|
 
 param paramUsingType mixedArray
-//@[6:20) [no-unused-params (Warning)] Parameter "paramUsingType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramUsingType|
+
+output outputUsingType mixedArray = paramUsingType
 
 type tuple = [
     @description('A leading string')
@@ -72,8 +73,13 @@ type stringStringDictionary = {
 
 param mightIncludeNull ({key: 'value'} | null)[]
 
-var maybeNull = mightIncludeNull[0]!.key
-//@[4:13) [no-unused-vars (Warning)] Variable "maybeNull" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |maybeNull|
+var nonNull = mightIncludeNull[0]!.key
+
+output nonNull string = nonNull
+
+var maybeNull = mightIncludeNull[0].?key
+
+output maybeNull string? = maybeNull
 
 type nullable = string?
 

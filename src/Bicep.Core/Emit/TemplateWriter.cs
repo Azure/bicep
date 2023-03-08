@@ -216,33 +216,28 @@ namespace Bicep.Core.Emit
                     parameterObject = parameterObject.MergeProperty("defaultValue", parameter.DefaultValue);
                 }
 
-                parameterObject = AddDecoratorsToBody(declaringParameter, parameterObject, parameter.Symbol.Type);
-
-                foreach (var property in parameterObject.Properties)
-                {
-                    if (property.TryGetKeyText() is string propertyName)
-                    {
-                        emitter.EmitProperty(propertyName, property.Value);
-                    }
-                }
+                EmitProperties(emitter, AddDecoratorsToBody(declaringParameter, parameterObject, parameter.Symbol.Type));
             }, parameter.SourceSyntax);
         }
 
-        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        private void EmitProperties(ExpressionEmitter emitter, ObjectExpression objectExpression)
         {
-            jsonWriter.WriteStartObject();
-
-            var typeDefinitionObject = TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value);
-
-            typeDefinitionObject = AddDecoratorsToBody(declaredTypeSymbol.DeclaringType, typeDefinitionObject, declaredTypeSymbol.Type);
-
-            foreach (var property in typeDefinitionObject.Properties)
+            foreach (var property in objectExpression.Properties)
             {
                 if (property.TryGetKeyText() is string propertyName)
                 {
                     emitter.EmitProperty(propertyName, property.Value);
                 }
             }
+        }
+
+        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        {
+            jsonWriter.WriteStartObject();
+
+            EmitProperties(emitter, AddDecoratorsToBody(declaredTypeSymbol.DeclaringType,
+                TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value),
+                declaredTypeSymbol.Type));
 
             jsonWriter.WriteEndObject();
         }
@@ -934,26 +929,10 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObjectProperty(output.Name, () =>
             {
-                var properties = new List<ObjectPropertyExpression>();
-                if (output.Symbol.Type is ResourceType resourceType)
-                {
-                    // Resource-typed outputs are encoded as strings
-                    emitter.EmitProperty("type", LanguageConstants.String.Name);
-
-                    properties.Add(
-                        ExpressionFactory.CreateObjectProperty(
-                            LanguageConstants.ParameterMetadataPropertyName,
-                            ExpressionFactory.CreateObject(
-                                new [] {
-                                    ExpressionFactory.CreateObjectProperty(
-                                        LanguageConstants.MetadataResourceTypePropertyName,
-                                        ExpressionFactory.CreateStringLiteral(resourceType.TypeReference.FormatName()))
-                                })));
-                }
-                else
-                {
-                    emitter.EmitProperty("type", output.Symbol.Type.Name);
-                }
+                var declaringOutput = output.Symbol.DeclaringOutput;
+                EmitProperties(emitter, AddDecoratorsToBody(declaringOutput,
+                    TypePropertiesForTypeExpression(declaringOutput.Type),
+                    output.Symbol.Type));
 
                 if (output.Value is ForLoopExpression @for)
                 {
@@ -969,15 +948,6 @@ namespace Bicep.Core.Emit
                 else
                 {
                     emitter.EmitProperty("value", output.Value);
-                }
-
-                // emit any decorators on this output
-                foreach (var property in AddDecoratorsToBody(
-                    output.Symbol.DeclaringOutput,
-                    ExpressionFactory.CreateObject(properties),
-                    output.Symbol.Type).Properties)
-                {
-                    emitter.EmitProperty(property);
                 }
             }, output.SourceSyntax);
         }
