@@ -212,10 +212,18 @@ namespace Bicep.LanguageServer.Completions
                 // check if we're inside an expression
                 kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
 
-                if (kind.HasFlag(BicepCompletionContextKind.Expression) &&
-                    PropertyTypeShouldFlowThrough(matchingNodes, propertyInfo, offset))
+                if (kind.HasFlag(BicepCompletionContextKind.Expression))
                 {
-                    kind |= BicepCompletionContextKind.PropertyValue;
+                    if (PropertyTypeShouldFlowThrough(matchingNodes, propertyInfo, offset))
+                    {
+                        kind |= BicepCompletionContextKind.PropertyValue;
+                    }
+
+                    var arrayItemInfo = SyntaxMatcher.FindLastNodeOfType<ArrayItemSyntax, ArrayItemSyntax>(matchingNodes);
+                    if (ArrayItemTypeShouldFlowThrough(matchingNodes, arrayItemInfo))
+                    {
+                        kind |= BicepCompletionContextKind.ArrayItem;
+                    }
                 }
             }
 
@@ -625,6 +633,40 @@ namespace Bicep.LanguageServer.Completions
                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, SkippedTriviaSyntax>(matchingNodes, (parenthesizedExpression, _) =>
                     parenthesizedExpression.Expression is SkippedTriviaSyntax)) &&
                 matchingNodes.Skip(propertyInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool ArrayItemTypeShouldFlowThrough(List<SyntaxBase> matchingNodes, (ArrayItemSyntax? node, int index) arrayItemInfo)
+        {
+            if (arrayItemInfo.node is null)
+            {
+                return false;
+            }
+
+            // Array item types should flow through parenthesized and ternary expressions. For examples:
+            // [
+            //   ( | )
+            // ]
+            // [
+            //   conditionA ? | : false
+            // ]
+            // [
+            //   conditionA ? (conditionB ? true : |) : false
+            // ]
+            if ((SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(matchingNodes) ||
+                 SyntaxMatcher.IsTailMatch<TernaryOperationSyntax, Token>(matchingNodes) ||
+                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax>(matchingNodes) ||
+                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) ||
+                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, SkippedTriviaSyntax>(
+                     matchingNodes,
+                     (parenthesizedExpression, _) =>
+                         parenthesizedExpression.Expression is SkippedTriviaSyntax
+                 )) &&
+                matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax))
             {
                 return true;
             }
