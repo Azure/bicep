@@ -315,7 +315,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(literalVal1, literalVal2).Should().BeFalse();
 
             // same-name int literals should be assignable to each other
-            TypeValidator.AreTypesAssignable(literalVal1, new IntegerLiteralType(0, default)).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(literalVal1, TypeFactory.CreateIntegerLiteralType(literalVal1.Value)).Should().BeTrue();
 
             // int literals should be assignable to a primitive int
             TypeValidator.AreTypesAssignable(literalVal1, LanguageConstants.Int).Should().BeTrue();

@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class StringLiteralType : TypeSymbol
     {
-        public StringLiteralType(string value, TypeSymbolValidationFlags validationFlags)
+        internal StringLiteralType(string value, TypeSymbolValidationFlags validationFlags)
             // The name of the type should be set to the escaped string value (including quotes).
             // This affects how the type is displayed to the user, and is also used to compare two string literals types for equality.
             : this(StringUtils.EscapeBicepString(value), value, validationFlags) {}
@@ -26,9 +26,10 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-        public override bool Equals(object? other) =>
-            other is StringLiteralType otherStringLiteral ? RawStringValue == otherStringLiteral.RawStringValue : false;
+        public override bool Equals(object? other) => other is StringLiteralType otherStringLiteral &&
+            RawStringValue == otherStringLiteral.RawStringValue &&
+            ValidationFlags == otherStringLiteral.ValidationFlags;
 
-        public override int GetHashCode() => HashCode.Combine(TypeKind, RawStringValue);
+        public override int GetHashCode() => HashCode.Combine(TypeKind, RawStringValue, ValidationFlags);
     }
 }

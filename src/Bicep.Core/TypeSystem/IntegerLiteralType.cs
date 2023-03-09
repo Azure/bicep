@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem;
 
 public class IntegerLiteralType : TypeSymbol
 {
-    public IntegerLiteralType(long value, TypeSymbolValidationFlags validationFlags)
+    internal IntegerLiteralType(long value, TypeSymbolValidationFlags validationFlags)
         : base(value.ToString(CultureInfo.InvariantCulture))
     {
         Value = value;
@@ -21,8 +21,9 @@ public class IntegerLiteralType : TypeSymbol
 
     public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-    public override bool Equals(object? other) =>
-        other is IntegerLiteralType otherIntLiteral ? Value == otherIntLiteral.Value : false;
+    public override bool Equals(object? other) => other is IntegerLiteralType otherIntLiteral &&
+        Value == otherIntLiteral.Value &&
+        ValidationFlags == otherIntLiteral.ValidationFlags;
 
-    public override int GetHashCode() => HashCode.Combine(TypeKind, Value);
+    public override int GetHashCode() => HashCode.Combine(TypeKind, Value, ValidationFlags);
 }

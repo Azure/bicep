@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+
 namespace Bicep.Core.TypeSystem
 {
     public class ArrayType : TypeSymbol
     {
-        public ArrayType(TypeSymbolValidationFlags validationFlags = default, long? minLength = null, long? maxLength = null)
+        internal ArrayType(TypeSymbolValidationFlags validationFlags = default, long? minLength = null, long? maxLength = null)
             : this(LanguageConstants.ArrayType, LanguageConstants.Any, validationFlags, minLength, maxLength) {}
 
         protected ArrayType(string name, ITypeReference item, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
@@ -26,5 +28,14 @@ namespace Bicep.Core.TypeSystem
         public long? MinLength { get; }
 
         public long? MaxLength { get; }
+
+        public override bool Equals(object? other) => other is ArrayType otherArray &&
+            ValidationFlags == otherArray.ValidationFlags &&
+            MinLength == otherArray.MinLength &&
+            MaxLength == otherArray.MaxLength &&
+            Name == otherArray.Name &&
+            Item.Type == otherArray.Item.Type;
+
+        public override int GetHashCode() => HashCode.Combine(TypeKind, ValidationFlags, MinLength, MaxLength, Name, Item.Type);
     }
 }
