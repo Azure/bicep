@@ -227,6 +227,13 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
+            if (propertyInfo.node?.TryGetKeyText() == LanguageConstants.ResourceDependsOnPropertyName
+                && topLevelDeclarationInfo.node is ResourceDeclarationSyntax
+                && kind.HasFlag(BicepCompletionContextKind.ArrayItem))
+            {
+                kind |= BicepCompletionContextKind.ResourceDependsOnSymbolicReference;
+            }
+
             return new BicepCompletionContext(
                 kind,
                 replacementRange,

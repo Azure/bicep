@@ -870,28 +870,15 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
-        private static TypeSymbol GetContextAcceptingTypeUnion(SemanticModel model, BicepCompletionContext context)
+        private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, BicepCompletionContext context)
         {
-            List<TypeSymbol> acceptedTypes = new();
-
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ArrayItem) && context.Array != null)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceDependsOnSymbolicReference)
+                && symbol is ResourceSymbol or ModuleSymbol)
             {
-                var arrayItemType = model.GetDeclaredType(context.Array)?.UnwrapArrayType();
-                if (arrayItemType != null)
-                {
-                    acceptedTypes.Add(arrayItemType);
-                }
+                return CompletionPriority.VeryHigh;
             }
 
-            return TypeHelper.CreateTypeUnion(acceptedTypes);
-        }
-
-        private static bool IsSymbolCompletionTypeCheckEnabledForContext(BicepCompletionContext context)
-        {
-            // This is a stop gap for the type checking approach to prioritizing symbol completions. Due to some complexities of checking
-            // object types and array types between various sources like parameter declarations, the scope will be limited to specific areas
-            // to prevent the wrong prioritization of symbol completions in other areas.
-            return context.Property?.TryGetKeyText() == LanguageConstants.ResourceDependsOnPropertyName && context.EnclosingDeclaration is ResourceDeclarationSyntax;
+            return GetCompletionPriority(symbol);
         }
 
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
@@ -907,7 +894,7 @@ namespace Bicep.LanguageServer.Completions
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
-            var contextAcceptingType = IsSymbolCompletionTypeCheckEnabledForContext(context) ? GetContextAcceptingTypeUnion(model, context) : null;
+            CompletionPriority SymbolPriorityProvider(Symbol symbol) => GetContextualCompletionPriority(symbol, context);
 
             // local function
             void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
@@ -920,7 +907,7 @@ namespace Bicep.LanguageServer.Completions
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, contextAcceptingType: contextAcceptingType));
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, symbolPriorityProvider: SymbolPriorityProvider));
                     }
                 }
             }
@@ -1675,13 +1662,13 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, TypeSymbol? contextAcceptingType = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, Func<Symbol, CompletionPriority>? symbolPriorityProvider = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
             var completion = CompletionItemBuilder.Create(kind, insertText);
 
-            var priority = GetCompletionPriority(symbol, contextAcceptingType);
+            var priority = symbolPriorityProvider?.Invoke(symbol) ?? GetCompletionPriority(symbol);
             if (priority == CompletionPriority.VeryHigh)
             {
                 completion.Preselect();
@@ -1793,27 +1780,14 @@ namespace Bicep.LanguageServer.Completions
         // the priority must be a number in the sort text
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
 
-        private static CompletionPriority GetCompletionPriority(Symbol symbol, TypeSymbol? contextAcceptingType = null)
-        {
-            if (contextAcceptingType != null && contextAcceptingType.TypeKind != TypeKind.Any)
-            {
-                var symbolType = (symbol as ITypeReference)?.Type;
-                if (symbolType != null
-                    && symbolType.TypeKind != TypeKind.Any
-                    && TypeValidator.AreTypesAssignable(symbolType, contextAcceptingType, true))
-                {
-                    return CompletionPriority.VeryHigh;
-                }
-            }
-
-            return symbol.Kind switch
+        private static CompletionPriority GetCompletionPriority(Symbol symbol) =>
+            symbol.Kind switch
             {
                 SymbolKind.Function => CompletionPriority.Low,
                 SymbolKind.Namespace => CompletionPriority.Low,
                 SymbolKind.ImportedNamespace => CompletionPriority.Low,
                 _ => CompletionPriority.Medium
             };
-        }
 
         private static CompletionItemKind GetCompletionItemKind(Symbol symbol) =>
             symbol.Kind switch
