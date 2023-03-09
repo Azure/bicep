@@ -2400,6 +2400,9 @@ output inputTimesThree int = input * 3
 resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'bar'
 }
+param paramObj object = {
+  name: 'test'
+}
 var notAResource = 'I\'m a string!'
 module aModule 'mod.bicep' = {
   name: 'someModule'
@@ -2438,6 +2441,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             completions.Should().Contain(c => c.Label == "aModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aModule");
             completions.Should().Contain(c => c.Label == "storageArr" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_storageArr");
             completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
+            completions.Should().Contain(c => c.Label == "paramObj" && c.SortText == $"{(int)CompletionPriority.Medium}_paramObj");
         }
 
         [TestMethod]
