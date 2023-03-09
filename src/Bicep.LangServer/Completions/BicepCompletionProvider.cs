@@ -886,6 +886,19 @@ namespace Bicep.LanguageServer.Completions
             return TypeHelper.CreateTypeUnion(acceptedTypes);
         }
 
+        private static bool IsSymbolCompletionTypeCheckEnabledForContext(BicepCompletionContext context)
+        {
+            // This is a stop gap for the type checking approach to prioritizing symbol completions. Due to some complexities of checking
+            // object types and array types between various sources like parameter declarations, the scope will be limited to specific areas
+            // to prevent the wrong prioritization of symbol completions in other areas.
+            if (context.Property?.TryGetKeyText() == LanguageConstants.ResourceDependsOnPropertyName && context.EnclosingDeclaration is ResourceDeclarationSyntax)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // maps insert text to the completion item
@@ -899,7 +912,7 @@ namespace Bicep.LanguageServer.Completions
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
-            var contextAcceptingType = GetContextAcceptingTypeUnion(model, context);
+            var contextAcceptingType = IsSymbolCompletionTypeCheckEnabledForContext(context) ? GetContextAcceptingTypeUnion(model, context) : null;
 
             // local function
             void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
