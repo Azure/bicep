@@ -34,8 +34,8 @@ namespace Bicep.Core.TypeSystem
             MinLength == otherArray.MinLength &&
             MaxLength == otherArray.MaxLength &&
             Name == otherArray.Name &&
-            Item.Type == otherArray.Item.Type;
+            Item == otherArray.Item;
 
-        public override int GetHashCode() => HashCode.Combine(TypeKind, ValidationFlags, MinLength, MaxLength, Name, Item.Type);
+        public override int GetHashCode() => HashCode.Combine(TypeKind, ValidationFlags, MinLength, MaxLength, Name, Item);
     }
 }

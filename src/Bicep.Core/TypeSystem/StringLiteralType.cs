@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem
             // This affects how the type is displayed to the user, and is also used to compare two string literals types for equality.
             : this(StringUtils.EscapeBicepString(value), value, validationFlags) {}
 
-        public StringLiteralType(string typeName, string rawValue, TypeSymbolValidationFlags validationFlags)
+        internal StringLiteralType(string typeName, string rawValue, TypeSymbolValidationFlags validationFlags)
             : base(typeName)
         {
             RawStringValue = rawValue;

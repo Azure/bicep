@@ -341,8 +341,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 string[] strArray => new TupleType($"[{string.Join(", ", strArray.Select(str => $"'{str}'"))}]", strArray.Select(str => TypeFactory.CreateStringLiteralType(str)).ToImmutableArray<ITypeReference>(), default),
                 int intVal => TypeFactory.CreateIntegerLiteralType(intVal),
                 int[] intArray => new TupleType("", intArray.Select(@int => TypeFactory.CreateIntegerLiteralType(@int)).ToImmutableArray<ITypeReference>(), default),
-                bool boolVal => new BooleanLiteralType(boolVal),
-                bool[] boolArray => new TupleType("", boolArray.Select(@bool => new BooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
+                bool boolVal => TypeFactory.CreateBooleanLiteralType(boolVal),
+                bool[] boolArray => new TupleType("", boolArray.Select(@bool => TypeFactory.CreateBooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
                 null => LanguageConstants.Null,
                 object[] mixedArray => new TupleType("", mixedArray.Select(ToTypeLiteral).ToImmutableArray<ITypeReference>(), default),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")

@@ -41,8 +41,7 @@ public class ArmTemplateSemanticModelTests
         properties.Should().HaveCount(3);
         properties["foo"].TypeReference.Type.Should().BeOfType<StringType>();
         properties["bar"].TypeReference.Type.Should().BeOfType<IntegerType>();
-        properties["baz"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["baz"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
+        properties["baz"].TypeReference.Type.Should().BeOfType<BooleanType>();
 
         // By default, objects should accept additional properties without constraints as a fallback
         parameterType.As<ObjectType>().AdditionalPropertiesType.Should().NotBeNull().And.Be(LanguageConstants.Any);
@@ -124,8 +123,7 @@ public class ArmTemplateSemanticModelTests
         items.Should().HaveCount(3);
         items[0].Type.Should().BeOfType<StringType>();
         items[1].Type.Should().BeOfType<IntegerType>();
-        items[2].Type.Should().BeOfType<PrimitiveType>();
-        items[2].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
+        items[2].Type.Should().BeOfType<BooleanType>();
     }
 
     [TestMethod]

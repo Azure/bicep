@@ -5,6 +5,12 @@ namespace Bicep.Core.TypeSystem;
 
 public static class TypeFactory
 {
+    public static BooleanType CreateBooleanType(TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+        => new(validationFlags);
+
+    public static BooleanLiteralType CreateBooleanLiteralType(bool value, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+        => new(value, validationFlags);
+
     public static TypeSymbol CreateIntegerType(long? minValue = null, long? maxValue = null, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
     {
         if (minValue.HasValue && maxValue.HasValue && minValue.Value == maxValue.Value)

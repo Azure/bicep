@@ -555,7 +555,7 @@ namespace Bicep.Core.TypeSystem
             BooleanLiteralType => LanguageConstants.Bool,
             ObjectType => LanguageConstants.Object,
             TupleType => LanguageConstants.Array,
-            PrimitiveType { Name: LanguageConstants.NullKeyword } => LanguageConstants.Null,
+            NullType => LanguageConstants.Null,
             _ => null,
         };
 

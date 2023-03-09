@@ -267,7 +267,7 @@ namespace Bicep.Core.TypeSystem
                 TupleType declaredTuple => declaredTuple.ValidationFlags == validationFlags ? declaredTuple : new TupleType(declaredTuple.Items, validationFlags),
                 ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
                 StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
-                PrimitiveType primitive => new PrimitiveType(primitive.Name, validationFlags),
+                BooleanType declaredBoolean => TypeFactory.CreateBooleanType(validationFlags),
                 _ => declaredType,
             };
         }

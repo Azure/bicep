@@ -93,7 +93,7 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
-            PrimitiveType { Name: LanguageConstants.NullKeyword } => true,
+            NullType => true,
 
             // A tuple can be a literal only if each item contained therein is also a literal
             TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),
@@ -120,10 +120,14 @@ namespace Bicep.Core.TypeSystem
         {
             JObject jObject => TryCreateTypeLiteral(jObject),
             JArray jArray => TryCreateTypeLiteral(jArray),
-            _ when token.Type == JTokenType.Boolean => new BooleanLiteralType(token.ToObject<bool>()),
-            _ when token.IsTextBasedJTokenType() => TypeFactory.CreateStringLiteralType(token.ToString()),
-            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)intVal),
-            _ => null,
+            _ => token.Type switch
+            {
+                JTokenType.Null => LanguageConstants.Null,
+                JTokenType.Boolean => token.ToObject<bool>() ? LanguageConstants.True : LanguageConstants.False,
+                JTokenType.Integer when token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)intVal),
+                JTokenType.String or JTokenType.Uri => TypeFactory.CreateStringLiteralType(token.ToString()),
+                _ => null,
+            },
         };
 
         private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
@@ -403,9 +407,7 @@ namespace Bicep.Core.TypeSystem
             StringType @string => (@string.MinLength ?? 0, @string.MaxLength),
             IntegerType integer => GetMinAndMaxLengthOfStringified(integer),
             // 'true' or 'false'
-            PrimitiveType pt when pt.Name == LanguageConstants.TypeNameBool => (4, 5),
-            // 'null'
-            PrimitiveType pt when pt.Name == LanguageConstants.NullKeyword => (4, 4),
+            BooleanType => (4, 5),
             // opening and closing square or curly brackets will at least be present
             ArrayType or ObjectType or DiscriminatedObjectType => (2, null),
             _ => (0, null),

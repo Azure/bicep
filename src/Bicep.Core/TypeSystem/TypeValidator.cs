@@ -138,8 +138,8 @@ namespace Bicep.Core.TypeSystem
                 case (IntegerType, IntegerLiteralType):
                     return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
 
-                case (PrimitiveType, BooleanLiteralType):
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Bool.Name;
+                case (BooleanType, BooleanLiteralType):
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
 
                 case (StringLiteralType, StringType):
                     return true;
@@ -148,9 +148,9 @@ namespace Bicep.Core.TypeSystem
                     // integer literals can be assigned to ints
                     return true;
 
-                case (BooleanLiteralType, PrimitiveType):
+                case (BooleanLiteralType, BooleanType):
                     // boolean literals can be assigned to bools
-                    return targetType.Name == LanguageConstants.Bool.Name;
+                    return true;
 
                 case (IntegerType, IntegerType):
                     return true;
@@ -158,10 +158,11 @@ namespace Bicep.Core.TypeSystem
                 case (StringType, StringType):
                     return true;
 
-                case (PrimitiveType, PrimitiveType):
-                    // both types are primitive
-                    // compare by type name
-                    return string.Equals(sourceType.Name, targetType.Name, StringComparison.Ordinal);
+                case (BooleanType, BooleanType):
+                    return true;
+
+                case (NullType, NullType):
+                    return true;
 
                 case (ArrayType sourceArray, ArrayType targetArray):
                     // both types are arrays
