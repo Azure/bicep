@@ -891,12 +891,7 @@ namespace Bicep.LanguageServer.Completions
             // This is a stop gap for the type checking approach to prioritizing symbol completions. Due to some complexities of checking
             // object types and array types between various sources like parameter declarations, the scope will be limited to specific areas
             // to prevent the wrong prioritization of symbol completions in other areas.
-            if (context.Property?.TryGetKeyText() == LanguageConstants.ResourceDependsOnPropertyName && context.EnclosingDeclaration is ResourceDeclarationSyntax)
-            {
-                return true;
-            }
-
-            return false;
+            return context.Property?.TryGetKeyText() == LanguageConstants.ResourceDependsOnPropertyName && context.EnclosingDeclaration is ResourceDeclarationSyntax;
         }
 
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
