@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public abstract class DeclaredSymbol : Symbol, ITypeReference
+    public abstract class DeclaredSymbol : Symbol
     {
         protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, ISymbolNameSource nameSource)
             : base(name)
