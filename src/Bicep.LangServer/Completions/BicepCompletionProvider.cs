@@ -1673,23 +1673,11 @@ namespace Bicep.LanguageServer.Completions
             var kind = GetCompletionItemKind(symbol);
             var completion = CompletionItemBuilder.Create(kind, insertText);
 
-            CompletionPriority priority;
-            var symbolType = (symbol as ITypeReference)?.Type;
-
-            if (contextAcceptingType != null
-                && contextAcceptingType.TypeKind != TypeKind.Any
-                && symbolType != null
-                && symbolType.TypeKind != TypeKind.Any
-                && TypeValidator.AreTypesAssignable(symbolType, contextAcceptingType, true))
+            var priority = GetCompletionPriority(symbol, contextAcceptingType);
+            if (priority == CompletionPriority.VeryHigh)
             {
-                priority = CompletionPriority.VeryHigh;
                 completion.Preselect();
             }
-            else
-            {
-                priority = GetCompletionPriority(symbol);
-            }
-
             completion.WithSortText(GetSortText(insertText, priority));
 
             if (symbol is ResourceSymbol)
@@ -1797,14 +1785,27 @@ namespace Bicep.LanguageServer.Completions
         // the priority must be a number in the sort text
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
 
-        private static CompletionPriority GetCompletionPriority(Symbol symbol) =>
-            symbol.Kind switch
+        private static CompletionPriority GetCompletionPriority(Symbol symbol, TypeSymbol? contextAcceptingType = null)
+        {
+            if (contextAcceptingType != null && contextAcceptingType.TypeKind != TypeKind.Any)
+            {
+                var symbolType = (symbol as ITypeReference)?.Type;
+                if (symbolType != null
+                    && symbolType.TypeKind != TypeKind.Any
+                    && TypeValidator.AreTypesAssignable(symbolType, contextAcceptingType, true))
+                {
+                    return CompletionPriority.VeryHigh;
+                }
+            }
+
+            return symbol.Kind switch
             {
                 SymbolKind.Function => CompletionPriority.Low,
                 SymbolKind.Namespace => CompletionPriority.Low,
                 SymbolKind.ImportedNamespace => CompletionPriority.Low,
                 _ => CompletionPriority.Medium
             };
+        }
 
         private static CompletionItemKind GetCompletionItemKind(Symbol symbol) =>
             symbol.Kind switch
