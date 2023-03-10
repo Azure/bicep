@@ -256,7 +256,6 @@ namespace Bicep.Core.TypeSystem
                 BooleanType or IntegerType or StringType when allowLooseAssignment
                     => TypeSymbolValidationFlags.AllowLooseAssignment,
                 _ => TypeSymbolValidationFlags.Default,
-
             };
 
             if (HasSecureDecorator(syntax))
