@@ -894,8 +894,6 @@ namespace Bicep.LanguageServer.Completions
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
-            CompletionPriority SymbolPriorityProvider(Symbol symbol) => GetContextualCompletionPriority(symbol, context);
-
             // local function
             void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
             {
@@ -907,7 +905,8 @@ namespace Bicep.LanguageServer.Completions
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, symbolPriorityProvider: SymbolPriorityProvider));
+                        var priority = GetContextualCompletionPriority(symbol, context);
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, priority: priority));
                     }
                 }
             }
@@ -1662,18 +1661,18 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, Func<Symbol, CompletionPriority>? symbolPriorityProvider = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, CompletionPriority? priority = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
             var completion = CompletionItemBuilder.Create(kind, insertText);
 
-            var priority = symbolPriorityProvider?.Invoke(symbol) ?? GetCompletionPriority(symbol);
+            priority ??= GetCompletionPriority(symbol);
             if (priority == CompletionPriority.VeryHigh)
             {
                 completion.Preselect();
             }
-            completion.WithSortText(GetSortText(insertText, priority));
+            completion.WithSortText(GetSortText(insertText, priority.Value));
 
             if (symbol is ResourceSymbol)
             {
