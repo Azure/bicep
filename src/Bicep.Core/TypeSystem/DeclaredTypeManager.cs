@@ -163,7 +163,7 @@ namespace Bicep.Core.TypeSystem
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false);
             declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
-            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax, TypeSymbolValidationFlags.AllowLooseAssignment), syntax);
+            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment: true), syntax);
         }
 
         private DeclaredTypeAssignment? GetParameterAssignmentType(ParameterAssignmentSyntax syntax)
@@ -239,19 +239,26 @@ namespace Bicep.Core.TypeSystem
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
-        {
-            var declaredType = GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
-            ITypeReference modifiedType = declaredType is DeferredTypeReference
-                ? new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax))
-                : ApplyTypeModifyingDecorators(declaredType.Type, syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
-            return new(modifiedType, syntax);
-        }
+        private ITypeReference ApplyTypeModifyingDecorators(ITypeReference declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false) => declaredType switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment)),
+            _ => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment),
+        };
 
         // decorator diagnostics are raised by the TypeAssignmentVisitor, so we're only concerned in this method
         // with the happy path or any errors that produce an invalid type
-        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false)
         {
+            var validationFlags = declaredType switch
+            {
+                BooleanType or IntegerType or StringType when allowLooseAssignment
+                    => TypeSymbolValidationFlags.AllowLooseAssignment,
+                _ => TypeSymbolValidationFlags.Default,
+
+            };
+
             if (HasSecureDecorator(syntax))
             {
                 validationFlags |= TypeSymbolValidationFlags.IsSecure;
@@ -260,14 +267,15 @@ namespace Bicep.Core.TypeSystem
             return declaredType switch
             {
                 _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
-                _ when TypeHelper.TryRemoveNullability(declaredType) is {} nonNullable
-                    => TypeHelper.CreateTypeUnion(LanguageConstants.Null, ApplyTypeModifyingDecorators(nonNullable, syntax, validationFlags)),
+                _ when TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable
+                    => TypeHelper.CreateTypeUnion(LanguageConstants.Null, ApplyTypeModifyingDecorators(nonNullable, syntax, allowLooseAssignment)),
                 IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
                 // minLength/maxLength on a tuple are superfluous.
                 TupleType declaredTuple => declaredTuple.ValidationFlags == validationFlags ? declaredTuple : new TupleType(declaredTuple.Items, validationFlags),
                 ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
                 StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
                 BooleanType declaredBoolean => TypeFactory.CreateBooleanType(validationFlags),
+                ObjectType declaredObject => GetModifiedObject(declaredObject, syntax, validationFlags),
                 _ => declaredType,
             };
         }
@@ -364,8 +372,25 @@ namespace Bicep.Core.TypeSystem
             return true;
         }
 
+        private TypeSymbol GetModifiedObject(ObjectType declaredObject, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (TryGetSealedDecorator(syntax) is DecoratorSyntax sealedDecorator)
+            {
+                return declaredObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
+                    ? new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null)
+                    : ErrorType.Create(DiagnosticBuilder.ForPosition(sealedDecorator).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+            }
+
+            if (declaredObject.ValidationFlags == validationFlags)
+            {
+                return declaredObject;
+            }
+
+            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
+        }
+
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
@@ -523,11 +548,10 @@ namespace Bicep.Core.TypeSystem
             }
 
             var additionalPropertiesDeclarations = syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().ToImmutableArray();
-            ITypeReference? additionalPropertiesType = additionalPropertiesDeclarations.Length switch
+            ITypeReference additionalPropertiesType = additionalPropertiesDeclarations.Length switch
             {
                 1 => GetDeclaredTypeAssignment(additionalPropertiesDeclarations[0])?.Reference
                     ?? ErrorType.Create(DiagnosticBuilder.ForPosition(additionalPropertiesDeclarations[0].Value).InvalidTypeDefinition()),
-                _ when UnwrapUntilDecorable(syntax, HasSealedDecorator) => null,
                 _ => LanguageConstants.Any,
             };
             var additionalPropertiesFlags = additionalPropertiesDeclarations.Any() ? TypePropertyFlags.None : TypePropertyFlags.FallbackProperty;
@@ -549,9 +573,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            var typeFlags = UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default);
-
-            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalPropertiesType, additionalPropertiesFlags);
+            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags);
         }
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -564,22 +586,11 @@ namespace Bicep.Core.TypeSystem
             return propertyType.Type.Name;
         }
 
-        private T UnwrapUntilDecorable<T>(SyntaxBase syntax, Predicate<DecorableSyntax> condition, T valueIfTrue, T valueIfFalse) => binder.GetParent(syntax) switch
-        {
-            DecorableSyntax decorable when condition(decorable) => valueIfTrue,
-            ParenthesizedExpressionSyntax parenthesized => UnwrapUntilDecorable(parenthesized, condition, valueIfTrue, valueIfFalse),
-            TernaryOperationSyntax ternary when ternary.TrueExpression == syntax || ternary.FalseExpression == syntax
-                => UnwrapUntilDecorable(ternary, condition, valueIfTrue, valueIfFalse),
-            _ => valueIfFalse,
-        };
-
-        private bool UnwrapUntilDecorable(SyntaxBase syntax, Predicate<DecorableSyntax> condition) => UnwrapUntilDecorable(syntax, condition, true, false);
-
         private bool HasSecureDecorator(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
 
-        private bool HasSealedDecorator(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
+        private DecoratorSyntax? TryGetSealedDecorator(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName);
 
         private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)
         {
@@ -602,14 +613,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)
-        {
-            var declaredType = GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
-            ITypeReference modifiedType = declaredType is DeferredTypeReference
-                ? new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax))
-                : ApplyTypeModifyingDecorators(declaredType.Type, syntax);
-
-            return new(modifiedType, syntax);
-        }
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {

@@ -398,8 +398,11 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                var assignedType = syntax.GetAssignedType(this.typeManager,
-                    GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName)?.Arguments.Single().Expression as ArraySyntax);
+                var allowedDecoratorSyntax = GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName);
+
+                var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedValuesSyntax
+                    ? syntax.GetAssignedType(this.typeManager, allowedValuesSyntax)
+                    : syntax.GetAssignedType(this.typeManager, null);
 
                 if (GetNamedDecorator(syntax, LanguageConstants.ParameterSecurePropertyName) is not null)
                 {

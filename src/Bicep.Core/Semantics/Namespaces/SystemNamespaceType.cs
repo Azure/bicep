@@ -1167,16 +1167,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
-                    {
-                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
-
-                        // make sure the target type doesn't have an explicit additional properties declaration
-                        if (targetType is ObjectType targetObject && !targetObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
-                        }
-                    })
+                    .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false)))
                     .Build();
             }

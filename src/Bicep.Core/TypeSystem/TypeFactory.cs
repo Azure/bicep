@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+
 namespace Bicep.Core.TypeSystem;
 
 public static class TypeFactory
@@ -29,6 +31,11 @@ public static class TypeFactory
 
     public static ArrayType CreateArrayType(ITypeReference itemType, long? minLength = null, long? maxLength = null, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
     {
+        if (maxLength.HasValue && maxLength.Value == 0)
+        {
+            return new TupleType(ImmutableArray<ITypeReference>.Empty, validationFlags);
+        }
+
         if (ReferenceEquals(itemType, LanguageConstants.Any))
         {
             return new ArrayType(validationFlags, minLength, maxLength);

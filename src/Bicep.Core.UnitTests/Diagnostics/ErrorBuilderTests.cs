@@ -282,7 +282,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
             ExpectDiagnosticWithFixedText(text, expectedFix);
         }
 
-
         private class PrimitiveType : TypeSymbol
         {
             public PrimitiveType(string name, TypeSymbolValidationFlags validationFlags) : base(name)

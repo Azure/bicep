@@ -174,8 +174,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             returnType.As<ArrayType>().MinLength.Should().BeGreaterThan(0);
         }
 
-
-
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
         {
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
