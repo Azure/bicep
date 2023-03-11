@@ -19,9 +19,9 @@ var loadedBinary2 = sys.loadFileAsBase64('Assets/binary')
 //@[4:17) Variable loadedBinary2. Type: Assets/binary. Declaration start char: 0, length: 57
 
 var loadedTextInterpolation1 = 'Text: ${loadTextContent('Assets/TextFile.CRLF.txt')}'
-//@[4:28) Variable loadedTextInterpolation1. Type: string. Declaration start char: 0, length: 85
+//@[4:28) Variable loadedTextInterpolation1. Type: 'Text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\r\n\tProin varius in nunc et laoreet.\r\n  Nam pulvinar ipsum sed lectus porttitor, at porttitor ipsum faucibus.\r\n  \tAliquam euismod, odio tincidunt convallis pulvinar, felis sem porttitor turpis, a condimentum dui erat nec tellus.\r\n  Duis elementum cursus est, congue efficitur risus.\r\n\tMauris sit amet.\r\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n'. Declaration start char: 0, length: 85
 var loadedTextInterpolation2 = 'Text: ${loadTextContent('Assets/TextFile.LF.txt')}'
-//@[4:28) Variable loadedTextInterpolation2. Type: string. Declaration start char: 0, length: 83
+//@[4:28) Variable loadedTextInterpolation2. Type: 'Text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Donec laoreet sem tortor, ut dignissim ipsum ornare vel.\n  Duis ac ipsum turpis.\n\tMaecenas at condimentum dui.\n Suspendisse aliquet efficitur iaculis.\nIn hac habitasse platea dictumst.\nEtiam consectetur ut libero ac lobortis.\n\tNullam vitae auctor massa.\nFusce tincidunt urna purus, sit amet.\n'. Declaration start char: 0, length: 83
 
 var loadedTextObject1 = {
 //@[4:21) Variable loadedTextObject1. Type: object. Declaration start char: 0, length: 84

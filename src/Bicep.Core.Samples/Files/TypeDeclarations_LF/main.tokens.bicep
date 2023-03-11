@@ -397,6 +397,27 @@ type stringStringDictionary = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
+@minValue(1)
+//@[00:01) At |@|
+//@[01:09) Identifier |minValue|
+//@[09:10) LeftParen |(|
+//@[10:11) Integer |1|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+@maxValue(10)
+//@[00:01) At |@|
+//@[01:09) Identifier |maxValue|
+//@[09:10) LeftParen |(|
+//@[10:12) Integer |10|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+type constrainedInt = int
+//@[00:04) Identifier |type|
+//@[05:19) Identifier |constrainedInt|
+//@[20:21) Assignment |=|
+//@[22:25) Identifier |int|
+//@[25:27) NewLine |\n\n|
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[00:05) Identifier |param|
 //@[06:22) Identifier |mightIncludeNull|

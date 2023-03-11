@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1317) ProgramSyntax
+//@[00:1371) ProgramSyntax
 //@[00:0299) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -680,6 +680,41 @@ type stringStringDictionary = {
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
+
+@minValue(1)
+//@[00:0052) ├─TypeDeclarationSyntax
+//@[00:0012) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0012) | | └─FunctionCallSyntax
+//@[01:0009) | |   ├─IdentifierSyntax
+//@[01:0009) | |   | └─Token(Identifier) |minValue|
+//@[09:0010) | |   ├─Token(LeftParen) |(|
+//@[10:0011) | |   ├─FunctionArgumentSyntax
+//@[10:0011) | |   | └─IntegerLiteralSyntax
+//@[10:0011) | |   |   └─Token(Integer) |1|
+//@[11:0012) | |   └─Token(RightParen) |)|
+//@[12:0013) | ├─Token(NewLine) |\n|
+@maxValue(10)
+//@[00:0013) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0013) | | └─FunctionCallSyntax
+//@[01:0009) | |   ├─IdentifierSyntax
+//@[01:0009) | |   | └─Token(Identifier) |maxValue|
+//@[09:0010) | |   ├─Token(LeftParen) |(|
+//@[10:0012) | |   ├─FunctionArgumentSyntax
+//@[10:0012) | |   | └─IntegerLiteralSyntax
+//@[10:0012) | |   |   └─Token(Integer) |10|
+//@[12:0013) | |   └─Token(RightParen) |)|
+//@[13:0014) | ├─Token(NewLine) |\n|
+type constrainedInt = int
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0019) | ├─IdentifierSyntax
+//@[05:0019) | | └─Token(Identifier) |constrainedInt|
+//@[20:0021) | ├─Token(Assignment) |=|
+//@[22:0025) | └─VariableAccessSyntax
+//@[22:0025) |   └─IdentifierSyntax
+//@[22:0025) |     └─Token(Identifier) |int|
+//@[25:0027) ├─Token(NewLine) |\n\n|
 
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[00:0048) ├─ParameterDeclarationSyntax

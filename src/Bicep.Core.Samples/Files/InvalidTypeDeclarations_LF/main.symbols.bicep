@@ -16,7 +16,7 @@ type sealedString = string
 
 @sealed()
 type sealedDictionary = {
-//@[5:21) TypeAlias sealedDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 48
+//@[5:21) TypeAlias sealedDictionary. Type: error. Declaration start char: 0, length: 48
 	*: string
 }
 

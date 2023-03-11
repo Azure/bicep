@@ -36,6 +36,8 @@ namespace Bicep.Core.Semantics.Namespaces
         private const string LastDescription = "Returns the last element of the array, or last character of the string.";
         private const string MinDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
         private const string MaxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
+        private const long GuidLength = 36;
+        private const long UniqueStringHashLength = 13;
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
@@ -117,7 +119,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(
                     (binder, fileResolver, diagnostics, functionCall, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
-                        TupleType tupleType => new(new IntegerLiteralType(tupleType.Items.Length)),
+                        TupleType tupleType => new(TypeFactory.CreateIntegerLiteralType(tupleType.Items.Length)),
                         _ => new(LanguageConstants.Int),
                     },
                     LanguageConstants.Int)
@@ -126,7 +128,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("split")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("split", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)), new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("split", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default, minLength: 1)), new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
                 .WithGenericDescription("Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The string to split.")
                 .WithRequiredParameter("delimiter", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
@@ -152,7 +154,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("uniqueString")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("uniqueString", LanguageConstants.String), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("uniqueString", TypeFactory.CreateStringType(minLength: UniqueStringHashLength, maxLength: UniqueStringHashLength)),
+                    TypeFactory.CreateStringType(minLength: UniqueStringHashLength, maxLength: UniqueStringHashLength))
                 .WithGenericDescription("Creates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create a unique string.")
                 .Build();
@@ -490,7 +493,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("newGuid")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnType(TypeFactory.CreateStringType(minLength: GuidLength, maxLength: GuidLength))
                 .WithGenericDescription("Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter**.")
                 .WithFlags(FunctionFlags.ParamDefaultsOnly)
                 .Build();
@@ -582,7 +585,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[2] switch
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => argumentTypes[2] switch
                 {
                     LambdaType lambdaType => new(lambdaType.ReturnType.Type),
                     _ => new(LanguageConstants.Any),
@@ -597,7 +600,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => {
                     if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType) {
                         return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
                     }
@@ -677,7 +680,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 out var fileContent,
                 out var errorDiagnostic,
                 LanguageConstants.MaxLiteralCharacterLimit)
-                ? new(new StringLiteralType(fileContent), new StringLiteralExpression(functionCall, fileContent))
+                ? new(TypeFactory.CreateStringLiteralType(fileContent), new StringLiteralExpression(functionCall, fileContent))
                 : new(ErrorType.Create(errorDiagnostic));
         }
 
@@ -804,7 +807,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             return new(
-                new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent),
+                new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent, default),
                 new StringLiteralExpression(functionCall, fileContent));
         }
 
@@ -861,7 +864,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     continue;
                 }
 
-                keyTypes.Add(new StringLiteralType(property.Name));
+                keyTypes.Add(TypeFactory.CreateStringLiteralType(property.Name));
                 valueTypes.Add(property.TypeReference.Type);
             }
 
@@ -889,7 +892,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     TypeSymbolValidationFlags.Default),
                 JValue value => value.Type switch
                 {
-                    JTokenType.String => new StringLiteralType(value.ToString(CultureInfo.InvariantCulture)),
+                    JTokenType.String => TypeFactory.CreateStringLiteralType(value.ToString(CultureInfo.InvariantCulture)),
                     JTokenType.Integer => LanguageConstants.Int,
                     // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
                     JTokenType.Float => LanguageConstants.Any,
@@ -1057,7 +1060,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, parentTypeSyntax, binder, diagnosticWriter);
                     EmitDiagnosticIfTargetingLiteral(decoratorName, decoratorSyntax, parentTypeSyntax, typeManager, diagnosticWriter);
 
-                    if (ReferenceEquals(targetType, LanguageConstants.Array) &&
+                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array) &&
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
                         allowedValues.Items.All(item => item.Value is not ArraySyntax))
                     {
@@ -1164,16 +1167,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
-                    {
-                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
-
-                        // make sure the target type doesn't have an explicit additional properties declaration
-                        if (targetType is ObjectType targetObject && !targetObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
-                        {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
-                        }
-                    })
+                    .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false)))
                     .Build();
             }

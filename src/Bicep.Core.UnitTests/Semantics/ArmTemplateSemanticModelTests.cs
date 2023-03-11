@@ -39,12 +39,9 @@ public class ArmTemplateSemanticModelTests
 
         var properties = parameterType.As<ObjectType>().Properties;
         properties.Should().HaveCount(3);
-        properties["foo"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["foo"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
-        properties["bar"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["bar"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameInt);
-        properties["baz"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["baz"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
+        properties["foo"].TypeReference.Type.Should().BeOfType<StringType>();
+        properties["bar"].TypeReference.Type.Should().BeOfType<IntegerType>();
+        properties["baz"].TypeReference.Type.Should().BeOfType<BooleanType>();
 
         // By default, objects should accept additional properties without constraints as a fallback
         parameterType.As<ObjectType>().AdditionalPropertiesType.Should().NotBeNull().And.Be(LanguageConstants.Any);
@@ -71,8 +68,7 @@ public class ArmTemplateSemanticModelTests
         parameterType.Should().BeOfType<ObjectType>();
 
         var addlPropsType = parameterType.As<ObjectType>().AdditionalPropertiesType;
-        addlPropsType.Should().NotBeNull().And.BeOfType<PrimitiveType>();
-        addlPropsType.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
+        addlPropsType.Should().NotBeNull().And.BeOfType<StringType>();
 
         parameterType.As<ObjectType>().AdditionalPropertiesFlags.Should().NotHaveFlag(TypePropertyFlags.FallbackProperty);
     }
@@ -97,8 +93,7 @@ public class ArmTemplateSemanticModelTests
         parameterType.Should().BeOfType<TypedArrayType>();
 
         var itemType = parameterType.As<TypedArrayType>().Item;
-        itemType.Should().NotBeNull().And.BeOfType<PrimitiveType>();
-        itemType.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
+        itemType.Should().NotBeNull().And.BeOfType<StringType>();
     }
 
     [TestMethod]
@@ -126,12 +121,9 @@ public class ArmTemplateSemanticModelTests
 
         var items = parameterType.As<TupleType>().Items;
         items.Should().HaveCount(3);
-        items[0].Type.Should().BeOfType<PrimitiveType>();
-        items[0].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
-        items[1].Type.Should().BeOfType<PrimitiveType>();
-        items[1].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameInt);
-        items[2].Type.Should().BeOfType<PrimitiveType>();
-        items[2].Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
+        items[0].Type.Should().BeOfType<StringType>();
+        items[1].Type.Should().BeOfType<IntegerType>();
+        items[2].Type.Should().BeOfType<BooleanType>();
     }
 
     [TestMethod]
@@ -152,9 +144,21 @@ public class ArmTemplateSemanticModelTests
                   ""items"": {
                     ""type"": ""object"",
                     ""properties"": {
-                      ""foo"": { ""type"": ""string"" },
-                      ""bar"": { ""type"": ""int"" },
-                      ""baz"": { ""type"": ""bool"" }
+                      ""foo"": {
+                        ""type"": ""string"",
+                        ""minLength"": 2,
+                        ""maxLength"": 4
+                      },
+                      ""bar"": {
+                        ""type"": ""int"",
+                        ""minValue"": 1,
+                        ""maxValue"": 10
+                      },
+                      ""baz"": {
+                        ""type"": ""array"",
+                        ""minLength"": 6,
+                        ""maxLength"": 8
+                      }
                     }
                   }
                 }
@@ -171,12 +175,9 @@ public class ArmTemplateSemanticModelTests
 
         var properties = parameterType.As<TypedArrayType>().Item.As<ObjectType>().AdditionalPropertiesType.As<TypedArrayType>().Item.As<ObjectType>().Properties;
         properties.Should().HaveCount(3);
-        properties["foo"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["foo"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameString);
-        properties["bar"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["bar"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameInt);
-        properties["baz"].TypeReference.Type.Should().BeOfType<PrimitiveType>();
-        properties["baz"].TypeReference.Type.As<PrimitiveType>().Name.Should().Be(LanguageConstants.TypeNameBool);
+        properties["foo"].TypeReference.Type.Should().Be(TypeFactory.CreateStringType(minLength: 2, maxLength: 4));
+        properties["bar"].TypeReference.Type.Should().Be(TypeFactory.CreateIntegerType(minValue: 1, maxValue: 10));
+        properties["baz"].TypeReference.Type.Should().Be(TypeFactory.CreateArrayType(minLength: 6, maxLength: 8));
     }
 
     [TestMethod]
@@ -203,8 +204,7 @@ public class ArmTemplateSemanticModelTests
         }
         ", "refParam");
 
-        parameterType.Type.Should().BeOfType<PrimitiveType>();
-        parameterType.Type.Name.Should().Be(LanguageConstants.TypeNameString);
+        parameterType.Type.Should().BeOfType<StringType>();
     }
 
     [TestMethod]
@@ -333,7 +333,7 @@ public class ArmTemplateSemanticModelTests
         ArmTemplateSemanticModel model = new(SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
 
         model.Parameters.TryGetValue("stringLiteral", out var stringLiteral).Should().BeTrue();
-        stringLiteral!.TypeReference.Type.Should().Be(new StringLiteralType("foo"));
+        stringLiteral!.TypeReference.Type.Should().Be(TypeFactory.CreateStringLiteralType("foo"));
 
         model.Parameters.TryGetValue("stringLiteralUnion", out var stringLiteralUnion).Should().BeTrue();
         stringLiteralUnion!.TypeReference.Type.Name.Should().Be("'crackle' | 'pop' | 'snap'");

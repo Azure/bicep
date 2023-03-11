@@ -41,7 +41,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (resourceFunctionType.Input is not null)
             {
                 yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
-                    .WithRequiredParameter("apiVersion", new StringLiteralType(resourceFunctionType.ApiVersion), "The api version")
+                    .WithRequiredParameter("apiVersion", TypeFactory.CreateStringLiteralType(resourceFunctionType.ApiVersion), "The api version")
                     .WithRequiredParameter("params", GetTypeSymbol(resourceFunctionType.Input.Type, false), $"{resourceFunctionType.Name} parameters")
                     .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
                     .WithFlags(FunctionFlags.RequiresInlining)
@@ -122,7 +122,7 @@ namespace Bicep.Core.TypeSystem.Az
                         return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
                     }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
-                    return new StringLiteralType(stringLiteralType.Value);
+                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                     {
                         var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));

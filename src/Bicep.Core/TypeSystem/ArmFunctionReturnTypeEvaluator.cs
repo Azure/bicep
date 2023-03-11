@@ -61,6 +61,7 @@ public static class ArmFunctionReturnTypeEvaluator
         BooleanLiteralType booleanLiteral => booleanLiteral.Value,
         IntegerLiteralType integerLiteral => integerLiteral.Value,
         StringLiteralType stringLiteral => stringLiteral.RawStringValue,
+        NullType => JValue.CreateNull(),
         ObjectType objectType => ToJToken(objectType),
         TupleType tupleType => ToJToken(tupleType),
         // This converter does not handle union types, as a union conversion will take m^n times as many computations,
@@ -74,8 +75,8 @@ public static class ArmFunctionReturnTypeEvaluator
 
     private static JToken? ToJToken(ObjectType objectType)
     {
-        // If an object allows additional properties (and is not the implicit fallback of an unsealed type), then it cannot be cast to a literal
-        if (objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+        // If an object allows additional properties, then it cannot be cast to a literal
+        if (objectType.AdditionalPropertiesType is not null)
         {
             return null;
         }

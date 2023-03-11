@@ -97,7 +97,7 @@ namespace Bicep.Core.TypeSystem.K8s
                     return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
                 }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
-                    return new StringLiteralType(stringLiteralType.Value);
+                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                 {
                     var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));

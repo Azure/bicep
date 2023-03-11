@@ -154,7 +154,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 ])
 param decoratedString string
 
-@minValue(200)
+@minValue(100)
 param decoratedInt int = 123
 
 // negative integer literals are allowed as decorator values

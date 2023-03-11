@@ -151,7 +151,7 @@ internal static class OperationReturnTypeEvaluator
 
             if (returnType is BooleanLiteralType booleanLiteral)
             {
-                return new BooleanLiteralType(!booleanLiteral.Value);
+                return TypeFactory.CreateBooleanLiteralType(!booleanLiteral.Value);
             }
 
             return LanguageConstants.Bool;
@@ -183,7 +183,7 @@ internal static class OperationReturnTypeEvaluator
 
             if (result is BooleanLiteralType booleanLiteral)
             {
-                return negated ? new BooleanLiteralType(!booleanLiteral.Value) : booleanLiteral;
+                return negated ? TypeFactory.CreateBooleanLiteralType(!booleanLiteral.Value) : booleanLiteral;
             }
 
             return LanguageConstants.Bool;

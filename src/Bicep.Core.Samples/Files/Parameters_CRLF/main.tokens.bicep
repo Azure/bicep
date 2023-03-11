@@ -1,4 +1,4 @@
-/* 
+/*
   This is a block comment.
 */
 //@[02:06) NewLine |\r\n\r\n|
@@ -541,11 +541,11 @@ param decoratedString string
 //@[22:28) Identifier |string|
 //@[28:32) NewLine |\r\n\r\n|
 
-@minValue(200)
+@minValue(100)
 //@[00:01) At |@|
 //@[01:09) Identifier |minValue|
 //@[09:10) LeftParen |(|
-//@[10:13) Integer |200|
+//@[10:13) Integer |100|
 //@[13:14) RightParen |)|
 //@[14:16) NewLine |\r\n|
 param decoratedInt int = 123

@@ -99,7 +99,7 @@ var fo|o2 = map([123], a|bc => 'Hello ${abc}')
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("123[]"),
                 x => x.Type.Name.Should().Be("123"),
-                x => x.Type.Name.Should().Be("string[]"),
+                x => x.Type.Name.Should().Be("'Hello 123'[]"),
                 x => x.Type.Name.Should().Be("123"));
         }
 

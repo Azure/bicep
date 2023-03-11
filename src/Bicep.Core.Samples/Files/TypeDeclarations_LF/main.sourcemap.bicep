@@ -283,6 +283,15 @@ type stringStringDictionary = {
     *: string
 }
 
+@minValue(1)
+//@      "minValue": 1
+@maxValue(10)
+//@      "maxValue": 10,
+type constrainedInt = int
+//@    "constrainedInt": {
+//@      "type": "int",
+//@    },
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@    "mightIncludeNull": {
 //@      "type": "array",
