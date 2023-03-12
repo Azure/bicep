@@ -84,6 +84,12 @@ namespace Bicep.Core.UnitTests.Assertions
                 diags.Should().BeEmpty(because, becauseArgs);
             });
 
+        public AndConstraint<CompilationResultAssertions> NotHaveAnyCompilationBlockingDiagnostics(string because = "", params object[] becauseArgs)
+            => DoWithDiagnosticAnnotations(diags =>
+            {
+                diags.Where(x => x.Level == DiagnosticLevel.Error).Should().BeEmpty(because, becauseArgs);
+            });
+
         public AndConstraint<CompilationResultAssertions> NotGenerateATemplate(string because = "", params object[] becauseArgs)
         {
             Subject.Template.Should().NotHaveValue(because, becauseArgs);
@@ -92,6 +98,7 @@ namespace Bicep.Core.UnitTests.Assertions
         }
         public AndConstraint<CompilationResultAssertions> GenerateATemplate(string because = "", params object[] becauseArgs)
         {
+            Subject.Should().NotHaveAnyCompilationBlockingDiagnostics(because, becauseArgs);
             Subject.Template.Should().NotBeNull(because, becauseArgs);
 
             return new AndConstraint<CompilationResultAssertions>(this);

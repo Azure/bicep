@@ -74,6 +74,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 switch (model.GetSymbolInfo(syntax))
                 {
+                    case Symbol symbol when pathSegments.Contains(symbol):
+                        // Symbol cycles are reported on elsewhere. As far as this visitor is concerned, a cycle does not introduce nondeterminism.
+                        break;
                     case ParameterSymbol @parameter:
                         if (@parameter.DeclaringParameter.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
                         {
@@ -83,12 +86,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         }
                         break;
                     case VariableSymbol @variable:
-                        // Variable cycles are reported on elsewhere. As far as this visitor is concerned, a cycle does not introduce nondeterminism.
-                        if (pathSegments.Contains(@variable))
-                        {
-                            return;
-                        }
-
                         pathSegments.AddLast(@variable);
                         @variable.DeclaringVariable.Value.Accept(this);
                         pathSegments.RemoveLast();

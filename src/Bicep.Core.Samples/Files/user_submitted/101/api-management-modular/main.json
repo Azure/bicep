@@ -5,17 +5,19 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11416995507121229636"
+      "templateHash": "1539219181890185947"
     }
   },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
-      "defaultValue": "[format('PGAPIM-{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('PGAPIM-{0}', uniqueString(resourceGroup().id))]",
+      "minLength": 1
     },
     "appInsightsName": {
       "type": "string",
-      "defaultValue": "[parameters('apimInstanceName')]"
+      "defaultValue": "[parameters('apimInstanceName')]",
+      "minLength": 1
     },
     "resourceTags": {
       "type": "object",

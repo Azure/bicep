@@ -388,7 +388,6 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewrite(syntax.Key, out var key);
-            hasChanges |= TryRewrite(syntax.OptionalityMarker, out var optionalityMarker);
             hasChanges |= TryRewriteStrict(syntax.Colon, out var colon);
             hasChanges |= TryRewrite(syntax.Value, out var value);
 
@@ -397,7 +396,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ObjectTypePropertySyntax(leadingNodes, key, optionalityMarker, colon, value);
+            return new ObjectTypePropertySyntax(leadingNodes, key, colon, value);
         }
         void ISyntaxVisitor.VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectTypePropertySyntax);
 
@@ -512,6 +511,20 @@ namespace Bicep.Core.Syntax
             return new TypeDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
         void ISyntaxVisitor.VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypeDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceNullableTypeSyntax(NullableTypeSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.Base, out var expression);
+            hasChanges |= TryRewriteStrict(syntax.NullabilityMarker, out var nullabilityMarker);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new NullableTypeSyntax(expression, nullabilityMarker);
+        }
+        void ISyntaxVisitor.VisitNullableTypeSyntax(NullableTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceNullableTypeSyntax);
 
         protected virtual SyntaxBase ReplaceBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
@@ -707,6 +720,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
             hasChanges |= TryRewriteStrict(syntax.OpenSquare, out var openSquare);
+            hasChanges |= TryRewriteStrict(syntax.SafeAccessMarker, out var safeAccessMarker);
             hasChanges |= TryRewrite(syntax.IndexExpression, out var indexExpression);
             hasChanges |= TryRewriteStrict(syntax.CloseSquare, out var closeSquare);
 
@@ -715,7 +729,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ArrayAccessSyntax(baseExpression, openSquare, indexExpression, closeSquare);
+            return new ArrayAccessSyntax(baseExpression, openSquare, safeAccessMarker, indexExpression, closeSquare);
         }
         void ISyntaxVisitor.VisitArrayAccessSyntax(ArrayAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceArrayAccessSyntax);
 
@@ -723,6 +737,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
             hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
+            hasChanges |= TryRewriteStrict(syntax.SafeAccessMarker, out var safeAccessMarker);
             hasChanges |= TryRewriteStrict(syntax.PropertyName, out var propertyName);
 
             if (!hasChanges)
@@ -730,7 +745,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new PropertyAccessSyntax(baseExpression, dot, propertyName);
+            return new PropertyAccessSyntax(baseExpression, dot, safeAccessMarker, propertyName);
         }
         void ISyntaxVisitor.VisitPropertyAccessSyntax(PropertyAccessSyntax syntax) => ReplaceCurrent(syntax, ReplacePropertyAccessSyntax);
 

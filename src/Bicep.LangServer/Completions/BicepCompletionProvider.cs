@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
@@ -39,20 +42,26 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
+        private static readonly Regex ModuleRegistryWithoutAliasPattern = new Regex(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithAliasPattern = new Regex(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
+        public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
         private readonly INamespaceProvider namespaceProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
+            this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
             this.namespaceProvider = namespaceProvider;
         }
 
-        public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
             var model = compilation.GetEntrypointSemanticModel();
+            IEnumerable<CompletionItem> moduleReferenceCompletions = await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context);
 
             return GetDeclarationCompletions(model, context)
                 .Concat(GetSymbolCompletions(model, context))
@@ -80,7 +89,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context))
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
-                .Concat(GetUsingDeclarationPathCompletions(model, context));
+                .Concat(GetUsingDeclarationPathCompletions(model, context))
+                .Concat(moduleReferenceCompletions);
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -301,8 +311,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectTypePropertyValue))
             {
-                var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
-                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
+                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.UnionTypeMember))
@@ -350,13 +359,14 @@ namespace Bicep.LanguageServer.Completions
             || syntax is IntegerLiteralSyntax
             || (syntax is StringSyntax @string && @string.TryGetLiteralValue() is string literal)
             || syntax is UnionTypeSyntax
-            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => p.OptionalityMarker is null && IsTypeLiteralSyntax(p.Value)));
+            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => IsTypeLiteralSyntax(p.Value)))
+            || (syntax is TupleTypeSyntax tupleType && tupleType.Items.All(i => IsTypeLiteralSyntax(i.Value)));
 
         private static StatementSyntax? CyclableTypeEnclosingDeclaration(IBinder binder, SyntaxBase? syntax) => syntax switch
         {
             StatementSyntax statement => statement,
-            // Optional object properties are allowed to point to an ancestor in the syntax tree
-            ObjectTypePropertySyntax objectTypeProperty when objectTypeProperty.OptionalityMarker is not null => null,
+            // Aggregate types have special rules around cycles and nullability. Stop looking for cycles if you hit one while climbing the syntax hierarchy for a given type declaration
+            ArrayTypeMemberSyntax or ObjectTypePropertySyntax or TupleTypeItemSyntax => null,
             SyntaxBase otherwise => CyclableTypeEnclosingDeclaration(binder, binder.GetParent(otherwise)),
             null => null,
         };
@@ -604,6 +614,11 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
+            if (IsOciModuleRegistryReference(context))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
             // To provide intellisense before the quotes are typed
             if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
                 || declarationSyntax.Path is not StringSyntax stringSyntax
@@ -612,23 +627,29 @@ namespace Bicep.LanguageServer.Completions
                 entered = "";
             }
 
-            // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            try
+            {
+                // These should only fail if we're not able to resolve cwd path or the entered string
+                if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
+                {
+                    return Enumerable.Empty<CompletionItem>();
+                }
+
+                var replacementRange = context.EnclosingDeclaration is ModuleDeclarationSyntax module ? module.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
+
+                // Prioritize .bicep files higher than other files.
+                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
+                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
+                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
+
+                return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
+            }
+            catch (DirectoryNotFoundException)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var replacementRange = context.EnclosingDeclaration is ModuleDeclarationSyntax module ? module.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
-
-            // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-            var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
-            var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
-
-            return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
-
             // Local functions.
-
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
 
@@ -660,6 +681,13 @@ namespace Bicep.LanguageServer.Completions
 
                 return false;
             }
+        }
+
+        private bool IsOciModuleRegistryReference(BicepCompletionContext context)
+        {
+            return context.ReplacementTarget is Token token &&
+                token.Text is string text &&
+                (ModuleRegistryWithoutAliasPattern.IsMatch(text) || ModuleRegistryWithAliasPattern.IsMatch(text));
         }
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Compilation compitation, BicepCompletionContext context)
@@ -1000,6 +1028,11 @@ namespace Bicep.LanguageServer.Completions
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange));
             }
 
+            if (declaredType is not null && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
+            {
+                declaredType = nonNullable;
+            }
+
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
@@ -1176,13 +1209,13 @@ namespace Bicep.LanguageServer.Completions
             var replacementRange = context.ReplacementRange;
             switch (type)
             {
-                case PrimitiveType _ when TypeValidator.AreTypesAssignable(type, LanguageConstants.Bool):
+                case BooleanType:
                     yield return CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword, replacementRange, preselect: true, CompletionPriority.High);
                     yield return CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword, replacementRange, preselect: true, CompletionPriority.High);
 
                     break;
 
-                case PrimitiveType _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;
@@ -1455,8 +1488,14 @@ namespace Bicep.LanguageServer.Completions
                 // in bicep those types of properties are accessed via array indexer using a string as an index
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
+                var edit = new StringBuilder("[");
+                if (propertyAccess.SafeAccessMarker is not null)
+                {
+                    edit.Append('?');
+                }
+                edit.Append(StringUtils.EscapeBicepString(property.Name)).Append(']');
                 item
-                    .WithPlainTextEdit(replacementRange, $"[{StringUtils.EscapeBicepString(property.Name)}]")
+                    .WithPlainTextEdit(replacementRange, edit.ToString())
                     .WithAdditionalEdits(new TextEditContainer(
                         // remove the dot after the main text edit is applied
                         new TextEdit

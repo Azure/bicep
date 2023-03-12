@@ -13,13 +13,13 @@ internal class ObjectTypeNameBuilder
     private bool hasProperties = false;
     private bool finalized = false;
 
-    internal void AppendProperty(string propertyName, string propertyValue, bool isOptional)
-        => DoAppendProperty(Lexer.IsValidIdentifier(propertyName) ? propertyName : StringUtils.EscapeBicepString(propertyName), propertyValue, isOptional);
+    internal void AppendProperty(string propertyName, string propertyValue)
+        => DoAppendProperty(Lexer.IsValidIdentifier(propertyName) ? propertyName : StringUtils.EscapeBicepString(propertyName), propertyValue);
 
     internal void AppendPropertyMatcher(string matchNotation, string value)
-        => DoAppendProperty(matchNotation, value, false);
+        => DoAppendProperty(matchNotation, value);
 
-    private void DoAppendProperty(string propertyName, string propertyValue, bool isOptional)
+    private void DoAppendProperty(string propertyName, string propertyValue)
     {
         if (finalized)
         {
@@ -33,11 +33,6 @@ internal class ObjectTypeNameBuilder
         hasProperties = true;
         builder.Append(' ');
         builder.Append(propertyName);
-
-        if (isOptional)
-        {
-            builder.Append('?');
-        }
 
         builder.Append(": ");
         builder.Append(propertyValue);

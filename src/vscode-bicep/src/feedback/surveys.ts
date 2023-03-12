@@ -40,7 +40,7 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
   //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt:
-    "Could you please take 2 minutes to tell us how well Bicep is working for you?",
+    "Do you have a few minutes to tell us about your experience with Bicep?",
   postponeForLaterInDays: 2 * 7,
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
@@ -48,6 +48,8 @@ const hatsAnnualSurveyInfo: ISurveyInfo = {
 const debugClearStateKey = "debug.surveys.clearState";
 const debugNowDateKey = "debug.surveys.now";
 const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
+
+type MessageItemWithId = MessageItem & { id: string };
 
 export function showSurveys(globalState: GlobalState): void {
   checkShowSurvey(globalState, hatsAnnualSurveyInfo);
@@ -57,8 +59,8 @@ export function checkShowSurvey(
   globalState: GlobalState,
   surveyInfo: ISurveyInfo
 ): void {
-  // Don't wait
-  callWithTelemetryAndErrorHandling(
+  // Don't wait, run asynchronously
+  void callWithTelemetryAndErrorHandling(
     "survey",
     async (context: IActionContext) => {
       let now = new Date();
@@ -127,11 +129,11 @@ export class Survey {
       launchSurvey: typeof Survey.launchSurvey;
       provideBicepConfiguration: typeof getBicepConfiguration;
     } = {
-        showInformationMessage: window.showInformationMessage,
-        getIsSurveyAvailable: Survey.getIsSurveyAvailable,
-        launchSurvey: Survey.launchSurvey,
-        provideBicepConfiguration: getBicepConfiguration,
-      }
+      showInformationMessage: window.showInformationMessage,
+      getIsSurveyAvailable: Survey.getIsSurveyAvailable,
+      launchSurvey: Survey.launchSurvey,
+      provideBicepConfiguration: getBicepConfiguration,
+    }
   ) {
     // noop
   }
@@ -145,7 +147,8 @@ export class Survey {
   ): Promise<void> {
     context.errorHandling.suppressDisplay = true;
     context.telemetry.properties.isActivationEvent = "true";
-    context.telemetry.properties.akaLink = this.surveyInfo.akaLinkToSurvey;
+    context.telemetry.properties.akaLink =
+      this.surveyInfo.akaLinkToSurvey.replace("/", "-");
 
     const surveyState = this.getPersistedSurveyState(context, now);
 
@@ -278,38 +281,43 @@ export class Survey {
     state: ISurveyState, // this is modified
     now: Date
   ): Promise<void> {
-    const neverAskAgain: MessageItem = { title: "Never ask again" };
-    const later: MessageItem = { title: "Maybe later" };
-    const yes: MessageItem = { title: "Sure" };
-    const dismissed: MessageItem = { title: "(dismissed)" };
+    const neverAskAgain: MessageItemWithId = {
+      title: "Never ask again",
+      id: "never",
+    };
+    const later: MessageItemWithId = { title: "Maybe later", id: "later" };
+    const yes: MessageItemWithId = { title: "Yes", id: "yes" };
+    const dismissed: MessageItemWithId = {
+      title: "(dismissed)",
+      id: "dismissed",
+    };
 
     const response =
       (await this.inject?.showInformationMessage(
         this.surveyInfo.surveyPrompt,
-        neverAskAgain,
+        yes,
         later,
-        yes
+        neverAskAgain
       )) ?? dismissed;
-    context.telemetry.properties.userResponse = String(response.title);
+    context.telemetry.properties.userResponse = String(response.id);
 
-    if (response.title === neverAskAgain.title) {
+    if (response.id === neverAskAgain.id) {
       await this.disableSurveys();
-    } else if (response.title === later.title) {
+    } else if (response.id === later.id) {
       await this.postponeSurvey(
-        context,
         state,
         now,
         this.surveyInfo.postponeForLaterInDays
       );
-    } else if (response.title === yes.title) {
+    } else if (response.id === yes.id) {
       state.lastTaken = now;
       state.postponedUntil = undefined;
       await this.inject.launchSurvey(context, this.surveyInfo);
     } else {
       // Try again next time
       assert(
-        response.title === dismissed.title,
-        `Unexpected response: ${response.title}`
+        response.id === dismissed.id,
+        `Unexpected response: ${response.id}`
       );
     }
   }
@@ -331,7 +339,6 @@ export class Survey {
   }
 
   private async postponeSurvey(
-    context: IActionContext,
     state: ISurveyState,
     now: Date,
     days: number

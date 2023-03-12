@@ -1163,16 +1163,16 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:053) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:086) NewLine |\n|
 module completionB ''
 //@[000:006) Identifier |module|
 //@[007:018) Identifier |completionB|
 //@[019:021) StringComplete |''|
 //@[021:023) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:053) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:086) NewLine |\n|
 module completionC '' =
 //@[000:006) Identifier |module|
 //@[007:018) Identifier |completionC|
@@ -1180,8 +1180,8 @@ module completionC '' =
 //@[022:023) Assignment |=|
 //@[023:025) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:053) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:086) NewLine |\n|
 module completionD '' = {}
 //@[000:006) Identifier |module|
 //@[007:018) Identifier |completionD|
@@ -1191,8 +1191,8 @@ module completionD '' = {}
 //@[025:026) RightBrace |}|
 //@[026:028) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
-//@[052:053) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
+//@[085:086) NewLine |\n|
 module completionE '' = {
 //@[000:006) Identifier |module|
 //@[007:018) Identifier |completionE|

@@ -2,14 +2,10 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Configuration;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -17,7 +13,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -66,8 +61,8 @@ namespace Bicep.LanguageServer.Handlers
 
         private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
-            if (symbol.DeclaringSyntax is StatementSyntax statementSyntax &&
-                SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), statementSyntax) is { } description)
+            if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
+                SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax) is { } description)
             {
                 return description;
             }
@@ -96,14 +91,14 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ParameterSymbol parameter:
                     return WithMarkdown(CodeBlockWithDescription(
-                        $"param {parameter.Name}: {parameter.Type}", TryGetDescriptionMarkdown(result, parameter)));
+                        WithTypeModifiers($"param {parameter.Name}: {parameter.Type}", parameter.Type), TryGetDescriptionMarkdown(result, parameter)));
 
                 case TypeAliasSymbol declaredType:
                     return WithMarkdown(CodeBlockWithDescription(
-                        $"type {declaredType.Name}: {declaredType.Type}", TryGetDescriptionMarkdown(result, declaredType)));
+                        WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
 
                 case AmbientTypeSymbol ambientType:
-                    return WithMarkdown(CodeBlock($"type {ambientType.Name}: {ambientType.Type}"));
+                    return WithMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
 
                 case VariableSymbol variable:
                     return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
@@ -147,7 +142,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 case OutputSymbol output:
                     return WithMarkdown(CodeBlockWithDescription(
-                        $"output {output.Name}: {output.Type}", TryGetDescriptionMarkdown(result, output)));
+                        WithTypeModifiers($"output {output.Name}: {output.Type}", output.Type), TryGetDescriptionMarkdown(result, output)));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
@@ -168,6 +163,61 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
+        private static string WithTypeModifiers(string coreContent, TypeSymbol type)
+        {
+            type = UnwrapType(type);
+
+            StringBuilder contentBuilder = new();
+            switch (type)
+            {
+                case IntegerType integer:
+                    if (integer.MinValue.HasValue)
+                    {
+                        contentBuilder.Append("@minValue(").Append(integer.MinValue.Value).Append(")\n");
+                    }
+                    if (integer.MaxValue.HasValue)
+                    {
+                        contentBuilder.Append("@maxValue(").Append(integer.MaxValue.Value).Append(")\n");
+                    }
+                    break;
+                case StringType @string:
+                    if (@string.MinLength.HasValue)
+                    {
+                        contentBuilder.Append("@minLength(").Append(@string.MinLength.Value).Append(")\n");
+                    }
+                    if (@string.MaxLength.HasValue)
+                    {
+                        contentBuilder.Append("@maxLength(").Append(@string.MaxLength.Value).Append(")\n");
+                    }
+                    break;
+                case ArrayType array when array is not TupleType:
+                    if (array.MinLength.HasValue)
+                    {
+                        contentBuilder.Append("@minLength(").Append(array.MinLength.Value).Append(")\n");
+                    }
+                    if (array.MaxLength.HasValue)
+                    {
+                        contentBuilder.Append("@maxLength(").Append(array.MaxLength.Value).Append(")\n");
+                    }
+                    break;
+            }
+
+            if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            {
+                contentBuilder.Append("@secure()\n");
+            }
+
+            contentBuilder.Append(coreContent);
+
+            return contentBuilder.ToString();
+        }
+
+        private static TypeSymbol UnwrapType(TypeSymbol type) => type switch
+        {
+            TypeType tt => UnwrapType(tt.Unwrapped),
+            _ when TypeHelper.TryRemoveNullability(type) is {} nonNullable => UnwrapType(nonNullable),
+            _ => type,
+        };
 
         //we need to check for overflow due to using code blocks.
         //if we reach limit in a code block vscode will truncate it automatically, the block will not be terminated so the hover will not be properly formatted

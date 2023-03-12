@@ -89,7 +89,7 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
             {
                 case ArrayType:
                     return new[] { SyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()) };
-                case PrimitiveType pt when pt.Name == LanguageConstants.TypeNameString:
+                case StringType:
                     return new[] { SyntaxFactory.CreateStringLiteral(String.Empty) };
             }
         }

@@ -62,6 +62,7 @@ namespace Bicep.LanguageServer.Handlers
         public const string PasteType_SingleResource = "resource"; // Single resource
         public const string PasteType_ResourceList = "resourceList"; // List of multiple resources
         public const string PasteType_JsonValue = "jsonValue"; // Single JSON value (number, object, array etc)
+        public const string PasteType_BicepValue = "bicepValue"; // JSON value that is also valid Bicep (e.g. "[1, {}]")
 
         private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
 
@@ -114,7 +115,11 @@ namespace Bicep.LanguageServer.Handlers
                 else
                 {
                     // It's a full or partial template and we have converted it into a full template to parse
-                    return await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
+                    var result = await TryConvertFromConstructedTemplate(output, json, decompileId, pasteType, queryCanPaste, constructedJsonTemplate);
+                    if (result is not null)
+                    {
+                        return result;
+                    }
                 }
             }
 
@@ -126,7 +131,7 @@ namespace Bicep.LanguageServer.Handlers
                 GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteType: null, bicep: null));
         }
 
-        private async Task<ResultAndTelemetry> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, string pasteType, bool queryCanPaste, string? constructedJsonTemplate)
+        private async Task<ResultAndTelemetry?> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, string pasteType, bool queryCanPaste, string? constructedJsonTemplate)
         {
             ImmutableDictionary<Uri, string> filesToSave;
             try
@@ -155,6 +160,11 @@ namespace Bicep.LanguageServer.Handlers
 
             // Get Bicep output from the main file (all others are currently ignored)
             string bicepOutput = filesToSave.Single(kvp => BicepDummyUri.Equals(kvp.Key)).Value;
+
+            if (string.IsNullOrWhiteSpace(bicepOutput))
+            {
+                return null;
+            }
 
             // Ensure ends with newline
             bicepOutput = bicepOutput.TrimEnd() + "\n";
@@ -202,16 +212,11 @@ namespace Bicep.LanguageServer.Handlers
                 // Technically we've already converted, but we only want to show this message if we think the pasted text is convertible
                 Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
 
-                // If the input was already a valid Bicep expression (i.e., the conversion looks the same as the original, once formatting
-                //   changes are ignored), then skip the conversion, otherwise the user will see formatting changes when copying Bicep values
-                //   to Bicep (e.g. [1] would get changed to a multi-line array).
-                // This will mainly happen with single-line arrays and objects, especially since the Newtonsoft parser accepts input that is
-                //   JavaScript but not technically JSON, such as '{ abc: 1, def: 'def' }, but which also happens to be valid Bicep.
+                // Is the input already a valid Bicep expression?
                 Parser parser = new Parser("var v = " + json);
                 if (!parser.Program().HasParseErrors())
                 {
-                    // Already valid Bicep
-                    return null;
+                    pasteType = PasteType_BicepValue;
                 }
 
                 return new ResultAndTelemetry(

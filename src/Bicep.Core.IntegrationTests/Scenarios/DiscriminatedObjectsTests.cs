@@ -41,13 +41,13 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                         "name",
                         TestTypeHelper.CreateObjectType(
                             "Val1Type",
-                            ("name", new StringLiteralType("val1"), TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant),
+                            ("name", TypeFactory.CreateStringLiteralType("val1"), TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal1", LanguageConstants.Bool)), TypePropertyFlags.Required)),
                         TestTypeHelper.CreateObjectType(
                             "Val2Type",
-                            ("name", new StringLiteralType("val2"), TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant),
+                            ("name", TypeFactory.CreateStringLiteralType("val2"), TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal2", LanguageConstants.Bool)), TypePropertyFlags.Required)))),
@@ -140,7 +140,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                     ResourceFlags.None,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent/child@2020-10-01",
-                        ("name", TypeHelper.CreateTypeUnion(new StringLiteralType("val1"), new StringLiteralType("val2"))),
+                        ("name", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("val1"), TypeFactory.CreateStringLiteralType("val2"))),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnEnum", LanguageConstants.Bool))))),

@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -55,7 +55,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -112,7 +112,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new List<TypeSymbol> { new TupleType("nonLiteralTuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Int, LanguageConstants.String, LanguageConstants.Bool), default) },
                 new FunctionArgumentSyntax[0]);
 
-            evaluated.Type.Should().Be(new IntegerLiteralType(3));
+            evaluated.Type.Should().Be(TypeFactory.CreateIntegerLiteralType(3));
         }
 
         [DataTestMethod]
@@ -160,6 +160,20 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
         }
 
+        [TestMethod]
+        public void SplitReturnsNonEmtpyArrayOfStrings()
+        {
+            var returnType = EvaluateFunction("split",
+                new List<TypeSymbol> { LanguageConstants.String, LanguageConstants.String },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            returnType.Should().BeAssignableTo<ArrayType>();
+            returnType.As<ArrayType>().Item.Type.Should().Be(LanguageConstants.String);
+            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
+            returnType.As<ArrayType>().MinLength.Should().BeGreaterThan(0);
+        }
+
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
         {
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
@@ -205,20 +219,20 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 new TupleType("[[1, 2], [3, 4]]",
                     ImmutableArray.Create<ITypeReference>(
-                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(1), new IntegerLiteralType(2)), default),
-                        new TupleType("[3, 4]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(3), new IntegerLiteralType(4)), default)),
+                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2)), default),
+                        new TupleType("[3, 4]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default)),
                     default),
-                new TupleType("[1, 2, 3, 4]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(1), new IntegerLiteralType(2), new IntegerLiteralType(3), new IntegerLiteralType(4)), default),
+                new TupleType("[1, 2, 3, 4]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2), TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default),
             },
             // flatten([[1, 2], (3 | 4)[]]) -> (1 | 2 | 3 | 4)[]
             new object[]
             {
                 new TupleType("[[1, 2], (3, 4)[]]",
                     ImmutableArray.Create<ITypeReference>(
-                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(1), new IntegerLiteralType(2)), default),
-                        new TypedArrayType(TypeHelper.CreateTypeUnion(new IntegerLiteralType(3), new IntegerLiteralType(4)), default)),
+                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2)), default),
+                        new TypedArrayType(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default)),
                     default),
-                new TypedArrayType(TypeHelper.CreateTypeUnion(new IntegerLiteralType(1), new IntegerLiteralType(2), new IntegerLiteralType(3), new IntegerLiteralType(4)), default),
+                new TypedArrayType(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateIntegerLiteralType(2), TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerLiteralType(4)), default),
             },
         };
 
@@ -243,23 +257,26 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetFirstTestCases() => new[]
         {
-            // first(resourceGroup[]) -> resourceGroup
-            new object[] { 
+            // first(resourceGroup[]) -> resourceGroup | null
+            new object[]
+            {
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
             // first(['test', 3]) -> 'test'
-            new object[] {
+            new object[]
+            {
                 new TupleType("['test', 3]",
                     ImmutableArray.Create<ITypeReference>(
-                        new StringLiteralType("test"),
-                        new IntegerLiteralType(3)
+                        TypeFactory.CreateStringLiteralType("test"),
+                        TypeFactory.CreateIntegerLiteralType(3)
                     ),
                 default),
-                new StringLiteralType("test")
+                TypeFactory.CreateStringLiteralType("test")
             },
             // first([resourceGroup, subscription]) => resourceGroup
-            new object[] {
+            new object[]
+            {
                 new TupleType("[resourceGroup, subscription]",
                     ImmutableArray.Create<ITypeReference>(
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
@@ -267,28 +284,31 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     ),
                 default),
                 LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup)
-            }
+            },
         };
 
         private static IEnumerable<object[]> GetLastTestCases() => new[]
         {
-            // last(resourceGroup[]) -> resourceGroup
-            new object[] { 
+            // last(resourceGroup[]) -> resourceGroup | null
+            new object[]
+            {
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
             // last(['test', 3]) -> 3
-            new object[] {
+            new object[]
+            {
                 new TupleType("['test', 3]",
                     ImmutableArray.Create<ITypeReference>(
-                        new StringLiteralType("test"),
-                        new IntegerLiteralType(3)
+                        TypeFactory.CreateStringLiteralType("test"),
+                        TypeFactory.CreateIntegerLiteralType(3)
                     ),
                 default),
-                new IntegerLiteralType(3)
+                TypeFactory.CreateIntegerLiteralType(3)
             },
             // last([resourceGroup, subscription]) => subscription
-            new object[] {
+            new object[]
+            {
                 new TupleType("[resourceGroup, subscription]",
                     ImmutableArray.Create<ITypeReference>(
                         LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup),
@@ -296,7 +316,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     ),
                 default),
                 LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
-            }
+            },
         };
 
         private static IEnumerable<object[]> GetLiteralTransformations()
@@ -309,18 +329,20 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 int[] intArray => new(TestSyntaxFactory.CreateArray(intArray.Select(@int => TestSyntaxFactory.CreateInt((ulong) @int)))),
                 bool boolVal => new(TestSyntaxFactory.CreateBool(boolVal)),
                 bool[] boolArray => new(TestSyntaxFactory.CreateArray(boolArray.Select(TestSyntaxFactory.CreateBool))),
+                object[] mixedArray =>new(TestSyntaxFactory.CreateArray(mixedArray.Select(obj => ToFunctionArgumentSyntax(obj).Expression))),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
             };
 
             TypeSymbol ToTypeLiteral(object? argument) => argument switch
             {
-                string str => new StringLiteralType(str),
-                string[] strArray => new TupleType($"[{string.Join(", ", strArray.Select(str => $"'{str}'"))}]", strArray.Select(str => new StringLiteralType(str)).ToImmutableArray<ITypeReference>(), default),
-                int intVal => new IntegerLiteralType(intVal),
-                int[] intArray => new TupleType("", intArray.Select(@int => new IntegerLiteralType(@int)).ToImmutableArray<ITypeReference>(), default),
-                bool boolVal => new BooleanLiteralType(boolVal),
-                bool[] boolArray => new TupleType("", boolArray.Select(@bool => new BooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
+                string str => TypeFactory.CreateStringLiteralType(str),
+                string[] strArray => new TupleType($"[{string.Join(", ", strArray.Select(str => $"'{str}'"))}]", strArray.Select(str => TypeFactory.CreateStringLiteralType(str)).ToImmutableArray<ITypeReference>(), default),
+                int intVal => TypeFactory.CreateIntegerLiteralType(intVal),
+                int[] intArray => new TupleType("", intArray.Select(@int => TypeFactory.CreateIntegerLiteralType(@int)).ToImmutableArray<ITypeReference>(), default),
+                bool boolVal => TypeFactory.CreateBooleanLiteralType(boolVal),
+                bool[] boolArray => new TupleType("", boolArray.Select(@bool => TypeFactory.CreateBooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
                 null => LanguageConstants.Null,
+                object[] mixedArray => new TupleType("", mixedArray.Select(ToTypeLiteral).ToImmutableArray<ITypeReference>(), default),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")
             };
 
@@ -378,6 +400,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(3, "lastIndexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(1, "min", new[] { 10, 4, 1, 6 }),
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
+                CreateRow("foo/bar/baz", "join", new[] { "foo", "bar", "baz"}, "/"),
+                CreateRow("abc/123/True", "join", new object[] { "abc", 123, true }, "/"),
             };
         }
 

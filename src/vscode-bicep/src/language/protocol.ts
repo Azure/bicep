@@ -198,7 +198,13 @@ export interface BicepDecompileForPasteCommandResult {
   decompileId: string;
   output: string;
   errorMessage?: string;
-  pasteType?: string; // undefined if can't be pasted
+  // undefined if can't be pasted
+  pasteType?:
+    | "fullTemplate"
+    | "resource"
+    | "resourceList"
+    | "jsonValue"
+    | "bicepValue";
   bicep?: string;
   disclaimer?: string;
 }

@@ -1047,7 +1047,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "[2:26] The expression is involved in a cycle (\"v3\" -> \"v2\" -> \"v1\").",
                     "[3:26] The expression is involved in a cycle (\"v1\" -> \"v3\" -> \"v2\").",
                     "[4:26] The expression is involved in a cycle (\"v2\" -> \"v1\" -> \"v3\").",
-                    "[9:25] The expression is involved in a cycle (\"v3\" -> \"v2\" -> \"v1\").",
+                    "[9:25] The referenced declaration with name \"v3\" is not valid.",
                 },
             DisplayName = "resolved variable cycle should not hang")]
         [DataRow(@"

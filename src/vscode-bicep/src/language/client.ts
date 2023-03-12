@@ -10,16 +10,11 @@ import {
   IActionContext,
   parseError,
 } from "@microsoft/vscode-azext-utils";
-import {
-  ErrorHandlerResult,
-  Message,
-  CloseHandlerResult,
-  TransportKind,
-} from "vscode-languageclient/node";
+import { Message, TransportKind } from "vscode-languageclient/node";
 import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
 import { bicepLanguageId } from "./constants";
 
-const dotnetRuntimeVersion = "6.0";
+const dotnetRuntimeVersion = "7.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 const dotnetAcquisitionExtensionSetting = "dotnetAcquisitionExtension";
@@ -74,12 +69,10 @@ function getServerStartupOptions(
 export async function createLanguageService(
   actionContext: IActionContext,
   context: vscode.ExtensionContext,
-  outputChannel: vscode.OutputChannel
+  outputChannel: vscode.OutputChannel,
+  dotnetCommandPath: string
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
-
-  const dotnetCommandPath = await ensureDotnetRuntimeInstalled(actionContext);
-  getLogger().debug(`Found dotnet command at '${dotnetCommandPath}'.`);
 
   const languageServerPath = ensureLanguageServerExists(context);
   getLogger().debug(`Found language server at '${languageServerPath}'.`);
@@ -116,6 +109,7 @@ export async function createLanguageService(
         ),
     },
     synchronize: {
+      configurationSection: "bicep",
       // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHandler.cs
       fileEvents: [
         vscode.workspace.createFileSystemWatcher("**/"), // folder changes
@@ -144,8 +138,8 @@ export async function createLanguageService(
     writeDeploymentOutputMessageToBicepOperationsOutputChannel
   );
 
-  client.onNotification("bicep/triggerEditorCompletion", () => {
-    vscode.commands.executeCommand("editor.action.triggerSuggest");
+  client.onNotification("bicep/triggerEditorCompletion", async () => {
+    await vscode.commands.executeCommand("editor.action.triggerSuggest");
   });
 
   return client;
@@ -162,7 +156,7 @@ function getCustomDotnetRuntimePathConfig() {
   return acquireConfig.filter((x) => x.extensionId === extensionId)[0];
 }
 
-async function ensureDotnetRuntimeInstalled(
+export async function ensureDotnetRuntimeInstalled(
   actionContext: IActionContext
 ): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
@@ -208,6 +202,7 @@ async function ensureDotnetRuntimeInstalled(
     throw new Error(errorMessage);
   }
 
+  getLogger().debug(`Found dotnet command at '${dotnetPath}'.`);
   return dotnetPath;
 }
 
@@ -250,7 +245,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
       error: Error,
       message: Message | undefined,
       count: number | undefined
-    ): ErrorHandlerResult {
+    ) {
       callWithTelemetryAndErrorHandlingSync(
         "bicep.lsp-error",
         (context: IActionContext) => {
@@ -265,7 +260,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
       );
       return defaultErrorHandler.error(error, message, count);
     },
-    closed(): CloseHandlerResult {
+    closed() {
       callWithTelemetryAndErrorHandlingSync(
         "bicep.lsp-error",
         (context: IActionContext) => {

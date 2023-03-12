@@ -7,6 +7,7 @@ using Json.Path;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 
@@ -25,6 +26,7 @@ namespace Bicep.Core.Extensions
         public static string ToNonNullString(this JsonElement element) =>
             element.GetString() ?? throw new JsonException($"Expected \"{element}\" to be non-null.");
 
+        [SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
         public static T ToNonNullObject<T>(this JsonElement element, JsonSerializerOptions? options = null)
         {
             options ??= DefaultDeserializeOptions;
@@ -98,6 +100,7 @@ namespace Bicep.Core.Extensions
             return result.Matches?.Select(match => match.Value) ?? Enumerable.Empty<JsonElement>();
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
         public static string ToFormattedString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
         {
             WriteIndented = true,

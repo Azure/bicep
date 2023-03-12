@@ -49,5 +49,8 @@ namespace Bicep.Core.Syntax
             => EnumerateAncestorsUpwards(hierarchy, syntax)
                 .OfType<TSyntax>()
                 .FirstOrDefault();
+
+        public static bool IsEqualOrDescendent(this ISyntaxHierarchy hierarchy, SyntaxBase node, SyntaxBase potentialAncestor)
+            => object.ReferenceEquals(node, potentialAncestor) || hierarchy.IsDescendant(node, potentialAncestor);
     }
 }

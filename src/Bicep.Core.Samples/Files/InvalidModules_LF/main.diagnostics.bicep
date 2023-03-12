@@ -365,21 +365,21 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[008:033) [BCP122 (Error)] Modules: "moduleWithDuplicateName1", "moduleWithDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. (CodeDescription: none) |'moduleWithDuplicateName'|
 }
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionB ''
 //@[019:021) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[021:021) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionC '' =
 //@[019:021) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[023:023) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionD '' = {}
 //@[019:021) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionE '' = {
 //@[019:021) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
   name: 'hello'

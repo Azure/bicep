@@ -114,23 +114,6 @@
     ]
   },
   {
-    "name": "coalesce",
-    "description": "Returns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null.",
-    "fixedParameters": [],
-    "minimumArgumentCount": 1,
-    "variableParameter": {
-      "namePrefix": "arg",
-      "description": "The value to coalesce",
-      "type": "any",
-      "minimumCount": 1
-    },
-    "flags": "default",
-    "typeSignature": "(... : any): any",
-    "parameterTypeSignatures": [
-      "... : any"
-    ]
-  },
-  {
     "name": "concat",
     "description": "Combines multiple arrays and returns the concatenated array.",
     "fixedParameters": [],
@@ -652,7 +635,7 @@
       {
         "name": "inputArray",
         "description": "An array of strings to join.",
-        "type": "string[]",
+        "type": "(bool | int | string)[]",
         "required": true
       },
       {
@@ -665,9 +648,9 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(inputArray: string[], delimiter: string): string",
+    "typeSignature": "(inputArray: (bool | int | string)[], delimiter: string): string",
     "parameterTypeSignatures": [
-      "inputArray: string[]",
+      "inputArray: (bool | int | string)[]",
       "delimiter: string"
     ]
   },

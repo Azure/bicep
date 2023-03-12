@@ -18,6 +18,12 @@
         "resolved": "3.3.4",
         "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
       },
+      "Microsoft.Net.Compilers.Toolset": {
+        "type": "Direct",
+        "requested": "[4.5.0-2.final, )",
+        "resolved": "4.5.0-2.final",
+        "contentHash": "5AKgCibYDYbiRdTdkNtBZnKZ5leEAJsbXl5bDPflqYNtrbdZcAW5GX/6kbmkUiqDiXwRxEf9x4tHgq1BsJUd+A=="
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.2.0, )",
@@ -1137,7 +1143,7 @@
           "Microsoft.VisualStudio.Shell.Interop": "[17.2.32505.113, )",
           "Microsoft.VisualStudio.Threading": "[17.2.32, )",
           "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
-          "Microsoft.VisualStudio.Workspace.VSIntegration": "[16.3.43, )",
+          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.6, )"
         }
@@ -1152,7 +1158,8 @@
           "Microsoft.VisualStudio.Editor": "[17.2.3194, )",
           "Microsoft.VisualStudio.LanguageServer.Client.Implementation": "[17.2.2105, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.2.32505.113, )",
-          "Microsoft.VisualStudio.Workspace": "[17.1.11-preview-0002, )"
+          "Microsoft.VisualStudio.Workspace": "[17.1.11-preview-0002, )",
+          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )"
         }
       }
     },

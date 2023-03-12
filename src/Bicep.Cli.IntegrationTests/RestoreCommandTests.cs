@@ -27,6 +27,7 @@ using Bicep.Core.Registry.Oci;
 using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using System.Text;
 using Bicep.Core.Emit;
+using Azure.Identity;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -55,14 +56,61 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_ShouldSucceed(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var clientFactory = dataSet.CreateMockRegistryClients();
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory);
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
+            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            if (dataSet.HasExternalModules)
+            {
+                // ensure something got restored
+                settings.FeatureOverrides.Should().HaveValidModules();
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Restore_ShouldSucceedWithAnonymousClient(DataSet dataSet)
+        {
+            var clientFactory = dataSet.CreateMockRegistryClients();
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+
+            // create client that mocks missing az or PS login
+            var clientWithCredentialUnavailable = StrictMock.Of<ContainerRegistryBlobClient>();
+            clientWithCredentialUnavailable
+                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new CredentialUnavailableException("Mock credential unavailable exception"));
+
+            // authenticated client creation will produce a client that will fail due to missing login
+            // this will force fallback to the anonymous client
+            var clientFactoryForRestore = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactoryForRestore
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns(clientWithCredentialUnavailable.Object);
+
+            // anonymous client creation will redirect to the working client factory containing mock published modules
+            clientFactoryForRestore
+                .Setup(m => m.CreateAnonymouosBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymouosBlobClient);
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -209,7 +257,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var clientFactory = dataSet.CreateMockRegistryClients();
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 

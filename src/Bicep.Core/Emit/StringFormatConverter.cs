@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using System.Text;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
@@ -46,4 +45,3 @@ namespace Bicep.Core.Emit
         }
     }
 }
-

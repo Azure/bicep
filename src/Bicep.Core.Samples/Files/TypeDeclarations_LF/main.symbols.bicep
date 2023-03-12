@@ -1,7 +1,7 @@
 @description('The foo type')
 @sealed()
 type foo = {
-//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
+//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? }>. Declaration start char: 0, length: 299
   @minLength(3)
   @maxLength(10)
   @description('A string property')
@@ -11,14 +11,14 @@ type foo = {
     @minValue(1)
     intProp: int
 
-    intArrayArrayProp?: int [] []
+    intArrayArrayProp: int [] [] ?
   }
 
   typeRefProp: bar
 
   literalProp: 'literal'
 
-  recursion?: foo
+  recursion: foo?
 }
 
 @minLength(3)
@@ -79,9 +79,20 @@ type stringStringDictionary = {
     *: string
 }
 
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
+//@[5:19) TypeAlias constrainedInt. Type: Type<int>. Declaration start char: 0, length: 52
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48
 
 var maybeNull = mightIncludeNull[0]!.key
 //@[4:13) Variable maybeNull. Type: 'value'. Declaration start char: 0, length: 40
+
+type nullable = string?
+//@[5:13) TypeAlias nullable. Type: Type<null | string>. Declaration start char: 0, length: 23
+
+type nonNullable = nullable!
+//@[5:16) TypeAlias nonNullable. Type: Type<string>. Declaration start char: 0, length: 28
 

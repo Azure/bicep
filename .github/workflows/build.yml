@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/release/net6.0/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/release/net7.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
       
       - name: Upload Bicep project assets file
@@ -110,7 +110,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Bicep.LangServer
-          path: ./src/Bicep.LangServer/bin/release/net6.0/publish/*
+          path: ./src/Bicep.LangServer/bin/release/net7.0/publish/*
           if-no-files-found: error
       
       # needed to generate notice file
@@ -252,19 +252,12 @@ jobs:
         uses: microsoft/setup-msbuild@v1.3
 
       - name: Build Bicep.sln
-        run: msbuild Bicep.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_build.binlog
-
-      - name: Upload Bicep.sln build binlog
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-binlog-files
-          path: ./src/binlog/bicep_build.binlog
-          if-no-files-found: error
+        run: dotnet build --configuration release
 
       - name: Build BicepInVisualStudio.sln
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
 
-      - name: Upload Bicep.sln build binlog
+      - name: Upload BicepInVisualStudio.sln build binlog
         uses: actions/upload-artifact@v3
         with:
           name: build-binlog-files
@@ -332,7 +325,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net6.0/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net7.0/bicep-setup-win-x64.exe
           if-no-files-found: error
 
   build-cli-nugets:
@@ -615,8 +608,6 @@ jobs:
       - build-cli
       - can-run-live-tests
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
-    env:
-      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
 
     steps:
       - uses: actions/checkout@v3
@@ -638,11 +629,11 @@ jobs:
 
       - name: Az CLI login
         uses: azure/login@v1
-        if: matrix.environment == 'prod'
         with:
-          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
-          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
-          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+          environment: ${{ (matrix.environment == 'prod' && 'AzureCloud') || 'AzureUSGovernment' }}
+          client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
+          tenant-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_TENANT_ID_PROD) || secrets.LIVE_TEST_TENANT_ID_FF }}
+          subscription-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD) || secrets.LIVE_TEST_SUBSCRIPTION_ID_FF }}
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
         run: npm ci && npm run test:live:${{ matrix.environment }}
@@ -665,8 +656,6 @@ jobs:
       - build-cli
       - can-run-live-tests
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
-    env:
-      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
 
     steps:
       - uses: actions/checkout@v3
@@ -686,11 +675,11 @@ jobs:
 
       - name: Az CLI login
         uses: azure/login@v1
-        if: matrix.environment == 'prod'
         with:
-          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
-          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
-          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+          environment: ${{ (matrix.environment == 'prod' && 'AzureCloud') || 'AzureUSGovernment' }}
+          client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
+          tenant-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_TENANT_ID_PROD) || secrets.LIVE_TEST_TENANT_ID_FF }}
+          subscription-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD) || secrets.LIVE_TEST_SUBSCRIPTION_ID_FF }}
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
         run: npm ci && npm run test:live:${{ matrix.environment }}

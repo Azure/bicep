@@ -336,19 +336,19 @@ module moduleWithDuplicateName2 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 }
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionB ''
 //@[07:18) Module completionB. Type: error. Declaration start char: 0, length: 21
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionC '' =
 //@[07:18) Module completionC. Type: error. Declaration start char: 0, length: 23
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionD '' = {}
 //@[07:18) Module completionD. Type: error. Declaration start char: 0, length: 26
 
-// #completionTest(19, 20, 21) -> cwdFileCompletions
+// #completionTest(19, 20, 21) -> cwdFileAndBicepRegitryTemplateSpecSchemaCompletions
 module completionE '' = {
 //@[07:18) Module completionE. Type: error. Declaration start char: 0, length: 43
   name: 'hello'

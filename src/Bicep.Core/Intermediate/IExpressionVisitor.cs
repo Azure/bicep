@@ -74,4 +74,6 @@ public interface IExpressionVisitor
     void VisitResourceDependencyExpression(ResourceDependencyExpression expression);
     
     void VisitProgramExpression(ProgramExpression expression);
+
+    void VisitAccessChainExpression(AccessChainExpression expression);
 }

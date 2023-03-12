@@ -58,10 +58,10 @@ output myObj object = {
                 new TypeProperty("camelCaseProp", LanguageConstants.String),
                 new TypeProperty("lowercasequoted=+.prop", LanguageConstants.String),
                 new TypeProperty("camelCaseQuoted=+.Prop", LanguageConstants.String),
-                new TypeProperty("lowerCaseEnumProp", new StringLiteralType("myenum")),
-                new TypeProperty("pascalCaseEnumProp", new StringLiteralType("MyEnum")),
-                new TypeProperty("lowerCaseEnumUnionProp", TypeHelper.CreateTypeUnion(new StringLiteralType("myenum"), new StringLiteralType("blahblah"))),
-                new TypeProperty("pascalCaseEnumUnionProp", TypeHelper.CreateTypeUnion(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
+                new TypeProperty("lowerCaseEnumProp", TypeFactory.CreateStringLiteralType("myenum")),
+                new TypeProperty("pascalCaseEnumProp", TypeFactory.CreateStringLiteralType("MyEnum")),
+                new TypeProperty("lowerCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("myenum"), TypeFactory.CreateStringLiteralType("blahblah"))),
+                new TypeProperty("pascalCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("MyEnum"), TypeFactory.CreateStringLiteralType("BlahBlah"))));
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));

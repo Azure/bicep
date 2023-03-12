@@ -477,7 +477,6 @@ namespace Bicep.Core.PrettyPrint
             {
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Key);
-                this.Visit(syntax.OptionalityMarker);
                 this.Visit(syntax.Colon);
                 this.documentStack.Push(Space);
                 this.Visit(syntax.Value);
@@ -548,6 +547,13 @@ namespace Bicep.Core.PrettyPrint
             {
                 this.Visit(syntax.BaseExpression);
                 this.Visit(syntax.AssertionOperator);
+            });
+
+        public override void VisitNullableTypeSyntax(NullableTypeSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.Visit(syntax.Base);
+                this.Visit(syntax.NullabilityMarker);
             });
 
         private static ILinkedDocument Text(string text) =>

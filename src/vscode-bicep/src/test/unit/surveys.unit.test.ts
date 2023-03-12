@@ -75,6 +75,7 @@ describe("surveys-unittests", () => {
     // Show and respond with "Never"
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
       title: "Never ask again",
+      id: "never",
     });
     await mocks.survey.checkShowSurvey(createActionContextMock(), new Date());
 
@@ -130,7 +131,8 @@ describe("surveys-unittests", () => {
 
     // Show and respond with yes
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
-      title: "Sure",
+      title: "Jawohl",
+      id: "yes",
     });
     let context = createActionContextMock();
     await mocks.survey.checkShowSurvey(context, now);
@@ -189,6 +191,7 @@ describe("surveys-unittests", () => {
     // Ask and respond with "Later"
     mocks.showInformationMessageMock.mockResolvedValueOnce(<MessageItem>{
       title: "Maybe later",
+      id: "later",
     });
     let context = createActionContextMock();
     await mocks.survey.checkShowSurvey(context, now);

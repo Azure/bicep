@@ -7,20 +7,11 @@ namespace Bicep.Core.TypeSystem
 {
     public class TypedArrayType : ArrayType
     {
-        public TypedArrayType(ITypeReference itemReference, TypeSymbolValidationFlags validationFlags) : this(FormatTypeName(itemReference), itemReference, validationFlags) { }
+        public TypedArrayType(ITypeReference itemReference, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
+            : base(FormatTypeName(itemReference), itemReference, validationFlags, minLength, maxLength) {}
 
-        public TypedArrayType(string name, ITypeReference itemReference, TypeSymbolValidationFlags validationFlags)
-            : base(name)
-        {
-            this.Item = itemReference;
-            ValidationFlags = validationFlags;
-        }
-
-        public override ITypeReference Item { get; }
-
-        public override TypeSymbolValidationFlags ValidationFlags { get; }
-
-        private static string FormatTypeName(ITypeReference itemReference) => $"{itemReference.Type.FormatNameForCompoundTypes()}[]";
+        public TypedArrayType(string name, ITypeReference itemReference, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
+            : base(name, itemReference, validationFlags, minLength, maxLength) {}
 
         public override IEnumerable<Symbol> Descendants
         {
@@ -29,5 +20,11 @@ namespace Bicep.Core.TypeSystem
                 yield return this.Item.Type;
             }
         }
+
+        private static string FormatTypeName(ITypeReference itemReference) => itemReference.Type switch
+        {
+            TypeSymbol typeSymbol when ReferenceEquals(typeSymbol, LanguageConstants.Any) => LanguageConstants.ArrayType,
+            TypeSymbol otherwise => $"{itemReference.Type.FormatNameForCompoundTypes()}[]",
+        };
     }
 }

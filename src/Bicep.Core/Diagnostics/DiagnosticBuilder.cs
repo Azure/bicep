@@ -1803,14 +1803,25 @@ namespace Bicep.Core.Diagnostics
                 "BCP317",
                 "Expected an identifier, a string, or an asterisk at this location.");
 
-            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, SyntaxBase baseExpression) => new(
+            public FixableDiagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP318",
                 $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.",
-                documentationUri: null,
-                styling: DiagnosticStyling.Default,
-                fix: AsNonNullable(baseExpression));
+                null,
+                DiagnosticStyling.Default,
+                new(
+                    "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToTextPreserveFormatting())),
+                AsNonNullable(accessExpression.BaseExpression));
+
+            private static CodeFix AsNonNullable(SyntaxBase expression) => new(
+                "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
+                false,
+                CodeFixKind.QuickFix,
+                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
 
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,
@@ -1831,11 +1842,83 @@ namespace Bicep.Core.Diagnostics
                 styling: DiagnosticStyling.Default,
                 fix: AsNonNullable(expression));
 
-            private static CodeFix AsNonNullable(SyntaxBase expression) => new(
-                "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
-                false,
-                CodeFixKind.QuickFix,
-                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
+            public ErrorDiagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => new(
+                TextSpan,
+                "BCP322",
+                "The `.?` (safe dereference) operator may not be used on instance function invocations.");
+
+            public ErrorDiagnostic SafeDereferenceNotPermittedOnResourceCollections() => new(
+                TextSpan,
+                "BCP323",
+                "The `[?]` (safe dereference) operator may not be used on resource or module collections.");
+
+            public ErrorDiagnostic NullableTypesUnsupported() => new(
+                TextSpan,
+                "BCP324",
+                $@"Using nullable types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
+
+            public ErrorDiagnostic ExpectedTypeIdentifier() => new(
+                TextSpan,
+                "BCP325",
+                "Expected a type identifier at this location.");
+
+            public ErrorDiagnostic NullableTypedParamsMayNotHaveDefaultValues() => new(
+                TextSpan,
+                "BCP326",
+                "Nullable-typed parameters may not be assigned default values. They have an implicit default of 'null' that cannot be overridden.");
+
+            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(bool warnInsteadOfError, long sourceMin, long targetMax) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP327",
+                $"The provided value (which will always be greater than or equal to {sourceMin}) is too large to assign to a target for which the maximum allowable value is {targetMax}.");
+
+            public Diagnostic SourceIntDomainDisjointFromTargetIntDomain_SourceLow(bool warnInsteadOfError, long sourceMax, long targetMin) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP328",
+                $"The provided value (which will always be less than or equal to {sourceMax}) is too small to assign to a target for which the minimum allowable value is {targetMin}.");
+
+            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(long? sourceMin, long targetMin) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP329",
+                $"The provided value {(sourceMin.HasValue ? $"may be as small as {sourceMin.Value}" : "has no configured minimum")} and may be too small to assign to a target with a configured minimum of {targetMin}.");
+
+            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(long? sourceMax, long targetMax) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP330",
+                $"The provided value {(sourceMax.HasValue ? $"may be as large as {sourceMax.Value}" : "has no configured maximum")} and may be too large to assign to a target with a configured maximum of {targetMax}.");
+
+            public ErrorDiagnostic MinMayNotExceedMax(string minDecoratorName, long minValue, string maxDecoratorName, long maxValue) => new(
+                TextSpan,
+                "BCP331",
+                $@"A type's ""{minDecoratorName}"" must be less than or equal to its ""{maxDecoratorName}"", but a minimum of {minValue} and a maximum of {maxValue} were specified.");
+
+            public Diagnostic SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(bool warnInsteadOfError, long sourceMinLength, long targetMaxLength) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP332",
+                $"The provided value (whose length will always be greater than or equal to {sourceMinLength}) is too long to assign to a target for which the maximum allowable length is {targetMaxLength}.");
+
+            public Diagnostic SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(bool warnInsteadOfError, long sourceMaxLength, long targetMinLength) => new(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP333",
+                $"The provided value (whose length will always be less than or equal to {sourceMaxLength}) is too short to assign to a target for which the minimum allowable length is {targetMinLength}.");
+
+            public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(long? sourceMinLength, long targetMinLength) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP334",
+                $"The provided value {(sourceMinLength.HasValue ? $"may have a length as small as {sourceMinLength.Value}" : "has no configured minimum length")} and may be too short to assign to a target with a configured minimum length of {targetMinLength}.");
+
+            public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(long? sourceMaxLength, long targetMaxLength) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP335",
+                $"The provided value {(sourceMaxLength.HasValue ? $"may have a length as large as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

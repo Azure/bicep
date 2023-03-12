@@ -631,11 +631,11 @@ param decoratedString string
 //@[022:028) Identifier |string|
 //@[028:030) NewLine |\n\n|
 
-@minValue(200)
+@minValue(100)
 //@[000:001) At |@|
 //@[001:009) Identifier |minValue|
 //@[009:010) LeftParen |(|
-//@[010:013) Integer |200|
+//@[010:013) Integer |100|
 //@[013:014) RightParen |)|
 //@[014:015) NewLine |\n|
 param decoratedInt int = 123

@@ -12,15 +12,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="JsonSchemas\schema.*.json" />
+    <!-- 
+      .net 7 has a regression on Linux and Mac that assumes that if a file is named <name>.<something>.json that <something> is a culture
+      this causes some of our *.metadata.json files to be stripped out of the main assembly and placed in a satellite assembly for the metadata culture
+    -->
+    <EmbeddedResource Include="JsonSchemas\schema.*.json" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DiffPlex" Version="1.7.1" />
-    <PackageReference Include="FluentAssertions" Version="6.9.0" />
+    <PackageReference Include="FluentAssertions" Version="6.10.0" />
     <PackageReference Include="JsonPath.Net" Version="0.2.1" />
     <PackageReference Include="JsonSchema.Net" Version="3.3.2" />
-    <PackageReference Include="Markdig" Version="0.30.4" />
+    <PackageReference Include="Markdig" Version="0.31.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
@@ -29,7 +33,7 @@
     <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <PackageReference Include="System.CommandLine.Rendering" Version="0.4.0-alpha.22272.1" />
-    <PackageReference Include="System.IO.Abstractions" Version="19.1.5" />
+    <PackageReference Include="System.IO.Abstractions" Version="19.1.18" />
   </ItemGroup>
 
   <ItemGroup>

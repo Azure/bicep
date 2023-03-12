@@ -69,15 +69,22 @@ export class PasteAsBicepCommand implements Command {
       clipboardText,
       false /* queryCanPaste */
     );
+
+    if (!result.pasteType) {
+      throw new Error(
+        `The clipboard text does not appear to be valid JSON or is not in a format that can be pasted as Bicep.`
+      );
+    }
+
     if (result.errorMessage) {
       context.errorHandling.issueProperties.clipboardText = clipboardText;
       throw new Error(
-        `Could not paste clipboard text as Bicep because of an error: ${result.errorMessage}`
+        `Could not paste clipboard text as Bicep: ${result.errorMessage}`
       );
     }
 
     await editor.edit((builder) => {
-      builder.insert(editor.selection.active, result.bicep ?? "");
+      builder.replace(editor.selection, result.bicep ?? "");
     });
   }
 
@@ -85,17 +92,6 @@ export class PasteAsBicepCommand implements Command {
     extension.register(
       workspace.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this))
     );
-  }
-
-  public async canPasteAsBicep(
-    context: IActionContext,
-    jsonContent: string
-  ): Promise<boolean> {
-    const result = await this.callDecompileForPaste(
-      jsonContent,
-      true /* queryCanPaste */
-    );
-    return !!result.pasteType;
   }
 
   private async callDecompileForPaste(
@@ -124,14 +120,6 @@ export class PasteAsBicepCommand implements Command {
     );
   }
 
-  public isExperimentalPasteAsBicepEnabled(): boolean {
-    return (
-      getBicepConfiguration().get<boolean>(
-        bicepConfigurationKeys.experimentalEnablePasteOnBicep
-      ) ?? false
-    );
-  }
-
   private isAutoConvertOnPasteEnabled(): boolean {
     return (
       getBicepConfiguration().get<boolean>(
@@ -149,9 +137,6 @@ export class PasteAsBicepCommand implements Command {
       async (context) => {
         context.telemetry.suppressIfSuccessful = true;
 
-        if (!this.isExperimentalPasteAsBicepEnabled()) {
-          return;
-        }
         if (!this.isAutoConvertOnPasteEnabled()) {
           return;
         }
@@ -199,13 +184,22 @@ export class PasteAsBicepCommand implements Command {
               clipboardText.length
             );
 
+            if (canPasteResult.pasteType === "bicepValue") {
+              // If the input was already a valid Bicep expression (i.e., the conversion looks the same as the original, once formatting
+              //   changes are ignored), then skip the conversion, otherwise the user will see formatting changes when copying Bicep values
+              //   to Bicep (e.g. [1] would get changed to a multi-line array).
+              // This will mainly happen with single-line arrays and objects, especially since the Newtonsoft parser accepts input that is
+              //   JavaScript but not technically JSON, such as '{ abc: 1, def: 'def' }, but which also happens to be valid Bicep.
+              return;
+            }
+
             if (canPasteResult.errorMessage || !canPasteResult.bicep) {
               // If we should be able to convert but there were errors in the JSON, show a message to the output window
               this.outputChannelManager.appendToOutputChannel(
                 canPasteResult.output
               );
               this.outputChannelManager.appendToOutputChannel(
-                `Could not convert pasted text into Bicep because of an error: ${canPasteResult.errorMessage}`
+                `Could not convert pasted text into Bicep: ${canPasteResult.errorMessage}`
               );
 
               // ... and register telemetry for the failure (don't show the error to the user again)
@@ -255,8 +249,7 @@ export class PasteAsBicepCommand implements Command {
             }
 
             // Don't wait for disclaimer/warning because our telemetry won't fire until we return
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.showWarning(context, canPasteResult);
+            void this.showWarning(context, canPasteResult);
           }
         }
       }
@@ -267,67 +260,64 @@ export class PasteAsBicepCommand implements Command {
     context: IActionContext,
     pasteResult: BicepDecompileForPasteCommandResult
   ): Promise<void> {
-    try {
-      // Always show this message
-      this.outputChannelManager.appendToOutputChannel(
-        "The JSON pasted into the editor was automatically decompiled to Bicep. Use undo to revert.",
-        true /*noFocus*/
+    // Always show this message
+    this.outputChannelManager.appendToOutputChannel(
+      "The JSON pasted into the editor was automatically decompiled to Bicep. Use undo to revert.",
+      true /*noFocus*/
+    );
+
+    if (!pasteResult.disclaimer) {
+      return;
+    }
+
+    // Show disclaimer only once per session
+    if (this.disclaimerShownThisSession) {
+      return;
+    }
+
+    // Always show disclaimer in output window
+    this.outputChannelManager.appendToOutputChannel(
+      pasteResult.disclaimer,
+      true /*noFocus*/
+    );
+
+    // Show disclaimer in a dialog until disabled
+    if (
+      this.suppressedWarningsManager.isWarningSuppressed(
+        SuppressedWarningsManager.keys.decompileOnPasteWarning
+      )
+    ) {
+      return;
+    }
+
+    const dontShowAgain: MessageItem = {
+      title: "Never show again",
+    };
+    const disable: MessageItem = {
+      title: "Disable automatic decompile on paste",
+    };
+
+    this.disclaimerShownThisSession = true;
+    const result = await context.ui.showWarningMessage(
+      pasteResult.disclaimer,
+      dontShowAgain,
+      disable
+    );
+    if (result === dontShowAgain) {
+      await this.suppressedWarningsManager.suppressWarning(
+        SuppressedWarningsManager.keys.decompileOnPasteWarning
+      );
+    } else if (result === disable) {
+      await getBicepConfiguration().update(
+        bicepConfigurationKeys.decompileOnPaste,
+        false,
+        ConfigurationTarget.Global
       );
 
-      if (!pasteResult.disclaimer) {
-        return;
-      }
-
-      // Show disclaimer only once per session
-      if (this.disclaimerShownThisSession) {
-        return;
-      }
-
-      // Always show disclaimer in output window
-      this.outputChannelManager.appendToOutputChannel(
-        pasteResult.disclaimer,
-        true /*noFocus*/
+      // Don't wait for this to finish
+      void window.showWarningMessage(
+        `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
       );
-
-      // Show disclaimer in a dialog until disabled
-      if (
-        this.suppressedWarningsManager.isWarningSuppressed(
-          SuppressedWarningsManager.keys.decompileOnPasteWarning
-        )
-      ) {
-        return;
-      }
-
-      const dontShowAgain: MessageItem = {
-        title: "Never show again",
-      };
-      const disable: MessageItem = {
-        title: "Disable automatic decompile on paste",
-      };
-
-      const result = await context.ui.showWarningMessage(
-        pasteResult.disclaimer,
-        dontShowAgain,
-        disable
-      );
-      if (result === dontShowAgain) {
-        await this.suppressedWarningsManager.suppressWarning(
-          SuppressedWarningsManager.keys.decompileOnPasteWarning
-        );
-      } else if (result === disable) {
-        await getBicepConfiguration().update(
-          bicepConfigurationKeys.decompileOnPaste,
-          false,
-          ConfigurationTarget.Global
-        );
-
-        // Don't wait for this to finish
-        window.showWarningMessage(
-          `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
-        );
-      }
-    } finally {
-      this.disclaimerShownThisSession = true;
     }
   }
 }

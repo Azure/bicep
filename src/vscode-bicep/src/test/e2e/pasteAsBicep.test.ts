@@ -22,13 +22,6 @@ describe("pasteAsBicep", (): void => {
       ConfigurationTarget.Global
     );
 
-    // Make sure experimental enable paste on bicep is on
-    await getBicepConfiguration().update(
-      bicepConfigurationKeys.experimentalEnablePasteOnBicep,
-      true,
-      ConfigurationTarget.Global
-    );
-
     // Make sure decompile on paste warning is on
     await getBicepConfiguration().update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
@@ -135,7 +128,7 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
     });
     await vscode.window.showTextDocument(textDocument);
 
-    vscode.env.clipboard.writeText(json);
+    await vscode.env.clipboard.writeText(json);
     await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
 
     try {

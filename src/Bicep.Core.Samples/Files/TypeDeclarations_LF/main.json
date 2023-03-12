@@ -1,24 +1,18 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.9-experimental",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10197341916052980146"
+      "templateHash": "1427240509181905144"
     }
   },
   "definitions": {
     "foo": {
       "type": "object",
-      "required": [
-        "stringProp",
-        "objectProp",
-        "typeRefProp",
-        "literalProp"
-      ],
       "properties": {
         "stringProp": {
           "type": "string",
@@ -30,9 +24,6 @@
         },
         "objectProp": {
           "type": "object",
-          "required": [
-            "intProp"
-          ],
           "properties": {
             "intProp": {
               "type": "int",
@@ -45,7 +36,8 @@
                 "items": {
                   "type": "int"
                 }
-              }
+              },
+              "nullable": true
             }
           }
         },
@@ -59,7 +51,8 @@
           ]
         },
         "recursion": {
-          "$ref": "#/definitions/foo"
+          "$ref": "#/definitions/foo",
+          "nullable": true
         }
       },
       "additionalProperties": false,
@@ -190,16 +183,24 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "constrainedInt": {
+      "type": "int",
+      "maxValue": 10,
+      "minValue": 1
+    },
+    "nullable": {
+      "type": "string",
+      "nullable": true
+    },
+    "nonNullable": {
+      "$ref": "#/definitions/nullable",
+      "nullable": false
     }
   },
   "parameters": {
     "inlineObjectParam": {
       "type": "object",
-      "required": [
-        "foo",
-        "bar",
-        "baz"
-      ],
       "properties": {
         "foo": {
           "type": "string"

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using Azure.Deployments.Expression.Extensions;
@@ -92,6 +93,7 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
+            NullType => true,
 
             // A tuple can be a literal only if each item contained therein is also a literal
             TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),
@@ -118,10 +120,14 @@ namespace Bicep.Core.TypeSystem
         {
             JObject jObject => TryCreateTypeLiteral(jObject),
             JArray jArray => TryCreateTypeLiteral(jArray),
-            _ when token.Type == JTokenType.Boolean => new BooleanLiteralType(token.ToObject<bool>()),
-            _ when token.IsTextBasedJTokenType() => new StringLiteralType(token.ToString()),
-            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => new IntegerLiteralType((long)intVal),
-            _ => null,
+            _ => token.Type switch
+            {
+                JTokenType.Null => LanguageConstants.Null,
+                JTokenType.Boolean => token.ToObject<bool>() ? LanguageConstants.True : LanguageConstants.False,
+                JTokenType.Integer when token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)intVal),
+                JTokenType.String or JTokenType.Uri => TypeFactory.CreateStringLiteralType(token.ToString()),
+                _ => null,
+            },
         };
 
         private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
@@ -133,7 +139,7 @@ namespace Bicep.Core.TypeSystem
                 if (TryCreateTypeLiteral(prop.Value) is TypeSymbol propType)
                 {
                     convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required | TypePropertyFlags.DisallowAny));
-                    nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
+                    nameBuilder.AppendProperty(prop.Name, propType.Name);
                 }
                 else
                 {
@@ -365,6 +371,47 @@ namespace Bicep.Core.TypeSystem
             nonNullableCandidateType = null;
             return false;
         }
+
+        /// <summary>
+        /// Determines the possible range of lengths a supplied IntegerType will have when stringified under the invariant culture.
+        /// </summary>
+        public static (long minLength, long maxLength) GetMinAndMaxLengthOfStringified(IntegerType integer)
+        {
+            long minValue = integer.MinValue ?? long.MinValue;
+            long minValueLength = minValue.ToString(CultureInfo.InvariantCulture).Length;
+            long maxValue = integer.MaxValue ?? long.MaxValue;
+            long maxValueLength = maxValue.ToString(CultureInfo.InvariantCulture).Length;
+
+            if (minValue < 0 && maxValue >= 0)
+            {
+                // if the range of values crosses from negative into positive numbers, the value may be a single digit (`0`)
+                return (1, Math.Max(minValueLength, maxValueLength));
+            }
+
+            return (Math.Min(minValueLength, maxValueLength), Math.Max(minValueLength, maxValueLength));
+        }
+
+        /// <summary>
+        /// Determines the possible range of lengths a supplied TypeSymbol will have when stringified under the invariant culture.
+        /// </summary>
+        public static (long minLength, long? maxLength) GetMinAndMaxLengthOfStringified(TypeSymbol type) => type switch
+        {
+            _ when ArmFunctionReturnTypeEvaluator.TryEvaluate("string", out _, type.AsEnumerable()) is StringLiteralType stringified
+                => (stringified.RawStringValue.Length, stringified.RawStringValue.Length),
+            UnionType union when union.Members.Length == 0 => (0, 0),
+            UnionType union => union.Members.Select(m => GetMinAndMaxLengthOfStringified(m.Type)).Aggregate((acc, next) => (
+                Math.Min(acc.minLength, next.minLength),
+                acc.maxLength.HasValue && next.maxLength.HasValue
+                    ? Math.Max(acc.maxLength.Value, next.maxLength.Value)
+                    : null)),
+            StringType @string => (@string.MinLength ?? 0, @string.MaxLength),
+            IntegerType integer => GetMinAndMaxLengthOfStringified(integer),
+            // 'true' or 'false'
+            BooleanType => (4, 5),
+            // opening and closing square or curly brackets will at least be present
+            ArrayType or ObjectType or DiscriminatedObjectType => (2, null),
+            _ => (0, null),
+        };
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {

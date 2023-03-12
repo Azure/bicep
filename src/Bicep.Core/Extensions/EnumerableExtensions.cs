@@ -77,6 +77,20 @@ namespace Bicep.Core.Extensions
         public static ImmutableDictionary<TKey, ImmutableHashSet<TValue>> ToImmutableDictionary<TKey, TValue>(this ILookup<TKey, TValue> source)
             where TKey : notnull
             => source.ToImmutableDictionary(x => x.Key, x => x.ToImmutableHashSet());
+
+
+        public static IEnumerable<T> EnumerateRecursively<T>(T element, Func<T, T?> getNextElement)
+        {
+            yield return element;
+
+            var next = getNextElement(element);
+            while (next is not null)
+            {
+                yield return next;
+
+                next = getNextElement(next);
+            }
+        }
     }
 }
 

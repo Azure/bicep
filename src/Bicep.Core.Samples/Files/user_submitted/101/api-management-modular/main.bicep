@@ -4,9 +4,11 @@
 // This example used modules for Groups, Name Value pairs, Users and so on and also illustrates using modules
 // ****************************************
 targetScope = 'resourceGroup'
+@minLength(1)
 param apimInstanceName string = 'PGAPIM-${uniqueString(resourceGroup().id)}' //will add 13 characters to the name
 
 //be default we keep the appinsights name same as APIM instance
+@minLength(1)
 param appInsightsName string = apimInstanceName
 
 param resourceTags object = {

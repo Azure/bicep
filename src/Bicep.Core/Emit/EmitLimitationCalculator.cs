@@ -45,6 +45,8 @@ namespace Bicep.Core.Emit
             BlockLambdasOutsideFunctionArguments(model, diagnostics);
             BlockUnsupportedLambdaVariableUsage(model, diagnostics);
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
+            BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
+            BlockCyclicAggregateTypeReferences(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -454,5 +456,28 @@ namespace Bicep.Core.Emit
                 model.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata &&
                 !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName))
                 .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
+
+        private static void BlockSafeDereferenceOfModuleOrResourceCollectionMember(SemanticModel model, IDiagnosticWriter diagnostics) =>
+            diagnostics.WriteMultiple(SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(model.Root.Syntax)
+                .Select(arrayAccess => arrayAccess.SafeAccessMarker is not null
+                    ? model.GetSymbolInfo(arrayAccess.BaseExpression) switch
+                    {
+                        ModuleSymbol module when module.IsCollection => arrayAccess.SafeAccessMarker,
+                        ResourceSymbol resource when resource.IsCollection => arrayAccess.SafeAccessMarker,
+                        _ => null,
+                    }
+                    : null)
+                .WhereNotNull()
+                .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
+
+        private static void BlockCyclicAggregateTypeReferences(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            var cycles = CyclicTypeCheckVisitor.FindCycles(model);
+            diagnostics.WriteMultiple(cycles.Select(kvp => kvp.Value.Length switch
+            {
+                1 => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicTypeSelfReference(),
+                _ => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicType(kvp.Value.Select(s => s.Name)),
+            }));
+        }
     }
 }

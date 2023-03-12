@@ -160,11 +160,11 @@ namespace Bicep.Core.Syntax
                 RightSquareToken);
         }
 
-        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression) => new(baseExpression, LeftSquareToken, indexExpression, RightSquareToken);
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression, bool safeAccess = false) => new(baseExpression, LeftSquareToken, safeAccess ? QuestionToken : null, indexExpression, RightSquareToken);
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
-            if (Regex.IsMatch(text, "^[a-zA-Z][a-zA-Z0-9_]*$"))
+            if (Lexer.IsValidIdentifier(text))
             {
                 return CreateIdentifier(text);
             }
@@ -253,6 +253,15 @@ namespace Bicep.Core.Syntax
 
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
             => new FunctionCallSyntax(
+                CreateIdentifier(functionName),
+                LeftParenToken,
+                Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
+                RightParenToken);
+
+        public static InstanceFunctionCallSyntax CreateInstanceFunctionCall(SyntaxBase baseSyntax, string functionName, params SyntaxBase[] argumentExpressions)
+            => new(
+                baseSyntax,
+                DotToken,
                 CreateIdentifier(functionName),
                 LeftParenToken,
                 Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
@@ -413,5 +422,8 @@ namespace Bicep.Core.Syntax
             NonNullAssertionSyntax alreadyNonNull => alreadyNonNull,
             _ => new NonNullAssertionSyntax(@base, ExclamationToken),
         };
+
+        public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
+            => new(@base, DotToken, null, CreateIdentifier(propertyName));
     }
 }

@@ -343,7 +343,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.OutputType;
             }
 
-             // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
+            // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
             if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckOutputResourceTypeIsExpected(output)) ||
                 SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, ResourceTypeSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
             {
@@ -487,6 +487,9 @@ namespace Bicep.LanguageServer.Completions
                    (SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, IdentifierSyntax, Token>(
                         matchingNodes,
                         (propertyAccess, identifier, token) => ReferenceEquals(propertyAccess.PropertyName, identifier) && token.Type == TokenType.Identifier) ||
+                    SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, Token>(
+                        matchingNodes,
+                        (propertyAccess, token) => token.Type == TokenType.Question && ReferenceEquals(propertyAccess.SafeAccessMarker, token)) ||
                     SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, Token>(
                         matchingNodes,
                         (propertyAccess, token) => token.Type == TokenType.Dot && ReferenceEquals(propertyAccess.Dot, token)) ||
