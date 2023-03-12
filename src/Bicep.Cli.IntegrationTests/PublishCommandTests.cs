@@ -284,6 +284,9 @@ namespace Bicep.Cli.IntegrationTests
             client
                 .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
+            client
+                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException(404, "Module not found."));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
