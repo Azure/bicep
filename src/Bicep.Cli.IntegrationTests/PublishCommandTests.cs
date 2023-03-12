@@ -176,11 +176,18 @@ namespace Bicep.Cli.IntegrationTests
             // verify the module was published
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
 
-            // publish the same content again
+            // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
-            result2.Should().Be(0);
+            result2.Should().Be(1);
             output2.Should().BeEmpty();
-            AssertNoErrors(error2);
+            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
+
+            // publish the same content again with --force
+            requiredArgs.Add("--force");
+            var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
+            result3.Should().Be(0);
+            output3.Should().BeEmpty();
+            AssertNoErrors(error3);
 
             // we should still only have 1 module
             expectedCompiledStream.Position = 0;
@@ -217,11 +224,17 @@ namespace Bicep.Cli.IntegrationTests
             // verify the module was published
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
 
-            // publish the same content again
+            // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result2.Should().Be(0);
+            result2.Should().Be(1);
             output2.Should().BeEmpty();
-            AssertNoErrors(error2);
+            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
+
+            // publish the same content again with --force
+            var (output3, error3, result3) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--force");
+            result3.Should().Be(0);
+            output3.Should().BeEmpty();
+            AssertNoErrors(error3);
 
             // we should still only have 1 module
             expectedCompiledStream.Position = 0;
@@ -239,6 +252,9 @@ namespace Bicep.Cli.IntegrationTests
             client
                 .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
+            client
+                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException(404, "Module not found."));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory

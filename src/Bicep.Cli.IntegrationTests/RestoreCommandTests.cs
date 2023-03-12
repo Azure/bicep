@@ -107,8 +107,8 @@ namespace Bicep.Cli.IntegrationTests
 
             // anonymous client creation will redirect to the working client factory containing mock published modules
             clientFactoryForRestore
-                .Setup(m => m.CreateAnonymouosBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymouosBlobClient);
+                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
