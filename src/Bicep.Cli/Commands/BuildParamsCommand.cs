@@ -69,6 +69,7 @@ namespace Bicep.Cli.Commands
 
                 var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
 
+            
                 if(paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
                 {
                     var bicepFileUsingPathUri = bicepSemanticModel.Root.FileUri;

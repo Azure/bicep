@@ -94,8 +94,8 @@ namespace Bicep.Core.UnitTests.Utils
             return CompileParams(compilation);
         }
 
-        public static ParamsCompilationResult CompileParams(string fileContents)
-            => CompileParams(("parameters.bicepparam", fileContents));
+        // public static ParamsCompilationResult CompileParams(string fileContents)
+        //     => CompileParams(("parameters.bicepparam", fileContents));
 
         private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files, string entryFileName)
         {

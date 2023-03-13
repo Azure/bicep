@@ -4295,7 +4295,9 @@ output firstCertEnabled bool = Certificate[0].properties.attributes.enabled
         [TestMethod]
         public void Test_Issue9467()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param CertificateSubjects = [{
   subject: 'blah'
   secretName: 'blah'
@@ -4306,9 +4308,9 @@ param CertificateSubjects = [{
     resourceGroupName: 'myRg'
   }
 }]
-");
+";
 
-            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
+            var bicepTemplateText = @"
 @description('Used to identify a Key Vault and where it\'s deployed to')
 type keyVaultIdentifier = {
   @description('The name of the Key Vault')
@@ -4341,7 +4343,11 @@ resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 }
 
 output vaultId string = CertificateVault.id
-");
+";
+
+            var (parameters, diag, comp) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), bicepTemplateText);
 
             result.Should().GenerateATemplate();
 

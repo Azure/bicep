@@ -110,9 +110,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().Contain($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the using declaration in the parameters file");
-            // error
         }
-
 
         [TestMethod]
         public async Task Build_Params_Bicep_File_Reference_Mismatch_And_Other_Diagnostics_ShouldFail_WithAllExpectedErrorMessages()
@@ -135,14 +133,11 @@ namespace Bicep.Cli.IntegrationTests
 
             var diagnostics = await GetAllParamDiagnostics(bicepparamsPath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().Contain($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the using declaration in the parameters file");
             error.Should().ContainAll(diagnostics);
         }
-
-
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
@@ -150,10 +145,8 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-
             var features = new FeatureProviderOverrides(TestContext, ParamsFilesEnabled: true);
             var settings = new InvocationSettings(features, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-
             var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
 
             using (new AssertionScope())
