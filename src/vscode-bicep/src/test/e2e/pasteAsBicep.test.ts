@@ -6,7 +6,7 @@
 import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
 import {
   executeCloseAllEditors,
-  executeEditorPaste,
+  executeEditorPasteCommand,
   executePasteAsBicepCommand,
 } from "./commands";
 import { getBicepConfiguration } from "../../language/getBicepConfiguration";
@@ -103,7 +103,7 @@ describe("pasteAsBicep", (): void => {
     await vscode.env.clipboard.writeText(jsonToPaste);
 
     if (action === "copy/paste") {
-      await executeEditorPaste();
+      await executeEditorPasteCommand();
 
       const expected = `PasteAsBicep (command): Result: "${jsonToPaste}"`;
       await waitForPasteAsBicep(expected);

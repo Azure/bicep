@@ -108,7 +108,7 @@ export async function executePasteAsBicepCommand(
   );
 }
 
-export async function executeEditorPaste(): Promise<void> {
+export async function executeEditorPasteCommand(): Promise<void> {
   return await vscode.commands.executeCommand(
     "editor.action.clipboardPasteAction"
   );
