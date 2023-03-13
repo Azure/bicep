@@ -604,7 +604,7 @@
   "devDependencies": {
     "@types/cytoscape": "^3.19.9",
     "@types/fs-extra": "^11.0.1",
-    "@types/jest": "^27.0.2",
+    "@types/jest": "^27.5.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.19",
     "@types/react": "^18.0.28",
@@ -624,7 +624,7 @@
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^27.1.7",
+    "eslint-plugin-jest": "^27.2.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
     "fork-ts-checker-webpack-plugin": "^8.0.0",
