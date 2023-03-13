@@ -13,8 +13,7 @@ resource dataFactoryName_Backup_Trigger 'Microsoft.DataFactory/factories/trigger
           referenceName: 'Backup Database'
           type: 'PipelineReference'
         }
-        parameters: {
-        }
+        parameters: {}
       }
     ]
     type: 'ScheduleTrigger'

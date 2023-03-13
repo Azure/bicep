@@ -102,8 +102,7 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll21w7on
   name: 'default'
   properties: {
     protocolSettings: {
-      smb: {
-      }
+      smb: {}
     }
     cors: {
       corsRules: []
@@ -120,8 +119,7 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll22w7on
   name: 'default'
   properties: {
     protocolSettings: {
-      smb: {
-      }
+      smb: {}
     }
     cors: {
       corsRules: []

@@ -48,14 +48,11 @@ blah
 
 var bar = true blah /* asfjljasfs */     blah
 
-var baz = {
-} blah      blah
+var baz = {} blah      blah
 
-output foobar array = [
-] null
+output foobar array = [] null
 
-output pi object = {
-} /* leading whitespaces after me */ null
+output pi object = {} /* leading whitespaces after me */ null
 
 concat('foo',             'bar')
 
@@ -234,8 +231,7 @@ module foo './foo'   = []
 
 resource foo 'Foo' = {
   name: 'foo'
-  properties: {
-  }
+  properties: {}
 }
 
 // Broken.

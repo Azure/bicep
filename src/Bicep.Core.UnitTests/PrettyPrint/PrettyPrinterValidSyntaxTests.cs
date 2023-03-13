@@ -227,8 +227,9 @@ param bar array = [     /*I can be anywhere */          // I can be anywhere
   false
 ]",
 // Formatted.
-@"param foo object = {// I can be anywhere
-  }
+@"param foo object = {
+  // I can be anywhere
+}
 
 param foo object = {// I can be anywhere
   abc: true
@@ -245,8 +246,9 @@ param foo object = {/* I can
   xyz: false
 }
 
-param bar array = [// I can be anywhere
-  ]
+param bar array = [
+  // I can be anywhere
+]
 
 param bar array = [// I can be anywhere
   true
@@ -298,8 +300,7 @@ param bar array = [
 // Formatted.
 @"param foo object = {/* I can be anywhere */ }
 
-param foo object = {
-/* I can be anywhere */}
+param foo object = {}
 
 param foo object = {
   abc: true
@@ -318,8 +319,7 @@ param foo object = {
   be anywhere
   */}
 
-param bar array = [
-/* I can be anywhere */]
+param bar array = []
 
 param bar array = [/* I can be anywhere */ ]
 
@@ -362,24 +362,14 @@ param bar array = [
 ]",
 // Formatted.
 @"param foo object = {}
-param foo object = {
-}
-param foo object = {
-
-}
-param foo object = {
-
-}
+param foo object = {}
+param foo object = {}
+param foo object = {}
 
 param bar array = []
-param bar array = [
-]
-param bar array = [
-
-]
-param bar array = [
-
-]");
+param bar array = []
+param bar array = []
+param bar array = []");
 
         [TestMethod]
         public void PrintProgram_MultilineComment_ShouldReplaceNewlinesInTheCommentToo() => this.TestPrintProgram(
@@ -499,10 +489,8 @@ module myModule 'myModule' = {
 resource myResource2 'myResource' = {
   something: 'foo/${myName}/bar'
   properties: {
-    emptyObj: {
-    }
-    emptyArr: [
-    ]
+    emptyObj: {}
+    emptyArr: []
   }
 }
 
@@ -510,9 +498,7 @@ output myOutput1 int = 1 + num * 3
 output myOutput2 string = yes ? 'yes' : 'no'
 output myOutput3 object = yes ? {
   value: 42
-} : {
-
-}");
+} : {}");
 
         [TestMethod]
         public void PrintProgram_CommentBomb_ShouldFormatCorrectly()
@@ -598,8 +584,7 @@ anywhere */ /* I can be anywhere */
     az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[/* I can be anywhere */ 1 /* I can be anywhere */] /* I can be anywhere */./* I can be anywhere */ baz // I can be anywhere
     true
     {
-      m: [
-      ] /* I can be any
+      m: [] /* I can be any
 where */
       kkk: [
         // I can be any where

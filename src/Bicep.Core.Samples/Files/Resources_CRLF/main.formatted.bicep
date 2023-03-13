@@ -137,8 +137,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
       // string key value
       '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
       contentVersion: '1.0.0.0'
-      resources: [
-      ]
+      resources: []
     }
   }
 }

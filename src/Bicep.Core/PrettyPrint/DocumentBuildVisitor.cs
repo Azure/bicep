@@ -244,6 +244,20 @@ namespace Bicep.Core.PrettyPrint
 
         private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)
         {
+            if (nodes.Length == 1 && nodes[0] is Token { Type: TokenType.NewLine })
+            {
+                this.Build(() => this.Visit(nodes[0]), children =>
+                {
+                    if (children.Length == 1)
+                    {
+                        return Nil;
+                    }
+
+                    return new NestDocument(1, children.ToImmutableArray());
+                });
+                return;
+            }
+
             SyntaxBase? leadingNewLine = null;
             if (nodes.Length > 0 && nodes[0] is Token { Type: TokenType.NewLine })
             {
