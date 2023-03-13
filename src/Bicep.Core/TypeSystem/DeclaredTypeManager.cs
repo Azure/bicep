@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
@@ -162,7 +163,7 @@ namespace Bicep.Core.TypeSystem
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false);
             declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
-            return new(declaredType, syntax);
+            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment: true), syntax);
         }
 
         private DeclaredTypeAssignment? GetParameterAssignmentType(ParameterAssignmentSyntax syntax)
@@ -234,14 +235,161 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type;
+            return ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type, symbol.DeclaringType);
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
+
+        private ITypeReference ApplyTypeModifyingDecorators(ITypeReference declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false) => declaredType switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment)),
+            _ => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment),
+        };
+
+        // decorator diagnostics are raised by the TypeAssignmentVisitor, so we're only concerned in this method
+        // with the happy path or any errors that produce an invalid type
+        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false)
+        {
+            var validationFlags = declaredType switch
+            {
+                BooleanType or IntegerType or StringType when allowLooseAssignment
+                    => TypeSymbolValidationFlags.AllowLooseAssignment,
+                _ => TypeSymbolValidationFlags.Default,
+            };
+
+            if (HasSecureDecorator(syntax))
+            {
+                validationFlags |= TypeSymbolValidationFlags.IsSecure;
+            }
+
+            return declaredType switch
+            {
+                _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
+                _ when TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable
+                    => TypeHelper.CreateTypeUnion(LanguageConstants.Null, ApplyTypeModifyingDecorators(nonNullable, syntax, allowLooseAssignment)),
+                IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
+                // minLength/maxLength on a tuple are superfluous.
+                TupleType declaredTuple => declaredTuple.ValidationFlags == validationFlags ? declaredTuple : new TupleType(declaredTuple.Items, validationFlags),
+                ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
+                StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
+                BooleanType declaredBoolean => TypeFactory.CreateBooleanType(validationFlags),
+                ObjectType declaredObject => GetModifiedObject(declaredObject, syntax, validationFlags),
+                _ => declaredType,
+            };
+        }
+
+        private TypeSymbol GetModifiedInteger(IntegerType declaredInteger, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            var minValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName);
+            var minValue = GetSingleIntDecoratorArgument(minValueDecorator) ?? declaredInteger.MinValue;
+            var maxValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName);
+            var maxValue = GetSingleIntDecoratorArgument(maxValueDecorator) ?? declaredInteger.MaxValue;
+
+            if (minValue.HasValue && maxValue.HasValue && minValue.Value > maxValue.Value)
+            {
+                // create at most one error diagnostic iff a min/maxValue decorator targets this statement.
+                if (minValueDecorator is not null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(minValueDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinValuePropertyName,
+                        minValue.Value,
+                        LanguageConstants.ParameterMaxValuePropertyName,
+                        maxValue.Value));
+                }
+
+                if (maxValueDecorator is not null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(maxValueDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinValuePropertyName,
+                        minValue.Value,
+                        LanguageConstants.ParameterMaxValuePropertyName,
+                        maxValue.Value));
+                }
+            }
+
+            return TypeFactory.CreateIntegerType(minValue, maxValue, validationFlags);
+        }
+
+        private long? GetSingleIntDecoratorArgument(DecoratorSyntax? syntax)
+            => syntax?.Arguments.Count() == 1 && typeManager.GetTypeInfo(syntax.Arguments.Single()) is IntegerLiteralType integerLiteral
+                ? integerLiteral.Value
+                : null;
+
+        private TypeSymbol GetModifiedArray(ArrayType declaredArray, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (!GetLengthModifiers(syntax, declaredArray.MinLength, declaredArray.MaxLength, out var minLength, out var maxLength, out var errorType))
+            {
+                return errorType;
+            }
+
+            return TypeFactory.CreateArrayType(declaredArray.Item, minLength, maxLength, validationFlags);
+        }
+
+        private TypeSymbol GetModifiedString(StringType declaredString, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (!GetLengthModifiers(syntax, declaredString.MinLength, declaredString.MaxLength, out var minLength, out var maxLength, out var errorType))
+            {
+                return errorType;
+            }
+
+            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
+        }
+
+        private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
+        {
+            var minLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinLengthPropertyName);
+            minLength = GetSingleIntDecoratorArgument(minLengthDecorator) ?? defaultMinLength;
+            var maxLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxLengthPropertyName);
+            maxLength = GetSingleIntDecoratorArgument(maxLengthDecorator) ?? defaultMaxLength;
+
+            if (minLength.HasValue && maxLength.HasValue && minLength.Value > maxLength.Value)
+            {
+                // create at most one error diagnostic iff a min/maxLength decorator targets this statement.
+                if (minLengthDecorator is not null)
+                {
+                    error = ErrorType.Create(DiagnosticBuilder.ForPosition(minLengthDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinLengthPropertyName,
+                        minLength.Value,
+                        LanguageConstants.ParameterMaxLengthPropertyName,
+                        maxLength.Value));
+                    return false;
+                }
+
+                if (maxLengthDecorator is not null)
+                {
+                    error = ErrorType.Create(DiagnosticBuilder.ForPosition(maxLengthDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinLengthPropertyName,
+                        minLength.Value,
+                        LanguageConstants.ParameterMaxLengthPropertyName,
+                        maxLength.Value));
+                    return false;
+                }
+            }
+
+            error = null;
+            return true;
+        }
+
+        private TypeSymbol GetModifiedObject(ObjectType declaredObject, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (TryGetSealedDecorator(syntax) is DecoratorSyntax sealedDecorator)
+            {
+                return declaredObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
+                    ? new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null)
+                    : ErrorType.Create(DiagnosticBuilder.ForPosition(sealedDecorator).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+            }
+
+            if (declaredObject.ValidationFlags == validationFlags)
+            {
+                return declaredObject;
+            }
+
+            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
+        }
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
@@ -399,11 +547,10 @@ namespace Bicep.Core.TypeSystem
             }
 
             var additionalPropertiesDeclarations = syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().ToImmutableArray();
-            ITypeReference? additionalPropertiesType = additionalPropertiesDeclarations.Length switch
+            ITypeReference additionalPropertiesType = additionalPropertiesDeclarations.Length switch
             {
                 1 => GetDeclaredTypeAssignment(additionalPropertiesDeclarations[0])?.Reference
                     ?? ErrorType.Create(DiagnosticBuilder.ForPosition(additionalPropertiesDeclarations[0].Value).InvalidTypeDefinition()),
-                _ when UnwrapUntilDecorable(syntax, HasSealedDecorator) => null,
                 _ => LanguageConstants.Any,
             };
             var additionalPropertiesFlags = additionalPropertiesDeclarations.Any() ? TypePropertyFlags.None : TypePropertyFlags.FallbackProperty;
@@ -425,9 +572,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            var typeFlags = UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default);
-
-            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalPropertiesType, additionalPropertiesFlags);
+            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags);
         }
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -440,22 +585,11 @@ namespace Bicep.Core.TypeSystem
             return propertyType.Type.Name;
         }
 
-        private T UnwrapUntilDecorable<T>(SyntaxBase syntax, Predicate<DecorableSyntax> condition, T valueIfTrue, T valueIfFalse) => binder.GetParent(syntax) switch
-        {
-            DecorableSyntax decorable when condition(decorable) => valueIfTrue,
-            ParenthesizedExpressionSyntax parenthesized => UnwrapUntilDecorable(parenthesized, condition, valueIfTrue, valueIfFalse),
-            TernaryOperationSyntax ternary when ternary.TrueExpression == syntax || ternary.FalseExpression == syntax
-                => UnwrapUntilDecorable(ternary, condition, valueIfTrue, valueIfFalse),
-            _ => valueIfFalse,
-        };
-
-        private bool UnwrapUntilDecorable(SyntaxBase syntax, Predicate<DecorableSyntax> condition) => UnwrapUntilDecorable(syntax, condition, true, false);
-
         private bool HasSecureDecorator(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
 
-        private bool HasSealedDecorator(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
+        private DecoratorSyntax? TryGetSealedDecorator(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName);
 
         private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)
         {
@@ -474,13 +608,11 @@ namespace Bicep.Core.TypeSystem
                 nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
             }
 
-            return new TupleType(nameBuilder.ToString(),
-                items.ToImmutableArray(),
-                UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default));
+            return new TupleType(nameBuilder.ToString(), items.ToImmutableArray(), default);
         }
 
         private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {

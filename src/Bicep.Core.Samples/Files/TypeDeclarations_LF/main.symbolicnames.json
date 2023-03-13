@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17515628512175631386"
+      "templateHash": "1177824650649973853"
     }
   },
   "definitions": {
@@ -183,6 +183,11 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "constrainedInt": {
+      "type": "int",
+      "maxValue": 10,
+      "minValue": 1
     },
     "nullable": {
       "type": "string",

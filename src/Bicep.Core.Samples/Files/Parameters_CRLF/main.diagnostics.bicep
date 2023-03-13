@@ -1,4 +1,4 @@
-/* 
+/*
   This is a block comment.
 */
 
@@ -157,7 +157,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 param decoratedString string
 //@[06:021) [no-unused-params (Warning)] Parameter "decoratedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedString|
 
-@minValue(200)
+@minValue(100)
 param decoratedInt int = 123
 //@[06:018) [no-unused-params (Warning)] Parameter "decoratedInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedInt|
 

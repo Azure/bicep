@@ -1,10 +1,10 @@
-﻿/* 
+﻿/*
   This is a block comment.
 */
 
 // parameters without default value
 @sys.description('''
-this is my multi line 
+this is my multi line
 description for my myString
 ''')
 param myString string
@@ -148,7 +148,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 param decoratedString string
 
 @minValue(200)
-param decoratedInt int = 123
+param decoratedInt int = 223
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)

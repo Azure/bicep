@@ -179,7 +179,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 param decoratedString string
 //@[6:21) Parameter decoratedString. Type: 'Apple' | 'Banana'. Declaration start char: 0, length: 104
 
-@minValue(200)
+@minValue(100)
 param decoratedInt int = 123
 //@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 43
 

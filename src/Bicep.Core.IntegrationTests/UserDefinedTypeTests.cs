@@ -654,4 +654,64 @@ output arrayOfConstrainedStrings constrainedString[] = ['fizz', 'buzz', 'pop']
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    public void Type_aliases_incorporate_modifiers_into_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@maxLength(2)
+type shortString = string
+
+param myString shortString = 'foo'
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_integer_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(@"
+@minValue(1)
+@maxValue(0)
+param myParam int
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP331", DiagnosticLevel.Error, "A type's \"minValue\" must be less than or equal to its \"maxValue\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_array_length_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(1)
+@maxLength(0)
+param myParam array
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_string_length_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(1)
+@maxLength(0)
+param myParam string
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
 }

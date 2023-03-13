@@ -269,7 +269,7 @@ var indirection = keys
 var runtimeLoop = [for (item, index) in []: indirection]
 //@[24:28) Local item. Type: never. Declaration start char: 24, length: 4
 //@[30:35) Local index. Type: int. Declaration start char: 30, length: 5
-//@[04:15) Variable runtimeLoop. Type: any[]. Declaration start char: 0, length: 56
+//@[04:15) Variable runtimeLoop. Type: array. Declaration start char: 0, length: 56
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[25:29) Local item. Type: any. Declaration start char: 25, length: 4
 //@[31:36) Local index. Type: int. Declaration start char: 31, length: 5

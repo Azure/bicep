@@ -243,8 +243,8 @@ param unaryMinusOnFunction int
 @maxLength(4)
 param duplicateDecorators string
 
-@minLength(-1)
-@maxLength(-100)
+@maxLength(-1)
+@minLength(-100)
 param invalidLength string
 
 @allowed([

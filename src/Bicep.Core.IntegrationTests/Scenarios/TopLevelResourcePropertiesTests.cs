@@ -537,14 +537,14 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                         TestTypeHelper.CreateObjectType(
                             "Val1Type",
                             ("name", LanguageConstants.String),
-                            ("kind", new StringLiteralType("val1")),
+                            ("kind", TypeFactory.CreateStringLiteralType("val1")),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal1", LanguageConstants.Bool)))),
                         TestTypeHelper.CreateObjectType(
                             "Val2Type",
                             ("name", LanguageConstants.String),
-                            ("kind", new StringLiteralType("val2")),
+                            ("kind", TypeFactory.CreateStringLiteralType("val2")),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnVal2", LanguageConstants.Bool)))))),

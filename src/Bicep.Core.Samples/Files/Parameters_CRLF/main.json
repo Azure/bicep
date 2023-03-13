@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "517357840239191871"
+      "templateHash": "15804961212035327508"
     }
   },
   "parameters": {
@@ -166,7 +166,7 @@
     "decoratedInt": {
       "type": "int",
       "defaultValue": 123,
-      "minValue": 200
+      "minValue": 100
     },
     "negativeValues": {
       "type": "int",

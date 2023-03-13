@@ -359,13 +359,13 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
             }, null);
 
@@ -397,17 +397,17 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
-                new TypeProperty("name", new StringLiteralType("keyA"), TypePropertyFlags.Required),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
+                new TypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("kind", new StringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
+                new TypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
                 new TypeProperty("hostPoolType", LanguageConstants.String)
             }, null);
 
@@ -568,13 +568,13 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
                 new TypeProperty("keyAProp", LanguageConstants.String),
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("keyBProp", LanguageConstants.String),
             }, null);
 
@@ -597,17 +597,17 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var objectTypeA = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyA")),
-                new TypeProperty("name", new StringLiteralType("keyA"), TypePropertyFlags.Required),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyA")),
+                new TypeProperty("name", TypeFactory.CreateStringLiteralType("keyA"), TypePropertyFlags.Required),
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("id", LanguageConstants.String)
             }, null);
 
             var objectTypeB = new ObjectType("objB", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("discKey", new StringLiteralType("keyB")),
+                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("keyB")),
                 new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
-                new TypeProperty("kind", new StringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
+                new TypeProperty("kind", TypeFactory.CreateStringLiteralType("discKey"), TypePropertyFlags.ReadOnly),
                 new TypeProperty("hostPoolType", LanguageConstants.String)
             }, null);
 

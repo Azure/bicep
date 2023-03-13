@@ -1,5 +1,5 @@
-/* 
-//@[00:2930) ProgramSyntax
+/*
+//@[00:2929) ProgramSyntax
   This is a block comment.
 */
 //@[02:0006) ├─Token(NewLine) |\r\n\r\n|
@@ -858,7 +858,7 @@ param decoratedString string
 //@[22:0028) |     └─Token(Identifier) |string|
 //@[28:0032) ├─Token(NewLine) |\r\n\r\n|
 
-@minValue(200)
+@minValue(100)
 //@[00:0044) ├─ParameterDeclarationSyntax
 //@[00:0014) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -868,7 +868,7 @@ param decoratedString string
 //@[09:0010) | |   ├─Token(LeftParen) |(|
 //@[10:0013) | |   ├─FunctionArgumentSyntax
 //@[10:0013) | |   | └─IntegerLiteralSyntax
-//@[10:0013) | |   |   └─Token(Integer) |200|
+//@[10:0013) | |   |   └─Token(Integer) |100|
 //@[13:0014) | |   └─Token(RightParen) |)|
 //@[14:0016) | ├─Token(NewLine) |\r\n|
 param decoratedInt int = 123

@@ -344,6 +344,28 @@ resource test|Output string = 'str'
         }
 
         [TestMethod]
+        public async Task Hovers_include_type_modifications()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@secure()
+@minLength(1)
+@maxLength(128)
+param constrainedSe|cureString string
+",
+                '|');
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n@minLength(1)\n@maxLength(128)\n@secure()\nparam constrainedSecureString: string\n```\n"));
+        }
+
+        [TestMethod]
         public async Task Hovers_are_displayed_on_discription_decorator_objects_across_bicep_modules()
         {
             var modFile = @"

@@ -472,7 +472,7 @@ namespace Bicep.Core.Emit
             StringLiteralType @string => ExpressionFactory.CreateStringLiteral(@string.RawStringValue),
             IntegerLiteralType @int => new IntegerLiteralExpression(null, @int.Value),
             BooleanLiteralType @bool => ExpressionFactory.CreateBooleanLiteral(@bool.Value),
-            PrimitiveType pt when pt.Name == LanguageConstants.NullKeyword => new NullLiteralExpression(null),
+            NullType => new NullLiteralExpression(null),
             ObjectType @object => ExpressionFactory.CreateObject(@object.Properties.Select(kvp => ExpressionFactory.CreateObjectProperty(kvp.Key, ToLiteralValue(kvp.Value.TypeReference)))),
             TupleType tuple => ExpressionFactory.CreateArray(tuple.Items.Select(ToLiteralValue)),
             // This would have been caught by the DeclaredTypeManager during initial type assignment
@@ -481,12 +481,11 @@ namespace Bicep.Core.Emit
 
         private string GetNonLiteralTypeName(TypeSymbol? type) => type switch
         {
-            StringLiteralType => "string",
-            IntegerLiteralType => "int",
-            BooleanLiteralType => "bool",
+            StringLiteralType or StringType => "string",
+            IntegerLiteralType or IntegerType => "int",
+            BooleanLiteralType or BooleanType => "bool",
             ObjectType => "object",
             ArrayType => "array",
-            PrimitiveType pt when pt.Name != LanguageConstants.NullKeyword => pt.Name,
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };

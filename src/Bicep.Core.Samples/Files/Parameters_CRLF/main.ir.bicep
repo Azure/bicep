@@ -1,5 +1,5 @@
-/* 
-//@[00:2930) ProgramExpression
+/*
+//@[00:2929) ProgramExpression
   This is a block comment.
 */
 
@@ -206,7 +206,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 ])
 param decoratedString string
 
-@minValue(200)
+@minValue(100)
 //@[00:0044) ├─DeclaredParameterExpression { Name = decoratedInt }
 param decoratedInt int = 123
 //@[25:0028) | └─IntegerLiteralExpression { Value = 123 }

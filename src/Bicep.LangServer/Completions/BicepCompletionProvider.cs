@@ -1216,13 +1216,13 @@ namespace Bicep.LanguageServer.Completions
             var replacementRange = context.ReplacementRange;
             switch (type)
             {
-                case PrimitiveType _ when TypeValidator.AreTypesAssignable(type, LanguageConstants.Bool):
+                case BooleanType:
                     yield return CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword, replacementRange, preselect: true, CompletionPriority.High);
                     yield return CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword, replacementRange, preselect: true, CompletionPriority.High);
 
                     break;
 
-                case PrimitiveType _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;
