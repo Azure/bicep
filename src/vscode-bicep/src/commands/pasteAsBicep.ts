@@ -69,7 +69,9 @@ export class PasteAsBicepCommand implements Command {
       clipboardText = await env.clipboard.readText();
 
       if (editor?.document.languageId !== bicepLanguageId) {
-        throw new Error("Cannot paste as Bicep into an editor not using the Bicep language");
+        throw new Error(
+          "Cannot paste as Bicep: Editor is not editing a Bicep document."
+        );
       }
 
       const result = await this.callDecompileForPaste(
@@ -194,6 +196,7 @@ export class PasteAsBicepCommand implements Command {
                 true // queryCanPaste
               );
               if (!canPasteResult.pasteType) {
+                // Nothing we know how to convert
                 getLogger().debug(`${logPrefix}: pasteType empty`);
                 return;
               }
@@ -217,7 +220,6 @@ export class PasteAsBicepCommand implements Command {
                 );
                 const msg = `Could not convert pasted text into Bicep: ${canPasteResult.errorMessage}`;
                 this.outputChannelManager.appendToOutputChannel(msg);
-
                 getLogger().debug(`${logPrefix}: ${msg}`);
 
                 // ... and register telemetry for the failure (don't show the error to the user again)
@@ -232,7 +234,7 @@ export class PasteAsBicepCommand implements Command {
 
               // While we were awaiting async calls, the pasted text may have been formatted in the editor, get the new version
               const formattedPastedText = getTextAfterFormattingChanges(
-                contentChange.text,     
+                contentChange.text,
                 e.document.getText(),
                 contentChange.rangeOffset
               );
