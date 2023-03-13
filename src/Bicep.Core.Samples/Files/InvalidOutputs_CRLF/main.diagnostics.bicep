@@ -12,7 +12,7 @@ var testSymbol = 42
 
 // #completionTest(28,29) -> symbols
 output missingValueAndType = 
-//@[27:28) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |=|
+//@[27:28) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |=|
 //@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(28,29) -> symbols
@@ -33,15 +33,15 @@ output boolCompletions bool =
 
 output foo
 //@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[10:10) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[10:10) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // space after identifier #completionTest(20) -> outputTypes
 output spaceAfterId 
-//@[20:20) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[20:20) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // #completionTest(25) -> outputTypes
 output spacesAfterCursor  
-//@[26:26) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[26:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
@@ -51,25 +51,25 @@ output partialType obj
 // malformed identifier
 output 2
 //@[07:08) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) |2|
-//@[08:08) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[08:08) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // malformed type
 output malformedType 3
-//@[21:22) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |3|
+//@[21:22) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |3|
 //@[22:22) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // malformed type but type check should still happen
 output malformedType2 3 = 2 + null
-//@[22:23) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |3|
+//@[22:23) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |3|
 //@[26:34) [BCP045 (Error)] Cannot apply operator "+" to operands of type "2" and "null". (CodeDescription: none) |2 + null|
 
 // malformed type assignment
 output malformedAssignment 2 = 2
-//@[27:28) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |2|
+//@[27:28) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |2|
 
 // malformed type before assignment
 output lol 2 = true
-//@[11:12) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |2|
+//@[11:12) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |2|
 
 // wrong type + missing value
 output foo fluffy
@@ -195,9 +195,7 @@ var attemptToReferenceAnOutput = myOutput
 //@[33:41) [BCP058 (Error)] The name "myOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |myOutput|
 
 @sys.maxValue(20)
-//@[05:13) [BCP129 (Error)] Function "maxValue" cannot be used as an output decorator. (CodeDescription: none) |maxValue|
 @minValue(10)
-//@[01:09) [BCP129 (Error)] Function "minValue" cannot be used as an output decorator. (CodeDescription: none) |minValue|
 output notAttachableDecorators int = 32
 
 // nested loops inside output loops are not supported

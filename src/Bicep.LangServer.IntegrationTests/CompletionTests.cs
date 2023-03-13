@@ -1513,6 +1513,32 @@ type a = -ǂ
         }
 
         [TestMethod]
+        public async Task ParameterTypeCompletionsShouldIncludeUserDefinedTypes()
+        {
+            var fileWithCursors = @"
+type myString = string
+param stringParam |
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "myString");
+        }
+
+        [TestMethod]
+        public async Task OutputTypeCompletionsShouldIncludeUserDefinedTypes()
+        {
+            var fileWithCursors = @"
+type myString = string
+output stringOutput |
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "myString");
+        }
+
+        [TestMethod]
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
             var fileWithCursors = @"

@@ -618,7 +618,7 @@ var unterminated2 = (,
 
 // trailing decorator with no declaration
 @minLength()
-//@[00:12) [BCP147 (Error)] Expected a parameter declaration after the decorator. (CodeDescription: none) |@minLength()|
+//@[00:12) [BCP291 (Error)] Expected a parameter or output declaration after the decorator. (CodeDescription: none) |@minLength()|
 //@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
 
 

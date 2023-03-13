@@ -1236,38 +1236,6 @@ namespace Bicep.Core.Parsing
             return syntax;
         }
 
-        protected SyntaxBase OutputType()
-        {
-            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
-            {
-                var type = this.WithRecoveryNullable(
-                    () =>
-                    {
-                        // The resource type is optional for an output
-                        if (!this.Check(this.reader.Peek(), TokenType.StringComplete, TokenType.StringLeftPiece))
-                        {
-                            return null;
-                        }
-                        else
-                        {
-                            return ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString());
-                        }
-                    },
-                    RecoveryFlags.None,
-                    TokenType.Assignment, TokenType.NewLine);
-                return new ResourceTypeSyntax(resourceKeyword, type);
-            }
-
-            SyntaxBase current = new VariableAccessSyntax(new(Expect(TokenType.Identifier, b => b.ExpectedOutputType())));
-
-            while (this.Check(TokenType.Dot))
-            {
-                current = new PropertyAccessSyntax(current, this.reader.Read(), null, this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName()));
-            }
-
-            return current;
-        }
-
         protected SyntaxBase Type(bool allowOptionalResourceType)
         {
             if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)

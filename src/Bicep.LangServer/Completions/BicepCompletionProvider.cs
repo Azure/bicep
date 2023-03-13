@@ -323,8 +323,15 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
-                // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 var completions = GetAmbientTypeCompletions(model, context);
+
+                // Only show the aggregate type completions if the feature is enabled
+                if (model.Features.UserDefinedTypesEnabled)
+                {
+                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context));
+                }
+
+                // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
                 {
                     completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));

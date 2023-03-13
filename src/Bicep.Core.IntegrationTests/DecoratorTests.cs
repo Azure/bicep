@@ -70,9 +70,6 @@ module myModule 'module.bicep' = {
     inputb: 'bar'
   }
 }
-
-@minValue(2)
-output bar bool = false
 ",
                 [moduleUri] = @"
 param inputa string
@@ -90,7 +87,6 @@ param inputb string
                     ("BCP126", DiagnosticLevel.Error, "Function \"maxLength\" cannot be used as a variable decorator."),
                     ("BCP127", DiagnosticLevel.Error, "Function \"allowed\" cannot be used as a resource decorator."),
                     ("BCP128", DiagnosticLevel.Error, "Function \"secure\" cannot be used as a module decorator."),
-                    ("BCP129", DiagnosticLevel.Error, "Function \"minValue\" cannot be used as an output decorator."),
                 });
                 success.Should().BeFalse();
             }
@@ -108,6 +104,34 @@ output test bool = true
             using (new AssertionScope())
             {
                 template.Should().HaveValueAtPath("outputs.test.metadata.some", new JValue("sample-metadata"));
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+        }
+
+        [TestMethod]
+        public void ConstraintDecorators_AttachedToOutputDeclaration_CanBeUsed()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+@minValue(2)
+@maxValue(3)
+output test int = 2
+
+@minLength(2)
+@maxLength(3)
+output stringTest string = 'foo'
+
+@minLength(2)
+@maxLength(3)
+output arrayTest array = ['fizz', 'buzz']
+");
+            using (new AssertionScope())
+            {
+                template.Should().HaveValueAtPath("outputs.test.minValue", new JValue(2));
+                template.Should().HaveValueAtPath("outputs.test.maxValue", new JValue(3));
+                template.Should().HaveValueAtPath("outputs.stringTest.minLength", new JValue(2));
+                template.Should().HaveValueAtPath("outputs.stringTest.maxLength", new JValue(3));
+                template.Should().HaveValueAtPath("outputs.arrayTest.minLength", new JValue(2));
+                template.Should().HaveValueAtPath("outputs.arrayTest.maxLength", new JValue(3));
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
             }
         }
