@@ -1,0 +1,37 @@
+name: 'Dependabot: Update Dotnet Lockfiles'
+on: 
+  pull_request:
+    branches:
+      - 'dependabot/nuget/**'
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+
+jobs:
+  update-dotnet-lockfiles:
+    name: Update Dotnet Lockfiles
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+
+      - name: Update lockfiles
+        run: dotnet restore --force-evaluate
+
+      - name: Commit the changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update dotnet lockfiles
+          commit_user_name: ${{ github.actor }}
+          commit_user_email: ${{ github.actor }}@users.noreply.github.com
+          commit_options: '--signoff'
