@@ -1,13 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { ConfigurationTarget } from "vscode";
-import { executeCloseAllEditors } from "./commands";
+/* eslint-disable jest/expect-expect */
+
+import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
+import {
+  executeCloseAllEditors,
+  executeEditorPaste,
+  executePasteAsBicepCommand,
+} from "./commands";
 import { getBicepConfiguration } from "../../language/getBicepConfiguration";
-import { until } from "../utils/time";
 import { normalizeMultilineString } from "../utils/normalizeMultilineString";
 import { SuppressedWarningsManager } from "../../commands/SuppressedWarningsManager";
 import { bicepConfigurationKeys } from "../../language/constants";
+import assert from "assert";
+import { until } from "../utils/time";
+import * as fse from "fs-extra";
+import * as path from "path";
+import { e2eLogName } from "../../utils/logger";
+
+const extensionLogPath = path.join(__dirname, `../../../${e2eLogName}`);
 
 describe("pasteAsBicep", (): void => {
   afterEach(async () => {
@@ -30,8 +42,225 @@ describe("pasteAsBicep", (): void => {
     );
   }
 
+  function getTextAndMarkers(
+    s: string
+  ): [text: string, markerOffset: number, markerLength: number] {
+    const offset = s.indexOf("|");
+    assert(offset >= 0, "Couldn't find marker in text");
+
+    s = s.slice(0, offset) + s.slice(offset + 1);
+
+    let length = 0;
+    const offset2 = s.indexOf("|");
+    if (offset2 >= 0) {
+      length = offset2 - offset;
+      s = s.slice(0, offset2) + s.slice(offset2 + 1);
+    }
+
+    expect(s).not.toContain("|");
+
+    return [s, offset, length];
+  }
+
+  function setSelection(
+    document: TextDocument,
+    offsetStart: number,
+    offsetLength: number
+  ): void {
+    const start = document.positionAt(offsetStart);
+    const end = document.positionAt(offsetStart + offsetLength);
+    const activeTextEditor = vscode.window.activeTextEditor;
+    assert(activeTextEditor, "No active text editor");
+    activeTextEditor.selection = new Selection(start, end);
+  }
+
+  async function runTest(
+    initialBicepWithMarker: string,
+    jsonToPaste: string,
+    action: "command" | "copy/paste",
+    expected: {
+      bicep?: string;
+      error?: string;
+    }
+  ): Promise<{ log: string }> {
+    const initialLogContentsLength = fse
+      .readFileSync(extensionLogPath)
+      .toString().length;
+
+    await configureSettings();
+
+    const [initialBicep, offsetStart, offsetLength] = getTextAndMarkers(
+      initialBicepWithMarker
+    );
+    const textDocument = await vscode.workspace.openTextDocument({
+      language: "bicep",
+      content: initialBicep,
+    });
+    const editor = await vscode.window.showTextDocument(textDocument);
+
+    setSelection(textDocument, offsetStart, offsetLength);
+
+    await vscode.env.clipboard.writeText(jsonToPaste);
+
+    if (action === "copy/paste") {
+      await executeEditorPaste();
+
+      const expected = `PasteAsBicep (command): Result: "${jsonToPaste}"`;
+      await waitForPasteAsBicep(expected);
+    } else {
+      await executePasteAsBicepCommand(editor.document.uri);
+
+      const expected = `PasteAsBicep (copy/paste): Result: "${jsonToPaste}"`;
+      await waitForPasteAsBicep(expected);
+    }
+    if (expected.error) {
+      const match = new RegExp(
+        `Exception occurred: .*${escapeRegexReplacement(expected.error)}`
+      );
+      expect(getRecentLogContents()).toMatch(match);
+    } else {
+      expect(getRecentLogContents()).not.toMatch(`Exception occurred`);
+    }
+
+    const buffer = textDocument.getText();
+
+    if (typeof expected.bicep === "string") {
+      expect(normalizeMultilineString(buffer)).toBe(
+        normalizeMultilineString(expected.bicep)
+      );
+    }
+
+    return { log: getRecentLogContents() };
+
+    function getRecentLogContents() {
+      const logContents = fse
+        .readFileSync(extensionLogPath)
+        .toString()
+        .substring(initialLogContentsLength);
+      return logContents;
+    }
+
+    async function waitForPasteAsBicep(
+      expectedSubstring: string
+    ): Promise<void> {
+      await until(() => isReady(), {
+        interval: 100,
+        timeoutMs: 4000,
+      });
+      if (!isReady()) {
+        throw new Error(
+          `Expected paste as bicep command to complete. Expected following string in log: "${expectedSubstring}".\nRecent log contents: ${getRecentLogContents()}`
+        );
+      }
+
+      function isReady(): boolean {
+        const readyMessage = jsonToPaste;
+        const logContents = getRecentLogContents();
+        return logContents.indexOf(readyMessage) >= 0;
+      }
+    }
+  }
+
+  function escapeRegexReplacement(s: string) {
+    return s.replace(/\$/g, "$$$$");
+  }
+
+  //////////////////////////////////////////////////
+
+  const fullTemplate1 = `
+  {
+      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+          "location": {
+              "type": "string"
+          },
+          "existingVirtualMachineNames": {
+              "type": "array"
+          },
+          "sqlServerLicenseType": {
+              "type": "string"
+          },
+          "existingVmResourceGroup": {
+              "type": "string"
+          },
+          "groupResourceId": {
+              "type": "string"
+          },
+          "domainAccountPassword": {
+              "type": "securestring"
+          },
+          "sqlServicePassword": {
+              "type": "securestring"
+          }
+      },
+      "variables": {
+      },
+      "resources": [
+          {
+              "name": "[trim(parameters('existingVirtualMachineNames')[copyIndex()])]",
+              "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
+              "apiVersion": "2017-03-01-preview",
+              "location": "[parameters('location')]",
+              "copy": {
+                  "name": "vmToClusterLoop",
+                  "count": "[length(parameters('existingVirtualMachineNames'))]"
+              },
+              "properties": {
+                  "virtualMachineResourceId": "[resourceId(parameters('existingVmResourceGroup'),'Microsoft.Compute/virtualMachines', trim(parameters('existingVirtualMachineNames')[copyIndex()]))]",
+                  "sqlServerLicenseType": "[parameters('sqlServerLicenseType')]",
+                  "SqlVirtualMachineGroupResourceId": "[parameters('groupResourceId')]",
+                  "WSFCDomainCredentials": {
+                      "ClusterBootstrapAccountPassword": "[parameters('domainAccountPassword')]",
+                      "ClusterOperatorAccountPassword": "[parameters('domainAccountPassword')]",
+                      "SqlServiceAccountPassword": "[parameters('sqlServicePassword')]"
+                  }
+              }
+          }
+      ]
+  }`;
+
+  const fullTemplateExpectedBicep = `param location string
+param existingVirtualMachineNames array
+param sqlServerLicenseType string
+param existingVmResourceGroup string
+param groupResourceId string
+
+@secure()
+param domainAccountPassword string
+
+@secure()
+param sqlServicePassword string
+
+resource existingVirtualMachineNames_resource 'Microsoft.SqlVirtualMachine/SqlVirtualMachines@2017-03-01-preview' = [for item in existingVirtualMachineNames: {
+  name: trim(item)
+  location: location
+  properties: {
+    virtualMachineResourceId: resourceId(existingVmResourceGroup, 'Microsoft.Compute/virtualMachines', trim(item))
+    sqlServerLicenseType: sqlServerLicenseType
+    sqlVirtualMachineGroupResourceId: groupResourceId
+    wsfcDomainCredentials: {
+      clusterBootstrapAccountPassword: domainAccountPassword
+      clusterOperatorAccountPassword: domainAccountPassword
+      sqlServiceAccountPassword: sqlServicePassword
+    }
+  }
+}]`;
+
+  it("should convert pasted full ARM template - copy/paste", async () => {
+    await runTest(`|`, fullTemplate1, "copy/paste", {
+      bicep: fullTemplateExpectedBicep,
+    });
+  });
+
+  it("should convert pasted full ARM template - paste command", async () => {
+    await runTest(`|`, fullTemplate1, "command", {
+      bicep: fullTemplateExpectedBicep,
+    });
+  });
+
   it("should convert pasted list of resources", async () => {
-    const json = `
+    const jsonToPaste = `
 {
   "type": "Microsoft.Storage/storageAccounts",
   "apiVersion": "2021-02-01",
@@ -76,7 +305,6 @@ describe("pasteAsBicep", (): void => {
 }
 ,`;
 
-    const waitfor = "resource stg1";
     const expected = `resource stg1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: 'stg1'
   location: location2
@@ -120,28 +348,46 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
 // My bicep file
 `;
 
-    await configureSettings();
-
-    const textDocument = await vscode.workspace.openTextDocument({
-      language: "bicep",
-      content: "// My bicep file\n",
+    await runTest(`|// My bicep file\n`, jsonToPaste, "copy/paste", {
+      bicep: expected,
     });
-    await vscode.window.showTextDocument(textDocument);
+  });
 
-    await vscode.env.clipboard.writeText(json);
-    await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
+  //////////////////////////////////////////////////
 
-    try {
-      await until(() => textDocument.getText().includes(waitfor), {
-        timeoutMs: 10000,
-      });
-    } catch (err) {
-      throw "Timeout.  Editor text: " + textDocument.getText();
-    }
-    const buffer = textDocument.getText();
+  it("should decompile if copy/pasting outside string", async () => {
+    const bicep = `var v = |`;
+    const jsonToPaste = `"Mom says 'hi'"`;
+    const expected = `var v = 'Mom says \\'hi\\''`;
 
-    expect(normalizeMultilineString(buffer)).toBe(
-      normalizeMultilineString(expected)
-    );
+    await runTest(bicep, jsonToPaste, "copy/paste", { bicep: expected });
+  });
+
+  it("should handle non-empty selection inside and outside of a string (using context of first part of selection)", async () => {
+    const bicep = `resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'loadBalancerName'
+  |location: 'location|'
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'static'
+  }
+}
+`;
+    const jsonToPaste = `"hello"`;
+    const expected = `resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'loadBalancerName'
+  'hello''
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'static'
+  }
+}
+`;
+
+    await runTest(bicep, jsonToPaste, "command", { bicep: expected });
   });
 });

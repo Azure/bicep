@@ -98,3 +98,18 @@ export async function executeForceModulesRestoreCommand(
     documentUri
   );
 }
+
+export async function executePasteAsBicepCommand(
+  documentUri: vscode.Uri
+): Promise<void> {
+  return await vscode.commands.executeCommand(
+    "bicep.pasteAsBicep",
+    documentUri
+  );
+}
+
+export async function executeEditorPaste(): Promise<void> {
+  return await vscode.commands.executeCommand(
+    "editor.action.clipboardPasteAction"
+  );
+}
