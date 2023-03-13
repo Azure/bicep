@@ -522,15 +522,19 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
             ("main.bicep", @"
 param resourceParameter resource 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'
 var clientId = resourceParameter.properties.clientId
+var resourceId = resourceParameter.id
 output clientId string = clientId
+output resourceId string = resourceId
 "));
             
             using (new AssertionScope())
             {
-                result.Template.Should().NotHaveValueAtPath("$.variables", "variable should not be generated");
                 result.Template.Should().HaveValueAtPath("$.outputs.clientId", 
                   new JObject {["value"] = "[reference(parameters('resourceParameter'), '2018-11-30').clientId]", ["type"] = "string"},
                    "Parameter should have been inlined");
+                result.Template.Should().HaveValueAtPath("$.outputs.resourceId", 
+                  new JObject {["value"] = "[variables('resourceId')]", ["type"] = "string"},
+                   "Top level properties should not be inlined");
             }
         }
 

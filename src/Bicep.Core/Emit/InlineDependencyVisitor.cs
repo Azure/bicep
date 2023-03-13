@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -146,16 +147,6 @@ namespace Bicep.Core.Emit
 
             switch (model.GetSymbolInfo(syntax))
             {
-                case ParameterSymbol parameterSymbol:
-                    // The the parameter is a resource type this call needs to be inlined
-                    // because references cannot be used in variables.
-                    if (parameterSymbol.DeclaringParameter.Type is ResourceTypeSyntax)
-                    {
-                        SetInlineCache(true);
-                    }
-                    
-                    return;
-
                 case VariableSymbol variableSymbol:
                     var previousStack = this.currentStack;
                     if (!shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline))
@@ -188,6 +179,7 @@ namespace Bicep.Core.Emit
 
                 case ResourceSymbol:
                 case ModuleSymbol:
+                case ParameterSymbol parameterSymbol when model.ResourceMetadata.TryLookup(syntax) is ResourceMetadata:
                     if (this.currentDeclaration is not null && shouldInlineCache[currentDeclaration] != Decision.SkipInline)
                     {
                         //inline only if declaration wasn't explicitly excluded from inlining, to avoid inlining usages which are permitted
@@ -250,6 +242,9 @@ namespace Bicep.Core.Emit
                     return;
 
                 case ModuleSymbol moduleSymbol when moduleSymbol.TryGetBodyObjectType() is { } bodyObjectType:
+                    SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
+                    return;
+                case ParameterSymbol parameterSymbol when parameterSymbol.TryGetBodyObjectType() is { } bodyObjectType:
                     SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
             }
