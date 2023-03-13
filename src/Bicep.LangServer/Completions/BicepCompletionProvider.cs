@@ -1562,7 +1562,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}@{resourceType.ApiVersion}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, resourceType.ApiVersion)
-                    .WithFilterText(insertText)
+                    // Lower-case all resource types in filter text otherwise editor may prefer those with casing that match what the user has already typed (#9168)
+                    .WithFilterText(insertText.ToLowerInvariant())
                     .WithPlainTextEdit(replacementRange, insertText)
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                     // 8 hex digits is probably overkill :)
