@@ -622,7 +622,7 @@
     "copy-webpack-plugin": "^11.0.0",
     "esbuild-loader": "^3.0.0",
     "eslint": "^8.36.0",
-    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.1.7",
     "eslint-plugin-prettier": "^4.2.1",
