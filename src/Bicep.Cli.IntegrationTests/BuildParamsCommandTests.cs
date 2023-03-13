@@ -128,7 +128,6 @@ namespace Bicep.Cli.IntegrationTests
             var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
-            File.Exists(outputFilePath).Should().BeFalse();
             var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile-params", outputFilePath);
 
             var diagnostics = await GetAllParamDiagnostics(bicepparamsPath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
@@ -137,6 +136,7 @@ namespace Bicep.Cli.IntegrationTests
             output.Should().BeEmpty();
             error.Should().Contain($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the using declaration in the parameters file");
             error.Should().ContainAll(diagnostics);
+            File.Exists(outputFilePath).Should().BeFalse();
         }
 
         [DataTestMethod]
