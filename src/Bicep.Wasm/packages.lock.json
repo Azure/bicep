@@ -1851,7 +1851,7 @@
           "JsonPatch.Net": "[2.0.4, )",
           "JsonPath.Net": "[0.2.1, )",
           "Microsoft.Extensions.Configuration": "[7.0.0, )",
-          "Microsoft.Extensions.Configuration.Binder": "[7.0.2, )",
+          "Microsoft.Extensions.Configuration.Binder": "[7.0.3, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.2, )",
           "System.Collections.Immutable": "[7.0.0, )",
