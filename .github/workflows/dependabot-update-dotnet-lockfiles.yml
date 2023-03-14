@@ -34,4 +34,3 @@ jobs:
           commit_message: Update dotnet lockfiles
           commit_user_name: ${{ github.actor }}
           commit_user_email: ${{ github.actor }}@users.noreply.github.com
-          commit_options: '--signoff'
