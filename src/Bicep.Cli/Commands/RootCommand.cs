@@ -145,9 +145,11 @@ Usage:
 
     Options:
       --documentationUri  Module documentation uri
+      --force             Overwrite existing published module or file
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --force
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md
 
