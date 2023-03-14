@@ -4345,7 +4345,9 @@ resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 output vaultId string = CertificateVault.id
 ";
 
-            var (parameters, diag, comp) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+            var (parameters, diag, comp) = CompilationHelper.CompileParams(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var allDiag = comp.GetAllDiagnosticsByBicepFile();
 
             var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), bicepTemplateText);
 
