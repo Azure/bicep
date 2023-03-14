@@ -6,6 +6,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,14 +19,12 @@ namespace Bicep.Core.UnitTests.Emit
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private const string Text = @"
-param resourceParam resource 'MyApi@2022-02-02'
 var things = ''
 var keys = listKeys('fake','fake')
 var indirection = concat(things, keys)
 
 var runtimeLoop = [for (item, index) in []: indirection]
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
-var resourceParamProp = resourceParam.properties.prop
 ";
         [TestMethod]
         public void VisitorShouldCalculateInliningInBulk()
@@ -40,7 +39,6 @@ var resourceParamProp = resourceParam.properties.prop
                 GetVariableSymbolByName(compilation, "indirection"),
                 GetVariableSymbolByName(compilation, "runtimeLoop"),
                 GetVariableSymbolByName(compilation, "runtimeLoop2"),
-                GetVariableSymbolByName(compilation, "resourceParamProp")
             });
         }
 
