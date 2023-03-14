@@ -38,7 +38,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
                 GetVariableSymbolByName(compilation, "keys"),
                 GetVariableSymbolByName(compilation, "indirection"),
                 GetVariableSymbolByName(compilation, "runtimeLoop"),
-                GetVariableSymbolByName(compilation, "runtimeLoop2"),
+                GetVariableSymbolByName(compilation, "runtimeLoop2")
             });
         }
 
