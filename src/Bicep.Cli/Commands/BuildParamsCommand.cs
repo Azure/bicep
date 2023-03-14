@@ -93,19 +93,14 @@ namespace Bicep.Cli.Commands
                 { 
                     if (args.OutputToStdOut)
                     {   
-                        if(bicepSemanticModel != null) 
-                        {
-                            writer.ToStdout(bicepSemanticModel, paramsSemanticModel);
-                        }
+                        writer.ToStdout(bicepSemanticModel, paramsSemanticModel);
                     }
                     else
                     {
                         static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
-                        var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(paramsInputPath, null, args.OutputParamsFile, DefaultOutputPath);
-                        var bicepOutputPath = PathHelper.ResolveDefaultOutputPath(bicepFileUsingPathUri.AbsolutePath, null, args.OutputParamsFile, DefaultOutputPath);
+                        var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(paramsInputPath, null, args.OutputFile, DefaultOutputPath);
 
                         writer.ToFile(paramsCompilation, paramsOutputPath);
-                        // writer.ToFile(bicepSemanticModel, bicepOutputPath); //TODO: remove after decision on producing bicep file output is reached
                     }
                 }
             }

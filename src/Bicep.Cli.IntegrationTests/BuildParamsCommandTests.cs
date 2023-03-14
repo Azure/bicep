@@ -34,7 +34,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -52,7 +52,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--outfile", outputFilePath);
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
@@ -70,27 +70,11 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().Contain($"{bicepPath} is not a bicep file");
-        }
-
-        [TestMethod]
-        public async Task Build_Params_With_Same_Params_And_Bicep_Output_Path_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", "", Path.GetDirectoryName(bicepparamsPath));
-
-            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
-
-            File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile-params", outputFilePath, "--outfile-bicep", outputFilePath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().Contain($"The path for --outfile-params and --outfile-bicep can not be the same");
         }
 
         [TestMethod]
@@ -105,7 +89,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -128,7 +112,7 @@ namespace Bicep.Cli.IntegrationTests
             var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
-            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
 
             var diagnostics = await GetAllParamDiagnostics(bicepparamsPath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
