@@ -1,8 +1,7 @@
 name: 'Dependabot: Update Dotnet Lockfiles'
 on: 
   pull_request:
-    branches:
-      - 'dependabot/nuget/**'
+    branches: [main]
     types:
       - opened
       - reopened
@@ -13,7 +12,7 @@ on:
 jobs:
   update-dotnet-lockfiles:
     name: Update Dotnet Lockfiles
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: ${{ github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, '.NET') }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
