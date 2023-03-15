@@ -97,14 +97,12 @@ namespace Bicep.Core.Semantics.Namespaces
                         minLength switch
                         {
                             var zero when zero <= 0 => null,
-                            var tooBig when tooBig > long.MaxValue => long.MaxValue,
-                            var otherwise => (long) otherwise,
+                            _ => (long) BigInteger.Min(minLength, long.MaxValue),
                         },
                         maxLength switch
                         {
-                            null => null,
-                            var tooBig when tooBig > long.MaxValue => long.MaxValue,
-                            var otherwise => (long) otherwise,
+                            BigInteger bi => (long) BigInteger.Min(bi, long.MaxValue),
+                            _ => null,
                         },
                         TypeSymbolValidationFlags.Default));
                 }),
@@ -708,13 +706,34 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("range")
                 .WithReturnResultBuilder(
-                    (_, _, _, _, argumentTypes) => new(new TypedArrayType(
-                        argumentTypes.Length == 2 &&
-                            argumentTypes[0] is IntegerLiteralType startIndexLiteral &&
-                            argumentTypes[1] is IntegerLiteralType countLiteral
-                                ? TypeFactory.CreateIntegerType(startIndexLiteral.Value, startIndexLiteral.Value + countLiteral.Value)
-                                : LanguageConstants.Int,
-                        TypeSymbolValidationFlags.Default)),
+                    (_, _, _, _, argumentTypes) =>
+                    {
+                        static TypeSymbol GetRangeReturnElementType(TypeSymbol arg0Type, TypeSymbol arg1Type) => (arg0Type, arg1Type) switch
+                        {
+                            (IntegerLiteralType start, IntegerLiteralType count) => TypeFactory.CreateIntegerType(start.Value, start.Value + count.Value - 1),
+                            (IntegerLiteralType start, IntegerType count) when count.MaxValue.HasValue => TypeFactory.CreateIntegerType(start.Value, start.Value + count.MaxValue.Value - 1),
+                            (IntegerLiteralType start, _) => TypeFactory.CreateIntegerType(start.Value),
+
+                            (IntegerType start, IntegerLiteralType count) when start.MaxValue.HasValue
+                                => TypeFactory.CreateIntegerType(start.MinValue, start.MaxValue.Value + count.Value - 1),
+                            (IntegerType start, IntegerType count) when start.MaxValue.HasValue && count.MaxValue.HasValue
+                                => TypeFactory.CreateIntegerType(start.MinValue, start.MaxValue.Value + count.MaxValue.Value - 1),
+                            (IntegerType start, _) => TypeFactory.CreateIntegerType(start.MinValue),
+
+                            _ => LanguageConstants.Int,
+                        };
+
+                        static (long? minLength, long? maxLength) GetRangeLengthBounds(TypeSymbol countType, bool tryCollapse = true) => countType switch
+                        {
+                            IntegerLiteralType literal => (literal.Value, literal.Value),
+                            IntegerType @int => (@int.MinValue, @int.MaxValue),
+                            _ => (null, null),
+                        };
+
+                        var elementType = GetRangeReturnElementType(argumentTypes[0], argumentTypes[1]);
+                        var (minLength, maxLength) = GetRangeLengthBounds(argumentTypes[1]);
+                        return new(TypeFactory.CreateArrayType(elementType, minLength, maxLength));
+                    },
                     new TypedArrayType(LanguageConstants.Int, default))
                 .WithGenericDescription("Creates an array of integers from a starting integer and containing a number of items.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The first integer in the array. The sum of startIndex and count must be no greater than 2147483647.")

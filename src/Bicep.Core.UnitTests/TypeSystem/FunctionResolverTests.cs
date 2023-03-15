@@ -168,10 +168,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().Item.Type.Should().Be(LanguageConstants.String);
-            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MinLength.Should().BeGreaterThan(0);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Type.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().BeGreaterThan(0);
         }
 
         [TestMethod]
@@ -182,9 +182,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MinLength.Should().Be(21);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().Be(21);
         }
 
         [TestMethod]
@@ -195,9 +195,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().MaxLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MaxLength.Should().Be(21);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.MaxLength.Should().NotBeNull();
+            returnedArray.MaxLength.Should().Be(21);
         }
 
         [TestMethod]
@@ -208,8 +208,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().MaxLength.Should().BeNull();
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.MaxLength.Should().BeNull();
         }
 
         [TestMethod]
@@ -225,8 +225,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<TupleType>();
-            returnType.As<TupleType>().Items.Should()
+            var returnedTuple = returnType.Should().BeAssignableTo<TupleType>().Subject;
+            returnedTuple.Items.Should()
                 .ContainInOrder(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool, TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123));
         }
 
@@ -238,12 +238,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().Item.Should().Be(LanguageConstants.String);
-            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MinLength.Should().Be(1);
-            returnType.As<ArrayType>().MaxLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MaxLength.Should().Be(11);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().Be(1);
+            returnedArray.MaxLength.Should().NotBeNull();
+            returnedArray.MaxLength.Should().Be(11);
         }
 
         [TestMethod]
@@ -254,12 +254,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().Item.Should().Be(LanguageConstants.String);
-            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MinLength.Should().Be(5);
-            returnType.As<ArrayType>().MaxLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MaxLength.Should().Be(9);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().Be(5);
+            returnedArray.MaxLength.Should().NotBeNull();
+            returnedArray.MaxLength.Should().Be(9);
         }
 
         [TestMethod]
@@ -270,9 +270,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().Item.Should().Be(LanguageConstants.String);
-            returnType.As<ArrayType>().MinLength.Should().Be(1);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().Be(1);
         }
 
         [DataTestMethod]
@@ -587,6 +587,42 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Type;
 
             returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, TypeSymbolValidationFlags.IsSecure));
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetRangeTestCases), DynamicDataSourceType.Method)]
+        public void RangeInfersYieldRefinementsFromInputMetadata(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("range",
+                new List<TypeSymbol> { startIndex, count },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetRangeTestCases()
+        {
+            static object[] CreateRow(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
+                => new object[] { startIndex, count, expectedReturn };
+
+            return new[]
+            {
+                CreateRow(LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateArrayType(LanguageConstants.Int)),
+                CreateRow(LanguageConstants.Int, LanguageConstants.Any, TypeFactory.CreateArrayType(LanguageConstants.Int)),
+                CreateRow(LanguageConstants.Int, LanguageConstants.Int, TypeFactory.CreateArrayType(LanguageConstants.Int)),
+
+                CreateRow(TypeFactory.CreateIntegerLiteralType(-10), TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(-10, -1), 10, 10)),
+
+                CreateRow(TypeFactory.CreateIntegerType(0, 10), TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0, 29), 10, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(0, 10), TypeFactory.CreateIntegerType(null, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0, 29), null, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(null, 10), TypeFactory.CreateIntegerType(null, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(null, 29), null, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(null, 10), TypeFactory.CreateIntegerType(10, null), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, null)),
+                CreateRow(TypeFactory.CreateIntegerType(0, null), TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), 10, 10)),
+                CreateRow(TypeFactory.CreateIntegerType(0, null), TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), 10, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(0, null), LanguageConstants.Int, TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), null, null)),
+                CreateRow(LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, 10)),
+                CreateRow(LanguageConstants.Int, TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, 20)),
+            };
         }
 
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
