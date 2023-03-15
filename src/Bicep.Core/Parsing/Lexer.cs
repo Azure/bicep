@@ -276,23 +276,37 @@ namespace Bicep.Core.Parsing
             return (char)((codePoint - 0x00010000) / 0x0400 + 0xD800);
         }
 
-        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia(bool includeComments)
         {
-            if (IsWhiteSpace(textWindow.Peek()))
+            while (true)
             {
-                yield return ScanWhitespace();
-            }
+                var next = textWindow.Peek();
 
-            if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
-            {
-                yield return ScanSingleLineComment();
-                yield break;
-            }
+                if (IsWhiteSpace(next))
+                {
+                    yield return ScanWhitespace();
+                }
+                else if (includeComments && next == '/')
+                {
+                    var nextNext = textWindow.Peek(1);
 
-            if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
-            {
-                yield return ScanMultiLineComment();
-                yield break;
+                    if (nextNext == '/')
+                    {
+                        yield return ScanSingleLineComment();
+                    }
+                    else if (nextNext == '*')
+                    {
+                        yield return ScanMultiLineComment();
+                    }
+                    else
+                    {
+                        yield break;
+                    }
+                }
+                else
+                {
+                    yield break;
+                }
             }
         }
 
@@ -479,8 +493,10 @@ namespace Bicep.Core.Parsing
             }
 
             textWindow.Reset();
+
             // important to force enum evaluation here via .ToImmutableArray()!
-            var trailingTrivia = ScanTrailingTrivia().ToImmutableArray();
+            var includeComments = tokenType.GetCommentStickiness() >= CommentStickiness.Trailing;
+            var trailingTrivia = ScanTrailingTrivia(includeComments).ToImmutableArray();
 
             var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
             this.tokens.Add(token);

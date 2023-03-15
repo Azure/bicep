@@ -252,8 +252,7 @@ random characters
             PasteType.JsonValue,
             // Treats it simply as a JSON object
             $@"{{
-                '$schema': {{
-                }}
+                '$schema': {{}}
                 parameters: {{
                     location: {{
                         type: 'string'
@@ -404,8 +403,7 @@ random characters
                     expectedBicep: @"
                         {
                             type: 'Microsoft.Storage/storageAccounts'
-                            apiVersion: {
-                            }
+                            apiVersion: {}
                             name: 'name1'
                             location: 'eastus'
                             kind: 'StorageV2'
@@ -802,14 +800,12 @@ random characters
             string expected = @"
                 module nestedDeploymentInner './nested_nestedDeploymentInner.bicep' = {
                   name: 'nestedDeploymentInner'
-                  params: {
-                  }
+                  params: {}
                 }
 
                 module nestedDeploymentOuter './nested_nestedDeploymentOuter.bicep' = {
                   name: 'nestedDeploymentOuter'
-                  params: {
-                  }
+                  params: {}
                 }
 
                 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -827,8 +823,7 @@ random characters
 
                 module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
                   name: 'nestedDeploymentInner2'
-                  params: {
-                  }
+                  params: {}
                 }";
 
             await TestDecompileForPaste(

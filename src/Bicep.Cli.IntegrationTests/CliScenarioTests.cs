@@ -150,8 +150,7 @@ param roleAssignmentName string = guid(principalId, roleDefinitionId, rgName)
 resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
   name: rgName
   location: rgLocation
-  properties: {
-  }
+  properties: {}
 }
 
 module applyLock './nested_applyLock.bicep' = {

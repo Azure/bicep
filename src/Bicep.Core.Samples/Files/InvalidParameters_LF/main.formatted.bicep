@@ -107,10 +107,8 @@ param secureInt int
   'test'
   true
 ])
-@minValue({
-})
-@maxValue([
-])
+@minValue({})
+@maxValue([])
 @metadata('wrong')
 param wrongIntModifier int = true
 

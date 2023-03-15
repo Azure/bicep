@@ -39,8 +39,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountType
   }
   kind: 'StorageV2'
-  properties: {
-  }
+  properties: {}
 }
 
 module deployFlowLogs './nested_deployFlowLogs.bicep' = {

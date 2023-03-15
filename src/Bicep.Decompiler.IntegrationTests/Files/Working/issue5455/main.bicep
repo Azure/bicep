@@ -16,8 +16,7 @@ param allowAllConnections bool = true
   ''
 ])
 param managedVirtualNetwork string
-param tagValues object = {
-}
+param tagValues object = {}
 
 @allowed([
   'Enabled'
@@ -42,8 +41,7 @@ param storageIsHnsEnabled bool
 param userObjectId string = ''
 param setSbdcRbacOnStorageAccount bool = false
 param setWorkspaceMsiByPassOnStorageAccount bool = false
-param workspaceStorageAccountProperties object = {
-}
+param workspaceStorageAccountProperties object = {}
 param managedVirtualNetworkSettings object
 
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
@@ -134,8 +132,7 @@ resource defaultDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-0
     name: storageAccountType
   }
   kind: storageKind
-  tags: {
-  }
+  tags: {}
 }
 
 resource defaultDataLakeStorageAccountName_default_defaultDataLakeStorageFilesystem 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = if (isNewStorageAccount) {

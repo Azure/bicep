@@ -120,8 +120,7 @@ var reduceObjectUnion = reduce([
     {
       baz: 789
     }
-  ], {
-  }, (cur, next) => union(cur, next))
+  ], {}, (cur, next) => union(cur, next))
 var reduceEmpty = reduce([], 0, (cur, next) => cur)
 //@[04:15) [no-unused-vars (Warning)] Variable "reduceEmpty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduceEmpty|
 var filteredLoop = filter(itemForLoop, i => (i > 5))
