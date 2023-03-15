@@ -64,7 +64,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 
 // collection of extensions
 resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
-//@[79:080) Local i. Type: int. Declaration start char: 79, length: 1
+//@[79:080) Local i. Type: 0. Declaration start char: 79, length: 1
 //@[09:028) Resource extensionCollection. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 212
   name: 'lock-${i}'
   properties: {
@@ -76,7 +76,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 // cascade extend the extension
 @batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
-//@[72:073) Local i. Type: int. Declaration start char: 72, length: 1
+//@[72:073) Local i. Type: 0. Declaration start char: 72, length: 1
 //@[09:021) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 236
   name: 'lock-the-lock-${i}'
   properties: {

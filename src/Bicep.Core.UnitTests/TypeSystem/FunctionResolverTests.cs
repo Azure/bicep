@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().Be(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -168,10 +168,461 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
                 .Type;
 
-            returnType.Should().BeAssignableTo<ArrayType>();
-            returnType.As<ArrayType>().Item.Type.Should().Be(LanguageConstants.String);
-            returnType.As<ArrayType>().MinLength.Should().NotBeNull();
-            returnType.As<ArrayType>().MinLength.Should().BeGreaterThan(0);
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Type.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().BeGreaterThan(0);
+        }
+
+        [TestMethod]
+        public void ConcatDerivesMinLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 10), LanguageConstants.Array, TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 11) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                .Type;
+
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().Be(21);
+        }
+
+        [TestMethod]
+        public void ConcatDerivesMaxLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 10), TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 11) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.MaxLength.Should().NotBeNull();
+            returnedArray.MaxLength.Should().Be(21);
+        }
+
+        [TestMethod]
+        public void ConcatDoesNotDeriveMaxLengthOfReturnTypeIfAnyInputLacksAMaxLength()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 10), LanguageConstants.Array, TypeFactory.CreateArrayType(LanguageConstants.String, maxLength: 11) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                .Type;
+
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.MaxLength.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void ConcatConcatenatesTuples()
+        {
+            var returnType = EvaluateFunction("concat",
+                new List<TypeSymbol>
+                {
+                    new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int), default),
+                    new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.Bool), default),
+                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123)), default),
+                },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")), new(TestSyntaxFactory.CreateVariableAccess("baz")) })
+                .Type;
+
+            var returnedTuple = returnType.Should().BeAssignableTo<TupleType>().Subject;
+            returnedTuple.Items.Should()
+                .ContainInOrder(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool, TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateIntegerLiteralType(123));
+        }
+
+        [TestMethod]
+        public void SkipDerivesMinAndMaxLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("skip",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 10, maxLength: 20), TypeFactory.CreateIntegerLiteralType(9) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().Be(1);
+            returnedArray.MaxLength.Should().NotBeNull();
+            returnedArray.MaxLength.Should().Be(11);
+        }
+
+        [TestMethod]
+        public void TakeDerivesMinAndMaxLengthOfReturnType()
+        {
+            var returnType = EvaluateFunction("take",
+                new List<TypeSymbol> { TypeFactory.CreateArrayType(LanguageConstants.String, minLength: 5, maxLength: 20), TypeFactory.CreateIntegerLiteralType(9) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().NotBeNull();
+            returnedArray.MinLength.Should().Be(5);
+            returnedArray.MaxLength.Should().NotBeNull();
+            returnedArray.MaxLength.Should().Be(9);
+        }
+
+        [TestMethod]
+        public void SplitReturnTypeIncludesNonZeroMinLength()
+        {
+            var returnType = EvaluateFunction("split",
+                new List<TypeSymbol> { LanguageConstants.Any, LanguageConstants.Any },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) })
+                .Type;
+
+            var returnedArray = returnType.Should().BeAssignableTo<ArrayType>().Subject;
+            returnedArray.Item.Should().Be(LanguageConstants.String);
+            returnedArray.MinLength.Should().Be(1);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetPadLeftTestCases), DynamicDataSourceType.Method)]
+        public void PadLeftReturnsCorrectType(IList<TypeSymbol> argumentTypes, TypeSymbol expectedReturnType)
+        {
+            var returnType = EvaluateFunction("padLeft", argumentTypes, argumentTypes
+                .Select((_, idx) => new FunctionArgumentSyntax(TestSyntaxFactory.CreateVariableAccess(idx.ToString()))).ToArray());
+
+            returnType.Type.Should().Be(expectedReturnType);
+        }
+
+        private static IEnumerable<object[]> GetPadLeftTestCases()
+        {
+            static object[] CreateRow(TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
+                => new object[] { argumentTypes.ToList(), expectedReturnType };
+
+            return new[]
+            {
+                CreateRow(TypeFactory.CreateStringLiteralType("++++0"),
+                    TypeFactory.CreateIntegerLiteralType(0),
+                    TypeFactory.CreateIntegerLiteralType(5),
+                    TypeFactory.CreateStringLiteralType("+")),
+                CreateRow(TypeFactory.CreateStringType(3, 3),
+                    TypeFactory.CreateIntegerType(-99, 999),
+                    TypeFactory.CreateIntegerLiteralType(3)),
+                CreateRow(TypeFactory.CreateStringType(5, 10),
+                    TypeFactory.CreateStringType(1, 10),
+                    TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(20, 20),
+                    TypeFactory.CreateStringType(1, 10),
+                    TypeFactory.CreateIntegerLiteralType(20)),
+            };
+        }
+
+        [TestMethod]
+        public void ToLowerPreservesFlags()
+        {
+            var returnType = EvaluateFunction("toLower",
+                new List<TypeSymbol> { LanguageConstants.SecureString },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) })
+                .Type;
+
+            returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
+            returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        }
+
+        [TestMethod]
+        public void ToUpperPreservesFlags()
+        {
+            var returnType = EvaluateFunction("toUpper",
+                new List<TypeSymbol> { LanguageConstants.SecureString },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) })
+                .Type;
+
+            returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
+            returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetLengthTestCases), DynamicDataSourceType.Method)]
+        public void LengthInfersPossibleRangesFromRefinementMetadata(TypeSymbol argumentType, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("length",
+                new List<TypeSymbol> { argumentType },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) });
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetLengthTestCases()
+        {
+            static object[] CreateRow(TypeSymbol argumentType, TypeSymbol returnType)
+                => new object[] { argumentType, returnType };
+
+            return new[]
+            {
+                CreateRow(TypeFactory.CreateStringLiteralType("boo!"),
+                    TypeFactory.CreateIntegerLiteralType(4)),
+                CreateRow(TypeFactory.CreateStringType(3, 3),
+                    TypeFactory.CreateIntegerLiteralType(3)),
+                CreateRow(TypeFactory.CreateStringType(5, 10),
+                    TypeFactory.CreateIntegerType(5, 10)),
+                CreateRow(TypeFactory.CreateStringType(20),
+                    TypeFactory.CreateIntegerType(20)),
+
+                CreateRow(LanguageConstants.Object,
+                    TypeFactory.CreateIntegerType(0)),
+                CreateRow(new ObjectType("object",
+                    default,
+                    new TypeProperty[] { new("prop", LanguageConstants.Any, TypePropertyFlags.Required) },
+                    null),
+                    TypeFactory.CreateIntegerLiteralType(1)),
+                CreateRow(new ObjectType("object",
+                    default,
+                    new TypeProperty[]
+                    {
+                        new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
+                        new("prop2", LanguageConstants.Any),
+                    },
+                    null),
+                    TypeFactory.CreateIntegerType(1, 2)),
+                CreateRow(new ObjectType("object",
+                    default,
+                    new TypeProperty[]
+                    {
+                        new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
+                        new("prop2", LanguageConstants.Any),
+                    },
+                    LanguageConstants.Any),
+                    TypeFactory.CreateIntegerType(1)),
+
+                CreateRow(new DiscriminatedObjectType("discriminated", default, "type", new[]
+                {
+                    new ObjectType("object",
+                        default,
+                        new TypeProperty[]
+                        {
+                            new("type", TypeFactory.CreateStringLiteralType("fizz"), TypePropertyFlags.Required),
+                            new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
+                        },
+                        null),
+                    new ObjectType("object",
+                        default,
+                        new TypeProperty[]
+                        {
+                            new("type", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
+                            new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
+                            new("prop2", LanguageConstants.Any),
+                        },
+                        null),
+                }), TypeFactory.CreateIntegerType(2, 3)),
+
+                CreateRow(TypeFactory.CreateArrayType(1, 10, default),
+                    TypeFactory.CreateIntegerType(1, 10)),
+                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int), default),
+                    TypeFactory.CreateIntegerLiteralType(3)),
+            };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetJoinTestCases), DynamicDataSourceType.Method)]
+        public void JoinInfersPossibleLengthRangesFromRefinementMetadata(TypeSymbol typeToJoin, TypeSymbol delimiterType, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("join",
+                new List<TypeSymbol> { typeToJoin, delimiterType },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("foo")) });
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetJoinTestCases()
+        {
+            static object[] CreateRow(TypeSymbol typeToJoin, TypeSymbol delimiterType, TypeSymbol returnType)
+                => new object[] { typeToJoin, delimiterType, returnType };
+
+            return new[]
+            {
+                CreateRow(LanguageConstants.Array, LanguageConstants.String, LanguageConstants.String),
+                CreateRow(new TypedArrayType(TypeFactory.CreateStringType(1, 10), default, 1, 10),
+                    TypeFactory.CreateStringLiteralType("/"),
+                    TypeFactory.CreateStringType(1, 109)),
+                CreateRow(new TypedArrayType(TypeFactory.CreateStringType(1, 10), default, 1, 10),
+                    LanguageConstants.String,
+                    TypeFactory.CreateStringType(1)),
+                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Object, LanguageConstants.String, LanguageConstants.Int), default),
+                    TypeFactory.CreateStringLiteralType(", "),
+                    TypeFactory.CreateStringType(7)),
+                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(0, 9)), default),
+                    TypeFactory.CreateStringLiteralType(", "),
+                    TypeFactory.CreateStringType(1, 1)),
+                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)), default),
+                    TypeFactory.CreateStringLiteralType(", "),
+                    TypeFactory.CreateStringType(4, 4)),
+                CreateRow(new TupleType("tuple", ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(0, 9), TypeFactory.CreateIntegerType(0, 9)), default),
+                    TypeFactory.CreateStringType(),
+                    TypeFactory.CreateStringType(2)),
+            };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetSubstringTestCases), DynamicDataSourceType.Method)]
+        public void SubstringInfersPossibleLengthRangesFromRefinementMetadata(IList<TypeSymbol> argumentTypes, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("substring", argumentTypes, argumentTypes
+                .Select((_, idx) => new FunctionArgumentSyntax(TestSyntaxFactory.CreateVariableAccess(idx.ToString()))).ToArray());
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetSubstringTestCases()
+        {
+            static object[] CreateRow(TypeSymbol expectedReturnType, params TypeSymbol[] argumentTypes)
+                => new object[] { argumentTypes.ToList(), expectedReturnType };
+
+            return new[]
+            {
+                CreateRow(LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int),
+                CreateRow(LanguageConstants.String, LanguageConstants.Any, LanguageConstants.Int),
+                CreateRow(LanguageConstants.String, LanguageConstants.String, LanguageConstants.Any),
+                CreateRow(LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int),
+                CreateRow(LanguageConstants.SecureString, LanguageConstants.SecureString, LanguageConstants.Int),
+                CreateRow(TypeFactory.CreateStringType(null, 10), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int),
+                CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(LanguageConstants.String, LanguageConstants.String, TypeFactory.CreateIntegerLiteralType(5)),
+
+                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(null, 5, LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(null, 5), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(null, 10), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
+                CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(2, 2), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(2)),
+            };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetSkipTestCases), DynamicDataSourceType.Method)]
+        public void SkipInfersPossibleLengthRangesFromRefinementMetadata(TypeSymbol originalValue, TypeSymbol numberToSkip, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("skip",
+                new List<TypeSymbol> { originalValue, numberToSkip },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetSkipTestCases()
+        {
+            static object[] CreateRow(TypeSymbol originalValue, TypeSymbol numberToSkip, TypeSymbol expectedReturn)
+                => new object[] { originalValue, numberToSkip, expectedReturn };
+
+            return new[]
+            {
+                CreateRow(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String),
+                CreateRow(LanguageConstants.String, LanguageConstants.Any, LanguageConstants.String),
+                CreateRow(LanguageConstants.SecureString, LanguageConstants.Int, LanguageConstants.SecureString),
+                CreateRow(TypeFactory.CreateStringType(1, 10), LanguageConstants.Int, TypeFactory.CreateStringType(null, 10)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateStringType(null, 5)),
+                CreateRow(TypeFactory.CreateStringType(7, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateStringType(2, 5)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(0), TypeFactory.CreateStringType(1, 10)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(-1), TypeFactory.CreateStringType(1, 10)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateStringType(null, 9)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(15), TypeFactory.CreateStringType(null, 0)),
+                CreateRow(TypeFactory.CreateStringType(5, 10), TypeFactory.CreateIntegerType(2, 3), TypeFactory.CreateStringType(2, 8)),
+
+                CreateRow(LanguageConstants.Array, LanguageConstants.Int, LanguageConstants.Array),
+                CreateRow(LanguageConstants.Array, LanguageConstants.Any, LanguageConstants.Array),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), LanguageConstants.Int, TypeFactory.CreateArrayType(minLength: null, 10)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateArrayType(minLength: null, 5)),
+                CreateRow(TypeFactory.CreateArrayType(7, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateArrayType(2, 5)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(0), TypeFactory.CreateArrayType(1, 10)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(-1), TypeFactory.CreateArrayType(1, 10)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateArrayType(minLength: null, 9)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(15), TypeFactory.CreateArrayType(minLength: null, 0)),
+                CreateRow(TypeFactory.CreateArrayType(5, 10), TypeFactory.CreateIntegerType(2, 3), TypeFactory.CreateArrayType(2, 8)),
+            };
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetTakeTestCases), DynamicDataSourceType.Method)]
+        public void TakeInfersPossibleLengthRangesFromRefinementMetadata(TypeSymbol originalValue, TypeSymbol numberToTake, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("take",
+                new List<TypeSymbol> { originalValue, numberToTake },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetTakeTestCases()
+        {
+            static object[] CreateRow(TypeSymbol originalValue, TypeSymbol numberToTake, TypeSymbol expectedReturn)
+                => new object[] { originalValue, numberToTake, expectedReturn };
+
+            return new[]
+            {
+                CreateRow(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String),
+                CreateRow(LanguageConstants.String, LanguageConstants.Any, LanguageConstants.String),
+                CreateRow(LanguageConstants.SecureString, LanguageConstants.Int, LanguageConstants.SecureString),
+                CreateRow(TypeFactory.CreateStringType(1, 10), LanguageConstants.Int, TypeFactory.CreateStringType(null, 10)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateStringType(1, 5)),
+                CreateRow(TypeFactory.CreateStringType(7, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateStringType(5, 5)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(0), TypeFactory.CreateStringType(null, 0)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(-1), TypeFactory.CreateStringType(null, 0)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateStringType(1, 1)),
+                CreateRow(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateIntegerLiteralType(15), TypeFactory.CreateStringType(1, 10)),
+                CreateRow(TypeFactory.CreateStringType(5, 10), TypeFactory.CreateIntegerType(2, 3), TypeFactory.CreateStringType(2, 3)),
+                CreateRow(TypeFactory.CreateStringType(5, 8), TypeFactory.CreateIntegerType(2, 10), TypeFactory.CreateStringType(2, 8)),
+
+                CreateRow(LanguageConstants.Array, LanguageConstants.Int, LanguageConstants.Array),
+                CreateRow(LanguageConstants.Array, LanguageConstants.Any, LanguageConstants.Array),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), LanguageConstants.Int, TypeFactory.CreateArrayType(minLength: null, 10)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateArrayType(1, 5)),
+                CreateRow(TypeFactory.CreateArrayType(7, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateArrayType(5, 5)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(0), TypeFactory.CreateArrayType(minLength: null, 0)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(-1), TypeFactory.CreateArrayType(minLength: null, 0)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(1), TypeFactory.CreateArrayType(1, 1)),
+                CreateRow(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateIntegerLiteralType(15), TypeFactory.CreateArrayType(1, 10)),
+                CreateRow(TypeFactory.CreateArrayType(5, 10), TypeFactory.CreateIntegerType(2, 3), TypeFactory.CreateArrayType(2, 3)),
+                CreateRow(TypeFactory.CreateArrayType(5, 8), TypeFactory.CreateIntegerType(2, 10), TypeFactory.CreateArrayType(2, 8)),
+            };
+        }
+
+        [TestMethod]
+        public void TrimDropsMinLengthButPreservesMaxLengthAndFlags()
+        {
+            var returnType = EvaluateFunction("trim",
+                new List<TypeSymbol> { TypeFactory.CreateStringType(10, 20, TypeSymbolValidationFlags.IsSecure) },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")) })
+                .Type;
+
+            returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, TypeSymbolValidationFlags.IsSecure));
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetRangeTestCases), DynamicDataSourceType.Method)]
+        public void RangeInfersYieldRefinementsFromInputMetadata(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
+        {
+            var returnType = EvaluateFunction("range",
+                new List<TypeSymbol> { startIndex, count },
+                new FunctionArgumentSyntax[] { new(TestSyntaxFactory.CreateVariableAccess("foo")), new(TestSyntaxFactory.CreateVariableAccess("bar")) });
+
+            returnType.Type.Should().Be(expectedReturn);
+        }
+
+        private static IEnumerable<object[]> GetRangeTestCases()
+        {
+            static object[] CreateRow(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
+                => new object[] { startIndex, count, expectedReturn };
+
+            return new[]
+            {
+                CreateRow(LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateArrayType(LanguageConstants.Int)),
+                CreateRow(LanguageConstants.Int, LanguageConstants.Any, TypeFactory.CreateArrayType(LanguageConstants.Int)),
+                CreateRow(LanguageConstants.Int, LanguageConstants.Int, TypeFactory.CreateArrayType(LanguageConstants.Int)),
+
+                CreateRow(TypeFactory.CreateIntegerLiteralType(-10), TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(-10, -1), 10, 10)),
+
+                CreateRow(TypeFactory.CreateIntegerType(0, 10), TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0, 29), 10, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(0, 10), TypeFactory.CreateIntegerType(null, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0, 29), null, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(null, 10), TypeFactory.CreateIntegerType(null, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(null, 29), null, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(null, 10), TypeFactory.CreateIntegerType(10, null), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, null)),
+                CreateRow(TypeFactory.CreateIntegerType(0, null), TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), 10, 10)),
+                CreateRow(TypeFactory.CreateIntegerType(0, null), TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), 10, 20)),
+                CreateRow(TypeFactory.CreateIntegerType(0, null), LanguageConstants.Int, TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), null, null)),
+                CreateRow(LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, 10)),
+                CreateRow(LanguageConstants.Int, TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, 20)),
+            };
         }
 
         private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
@@ -263,6 +714,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
             },
+            // first(string[] {@minLength(1)}) -> string
+            new object[]
+            {
+                new TypedArrayType(LanguageConstants.String, default, minLength: 1),
+                LanguageConstants.String,
+            },
             // first(['test', 3]) -> 'test'
             new object[]
             {
@@ -285,6 +742,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 default),
                 LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup)
             },
+            // first(string) => string {@minLength(0), @maxLength(1)}
+            new object[]
+            {
+                LanguageConstants.String,
+                TypeFactory.CreateStringType(0, 1),
+            },
+            // first(string {@minLength(> 0)}) => string {@minLength(1), @maxLength(1)}
+            new object[]
+            {
+                TypeFactory.CreateStringType(1),
+                TypeFactory.CreateStringType(1, 1),
+            },
         };
 
         private static IEnumerable<object[]> GetLastTestCases() => new[]
@@ -294,6 +763,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 new TypedArrayType(LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup), default),
                 TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.CreateResourceScopeReference(ResourceScope.ResourceGroup))
+            },
+            // last(string[] {@minLength(1)}) -> string
+            new object[]
+            {
+                new TypedArrayType(LanguageConstants.String, default, minLength: 1),
+                LanguageConstants.String,
             },
             // last(['test', 3]) -> 3
             new object[]
@@ -316,6 +791,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     ),
                 default),
                 LanguageConstants.CreateResourceScopeReference(ResourceScope.Subscription)
+            },
+            // last(string) => string {@minLength(0), @maxLength(1)}
+            new object[]
+            {
+                LanguageConstants.String,
+                TypeFactory.CreateStringType(0, 1),
+            },
+            // last(string {@minLength(> 0)}) => string {@minLength(1), @maxLength(1)}
+            new object[]
+            {
+                TypeFactory.CreateStringType(1),
+                TypeFactory.CreateStringType(1, 1),
             },
         };
 
@@ -440,9 +927,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             //vararg function
             yield return CreateRow("union", LanguageConstants.Object, LanguageConstants.Object, LanguageConstants.Object, LanguageConstants.Object);
 
-            yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.String);
-            yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Object);
-            yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Array);
+            yield return CreateRow("length", TypeFactory.CreateIntegerType(0), LanguageConstants.String);
+            yield return CreateRow("length", TypeFactory.CreateIntegerType(0), LanguageConstants.Object);
+            yield return CreateRow("length", TypeFactory.CreateIntegerType(0), LanguageConstants.Array);
             yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object));
         }
 
