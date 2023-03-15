@@ -250,7 +250,13 @@ namespace Bicep.Core.PrettyPrint
                 {
                     if (children.Length == 1)
                     {
-                        return Nil;
+                        if (children[0] == Line || children[0] == SingleLine || children[0] == DoubleLine)
+                        {
+                            return Nil;
+                        }
+
+                        // Trailing comment.
+                        return children[0];
                     }
 
                     return new NestDocument(1, children.ToImmutableArray());

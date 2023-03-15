@@ -300,7 +300,8 @@ param bar array = [
 // Formatted.
 @"param foo object = {/* I can be anywhere */ }
 
-param foo object = {}
+param foo object = {
+/* I can be anywhere */}
 
 param foo object = {
   abc: true
@@ -319,7 +320,8 @@ param foo object = {
   be anywhere
   */}
 
-param bar array = []
+param bar array = [
+/* I can be anywhere */]
 
 param bar array = [/* I can be anywhere */ ]
 
