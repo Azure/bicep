@@ -27,7 +27,6 @@ public class BicepTextDocumentSyncHandlerTests
     private static readonly LinterRulesProvider linterRulesProvider = new();
 
     [TestMethod]
-    [Ignore("Suspected to be caused by https://github.com/dotnet/runtime/issues/77421. Verify this has been fixed once System.Text.Json >7.0.3 is incorporated")]
     public async Task ChangingLinterRuleDiagnosticLevel_ShouldFireTelemetryEvent()
     {
         var prevBicepConfigFileContents = @"{
@@ -73,7 +72,6 @@ public class BicepTextDocumentSyncHandlerTests
     }
 
     [TestMethod]
-    [Ignore("Suspected to be caused by https://github.com/dotnet/runtime/issues/77421. Verify this has been fixed once System.Text.Json >7.0.3 is incorporated")]
     public async Task ChangingOverallLinterState_ShouldFireTelemetryEvent()
     {
         var prevBicepConfigFileContents = @"{
@@ -118,7 +116,6 @@ public class BicepTextDocumentSyncHandlerTests
     }
 
     [TestMethod]
-    [Ignore("Suspected to be caused by https://github.com/dotnet/runtime/issues/77421. Verify this has been fixed once System.Text.Json >7.0.3 is incorporated")]
     public async Task ChangingLinterRuleDiagnosticLevel_ToDefaultValue_ShouldNotFireTelemetryEvent()
     {
         var prevBicepConfigFileContents = @"{
@@ -157,7 +154,6 @@ public class BicepTextDocumentSyncHandlerTests
     }
 
     [TestMethod]
-    [Ignore("Suspected to be caused by https://github.com/dotnet/runtime/issues/77421. Verify this has been fixed once System.Text.Json >7.0.3 is incorporated")]
     public async Task ChangingLinterRuleDiagnosticLevel_WithOverallStateSetToFalse_ShouldNotFireTelemetryEvent()
     {
         var prevBicepConfigFileContents = @"{

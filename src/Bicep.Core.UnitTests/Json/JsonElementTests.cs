@@ -17,9 +17,11 @@ namespace Bicep.Core.UnitTests;
 public class JsonElementTests
 {
     [TestMethod]
-    [Ignore("Suspected to be caused by https://github.com/dotnet/runtime/issues/77421. Verify this has been fixed once System.Text.Json >7.0.3 is incorporated")]
     public void Merge_can_operate_in_parallel()
     {
+        // We were previously hitting an issue due to https://github.com/dotnet/runtime/issues/77421 which has been fixed in System.Text.Json >7.0.3.
+        // This test just exists to avoid a regression.
+
         var source = @"{
   // This is the base configuration which provides the defaults for all values (end users don't see this file).
   ""cloud"": {
