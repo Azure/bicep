@@ -112,6 +112,29 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithVariableParameter("arg", LanguageConstants.Array, minimumCount: 1, "The array for concatenation")
                 .Build();
 
+            yield return new FunctionOverloadBuilder("cidrSubnet")
+                //.WithReturnResultBuilder(TryDeriveLiteralReturnType("cidrSubnet", LanguageConstants.String), LanguageConstants.String)
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Returns the specified subnet of a CIDR network.")
+                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
+                .WithRequiredParameter("cidr", LanguageConstants.Int, "The CIDR to be used to subnet the current IPNetwork")
+                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "The index to select the subnet from the range of CIDR subnets")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("cidrHost")
+                //.WithReturnResultBuilder(TryDeriveLiteralReturnType("cidrHost", LanguageConstants.String), LanguageConstants.String)
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Calculates the ith IP address on a network.")
+                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
+                .WithRequiredParameter("num", LanguageConstants.Int, "A binary integer with no more than the number of digits remaining in the address after the given network string")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("parseCidr")
+                .WithReturnType(GetParseCidrReturnType())
+                .WithGenericDescription("Parses an IP address into individual components and other useful information.")
+                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
+                .Build();
+
             yield return new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription(ConcatDescription)
@@ -942,6 +965,20 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
+        private static ObjectType GetParseCidrReturnType()
+        {
+            return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("network", LanguageConstants.String),
+                new TypeProperty("netmask", LanguageConstants.String),
+                new TypeProperty("broadcast", LanguageConstants.String),
+                new TypeProperty("firstUsable", LanguageConstants.String),
+                new TypeProperty("lastUsable", LanguageConstants.String),
+                //new TypeProperty("usable", LanguageConstants.Int),
+                new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
+            }, null);
+        }
+        
         private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
             if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
