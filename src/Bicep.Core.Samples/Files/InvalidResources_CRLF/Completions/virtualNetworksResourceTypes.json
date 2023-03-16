@@ -9,7 +9,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000002c",
-    "filterText": "'Microsoft.Network/virtualnetworks@2015-05-01-preview'",
+    "filterText": "'microsoft.network/virtualnetworks@2015-05-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -27,7 +27,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000002b",
-    "filterText": "'Microsoft.Network/virtualNetworks@2015-06-15'",
+    "filterText": "'microsoft.network/virtualnetworks@2015-06-15'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -45,7 +45,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000002a",
-    "filterText": "'Microsoft.Network/virtualNetworks@2016-03-30'",
+    "filterText": "'microsoft.network/virtualnetworks@2016-03-30'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -63,7 +63,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000029",
-    "filterText": "'Microsoft.Network/virtualNetworks@2016-06-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2016-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -81,7 +81,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000028",
-    "filterText": "'Microsoft.Network/virtualNetworks@2016-09-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2016-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -99,7 +99,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000027",
-    "filterText": "'Microsoft.Network/virtualNetworks@2016-12-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2016-12-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -117,7 +117,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000026",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-03-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-03-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -135,7 +135,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000025",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-03-30'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-03-30'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -153,7 +153,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000024",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-06-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -171,7 +171,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000023",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-08-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-08-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -189,7 +189,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000022",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-09-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -207,7 +207,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000021",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-10-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-10-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -225,7 +225,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000020",
-    "filterText": "'Microsoft.Network/virtualNetworks@2017-11-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2017-11-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -243,7 +243,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000001f",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-01-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-01-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -261,7 +261,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000001e",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-02-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-02-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -279,7 +279,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000001d",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-04-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-04-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -297,7 +297,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000001c",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-06-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -315,7 +315,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000001b",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-07-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-07-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -333,7 +333,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000001a",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-08-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-08-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -351,7 +351,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000019",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-10-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-10-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -369,7 +369,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000018",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-11-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-11-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -387,7 +387,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000017",
-    "filterText": "'Microsoft.Network/virtualNetworks@2018-12-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2018-12-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -405,7 +405,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000016",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-02-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-02-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -423,7 +423,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000015",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-04-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-04-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -441,7 +441,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000014",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-06-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -459,7 +459,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000013",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-07-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-07-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -477,7 +477,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000012",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-08-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-08-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -495,7 +495,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000011",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-09-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -513,7 +513,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000010",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-11-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-11-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -531,7 +531,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000000f",
-    "filterText": "'Microsoft.Network/virtualNetworks@2019-12-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2019-12-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -549,7 +549,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000000e",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-03-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-03-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -567,7 +567,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000000d",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-04-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-04-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -585,7 +585,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000000c",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-05-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -603,7 +603,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000000b",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-06-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -621,7 +621,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "0000000a",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-07-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-07-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -639,7 +639,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000009",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-08-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-08-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -657,7 +657,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000008",
-    "filterText": "'Microsoft.Network/virtualNetworks@2020-11-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2020-11-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -675,7 +675,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000007",
-    "filterText": "'Microsoft.Network/virtualNetworks@2021-02-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2021-02-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -693,7 +693,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000006",
-    "filterText": "'Microsoft.Network/virtualNetworks@2021-03-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2021-03-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -711,7 +711,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000005",
-    "filterText": "'Microsoft.Network/virtualNetworks@2021-05-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2021-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -729,7 +729,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000004",
-    "filterText": "'Microsoft.Network/virtualNetworks@2021-08-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2021-08-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -747,7 +747,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000003",
-    "filterText": "'Microsoft.Network/virtualNetworks@2022-01-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2022-01-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -765,7 +765,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000002",
-    "filterText": "'Microsoft.Network/virtualNetworks@2022-05-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2022-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -783,7 +783,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000001",
-    "filterText": "'Microsoft.Network/virtualNetworks@2022-07-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2022-07-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -801,7 +801,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000000",
-    "filterText": "'Microsoft.Network/virtualNetworks@2022-09-01'",
+    "filterText": "'microsoft.network/virtualnetworks@2022-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

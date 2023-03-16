@@ -9,7 +9,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000003",
-    "filterText": "'Microsoft.Resources/templateSpecs@2019-06-01-preview'",
+    "filterText": "'microsoft.resources/templatespecs@2019-06-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -27,7 +27,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000002",
-    "filterText": "'Microsoft.Resources/templateSpecs@2021-03-01-preview'",
+    "filterText": "'microsoft.resources/templatespecs@2021-03-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -45,7 +45,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000001",
-    "filterText": "'Microsoft.Resources/templateSpecs@2021-05-01'",
+    "filterText": "'microsoft.resources/templatespecs@2021-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -63,7 +63,7 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "00000000",
-    "filterText": "'Microsoft.Resources/templateSpecs@2022-02-01'",
+    "filterText": "'microsoft.resources/templatespecs@2022-02-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
