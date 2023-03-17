@@ -113,7 +113,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("cidrSubnet")
-                //.WithReturnResultBuilder(TryDeriveLiteralReturnType("cidrSubnet", LanguageConstants.String), LanguageConstants.String)
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Returns the specified subnet of a CIDR network.")
                 .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
@@ -122,7 +121,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("cidrHost")
-                //.WithReturnResultBuilder(TryDeriveLiteralReturnType("cidrHost", LanguageConstants.String), LanguageConstants.String)
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Calculates the ith IP address on a network.")
                 .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
@@ -974,7 +972,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("broadcast", LanguageConstants.String),
                 new TypeProperty("firstUsable", LanguageConstants.String),
                 new TypeProperty("lastUsable", LanguageConstants.String),
-                //new TypeProperty("usable", LanguageConstants.Int),
                 new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
         }

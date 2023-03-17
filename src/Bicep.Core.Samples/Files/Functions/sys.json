@@ -114,6 +114,65 @@
     ]
   },
   {
+    "name": "cidrHost",
+    "description": "Calculates the ith IP address on a network.",
+    "fixedParameters": [
+      {
+        "name": "network",
+        "description": "The string containing an ip network (CIDR format)",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "num",
+        "description": "A binary integer with no more than the number of digits remaining in the address after the given network string",
+        "type": "int",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(network: string, num: int): string",
+    "parameterTypeSignatures": [
+      "network: string",
+      "num: int"
+    ]
+  },
+  {
+    "name": "cidrSubnet",
+    "description": "Returns the specified subnet of a CIDR network.",
+    "fixedParameters": [
+      {
+        "name": "network",
+        "description": "The string containing an IP network (CIDR format)",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "cidr",
+        "description": "The CIDR to be used to subnet the current IPNetwork",
+        "type": "int",
+        "required": true
+      },
+      {
+        "name": "subnetIndex",
+        "description": "The index to select the subnet from the range of CIDR subnets",
+        "type": "int",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(network: string, cidr: int, subnetIndex: int): string",
+    "parameterTypeSignatures": [
+      "network: string",
+      "cidr: int",
+      "subnetIndex: int"
+    ]
+  },
+  {
     "name": "concat",
     "description": "Combines multiple arrays and returns the concatenated array.",
     "fixedParameters": [],
@@ -1018,6 +1077,25 @@
       "valueToPad: int | string",
       "totalLength: int",
       "[paddingCharacter: string]"
+    ]
+  },
+  {
+    "name": "parseCidr",
+    "description": "Parses an IP address into individual components and other useful information.",
+    "fixedParameters": [
+      {
+        "name": "network",
+        "description": "The string containing an ip network (CIDR format)",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(network: string): parseCidr",
+    "parameterTypeSignatures": [
+      "network: string"
     ]
   },
   {
