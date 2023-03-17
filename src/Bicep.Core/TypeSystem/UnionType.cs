@@ -13,11 +13,25 @@ namespace Bicep.Core.TypeSystem
             this.Members = members;
         }
 
-        public override TypeKind TypeKind => this.Members.Any() ? TypeKind.Union : TypeKind.Never;
+        public override TypeKind TypeKind => this.Members.IsEmpty ? TypeKind.Never : TypeKind.Union;
 
         public ImmutableArray<ITypeReference> Members { get; }
 
         public override string FormatNameForCompoundTypes() => TypeKind == TypeKind.Never ? Name : WrapTypeName();
+
+        public override bool Equals(object? other) => other is UnionType otherUnion && Members.SequenceEqual(otherUnion.Members);
+
+        public override int GetHashCode()
+        {
+            int hashCode = TypeKind.GetHashCode();
+
+            // follow the Java algorithm (hashCode(<set>) == the sum of the hashcodes of set members) so that hash code is not dependent on set identity or iteration order
+            foreach (var member in Members)
+            {
+                hashCode = unchecked(hashCode + member.GetHashCode());
+            }
+
+            return hashCode;
+        }
     }
 }
-

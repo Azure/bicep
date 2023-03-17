@@ -622,6 +622,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateIntegerType(0, null), LanguageConstants.Int, TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(0), null, null)),
                 CreateRow(LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, 10)),
                 CreateRow(LanguageConstants.Int, TypeFactory.CreateIntegerType(10, 20), TypeFactory.CreateArrayType(LanguageConstants.Int, 10, 20)),
+
+                CreateRow(TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerType(-100, 1), TypeFactory.CreateIntegerType(-1, 100), TypeFactory.CreateIntegerLiteralType(0)),
+                    TypeFactory.CreateIntegerLiteralType(10),
+                    TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(-100, 109), 10, 10)),
+                CreateRow(TypeFactory.CreateIntegerLiteralType(10),
+                    TypeHelper.CreateTypeUnion(TypeFactory.CreateIntegerType(0, 11), TypeFactory.CreateIntegerType(19, 30), TypeFactory.CreateIntegerType(9, 20), TypeFactory.CreateIntegerLiteralType(10)),
+                    TypeFactory.CreateArrayType(TypeFactory.CreateIntegerType(10, 39), 0, 30)),
             };
         }
 

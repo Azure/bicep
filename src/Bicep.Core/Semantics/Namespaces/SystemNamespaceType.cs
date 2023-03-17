@@ -710,6 +710,17 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         static TypeSymbol GetRangeReturnElementType(TypeSymbol arg0Type, TypeSymbol arg1Type) => (arg0Type, arg1Type) switch
                         {
+                            (UnionType start, _) => TypeHelper.CreateTypeUnion(start.Members.Select(m => GetRangeReturnElementType(m.Type, arg1Type))) switch
+                            {
+                                TypeSymbol type when TypeCollapser.TryCollapse(type) is TypeSymbol collapsed => collapsed,
+                                TypeSymbol type => type,
+                            },
+                            (_, UnionType count) => TypeHelper.CreateTypeUnion(count.Members.Select(m => GetRangeReturnElementType(arg0Type, m.Type))) switch
+                            {
+                                TypeSymbol type when TypeCollapser.TryCollapse(type) is TypeSymbol collapsed => collapsed,
+                                TypeSymbol type => type,
+                            },
+
                             (IntegerLiteralType start, IntegerLiteralType count) => TypeFactory.CreateIntegerType(start.Value, start.Value + count.Value - 1),
                             (IntegerLiteralType start, IntegerType count) when count.MaxValue.HasValue => TypeFactory.CreateIntegerType(start.Value, start.Value + count.MaxValue.Value - 1),
                             (IntegerLiteralType start, _) => TypeFactory.CreateIntegerType(start.Value),
@@ -727,6 +738,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         {
                             IntegerLiteralType literal => (literal.Value, literal.Value),
                             IntegerType @int => (@int.MinValue, @int.MaxValue),
+                            TypeSymbol otherwise when tryCollapse && TypeCollapser.TryCollapse(otherwise) is TypeSymbol collapsed => GetRangeLengthBounds(collapsed, tryCollapse: false),
                             _ => (null, null),
                         };
 
