@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18101554483569597011"
+      "templateHash": "5275119469596650755"
     }
   },
   "parameters": {
@@ -396,11 +396,11 @@
       ]
     },
     {
-      "condition": "[and(parameters('aadJoin'), not(parameters('intune')))]",
       "copy": {
         "name": "vm_AADLoginForWindows",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
       },
+      "condition": "[and(parameters('aadJoin'), not(parameters('intune')))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2018-10-01",
       "name": "[format('{0}{1}/AADLoginForWindows', parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
@@ -416,11 +416,11 @@
       ]
     },
     {
-      "condition": "[and(parameters('aadJoin'), parameters('intune'))]",
       "copy": {
         "name": "vm_AADLoginForWindowsWithIntune",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
       },
+      "condition": "[and(parameters('aadJoin'), parameters('intune'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2018-10-01",
       "name": "[format('{0}{1}/AADLoginForWindowsWithIntune', parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
@@ -439,11 +439,11 @@
       ]
     },
     {
-      "condition": "[not(parameters('aadJoin'))]",
       "copy": {
         "name": "vm_joindomain",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
       },
+      "condition": "[not(parameters('aadJoin'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2018-10-01",
       "name": "[format('{0}{1}/joindomain', parameters('rdshPrefix'), add(range(0, parameters('rdshNumberOfInstances'))[copyIndex()], parameters('vmInitialNumber')))]",
@@ -470,7 +470,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "NSG-linkedTemplate",
       "properties": {
         "expressionEvaluationOptions": {
