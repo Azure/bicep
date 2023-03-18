@@ -13,6 +13,7 @@ import {
   MessageItem,
   ConfigurationTarget,
   ProgressLocation,
+  Position,
 } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
@@ -66,7 +67,6 @@ export class PasteAsBicepCommand implements Command {
 
       const document = await workspace.openTextDocument(documentUri);
       const editor = await window.showTextDocument(document);
-      clipboardText = await env.clipboard.readText();
 
       if (editor?.document.languageId !== bicepLanguageId) {
         throw new Error(
@@ -74,10 +74,47 @@ export class PasteAsBicepCommand implements Command {
         );
       }
 
+      clipboardText = await env.clipboard.readText();
+
+      let rangeStart =
+        documentUri.toString() === editor.document.uri.toString()
+          ? editor.document.offsetAt(editor.selection.active)
+          : editor.document.offsetAt(
+              new Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+            );
+      let rangeEnd =
+        documentUri.toString() === editor.document.uri.toString()
+          ? editor.document.offsetAt(editor.selection.anchor)
+          : editor.document.offsetAt(
+              new Position(Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)
+            );
+      if (rangeEnd < rangeStart) {
+        [rangeStart, rangeEnd] = [rangeEnd, rangeStart];
+      }
+
       const result = await this.callDecompileForPaste(
+        context,
+        documentUri,
+        document.getText(),
+        rangeStart,
+        rangeEnd - rangeStart,
         clipboardText,
         false /* queryCanPaste */
       );
+
+      context.telemetry.properties.pasteType = result.pasteType;
+
+      if (result.pasteContext === "string") {
+        throw new Error(
+          `Cannot paste JSON as Bicep inside of a string. First paste it outside of a string and then copy/paste into the string.`
+        );
+      }
+
+      if (!result.pasteType) {
+        throw new Error(
+          `The clipboard text does not appear to be valid JSON or is not in a format that can be pasted as Bicep.`
+        );
+      }
 
       if (!result.pasteType) {
         throw new Error(
@@ -94,7 +131,7 @@ export class PasteAsBicepCommand implements Command {
 
       finalPastedBicep = result.bicep;
       await editor.edit((builder) => {
-        builder.replace(editor.selection, result.bicep ?? "");
+        builder.replace(editor.selection, finalPastedBicep ?? "");
       });
     } catch (err) {
       getLogger().debug(
@@ -113,6 +150,11 @@ export class PasteAsBicepCommand implements Command {
   }
 
   private async callDecompileForPaste(
+    context: IActionContext,
+    uri: Uri,
+    bicepContent: string,
+    rangeOffset: number,
+    rangeLength: number,
     jsonContent: string,
     queryCanPaste: boolean
   ): Promise<BicepDecompileForPasteCommandResult> {
@@ -124,6 +166,10 @@ export class PasteAsBicepCommand implements Command {
       },
       async () => {
         const decompileParams: BicepDecompileForPasteCommandParams = {
+          uri: uri.fsPath,
+          bicepContent,
+          rangeOffset,
+          rangeLength,
           jsonContent,
           queryCanPaste,
         };
@@ -132,6 +178,13 @@ export class PasteAsBicepCommand implements Command {
             command: "decompileForPaste",
             arguments: [decompileParams],
           });
+
+        context.telemetry.properties.pasteType = decompileResult.pasteType;
+        context.telemetry.properties.pasteContext =
+          decompileResult.pasteContext;
+        context.telemetry.properties.decompileId = decompileResult.decompileId;
+        context.telemetry.properties.jsonSize = String(jsonContent.length);
+        context.telemetry.properties.queryCanPaste = String(queryCanPaste);
 
         return decompileResult;
       }
@@ -190,13 +243,31 @@ export class PasteAsBicepCommand implements Command {
             let finalPastedBicep: string | undefined;
 
             try {
+              // While we were awaiting async calls, the pasted text may have been formatted in the editor, get the new version
+              let formattedPastedText = getTextAfterFormattingChanges(
+                contentChange.text,
+                e.document.getText(),
+                contentChange.rangeOffset
+              );
+              if (!formattedPastedText) {
+                getLogger().debug(
+                  `${logPrefix}: Couldn't get pasted text after editor format`
+                );
+                return;
+              }
+
               // See if we can paste this text as Bicep
               const canPasteResult = await this.callDecompileForPaste(
+                context,
+                editor.document.uri,
+                editor.document.getText(),
+                contentChange.rangeOffset,
+                formattedPastedText.length,
                 clipboardText,
                 true // queryCanPaste
               );
               if (!canPasteResult.pasteType) {
-                // Nothing we know how to convert
+                // Nothing we know how to convert, or pasting is not allowed in this context
                 getLogger().debug(`${logPrefix}: pasteType empty`);
                 return;
               }
@@ -232,8 +303,7 @@ export class PasteAsBicepCommand implements Command {
                 canPasteResult.bicep.length
               );
 
-              // While we were awaiting async calls, the pasted text may have been formatted in the editor, get the new version
-              const formattedPastedText = getTextAfterFormattingChanges(
+              formattedPastedText = getTextAfterFormattingChanges(
                 contentChange.text,
                 e.document.getText(),
                 contentChange.rangeOffset
@@ -245,7 +315,6 @@ export class PasteAsBicepCommand implements Command {
                 return;
               }
               if (
-                !formattedPastedText ||
                 !areEqualIgnoringWhitespace(formattedPastedText, clipboardText)
               ) {
                 // Some other editor change must have happened, abort the conversion to Bicep
