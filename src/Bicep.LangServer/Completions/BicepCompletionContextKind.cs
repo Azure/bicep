@@ -204,6 +204,6 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location can accept a symbolic reference to a resource.
         /// </summary>
-        ResourceDependsOnSymbolicReference = 1UL << 37
+        ExpectsResourceSymbolicReference = 1UL << 37
     }
 }

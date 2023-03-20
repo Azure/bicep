@@ -881,7 +881,7 @@ namespace Bicep.LanguageServer.Completions
         {
             // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
             // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceDependsOnSymbolicReference)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference)
                 && symbol is ResourceSymbol or ModuleSymbol)
             {
                 return CompletionPriority.VeryHigh;
@@ -899,7 +899,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // For nested resource/module symbol completions, don't suggest parent or child symbols for resource.dependsOn symbol completions.
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceDependsOnSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
             {
                 // filter out parent resource symbols of the enclosing declaration symbol
                 var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
