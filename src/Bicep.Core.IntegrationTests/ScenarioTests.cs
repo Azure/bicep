@@ -143,8 +143,8 @@ output vnetstate string = vnet.properties.provisioningState
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
-            result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-10-01').outputs.vnetId.value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-10-01').outputs.vnetstate.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2022-09-01').outputs.vnetId.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2022-09-01').outputs.vnetstate.value]");
         }
 
         [TestMethod]
@@ -922,7 +922,7 @@ output test string = 'hello'
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['fooName'].value", "[format('{0}-test', parameters('someParam'))]");
-            result.Template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2020-10-01').outputs.test.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2022-09-01').outputs.test.value]");
         }
 
         [TestMethod]
@@ -3688,7 +3688,7 @@ var providersTest = providers('Microsoft.Resources').namespace
 var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
 ").ExcludingLinterDiagnostics();
 
-            result.Should().HaveDiagnostics(new [] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
                 ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
             });
@@ -3910,7 +3910,7 @@ var value = (useFirst ? test1 : test2).tata
 ").ExcludingLinterDiagnostics();
 
             result.Should().NotHaveAnyDiagnostics();
-       }
+        }
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/6863

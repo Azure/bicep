@@ -465,7 +465,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""12622870383828628423""
+      ""templateHash"": ""13432420222306620637""
     }
   },
   ""parameters"": {
@@ -486,7 +486,7 @@ Hello from Bicep!"));
     },
     ""website"": {
       ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2020-10-01"",
+      ""apiVersion"": ""2022-09-01"",
       ""name"": ""website"",
       ""properties"": {
         ""expressionEvaluationOptions"": {
