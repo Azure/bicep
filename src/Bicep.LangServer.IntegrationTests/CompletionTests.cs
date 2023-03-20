@@ -2466,9 +2466,70 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
             completions.Should().Contain(c => c.Label == "aModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aModule");
             completions.Should().Contain(c => c.Label == "storageArr" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_storageArr");
-            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
-            completions.Should().Contain(c => c.Label == "paramObj" && c.SortText == $"{(int)CompletionPriority.Medium}_paramObj");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_notAResource");
+            completions.Should().Contain(c => c.Label == "paramObj" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_paramObj");
             completions.Should().NotContain(c => c.Label == "foo");
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_NestedResources()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            string mainContent = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+param paramArr array = []
+var notAResource = 'I\'m a string!'
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  dependsOn: [
+    |
+  ]
+  resource fooChild 'fileServices' = {
+    name: 'fooChild'
+    dependsOn: [
+      |
+    ]
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(2);
+            foreach (var completions in allCompletions)
+            {
+                completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+                completions.Should().Contain(c => c.Label == "notAResource" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_notAResource");
+                completions.Should().Contain(c => c.Label == "paramArr" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_paramArr");
+                completions.Should().NotContain(c => c.Label == "foo");
+                completions.Should().NotContain(c => c.Label == "fooChild");
+            }
         }
 
         [TestMethod]
@@ -2552,7 +2613,7 @@ module aModule 'mod.bicep' = {
 
             completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
             completions.Should().Contain(c => c.Label == "bModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_bModule");
-            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_notAResource");
             completions.Should().NotContain(c => c.Label == "aModule");
         }
 
