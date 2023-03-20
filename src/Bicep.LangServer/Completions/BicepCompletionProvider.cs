@@ -890,6 +890,37 @@ namespace Bicep.LanguageServer.Completions
             return GetCompletionPriority(symbol);
         }
 
+        private static bool ShouldSymbolBeIncludedInCompletion(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
+        {
+            // filter out self references
+            if (enclosingDeclarationSymbol != null && ReferenceEquals(symbol, enclosingDeclarationSymbol))
+            {
+                return false;
+            }
+
+            // For nested resource/module symbol completions, don't suggest parent or child symbols for resource.dependsOn symbol completions.
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceDependsOnSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
+            {
+                // filter out parent resource symbols of the enclosing declaration symbol
+                var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
+                if (enclosingResourceMetadata != null
+                    && model.ResourceAncestors.GetAncestors(enclosingResourceMetadata).Any(ra => ra.Resource.Symbol == symbol))
+                {
+                    return false;
+                }
+
+                // filter out child resource symbols of the enclosing declaration symbol
+                var symbolResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == symbol);
+                if (symbolResourceMetadata != null
+                    && model.ResourceAncestors.GetAncestors(symbolResourceMetadata).Any(ra => ra.Resource.Symbol == enclosingDeclarationSymbol))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // maps insert text to the completion item
@@ -908,7 +939,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var symbol in symbols)
                 {
-                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol))
+                    if (!result.ContainsKey(symbol.Name) && ShouldSymbolBeIncludedInCompletion(symbol, model, context, enclosingDeclarationSymbol))
                     {
                         // the symbol satisfies the following conditions:
                         // - we have not added a symbol with the same name (avoids duplicate completions)

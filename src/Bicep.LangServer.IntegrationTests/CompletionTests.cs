@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -2474,14 +2475,6 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         [TestMethod]
         public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_NestedResources()
         {
-            var moduleContent = @"
-@description('input that you want multiplied by 3')
-param input int = 2
-
-@description('input multiplied by 3')
-output inputTimesThree int = input * 3
-";
-
             string mainContent = @"
 resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'bar'
@@ -2493,43 +2486,70 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   dependsOn: [
     |
   ]
-  resource fooChild 'fileServices' = {
-    name: 'fooChild'
+
+  resource fooChild1 'fileServices' = {
+    name: 'fooChild1'
     dependsOn: [
       |
     ]
+
+    resource fooChild1Child1 'shares' = {
+      name: 'fooChild1Child1'
+      dependsOn: [
+        |
+      ]
+    }
+  }
+
+  resource fooChild2 'fileServices' = {
+    name: 'fooChild2'
+    dependsOn: [
+      |
+    ]
+
+    resource fooChild2Child1 'shares' = {
+      name: 'fooChild2Child1'
+      dependsOn: [
+        |
+      ]
+    }
   }
 }
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///mod.bicep")] = moduleContent,
-                [mainUri] = text
-            };
-
-            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(
-                this.TestContext,
-                files,
-                bicepFile.FileUri,
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
-            );
-
-            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
             var allCompletions = await file.RequestCompletions(cursors);
 
-            allCompletions.Should().HaveCount(2);
+            allCompletions.Should().HaveCount(5);
+
             foreach (var completions in allCompletions)
             {
                 completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
-                completions.Should().Contain(c => c.Label == "notAResource" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_notAResource");
-                completions.Should().Contain(c => c.Label == "paramArr" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_paramArr");
                 completions.Should().NotContain(c => c.Label == "foo");
-                completions.Should().NotContain(c => c.Label == "fooChild");
             }
+
+            var fooChild1DependsOnCompletions = allCompletions[1];
+            fooChild1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild2");
+            fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1");
+            fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
+            fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
+
+            var fooChild1Child1DependsOnCompletions = allCompletions[2];
+            fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild2");
+            fooChild1Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1");
+            fooChild1Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
+
+            var fooChild2DependsOnCompletions = allCompletions[3];
+            fooChild2DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild1");
+            fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2");
+            fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
+            fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
+
+            var fooChild2Child1DependsOnCompletions = allCompletions[4];
+            fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild1");
+            fooChild2Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2");
+            fooChild2Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
         }
 
         [TestMethod]
