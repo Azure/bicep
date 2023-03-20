@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public static class SyntaxModifier
+public class SyntaxModifier
 {
     public static ObjectSyntax? TryUpdatePropertyValue(ObjectSyntax @object, string key, Func<SyntaxBase, SyntaxBase> updateFunc)
     {
@@ -26,12 +27,12 @@ public static class SyntaxModifier
             @object.CloseBrace);
     }
 
-    public static ObjectSyntax? TryAddProperty(ObjectSyntax @object, ObjectPropertySyntax newProperty, int? atIndex = null)
-        => TryAddProperties(@object, newProperty.AsEnumerable(), atIndex);
+    public static ObjectSyntax? TryAddProperty(ObjectSyntax @object, ObjectPropertySyntax newProperty, IDiagnosticLookup parsingErrorLookup, int? atIndex = null)
+        => TryAddProperties(@object, newProperty.AsEnumerable(), parsingErrorLookup, atIndex);
 
-    public static ObjectSyntax? TryAddProperties(ObjectSyntax @object, IEnumerable<ObjectPropertySyntax> newProperties, int? atIndex = null)
+    public static ObjectSyntax? TryAddProperties(ObjectSyntax @object, IEnumerable<ObjectPropertySyntax> newProperties, IDiagnosticLookup parsingErrorLookup, int? atIndex = null)
     {
-        if (@object.HasParseErrors())
+        if (parsingErrorLookup.Contains(@object))
         {
             return null;
         }
@@ -74,9 +75,9 @@ public static class SyntaxModifier
         return new ObjectSyntax(@object.OpenBrace, CollapseLeadingAndTrailingNewlines(newChildren), @object.CloseBrace);
     }
 
-    public static ObjectSyntax? TryRemoveProperty(ObjectSyntax @object, ObjectPropertySyntax property)
+    public static ObjectSyntax? TryRemoveProperty(ObjectSyntax @object, ObjectPropertySyntax property, IDiagnosticLookup parsingErrorLookup)
     {
-        if (@object.HasParseErrors())
+        if (parsingErrorLookup.Contains(@object))
         {
             return null;
         }
@@ -103,9 +104,9 @@ public static class SyntaxModifier
         return new(@object.OpenBrace, CollapseLeadingAndTrailingNewlines(newChildren), @object.CloseBrace);
     }
 
-    public static ArraySyntax? TryRemoveItem(ArraySyntax array, ArrayItemSyntax item)
+    public static ArraySyntax? TryRemoveItem(ArraySyntax array, ArrayItemSyntax item, IDiagnosticLookup parsingErrorLookup)
     {
-        if (array.HasParseErrors())
+        if (parsingErrorLookup.Contains(array))
         {
             return null;
         }

@@ -78,13 +78,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             Debug.Assert(artifactsSasParam is not null);
 
             // RULE: _artifactsLocation must be a string.
-            if (VerifyParameterType(diagnosticLevel, artifactsLocationParam, LanguageConstants.TypeNameString) is IDiagnostic diagnosticLocType)
+            if (VerifyParameterType(model, diagnosticLevel, artifactsLocationParam, LanguageConstants.TypeNameString) is IDiagnostic diagnosticLocType)
             {
                 yield return diagnosticLocType;
             }
 
             // RULE: _artifactsLocationSasToken must be a secure string.
-            if (VerifyParameterType(diagnosticLevel, artifactsSasParam, LanguageConstants.TypeNameString) is IDiagnostic diagnosticSasType)
+            if (VerifyParameterType(model, diagnosticLevel, artifactsSasParam, LanguageConstants.TypeNameString) is IDiagnostic diagnosticSasType)
             {
                 yield return diagnosticSasType;
             }
@@ -218,12 +218,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private static string? GetParameterType(ParameterSymbol parameterSymbol)
+        private static string? GetParameterType(SemanticModel model, ParameterSymbol parameterSymbol)
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
                && parameterDeclaration.Type is VariableAccessSyntax typeSyntax)
             {
-                if (typeSyntax.HasParseErrors())
+                if (model.HasParsingError(typeSyntax))
                 {
                     return null;
                 }
@@ -234,9 +234,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private IDiagnostic? VerifyParameterType(DiagnosticLevel diagnosticLevel, ParameterSymbol parameter, string expectedTypeName)
+        private IDiagnostic? VerifyParameterType(SemanticModel model, DiagnosticLevel diagnosticLevel, ParameterSymbol parameter, string expectedTypeName)
         {
-            if (GetParameterType(parameter) is string paramType
+            if (GetParameterType(model, parameter) is string paramType
                && paramType != expectedTypeName)
             {
                 return CreateFixableDiagnosticForSpan(

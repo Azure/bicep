@@ -1406,6 +1406,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     TypeValidator.NarrowTypeAndCollectDiagnostics(
                         typeManager,
                         binder,
+                        binder.FileSymbol.Syntax.ParsingErrorLookup,
                         diagnosticWriter,
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
@@ -1454,7 +1455,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) =>
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, binder.FileSymbol.Syntax.ParsingErrorLookup, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleParameterSelector))
                 .Build();
 

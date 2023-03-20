@@ -45,7 +45,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
             }
 
             if (TryGetReplacementChildName(model, childName) is {} info &&
-                TryCreateDiagnostic(diagnosticLevel, info.parent, resource, info.name) is {} nameDiagnostic)
+                TryCreateDiagnostic(model, diagnosticLevel, info.parent, resource, info.name) is {} nameDiagnostic)
             {
                 yield return nameDiagnostic;
                 continue;
@@ -60,7 +60,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
                 if (!parentResource.Symbol.IsCollection &&
                     parentResource.TryGetNameSyntax() is {} parentNameSyntax &&
                     TryGetReplacementChildName(model, parentNameSyntax, childName) is {} replacement &&
-                    TryCreateDiagnostic(diagnosticLevel, parentResource, resource, replacement) is {} diagnostic)
+                    TryCreateDiagnostic(model, diagnosticLevel, parentResource, resource, replacement) is {} diagnostic)
                 {
                     yield return diagnostic;
                     break;
@@ -177,7 +177,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
         return null;
     }
 
-    private IDiagnostic? TryCreateDiagnostic(DiagnosticLevel diagnosticLevel, DeclaredResourceMetadata parentResource, DeclaredResourceMetadata childResource, SyntaxBase replacementName)
+    private IDiagnostic? TryCreateDiagnostic(SemanticModel model, DiagnosticLevel diagnosticLevel, DeclaredResourceMetadata parentResource, DeclaredResourceMetadata childResource, SyntaxBase replacementName)
     {
         if (childResource.Symbol.DeclaringResource.TryGetBody() is not {} body ||
             body.TryGetPropertyByName("name") is not {} nameProp)
@@ -190,6 +190,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
             SyntaxFactory.CreateObjectProperty(
                 "parent",
                 SyntaxFactory.CreateIdentifier(parentResource.Symbol.NameIdentifier.IdentifierName)),
+            model.ParsingErrorLookup,
             atIndex: body.Properties.IndexOf(x => x == nameProp));
         if (updatedBody is null)
         {

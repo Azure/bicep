@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Parsing
             {
                 var becauseFileValid = $"{file} is considered valid";
                 var program = ParserHelper.Parse(file);
-                program.GetParseDiagnostics().Should().BeEmpty(becauseFileValid);
+                program.ParsingErrorLookup.Should().BeEmpty(becauseFileValid);
                 program.Declarations.Should().HaveCount(statementCount, becauseFileValid);
                 program.Declarations.Should().AllBeOfType(expectedType, becauseFileValid);
             }
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Parsing
             foreach (var file in invalidFiles)
             {
                 var program = ParserHelper.Parse(file);
-                program.GetParseDiagnostics().Should().NotBeEmpty();
+                program.ParsingErrorLookup.Should().NotBeEmpty();
             }
         }
 
@@ -169,8 +169,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void UnaryOperatorsCannotBeChained(string text)
         {
             var expression = ParseAndVerifyType<UnaryOperationSyntax>(text);
-            expression.Expression.Should().BeOfType<SkippedTriviaSyntax>()
-                .Which.Diagnostics.Single().Message.Should().Be("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
+            expression.Expression.Should().BeOfType<SkippedTriviaSyntax>();
         }
 
         [DataTestMethod]
@@ -482,9 +481,8 @@ type multilineUnion = 'a'
             where TSyntax : SyntaxBase
         {
             var expression = ParserHelper.ParseExpression(text);
-            expression.Should().BeOfType<TSyntax>();
 
-            return (TSyntax)expression;
+            return expression.Should().BeOfType<TSyntax>().Subject;
         }
 
         private static string SerializeExpressionWithExtraParentheses(SyntaxBase expression)

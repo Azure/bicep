@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param para1 =   'value
+param para1 = 'value
 
 para
 

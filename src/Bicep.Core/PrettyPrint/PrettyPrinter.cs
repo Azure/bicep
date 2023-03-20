@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Syntax;
@@ -22,7 +23,7 @@ namespace Bicep.Core.PrettyPrint
                 _ => InferNewline(programSyntax)
             };
 
-            var documentBuildVisitor = new DocumentBuildVisitor();
+            var documentBuildVisitor = new DocumentBuildVisitor(programSyntax.LexingErrorLookup, programSyntax.ParsingErrorLookup);
             var sb = new StringBuilder();
 
             var document = documentBuildVisitor.BuildDocument(programSyntax);
@@ -36,12 +37,12 @@ namespace Bicep.Core.PrettyPrint
             return sb.ToString();
         }
 
-        public static string PrintSyntax(SyntaxBase syntax, PrettyPrintOptions options)
+        public static string PrintSyntax(SyntaxBase syntax, PrettyPrintOptions options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             string indent = options.IndentKindOption == IndentKindOption.Space ? new string(' ', options.IndentSize) : "\t";
 
             var sb = new StringBuilder();
-            var documentBuildVisitor = new DocumentBuildVisitor();
+            var documentBuildVisitor = new DocumentBuildVisitor(lexingErrorLookup, parsingErrorLookup);
 
             var document = documentBuildVisitor.BuildDocument(syntax);
             document.Layout(sb, indent, Environment.NewLine);

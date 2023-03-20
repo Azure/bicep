@@ -102,8 +102,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var program = new ProgramSyntax(
                 declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
-                SyntaxFactory.CreateToken(TokenType.EndOfFile, ""),
-                Enumerable.Empty<IDiagnostic>());
+                SyntaxFactory.CreateToken(TokenType.EndOfFile, ""));
 
             return PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
         }

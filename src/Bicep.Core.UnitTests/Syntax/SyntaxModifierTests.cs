@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
@@ -114,7 +115,7 @@ var adsf = [
 
                 return CallbackRewriter.Rewrite(
                     program,
-                    node => node == array && SyntaxModifier.TryRemoveItem(array, item) is {} newArray ? newArray : node);
+                    node => node == array && SyntaxModifier.TryRemoveItem(array, item, program.ParsingErrorLookup) is {} newArray ? newArray : node);
             });
 
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
@@ -196,7 +197,7 @@ var adsf = {
 
                 return CallbackRewriter.Rewrite(
                     program,
-                    node => node == @object && SyntaxModifier.TryRemoveProperty(@object, property) is {} newObject ? newObject : node);
+                    node => node == @object && SyntaxModifier.TryRemoveProperty(@object, property, program.ParsingErrorLookup) is {} newObject ? newObject : node);
             });
 
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
@@ -268,8 +269,8 @@ var adsf = {
                 return CallbackRewriter.Rewrite(
                     program,
                     node => (node == @object &&
-                      SyntaxModifier.TryAddProperty(@object, startProp, prevIndex) is {} newObject &&
-                      SyntaxModifier.TryAddProperty(newObject, endProp, prevIndex + 2) is {} newObject2)
+                      SyntaxModifier.TryAddProperty(@object, startProp, program.ParsingErrorLookup, prevIndex) is {} newObject &&
+                      SyntaxModifier.TryAddProperty(newObject, endProp, program.ParsingErrorLookup, prevIndex + 2) is {} newObject2)
                       ? newObject2 : node);
             });
 

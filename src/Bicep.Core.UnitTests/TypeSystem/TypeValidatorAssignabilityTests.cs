@@ -7,12 +7,14 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -222,13 +224,16 @@ namespace Bicep.Core.UnitTests.TypeSystem
             typeManagerMock.Setup(t => t.GetTypeInfo(expression))
                 .Returns(sourceType);
 
-            var binderMock = new Mock<IBinder>(MockBehavior.Strict);
+            var binderMock = StrictMock.Of<IBinder>();
             binderMock.Setup(t => t.GetSymbolInfo(expression))
                 .Returns<Symbol?>(null);
 
+            var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
+            parsingErrorLookupMock.Setup(x => x.Contains(expression)).Returns(false);
+
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManagerMock.Object, binderMock.Object, diagnosticWriter, expression, targetType);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManagerMock.Object, binderMock.Object, parsingErrorLookupMock.Object, diagnosticWriter, expression, targetType);
 
             var diagnostics = diagnosticWriter.GetDiagnostics();
             diagnostics.Should().HaveCount(expectedDiagnostics.Length);
@@ -622,13 +627,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
-                TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a")),
-                TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
+                TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("a")),
             });
 
             var hierarchy = SyntaxHierarchy.Build(obj);
+            var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
+            parsingErrorLookupMock.Setup(x => x.Contains(obj))
+                .Returns(true);
 
-            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType(), parsingErrorLookupMock.Object);
 
             diagnostics.Should().BeEmpty();
         }
@@ -659,19 +666,24 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void WrongTypeOfAdditionalPropertiesWithParseErrorsShouldProduceNoErrors()
         {
+            var tags = TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
+            }));
+
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
-                TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
-                {
-                    TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
-                    TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateInt(3))
-                }))
+                tags,
             });
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
-            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
+            var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
+            parsingErrorLookupMock.Setup(x => x.Contains(It.IsAny<SyntaxBase>())).Returns(
+                (SyntaxBase syntax) => syntax == tags.Value);
+
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType(), parsingErrorLookupMock.Object);
 
             diagnostics.Should().BeEmpty();
         }
@@ -923,7 +935,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("DuplicatedObjectProperties", TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateInt(444)),
-                TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("str value")),
+                TestSyntaxFactory.CreateProperty("bar", TestSyntaxFactory.CreateString("str value")),
             }));
         }
 
@@ -936,22 +948,25 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
-        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
+        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType, IDiagnosticLookup? parsingErrorLookup = null)
         {
-            var binderMock = new Mock<IBinder>(MockBehavior.Strict);
+            var binderMock = StrictMock.Of<IBinder>();
             binderMock
                 .Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
-            var fileResolverMock = new Mock<IFileResolver>(MockBehavior.Strict);
+
+            var fileResolverMock = StrictMock.Of<IFileResolver>();
 
             binderMock
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, Core.Workspaces.BicepSourceFileKind.BicepFile);
+            parsingErrorLookup ??= new DiagnosticTree();
+
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, parsingErrorLookup, Core.Workspaces.BicepSourceFileKind.BicepFile);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);
+            var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, parsingErrorLookup, diagnosticWriter, expression, targetType);
 
             return (result, diagnosticWriter.GetDiagnostics().ToList());
         }

@@ -45,7 +45,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<BicepFileAssertions> NotHaveParseErrors(string because = "", params object[] becauseArgs)
         {
-            Subject.ProgramSyntax.GetParseDiagnostics().Should().NotContain(d => d.Level == DiagnosticLevel.Error, because, becauseArgs);
+            Subject.ProgramSyntax.ParsingErrorLookup.Should().NotContain(d => d.Level == DiagnosticLevel.Error, because, becauseArgs);
 
             return new AndConstraint<BicepFileAssertions>(this);
         }

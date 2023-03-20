@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Semantics
 {
@@ -42,6 +45,28 @@ namespace Bicep.Core.Semantics
         {
             base.VisitFileSymbol(symbol);
             this.CollectDiagnostics(symbol);
+
+            // find duplicate target scope declarations
+            var targetScopeSyntaxes = symbol.Syntax.Children.OfType<TargetScopeSyntax>().ToImmutableArray();
+
+            if (targetScopeSyntaxes.Length > 1)
+            {
+                foreach (var targetScope in targetScopeSyntaxes)
+                {
+                    this.diagnosticWriter.Write(targetScope.Keyword, x => x.TargetScopeMultipleDeclarations());
+                }
+            }
+
+            // find duplicate using declarations
+            var usingSyntaxes = symbol.Syntax.Children.OfType<UsingDeclarationSyntax>().ToImmutableArray();
+
+            if (usingSyntaxes.Length > 1)
+            {
+                foreach (var declaration in usingSyntaxes)
+                {
+                    this.diagnosticWriter.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
+                }
+            }
         }
 
         public override void VisitVariableSymbol(VariableSymbol symbol)

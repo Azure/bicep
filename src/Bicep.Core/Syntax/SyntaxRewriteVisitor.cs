@@ -569,7 +569,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ProgramSyntax(children, endOfFile, Enumerable.Empty<IDiagnostic>());
+            return new ProgramSyntax(children, endOfFile);
         }
         void ISyntaxVisitor.VisitProgramSyntax(ProgramSyntax syntax) => ReplaceCurrent(syntax, ReplaceProgramSyntax);
 
@@ -608,7 +608,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements, Enumerable.Empty<IDiagnostic>());
+            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements);
         }
         void ISyntaxVisitor.VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax) => ReplaceCurrent(syntax, ReplaceSkippedTriviaSyntax);
 

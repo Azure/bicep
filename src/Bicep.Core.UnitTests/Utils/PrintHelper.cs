@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Utils
             var asString = PrettyPrinter.PrintProgram(programSyntax, DefaultOptions);
 
             var parsed = ParserHelper.Parse(asString);
-            parsed.GetParseDiagnostics().Should().BeEmpty();
+            parsed.ParsingErrorLookup.Should().BeEmpty();
 
             return asString;
         }
