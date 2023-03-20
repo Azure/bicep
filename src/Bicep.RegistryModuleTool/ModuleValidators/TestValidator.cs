@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 namespace Bicep.RegistryModuleTool.ModuleValidators
 {
@@ -58,10 +59,10 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
             this.logger.LogInformation("Making sure the test file contains at least one test...");
 
             using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
-            var testTemplateElement = JsonElementFactory.CreateElementFromStream(tempFileStream);
-            var testDeployments = testTemplateElement.Select($@"$..resources[?(@.type == ""Microsoft.Resources/deployments"" && @.properties.template.metadata._generator.templateHash == ""{this.latestMainArmTemplateFile.TemplateHash}"")]");
+            var testTemplateNode = JsonNode.Parse(tempFileStream);
+            var testDeployments = testTemplateNode?.Select($@"$..resources[?(@.type == ""Microsoft.Resources/deployments"" && @.properties.template.metadata._generator.templateHash == ""{this.latestMainArmTemplateFile.TemplateHash}"")]");
 
-            if (testDeployments.IsEmpty())
+            if (testDeployments is null || testDeployments.IsEmpty())
             {
                 throw new InvalidModuleException($"The file \"{file.Path}\" is invalid. Could not find tests in the file. Please make sure to add at least one module referencing the main Bicep file.");
             }
