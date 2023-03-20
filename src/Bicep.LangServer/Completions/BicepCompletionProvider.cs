@@ -879,6 +879,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, BicepCompletionContext context)
         {
+            // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
+            // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceDependsOnSymbolicReference)
                 && symbol is ResourceSymbol or ModuleSymbol)
             {
