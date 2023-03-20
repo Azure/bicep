@@ -139,7 +139,7 @@ public class BicepDecompiler
 
     private static string PrintSyntax(SyntaxBase syntax)
     {
-        return PrettyPrinter.PrintSyntax(syntax, GetPrettyPrintOptions(), new DiagnosticTree(), new DiagnosticTree());
+        return PrettyPrinter.PrintSyntax(syntax, GetPrettyPrintOptions(), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
     }
 
     private static PrettyPrintOptions GetPrettyPrintOptions() => new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);

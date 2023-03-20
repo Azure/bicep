@@ -12,7 +12,7 @@ namespace Bicep.Core.Syntax
     public class ProgramSyntax : SyntaxBase
     {
         public ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile)
-            : this(children, endOfFile, new DiagnosticTree(), new DiagnosticTree())
+            : this(children, endOfFile, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance)
         {
         }
 

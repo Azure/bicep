@@ -50,6 +50,11 @@ namespace Bicep.Core.PrettyPrint
 
         private ILinkedDocument? LeadingDirectiveOrComments = null;
 
+        public DocumentBuildVisitor()
+            : this(EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance)
+        {
+        }
+
         public DocumentBuildVisitor(IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             this.lexingErrorLookup = lexingErrorLookup;

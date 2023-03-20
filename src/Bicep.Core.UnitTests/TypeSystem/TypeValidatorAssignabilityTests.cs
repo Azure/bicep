@@ -961,7 +961,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            parsingErrorLookup ??= new DiagnosticTree();
+            parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
             var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, parsingErrorLookup, Core.Workspaces.BicepSourceFileKind.BicepFile);
 
