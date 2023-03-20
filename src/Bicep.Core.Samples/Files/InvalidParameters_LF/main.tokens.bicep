@@ -1094,17 +1094,17 @@ param duplicateDecorators string
 //@[026:032) Identifier |string|
 //@[032:034) NewLine |\n\n|
 
-@minLength(-1)
+@maxLength(-1)
 //@[000:001) At |@|
-//@[001:010) Identifier |minLength|
+//@[001:010) Identifier |maxLength|
 //@[010:011) LeftParen |(|
 //@[011:012) Minus |-|
 //@[012:013) Integer |1|
 //@[013:014) RightParen |)|
 //@[014:015) NewLine |\n|
-@maxLength(-100)
+@minLength(-100)
 //@[000:001) At |@|
-//@[001:010) Identifier |maxLength|
+//@[001:010) Identifier |minLength|
 //@[010:011) LeftParen |(|
 //@[011:012) Minus |-|
 //@[012:015) Integer |100|

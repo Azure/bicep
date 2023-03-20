@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1317) ProgramExpression
+//@[00:1534) ProgramExpression
 @sealed()
 type foo = {
   @minLength(3)
@@ -73,6 +73,10 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 param paramUsingType mixedArray
 //@[00:0031) ├─DeclaredParameterExpression { Name = paramUsingType }
 
+output outputUsingType mixedArray = paramUsingType
+//@[00:0050) ├─DeclaredOutputExpression { Name = outputUsingType }
+//@[36:0050) | └─ParametersReferenceExpression { Parameter = paramUsingType }
+
 type tuple = [
     @description('A leading string')
     string
@@ -85,16 +89,35 @@ type stringStringDictionary = {
     *: string
 }
 
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[00:0048) ├─DeclaredParameterExpression { Name = mightIncludeNull }
 
-var maybeNull = mightIncludeNull[0]!.key
-//@[00:0040) └─DeclaredVariableExpression { Name = maybeNull }
-//@[16:0040)   └─AccessChainExpression
-//@[16:0035)     ├─ArrayAccessExpression
-//@[33:0034)     | ├─IntegerLiteralExpression { Value = 0 }
-//@[16:0032)     | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
-//@[37:0040)     └─StringLiteralExpression { Value = key }
+var nonNull = mightIncludeNull[0]!.key
+//@[00:0038) ├─DeclaredVariableExpression { Name = nonNull }
+//@[14:0038) | └─AccessChainExpression
+//@[14:0033) |   ├─ArrayAccessExpression
+//@[31:0032) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[14:0030) |   | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+//@[35:0038) |   └─StringLiteralExpression { Value = key }
+
+output nonNull string = nonNull
+//@[00:0031) ├─DeclaredOutputExpression { Name = nonNull }
+//@[24:0031) | └─VariableReferenceExpression { Variable = nonNull }
+
+var maybeNull = mightIncludeNull[0].?key
+//@[00:0040) ├─DeclaredVariableExpression { Name = maybeNull }
+//@[16:0040) | └─PropertyAccessExpression { PropertyName = key }
+//@[16:0035) |   └─ArrayAccessExpression
+//@[33:0034) |     ├─IntegerLiteralExpression { Value = 0 }
+//@[16:0032) |     └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+
+output maybeNull string? = maybeNull
+//@[00:0036) └─DeclaredOutputExpression { Name = maybeNull }
+//@[27:0036)   └─VariableReferenceExpression { Variable = maybeNull }
 
 type nullable = string?
 

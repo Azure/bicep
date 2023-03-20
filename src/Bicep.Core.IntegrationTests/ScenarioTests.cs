@@ -790,7 +790,7 @@ output xx = x
             result.Template.Should().NotHaveValue();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP146", DiagnosticLevel.Error, "Expected an output type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+                ("BCP279", DiagnosticLevel.Error, "Expected a type at this location. Please specify a valid type expression or one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
             });
         }
 

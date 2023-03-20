@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem.K8s
             {
                 case ObjectType bodyObjectType:
                     if (bodyObjectType.Properties.TryGetValue(NamePropertyName, out var nameProperty) &&
-                        nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString })
+                        nameProperty.TypeReference.Type is not StringType)
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').

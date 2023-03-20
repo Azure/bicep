@@ -101,8 +101,7 @@ resource storageaccountname 'microsoft.storage/storageaccounts@2019-06-01' = {
     name: storageAccountType
   }
   kind: 'storagev2'
-  properties: {
-  }
+  properties: {}
 }
 
 module deployFlowLogs './nested_deployFlowLogs.bicep' = if (true) {

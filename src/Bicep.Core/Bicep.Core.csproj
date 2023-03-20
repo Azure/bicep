@@ -31,17 +31,18 @@
     <PackageReference Include="JsonPatch.Net" Version="2.0.4" />
     <PackageReference Include="JsonPath.Net" Version="0.2.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.839" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.839" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.839" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.872" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.872" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.872" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.3.99" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.364" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
-    <PackageReference Include="System.IO.Abstractions" Version="19.1.18" />
+    <PackageReference Include="System.IO.Abstractions" Version="19.2.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.31" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>

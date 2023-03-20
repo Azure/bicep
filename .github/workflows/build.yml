@@ -211,7 +211,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Show extension logs of E2E tests
-        run: cat ./bicep.log
+        run: cat ./bicep-e2e.log
         if: always()
         working-directory: ./src/vscode-bicep
 

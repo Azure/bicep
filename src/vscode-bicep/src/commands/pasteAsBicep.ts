@@ -20,6 +20,7 @@ import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
+  parseError,
 } from "@microsoft/vscode-azext-utils";
 import { areEqualIgnoringWhitespace } from "../utils/areEqualIgnoringWhitespace";
 import { getTextAfterFormattingChanges } from "../utils/getTextAfterFormattingChanges";
@@ -34,6 +35,7 @@ import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
 import { Disposable } from "../utils/disposable";
 import { isEmptyOrWhitespace } from "../utils/isEmptyOrWhitespace";
 import { withProgressAfterDelay } from "../utils/withProgressAfterDelay";
+import { getLogger } from "../utils/logger";
 
 export class PasteAsBicepCommand implements Command {
   public readonly id = "bicep.pasteAsBicep";
@@ -51,41 +53,57 @@ export class PasteAsBicepCommand implements Command {
     context: IActionContext,
     documentUri?: Uri
   ): Promise<void> {
-    documentUri = await findOrCreateActiveBicepFile(
-      context,
-      documentUri,
-      "Choose which Bicep file to paste into"
-    );
+    const logPrefix = "PasteAsBicep (command)";
+    let clipboardText: string | undefined;
+    let finalPastedBicep: string | undefined;
 
-    const document = await workspace.openTextDocument(documentUri);
-    const editor = await window.showTextDocument(document);
-    const clipboardText = await env.clipboard.readText();
-
-    if (editor?.document.languageId !== bicepLanguageId) {
-      return;
-    }
-
-    const result = await this.callDecompileForPaste(
-      clipboardText,
-      false /* queryCanPaste */
-    );
-
-    if (!result.pasteType) {
-      throw new Error(
-        `The clipboard text does not appear to be valid JSON or is not in a format that can be pasted as Bicep.`
+    try {
+      documentUri = await findOrCreateActiveBicepFile(
+        context,
+        documentUri,
+        "Choose which Bicep file to paste into"
       );
-    }
 
-    if (result.errorMessage) {
-      context.errorHandling.issueProperties.clipboardText = clipboardText;
-      throw new Error(
-        `Could not paste clipboard text as Bicep: ${result.errorMessage}`
+      const document = await workspace.openTextDocument(documentUri);
+      const editor = await window.showTextDocument(document);
+      clipboardText = await env.clipboard.readText();
+
+      if (editor?.document.languageId !== bicepLanguageId) {
+        throw new Error(
+          "Cannot paste as Bicep: Editor is not editing a Bicep document."
+        );
+      }
+
+      const result = await this.callDecompileForPaste(
+        clipboardText,
+        false /* queryCanPaste */
       );
-    }
 
-    await editor.edit((builder) => {
-      builder.replace(editor.selection, result.bicep ?? "");
-    });
+      if (!result.pasteType) {
+        throw new Error(
+          `The clipboard text does not appear to be valid JSON or is not in a format that can be pasted as Bicep.`
+        );
+      }
+
+      if (result.errorMessage) {
+        context.errorHandling.issueProperties.clipboardText = clipboardText;
+        throw new Error(
+          `Could not paste clipboard text as Bicep: ${result.errorMessage}`
+        );
+      }
+
+      finalPastedBicep = result.bicep;
+      await editor.edit((builder) => {
+        builder.replace(editor.selection, result.bicep ?? "");
+      });
+    } catch (err) {
+      getLogger().debug(
+        `${logPrefix}: Exception occurred: ${parseError(err).message}"`
+      );
+      throw err;
+    } finally {
+      this.logPasteCompletion(logPrefix, clipboardText, finalPastedBicep);
+    }
   }
 
   public registerForPasteEvents(extension: Disposable) {
@@ -132,6 +150,8 @@ export class PasteAsBicepCommand implements Command {
   private async onDidChangeTextDocument(
     e: TextDocumentChangeEvent
   ): Promise<void> {
+    const logPrefix = "PasteAsBicep (copy/paste)";
+
     await callWithTelemetryAndErrorHandling(
       "autoPasteAsBicep",
       async (context) => {
@@ -141,10 +161,11 @@ export class PasteAsBicepCommand implements Command {
           return;
         }
 
+        const editor = window.activeTextEditor;
         if (
           e.reason !== TextDocumentChangeReason.Redo &&
           e.reason !== TextDocumentChangeReason.Undo &&
-          e.document === window.activeTextEditor?.document &&
+          e.document === editor?.document &&
           e.document.languageId === bicepLanguageId &&
           e.contentChanges.length === 1
         ) {
@@ -166,90 +187,108 @@ export class PasteAsBicepCommand implements Command {
             !isEmptyOrWhitespace(clipboardText) && // ... non-trivial changes only
             areEqualIgnoringWhitespace(clipboardText, contentChange.text)
           ) {
-            // See if we can paste this text as Bicep
-            const canPasteResult = await this.callDecompileForPaste(
-              clipboardText,
-              true // queryCanPaste
-            );
-            if (!canPasteResult.pasteType) {
-              // Nothing we know how to convert
-              return;
-            }
+            let finalPastedBicep: string | undefined;
 
-            context.telemetry.suppressIfSuccessful = false;
-            context.telemetry.properties.pasteType = canPasteResult.pasteType;
-            context.telemetry.properties.decompileId =
-              canPasteResult.decompileId;
-            context.telemetry.properties.jsonSize = String(
-              clipboardText.length
-            );
-
-            if (canPasteResult.pasteType === "bicepValue") {
-              // If the input was already a valid Bicep expression (i.e., the conversion looks the same as the original, once formatting
-              //   changes are ignored), then skip the conversion, otherwise the user will see formatting changes when copying Bicep values
-              //   to Bicep (e.g. [1] would get changed to a multi-line array).
-              // This will mainly happen with single-line arrays and objects, especially since the Newtonsoft parser accepts input that is
-              //   JavaScript but not technically JSON, such as '{ abc: 1, def: 'def' }, but which also happens to be valid Bicep.
-              return;
-            }
-
-            if (canPasteResult.errorMessage || !canPasteResult.bicep) {
-              // If we should be able to convert but there were errors in the JSON, show a message to the output window
-              this.outputChannelManager.appendToOutputChannel(
-                canPasteResult.output
+            try {
+              // See if we can paste this text as Bicep
+              const canPasteResult = await this.callDecompileForPaste(
+                clipboardText,
+                true // queryCanPaste
               );
-              this.outputChannelManager.appendToOutputChannel(
-                `Could not convert pasted text into Bicep: ${canPasteResult.errorMessage}`
+              if (!canPasteResult.pasteType) {
+                // Nothing we know how to convert
+                getLogger().debug(`${logPrefix}: pasteType empty`);
+                return;
+              }
+
+              context.telemetry.suppressIfSuccessful = false;
+
+              if (canPasteResult.pasteType === "bicepValue") {
+                // If the input was already a valid Bicep expression (i.e., the conversion looks the same as the original, once formatting
+                //   changes are ignored), then skip the conversion, otherwise the user will see formatting changes when copying Bicep values
+                //   to Bicep (e.g. [1] would get changed to a multi-line array).
+                // This will mainly happen with single-line arrays and objects, especially since the Newtonsoft parser accepts input that is
+                //   JavaScript but not technically JSON, such as '{ abc: 1, def: 'def' }, but which also happens to be valid Bicep.
+                getLogger().debug(`${logPrefix}: Already bicep`);
+                return;
+              }
+
+              if (canPasteResult.errorMessage || !canPasteResult.bicep) {
+                // If we should be able to convert but there were errors in the JSON, show a message to the output window
+                this.outputChannelManager.appendToOutputChannel(
+                  canPasteResult.output
+                );
+                const msg = `Could not convert pasted text into Bicep: ${canPasteResult.errorMessage}`;
+                this.outputChannelManager.appendToOutputChannel(msg);
+                getLogger().debug(`${logPrefix}: ${msg}`);
+
+                // ... and register telemetry for the failure (don't show the error to the user again)
+                context.telemetry.maskEntireErrorMessage = true;
+                context.errorHandling.suppressDisplay = true;
+                throw new Error("Decompile error");
+              }
+
+              context.telemetry.properties.bicepSize = String(
+                canPasteResult.bicep.length
               );
 
-              // ... and register telemetry for the failure (don't show the error to the user again)
-              context.telemetry.maskEntireErrorMessage = true;
-              context.errorHandling.suppressDisplay = true;
-              throw new Error("Decompile error");
-            }
+              // While we were awaiting async calls, the pasted text may have been formatted in the editor, get the new version
+              const formattedPastedText = getTextAfterFormattingChanges(
+                contentChange.text,
+                e.document.getText(),
+                contentChange.rangeOffset
+              );
+              if (!formattedPastedText) {
+                getLogger().debug(
+                  `${logPrefix}: Couldn't get pasted text after editor formatted it`
+                );
+                return;
+              }
+              if (
+                !formattedPastedText ||
+                !areEqualIgnoringWhitespace(formattedPastedText, clipboardText)
+              ) {
+                // Some other editor change must have happened, abort the conversion to Bicep
+                context.errorHandling.suppressDisplay = true;
+                throw new Error("Editor changed");
+              }
 
-            context.telemetry.properties.bicepSize = String(
-              canPasteResult.bicep.length
-            );
+              // All systems go - replace pasted JSON with Bicep
+              const edit = new WorkspaceEdit();
+              const rangeOfFormattedPastedText = new Range(
+                e.document.positionAt(contentChange.rangeOffset),
+                e.document.positionAt(
+                  contentChange.rangeOffset + formattedPastedText.length
+                )
+              );
+              edit.replace(
+                e.document.uri,
+                rangeOfFormattedPastedText,
+                canPasteResult.bicep
+              );
+              const success = await workspace.applyEdit(edit);
+              if (!success) {
+                throw new Error(
+                  "Applying edit failed while converting pasted JSON to Bicep"
+                );
+              }
 
-            // While we were awaiting async calls, the pasted text may have been formatted in the editor.
-            // Need to figure out the length of the formatted text so we can properly replace it.
-            const formattedPastedText = getTextAfterFormattingChanges(
-              contentChange.text,
-              e.document.getText(),
-              contentChange.rangeOffset
-            );
-            if (
-              !formattedPastedText ||
-              !areEqualIgnoringWhitespace(formattedPastedText, clipboardText)
-            ) {
-              // Some other editor change must have happened, abort the conversion to Bicep
-              context.errorHandling.suppressDisplay = true;
-              throw new Error("Editor changed");
-            }
+              // Don't wait for disclaimer/warning because our telemetry won't fire until we return
+              void this.showWarning(context, canPasteResult);
 
-            // All systems go - replace pasted JSON with Bicep
-            const edit = new WorkspaceEdit();
-            const rangeOfFormattedPastedText = new Range(
-              e.document.positionAt(contentChange.rangeOffset),
-              e.document.positionAt(
-                contentChange.rangeOffset + formattedPastedText.length
-              )
-            );
-            edit.replace(
-              e.document.uri,
-              rangeOfFormattedPastedText,
-              canPasteResult.bicep
-            );
-            const success = await workspace.applyEdit(edit);
-            if (!success) {
-              throw new Error(
-                "Applying edit failed while converting pasted JSON to Bicep"
+              finalPastedBicep = canPasteResult.bicep;
+            } catch (err) {
+              getLogger().debug(
+                `${logPrefix}: Exception occurred: ${parseError(err).message}"`
+              );
+              throw err;
+            } finally {
+              this.logPasteCompletion(
+                logPrefix,
+                clipboardText,
+                finalPastedBicep
               );
             }
-
-            // Don't wait for disclaimer/warning because our telemetry won't fire until we return
-            void this.showWarning(context, canPasteResult);
           }
         }
       }
@@ -319,5 +358,20 @@ export class PasteAsBicepCommand implements Command {
         `Automatic decompile on paste has been disabled. You can turn it back on at any time from VS Code settings (${SuppressedWarningsManager.keys.decompileOnPasteWarning}). You can also still use the "Paste as Bicep" command from the command palette.`
       );
     }
+  }
+
+  // This allows our test code to know when a paste operation has been completed (in the case of handling CTRL+C/V)
+  private logPasteCompletion(
+    prefix: string,
+    clipboardText: string | undefined,
+    bicepText: string | undefined
+  ): void {
+    function format(s: string | undefined): string {
+      return typeof s === "string" ? `"${s}"` : "undefined";
+    }
+
+    getLogger().debug(
+      `${prefix}: Result: ${format(clipboardText)} -> ${format(bicepText)}`
+    );
   }
 }

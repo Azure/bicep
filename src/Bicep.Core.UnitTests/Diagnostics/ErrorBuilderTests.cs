@@ -127,7 +127,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
             if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
             {
-                return 0;
+                return 0L;
             }
 
             if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
@@ -280,6 +280,18 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFixedText(text, expectedFix);
+        }
+
+        private class PrimitiveType : TypeSymbol
+        {
+            public PrimitiveType(string name, TypeSymbolValidationFlags validationFlags) : base(name)
+            {
+                ValidationFlags = validationFlags;
+            }
+
+            public override TypeKind TypeKind => TypeKind.Primitive;
+
+            public override TypeSymbolValidationFlags ValidationFlags { get; }
         }
     }
 }

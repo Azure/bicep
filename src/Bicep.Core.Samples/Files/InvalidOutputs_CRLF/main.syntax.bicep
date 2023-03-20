@@ -166,7 +166,7 @@ output malformedType 3
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |malformedType|
-//@[021:0022) | ├─SkippedTriviaSyntax
+//@[021:0022) | ├─IntegerLiteralSyntax
 //@[021:0022) | | └─Token(Integer) |3|
 //@[022:0022) | ├─SkippedTriviaSyntax
 //@[022:0022) | └─SkippedTriviaSyntax
@@ -179,7 +179,7 @@ output malformedType2 3 = 2 + null
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |malformedType2|
-//@[022:0023) | ├─SkippedTriviaSyntax
+//@[022:0023) | ├─IntegerLiteralSyntax
 //@[022:0023) | | └─Token(Integer) |3|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0034) | └─BinaryOperationSyntax
@@ -197,7 +197,7 @@ output malformedAssignment 2 = 2
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0026) | ├─IdentifierSyntax
 //@[007:0026) | | └─Token(Identifier) |malformedAssignment|
-//@[027:0028) | ├─SkippedTriviaSyntax
+//@[027:0028) | ├─IntegerLiteralSyntax
 //@[027:0028) | | └─Token(Integer) |2|
 //@[029:0030) | ├─Token(Assignment) |=|
 //@[031:0032) | └─IntegerLiteralSyntax
@@ -211,7 +211,7 @@ output lol 2 = true
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0010) | ├─IdentifierSyntax
 //@[007:0010) | | └─Token(Identifier) |lol|
-//@[011:0012) | ├─SkippedTriviaSyntax
+//@[011:0012) | ├─IntegerLiteralSyntax
 //@[011:0012) | | └─Token(Integer) |2|
 //@[013:0014) | ├─Token(Assignment) |=|
 //@[015:0019) | └─BooleanLiteralSyntax

@@ -1003,7 +1003,7 @@ param decoratedString string
 //@[022:0028) |     └─Token(Identifier) |string|
 //@[028:0030) ├─Token(NewLine) |\n\n|
 
-@minValue(200)
+@minValue(100)
 //@[000:0043) ├─ParameterDeclarationSyntax
 //@[000:0014) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1013,7 +1013,7 @@ param decoratedString string
 //@[009:0010) | |   ├─Token(LeftParen) |(|
 //@[010:0013) | |   ├─FunctionArgumentSyntax
 //@[010:0013) | |   | └─IntegerLiteralSyntax
-//@[010:0013) | |   |   └─Token(Integer) |200|
+//@[010:0013) | |   |   └─Token(Integer) |100|
 //@[013:0014) | |   └─Token(RightParen) |)|
 //@[014:0015) | ├─Token(NewLine) |\n|
 param decoratedInt int = 123

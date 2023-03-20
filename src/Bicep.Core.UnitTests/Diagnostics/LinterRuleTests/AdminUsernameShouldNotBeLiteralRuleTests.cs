@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, diagnosticCount);
         }
 
-        [DataRow(1, @"        
+        [DataRow(1, @"
             resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
               name: 'name'
               location: resourceGroup().location
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   adminUsername: p1
                 }
               }
-            }        
+            }
         ")]
         [DataTestMethod]
         public void If_UsesParameter_ShouldPass(string text)
@@ -151,7 +151,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   adminUsername: p.v
                 }
               }
-            }        
+            }
         ")]
         [DataTestMethod]
         public void If_UsesObjectParameterPropertyRef_ShouldPass(string text)
@@ -159,7 +159,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, 0);
         }
 
-        // TTK shows this error: AdminUsername ""adminUserName"" is variable which is not an expression  
+        // TTK shows this error: AdminUsername ""adminUserName"" is variable which is not an expression
         [DataRow(1, @"
             var adminUsername = 'hello'
 
@@ -171,7 +171,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   adminUsername: adminUsername
                 }
               }
-            }        
+            }
         ")]
         [DataTestMethod]
         public void If_UsesStringVariable_ShouldFail(int diagnosticCount, string text)
@@ -180,13 +180,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataRow(@"
-            var v = 'value'
+            param idx int
             resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
               name: 'name'
               location: resourceGroup().location
               properties: {
                 osProfile: {
-                  adminUsername: '${v}'
+                  adminUsername: 'admin${idx}'
                 }
               }
             }
@@ -197,7 +197,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, 0);
         }
 
-        [DataRow(@"        
+        [DataRow(@"
             resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
               name: 'name'
               location: resourceGroup().location
@@ -404,7 +404,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   adminUsername: o1.o2.admin   // evaluates to a string literal
                 }
               }
-            }        
+            }
         ")]
         [DataTestMethod]
         public void If_UsesObjectVariable_ThatResolvesDeeplyToStringLiteral_ShouldFail(int diagnosticCount, string text)

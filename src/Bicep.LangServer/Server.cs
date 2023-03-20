@@ -48,7 +48,6 @@ namespace Bicep.LanguageServer
 
         public Server(Action<LanguageServerOptions> onOptionsFunc)
         {
-            BicepDeploymentsInterop.Initialize();
             server = OmnisharpLanguageServer.PreInit(options =>
             {
                 options

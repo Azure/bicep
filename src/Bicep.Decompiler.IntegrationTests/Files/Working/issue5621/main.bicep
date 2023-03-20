@@ -1,6 +1,5 @@
-var emptyObject = {
+var emptyObject = {}
 //@[4:15) [no-unused-vars (Warning)] Variable "emptyObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |emptyObject|
-}
 var simpleObject = {
 //@[4:16) [no-unused-vars (Warning)] Variable "simpleObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |simpleObject|
   foo: 'bar'
@@ -33,8 +32,7 @@ var nestedArrays = [
         5
         6
       ]
-      nestedKey2: {
-      }
+      nestedKey2: {}
     }
   }
 ]

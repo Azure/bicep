@@ -7,24 +7,22 @@ namespace Bicep.Core.TypeSystem;
 
 public class BooleanLiteralType : TypeSymbol
 {
-    public BooleanLiteralType(bool value)
+    internal BooleanLiteralType(bool value, TypeSymbolValidationFlags validationFlags)
         : base(value ? "true" : "false")
     {
         Value = value;
-    }
-
-    public BooleanLiteralType(string typeName, bool value) :
-        base(typeName)
-    {
-        Value = value;
+        ValidationFlags = validationFlags;
     }
 
     public override TypeKind TypeKind => TypeKind.BooleanLiteral;
 
     public bool Value { get; }
 
-    public override bool Equals(object? other) =>
-        other is BooleanLiteralType otherBoolLiteral ? Value == otherBoolLiteral.Value : false;
+    public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-    public override int GetHashCode() => HashCode.Combine(TypeKind, Value);
+    public override bool Equals(object? other) => other is BooleanLiteralType otherBoolLiteral &&
+        Value == otherBoolLiteral.Value &&
+        ValidationFlags == otherBoolLiteral.ValidationFlags;
+
+    public override int GetHashCode() => HashCode.Combine(TypeKind, Value, ValidationFlags);
 }

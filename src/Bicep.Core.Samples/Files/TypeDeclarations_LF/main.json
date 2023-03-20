@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5588942066312387409"
+      "templateHash": "1177824650649973853"
     }
   },
   "definitions": {
@@ -184,6 +184,11 @@
         "type": "string"
       }
     },
+    "constrainedInt": {
+      "type": "int",
+      "maxValue": 10,
+      "minValue": 1
+    },
     "nullable": {
       "type": "string",
       "nullable": true
@@ -248,7 +253,23 @@
     }
   },
   "variables": {
-    "maybeNull": "[parameters('mightIncludeNull')[0].key]"
+    "nonNull": "[parameters('mightIncludeNull')[0].key]",
+    "maybeNull": "[tryGet(parameters('mightIncludeNull')[0], 'key')]"
   },
-  "resources": {}
+  "resources": {},
+  "outputs": {
+    "outputUsingType": {
+      "$ref": "#/definitions/mixedArray",
+      "value": "[parameters('paramUsingType')]"
+    },
+    "nonNull": {
+      "type": "string",
+      "value": "[variables('nonNull')]"
+    },
+    "maybeNull": {
+      "type": "string",
+      "nullable": true,
+      "value": "[variables('maybeNull')]"
+    }
+  }
 }

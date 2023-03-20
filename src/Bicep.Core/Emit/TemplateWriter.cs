@@ -216,33 +216,28 @@ namespace Bicep.Core.Emit
                     parameterObject = parameterObject.MergeProperty("defaultValue", parameter.DefaultValue);
                 }
 
-                parameterObject = AddDecoratorsToBody(declaringParameter, parameterObject, parameter.Symbol.Type);
-
-                foreach (var property in parameterObject.Properties)
-                {
-                    if (property.TryGetKeyText() is string propertyName)
-                    {
-                        emitter.EmitProperty(propertyName, property.Value);
-                    }
-                }
+                EmitProperties(emitter, AddDecoratorsToBody(declaringParameter, parameterObject, parameter.Symbol.Type));
             }, parameter.SourceSyntax);
         }
 
-        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        private void EmitProperties(ExpressionEmitter emitter, ObjectExpression objectExpression)
         {
-            jsonWriter.WriteStartObject();
-
-            var typeDefinitionObject = TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value);
-
-            typeDefinitionObject = AddDecoratorsToBody(declaredTypeSymbol.DeclaringType, typeDefinitionObject, declaredTypeSymbol.Type);
-
-            foreach (var property in typeDefinitionObject.Properties)
+            foreach (var property in objectExpression.Properties)
             {
                 if (property.TryGetKeyText() is string propertyName)
                 {
                     emitter.EmitProperty(propertyName, property.Value);
                 }
             }
+        }
+
+        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        {
+            jsonWriter.WriteStartObject();
+
+            EmitProperties(emitter, AddDecoratorsToBody(declaredTypeSymbol.DeclaringType,
+                TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value),
+                declaredTypeSymbol.Type));
 
             jsonWriter.WriteEndObject();
         }
@@ -477,7 +472,7 @@ namespace Bicep.Core.Emit
             StringLiteralType @string => ExpressionFactory.CreateStringLiteral(@string.RawStringValue),
             IntegerLiteralType @int => new IntegerLiteralExpression(null, @int.Value),
             BooleanLiteralType @bool => ExpressionFactory.CreateBooleanLiteral(@bool.Value),
-            PrimitiveType pt when pt.Name == LanguageConstants.NullKeyword => new NullLiteralExpression(null),
+            NullType => new NullLiteralExpression(null),
             ObjectType @object => ExpressionFactory.CreateObject(@object.Properties.Select(kvp => ExpressionFactory.CreateObjectProperty(kvp.Key, ToLiteralValue(kvp.Value.TypeReference)))),
             TupleType tuple => ExpressionFactory.CreateArray(tuple.Items.Select(ToLiteralValue)),
             // This would have been caught by the DeclaredTypeManager during initial type assignment
@@ -486,12 +481,11 @@ namespace Bicep.Core.Emit
 
         private string GetNonLiteralTypeName(TypeSymbol? type) => type switch
         {
-            StringLiteralType => "string",
-            IntegerLiteralType => "int",
-            BooleanLiteralType => "bool",
+            StringLiteralType or StringType => "string",
+            IntegerLiteralType or IntegerType => "int",
+            BooleanLiteralType or BooleanType => "bool",
             ObjectType => "object",
             ArrayType => "array",
-            PrimitiveType pt when pt.Name != LanguageConstants.NullKeyword => pt.Name,
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };
@@ -934,26 +928,10 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObjectProperty(output.Name, () =>
             {
-                var properties = new List<ObjectPropertyExpression>();
-                if (output.Symbol.Type is ResourceType resourceType)
-                {
-                    // Resource-typed outputs are encoded as strings
-                    emitter.EmitProperty("type", LanguageConstants.String.Name);
-
-                    properties.Add(
-                        ExpressionFactory.CreateObjectProperty(
-                            LanguageConstants.ParameterMetadataPropertyName,
-                            ExpressionFactory.CreateObject(
-                                new [] {
-                                    ExpressionFactory.CreateObjectProperty(
-                                        LanguageConstants.MetadataResourceTypePropertyName,
-                                        ExpressionFactory.CreateStringLiteral(resourceType.TypeReference.FormatName()))
-                                })));
-                }
-                else
-                {
-                    emitter.EmitProperty("type", output.Symbol.Type.Name);
-                }
+                var declaringOutput = output.Symbol.DeclaringOutput;
+                EmitProperties(emitter, AddDecoratorsToBody(declaringOutput,
+                    TypePropertiesForTypeExpression(declaringOutput.Type),
+                    output.Symbol.Type));
 
                 if (output.Value is ForLoopExpression @for)
                 {
@@ -969,15 +947,6 @@ namespace Bicep.Core.Emit
                 else
                 {
                     emitter.EmitProperty("value", output.Value);
-                }
-
-                // emit any decorators on this output
-                foreach (var property in AddDecoratorsToBody(
-                    output.Symbol.DeclaringOutput,
-                    ExpressionFactory.CreateObject(properties),
-                    output.Symbol.Type).Properties)
-                {
-                    emitter.EmitProperty(property);
                 }
             }, output.SourceSyntax);
         }

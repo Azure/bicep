@@ -323,8 +323,15 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
-                // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 var completions = GetAmbientTypeCompletions(model, context);
+
+                // Only show the aggregate type completions if the feature is enabled
+                if (model.Features.UserDefinedTypesEnabled)
+                {
+                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context));
+                }
+
+                // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
                 {
                     completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));
@@ -1221,13 +1228,13 @@ namespace Bicep.LanguageServer.Completions
             var replacementRange = context.ReplacementRange;
             switch (type)
             {
-                case PrimitiveType _ when TypeValidator.AreTypesAssignable(type, LanguageConstants.Bool):
+                case BooleanType:
                     yield return CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword, replacementRange, preselect: true, CompletionPriority.High);
                     yield return CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword, replacementRange, preselect: true, CompletionPriority.High);
 
                     break;
 
-                case PrimitiveType _ when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;
@@ -1567,7 +1574,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}@{resourceType.ApiVersion}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, resourceType.ApiVersion)
-                    .WithFilterText(insertText)
+                    // Lower-case all resource types in filter text otherwise editor may prefer those with casing that match what the user has already typed (#9168)
+                    .WithFilterText(insertText.ToLowerInvariant())
                     .WithPlainTextEdit(replacementRange, insertText)
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                     // 8 hex digits is probably overkill :)
