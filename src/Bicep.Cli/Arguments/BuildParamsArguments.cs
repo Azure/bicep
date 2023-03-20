@@ -64,9 +64,9 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The parameters file path was not specified");
             }
 
-            if ((OutputFile is not null) && OutputToStdOut)
+            if (OutputFile is not null && OutputToStdOut)
             {
-                throw new CommandLineException($"The --stdout can not be use when --outfile is specified");
+                throw new CommandLineException($"The --stdout can not be used when --outfile is specified");
             }
         }
 
