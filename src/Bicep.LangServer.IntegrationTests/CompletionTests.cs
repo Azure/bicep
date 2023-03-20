@@ -2468,6 +2468,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             completions.Should().Contain(c => c.Label == "storageArr" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_storageArr");
             completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
             completions.Should().Contain(c => c.Label == "paramObj" && c.SortText == $"{(int)CompletionPriority.Medium}_paramObj");
+            completions.Should().NotContain(c => c.Label == "foo");
         }
 
         [TestMethod]
@@ -2494,9 +2495,122 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
 
             var allCompletions = await file.RequestCompletions(cursors);
+            allCompletions.Should().HaveCount(6);
             foreach (var completions in allCompletions)
             {
                 completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+                completions.Should().NotContain(c => c.Label == "foo");
+            }
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestModuleDependsOn_ResourceSymbolsVeryHighPriority()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            var mainContent = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+module bModule 'mod2.bicep' = {
+  name: 'someModule'
+}
+var notAResource = 'I\'m a string!'
+module aModule 'mod.bicep' = {
+  name: 'someModule'
+  dependsOn: [
+    |
+  ]
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [new Uri("file:///mod2.bicep")] = moduleContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursors[0]);
+
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().Contain(c => c.Label == "bModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_bModule");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
+            completions.Should().NotContain(c => c.Label == "aModule");
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestModuleDependsOn_ResourceSymbolsVeryHighPriority_TernaryAndParentheses()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            var mainContentWithCursors = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+module aModule 'mod.bicep' = {
+  name: 'someModule'
+}
+var notAResource = 'I\'m a string!'
+module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  dependsOn: [
+    (|)
+    ((|))
+    notAResource == 'test' ? |
+    notAResource == 'test' ? aResource : |
+    notAResource == 'test' ? (|
+    notAResource == 'test' ? (true ? aResource : |) : aResource
+  ]
+}";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContentWithCursors, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [new Uri("file:///mod2.bicep")] = moduleContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(6);
+            foreach (var completions in allCompletions)
+            {
+                completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+                completions.Should().NotContain(c => c.Label == "foo");
             }
         }
 
