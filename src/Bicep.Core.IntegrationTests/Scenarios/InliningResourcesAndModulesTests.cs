@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
@@ -16,6 +17,8 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class InliningResourcesAndModulesTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         [TestMethod]
         public void AssigningResourceToVariable_ShouldNotGenerateVariables()
         {
@@ -512,7 +515,28 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
                     "Object should be in-lined");
             }
         }
-
+        [TestMethod]
+        public void VariablesParameterResourceReference_ShouldBeInlined()
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), 
+            ("main.bicep", @"
+param resourceParameter resource 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'
+var clientId = resourceParameter.properties.clientId
+var resourceId = resourceParameter.id
+output clientId string = clientId
+output resourceId string = resourceId
+"));
+            
+            using (new AssertionScope())
+            {
+                result.Template.Should().HaveValueAtPath("$.outputs.clientId", 
+                  new JObject {["value"] = "[reference(parameters('resourceParameter'), '2018-11-30').clientId]", ["type"] = "string"},
+                   "Parameter should have been inlined");
+                result.Template.Should().HaveValueAtPath("$.outputs.resourceId", 
+                  new JObject {["value"] = "[variables('resourceId')]", ["type"] = "string"},
+                   "Top level properties should not be inlined");
+            }
+        }
 
         [TestMethod]
         public void VariableThatLooksLikeModule_ShouldGenerateVariables()
