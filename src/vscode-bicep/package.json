@@ -606,7 +606,7 @@
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^27.5.1",
     "@types/mocha": "^10.0.1",
-    "@types/node": "^18.11.19",
+    "@types/node": "^18.15.3",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-test-renderer": "^18.0.0",
