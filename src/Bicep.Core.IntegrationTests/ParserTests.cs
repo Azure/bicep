@@ -54,42 +54,42 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
-        //[DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        //[TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Parser_should_produce_expected_syntax()
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
-            var program = ParserHelper.Parse(@"resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
-");
+            var program = ParserHelper.Parse(dataSet.Bicep);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            //TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            //var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
-            //var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
-            //sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-            //    TestContext,
-            //    dataSet.Syntax,
-            //    expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
-            //    actualLocation: resultsFile);
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                TestContext,
+                dataSet.Syntax,
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
+                actualLocation: resultsFile);
         }
 
         [DataTestMethod]
-        //[BaselineData_Bicepparam.TestData()]
-        //[TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Params_Parser_should_produce_expected_syntax()
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)
         {
-            var program = ParserHelper.Parse("var v3 = concat('abc', 'DEF'), 'hello')");
+            var data = baselineData.GetData(TestContext);
+            var program = ParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            //TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            //var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
 
-            //data.Syntax.WriteToOutputFolder(sourceTextWithDiags);
-            //data.Syntax.ShouldHaveExpectedValue();
+            data.Syntax.WriteToOutputFolder(sourceTextWithDiags);
+            data.Syntax.ShouldHaveExpectedValue();
         }
 
         private static IEnumerable<object[]> GetData()

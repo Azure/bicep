@@ -63,11 +63,6 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void PrintProgram_PrintTwice_ReturnsConsistentResults(DataSet dataSet)
         {
-            if (dataSet.Name != "InvalidLambdas_LF")
-            {
-                return;
-            }
-
             var program = ParserHelper.Parse(dataSet.Bicep);
             var diagnostics = program.ParsingErrorLookup;
             var diagnosticMessages = diagnostics.Select(d => d.Message);
