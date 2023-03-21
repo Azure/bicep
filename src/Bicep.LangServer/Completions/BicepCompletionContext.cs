@@ -661,7 +661,7 @@ namespace Bicep.LanguageServer.Completions
             //   conditionA ? (conditionB ? true : |) : false
             // ]
             if (matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
-                && matchingNodes.Last() is TernaryOperationSyntax or ParenthesizedExpressionSyntax or Token or SkippedTriviaSyntax)
+                && matchingNodes.Last() is TernaryOperationSyntax or ParenthesizedExpressionSyntax or Token)
             {
                 return true;
             }
