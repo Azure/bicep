@@ -116,21 +116,21 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Returns the specified subnet of a CIDR network.")
                 .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
-                .WithRequiredParameter("cidr", LanguageConstants.Int, "The CIDR to be used to subnet the current IPNetwork")
-                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "The index to select the subnet from the range of CIDR subnets")
+                .WithRequiredParameter("cidr", LanguageConstants.Int, "New CIDR suffix")
+                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "A 0-based index of the desired subnet. Must be less than the maximum number of possible subnets.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("cidrHost")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription("Calculates the ith IP address on a network.")
+                .WithGenericDescription("Calculates the IP address of the specified host on a network.")
                 .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
-                .WithRequiredParameter("num", LanguageConstants.Int, "A binary integer with no more than the number of digits remaining in the address after the given network string")
+                .WithRequiredParameter("hostIndex", LanguageConstants.Int, "A 0-based index of the usable host on the specified network. Must be less than the number of usable hosts on the specified network.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("parseCidr")
                 .WithReturnType(GetParseCidrReturnType())
                 .WithGenericDescription("Parses an IP address into individual components and other useful information.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
+                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
                 .Build();
 
             yield return new FunctionOverloadBuilder("concat")

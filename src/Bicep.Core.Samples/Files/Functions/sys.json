@@ -115,7 +115,7 @@
   },
   {
     "name": "cidrHost",
-    "description": "Calculates the ith IP address on a network.",
+    "description": "Calculates the IP address of the specified host on a network.",
     "fixedParameters": [
       {
         "name": "network",
@@ -124,8 +124,8 @@
         "required": true
       },
       {
-        "name": "num",
-        "description": "A binary integer with no more than the number of digits remaining in the address after the given network string",
+        "name": "hostIndex",
+        "description": "A 0-based index of the usable host on the specified network. Must be less than the number of usable hosts on the specified network.",
         "type": "int",
         "required": true
       }
@@ -133,10 +133,10 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(network: string, num: int): string",
+    "typeSignature": "(network: string, hostIndex: int): string",
     "parameterTypeSignatures": [
       "network: string",
-      "num: int"
+      "hostIndex: int"
     ]
   },
   {
@@ -151,13 +151,13 @@
       },
       {
         "name": "cidr",
-        "description": "The CIDR to be used to subnet the current IPNetwork",
+        "description": "New CIDR suffix",
         "type": "int",
         "required": true
       },
       {
         "name": "subnetIndex",
-        "description": "The index to select the subnet from the range of CIDR subnets",
+        "description": "A 0-based index of the desired subnet. Must be less than the maximum number of possible subnets.",
         "type": "int",
         "required": true
       }
@@ -1085,7 +1085,7 @@
     "fixedParameters": [
       {
         "name": "network",
-        "description": "The string containing an ip network (CIDR format)",
+        "description": "The string containing an IP network (CIDR format)",
         "type": "string",
         "required": true
       }

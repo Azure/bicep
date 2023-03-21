@@ -442,7 +442,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ncidrHost(network: string, num: int): string\n\n```\nCalculates the ith IP address on a network.\n"
+      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```\nCalculates the IP address of the specified host on a network.\n"
     },
     "deprecated": false,
     "preselect": false,
