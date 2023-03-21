@@ -1204,6 +1204,14 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
+            // Special case: there is a distinction in the type system that needs to be made for resource.dependsOn resource collections
+            // which are resources defined by a loop vs arrays. For now, check if type is the specific type of resource.dependsOn
+            // don't provide value completions as the resource collections completions are handled by GetSymbolCompletions.
+            if (ReferenceEquals(arrayType.Item.Type, LanguageConstants.ResourceOrResourceCollectionRefItem))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
             return GetValueCompletionsForType(model, context, arrayType.Item.Type, loopsAllowed: false);
         }
 

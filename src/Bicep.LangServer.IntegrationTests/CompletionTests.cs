@@ -2470,6 +2470,8 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
             completions.Should().Contain(c => c.Label == "paramObj" && c.SortText == $"{(int)CompletionPriority.Medium}_paramObj");
             completions.Should().NotContain(c => c.Label == "foo");
+            completions.Should().NotContain(c => c.Label == "[]");
+            completions.Should().NotContain(c => c.Preselect);
         }
 
         [TestMethod]
@@ -2641,6 +2643,8 @@ module aModule 'mod.bicep' = {
             completions.Should().Contain(c => c.Label == "bModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_bModule");
             completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
             completions.Should().NotContain(c => c.Label == "aModule");
+            completions.Should().NotContain(c => c.Label == "[]");
+            completions.Should().NotContain(c => c.Preselect);
         }
 
         [TestMethod]
@@ -2698,6 +2702,8 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             {
                 completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
                 completions.Should().NotContain(c => c.Label == "foo");
+                completions.Should().NotContain(c => c.Label == "[]");
+                completions.Should().NotContain(c => c.Preselect);
             }
         }
 
