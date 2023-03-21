@@ -1515,11 +1515,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP260",
                 $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic UsingDeclarationNotSpecified() => new(
+            public ErrorDiagnostic UsingDeclarationNotSpecified() => new(
                 TextSpan,
-                DiagnosticLevel.Warning,
                 "BCP261",
-                "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
+                "A using declaration must be present in this parameters file.");
 
             public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
                 TextSpan,

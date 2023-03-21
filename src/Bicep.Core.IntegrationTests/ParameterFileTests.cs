@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests
@@ -57,6 +58,50 @@ using './one.bicepparam'
                     x.Message.Should().EndWith("\").");
                     x.Message.Should().ContainAll("one.bicepparam\" -> \"", "two.bicepparam\").");
                 });
+        }
+
+        [TestMethod]
+        public void Params_file_with_not_implemented_syntax_should_log_diagnostic()
+        {                    
+            var result = CompilationHelper.CompileParams(
+    ("parameters.bicepparam", @"
+    using 'main.bicep'
+
+    param foo = 1 + 2
+    "),
+    ("main.bicep", @"
+    param foo int
+    "));
+
+            using(new AssertionScope())
+            {
+                result.Parameters.Should().BeNull();
+                result.Diagnostics.Should().HaveDiagnostics(new[]
+                {
+                    ("BCP252", DiagnosticLevel.Error, "Binary operator is not allowed in Bicep parameter file.")
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Params_file_with_not_using_declaration_should_log_diagnostic()
+        {                    
+            var result = CompilationHelper.CompileParams(
+    ("parameters.bicepparam", @"
+    param foo = 'bar'
+    "),
+    ("main.bicep", @"
+    param foo string
+    "));
+
+            using(new AssertionScope())
+            {
+                result.Parameters.Should().BeNull();
+                result.Diagnostics.Should().HaveDiagnostics(new[]
+                {
+                    ("BCP261", DiagnosticLevel.Error, "A using declaration must be present in this parameters file.")
+                });
+            }
         }
     }
 }
