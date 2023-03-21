@@ -2467,8 +2467,8 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
             completions.Should().Contain(c => c.Label == "aModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aModule");
             completions.Should().Contain(c => c.Label == "storageArr" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_storageArr");
-            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_notAResource");
-            completions.Should().Contain(c => c.Label == "paramObj" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_paramObj");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
+            completions.Should().Contain(c => c.Label == "paramObj" && c.SortText == $"{(int)CompletionPriority.Medium}_paramObj");
             completions.Should().NotContain(c => c.Label == "foo");
         }
 
@@ -2526,29 +2526,35 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             foreach (var completions in allCompletions)
             {
                 completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
-                completions.Should().NotContain(c => c.Label == "foo");
             }
+
+            var fooDependsOnCompletions = allCompletions[0];
+            fooDependsOnCompletions.Should().NotContain(c => c.Label.StartsWith("foo"));
 
             var fooChild1DependsOnCompletions = allCompletions[1];
             fooChild1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild2");
+            fooChild1DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
             fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1");
             fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
             fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
 
             var fooChild1Child1DependsOnCompletions = allCompletions[2];
             fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild2");
-            fooChild1Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1");
+            fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.Medium}_fooChild1");
+            fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
             fooChild1Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
 
             var fooChild2DependsOnCompletions = allCompletions[3];
             fooChild2DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild1");
+            fooChild2DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
             fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2");
             fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
             fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
 
             var fooChild2Child1DependsOnCompletions = allCompletions[4];
             fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild1");
-            fooChild2Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2");
+            fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.Medium}_fooChild2");
+            fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
             fooChild2Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
         }
 
@@ -2633,7 +2639,7 @@ module aModule 'mod.bicep' = {
 
             completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
             completions.Should().Contain(c => c.Label == "bModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_bModule");
-            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText != $"{(int)CompletionPriority.VeryHigh}_notAResource");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
             completions.Should().NotContain(c => c.Label == "aModule");
         }
 

@@ -877,13 +877,21 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
-        private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, BicepCompletionContext context)
+        private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
         {
             // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
             // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference)
                 && symbol is ResourceSymbol or ModuleSymbol)
             {
+                // parent resource symbols of the current resource should not be prioritized but are still provided for use in expressions
+                var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
+                if (enclosingResourceMetadata != null
+                    && model.ResourceAncestors.GetAncestors(enclosingResourceMetadata).Any(ra => ra.Resource.Symbol == symbol))
+                {
+                    return CompletionPriority.Medium;
+                }
+
                 return CompletionPriority.VeryHigh;
             }
 
@@ -901,14 +909,6 @@ namespace Bicep.LanguageServer.Completions
             // For nested resource/module symbol completions, don't suggest parent or child symbols for resource.dependsOn symbol completions.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
             {
-                // filter out parent resource symbols of the enclosing declaration symbol
-                var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
-                if (enclosingResourceMetadata != null
-                    && model.ResourceAncestors.GetAncestors(enclosingResourceMetadata).Any(ra => ra.Resource.Symbol == symbol))
-                {
-                    return false;
-                }
-
                 // filter out child resource symbols of the enclosing declaration symbol
                 var symbolResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == symbol);
                 if (symbolResourceMetadata != null
@@ -945,7 +945,7 @@ namespace Bicep.LanguageServer.Completions
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        var priority = GetContextualCompletionPriority(symbol, context);
+                        var priority = GetContextualCompletionPriority(symbol, model, context, enclosingDeclarationSymbol);
                         result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, priority: priority));
                     }
                 }
@@ -1709,10 +1709,6 @@ namespace Bicep.LanguageServer.Completions
             var completion = CompletionItemBuilder.Create(kind, insertText);
 
             priority ??= GetCompletionPriority(symbol);
-            if (priority == CompletionPriority.VeryHigh)
-            {
-                completion.Preselect();
-            }
             completion.WithSortText(GetSortText(insertText, priority.Value));
 
             if (symbol is ResourceSymbol)
