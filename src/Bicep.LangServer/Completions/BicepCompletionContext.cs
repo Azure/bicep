@@ -660,16 +660,8 @@ namespace Bicep.LanguageServer.Completions
             // [
             //   conditionA ? (conditionB ? true : |) : false
             // ]
-            if ((SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(matchingNodes) ||
-                 SyntaxMatcher.IsTailMatch<TernaryOperationSyntax, Token>(matchingNodes) ||
-                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax>(matchingNodes) ||
-                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) ||
-                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, SkippedTriviaSyntax>(
-                     matchingNodes,
-                     (parenthesizedExpression, _) =>
-                         parenthesizedExpression.Expression is SkippedTriviaSyntax
-                 )) &&
-                matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax))
+            if (matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
+                && matchingNodes.Last() is TernaryOperationSyntax or ParenthesizedExpressionSyntax or Token or SkippedTriviaSyntax)
             {
                 return true;
             }
