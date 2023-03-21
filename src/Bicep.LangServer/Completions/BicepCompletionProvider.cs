@@ -906,7 +906,7 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
-            // For nested resource/module symbol completions, don't suggest parent or child symbols for resource.dependsOn symbol completions.
+            // For nested resource/module symbol completions, don't suggest child symbols for resource.dependsOn symbol completions.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
             {
                 // filter out child resource symbols of the enclosing declaration symbol
