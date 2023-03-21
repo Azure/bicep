@@ -281,63 +281,6 @@ namespace Bicep.Core.UnitTests.Collections.Trees
             }
         }
 
-        //[DataTestMethod]
-        //[DataRow(-10, -1, false)]
-        //[DataRow(11, 11, false)]
-        //[DataRow(21, 22, false)]
-        //[DataRow(22, 29, false)]
-        //[DataRow(61, 99, false)]
-        //[DataRow(70, 80, false)]
-        //[DataRow(101, 102, false)]
-        //[DataRow(0, 0, true)]
-        //[DataRow(0, 10, true)]
-        //[DataRow(0, 100, true)]
-        //[DataRow(10, 10, true)]
-        //[DataRow(2, 2, true)]
-        //[DataRow(3, 6, true)]
-        //[DataRow(21, 31, true)]
-        //[DataRow(31, 31, true)]
-        //[DataRow(50, 70, true)]
-        //public void ContainsOverlappingNodes_AnyInverval_ReturnsTrueIfFoundOverlappingNodes(int start, int end, bool expectedResult)
-        //{
-        //    var sut = new TestIntervalTree();
-
-        //    sut.Insert(0, 10, "aaaa");
-        //    sut.Insert(12, 20, "bbbb");
-        //    sut.Insert(30, 60, "cccc");
-        //    sut.Insert(100, 100, "dddd");
-
-        //    var result = sut.Contains(start, end);
-
-        //    result.Should().Be(expectedResult);
-        //}
-
-        //[DataTestMethod]
-        //[DataRow(0, 9, new string[0])]
-        //[DataRow(1, 8, new string[0])]
-        //[DataRow(200, 300, new string[0])]
-        //[DataRow(9, 10, new[] { "bbbb" })]
-        //[DataRow(60, 60, new[] { "ffff" })]
-        //[DataRow(300, 400, new[] { "eeee" })]
-        //[DataRow(5, 80, new[] { "aaaa", "bbbb", "ffff" })]
-        //[DataRow(0, 777, new[] { "aaaa", "bbbb", "cccc", "dddd", "eeee", "ffff" })]
-        //[DataRow(700, 800, new[] { "cccc", "dddd" })]
-        //public void FindOverlappingNodes_AnyInverval_ReturnsOverlappingNodes(int start, int end, string[] expectedOverlappingNodeData)
-        //{
-        //    var sut = new TestIntervalTree();
-
-        //    sut.Insert(20, 22, "aaaa");
-        //    sut.Insert(10, 14, "bbbb");
-        //    sut.Insert(666, 777, "cccc");
-        //    sut.Insert(666, 777, "dddd");
-        //    sut.Insert(400, 500, "eeee");
-        //    sut.Insert(50, 60, "ffff");
-
-        //    var overlappingNodeData = sut.Find(start, end).SelectMany(x => x.Data);
-
-        //    overlappingNodeData.Should().BeEquivalentTo(expectedOverlappingNodeData);
-        //}
-
         [TestMethod]
         public void TraverseInOrder_NonEmptyTree_ReturnsInOrderSequence()
         {
