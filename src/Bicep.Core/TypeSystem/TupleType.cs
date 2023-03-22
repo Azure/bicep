@@ -33,7 +33,19 @@ public class TupleType : ArrayType
 
     public override bool Equals(object? other) => other is TupleType otherTuple && ValidationFlags == otherTuple.ValidationFlags && Items.SequenceEqual(otherTuple.Items);
 
-    public override int GetHashCode() => HashCode.Combine(TypeKind, Items, ValidationFlags);
+    public override int GetHashCode()
+    {
+        HashCode hashCode = new();
+
+        hashCode.Add(TypeKind);
+        hashCode.Add(ValidationFlags);
+        foreach (var item in Items)
+        {
+            hashCode.Add(item);
+        }
+
+        return hashCode.ToHashCode();
+    }
 
     private static string DeriveTupleName(ImmutableArray<ITypeReference> items)
     {
