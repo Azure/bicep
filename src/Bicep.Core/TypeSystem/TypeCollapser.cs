@@ -63,8 +63,8 @@ internal static class TypeCollapser
                 BooleanType @bool => new BoolCollapse(@bool, nullable),
                 TupleType tuple => new ArrayCollapse(tuple, nullable),
                 ArrayType array => new ArrayCollapse(array, nullable),
-                AnyType => new CollapsesToAny(),
-                _ => new Uncollapsable(),
+                AnyType => CollapsesToAny.Instance,
+                _ => Uncollapsable.Instance,
             };
 
             private UnionCollapseState WithNullability()
@@ -124,9 +124,9 @@ internal static class TypeCollapser
                         nullable = true;
                         return this;
                     case AnyType:
-                        return new CollapsesToAny();
+                        return CollapsesToAny.Instance;
                     default:
-                        return new Uncollapsable();
+                        return Uncollapsable.Instance;
                 }
             }
         }
@@ -179,9 +179,9 @@ internal static class TypeCollapser
                         nullable = true;
                         return this;
                     case AnyType:
-                        return new CollapsesToAny();
+                        return CollapsesToAny.Instance;
                     default:
-                        return new Uncollapsable();
+                        return Uncollapsable.Instance;
                 }
             }
         }
@@ -241,9 +241,9 @@ internal static class TypeCollapser
                         nullable = true;
                         return this;
                     case AnyType:
-                        return new CollapsesToAny();
+                        return CollapsesToAny.Instance;
                     default:
-                        return new Uncollapsable();
+                        return Uncollapsable.Instance;
                 }
             }
         }
@@ -307,9 +307,9 @@ internal static class TypeCollapser
                         nullable = true;
                         return this;
                     case AnyType:
-                        return new CollapsesToAny();
+                        return CollapsesToAny.Instance;
                     default:
-                        return new Uncollapsable();
+                        return Uncollapsable.Instance;
                 }
             }
 
@@ -331,6 +331,10 @@ internal static class TypeCollapser
 
         private class CollapsesToAny : UnionCollapseState
         {
+            private CollapsesToAny() {}
+
+            internal static readonly CollapsesToAny Instance = new();
+
             public TypeSymbol? Collapse() => LanguageConstants.Any;
 
             public UnionCollapseState Push(ITypeReference _) => this;
@@ -338,6 +342,10 @@ internal static class TypeCollapser
 
         private class Uncollapsable : UnionCollapseState
         {
+            private Uncollapsable() {}
+
+            internal static readonly Uncollapsable Instance = new();
+
             public TypeSymbol? Collapse() => null;
 
             public UnionCollapseState Push(ITypeReference _) => this;
