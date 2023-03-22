@@ -1202,7 +1202,7 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(
                             DiagnosticBuilder
                                 .ForPosition(syntax.IndexExpression)
-                                .IndexOutOfBounds(baseType.Name, integerLiteralArrayIndex.Value));
+                                .ArrayIndexOutOfBounds(integerLiteralArrayIndex.Value));
                     }
 
                     // we are indexing over an array

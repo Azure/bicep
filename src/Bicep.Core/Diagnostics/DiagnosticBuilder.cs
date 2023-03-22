@@ -1907,7 +1907,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic IndexOutOfBounds(string typeName, long indexSought) => new(
                 TextSpan, 
                 "BCP337",
-                $"""The provided array index value of "{indexSought}" is not valid.""");
+                $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
