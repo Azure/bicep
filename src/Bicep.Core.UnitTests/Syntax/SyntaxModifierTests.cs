@@ -27,14 +27,14 @@ public class SyntaxModifierTests
         return node!;
     }
 
-    private static string RewriteProgram(string fileWithCursor, Func<ProgramSyntax, List<SyntaxBase>, ProgramSyntax> rewriteFunc)
+    private static string RewriteProgram(string fileWithCursor, Func<ProgramSyntax, List<SyntaxBase>, IDiagnosticLookup, ProgramSyntax> rewriteFunc)
     {
         var (file, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor, '|');
 
-        var program = ParserHelper.Parse(file);
+        var program = ParserHelper.Parse(file, out var _, out var parsingErrorLookup);
         var nodes = SyntaxMatcher.FindNodesMatchingOffset(program, cursor);
 
-        var rewrittenProgram = rewriteFunc(program, nodes);
+        var rewrittenProgram = rewriteFunc(program, nodes, parsingErrorLookup);
 
         return rewrittenProgram.ToTextPreserveFormatting();
     }
@@ -109,13 +109,13 @@ var adsf = [
     {
         var rewritten = RewriteProgram(
             fileWithCursor,
-            (program, nodes) => {
+            (program, nodes, parsingErrorLookup) => {
                 var array = GetLastNode<ArraySyntax>(nodes);
                 var item = GetLastNode<ArrayItemSyntax>(nodes);
 
                 return CallbackRewriter.Rewrite(
                     program,
-                    node => node == array && SyntaxModifier.TryRemoveItem(array, item, program.ParsingErrorLookup) is {} newArray ? newArray : node);
+                    node => node == array && SyntaxModifier.TryRemoveItem(array, item, parsingErrorLookup) is {} newArray ? newArray : node);
             });
 
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
@@ -191,13 +191,13 @@ var adsf = {
     {
         var rewritten = RewriteProgram(
             fileWithCursor,
-            (program, nodes) => {
+            (program, nodes, parsingErrorLookup) => {
                 var @object = GetLastNode<ObjectSyntax>(nodes);
                 var property = GetLastNode<ObjectPropertySyntax>(nodes);
 
                 return CallbackRewriter.Rewrite(
                     program,
-                    node => node == @object && SyntaxModifier.TryRemoveProperty(@object, property, program.ParsingErrorLookup) is {} newObject ? newObject : node);
+                    node => node == @object && SyntaxModifier.TryRemoveProperty(@object, property, parsingErrorLookup) is {} newObject ? newObject : node);
             });
 
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
@@ -261,7 +261,7 @@ var adsf = {
 
         var rewritten = RewriteProgram(
             fileWithCursor,
-            (program, nodes) => {
+            (program, nodes, parsingErrorLookup) => {
                 var @object = GetLastNode<ObjectSyntax>(nodes);
                 var prevProperty = GetLastNode<ObjectPropertySyntax>(nodes);
                 var prevIndex = @object.Properties.IndexOf(x => x == prevProperty);
@@ -269,8 +269,8 @@ var adsf = {
                 return CallbackRewriter.Rewrite(
                     program,
                     node => (node == @object &&
-                      SyntaxModifier.TryAddProperty(@object, startProp, program.ParsingErrorLookup, prevIndex) is {} newObject &&
-                      SyntaxModifier.TryAddProperty(newObject, endProp, program.ParsingErrorLookup, prevIndex + 2) is {} newObject2)
+                      SyntaxModifier.TryAddProperty(@object, startProp, parsingErrorLookup, prevIndex) is {} newObject &&
+                      SyntaxModifier.TryAddProperty(newObject, endProp, parsingErrorLookup, prevIndex + 2) is {} newObject2)
                       ? newObject2 : node);
             });
 

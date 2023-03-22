@@ -153,9 +153,9 @@ namespace Bicep.Core.Semantics
 
         public IFileResolver FileResolver { get; }
 
-        public IDiagnosticLookup LexingErrorLookup => this.Root.Syntax.LexingErrorLookup;
+        public IDiagnosticLookup LexingErrorLookup => this.SourceFile.LexingErrorLookup;
 
-        public IDiagnosticLookup ParsingErrorLookup => this.Root.Syntax.ParsingErrorLookup;
+        public IDiagnosticLookup ParsingErrorLookup => this.SourceFile.ParsingErrorLookup;
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 

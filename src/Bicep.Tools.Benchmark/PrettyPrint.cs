@@ -60,7 +60,7 @@ public class PrettyPrint
             var sourceFileGrouping = service.BuildSourceFileGrouping(new Uri($"file:///{dataSet.Name}/main.bicep"), false);
             var compilation = service.BuildCompilation(sourceFileGrouping);
 
-            PrettyPrinter.PrintProgram(compilation.GetEntrypointSemanticModel().Root.Syntax, this.printOptions);
+            PrettyPrinter.PrintValidProgram(compilation.GetEntrypointSemanticModel().Root.Syntax, this.printOptions);
         }
     }
 }

@@ -47,8 +47,9 @@ namespace Bicep.Core.UnitTests.Parsing
             foreach (var (statementCount, file) in validFiles)
             {
                 var becauseFileValid = $"{file} is considered valid";
-                var program = ParserHelper.Parse(file);
-                program.ParsingErrorLookup.Should().BeEmpty(becauseFileValid);
+                var program = ParserHelper.Parse(file, out var lexingErrorLookup, out var parsingErrorLookup);
+                lexingErrorLookup.Should().BeEmpty(becauseFileValid);
+                parsingErrorLookup.Should().BeEmpty(becauseFileValid);
                 program.Declarations.Should().HaveCount(statementCount, becauseFileValid);
                 program.Declarations.Should().AllBeOfType(expectedType, becauseFileValid);
             }
@@ -60,8 +61,8 @@ namespace Bicep.Core.UnitTests.Parsing
 
             foreach (var file in invalidFiles)
             {
-                var program = ParserHelper.Parse(file);
-                program.ParsingErrorLookup.Should().NotBeEmpty();
+                ParserHelper.Parse(file, out var syntaxErrors);
+                syntaxErrors.Should().NotBeEmpty();
             }
         }
 

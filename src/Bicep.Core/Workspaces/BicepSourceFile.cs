@@ -10,12 +10,14 @@ namespace Bicep.Core.Workspaces
 {
     public abstract class BicepSourceFile : ISourceFile
     {
-        protected BicepSourceFile(ImmutableArray<int> lineStarts, ProgramSyntax programSyntax, Uri fileUri)
+        protected BicepSourceFile(ImmutableArray<int> lineStarts, ProgramSyntax programSyntax, Uri fileUri, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
             FileUri = fileUri;
             Hierarchy = SyntaxHierarchy.Build(ProgramSyntax);
+            LexingErrorLookup = lexingErrorLookup;
+            ParsingErrorLookup = parsingErrorLookup;
             DisabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
         }
 
@@ -25,6 +27,8 @@ namespace Bicep.Core.Workspaces
             LineStarts = original.LineStarts;
             ProgramSyntax = original.ProgramSyntax;
             Hierarchy = original.Hierarchy;
+            LexingErrorLookup = original.LexingErrorLookup;
+            ParsingErrorLookup = original.ParsingErrorLookup;
             DisabledDiagnosticsCache = original.DisabledDiagnosticsCache;
         }
 
@@ -37,6 +41,10 @@ namespace Bicep.Core.Workspaces
         public abstract BicepSourceFileKind FileKind { get; }
 
         public ISyntaxHierarchy Hierarchy { get; }
+
+        public IDiagnosticLookup LexingErrorLookup { get; }
+
+        public IDiagnosticLookup ParsingErrorLookup { get; }
 
         public DisabledDiagnosticsCache DisabledDiagnosticsCache { get; }
 

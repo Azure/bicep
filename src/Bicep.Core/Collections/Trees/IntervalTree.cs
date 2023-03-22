@@ -25,8 +25,14 @@ namespace Bicep.Core.Collections.Trees
 
         public IntervalTreeNode<TData> Root { get; private set; } = IntervalTreeNode<TData>.Nil;
 
+        /// <summary>
+        /// Performs an in-order traversal for the tree and returns the nodes traversed.
+        /// </summary>
         public IEnumerable<IntervalTreeNode<TData>> Traverse() => this.Traverse(this.Root);
 
+        /// <summary>
+        /// Performs an in-order traversal for the sub-tree rooted at node and returns the nodes traversed.
+        /// </summary>
         public IEnumerable<IntervalTreeNode<TData>> Traverse(IntervalTreeNode<TData> node)
         {
             // Do an in-order traversal so the nodes are sorted by interval starts.
@@ -48,6 +54,10 @@ namespace Bicep.Core.Collections.Trees
             }
         }
 
+        /// <summary>
+        /// Insert a node to the tree in O(lg n).
+        /// </summary>
+        /// <param name="node">The node to insert.</param>
         public void Insert(IntervalTreeNode<TData> node)
         {
             var parent = IntervalTreeNode<TData>.Nil;
@@ -97,6 +107,10 @@ namespace Bicep.Core.Collections.Trees
             FixAdjancentRed(node);
         }
 
+        /// <summary>
+        /// Delete a node from the tree in O(lg n).
+        /// </summary>
+        /// <param name="node">The node to delete.</param>
         public void Delete(IntervalTreeNode<TData> node)
         {
             if (this.Root.IsNil)
@@ -151,6 +165,13 @@ namespace Bicep.Core.Collections.Trees
             this.PaintBlack(node);
         }
 
+        /// <summary>
+        /// Perform a <see href="https://en.wikipedia.org/wiki/Tree_rotation">tree rotation</see>.
+        /// If indexer is <see cref="BinaryTreeIndexer.Default">BinaryTreeIndexer.Default</see>, the rotation is a left-rotation.
+        /// If indexer is <see cref="BinaryTreeIndexer.Inverted">BinaryTreeIndexer.Inverted</see>, the rotation is a right-rotation.
+        /// </summary>
+        /// <param name="node">The root node of the tree to rotate.</param>
+        /// <param name="indexer">The indexer that controls the rotation direction.</param>
         private void Rotate(IntervalTreeNode<TData> node, BinaryTreeIndexer indexer)
         {
             var (leftIndex, rightIndex) = indexer;
@@ -190,6 +211,11 @@ namespace Bicep.Core.Collections.Trees
 
         }
 
+        /// <summary>
+        /// Within the current tree, replace a sub-tree whose root is node by a sub-tree whose root is subsitution.
+        /// </summary>
+        /// <param name="node">The root of the sub-tree to be replaced.</param>
+        /// <param name="subsitution">The root of the sub-tree to transplant.</param>
         private void Transplant(IntervalTreeNode<TData> node, IntervalTreeNode<TData> subsitution)
         {
             if (node.IsRoot)
@@ -208,6 +234,11 @@ namespace Bicep.Core.Collections.Trees
             subsitution.Parent = node.Parent;
         }
 
+        /// <summary>
+        /// The method is called after an insertion to fix the violation to the red-black tree property that
+        /// if a node is red, then both its children are black (no adjancent red nodes).
+        /// </summary>
+        /// <param name="node">The node to fix.</param>
         private void FixAdjancentRed(IntervalTreeNode<TData> node)
         {
             while (IsRed(node.Parent))
@@ -242,6 +273,10 @@ namespace Bicep.Core.Collections.Trees
             this.PaintBlack(Root);
         }
 
+        /// <summary>
+        /// The method is called after a deletion to fix a doubly-black or red-or-black node.
+        /// </summary>
+        /// <param name="node">The node to fix.</param>
         private void FixExtraBlack(IntervalTreeNode<TData> node)
         {
             while (node.IsNotRoot && this.IsBlack(node))

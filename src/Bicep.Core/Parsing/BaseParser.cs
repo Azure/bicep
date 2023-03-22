@@ -25,10 +25,16 @@ namespace Bicep.Core.Parsing
             lexer.Lex();
 
             this.reader = new TokenReader(lexer.GetTokens());
+
+            this.ParsingErrorTree = new DiagnosticTree();
             this.LexingErrorLookup = lexingErrorTree;
         }
 
-        protected IDiagnosticLookup LexingErrorLookup { get; }
+        protected DiagnosticTree ParsingErrorTree { get; }
+
+        public IDiagnosticLookup LexingErrorLookup { get; }
+
+        public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 

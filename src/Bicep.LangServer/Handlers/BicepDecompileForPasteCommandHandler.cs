@@ -216,7 +216,7 @@ namespace Bicep.LanguageServer.Handlers
                 var parser = new Parser("var v = " + json);
                 var program = parser.Program();
 
-                if (!program.LexingErrorLookup.Any() && !program.ParsingErrorLookup.Any())
+                if (!parser.LexingErrorLookup.Any() && !parser.ParsingErrorLookup.Any())
                 {
                     pasteType = PasteType_BicepValue;
                 }

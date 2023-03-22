@@ -53,7 +53,7 @@ namespace Bicep.Cli.Commands
                     args.InsertFinalNewline ?? false
                 );
 
-                string output = PrettyPrinter.PrintProgram(programSyntax, options);
+                string output = PrettyPrinter.PrintProgram(programSyntax, options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
                 if (args.OutputToStdOut)
                 {
                     io.Output.Write(output);

@@ -101,10 +101,10 @@ namespace Bicep.Core.IntegrationTests
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedBicep);
             var bicepFile = baselineFolder.EntryFile;
 
-            var program = ParserHelper.Parse(embeddedBicep.Contents);
+            var program = ParserHelper.Parse(embeddedBicep.Contents, out var lexingErrorLookup, out var parsingErrorLookup);
             var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, true);
 
-            var formattedContents = PrettyPrinter.PrintProgram(program, printOptions);
+            var formattedContents = PrettyPrinter.PrintProgram(program, printOptions, lexingErrorLookup, parsingErrorLookup);
             formattedContents.Should().NotBeNull();
 
             File.WriteAllText(bicepFile.OutputFilePath, formattedContents);

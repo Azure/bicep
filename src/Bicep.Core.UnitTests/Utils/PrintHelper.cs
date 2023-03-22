@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
@@ -26,10 +27,10 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static string PrintAndCheckForParseErrors(ProgramSyntax programSyntax)
         {
-            var asString = PrettyPrinter.PrintProgram(programSyntax, DefaultOptions);
+            var asString = PrettyPrinter.PrintProgram(programSyntax, DefaultOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 
-            var parsed = ParserHelper.Parse(asString);
-            parsed.ParsingErrorLookup.Should().BeEmpty();
+            ParserHelper.Parse(asString, out var syntaxErrors);
+            syntaxErrors.Should().BeEmpty();
 
             return asString;
         }
