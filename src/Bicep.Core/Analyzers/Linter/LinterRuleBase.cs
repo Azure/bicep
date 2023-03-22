@@ -25,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
             this.Description = description;
-            this.Uri = docUri;
+            this.HelpUri = docUri;
             this.DefaultDiagnosticLevel = diagnosticLevel;
             this.DiagnosticStyling = diagnosticStyling;
         }
@@ -40,7 +40,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public string Description { get; }
 
-        public Uri? Uri { get; }
+        public Uri? HelpUri { get; }
 
         // If specified, adds the given diagnostic label to every diagnostic created for this rule (such as for unnecessary or obsolete code).
         // Should be left as None/null for most rules.
@@ -116,7 +116,7 @@ namespace Bicep.Core.Analyzers.Linter
                 level: level,
                 code: this.Code,
                 message: this.GetMessage(),
-                documentationUri: this.Uri,
+                documentationUri: this.HelpUri,
                 styling: this.DiagnosticStyling);
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Bicep.Core.Analyzers.Linter
                 level: level,
                 code: this.Code,
                 message: this.GetMessage(values),
-                documentationUri: this.Uri,
+                documentationUri: this.HelpUri,
                 styling: this.DiagnosticStyling);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
@@ -145,7 +145,7 @@ namespace Bicep.Core.Analyzers.Linter
                 level: level,
                 code: this.Code,
                 message: this.GetMessage(values),
-                documentationUri: this.Uri,
+                documentationUri: this.HelpUri,
                 codeFixes: fixes,
                 styling: this.DiagnosticStyling);
     }

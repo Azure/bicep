@@ -29,7 +29,7 @@ namespace Bicep.Core.Analyzers.Interfaces
 
         DiagnosticStyling DiagnosticStyling { get; }
 
-        Uri? Uri { get; }
+        Uri? HelpUri { get; }
 
         IEnumerable<IDiagnostic> Analyze(SemanticModel model);
     }
