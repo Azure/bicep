@@ -134,7 +134,11 @@
         "extensions": [
           ".bicep"
         ],
-        "configuration": "./syntaxes/language-configuration.json"
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "./icons/bicep-file.svg",
+          "dark": "./icons/bicep-file.svg"
+        }
       },
       {
         "id": "jsonc",
