@@ -261,49 +261,49 @@ resource existingVirtualMachineNames_resource 'Microsoft.SqlVirtualMachine/SqlVi
 
   it("should convert pasted list of resources", async () => {
     const jsonToPaste = `
-{
-  "type": "Microsoft.Storage/storageAccounts",
-  "apiVersion": "2021-02-01",
-  "name": "stg1",
-  "location": "[parameters('location2')]",
-  "kind": "StorageV2",
-  "sku": {
-    "name": "Premium_LRS"
-  }
-} /* no comma */{
-  "name": "aksCluster1",
-  "type": "Microsoft.ContainerService/managedClusters",
-  "apiVersion": "2021-05-01",
-  "location": "[resourceGroup().location]",
-  "properties": {
-    "kubernetesVersion": "1.15.7",
-    "dnsPrefix": "dnsprefix",
-    "agentPoolProfiles": [
-      {
-        "name": "agentpool",
-        "count": 2,
-        "vmSize": "Standard_A1",
-        "osType": "Linux",
-        "storageProfile": "ManagedDisks"
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2021-02-01",
+          "name": "stg1",
+            "location": "[parameters('location2')]",
+              "kind": "StorageV2",
+                "sku": {
+        "name": "Premium_LRS"
       }
-    ],
-    "linuxProfile": {
-      "adminUsername": "adminUserName",
-      "ssh": {
-        "publicKeys": [
-          {
-            "keyData": "keyData"
+    } /* no comma */{
+      "name": "aksCluster1",
+        "type": "Microsoft.ContainerService/managedClusters",
+          "apiVersion": "2021-05-01",
+            "location": "[resourceGroup().location]",
+              "properties": {
+        "kubernetesVersion": "1.15.7",
+          "dnsPrefix": "dnsprefix",
+            "agentPoolProfiles": [
+              {
+                "name": "agentpool",
+                "count": 2,
+                "vmSize": "Standard_A1",
+                "osType": "Linux",
+                "storageProfile": "ManagedDisks"
+              }
+            ],
+              "linuxProfile": {
+          "adminUsername": "adminUserName",
+            "ssh": {
+            "publicKeys": [
+              {
+                "keyData": "keyData"
+              }
+            ]
           }
-        ]
+        },
+        "servicePrincipalProfile": {
+          "clientId": "servicePrincipalAppId",
+            "secret": "servicePrincipalAppPassword"
+        }
       }
-    },
-    "servicePrincipalProfile": {
-      "clientId": "servicePrincipalAppId",
-      "secret": "servicePrincipalAppPassword"
     }
-  }
-}
-,`;
+  ,`;
 
     const expected = `resource stg1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   name: 'stg1'
@@ -346,7 +346,7 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
   }
 }
 // My bicep file
-`;
+      `;
 
     await runTest(`|// My bicep file\n`, jsonToPaste, "copy/paste", {
       bicep: expected,
@@ -361,6 +361,111 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
     const expected = `var v = 'Mom says \\'hi\\''`;
 
     await runTest(bicep, jsonToPaste, "copy/paste", { bicep: expected });
+  });
+
+  it("should not decompile if copy/pasting inside string", async () => {
+    const bicep = `@description('|this is a description')
+param s string`;
+    const jsonToPaste = `"Mom says 'hi' "`;
+    const expected = `@description('"Mom says 'hi' "this is a description')
+param s string`;
+
+    await runTest(bicep, jsonToPaste, "copy/paste", { bicep: expected });
+  });
+
+  it("should not decompile if pasting inside multiline string", async () => {
+    const bicep = `var v = '''
+These are
+|multiple
+lines'''`;
+    const jsonToPaste = `"really" `;
+    const expected = `var v = '''
+These are
+"really" multiple
+lines'''`;
+
+    await runTest(bicep, jsonToPaste, "copy/paste", { bicep: expected });
+  });
+
+  it("should not decompile even from menu command when inside string", async () => {
+    const bicep = `@description('|this is a description')
+param s string`;
+    const jsonToPaste = `"Mom says 'hi' "`;
+
+    await runTest(bicep, jsonToPaste, "command", {
+      error: "Cannot paste JSON as Bicep inside of a string",
+    });
+  });
+
+  it("should not decompile even from menu command when inside property string", async () => {
+    const bicep = `resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'loadBalancerName'
+  location: '|location'
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'static'
+  }
+}
+`;
+    const jsonToPaste = `{
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2022-09-01",
+      "name": "rg",
+      "location": "[parameters('location')]"
+    }`;
+
+    await runTest(bicep, jsonToPaste, "command", {
+      error: "Cannot paste JSON as Bicep inside of a string",
+    });
+  });
+
+  it("should handle non-empty selection outside string", async () => {
+    const bicep = `resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'loadBalancerName'
+  location: |'location'|
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'static'
+  }
+}
+`;
+    const jsonToPaste = `"hello"`;
+    const expected = `resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'loadBalancerName'
+  location: 'hello'
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'static'
+  }
+}
+`;
+
+    await runTest(bicep, jsonToPaste, "command", { bicep: expected });
+  });
+
+  it("should handle non-empty selection inside string", async () => {
+    const bicep = `resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'loadBalancerName'
+  location: '|location|'
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIPAllocationMethod: 'static'
+  }
+}
+`;
+    const jsonToPaste = `"hello"`;
+
+    await runTest(bicep, jsonToPaste, "command", {
+      error: "Cannot paste JSON as Bicep inside of a string",
+    });
   });
 
   it("should handle non-empty selection inside and outside of a string (using context of first part of selection)", async () => {
