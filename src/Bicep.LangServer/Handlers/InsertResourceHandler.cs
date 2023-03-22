@@ -189,10 +189,9 @@ namespace Bicep.LanguageServer.Handlers
             var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
             var program = new ProgramSyntax(
                 new[] { resourceDeclaration },
-                SyntaxFactory.CreateToken(TokenType.EndOfFile),
-                ImmutableArray<IDiagnostic>.Empty);
+                SyntaxFactory.CreateToken(TokenType.EndOfFile));
 
-            var printed = PrettyPrinter.PrintProgram(program, printOptions);
+            var printed = PrettyPrinter.PrintValidProgram(program, printOptions);
             var bicepFile = RewriterHelper.RewriteMultiple(
                 prevCompilation,
                 SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), printed),
@@ -200,7 +199,7 @@ namespace Bicep.LanguageServer.Handlers
                 model => new TypeCasingFixerRewriter(model),
                 model => new ReadOnlyPropertyRemovalRewriter(model));
 
-            printed = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, printOptions);
+            printed = PrettyPrinter.PrintValidProgram(bicepFile.ProgramSyntax, printOptions);
             if (insertContext.StartWithNewline)
             {
                 printed = "\n" + printed;

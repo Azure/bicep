@@ -70,19 +70,19 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 }
 
 // duplicate property at the top level
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   name: true
 }
 
 // duplicate property at the top level with string literal syntax
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   'name': true
 }
 
 // duplicate property inside
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   properties: {
     foo: 'a'
@@ -91,7 +91,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 }
 
 // duplicate property inside with string literal syntax
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   properties: {
     foo: 'a'

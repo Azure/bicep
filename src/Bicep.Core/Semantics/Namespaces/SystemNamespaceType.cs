@@ -1373,12 +1373,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
             }
 
-            static void ValidateNotTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+            static void ValidateNotTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
                 => EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder), binder, diagnosticWriter);
 
-            static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+            static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
             {
-                ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+                ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
 
                 if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                 {
@@ -1418,7 +1418,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the allowed values of the parameter.")
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                 {
                     var parentTypeSyntax = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
 
@@ -1440,6 +1440,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     TypeValidator.NarrowTypeAndCollectDiagnostics(
                         typeManager,
                         binder,
+                        parsingErrorLookup,
                         diagnosticWriter,
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
@@ -1487,8 +1488,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) =>
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
+                .WithValidator((_, decoratorSyntax, _, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleParameterSelector))
                 .Build();
 
@@ -1505,7 +1506,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter(LanguageConstants.BatchSizePropertyName, LanguageConstants.Int, "The size of the batch")
                 .WithFlags(FunctionFlags.ResourceOrModuleDecorator)
                 // the decorator is constrained to resources and modules already - checking for array alone is simple and should be sufficient
-                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
                 {
                     if (!TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array))
                     {

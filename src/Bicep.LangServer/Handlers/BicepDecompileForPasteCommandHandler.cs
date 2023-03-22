@@ -307,8 +307,10 @@ namespace Bicep.LanguageServer.Handlers
                 Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
 
                 // Is the input already a valid Bicep expression?
-                Parser parser = new Parser("var v = " + json);
-                if (!parser.Program().HasParseErrors())
+                var parser = new Parser("var v = " + json);
+                var program = parser.Program();
+
+                if (!parser.LexingErrorLookup.Any() && !parser.ParsingErrorLookup.Any())
                 {
                     pasteType = PasteType_BicepValue;
                 }

@@ -19,6 +19,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Decompiler;
 
@@ -130,7 +131,7 @@ public class BicepDecompiler
                 continue;
             }
 
-            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, GetPrettyPrintOptions());
+            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, GetPrettyPrintOptions(), bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
         }
 
         return filesToSave.ToImmutableDictionary();
@@ -138,7 +139,7 @@ public class BicepDecompiler
 
     private static string PrintSyntax(SyntaxBase syntax)
     {
-        return PrettyPrinter.PrintSyntax(syntax, GetPrettyPrintOptions());
+        return PrettyPrinter.PrintValidSyntax(syntax, GetPrettyPrintOptions());
     }
 
     private static PrettyPrintOptions GetPrettyPrintOptions() => new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);

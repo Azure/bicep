@@ -815,6 +815,12 @@ namespace Bicep.Core.Parsing
             {
                 return tokenType;
             }
+
+            if (identifier.Length > LanguageConstants.MaxIdentifierLength)
+            {
+                this.AddDiagnostic(b => b.IdentifierNameExceedsLimit());
+            }
+
             return TokenType.Identifier;
         }
 

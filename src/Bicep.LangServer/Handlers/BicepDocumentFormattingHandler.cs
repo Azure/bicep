@@ -44,7 +44,9 @@ namespace Bicep.LanguageServer.Handlers
             ProgramSyntax programSyntax = context.ProgramSyntax;
             PrettyPrintOptions options = new PrettyPrintOptions(NewlineOption.Auto, indentKindOption, indentSize, request.Options.InsertFinalNewline);
 
-            string? output = PrettyPrinter.PrintProgram(programSyntax, options);
+            var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
+            var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
+            string? output = PrettyPrinter.PrintProgram(programSyntax, options, lexingErrorLookup, parsingErrorLookup);
 
             if (output == null)
             {

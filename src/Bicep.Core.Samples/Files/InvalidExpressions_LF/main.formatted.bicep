@@ -84,7 +84,8 @@ var errorInsideArrayAccess = [
 ][!0]
 var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
-var malformedStringIndex = {}[ 'test\e']
+var malformedStringIndex = {
+}['test\e']
 var invalidIndexTypeOverAny = any(true)[true]
 var badIndexOverArray = [][null]
 var badIndexOverArray2 = []['s']

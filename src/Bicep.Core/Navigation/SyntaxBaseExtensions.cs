@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Syntax;
@@ -74,7 +75,7 @@ namespace Bicep.Core.Navigation
             var sb = new StringBuilder();
             var documentBuildVisitor = new DocumentBuildVisitor();
             var document = documentBuildVisitor.BuildDocument(syntax);
-            document.Layout(sb, indent, newLineSequence ?? System.Environment.NewLine);
+            document.Layout(sb, indent, newLineSequence ?? Environment.NewLine);
             return sb.ToString();
         }
 

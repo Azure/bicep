@@ -27,17 +27,19 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFileResolver fileResolver;
+        private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
         private readonly BicepSourceFileKind fileKind;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, Workspaces.BicepSourceFileKind fileKind)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, Workspaces.BicepSourceFileKind fileKind)
         {
             this.typeManager = typeManager;
             this.features = features;
             this.binder = binder;
             this.fileResolver = fileResolver;
+            this.parsingErrorLookup = parsingErrorLookup;
             assignedTypes = new();
             matchedFunctionOverloads = new();
             matchedFunctionResultValues = new();
@@ -303,7 +305,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, declaredType, true);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType, true);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -380,7 +382,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, declaredType);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -673,7 +675,7 @@ namespace Bicep.Core.TypeSystem
                     else
                     {
                         // Collect diagnostics for the configuration type assignment.
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Config, namespaceType.ConfigurationType.Type, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, namespaceType.ConfigurationType.Type, false);
                     }
                 }
                 else
@@ -737,7 +739,7 @@ namespace Bicep.Core.TypeSystem
                             decoratorSyntaxesByMatchingDecorator[decorator] = new List<DecoratorSyntax> { decoratorSyntax };
                         }
 
-                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, this.binder, diagnostics);
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, this.binder, this.parsingErrorLookup, diagnostics);
                     }
                 }
             }
@@ -884,6 +886,18 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () =>
             {
                 var errors = new List<ErrorDiagnostic>();
+
+                var duplicatedProperties = syntax.Properties
+                    .GroupByExcludingNull(prop => prop.TryGetKeyText(), LanguageConstants.IdentifierComparer)
+                    .Where(group => group.Count() > 1);
+
+                foreach (var group in duplicatedProperties)
+                {
+                    foreach (ObjectPropertySyntax duplicatedProperty in group)
+                    {
+                        errors.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Key).PropertyMultipleDeclarations(group.Key));
+                    }
+                }
 
                 var propertyTypes = new List<TypeSymbol>();
                 foreach (var objectProperty in syntax.Properties)
@@ -1445,7 +1459,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
-                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Body, LanguageConstants.Any);
+                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
 
                 return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
             });
@@ -1567,12 +1581,12 @@ namespace Bicep.Core.TypeSystem
 
                 TypeValidator.GetCompileTimeConstantViolation(syntax.Value, diagnostics);
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Value, declaredType);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnostics, syntax.Value, declaredType);
             });
 
         public override void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => AssignTypeWithDiagnostics(syntax, diagnostics =>
         {
-            if (syntax.HasParseErrors())
+            if (this.parsingErrorLookup.Contains(syntax))
             {
                 // Skip adding semantic errors if there are parsing errors, as it might be a bit overwhelming.
                 return LanguageConstants.Any;
@@ -1866,7 +1880,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
 
             return diagnosticWriter.GetDiagnostics();
         }

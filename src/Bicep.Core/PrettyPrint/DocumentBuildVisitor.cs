@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint.Documents;
@@ -33,7 +34,11 @@ namespace Bicep.Core.PrettyPrint
             .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
             .ToImmutableDictionary(value => value, value => new TextDocument(value));
 
-        private readonly Stack<ILinkedDocument> documentStack = new Stack<ILinkedDocument>();
+        private readonly Stack<ILinkedDocument> documentStack = new();
+
+        private readonly IDiagnosticLookup lexingErrorLookup;
+
+        private readonly IDiagnosticLookup parsingErrorLookup;
 
         private bool visitingSkippedTriviaSyntax;
 
@@ -44,6 +49,17 @@ namespace Bicep.Core.PrettyPrint
         private bool visitingLeadingTrivia;
 
         private ILinkedDocument? LeadingDirectiveOrComments = null;
+
+        public DocumentBuildVisitor()
+            : this(EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance)
+        {
+        }
+
+        public DocumentBuildVisitor(IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        {
+            this.lexingErrorLookup = lexingErrorLookup;
+            this.parsingErrorLookup = parsingErrorLookup;
+        }
 
         public ILinkedDocument BuildDocument(SyntaxBase syntax)
         {
@@ -289,7 +305,7 @@ namespace Bicep.Core.PrettyPrint
                 {
                     var visitingBrokenStatement = this.visitingBrokenStatement;
 
-                    if (nodes[i].GetParseDiagnostics().Any())
+                    if (this.HasSyntaxError(nodes[i]))
                     {
                         this.visitingBrokenStatement = true;
                     }
@@ -628,7 +644,7 @@ namespace Bicep.Core.PrettyPrint
 
         private void BuildStatement(SyntaxBase syntax, Action visitAction)
         {
-            if (syntax.GetParseDiagnostics().Count > 0)
+            if (this.HasSyntaxError(syntax))
             {
                 this.visitingBrokenStatement = true;
                 visitAction();
@@ -755,5 +771,9 @@ namespace Bicep.Core.PrettyPrint
                 this.documentStack.Push(document);
             }
         }
+
+        private bool HasSyntaxError(SyntaxBase syntax) =>
+            this.lexingErrorLookup.Contains(syntax) ||
+            this.parsingErrorLookup.Contains(syntax);
     }
 }
