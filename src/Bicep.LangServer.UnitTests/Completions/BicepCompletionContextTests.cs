@@ -10,8 +10,6 @@ using Bicep.LanguageServer.Completions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-[assembly: InternalsVisibleTo("Bicep.LangServer.UnitTests")]
-
 namespace Bicep.LangServer.UnitTests.Completions
 {
     [TestClass]
