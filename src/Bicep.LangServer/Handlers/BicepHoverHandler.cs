@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -158,10 +159,36 @@ namespace Bicep.LanguageServer.Handlers
                 case LocalVariableSymbol local:
                     return WithMarkdown(CodeBlock($"{local.Name}: {local.Type}"));
 
+                case ParameterAssignmentSymbol parameterAssignment:
+                     if(GetDeclaredParameterMetadata(parameterAssignment) is not ParameterMetadata declaredParamMetadata)
+                     {
+                        return null;
+                     }
+
+                    return WithMarkdown(CodeBlockWithDescription(
+                        WithTypeModifiers($"param {parameterAssignment.Name}: {declaredParamMetadata.TypeReference.Type}", declaredParamMetadata.TypeReference.Type), declaredParamMetadata.Description));
+                        
                 default:
                     return null;
             }
         }
+
+        private static ParameterMetadata? GetDeclaredParameterMetadata(ParameterAssignmentSymbol symbol)
+        {
+            if(!symbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            {
+                // failed to resolve using
+                return null;
+            }
+
+            if(bicepSemanticModel.Parameters.TryGetValue(symbol.Name, out var parameterMetadata))
+            {
+                return parameterMetadata;
+            }
+
+            return null;
+        }
+
 
         private static string WithTypeModifiers(string coreContent, TypeSymbol type)
         {
@@ -278,7 +305,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create()
+            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }
