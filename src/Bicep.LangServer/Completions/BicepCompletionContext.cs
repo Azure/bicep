@@ -162,6 +162,7 @@ namespace Bicep.LanguageServer.Completions
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelDeclarationSyntax, SyntaxBase>(matchingNodes);
             var objectInfo = SyntaxMatcher.FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
             var propertyInfo = SyntaxMatcher.FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
+            var propertyKey = propertyInfo.node?.TryGetKeyText();
             var arrayInfo = SyntaxMatcher.FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
             var propertyAccessInfo = SyntaxMatcher.FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
             var resourceAccessInfo = SyntaxMatcher.FindLastNodeOfType<ResourceAccessSyntax, ResourceAccessSyntax>(matchingNodes);
@@ -212,12 +213,22 @@ namespace Bicep.LanguageServer.Completions
                 // check if we're inside an expression
                 kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
 
-                if (kind.HasFlag(BicepCompletionContextKind.Expression) &&
-                    PropertyTypeShouldFlowThrough(matchingNodes, propertyInfo, offset))
+                if (kind.HasFlag(BicepCompletionContextKind.Expression))
                 {
-                    kind |= BicepCompletionContextKind.PropertyValue;
+                    if (PropertyTypeShouldFlowThrough(matchingNodes, propertyInfo, offset))
+                    {
+                        kind |= BicepCompletionContextKind.PropertyValue;
+                    }
+
+                    var arrayItemInfo = SyntaxMatcher.FindLastNodeOfType<ArrayItemSyntax, ArrayItemSyntax>(matchingNodes);
+                    if (ArrayItemTypeShouldFlowThrough(matchingNodes, arrayItemInfo))
+                    {
+                        kind |= BicepCompletionContextKind.ArrayItem;
+                    }
                 }
             }
+
+            kind |= ConvertFlag(IsResourceDependsOnArrayItemContext(kind, propertyKey, topLevelDeclarationInfo.node), BicepCompletionContextKind.ExpectsResourceSymbolicReference);
 
             return new BicepCompletionContext(
                 kind,
@@ -632,6 +643,32 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
+        private static bool ArrayItemTypeShouldFlowThrough(List<SyntaxBase> matchingNodes, (ArrayItemSyntax? node, int index) arrayItemInfo)
+        {
+            if (arrayItemInfo.node is null)
+            {
+                return false;
+            }
+
+            // Array item types should flow through parenthesized and ternary expressions. For examples:
+            // [
+            //   ( | )
+            // ]
+            // [
+            //   conditionA ? | : false
+            // ]
+            // [
+            //   conditionA ? (conditionB ? true : |) : false
+            // ]
+            if (matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
+                && matchingNodes.Last() is TernaryOperationSyntax or ParenthesizedExpressionSyntax or Token)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private static bool IsArrayItemContext(List<SyntaxBase> matchingNodes, (ArraySyntax? node, int index) arrayInfo, int offset)
         {
             if (arrayInfo.node == null)
@@ -1026,6 +1063,13 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
             // param foo = 'o|'
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete);
+
+        private static bool IsResourceDependsOnArrayItemContext(BicepCompletionContextKind kind, string? propertyName, SyntaxBase? topLevelDeclarationInfo)
+        {
+            return propertyName == LanguageConstants.ResourceDependsOnPropertyName
+                   && kind.HasFlag(BicepCompletionContextKind.ArrayItem)
+                   && topLevelDeclarationInfo is ResourceDeclarationSyntax or ModuleDeclarationSyntax;
+        }
 
         static bool IsOffsetImmediatlyAfterNode(int offset, SyntaxBase node) => node.Span.Position + node.Span.Length == offset;
 

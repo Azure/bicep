@@ -877,6 +877,50 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
+        private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
+        {
+            // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
+            // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference)
+                && symbol is ResourceSymbol or ModuleSymbol)
+            {
+                // parent resource symbols of the current resource should not be prioritized but are still provided for use in expressions
+                var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
+                if (enclosingResourceMetadata != null
+                    && model.ResourceAncestors.GetAncestors(enclosingResourceMetadata).Any(ra => ra.Resource.Symbol == symbol))
+                {
+                    return CompletionPriority.Medium;
+                }
+
+                return CompletionPriority.VeryHigh;
+            }
+
+            return GetCompletionPriority(symbol);
+        }
+
+        private static bool ShouldSymbolBeIncludedInCompletion(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
+        {
+            // filter out self references
+            if (enclosingDeclarationSymbol != null && ReferenceEquals(symbol, enclosingDeclarationSymbol))
+            {
+                return false;
+            }
+
+            // For nested resource/module symbol completions, don't suggest child symbols for resource.dependsOn symbol completions.
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
+            {
+                // filter out child resource symbols of the enclosing declaration symbol
+                var symbolResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == symbol);
+                if (symbolResourceMetadata != null
+                    && model.ResourceAncestors.GetAncestors(symbolResourceMetadata).Any(ra => ra.Resource.Symbol == enclosingDeclarationSymbol))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // maps insert text to the completion item
@@ -895,13 +939,14 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var symbol in symbols)
                 {
-                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol))
+                    if (!result.ContainsKey(symbol.Name) && ShouldSymbolBeIncludedInCompletion(symbol, model, context, enclosingDeclarationSymbol))
                     {
                         // the symbol satisfies the following conditions:
                         // - we have not added a symbol with the same name (avoids duplicate completions)
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange));
+                        var priority = GetContextualCompletionPriority(symbol, model, context, enclosingDeclarationSymbol);
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, priority: priority));
                     }
                 }
             }
@@ -1155,6 +1200,14 @@ namespace Bicep.LanguageServer.Completions
 
             var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Array);
             if (declaredTypeAssignment?.Reference.Type is not ArrayType arrayType)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            // Special case: there is a distinction in the type system that needs to be made for resource.dependsOn resource collections
+            // which are resources defined by a loop vs arrays. For now, check if type is the specific type of resource.dependsOn
+            // don't provide value completions as the resource collections completions are handled by GetSymbolCompletions.
+            if (ReferenceEquals(arrayType.Item.Type, LanguageConstants.ResourceOrResourceCollectionRefItem))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -1657,14 +1710,14 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, CompletionPriority? priority = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
-            var priority = GetCompletionPriority(symbol);
+            var completion = CompletionItemBuilder.Create(kind, insertText);
 
-            var completion = CompletionItemBuilder.Create(kind, insertText)
-                .WithSortText(GetSortText(insertText, priority));
+            priority ??= GetCompletionPriority(symbol);
+            completion.WithSortText(GetSortText(insertText, priority.Value));
 
             if (symbol is ResourceSymbol)
             {
