@@ -106,5 +106,61 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
                 context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.ArrayItem, "cursor index {0} with text offset {1} will not evaluate to the array item in current array context", cursorIndex, cursor);
             }
         }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = [|]")]
+        [DataRow("var foo2 = [ | ]")]
+        [DataRow("var foo3 = [| ]")]
+        [DataRow("var foo4 = [ |]")]
+        public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_Empty(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
+        }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = [|, aSymbol]")]
+        [DataRow("var foo2 = [ |, aSymbol]")]
+        [DataRow("var foo3 = [ | , aSymbol]")]
+        [DataRow("var foo4 = [| , aSymbol]")]
+        public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NonEmpty_FirstItem(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a first value area in a single line array");
+        }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = [aSymbol,|, aSymbol]")]
+        [DataRow("var foo2 = [aSymbol, |, aSymbol]")]
+        [DataRow("var foo3 = [aSymbol,| , aSymbol]")]
+        [DataRow("var foo4 = [aSymbol, | , aSymbol]")]
+        public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NonEmpty_MiddleItem(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a middle value area in a single line array");
+        }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = [aSymbol,|]")]
+        [DataRow("var foo2 = [aSymbol, |]")]
+        [DataRow("var foo3 = [aSymbol, | ]")]
+        [DataRow("var foo4 = [aSymbol,| ]")]
+        public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NonEmpty_LastItem(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a last value area in a single line array");
+        }
     }
 }
