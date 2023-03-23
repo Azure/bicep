@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -1014,14 +1013,12 @@ var obj6 = { |
         public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
-var arr1 = [|]
-var arr2 = [| ]
-var arr3 = [ |]|
-var arr4 = |[ | ]
-var arr5 = [|
+var arr1 = []|
+var arr2 = |[]
+var arr3 = [|
   | null |
 |]
-var arr6 = [ |
+var arr4 = [ |
   12345
   |  true
 | ]
