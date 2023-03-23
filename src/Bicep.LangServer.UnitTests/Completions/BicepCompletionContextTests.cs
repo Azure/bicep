@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Linq;
 using Bicep.Core.UnitTests;
@@ -161,6 +162,18 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a last value area in a single line array");
+        }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = |[]")]
+        [DataRow("var foo2 = []|")]
+        public void ContextKind_IsNot_ArrayItem_SingleLineArray_Closed_Outside(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is outside a closed single line array");
         }
     }
 }
