@@ -642,6 +642,66 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             hovers.Should().SatisfyRespectively(h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent));
         }
 
+        [TestMethod]
+        public async Task ParamHovers_are_displayed_on_param_symbols_params_file()
+        {
+            var bicepText = @"
+@allowed(
+  [ 'value1'
+    'value2'
+  ]
+)
+@description('this is a string value')
+param foo string                       
+
+@allowed(
+    [
+        1
+        0
+    ]
+)
+@description('this is an int value')
+param bar int
+
+@description('this is a bool value')
+param foobar bool
+";
+
+            var bicepparamTextWithCursor = @"
+using 'main.bicep'
+
+param f|oo = 'value1'
+
+param ba|r = 1
+
+param foo|bar = true
+";
+
+            var (bicepparamText, cursors) = ParserHelper.GetFileWithCursors(bicepparamTextWithCursor,'|');
+
+        
+            var paramsFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), bicepparamText);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), bicepText);
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsFile.FileUri] = bicepparamText,
+                [bicepFile.FileUri] = bicepText
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
+            var client = helper.Client;
+
+            var hovers = await RequestHovers(client, paramsFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foo : 'value1' | 'value2'\n```\nthis is a string value"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam bar : 1 | 0\n```\nthis is an int value"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foobar : bool | 'value2'\n```\nthis is a bool value")
+            );
+        }
+
+
         private string GetManifestFileContents(string? documentationUri)
         {
             if (documentationUri is null)
