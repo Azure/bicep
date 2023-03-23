@@ -13,7 +13,11 @@
         "extensions": [
           ".bicepparam"
         ],
-        "configuration": "./syntaxes/language-configuration.json"
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "./icons/bicepparam-file.svg",
+          "dark": "./icons/bicepparam-file.svg"
+        }
       }
     ],
     "grammars": [
