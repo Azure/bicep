@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4444179136501566320"
+      "templateHash": "18429428395474695757"
     }
   },
   "parameters": {
@@ -19,7 +19,7 @@
   "resources": {
     "publicIp": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "publicIp",
       "properties": {
         "expressionEvaluationOptions": {

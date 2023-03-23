@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7068977095541778338"
+      "templateHash": "17153612886995194724"
     }
   },
   "parameters": {
@@ -112,7 +112,7 @@
     },
     "modATest": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "modATest",
       "properties": {
         "expressionEvaluationOptions": {
@@ -207,7 +207,7 @@
     },
     "modB": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "modB",
       "properties": {
         "expressionEvaluationOptions": {
@@ -259,7 +259,7 @@
     "modBWithCondition": {
       "condition": "[equals(add(1, 1), 2)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "modBWithCondition",
       "properties": {
         "expressionEvaluationOptions": {
@@ -310,7 +310,7 @@
     },
     "modC": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "modC",
       "properties": {
         "expressionEvaluationOptions": {
@@ -351,7 +351,7 @@
     "modCWithCondition": {
       "condition": "[equals(sub(2, 1), 1)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "modCWithCondition",
       "properties": {
         "expressionEvaluationOptions": {
@@ -391,7 +391,7 @@
     },
     "optionalWithNoParams1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "optionalWithNoParams1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -451,7 +451,7 @@
     },
     "optionalWithNoParams2": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "optionalWithNoParams2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -512,7 +512,7 @@
     },
     "optionalWithAllParams": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "optionalWithNoParams3",
       "properties": {
         "expressionEvaluationOptions": {
@@ -586,7 +586,7 @@
     },
     "optionalWithAllParamsAndManualDependency": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "optionalWithAllParamsAndManualDependency",
       "properties": {
         "expressionEvaluationOptions": {
@@ -664,7 +664,7 @@
     },
     "optionalWithImplicitDependency": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "optionalWithImplicitDependency",
       "properties": {
         "expressionEvaluationOptions": {
@@ -742,7 +742,7 @@
     },
     "moduleWithCalculatedName": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -824,7 +824,7 @@
         "count": "[length(variables('myModules'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('myModules')[copyIndex()].name]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -913,7 +913,7 @@
         "count": "[length(variables('myModules'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('myModules')[copyIndex()].name]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1007,7 +1007,7 @@
         "count": "[length(variables('myModules'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('myModules')[copyIndex()].name]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1102,7 +1102,7 @@
         "count": "[length(variables('emptyArray'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1200,7 +1200,7 @@
         "count": "[length(createArray())]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('hello-{0}', createArray()[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1298,7 +1298,7 @@
         "count": "[length(createArray())]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('hello-{0}', createArray()[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1389,7 +1389,7 @@
     },
     "propertyLoopInsideParameterValue": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "propertyLoopInsideParameterValue",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1513,7 +1513,7 @@
     },
     "propertyLoopInsideParameterValueWithIndexes": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "propertyLoopInsideParameterValueWithIndexes",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1642,7 +1642,7 @@
         "count": "[length(range(0, 1))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "propertyLoopInsideParameterValueInsideModuleLoop",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1766,7 +1766,7 @@
     },
     "secureModule1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "secureModule1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1825,7 +1825,7 @@
     },
     "secureModule2": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "secureModule2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1888,7 +1888,7 @@
         "count": "[length(variables('secrets'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('secureModuleLooped-{0}', copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1947,7 +1947,7 @@
     },
     "secureModuleCondition": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "secureModuleCondition",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1991,7 +1991,7 @@
     },
     "withSpace": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "withSpace",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2028,7 +2028,7 @@
     },
     "folderWithSpace": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "childWithSpace",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2065,7 +2065,7 @@
     },
     "withSeparateConfig": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "withSeparateConfig",
       "properties": {
         "expressionEvaluationOptions": {

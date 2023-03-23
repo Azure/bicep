@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10697799942139425780"
+      "templateHash": "14641791797984039205"
     }
   },
   "parameters": {
@@ -574,7 +574,7 @@
     "workspace": {
       "condition": "[parameters('addToWorkspace')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('Workspace-linkedTemplate-{0}', parameters('deploymentId'))]",
       "resourceGroup": "[variables('workspaceResourceGroup_var')]",
       "properties": {
@@ -633,7 +633,7 @@
     "AVSet": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('availabilityOption'), 'AvailabilitySet')), parameters('createAvailabilitySet'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "AVSet-deployment",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -718,7 +718,7 @@
     "vmCreation_customVHD_managedDisks": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-customvhdvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -845,7 +845,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14729746078648953301"
+              "templateHash": "11281229788072385683"
             }
           },
           "parameters": {
@@ -1329,7 +1329,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1408,7 +1408,7 @@
     "vmCreation_customVHD_unmanagedDisks": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), not(parameters('vmUseManagedDisks')))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-unmanagedDisks-customvhdvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -1535,7 +1535,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12358829301622519981"
+              "templateHash": "14190063536201337959"
             }
           },
           "parameters": {
@@ -2004,7 +2004,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2083,7 +2083,7 @@
     "vmCreation_customeImage": {
       "condition": "[and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomImage'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-customimagevm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -2210,7 +2210,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11565825066403435536"
+              "templateHash": "5228748956448808827"
             }
           },
           "parameters": {
@@ -2675,7 +2675,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2754,7 +2754,7 @@
     "vmCreation_Gallery": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'Gallery')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-galleryvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -2881,7 +2881,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5842820804083342742"
+              "templateHash": "5026583956773796744"
             }
           },
           "parameters": {
@@ -3349,7 +3349,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
