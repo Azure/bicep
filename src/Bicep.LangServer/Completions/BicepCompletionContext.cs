@@ -678,6 +678,21 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
+            if (SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(matchingNodes))
+            {
+                var token = (Token) matchingNodes[^1];
+                if (token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare })
+                {
+                    return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
+                }
+            }
+            // TODO(k.a): should this case be collapsed into CanInsertChildNodeAtOffset?
+            else if (SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(matchingNodes) && matchingNodes[^1] is Token { Type: TokenType.Comma })
+            {
+                // [,|]
+                return true;
+            }
+
             switch (matchingNodes[^1])
             {
                 case ArraySyntax arraySyntax:
@@ -685,12 +700,8 @@ namespace Bicep.LanguageServer.Completions
 
                 case Token token:
                     int nodeCount = matchingNodes.Count - arrayInfo.index;
-
                     switch (nodeCount)
                     {
-                        case 2:
-                            return token.Type == TokenType.NewLine && CanInsertChildNodeAtOffset((ArraySyntax)matchingNodes[^2], offset);
-
                         case 5:
                             return token.Type == TokenType.Identifier;
                     }
@@ -1135,14 +1146,30 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            var nodes = arraySyntax.OpenBracket.AsEnumerable().Concat(arraySyntax.Children).Concat(arraySyntax.CloseBracket);
+            var nodes = arraySyntax.OpenBracket.AsEnumerable().Concat(arraySyntax.Children).Concat(arraySyntax.CloseBracket).ToList();
+            var hasNewLines = nodes.Any(node => node is Token { Type: TokenType.NewLine });
             var lastNodeBeforeOffset = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
             var firstNodeAfterOffset = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 
             // To insert a new child in an array, we must be in between newlines.
             // This will not be the case once https://github.com/Azure/bicep/issues/146 is implemented.
-            return lastNodeBeforeOffset is Token { Type: TokenType.NewLine } &&
-                firstNodeAfterOffset is Token { Type: TokenType.NewLine };
+            if (lastNodeBeforeOffset is Token { Type: TokenType.NewLine } &&
+                firstNodeAfterOffset is Token { Type: TokenType.NewLine })
+            {
+                return true;
+            }
+
+            if (hasNewLines)
+            {
+                return false;
+            }
+
+            if (lastNodeBeforeOffset is Token { Type: TokenType.LeftSquare })
+            {
+                return firstNodeAfterOffset is Token { Type: TokenType.RightSquare } or SkippedTriviaSyntax;
+            }
+
+            return lastNodeBeforeOffset is Token { Type: TokenType.Comma };
         }
 
         private class ActiveScopesVisitor : SymbolVisitor
