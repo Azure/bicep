@@ -1913,6 +1913,12 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP335",
                 $"The provided value {(sourceMaxLength.HasValue ? $"may have a length as large as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
+
+            public ErrorDiagnostic ParametersFileUnsupported() => new(
+                TextSpan,
+                "BCP336",
+                $@"Using a Bicep Parameters file requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}"".",
+                new Uri("https://aka.ms/bicep/config"));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

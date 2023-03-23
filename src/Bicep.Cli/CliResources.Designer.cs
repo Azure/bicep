@@ -97,15 +97,6 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified input &quot;{0}&quot; could not be compiled. Compilation of files with extension .bicepparam is only supported if experimental feature &quot;{1}&quot; is enabled..
-        /// </summary>
-        internal static string UnableToCompileParamsFile {
-            get {
-                return ResourceManager.GetString("UnableToCompileParamsFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unrecognized arguments &quot;{0}&quot; specified. Use &quot;{1} --help&quot; to view available options..
         /// </summary>
         internal static string UnrecognizedArgumentsFormat {
