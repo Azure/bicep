@@ -37,6 +37,7 @@
   "$activationEvents.comment": "When we start requiring VS Code 1.75.0 or higher, we can remove the onCommand and onLanguage activation events but will still need the onWebviewPanel event (see https://code.visualstudio.com/api/references/activation-events#onLanguage)",
   "activationEvents": [
     "onLanguage:bicep",
+    "onLanguage:bicep-params",
     "onCommand:bicep.build",
     "onCommand:bicep.decompile",
     "onCommand:bicep.generateParams",
@@ -145,6 +146,21 @@
         "filenames": [
           "bicepconfig.json"
         ]
+      },
+      {
+        "id": "bicep-params",
+        "aliases": [
+          "Bicep Parameters (Experimental)",
+          "Bicep Params (Experimental)"
+        ],
+        "extensions": [
+          ".bicepparam"
+        ],
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": {
+          "light": "./icons/bicepparam-file.svg",
+          "dark": "./icons/bicepparam-file.svg"
+        }
       }
     ],
     "grammars": [
@@ -160,6 +176,11 @@
       },
       {
         "language": "bicep",
+        "scopeName": "source.bicep",
+        "path": "./syntaxes/bicep.tmlanguage"
+      },
+      {
+        "language": "bicep-params",
         "scopeName": "source.bicep",
         "path": "./syntaxes/bicep.tmlanguage"
       }
@@ -602,8 +623,7 @@
     "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net7.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net7.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",
     "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset",
-    "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net7.0 ./bicepLanguageServer && npm run package",
-    "params": "node ./enableParams.js"
+    "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net7.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
     "@types/cytoscape": "^3.19.9",

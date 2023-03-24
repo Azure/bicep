@@ -24,11 +24,11 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private SemanticModel CreateSemanticModel(string paramsFilePath)
+        private SemanticModel CreateSemanticModel(ServiceBuilder services, string paramsFilePath)
         {
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var sourceFileGrouping = Services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
-            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
+            var sourceFileGrouping = services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
+            var compilation = services.Build().BuildCompilation(sourceFileGrouping);
 
             return compilation.GetEntrypointSemanticModel();
         }
@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(data.Parameters.OutputFilePath);
+            var model = CreateSemanticModel(Services.WithFeatureOverrides(new(ParamsFilesEnabled: true)), data.Parameters.OutputFilePath);
 
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()
@@ -62,7 +62,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(data.Parameters.OutputFilePath);
+            var model = CreateSemanticModel(Services, data.Parameters.OutputFilePath);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
