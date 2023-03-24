@@ -214,5 +214,21 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is outside a closed single line array");
         }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = [a |]")]
+        [DataRow("var foo1 = [|a]")]
+        [DataRow("var foo3 = [| a]")]
+        [DataRow("var foo4 = [aSymbol, b |]")]
+        [DataRow("var foo5 = [a |, bSymbol]")]
+        [DataRow("var foo6 = [aSymbol, a |, bSymbol]")]
+        public void ContextKind_IsNot_ArrayItem_SingleLineArray_Closed_NearSymbol(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is not within a valid item area");
+        }
     }
 }
