@@ -235,7 +235,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             data.Compiled.Should().NotBeNull();
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
-            var result = this.EmitParam(sourceFileGrouping, new(), data.Compiled!.OutputFilePath);
+            var result = this.EmitParam(sourceFileGrouping, new(ParamsFilesEnabled: true), data.Compiled!.OutputFilePath);
 
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);

@@ -19,7 +19,7 @@ namespace Bicep.Cli.IntegrationTests
 {
 
     [TestClass]
-    public class BuildParamsComa : TestBase
+    public class BuildParamsCommandTests : TestBase
     {
         
         [NotNull]
@@ -38,7 +38,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain($"The specified input \"{bicepparamsPath}\" could not be compiled. Compilation of files with extension .bicepparam is only supported if experimental feature \"{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}\" is enabled.");
+            error.Should().Contain($"{bicepparamsPath}(1,1) : Error BCP336: Using a Bicep Parameters file requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}\". [https://aka.ms/bicep/config]");
         }
 
         [TestMethod]
@@ -114,7 +114,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
 
-            var diagnostics = await GetAllParamDiagnostics(bicepparamsPath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllParamDiagnostics(bicepparamsPath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -181,7 +181,7 @@ namespace Bicep.Cli.IntegrationTests
             var data = baselineData.GetData(TestContext);
 
             var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-            var diagnostics = await GetAllParamDiagnostics(data.Parameters.OutputFilePath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllParamDiagnostics(data.Parameters.OutputFilePath);
 
             var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
 

@@ -77,8 +77,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ParamsCompilationResult CompileParams(params (string fileName, string fileContents)[] files)
         {
-            var features = BicepTestConstants.FeatureOverrides;
-            var services = new ServiceBuilder().WithFeatureOverrides(features);
+            var services = new ServiceBuilder().WithFeatureOverrides(new(ParamsFilesEnabled: true));
             return CompileParams(services, files);
         }
 
