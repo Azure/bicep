@@ -60,6 +60,7 @@ const keywords = [
   'as',
   'type',
   'with',
+  'using',
 ];
 
 const keywordExpression: MatchRule = {
