@@ -692,15 +692,10 @@ namespace Bicep.LanguageServer.Completions
                 return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
             }
 
-            if (SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
-                    matchingNodes,
-                    (_, _, _, _, token) => token is { Type: TokenType.Identifier }
-                ))
-            {
-                return true;
-            }
-
-            return false;
+            return SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
+                matchingNodes,
+                (_, _, _, _, token) => token is { Type: TokenType.Identifier }
+            );
         }
 
         private static bool IsParameterDefaultValueContext(List<SyntaxBase> matchingNodes, int offset) =>
