@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -57,11 +56,11 @@ namespace Bicep.Core.Parsing
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
 
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                     };
                 },
                 RecoveryFlags.None,

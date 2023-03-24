@@ -230,8 +230,7 @@ param myInt int
         {
             var result = CompilationHelper.CompileParams(("parameters.bicepparam", paramsText), ("main.bicep", bicepText));
 
-            // Exclude the "No using declaration is present in this parameters file" diagnostic
-            result.ExcludingLinterDiagnostics().WithFilteredDiagnostics(x => x.Code != "BCP261").Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Parameters.Should().DeepEqual(JToken.Parse(paramsJsonText));
         }
     }

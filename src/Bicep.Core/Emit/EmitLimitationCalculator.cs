@@ -16,6 +16,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax.Visitors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -47,6 +48,7 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
+            BlockExpressionsInParameterFiles(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -478,6 +480,36 @@ namespace Bicep.Core.Emit
                 1 => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicTypeSelfReference(),
                 _ => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicType(kvp.Value.Select(s => s.Name)),
             }));
+        }
+
+        private static void BlockExpressionsInParameterFiles(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.SourceFileKind != BicepSourceFileKind.ParamsFile)
+            {
+                return;
+            }
+
+            CallbackVisitor.Visit(model.Root.Syntax, syntax => {
+                switch (syntax)
+                {
+                    case ObjectSyntax:
+                    case ObjectPropertySyntax:
+                    case ArraySyntax:
+                    case ArrayItemSyntax:
+                    case StringSyntax @string when !@string.IsInterpolated():
+                    case IntegerLiteralSyntax:
+                    case UnaryOperationSyntax unary when unary.Operator == UnaryOperator.Minus && unary.Expression is IntegerLiteralSyntax:
+                    case BooleanLiteralSyntax:
+                    case NullLiteralSyntax:
+                        return true;
+                    case ExpressionSyntax:
+                        // stop visisting - we only need to show an error on the outermost problem
+                        diagnostics.Write(syntax, x => x.ParameterExpressionsNotSupported());
+                        return false;
+                    default:
+                        return true;
+                }
+            });
         }
     }
 }
