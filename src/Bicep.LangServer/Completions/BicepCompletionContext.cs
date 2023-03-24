@@ -678,35 +678,17 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(matchingNodes))
+            if (SyntaxMatcher.IsTailMatch<ArraySyntax>(matchingNodes)
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(matchingNodes, (_, token) => token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare })
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax>(matchingNodes)
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token is { Type: TokenType.Comma }))
             {
-                var token = (Token) matchingNodes[^1];
-                if (token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare })
-                {
-                    return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
-                }
+                return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
             }
-            // TODO(k.a): should this case be collapsed into CanInsertChildNodeAtOffset?
-            else if (SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(matchingNodes) && matchingNodes[^1] is Token { Type: TokenType.Comma })
+
+            if (SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token is { Type: TokenType.Identifier}))
             {
-                // [,|]
                 return true;
-            }
-
-            switch (matchingNodes[^1])
-            {
-                case ArraySyntax arraySyntax:
-                    return CanInsertChildNodeAtOffset(arraySyntax, offset);
-
-                case Token token:
-                    int nodeCount = matchingNodes.Count - arrayInfo.index;
-                    switch (nodeCount)
-                    {
-                        case 5:
-                            return token.Type == TokenType.Identifier;
-                    }
-
-                    break;
             }
 
             return false;
@@ -1169,7 +1151,8 @@ namespace Bicep.LanguageServer.Completions
                 return firstNodeAfterOffset is Token { Type: TokenType.RightSquare } or SkippedTriviaSyntax;
             }
 
-            return lastNodeBeforeOffset is Token { Type: TokenType.Comma };
+            return lastNodeBeforeOffset is Token { Type: TokenType.Comma } ||
+                   (lastNodeBeforeOffset is SkippedTriviaSyntax && firstNodeAfterOffset is Token { Type: TokenType.RightSquare });
         }
 
         private class ActiveScopesVisitor : SymbolVisitor
