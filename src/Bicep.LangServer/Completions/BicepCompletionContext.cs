@@ -679,14 +679,23 @@ namespace Bicep.LanguageServer.Completions
             }
 
             if (SyntaxMatcher.IsTailMatch<ArraySyntax>(matchingNodes)
-                || SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(matchingNodes, (_, token) => token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare })
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(
+                    matchingNodes,
+                    (_, token) => token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare }
+                )
                 || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax>(matchingNodes)
-                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token is { Type: TokenType.Comma }))
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(
+                    matchingNodes,
+                    (_, _, token) => token is { Type: TokenType.Comma }
+                ))
             {
                 return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
             }
 
-            if (SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token is { Type: TokenType.Identifier}))
+            if (SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
+                    matchingNodes,
+                    (_, _, _, _, token) => token is { Type: TokenType.Identifier }
+                ))
             {
                 return true;
             }
