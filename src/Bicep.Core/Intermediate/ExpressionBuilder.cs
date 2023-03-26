@@ -15,6 +15,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.Emit.ScopeHelper;
 
@@ -494,7 +495,8 @@ public class ExpressionBuilder
 
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
     {
-        if (Context.FunctionVariables.GetValueOrDefault(functionCall) is {} functionVariable)
+        if (Context.Settings.FileKind == BicepSourceFileKind.BicepFile &&
+            Context.FunctionVariables.GetValueOrDefault(functionCall) is {} functionVariable)
         {
             return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
         }

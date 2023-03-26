@@ -228,15 +228,18 @@ resource resource 'Microsoft.Storage/storageAccounts/tableServices@2020-06-01' =
         public void Parameter_with_string_interpolation()
         {
             var result = CompilationHelper.CompileParams(
+              ("test.txt", @"Hello $NAME!"),
               ("parameters.bicepparam", @"
 using 'main.bicep'
 
 param foo = 'foo'
 param bar = 'bar${foo}bar'
+param baz = replace(loadTextContent('test.txt'), '$NAME', 'Anthony')
 "),
               ("main.bicep", @"
 param foo string
 param bar string
+param baz string
 
 output baz string = '${foo}${bar}'
 "));
@@ -261,6 +264,7 @@ output baz string = '${foo}${bar}'
         public void Parameter_with_complex_functions()
         {
             var result = CompilationHelper.CompileParams(
+              ("test.txt", @"Hello $NAME!"),
               ("parameters.bicepparam", @"
 using 'main.bicep'
 
@@ -269,6 +273,7 @@ param bar = [
   toLower(foo)
   toUpper(foo)
   map(split(foo, '/'), v => { segment: v })
+  replace(loadTextContent('test.txt'), '$NAME', 'Anthony')
 ]
 "),
               ("main.bicep", @"
@@ -299,7 +304,8 @@ param bar array
           {
             ""segment"": ""baz""
           }
-        ]
+        ],
+        ""Hello Anthony!""
       ]
     }
   }
