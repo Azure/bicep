@@ -108,6 +108,10 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public void VisitParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
+    {
+    }
+
     public void VisitPropertyAccessExpression(PropertyAccessExpression expression)
     {
         Visit(expression.Base);

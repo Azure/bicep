@@ -7,17 +7,20 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Immutable;
 using System.IO;
-using System;
 using Bicep.Core.Semantics;
+using Azure.Deployments.Templates.Expressions;
+using Azure.Deployments.Expression.Expressions;
 
 namespace Bicep.Core.Emit
 {
     public class ParametersJsonWriter
     {
         private readonly SemanticModel paramSemanticModel;
+        private readonly ExpressionEvaluationContext expressionEvaluationContext;
         public ParametersJsonWriter(SemanticModel paramSemanticModel)
         {
             this.paramSemanticModel = paramSemanticModel;
+            this.expressionEvaluationContext = GetExpressionEvaluationContext(paramSemanticModel);
         }
 
         public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
@@ -66,60 +69,28 @@ namespace Bicep.Core.Emit
 
         public void EmitExpression(SyntaxBase syntax, JsonTextWriter jsonWriter)
         {
-            switch (syntax)
-            {
-                case BooleanLiteralSyntax booleanLiteralSyntax:
-                {
-                    jsonWriter.WriteValue(booleanLiteralSyntax.Value);
-                    break;
-                }
-                case IntegerLiteralSyntax integerLiteralSyntax:
-                {
-                    jsonWriter.WriteValue(integerLiteralSyntax.Value);
-                    break;
-                }
-                case StringSyntax stringSyntax:
-                {
-                    jsonWriter.WriteValue(extractString(stringSyntax));
-                    break;
-                }
-                case ObjectSyntax objectSyntax:
-                {
-                    jsonWriter.WriteStartObject();
-                    EmitObjectProperties(objectSyntax, jsonWriter);
-                    jsonWriter.WriteEndObject();
-                    break;
-                }
-                case ArraySyntax arraySyntax:
-                {
-                    jsonWriter.WriteStartArray();
-                    foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
-                    {
-                        EmitExpression(itemSyntax.Value, jsonWriter);
-                    }
-                    jsonWriter.WriteEndArray();
-                    break;
-                }
-                case NullLiteralSyntax _:
-                {
-                    jsonWriter.WriteNull();
-                    break;
-                }
-                default:
-                    throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}"); 
-            }
+            var converter = new ExpressionConverter(new(paramSemanticModel));
+            var expression = converter.ConvertExpression(syntax);
+            
+            var value = expression.EvaluateExpression(expressionEvaluationContext);
+            value.WriteTo(jsonWriter);
         }
 
-        public void EmitObjectProperties(ObjectSyntax objectSyntax, JsonTextWriter jsonWriter)
+        private static ExpressionEvaluationContext GetExpressionEvaluationContext(SemanticModel semanticModel)
         {
-            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
-            {
-                string key = propertySyntax.TryGetKeyText() ?? throw new InvalidOperationException($"Interpolation is not currently supported for object keys");
-                jsonWriter.WritePropertyName(key);
-                EmitExpression(propertySyntax.Value, jsonWriter);
-            }
-        }
+            var converter = new ExpressionConverter(new(semanticModel));
+            var paramsByName = semanticModel.Root.ParameterAssignments
+                .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
 
-        private string extractString(StringSyntax stringSyntax) => stringSyntax.TryGetLiteralValue() ?? throw new InvalidOperationException($"Interpolation is not currently supported for string values");
+            var helper = new TemplateExpressionEvaluationHelper();
+            helper.OnGetParameter = (name, info) => {
+                var param = paramsByName[name];
+                var referenceExpression = converter.ConvertExpression(param.DeclaringParameterAssignment.Value);
+
+                return referenceExpression.EvaluateExpression(helper.EvaluationContext, null);
+            };
+
+            return helper.EvaluationContext;
+        }
     }
 }

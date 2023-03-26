@@ -223,5 +223,87 @@ resource resource 'Microsoft.Storage/storageAccounts/tableServices@2020-06-01' =
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 1 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
             });
         }
+
+        [TestMethod]
+        public void Parameter_with_string_interpolation()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+using 'main.bicep'
+
+param foo = 'foo'
+param bar = 'bar${foo}bar'
+"),
+              ("main.bicep", @"
+param foo string
+param bar string
+
+output baz string = '${foo}${bar}'
+"));
+
+            // Exclude the "No using declaration is present in this parameters file" diagnostic
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": ""foo""
+    },
+    ""bar"": {
+      ""value"": ""barfoobar""
+    }
+  }
+}"));
+        }
+
+        [TestMethod]
+        public void Parameter_with_complex_functions()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+using 'main.bicep'
+
+param foo = 'foo/bar/baz'
+param bar = [
+  toLower(foo)
+  toUpper(foo)
+  map(split(foo, '/'), v => { segment: v })
+]
+"),
+              ("main.bicep", @"
+param foo string
+param bar array
+"));
+
+            // Exclude the "No using declaration is present in this parameters file" diagnostic
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": ""foo/bar/baz""
+    },
+    ""bar"": {
+      ""value"": [
+        ""foo/bar/baz"",
+        ""FOO/BAR/BAZ"",
+        [
+          {
+            ""segment"": ""foo""
+          },
+          {
+            ""segment"": ""bar""
+          },
+          {
+            ""segment"": ""baz""
+          }
+        ]
+      ]
+    }
+  }
+}"));
+        }
     }
 }

@@ -672,6 +672,9 @@ public class ExpressionBuilder
             case ParameterSymbol parameterSymbol:
                 return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
+            case ParameterAssignmentSymbol parameterSymbol:
+                return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
+
             case VariableSymbol variableSymbol:
                 if (Context.VariablesToInline.Contains(variableSymbol))
                 {
