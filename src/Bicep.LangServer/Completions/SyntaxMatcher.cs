@@ -17,8 +17,8 @@ namespace Bicep.LanguageServer.Completions
         public static T1? GetTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool>? predicate = null)
             where T1 : SyntaxBase
         {
-            return nodes.Count >= 3 &&
-                nodes[^3] is T1 one &&
+            return nodes.Count >= 1 &&
+                nodes[^1] is T1 one &&
                 (predicate is null || predicate(one)) ? one : null;
         }
 
@@ -32,9 +32,9 @@ namespace Bicep.LanguageServer.Completions
             where T1 : SyntaxBase
             where T2 : SyntaxBase
         {
-            return nodes.Count >= 3 &&
-                nodes[^3] is T1 one &&
-                nodes[^2] is T2 two &&
+            return nodes.Count >= 2 &&
+                nodes[^2] is T1 one &&
+                nodes[^1] is T2 two &&
                 (predicate is null || predicate(one, two)) ? (one, two) : null;
         }
 

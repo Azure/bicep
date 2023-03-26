@@ -77,8 +77,7 @@ namespace Bicep.Cli.Commands
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
 
-            logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
-
+            logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
             return 1;
         }
 

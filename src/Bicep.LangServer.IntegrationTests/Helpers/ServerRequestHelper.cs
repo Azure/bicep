@@ -122,6 +122,26 @@ namespace Bicep.LangServer.IntegrationTests
 
             return single.LocationLink!;
         }
+
+        public async Task<TextEdit> Format()
+        {
+            var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
+            {
+                TextDocument = new TextDocumentIdentifier
+                {
+                    Uri = bicepFile.FileUri
+                },
+                Options = new FormattingOptions
+                {
+                    TabSize = 2,
+                    InsertSpaces = true,
+                    InsertFinalNewline = true,
+                }
+            });
+
+            textEditContainer.Should().HaveCount(1);
+            return textEditContainer!.First();
+        }
     }
 
     public class ServerRequestHelper

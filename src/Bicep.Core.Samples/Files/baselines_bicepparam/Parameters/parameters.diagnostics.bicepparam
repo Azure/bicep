@@ -16,16 +16,16 @@ param myBool = true
 // parameter assignment to objects
 param password = 'strongPassword'
 param secretObject = {
-    name : 'vm2'
-    location : 'westus'
+  name : 'vm2'
+  location : 'westus'
 }
 param storageSku = 'Standard_LRS'
 param storageName = 'myStorage'
 param someArray = [
-    'a'
-    'b'
-    'c'
-    'd'
+  'a'
+  'b'
+  'c'
+  'd'
 ]
 param emptyMetadata = 'empty!'
 param description = 'descriptive description'

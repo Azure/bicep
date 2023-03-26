@@ -108,9 +108,27 @@ namespace Bicep.Cli {
         /// <summary>
         ///   Looks up a localized string similar to The specified input &quot;{0}&quot; was not recognized as a bicep file. Bicep files must use the .bicep extension..
         /// </summary>
-        internal static string UnrecognizedFileExtensionMessage {
+        internal static string UnrecognizedBicepFileExtensionMessage {
             get {
-                return ResourceManager.GetString("UnrecognizedFileExtensionMessage", resourceCulture);
+                return ResourceManager.GetString("UnrecognizedBicepFileExtensionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified input &quot;{0}&quot; was not recognized as a Bicep Parameters file. Bicep parameters files must use the .bicepparam extension..
+        /// </summary>
+        internal static string UnrecognizedBicepparamsFileExtensionMessage {
+            get {
+                return ResourceManager.GetString("UnrecognizedBicepparamsFileExtensionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified input &quot;{0}&quot; was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension..
+        /// </summary>
+        internal static string UnrecognizedBicepOrBicepparamsFileExtensionMessage {
+            get {
+                return ResourceManager.GetString("UnrecognizedBicepOrBicepparamsFileExtensionMessage", resourceCulture);
             }
         }
     }

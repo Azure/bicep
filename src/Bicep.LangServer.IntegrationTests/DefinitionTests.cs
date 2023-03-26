@@ -35,7 +35,6 @@ using Bicep.LanguageServer.Utils;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class DefinitionTests
     {
         [NotNull]
@@ -251,7 +250,6 @@ var foo = 'foo'
             var file = await helper.OpenFile("/main.bicepparam", contents);
 
             var response = await file.GotoDefinition(cursor);
-            response.Should().NotBeNull();
 
             var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(bicepContents), bicepCursors[0], bicepCursors[1]);
             response.TargetUri.Path.Should().Be("/main.bicep");
@@ -277,7 +275,6 @@ param |foo| string
             var file = await helper.OpenFile("/main.bicepparam", contents);
 
             var response = await file.GotoDefinition(cursor);
-            response.Should().NotBeNull();
 
             var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(bicepContents), bicepCursors[0], bicepCursors[1]);
             response.TargetUri.Path.Should().Be("/main.bicep");

@@ -66,6 +66,14 @@
         "editor.suggestSelection": "first",
         "editor.suggest.snippetsPreventQuickSuggestions": false,
         "editor.suggest.showWords": false
+      },
+      "[bicep-params]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "files.insertFinalNewline": true,
+        "editor.suggestSelection": "first",
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggest.showWords": false
       }
     },
     "configuration": {
