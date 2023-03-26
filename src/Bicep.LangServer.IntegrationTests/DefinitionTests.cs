@@ -30,6 +30,7 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.Core.FileSystem;
 using Bicep.LanguageServer;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.LanguageServer.Utils;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -231,6 +232,56 @@ module appPlanDeploy2 'wrong|.bicep' = {
                 results => results.Should().SatisfyRespectively(
                     x => x.Should().NotBeEmpty().And.Subject.ElementAt(0).LocationLink!.TargetUri.Path.Should().EndWith("file.json")),
             files);
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_using_statement()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ParamsFilesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+using 'main.bi|cep'
+");
+            var (bicepContents, bicepCursors) = ParserHelper.GetFileWithCursors(@"||
+var foo = 'foo'
+");
+
+            await helper.OpenFile("/main.bicep", bicepContents);
+            var file = await helper.OpenFile("/main.bicepparam", contents);
+
+            var response = await file.GotoDefinition(cursor);
+            response.Should().NotBeNull();
+
+            var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(bicepContents), bicepCursors[0], bicepCursors[1]);
+            response.TargetUri.Path.Should().Be("/main.bicep");
+            response.TargetRange.Should().Be(expectedRange);
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_param_assignment_statements()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ParamsFilesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+using 'main.bicep'
+
+param f|oo = 'foo'
+");
+            var (bicepContents, bicepCursors) = ParserHelper.GetFileWithCursors(@"
+@description('foo param')
+param |foo| string
+");
+            await helper.OpenFile("/main.bicep", bicepContents);
+            var file = await helper.OpenFile("/main.bicepparam", contents);
+
+            var response = await file.GotoDefinition(cursor);
+            response.Should().NotBeNull();
+
+            var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(bicepContents), bicepCursors[0], bicepCursors[1]);
+            response.TargetUri.Path.Should().Be("/main.bicep");
+            response.TargetRange.Should().Be(expectedRange);
         }
 
         private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, char cursor, Action<List<LocationOrLocationLinks>> assertAction)

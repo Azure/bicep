@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags);
 
-        public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, char cursor)
+        public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, char cursor = '|')
             => GetFileWithCursors(fileWithCursors, cursor.ToString());
 
         public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, string cursor)
@@ -79,7 +79,7 @@ namespace Bicep.Core.UnitTests.Utils
             return (fileWithoutCursors, cursors);
         }
 
-        public static (string file, int cursor) GetFileWithSingleCursor(string fileWithCursors, char cursor)
+        public static (string file, int cursor) GetFileWithSingleCursor(string fileWithCursors, char cursor = '|')
             => GetFileWithSingleCursor(fileWithCursors, cursor.ToString());
 
         public static (string file, int cursor) GetFileWithSingleCursor(string fileWithCursors, string cursor)

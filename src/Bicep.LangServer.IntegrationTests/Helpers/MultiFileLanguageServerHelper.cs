@@ -74,7 +74,7 @@ namespace Bicep.LangServer.IntegrationTests
             await diagsListener.WaitNext();
         }
 
-        public async Task OpenFileOnceAsync(TestContext testContext, BicepFile file)
+        public async Task OpenFileOnceAsync(TestContext testContext, BicepSourceFile file)
             => await OpenFileOnceAsync(testContext, file.ProgramSyntax.ToTextPreserveFormatting(), file.FileUri);
 
         public async Task ChangeFileAsync(TestContext testContext, string text, DocumentUri documentUri, int version)
