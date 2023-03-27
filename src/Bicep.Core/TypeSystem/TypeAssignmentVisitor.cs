@@ -823,6 +823,12 @@ namespace Bicep.Core.TypeSystem
                     return TypeFactory.CreateStringLiteralType(literalValue);
                 }
 
+                if (this.fileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    // interpolated strings unsupported
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
+                }
+
                 var errors = new List<ErrorDiagnostic>();
                 var expressionTypes = new List<TypeSymbol>();
                 long minLength = syntax.SegmentValues.Sum(s => s.Length);
@@ -1006,7 +1012,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if(this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterTernaryOperationNotSupported());
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
                 }
 
                 var errors = new List<ErrorDiagnostic>();
@@ -1051,7 +1057,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterBinaryOperationNotSupported());
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
                 }
 
                 var errors = new List<ErrorDiagnostic>();
@@ -1094,7 +1100,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterUnaryOperationNotSupported());
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
                 }
 
                 var errors = new List<ErrorDiagnostic>();
@@ -1419,7 +1425,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterFunctionCallNotSupported());
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
                 }
 
                 var errors = new List<ErrorDiagnostic>();
@@ -1455,7 +1461,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (this.fileKind == BicepSourceFileKind.ParamsFile)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterLambdaFunctionNotSupported());
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
                 }
 
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));

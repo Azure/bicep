@@ -6,3 +6,23 @@ param para1 = 'value
 para
 
 para2
+
+param expr = 1 + 2
+//@[6:10) ParameterAssignment expr. Type: error. Declaration start char: 0, length: 18
+
+param interp = 'abc${123}def'
+//@[6:12) ParameterAssignment interp. Type: error. Declaration start char: 0, length: 29
+
+param doubleinterp = 'abc${interp + 'blah'}def'
+//@[6:18) ParameterAssignment doubleinterp. Type: error. Declaration start char: 0, length: 47
+
+param objWithExpressions = {
+//@[6:24) ParameterAssignment objWithExpressions. Type: error. Declaration start char: 0, length: 91
+  foo: 1 + 2
+  bar: {
+    baz: concat('abc', 'def')
+  }
+}
+
+param arrayWithExpressions = [1 + 1, 'ok']
+//@[6:26) ParameterAssignment arrayWithExpressions. Type: error. Declaration start char: 0, length: 42
