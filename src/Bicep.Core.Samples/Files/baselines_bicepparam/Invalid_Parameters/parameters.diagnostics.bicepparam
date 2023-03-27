@@ -22,7 +22,6 @@ param interp = 'abc${123}def'
 param doubleinterp = 'abc${interp + 'blah'}def'
 //@[00:47) [BCP259 (Error)] The parameter "doubleinterp" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param doubleinterp = 'abc${interp + 'blah'}def'|
 //@[21:47) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |'abc${interp + 'blah'}def'|
-//@[27:33) [BCP063 (Error)] The name "interp" is not a parameter, variable, resource or module. (CodeDescription: none) |interp|
 
 param objWithExpressions = {
 //@[00:91) [BCP259 (Error)] The parameter "objWithExpressions" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param objWithExpressions = {\r\n  foo: 1 + 2\r\n  bar: {\r\n    baz: concat('abc', 'def')\r\n  }\r\n}|
@@ -31,7 +30,6 @@ param objWithExpressions = {
   bar: {
     baz: concat('abc', 'def')
 //@[09:29) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |concat('abc', 'def')|
-//@[09:29) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('abc', 'def')|
   }
 }
 
