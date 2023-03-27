@@ -1140,26 +1140,19 @@ namespace Bicep.LanguageServer.Completions
             var lastNodeBeforeOffset = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
             var firstNodeAfterOffset = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 
-            // To insert a new child in an array, we must be in between newlines.
-            // This will not be the case once https://github.com/Azure/bicep/issues/146 is implemented.
-            if (lastNodeBeforeOffset is Token { Type: TokenType.NewLine } &&
-                firstNodeAfterOffset is Token { Type: TokenType.NewLine })
+            return lastNodeBeforeOffset switch
             {
-                return true;
-            }
-
-            if (hasNewLines)
-            {
-                return false;
-            }
-
-            if (lastNodeBeforeOffset is Token { Type: TokenType.LeftSquare })
-            {
-                return firstNodeAfterOffset is Token { Type: TokenType.RightSquare } or SkippedTriviaSyntax;
-            }
-
-            return lastNodeBeforeOffset is Token { Type: TokenType.Comma } ||
-                   (lastNodeBeforeOffset is SkippedTriviaSyntax && firstNodeAfterOffset is Token { Type: TokenType.RightSquare });
+                Token { Type: TokenType.NewLine } =>
+                    // To insert a new child in a multiline array, we must be in between newlines.
+                    firstNodeAfterOffset is Token { Type: TokenType.NewLine },
+                Token { Type: TokenType.LeftSquare } when !hasNewLines =>
+                    firstNodeAfterOffset is Token { Type: TokenType.RightSquare } or SkippedTriviaSyntax,
+                Token { Type: TokenType.Comma } when !hasNewLines =>
+                    true,
+                SkippedTriviaSyntax when !hasNewLines =>
+                    firstNodeAfterOffset is Token { Type: TokenType.RightSquare },
+                _ => false
+            };
         }
 
         private class ActiveScopesVisitor : SymbolVisitor
