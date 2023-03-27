@@ -1,5 +1,6 @@
 {
     "experimentalFeaturesEnabled": {
-        "userDefinedTypes": true
+        "userDefinedTypes": true,
+        "paramsFiles": true
     }
 }

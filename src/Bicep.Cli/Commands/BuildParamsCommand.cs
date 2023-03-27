@@ -63,12 +63,6 @@ namespace Bicep.Cli.Commands
                 throw new CommandLineException($"{bicepFileArgPath} is not a bicep file");
             }
 
-            if(!features.ParamsFilesEnabled) 
-            {
-                logger.LogError(CliResources.UnableToCompileParamsFile, paramsInputPath, nameof(ExperimentalFeaturesEnabled.ParamsFiles));
-                return 1;
-            }
-
             if (!IsBicepparamsFile(paramsInputPath))
             {
                 logger.LogError(CliResources.UnrecognizedFileExtensionMessage, paramsInputPath);

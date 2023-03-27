@@ -78,7 +78,7 @@ using './one.bicepparam'
                 result.Parameters.Should().BeNull();
                 result.Diagnostics.Should().HaveDiagnostics(new[]
                 {
-                    ("BCP252", DiagnosticLevel.Error, "Binary operator is not allowed in Bicep parameter file.")
+                    ("BCP338", DiagnosticLevel.Error, "Complex expressions are not permitted in a Bicep Parameters file.")
                 });
             }
         }

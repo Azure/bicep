@@ -1,0 +1,217 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/highlightjs/test/baselines/params_main.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+﻿<span class="hljs-comment">/*
+  This is a block comment.
+*/</span>
+
+<span class="hljs-comment">// parameters without default value</span>
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">description(<span class="hljs-string">&#x27;&#x27;&#x27;
+this is my multi line
+description for my myString
+&#x27;&#x27;&#x27;</span>)</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myString</span> <span class="hljs-variable">string</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myInt</span> <span class="hljs-variable">int</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myBool</span> <span class="hljs-variable">bool</span>
+
+<span class="hljs-comment">// parameters with default value</span>
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">description(<span class="hljs-string">&#x27;this is myString2&#x27;</span>)</span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({
+  <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;overwrite but still valid&#x27;</span>
+})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myString2</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#x27;string value&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myInt2</span> <span class="hljs-variable">int</span> = <span class="hljs-number">42</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myTruth</span> <span class="hljs-variable">bool</span> = <span class="hljs-literal">true</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myFalsehood</span> <span class="hljs-variable">bool</span> = <span class="hljs-literal">false</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myEscapedString</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#x27;First line\r\nSecond\ttabbed\tline&#x27;</span>
+
+<span class="hljs-comment">// object default value</span>
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">description(<span class="hljs-string">&#x27;this is foo&#x27;</span>)</span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({
+  <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;overwrite but still valid&#x27;</span>
+  <span class="hljs-property">another</span>: <span class="hljs-string">&#x27;just for fun&#x27;</span>
+})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">foo</span> <span class="hljs-variable">object</span> = {
+  <span class="hljs-property">enabled</span>: <span class="hljs-literal">true</span>
+  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;this is my object&#x27;</span>
+  <span class="hljs-property">priority</span>: <span class="hljs-number">3</span>
+  <span class="hljs-property">info</span>: {
+    <span class="hljs-property">a</span>: <span class="hljs-string">&#x27;b&#x27;</span>
+  }
+  <span class="hljs-property">empty</span>: {
+  }
+  <span class="hljs-property">array</span>: [
+    <span class="hljs-string">&#x27;string item&#x27;</span>
+    <span class="hljs-number">12</span>
+    <span class="hljs-literal">true</span>
+    [
+      <span class="hljs-string">&#x27;inner&#x27;</span>
+      <span class="hljs-literal">false</span>
+    ]
+    {
+      <span class="hljs-property">a</span>: <span class="hljs-string">&#x27;b&#x27;</span>
+    }
+  ]
+}
+
+<span class="hljs-comment">// array default value</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">myArrayParam</span> <span class="hljs-variable">array</span> = [
+  <span class="hljs-string">&#x27;a&#x27;</span>
+  <span class="hljs-string">&#x27;b&#x27;</span>
+  <span class="hljs-string">&#x27;c&#x27;</span>
+]
+
+<span class="hljs-comment">// secure string</span>
+<span class="hljs-meta">@<span class="hljs-function">secure()</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">password</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-comment">// secure object</span>
+<span class="hljs-meta">@<span class="hljs-function">secure()</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">secretObject</span> <span class="hljs-variable">object</span>
+
+<span class="hljs-comment">// enum parameter</span>
+<span class="hljs-meta">@<span class="hljs-function">allowed([
+  <span class="hljs-string">&#x27;Standard_LRS&#x27;</span>
+  <span class="hljs-string">&#x27;Standard_GRS&#x27;</span>
+])</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">storageSku</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-comment">// length constraint on a string</span>
+<span class="hljs-meta">@<span class="hljs-function">minLength(<span class="hljs-number">3</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">maxLength(<span class="hljs-number">24</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">storageName</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-comment">// length constraint on an array</span>
+<span class="hljs-meta">@<span class="hljs-function">minLength(<span class="hljs-number">3</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">maxLength(<span class="hljs-number">24</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">someArray</span> <span class="hljs-variable">array</span>
+
+<span class="hljs-comment">// empty metadata</span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">emptyMetadata</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-comment">// description</span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({
+  <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;my description&#x27;</span>
+})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">description</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">description(<span class="hljs-string">&#x27;my description&#x27;</span>)</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">description2</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-comment">// random extra metadata</span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({
+  <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;my description&#x27;</span>
+  <span class="hljs-property">a</span>: <span class="hljs-number">1</span>
+  <span class="hljs-property">b</span>: <span class="hljs-literal">true</span>
+  <span class="hljs-property">c</span>: [
+  ]
+  <span class="hljs-property">d</span>: {
+    <span class="hljs-property">test</span>: <span class="hljs-string">&#x27;abc&#x27;</span>
+  }
+})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">additionalMetadata</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-comment">// all modifiers together</span>
+<span class="hljs-meta">@<span class="hljs-function">secure()</span></span>
+<span class="hljs-meta">@<span class="hljs-function">minLength(<span class="hljs-number">3</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">maxLength(<span class="hljs-number">24</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">allowed([
+  <span class="hljs-string">&#x27;one&#x27;</span>
+  <span class="hljs-string">&#x27;two&#x27;</span>
+  <span class="hljs-string">&#x27;three&#x27;</span>
+])</span></span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({
+  <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;Name of the storage account&#x27;</span>
+})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">someParameter</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">defaultExpression</span> <span class="hljs-variable">bool</span> = <span class="hljs-number">18</span> != (<span class="hljs-literal">true</span> || <span class="hljs-literal">false</span>)
+
+<span class="hljs-meta">@<span class="hljs-function">allowed([
+  <span class="hljs-string">&#x27;abc&#x27;</span>
+  <span class="hljs-string">&#x27;def&#x27;</span>
+])</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">stringLiteral</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-meta">@<span class="hljs-function">allowed([
+  <span class="hljs-string">&#x27;abc&#x27;</span>
+  <span class="hljs-string">&#x27;def&#x27;</span>
+  <span class="hljs-string">&#x27;ghi&#x27;</span>
+])</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">stringLiteralWithAllowedValuesSuperset</span> <span class="hljs-variable">string</span> = <span class="hljs-variable">stringLiteral</span>
+
+<span class="hljs-meta">@<span class="hljs-function">secure()</span></span>
+<span class="hljs-meta">@<span class="hljs-function">minLength(<span class="hljs-number">2</span>)</span></span>
+  <span class="hljs-meta">@<span class="hljs-function">maxLength(<span class="hljs-number">10</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">allowed([
+  <span class="hljs-string">&#x27;Apple&#x27;</span>
+  <span class="hljs-string">&#x27;Banana&#x27;</span>
+])</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">decoratedString</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-meta">@<span class="hljs-function">minValue(<span class="hljs-number">200</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">decoratedInt</span> <span class="hljs-variable">int</span> = <span class="hljs-number">223</span>
+
+<span class="hljs-comment">// negative integer literals are allowed as decorator values</span>
+<span class="hljs-meta">@<span class="hljs-function">minValue(-<span class="hljs-number">10</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">maxValue(-<span class="hljs-number">3</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">negativeValues</span> <span class="hljs-variable">int</span> = -<span class="hljs-number">8</span>
+
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">description(<span class="hljs-string">&#x27;A boolean.&#x27;</span>)</span>
+<span class="hljs-meta">@<span class="hljs-function">metadata({
+    <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;I will be overrode.&#x27;</span>
+    <span class="hljs-property">foo</span>: <span class="hljs-string">&#x27;something&#x27;</span>
+    <span class="hljs-property">bar</span>: [
+        {          }
+        <span class="hljs-literal">true</span>
+        <span class="hljs-number">123</span>
+    ]
+})</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">decoratedBool</span> <span class="hljs-variable">bool</span> = (<span class="hljs-literal">true</span> &amp;&amp; <span class="hljs-literal">false</span>) != <span class="hljs-literal">true</span>
+
+<span class="hljs-meta">@<span class="hljs-function">secure()</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">decoratedObject</span> <span class="hljs-variable">object</span> = {
+  <span class="hljs-property">enabled</span>: <span class="hljs-literal">true</span>
+  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;this is my object&#x27;</span>
+  <span class="hljs-property">priority</span>: <span class="hljs-number">3</span>
+  <span class="hljs-property">info</span>: {
+    <span class="hljs-property">a</span>: <span class="hljs-string">&#x27;b&#x27;</span>
+  }
+  <span class="hljs-property">empty</span>: {
+  }
+  <span class="hljs-property">array</span>: [
+    <span class="hljs-string">&#x27;string item&#x27;</span>
+    <span class="hljs-number">12</span>
+    <span class="hljs-literal">true</span>
+    [
+      <span class="hljs-string">&#x27;inner&#x27;</span>
+      <span class="hljs-literal">false</span>
+    ]
+    {
+      <span class="hljs-property">a</span>: <span class="hljs-string">&#x27;b&#x27;</span>
+    }
+  ]
+}
+
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">metadata({
+    <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;An array.&#x27;</span>
+})</span>
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">maxLength(<span class="hljs-number">20</span>)</span>
+<span class="hljs-meta">@</span><span class="hljs-variable"><span class="hljs-built_in">sys</span></span>.<span class="hljs-function">description(<span class="hljs-string">&#x27;I will be overrode.&#x27;</span>)</span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">decoratedArray</span> <span class="hljs-variable">array</span> = [
+    <span class="hljs-function">utcNow()</span>
+    <span class="hljs-function">newGuid()</span>
+]
+
+    </pre>
+  </body>
+</html>

@@ -57,11 +57,11 @@ namespace Bicep.Core.Parsing
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
 
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                     };
                 },
                 RecoveryFlags.None,

@@ -1465,31 +1465,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP250",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic ParameterTernaryOperationNotSupported() => new(
-                TextSpan,
-                "BCP251",
-                $"Ternary operator is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterBinaryOperationNotSupported() => new(
-                TextSpan,
-                "BCP252",
-                $"Binary operator is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterUnaryOperationNotSupported() => new(
-                TextSpan,
-                "BCP253",
-                $"Unary operator is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterLambdaFunctionNotSupported() => new(
-                TextSpan,
-                "BCP254",
-                $"Lambda function is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterFunctionCallNotSupported() => new(
-                TextSpan,
-                "BCP255",
-                $"Function call is not allowed in Bicep parameter file.");
-
             public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP256",
@@ -1913,6 +1888,22 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP335",
                 $"The provided value {(sourceMaxLength.HasValue ? $"may have a length as large as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
+
+            public ErrorDiagnostic ParametersFileUnsupported() => new(
+                TextSpan,
+                "BCP336",
+                $@"Using a Bicep Parameters file requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}"".",
+                new Uri("https://aka.ms/bicep/config"));
+
+            public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
+                TextSpan,
+                "BCP337",
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
+
+            public ErrorDiagnostic ParameterExpressionsNotSupported() => new(
+                TextSpan,
+                "BCP338",
+                $"Complex expressions are not permitted in a Bicep Parameters file.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
