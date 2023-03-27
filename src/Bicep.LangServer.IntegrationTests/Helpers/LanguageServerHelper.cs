@@ -35,7 +35,7 @@ namespace Bicep.LangServer.IntegrationTests
         /// <summary>
         /// Creates and initializes a new language server/client pair without loading any files. This is recommended when you need to open multiple files using the language server.
         /// </summary>
-        public static async Task<LanguageServerHelper> StartServer(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Action<IServiceCollection>? onRegisterServices = null)
+        public static async Task<LanguageServerHelper> StartServer(TestContext testContext, Action<LanguageClientOptions>? onClientOptions = null, Action<IServiceCollection>? onRegisterServices = null)
         {
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
@@ -59,7 +59,7 @@ namespace Bicep.LangServer.IntegrationTests
                     .OnLogTrace(@params => testContext.WriteLine($"TRACE: {@params.Message} VERBOSE: {@params.Verbose}"))
                     .OnLogMessage(@params => testContext.WriteLine($"{@params.Type}: {@params.Message}"));
 
-                onClientOptions(options);
+                onClientOptions?.Invoke(options);
             });
             await client.Initialize(CancellationToken.None);
 

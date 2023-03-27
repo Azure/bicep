@@ -1,5 +1,5 @@
 /*
-//@[00:749) ProgramSyntax
+//@[00:737) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -59,30 +59,30 @@ param password = 'strongPassword'
 //@[17:033) |   └─Token(StringComplete) |'strongPassword'|
 //@[33:034) ├─Token(NewLine) |\n|
 param secretObject = {
-//@[00:065) ├─ParameterAssignmentSyntax
+//@[00:061) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:018) | ├─IdentifierSyntax
 //@[06:018) | | └─Token(Identifier) |secretObject|
 //@[19:020) | ├─Token(Assignment) |=|
-//@[21:065) | └─ObjectSyntax
+//@[21:061) | └─ObjectSyntax
 //@[21:022) |   ├─Token(LeftBrace) |{|
 //@[22:023) |   ├─Token(NewLine) |\n|
-    name : 'vm2'
-//@[04:016) |   ├─ObjectPropertySyntax
-//@[04:008) |   | ├─IdentifierSyntax
-//@[04:008) |   | | └─Token(Identifier) |name|
-//@[09:010) |   | ├─Token(Colon) |:|
-//@[11:016) |   | └─StringSyntax
-//@[11:016) |   |   └─Token(StringComplete) |'vm2'|
-//@[16:017) |   ├─Token(NewLine) |\n|
-    location : 'westus'
-//@[04:023) |   ├─ObjectPropertySyntax
-//@[04:012) |   | ├─IdentifierSyntax
-//@[04:012) |   | | └─Token(Identifier) |location|
-//@[13:014) |   | ├─Token(Colon) |:|
-//@[15:023) |   | └─StringSyntax
-//@[15:023) |   |   └─Token(StringComplete) |'westus'|
-//@[23:024) |   ├─Token(NewLine) |\n|
+  name : 'vm2'
+//@[02:014) |   ├─ObjectPropertySyntax
+//@[02:006) |   | ├─IdentifierSyntax
+//@[02:006) |   | | └─Token(Identifier) |name|
+//@[07:008) |   | ├─Token(Colon) |:|
+//@[09:014) |   | └─StringSyntax
+//@[09:014) |   |   └─Token(StringComplete) |'vm2'|
+//@[14:015) |   ├─Token(NewLine) |\n|
+  location : 'westus'
+//@[02:021) |   ├─ObjectPropertySyntax
+//@[02:010) |   | ├─IdentifierSyntax
+//@[02:010) |   | | └─Token(Identifier) |location|
+//@[11:012) |   | ├─Token(Colon) |:|
+//@[13:021) |   | └─StringSyntax
+//@[13:021) |   |   └─Token(StringComplete) |'westus'|
+//@[21:022) |   ├─Token(NewLine) |\n|
 }
 //@[00:001) |   └─Token(RightBrace) |}|
 //@[01:002) ├─Token(NewLine) |\n|
@@ -105,34 +105,34 @@ param storageName = 'myStorage'
 //@[20:031) |   └─Token(StringComplete) |'myStorage'|
 //@[31:032) ├─Token(NewLine) |\n|
 param someArray = [
-//@[00:053) ├─ParameterAssignmentSyntax
+//@[00:045) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:015) | ├─IdentifierSyntax
 //@[06:015) | | └─Token(Identifier) |someArray|
 //@[16:017) | ├─Token(Assignment) |=|
-//@[18:053) | └─ArraySyntax
+//@[18:045) | └─ArraySyntax
 //@[18:019) |   ├─Token(LeftSquare) |[|
 //@[19:020) |   ├─Token(NewLine) |\n|
-    'a'
-//@[04:007) |   ├─ArrayItemSyntax
-//@[04:007) |   | └─StringSyntax
-//@[04:007) |   |   └─Token(StringComplete) |'a'|
-//@[07:008) |   ├─Token(NewLine) |\n|
-    'b'
-//@[04:007) |   ├─ArrayItemSyntax
-//@[04:007) |   | └─StringSyntax
-//@[04:007) |   |   └─Token(StringComplete) |'b'|
-//@[07:008) |   ├─Token(NewLine) |\n|
-    'c'
-//@[04:007) |   ├─ArrayItemSyntax
-//@[04:007) |   | └─StringSyntax
-//@[04:007) |   |   └─Token(StringComplete) |'c'|
-//@[07:008) |   ├─Token(NewLine) |\n|
-    'd'
-//@[04:007) |   ├─ArrayItemSyntax
-//@[04:007) |   | └─StringSyntax
-//@[04:007) |   |   └─Token(StringComplete) |'d'|
-//@[07:008) |   ├─Token(NewLine) |\n|
+  'a'
+//@[02:005) |   ├─ArrayItemSyntax
+//@[02:005) |   | └─StringSyntax
+//@[02:005) |   |   └─Token(StringComplete) |'a'|
+//@[05:006) |   ├─Token(NewLine) |\n|
+  'b'
+//@[02:005) |   ├─ArrayItemSyntax
+//@[02:005) |   | └─StringSyntax
+//@[02:005) |   |   └─Token(StringComplete) |'b'|
+//@[05:006) |   ├─Token(NewLine) |\n|
+  'c'
+//@[02:005) |   ├─ArrayItemSyntax
+//@[02:005) |   | └─StringSyntax
+//@[02:005) |   |   └─Token(StringComplete) |'c'|
+//@[05:006) |   ├─Token(NewLine) |\n|
+  'd'
+//@[02:005) |   ├─ArrayItemSyntax
+//@[02:005) |   | └─StringSyntax
+//@[02:005) |   |   └─Token(StringComplete) |'d'|
+//@[05:006) |   ├─Token(NewLine) |\n|
 ]
 //@[00:001) |   └─Token(RightSquare) |]|
 //@[01:002) ├─Token(NewLine) |\n|

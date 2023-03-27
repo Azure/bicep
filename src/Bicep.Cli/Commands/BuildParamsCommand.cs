@@ -65,7 +65,7 @@ namespace Bicep.Cli.Commands
 
             if (!IsBicepparamsFile(paramsInputPath))
             {
-                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, paramsInputPath);
+                logger.LogError(CliResources.UnrecognizedBicepparamsFileExtensionMessage, paramsInputPath);
                 return 1;
             }
 

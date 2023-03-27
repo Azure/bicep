@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
@@ -23,9 +24,9 @@ namespace Bicep.LangServer.IntegrationTests
     public class FileRequestHelper
     {
         private readonly ILanguageClient client;
-        private readonly BicepFile bicepFile;
+        private readonly BicepSourceFile bicepFile;
 
-        public FileRequestHelper(ILanguageClient client, BicepFile bicepFile)
+        public FileRequestHelper(ILanguageClient client, BicepSourceFile bicepFile)
         {
             this.client = client;
             this.bicepFile = bicepFile;
@@ -97,6 +98,50 @@ namespace Bicep.LangServer.IntegrationTests
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
         }
+
+        public async Task<LocationLink> GotoDefinition(int cursor)
+        {
+            var response = await client.RequestDefinition(new DefinitionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+            });
+
+            response.Should().NotBeNull();
+
+
+            // go to def should produce single result in all cases
+            response.Should().HaveCount(1);
+            var single = response.Single();
+
+            single.IsLocation.Should().BeFalse();
+            single.IsLocationLink.Should().BeTrue();
+
+            single.Location.Should().BeNull();
+            single.LocationLink.Should().NotBeNull();
+
+            return single.LocationLink!;
+        }
+
+        public async Task<TextEdit> Format()
+        {
+            var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
+            {
+                TextDocument = new TextDocumentIdentifier
+                {
+                    Uri = bicepFile.FileUri
+                },
+                Options = new FormattingOptions
+                {
+                    TabSize = 2,
+                    InsertSpaces = true,
+                    InsertFinalNewline = true,
+                }
+            });
+
+            textEditContainer.Should().HaveCount(1);
+            return textEditContainer!.First();
+        }
     }
 
     public class ServerRequestHelper
@@ -123,12 +168,21 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<FileRequestHelper> OpenFile(Uri fileUri, string text)
         {
-            var bicepFile = SourceFileFactory.CreateBicepFile(fileUri, text);
+            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExension(fileUri) ? 
+                SourceFileFactory.CreateBicepParamFile(fileUri, text) :
+                SourceFileFactory.CreateBicepFile(fileUri, text);
 
             var helper = await languageServerHelperLazy.GetValueAsync();
             await helper.OpenFileOnceAsync(testContext, bicepFile);
 
             return new FileRequestHelper(helper.Client, bicepFile);
+        }
+
+        public async Task<FileRequestHelper> OpenFile(string filePath, string text)
+        {
+            filePath.Should().StartWith("/");
+
+            return await OpenFile(new Uri($"file://{filePath}"), text);
         }
     }
 }

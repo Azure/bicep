@@ -14,22 +14,47 @@ namespace Bicep.LanguageServer.Completions
 {
     public static class SyntaxMatcher
     {
-        public static bool IsTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool>? predicate = null)
+        public static T1? GetTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool>? predicate = null)
             where T1 : SyntaxBase
         {
             return nodes.Count >= 1 &&
-                   nodes[^1] is T1 one &&
-                   (predicate is null || predicate.Invoke(one));
+                nodes[^1] is T1 one &&
+                (predicate is null || predicate(one)) ? one : null;
+        }
+
+        public static bool IsTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool>? predicate = null)
+            where T1 : SyntaxBase
+        {
+            return GetTailMatch(nodes, predicate) is {};
+        }
+
+        public static (T1 one, T2 two)? GetTailMatch<T1, T2>(IList<SyntaxBase> nodes, Func<T1, T2, bool>? predicate = null)
+            where T1 : SyntaxBase
+            where T2 : SyntaxBase
+        {
+            return nodes.Count >= 2 &&
+                nodes[^2] is T1 one &&
+                nodes[^1] is T2 two &&
+                (predicate is null || predicate(one, two)) ? (one, two) : null;
         }
 
         public static bool IsTailMatch<T1, T2>(IList<SyntaxBase> nodes, Func<T1, T2, bool>? predicate = null)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
         {
-            return nodes.Count >= 2 &&
-                   nodes[^2] is T1 one &&
-                   nodes[^1] is T2 two &&
-                   (predicate is null || predicate(one, two));
+            return GetTailMatch(nodes, predicate) is {};
+        }
+
+        public static (T1 one, T2 two, T3 three)? GetTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool>? predicate = null)
+            where T1 : SyntaxBase
+            where T2 : SyntaxBase
+            where T3 : SyntaxBase
+        {
+            return nodes.Count >= 3 &&
+                nodes[^3] is T1 one &&
+                nodes[^2] is T2 two &&
+                nodes[^1] is T3 three &&
+                (predicate is null || predicate(one, two, three)) ? (one, two, three) : null;
         }
 
         public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool>? predicate = null)
@@ -37,11 +62,7 @@ namespace Bicep.LanguageServer.Completions
             where T2 : SyntaxBase
             where T3 : SyntaxBase
         {
-            return nodes.Count >= 3 &&
-                   nodes[^3] is T1 one &&
-                   nodes[^2] is T2 two &&
-                   nodes[^1] is T3 three &&
-                   (predicate is null || predicate(one, two, three));
+            return GetTailMatch(nodes, predicate) is {};
         }
 
         public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool> predicate, Action<T1, T2, T3, T4>? actionOnMatch = null)

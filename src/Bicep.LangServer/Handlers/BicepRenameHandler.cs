@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create(),
+            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
             PrepareProvider = false
         };
     }
