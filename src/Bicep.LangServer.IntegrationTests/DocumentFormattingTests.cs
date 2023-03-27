@@ -87,7 +87,7 @@ using      'main.bicep'
      param foo =      'test'
 
 param bar = {
-          abc: { }
+          abc    : { }
     def: [1,2,3]
 }
 
