@@ -678,13 +678,15 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
+            // var arr = [ | ]
             if (SyntaxMatcher.IsTailMatch<ArraySyntax>(matchingNodes)
+                // var arr = [|] var arr = [ |]
                 || SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(
                     matchingNodes,
                     (_, token) => token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare }
                 )
-                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax>(matchingNodes)
-                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax>(matchingNodes) // var arr = [, | ,]
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>( // var arr = [,|]
                     matchingNodes,
                     (_, _, token) => token is { Type: TokenType.Comma }
                 ))
@@ -692,6 +694,7 @@ namespace Bicep.LanguageServer.Completions
                 return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
             }
 
+            // var arr = [a|]
             return SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
                 matchingNodes,
                 (_, _, _, _, token) => token is { Type: TokenType.Identifier }
