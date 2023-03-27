@@ -206,6 +206,8 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo2 = [aSymbol, b|]")]
         [DataRow("var foo3 = [a|, bSymbol]")]
         [DataRow("var foo4 = [aSymbol, a|, bSymbol]")]
+        [DataRow("var foo5 = [|a]")]
+        [DataRow("var foo6 = [a,|a]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_AtSymbol(string text)
         {
             var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
@@ -217,18 +219,18 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
 
         [DataTestMethod]
         [DataRow("var foo1 = [a |]")]
-        [DataRow("var foo2 = [|a]")]
-        [DataRow("var foo3 = [| a]")]
-        [DataRow("var foo4 = [aSymbol, b |]")]
-        [DataRow("var foo5 = [a |, bSymbol]")]
-        [DataRow("var foo6 = [aSymbol, a |, bSymbol]")]
-        public void ContextKind_IsNot_ArrayItem_SingleLineArray_Closed_NearSymbol(string text)
+        [DataRow("var foo2 = [| a]")]
+        [DataRow("var foo3 = [aSymbol, b |]")]
+        [DataRow("var foo4 = [a |, bSymbol]")]
+        [DataRow("var foo5 = [aSymbol, a |, bSymbol]")]
+        [DataRow("var foo6 = [a,| a]")]
+        public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NearSymbol(string text)
         {
             var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
             var compilation = Services.BuildCompilation(file);
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
-            context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is not within a valid item area");
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
     }
 }
