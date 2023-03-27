@@ -16,6 +16,14 @@ namespace Bicep.LangServer.UnitTests.Completions
     {
         private static ServiceBuilder Services => new ServiceBuilder();
 
+        private static BicepCompletionContext CreateContextFromTextWithCursor(string text)
+        {
+            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
+            var compilation = Services.BuildCompilation(file);
+
+            return BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+        }
+
         [TestMethod]
         public void ZeroMatchingNodes_Create_ShouldThrow()
         {
@@ -115,10 +123,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo4 = [ |]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_Empty(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
@@ -132,10 +137,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo7 = [, | ,]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_Empty_Commas(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
@@ -146,10 +148,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo4 = [| , aSymbol]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NonEmpty_FirstItem(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a first value area in a single line array");
         }
 
@@ -162,10 +161,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo6 = [aSymbol, |,]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NonEmpty_MiddleItem(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a middle value area in a single line array");
         }
 
@@ -176,10 +172,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo4 = [aSymbol,| ]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NonEmpty_LastItem(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a last value area in a single line array");
         }
 
@@ -194,10 +187,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo8 = [aSymbol, aSymbol]|")]
         public void ContextKind_IsNot_ArrayItem_SingleLineArray_Closed_Outside(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is outside a closed single line array");
         }
 
@@ -210,10 +200,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo6 = [a,|a]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_AtSymbol(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
@@ -226,10 +213,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         [DataRow("var foo6 = [a,| a]")]
         public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_NearSymbol(string text)
         {
-            var (file, cursor) = ParserHelper.GetFileWithSingleCursor(text, "|");
-            var compilation = Services.BuildCompilation(file);
-
-            var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor);
+            var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
     }
