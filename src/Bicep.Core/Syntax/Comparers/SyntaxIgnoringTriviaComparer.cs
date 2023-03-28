@@ -11,13 +11,13 @@ using Bicep.Core.Syntax.Visitors;
 
 namespace Bicep.Core.Syntax.Comparers;
 
-public class SyntaxIgnoringTriviaComparer : IEqualityComparer<SyntaxBase>
+public class SyntaxIgnoringTriviaComparer : IEqualityComparer<SyntaxBase?>
 {
     private SyntaxIgnoringTriviaComparer()
     {
     }
 
-    public static readonly IEqualityComparer<SyntaxBase> Instance = new SyntaxIgnoringTriviaComparer();
+    public static readonly IEqualityComparer<SyntaxBase?> Instance = new SyntaxIgnoringTriviaComparer();
 
     public bool Equals(SyntaxBase? x, SyntaxBase? y)
     {
