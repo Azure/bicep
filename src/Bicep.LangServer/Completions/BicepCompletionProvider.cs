@@ -104,7 +104,7 @@ namespace Bicep.LanguageServer.Completions
                 {
                     if (!IsParamAssigned(declaration))
                     {
-                        yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
+                        yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange, null, null, bicepSemanticModel);
                     }
                 }
             }
@@ -946,7 +946,7 @@ namespace Bicep.LanguageServer.Completions
                         // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
                         // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
                         var priority = GetContextualCompletionPriority(symbol, model, context, enclosingDeclarationSymbol);
-                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, priority: priority));
+                        result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, priority: priority, bicepModel: model));
                     }
                 }
             }
@@ -1710,7 +1710,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, CompletionPriority? priority = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null, CompletionPriority? priority = null, SemanticModel? bicepModel = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
@@ -1766,8 +1766,22 @@ namespace Bicep.LanguageServer.Completions
                     .Build();
             }
 
+            if(symbol is ParameterSymbol parameterSymbol)
+            {
+                var description = bicepModel is {} ? SemanticModelHelper.TryGetDescription(bicepModel, parameterSymbol.DeclaringParameter) : null;
+                var documentation = $"Type: {parameterSymbol.Type.ToString() + MarkdownNewLine + description}";
+
+                return completion
+                .WithDetail(insertText)
+                .WithDocumentation(documentation)
+                .WithPlainTextEdit(replacementRange, insertText)
+                .Build();
+            }
+
+
             return completion
                 .WithDetail(insertText)
+                .WithDocumentation("fancy boi")
                 .WithPlainTextEdit(replacementRange, insertText)
                 .Build();
         }

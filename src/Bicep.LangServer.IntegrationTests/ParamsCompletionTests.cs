@@ -304,6 +304,51 @@ using 'bar.bicep'
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
                 });
         }
+        
+    [DataRow(
+@"using './main.bicep'
+
+param |", 
+@"
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param myInt int
+
+@allowed(
+    [
+        'value1'
+        'value2'
+    ]
+)
+@description('this is a string value')
+param myStr string
+
+@description('this is a bool value')
+param myBool bool
+", 
+new[] {"myBool", "myInt", "myStr"}, 
+new[] {"[Markdown] Type: bool  \nthis is a bool value",
+       "[Markdown] Type: 0 | 1  \nthis is an int value",
+       "[Markdown] Type: 'value1' | 'value2'  \nthis is a string value"})]
+        [DataTestMethod]
+        public async Task Documentation_showing_should_be_shown_with_symbol_completions(string paramTextWithCursor, string bicepText, string[] expectedLabels, string[] expectedDocumentation)
+        {
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
+            }; 
+        
+            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+
+            completions.Select(completion => completion.Label).Should().Equal(expectedLabels);
+            completions.Select(completion => completion.Documentation!.MarkupContent!.ToString()).Should().Equal(expectedDocumentation);
+            completions.Select(completion => completion.Kind).Should().OnlyContain(kind => kind == CompletionItemKind.Field);
+        }
 
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)
         {
