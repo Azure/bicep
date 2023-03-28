@@ -319,6 +319,9 @@ namespace Bicep.Core.TypeSystem
 
         public static bool IsNullable(TypeSymbol type) => TryRemoveNullability(type) is not null;
 
+        public static bool IsRequired(TypeProperty typeProperty)
+            => typeProperty.Flags.HasFlag(TypePropertyFlags.Required) && !TypeHelper.IsNullable(typeProperty.TypeReference.Type);
+
         /// <summary>
         /// Determines if the provided candidate type would be assignable to the provided expected type if the former were stripped of its nullability.
         /// </summary>

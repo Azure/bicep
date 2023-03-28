@@ -1509,7 +1509,7 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
         {
-            var required = property.Flags.HasFlag(TypePropertyFlags.Required) && !TypeHelper.IsNullable(property.TypeReference.Type);
+            var required = TypeHelper.IsRequired(property);
 
             var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
             var suffix = includeColon ? ":" : string.Empty;
@@ -1855,7 +1855,7 @@ namespace Bicep.LanguageServer.Completions
             !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.Keywords.ContainsKey(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
-            property.Flags.HasFlag(TypePropertyFlags.Required) && !TypeHelper.IsNullable(property.TypeReference.Type)
+            TypeHelper.IsRequired(property)
                 ? $"{property.Name} (Required)"
                 : property.Name;
 
