@@ -1781,7 +1781,6 @@ namespace Bicep.LanguageServer.Completions
 
             return completion
                 .WithDetail(insertText)
-                .WithDocumentation("fancy boi")
                 .WithPlainTextEdit(replacementRange, insertText)
                 .Build();
         }
