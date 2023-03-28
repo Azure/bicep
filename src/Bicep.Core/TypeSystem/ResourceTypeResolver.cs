@@ -1,18 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter.Rules;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
-using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -59,7 +54,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax) =>
-            resourceOrModuleAccessSyntax is ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax, BaseExpression: var baseAccessSyntax }
+            resourceOrModuleAccessSyntax is ArrayAccessSyntax { BaseExpression: var baseAccessSyntax }
                 ? TryResolveResourceOrModuleSymbolAndBodyType(baseAccessSyntax, true)
                 : TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
 
