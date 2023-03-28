@@ -317,6 +317,8 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
+        public static bool IsNullable(TypeSymbol type) => TryRemoveNullability(type) is not null;
+
         /// <summary>
         /// Determines if the provided candidate type would be assignable to the provided expected type if the former were stripped of its nullability.
         /// </summary>
