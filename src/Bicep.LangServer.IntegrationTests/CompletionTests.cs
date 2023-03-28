@@ -304,6 +304,50 @@ output baz object = {|
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty, '|');
         }
 
+    [DataRow(
+@"
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param myInt int
+
+@allowed(
+    [
+        'value1'
+        'value2'
+    ]
+)
+@description('this is a string value')
+param myStr string
+
+@description('this is a bool value')
+param myBool bool
+
+resource storageAct 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: |
+}
+", 
+new[] {"myInt", "myStr", "myBool"}, 
+new[] {"[Markdown] Type: 0 | 1  \nthis is an int value",
+       "[Markdown] Type: 'value1' | 'value2'  \nthis is a string value",
+       "[Markdown] Type: bool  \nthis is a bool value"})]
+        [DataTestMethod]
+        public async Task Parameter_type_description_should_be_shown_for_bicep_symbol_completions(string bicepTextWithCursor, string[] expectedLabels, string[] expectedDocumentation)
+        {
+            await RunCompletionScenarioTest(this.TestContext, DefaultServer, bicepTextWithCursor, completions => {
+              
+              completions.Count().Should().Be(1);
+              var symbolCompletions = completions.First().Items.Where(x => x.Kind == CompletionItemKind.Field);
+              
+              symbolCompletions.Select(completion => completion.Label).Should().Equal(expectedLabels);
+              symbolCompletions.Select(completion => completion.Documentation!.MarkupContent!.ToString()).Should().Equal(expectedDocumentation);
+            }, '|');
+        }
+
         [TestMethod]
         public async Task Completions_are_not_offered_inside_comments()
         {

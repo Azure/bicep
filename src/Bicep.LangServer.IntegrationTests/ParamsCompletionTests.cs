@@ -336,7 +336,7 @@ new[] {"[Markdown] Type: bool  \nthis is a bool value",
        "[Markdown] Type: 0 | 1  \nthis is an int value",
        "[Markdown] Type: 'value1' | 'value2'  \nthis is a string value"})]
         [DataTestMethod]
-        public async Task Documentation_showing_should_be_shown_with_symbol_completions(string paramTextWithCursor, string bicepText, string[] expectedLabels, string[] expectedDocumentation)
+        public async Task Parameter_type_description_should_be_shown_for_params_symbol_completions(string paramTextWithCursor, string bicepText, string[] expectedLabels, string[] expectedDocumentation)
         {
             var fileTextsByUri = new Dictionary<Uri, string>
             {
