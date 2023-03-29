@@ -692,6 +692,61 @@ var quux = foos[?0].bar.baz.ǂ
         }
 
         [TestMethod]
+        public async Task Completions_are_offered_within_values_with_a_nullable_declared_type()
+        {
+            var module = @"
+type myObject = {
+  requiredProperty: string
+  optionalProperty: string?
+}
+
+param nullableArray myObject[]?
+
+param arrayOfNullables (myObject?)[]
+
+param nullableObject myObject?
+
+param withNullableObjectProperty {
+  nullableProperty: myObject?
+}
+";
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    nullableArray: [
+      |
+    ]
+    arrayOfNullables: [
+      |
+    ]
+    nullableObject: |
+    withNullableObjectProperty: {
+      nullableProperty: |
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            // despite being in a location with a nullable type or nested within a nullable type, each cursor should be recognized as accepting a typed object and therefore offer the "required-properties" snippet as a completion
+            completions.Should().AllSatisfy(y => y.Any(x => x.Label == "required-properties").Should().BeTrue());
+        }
+
+        [TestMethod]
         public async Task Completions_after_resource_type_should_only_include_existing_keyword()
         {
             var fileWithCursors = @"

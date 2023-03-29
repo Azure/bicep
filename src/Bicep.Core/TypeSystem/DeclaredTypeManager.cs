@@ -1055,12 +1055,29 @@ namespace Bicep.Core.TypeSystem
                 case ObjectPropertySyntax:
                     // this array is a value of the property
                     // the declared type should be the same as the array and we should propagate the flags
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
             }
+        }
+
+        /// <remarks>
+        /// This function should be used instead of <see cref="GetDeclaredTypeAssignment" /> when the caller is certain that the null branch of a nullable type
+        /// is irrelevant (such as when syntax representing a non-null value has been supplied for a location whose type is nullable).
+        /// </remarks>
+        private DeclaredTypeAssignment? GetNonNullableTypeAssignment(SyntaxBase syntax)
+        {
+            var typeAssignment = GetDeclaredTypeAssignment(syntax);
+
+            if (typeAssignment?.Reference.Type is TypeSymbol declaredType && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
+            {
+                // if the declared type is nullable and we're supplying a non-null value, then the null branch of the declared type can be dropped
+                return new(nonNullable, typeAssignment.DeclaringSyntax, typeAssignment.Flags);
+            }
+
+            return typeAssignment;
         }
 
         private DeclaredTypeAssignment? GetStringType(StringSyntax syntax)
@@ -1076,9 +1093,9 @@ namespace Bicep.Core.TypeSystem
                 case ArrayItemSyntax:
                     // this string is a value of the property
                     // the declared type should be the same as the string and we should propagate the flags
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
             }
@@ -1115,7 +1132,7 @@ namespace Bicep.Core.TypeSystem
                 case ArraySyntax _:
                     // array items can only have array parents
                     // use the declared item type
-                    var parentType = GetDeclaredTypeAssignment(parent)?.Reference.Type;
+                    var parentType = GetNonNullableTypeAssignment(parent)?.Reference.Type;
                     if (parentType is ArrayType arrayType)
                     {
                         return new DeclaredTypeAssignment(arrayType.Item.Type, syntax);
@@ -1286,7 +1303,7 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(arrayType.Item.Type, syntax, forParentTypeAssignment.Flags);
 
                 case ObjectPropertySyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } objectPropertyAssignment ||
+                    if (GetNonNullableTypeAssignment(parent) is not { } objectPropertyAssignment ||
                         objectPropertyAssignment.Reference.Type is not { } objectPropertyParent)
                     {
                         return null;
@@ -1297,7 +1314,7 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(objectPropertyParent, syntax), syntax, objectPropertyAssignment.Flags);
 
                 case ArrayItemSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } arrayItemAssignment ||
+                    if (GetNonNullableTypeAssignment(parent) is not { } arrayItemAssignment ||
                         arrayItemAssignment.Reference.Type is not { } arrayParent)
                     {
                         return null;
@@ -1332,7 +1349,7 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
                 case FunctionArgumentSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } parentAssignment)
+                    if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;
                     }
@@ -1355,7 +1372,7 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var assignment = GetDeclaredTypeAssignment(parent);
+            var assignment = GetNonNullableTypeAssignment(parent);
 
             // we are in the process of establishing the declared type for the syntax nodes,
             // so we must set useSyntax to false to avoid a stack overflow
