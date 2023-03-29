@@ -91,7 +91,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             {
                 var remainingArgs = functionCall.Arguments.Skip(1).Select(x => x.Expression);
                 var ancestry = EnumerableExtensions.EnumerateRecursively(resource, x => x.Parent?.Metadata as DeclaredResourceMetadata)
-                    .Reverse().Select(x => x.NameSyntax);
+                    .Reverse().Select(x => x.TryGetNameSyntax());
 
                 if (Enumerable.SequenceEqual(ancestry, remainingArgs, SyntaxIgnoringTriviaComparer.Instance))
                 {

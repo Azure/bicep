@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -1014,14 +1013,12 @@ var obj6 = { |
         public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
-var arr1 = [|]
-var arr2 = [| ]
-var arr3 = [ |]|
-var arr4 = |[ | ]
-var arr5 = [|
+var arr1 = []|
+var arr2 = |[]
+var arr3 = [|
   | null |
 |]
-var arr6 = [ |
+var arr4 = [ |
   12345
   |  true
 | ]
@@ -2497,9 +2494,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
     resource fooChild1Child1 'shares' = {
       name: 'fooChild1Child1'
-      dependsOn: [
-        |
-      ]
+      dependsOn: [|]
     }
   }
 
@@ -2511,9 +2506,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
     resource fooChild2Child1 'shares' = {
       name: 'fooChild2Child1'
-      dependsOn: [
-        |
-      ]
+      dependsOn: [|]
     }
   }
 }
@@ -2590,6 +2583,45 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                 completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
                 completions.Should().NotContain(c => c.Label == "foo");
             }
+        }
+
+        [DataTestMethod]
+        [DataRow("[(|)]")]
+        [DataRow("[(|]")]
+        [DataRow("[((|))]")]
+        [DataRow("[(( | ))]")]
+        [DataRow("[a, (|)]")]
+        [DataRow("[tmp ? |]")]
+        [DataRow("[tmp ? a : |]")]
+        [DataRow("[a, tmp ? |]")]
+        [DataRow("[a, tmp ? | ]")]
+        [DataRow("[a, tmp ? a : |]")]
+        [DataRow("[(a), tmp ? a : b, |]")]
+        [DataRow("[tmp ? (tmp ? |)]")]
+        [DataRow("[, (|)]")]
+        [DataRow("[, ( | )]")]
+        [DataRow("[, (tmp ? (tmp ? |))]")]
+        [DataRow("[, (tmp ? (tmp ? |]")]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_TernaryAndParentheses_SingleLineArray(string arrayText)
+        {
+            string fileWithCursors = @$"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {{
+  name: 'bar'
+}}
+var tmp = true
+var notAResource = 'I\'m a string!'
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {{
+  name: 'foo'
+  dependsOn: {arrayText}
+}}
+";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().NotContain(c => c.Label == "foo");
         }
 
         [TestMethod]
@@ -3220,6 +3252,67 @@ var file = " + functionName + @"(templ|)
             completions.Count().Should().Be(2);
             completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet);
             completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet);
+        }
+
+        [DataTestMethod]
+        [DataRow("var arr1 = [|]")]
+        [DataRow("param arr array = [|]")]
+        [DataRow("var arr2 = [a, |]")]
+        [DataRow("var arr3 = [a,|]")]
+        [DataRow("var arr4 = [a|]")]
+        [DataRow("var arr5 = [|, b]")]
+        [DataRow("var arr6 = [a, |, b]")]
+        public async Task GenericArray_SingleLine_HasCompletions(string text)
+        {
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(fileText);
+
+            var completions = await file.RequestCompletion(cursor);
+            // test completions that are unlikely to change over time
+            completions.Should().Contain(c => c.Label == "sys");
+            completions.Should().Contain(c => c.Label == "if-else");
+        }
+
+        [TestMethod]
+        public async Task GenericArray_Multiline_HasCompletions()
+        {
+            const string text = @"
+var arr1 = [
+  |
+]
+param arr2 array = [
+  |
+]
+var arr3 = [
+  a|
+]
+var arr4 = [
+  a
+  |
+]
+param arr5 array = [
+  a
+  |
+  b
+]
+var arr6 = [
+
+  |
+
+]";
+
+            var (fileText, cursors) = ParserHelper.GetFileWithCursors(text, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(fileText);
+
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(6);
+            foreach (var completions in allCompletions)
+            {
+                // test completions that are unlikely to change over time
+                completions.Should().Contain(c => c.Label == "sys");
+                completions.Should().Contain(c => c.Label == "if-else");
+            }
         }
 
         private static ISettingsProvider GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled()
