@@ -221,7 +221,7 @@ namespace Bicep.LanguageServer.Completions
                     }
 
                     var arrayItemInfo = SyntaxMatcher.FindLastNodeOfType<ArrayItemSyntax, ArrayItemSyntax>(matchingNodes);
-                    if (ArrayItemTypeShouldFlowThrough(matchingNodes, arrayItemInfo))
+                    if (ArrayItemTypeShouldFlowThrough(matchingNodes, arrayItemInfo, arrayInfo.node))
                     {
                         kind |= BicepCompletionContextKind.ArrayItem;
                     }
@@ -643,14 +643,20 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool ArrayItemTypeShouldFlowThrough(List<SyntaxBase> matchingNodes, (ArrayItemSyntax? node, int index) arrayItemInfo)
+        private static bool ArrayItemTypeShouldFlowThrough(
+            List<SyntaxBase> matchingNodes,
+            (ArrayItemSyntax? node, int index) arrayItemInfo,
+            ArraySyntax? arraySyntax
+        )
         {
-            if (arrayItemInfo.node is null)
+            if (arraySyntax is null)
             {
                 return false;
             }
 
             // Array item types should flow through parenthesized and ternary expressions. For examples:
+            // [(|)]
+            // [(...), (conditionA ? |)]
             // [
             //   ( | )
             // ]
@@ -660,13 +666,16 @@ namespace Bicep.LanguageServer.Completions
             // [
             //   conditionA ? (conditionB ? true : |) : false
             // ]
-            if (matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
+            if (arrayItemInfo.node != null
+                && matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
                 && matchingNodes.Last() is TernaryOperationSyntax or ParenthesizedExpressionSyntax or Token)
             {
                 return true;
             }
 
-            return false;
+            var arrayHasNewLines = arraySyntax.Children.Any(c => c is Token { Type: TokenType.NewLine });
+            // something like [, (|)] ..
+            return !arrayHasNewLines && SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(matchingNodes);
         }
 
         private static bool IsArrayItemContext(List<SyntaxBase> matchingNodes, (ArraySyntax? node, int index) arrayInfo, int offset)
@@ -678,27 +687,27 @@ namespace Bicep.LanguageServer.Completions
                 return false;
             }
 
-            switch (matchingNodes[^1])
+            // var arr = [ | ]
+            if (SyntaxMatcher.IsTailMatch<ArraySyntax>(matchingNodes)
+                // var arr = [|] var arr = [ |]
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, Token>(
+                    matchingNodes,
+                    (_, token) => token is { Type: TokenType.NewLine or TokenType.Comma or TokenType.LeftSquare or TokenType.RightSquare }
+                )
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax>(matchingNodes) // var arr = [, | ,]
+                || SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>( // var arr = [,|]
+                    matchingNodes,
+                    (_, _, token) => token is { Type: TokenType.Comma }
+                ))
             {
-                case ArraySyntax arraySyntax:
-                    return CanInsertChildNodeAtOffset(arraySyntax, offset);
-
-                case Token token:
-                    int nodeCount = matchingNodes.Count - arrayInfo.index;
-
-                    switch (nodeCount)
-                    {
-                        case 2:
-                            return token.Type == TokenType.NewLine && CanInsertChildNodeAtOffset((ArraySyntax)matchingNodes[^2], offset);
-
-                        case 5:
-                            return token.Type == TokenType.Identifier;
-                    }
-
-                    break;
+                return CanInsertChildNodeAtOffset(arrayInfo.node, offset);
             }
 
-            return false;
+            // var arr = [a|]
+            return SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
+                matchingNodes,
+                (_, _, _, _, token) => token is { Type: TokenType.Identifier }
+            );
         }
 
         private static bool IsParameterDefaultValueContext(List<SyntaxBase> matchingNodes, int offset) =>
@@ -1135,14 +1144,26 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            var nodes = arraySyntax.OpenBracket.AsEnumerable().Concat(arraySyntax.Children).Concat(arraySyntax.CloseBracket);
+            var nodes = arraySyntax.OpenBracket.AsEnumerable().Concat(arraySyntax.Children).Concat(arraySyntax.CloseBracket).ToList();
+            var hasNewLines = nodes.Any(node => node is Token { Type: TokenType.NewLine });
             var lastNodeBeforeOffset = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
             var firstNodeAfterOffset = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 
-            // To insert a new child in an array, we must be in between newlines.
-            // This will not be the case once https://github.com/Azure/bicep/issues/146 is implemented.
-            return lastNodeBeforeOffset is Token { Type: TokenType.NewLine } &&
-                firstNodeAfterOffset is Token { Type: TokenType.NewLine };
+            return lastNodeBeforeOffset switch
+            {
+                Token { Type: TokenType.NewLine } =>
+                    // To insert a new child in a multiline array, we must be in between newlines.
+                    firstNodeAfterOffset is Token { Type: TokenType.NewLine },
+                _ when hasNewLines =>
+                    false,
+                Token { Type: TokenType.LeftSquare } =>
+                    firstNodeAfterOffset is Token { Type: TokenType.RightSquare } or ArrayItemSyntax or SkippedTriviaSyntax,
+                Token { Type: TokenType.Comma } or ArrayItemSyntax =>
+                    true,
+                SkippedTriviaSyntax =>
+                    firstNodeAfterOffset is Token { Type: TokenType.RightSquare },
+                _ => false
+            };
         }
 
         private class ActiveScopesVisitor : SymbolVisitor
