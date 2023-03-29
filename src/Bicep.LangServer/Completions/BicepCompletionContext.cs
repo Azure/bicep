@@ -1145,11 +1145,13 @@ namespace Bicep.LanguageServer.Completions
                 Token { Type: TokenType.NewLine } =>
                     // To insert a new child in a multiline array, we must be in between newlines.
                     firstNodeAfterOffset is Token { Type: TokenType.NewLine },
-                Token { Type: TokenType.LeftSquare } when !hasNewLines =>
+                _ when hasNewLines =>
+                    false,
+                Token { Type: TokenType.LeftSquare } =>
                     firstNodeAfterOffset is Token { Type: TokenType.RightSquare } or ArrayItemSyntax or SkippedTriviaSyntax,
-                Token { Type: TokenType.Comma } or ArrayItemSyntax when !hasNewLines =>
+                Token { Type: TokenType.Comma } or ArrayItemSyntax =>
                     true,
-                SkippedTriviaSyntax when !hasNewLines =>
+                SkippedTriviaSyntax =>
                     firstNodeAfterOffset is Token { Type: TokenType.RightSquare },
                 _ => false
             };
