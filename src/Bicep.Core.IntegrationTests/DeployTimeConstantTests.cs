@@ -157,9 +157,9 @@ var bad3 = [for i in range(0, 2): {
 ";
             var result = CompilationHelper.Compile(text);
 
-            const int badCount = 3;
+            const int badCases = 3;
             var expectedDiagnostics = Enumerable
-                .Range(1, badCount)
+                .Range(1, badCases)
                 .Select(i => ("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{i}\", which requires values that can be calculated at the start of the deployment. Properties of foo which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
 
             result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error).Should().HaveDiagnostics(expectedDiagnostics);
@@ -182,42 +182,42 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
             var arrayAccessors = new[] { "0", "i", "i + 2" };
 
             // iterate the ok cases
-            var okNumber = 0;
+            var okCase = 0;
             var okCollectionAccessExpressions = new[] { ".id" };
 
             foreach (var arrayAccessor in arrayAccessors)
             {
                 foreach (var okExp in okCollectionAccessExpressions)
                 {
-                    textSb.AppendLine($"var ok{++okNumber} = [for i in range(0, 2): foos[{arrayAccessor}]{okExp}]");
-                    textSb.AppendLine($@"var ok{++okNumber} = [for i in range(0, 2): {{
+                    textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foos[{arrayAccessor}]{okExp}]");
+                    textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
   name: foos[{arrayAccessor}]{okExp}
 }}]");
                 }
             }
-            okNumber.Should().Be(arrayAccessors.Length * okCollectionAccessExpressions.Length * 2);
+            okCase.Should().Be(arrayAccessors.Length * okCollectionAccessExpressions.Length * 2);
 
             // iterate the bad cases
-            var badNumber = 0;
+            var badCase = 0;
             var badCollectionAccessExpressions = new[] { ".properties", ".properties.accessTier" };
 
             foreach (var arrayAccessor in arrayAccessors)
             {
                 foreach (var badExp in badCollectionAccessExpressions)
                 {
-                    textSb.AppendLine($"var bad{++badNumber} = [for i in range(0, 2): foos[{arrayAccessor}]{badExp}]");
-                    textSb.AppendLine($@"var bad{++badNumber} = [for i in range(0, 2): {{
+                    textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrayAccessor}]{badExp}]");
+                    textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
   name: foos[{arrayAccessor}]{badExp}
 }}]");
                 }
             }
-            badNumber.Should().Be(arrayAccessors.Length * badCollectionAccessExpressions.Length * 2);
+            badCase.Should().Be(arrayAccessors.Length * badCollectionAccessExpressions.Length * 2);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
 
             var expectedDiagnostics = Enumerable
-                .Range(1, badNumber)
+                .Range(1, badCase)
                 .Select(i => ("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{i}\", which requires values that can be calculated at the start of the deployment. Properties of foos which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
 
             result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error).Should().HaveDiagnostics(expectedDiagnostics);
