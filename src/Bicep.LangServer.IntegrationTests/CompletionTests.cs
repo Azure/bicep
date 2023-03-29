@@ -3219,6 +3219,67 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet);
         }
 
+        [DataTestMethod]
+        [DataRow("var arr1 = [|]")]
+        [DataRow("param arr array = [|]")]
+        [DataRow("var arr2 = [a, |]")]
+        [DataRow("var arr3 = [a,|]")]
+        [DataRow("var arr4 = [a|]")]
+        [DataRow("var arr5 = [|, b]")]
+        [DataRow("var arr6 = [a, |, b]")]
+        public async Task GenericArray_SingleLine_HasCompletions(string text)
+        {
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(fileText);
+
+            var completions = await file.RequestCompletion(cursor);
+            // test completions that are unlikely to change over time
+            completions.Should().Contain(c => c.Label == "sys");
+            completions.Should().Contain(c => c.Label == "if-else");
+        }
+
+        [TestMethod]
+        public async Task GenericArray_Multiline_HasCompletions()
+        {
+            const string text = @"
+var arr1 = [
+  |
+]
+param arr2 array = [
+  |
+]
+var arr3 = [
+  a|
+]
+var arr4 = [
+  a
+  |
+]
+param arr5 array = [
+  a
+  |
+  b
+]
+var arr6 = [
+
+  |
+
+]";
+
+            var (fileText, cursors) = ParserHelper.GetFileWithCursors(text, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(fileText);
+
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(6);
+            foreach (var completions in allCompletions)
+            {
+                // test completions that are unlikely to change over time
+                completions.Should().Contain(c => c.Label == "sys");
+                completions.Should().Contain(c => c.Label == "if-else");
+            }
+        }
+
         private static ISettingsProvider GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled()
         {
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
