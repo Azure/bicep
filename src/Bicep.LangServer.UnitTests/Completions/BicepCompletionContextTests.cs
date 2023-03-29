@@ -216,5 +216,24 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
+
+        [DataTestMethod]
+        [DataRow("var foo1 = [(|)]")]
+        [DataRow("var foo2 = [((|))]")]
+        [DataRow("var foo3 = [(( | ))]")]
+        [DataRow("var foo4 = [(|]")]
+        [DataRow("var foo5 = [,(|)]")]
+        [DataRow("var foo6 = [tmp ? |]")]
+        [DataRow("var foo7 = [tmp ? a : |]")]
+        [DataRow("var foo8 = [(tmp ? a : |)]")]
+        [DataRow("var foo9 = [(tmp ? (tmp ? |) : a)]")]
+        [DataRow("var foo10 = [(tmp ? a : b), (|)]")]
+        [DataRow("var foo11 = [(tmp ? a : b), (|), a]")]
+        [DataRow("var foo12 = [(tmp ? a : b), (|]")]
+        public void ContextKind_Is_ArrayItem_SingleLineArray_Closed_TernaryAndParentheses(string text)
+        {
+            var context = CreateContextFromTextWithCursor(text);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a potential value area in a single line array");
+        }
     }
 }

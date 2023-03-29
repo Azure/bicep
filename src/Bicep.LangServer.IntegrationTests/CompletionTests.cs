@@ -2494,9 +2494,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
     resource fooChild1Child1 'shares' = {
       name: 'fooChild1Child1'
-      dependsOn: [
-        |
-      ]
+      dependsOn: [|]
     }
   }
 
@@ -2508,9 +2506,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
     resource fooChild2Child1 'shares' = {
       name: 'fooChild2Child1'
-      dependsOn: [
-        |
-      ]
+      dependsOn: [|]
     }
   }
 }
@@ -2587,6 +2583,45 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                 completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
                 completions.Should().NotContain(c => c.Label == "foo");
             }
+        }
+
+        [DataTestMethod]
+        [DataRow("[(|)]")]
+        [DataRow("[(|]")]
+        [DataRow("[((|))]")]
+        [DataRow("[(( | ))]")]
+        [DataRow("[a, (|)]")]
+        [DataRow("[tmp ? |]")]
+        [DataRow("[tmp ? a : |]")]
+        [DataRow("[a, tmp ? |]")]
+        [DataRow("[a, tmp ? | ]")]
+        [DataRow("[a, tmp ? a : |]")]
+        [DataRow("[(a), tmp ? a : b, |]")]
+        [DataRow("[tmp ? (tmp ? |)]")]
+        [DataRow("[, (|)]")]
+        [DataRow("[, ( | )]")]
+        [DataRow("[, (tmp ? (tmp ? |))]")]
+        [DataRow("[, (tmp ? (tmp ? |]")]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_TernaryAndParentheses_SingleLineArray(string arrayText)
+        {
+            string fileWithCursors = @$"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {{
+  name: 'bar'
+}}
+var tmp = true
+var notAResource = 'I\'m a string!'
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {{
+  name: 'foo'
+  dependsOn: {arrayText}
+}}
+";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().NotContain(c => c.Label == "foo");
         }
 
         [TestMethod]

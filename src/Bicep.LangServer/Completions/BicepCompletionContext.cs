@@ -221,7 +221,7 @@ namespace Bicep.LanguageServer.Completions
                     }
 
                     var arrayItemInfo = SyntaxMatcher.FindLastNodeOfType<ArrayItemSyntax, ArrayItemSyntax>(matchingNodes);
-                    if (ArrayItemTypeShouldFlowThrough(matchingNodes, arrayItemInfo))
+                    if (ArrayItemTypeShouldFlowThrough(matchingNodes, arrayItemInfo, arrayInfo.node))
                     {
                         kind |= BicepCompletionContextKind.ArrayItem;
                     }
@@ -643,14 +643,20 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool ArrayItemTypeShouldFlowThrough(List<SyntaxBase> matchingNodes, (ArrayItemSyntax? node, int index) arrayItemInfo)
+        private static bool ArrayItemTypeShouldFlowThrough(
+            List<SyntaxBase> matchingNodes,
+            (ArrayItemSyntax? node, int index) arrayItemInfo,
+            ArraySyntax? arraySyntax
+        )
         {
-            if (arrayItemInfo.node is null)
+            if (arraySyntax is null)
             {
                 return false;
             }
 
             // Array item types should flow through parenthesized and ternary expressions. For examples:
+            // [(|)]
+            // [(...), (conditionA ? |)]
             // [
             //   ( | )
             // ]
@@ -660,13 +666,16 @@ namespace Bicep.LanguageServer.Completions
             // [
             //   conditionA ? (conditionB ? true : |) : false
             // ]
-            if (matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
+            if (arrayItemInfo.node != null
+                && matchingNodes.Skip(arrayItemInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax)
                 && matchingNodes.Last() is TernaryOperationSyntax or ParenthesizedExpressionSyntax or Token)
             {
                 return true;
             }
 
-            return false;
+            var arrayHasNewLines = arraySyntax.Children.Any(c => c is Token { Type: TokenType.NewLine });
+            // something like [, (|)] ..
+            return !arrayHasNewLines && SyntaxMatcher.IsTailMatch<ArraySyntax, SkippedTriviaSyntax, Token>(matchingNodes);
         }
 
         private static bool IsArrayItemContext(List<SyntaxBase> matchingNodes, (ArraySyntax? node, int index) arrayInfo, int offset)
