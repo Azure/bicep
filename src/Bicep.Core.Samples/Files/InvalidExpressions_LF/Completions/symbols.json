@@ -839,6 +839,10 @@
     "label": "fakeFuncP",
     "kind": "field",
     "detail": "fakeFuncP",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_fakeFuncP",
@@ -965,6 +969,10 @@
     "label": "funcvarparam",
     "kind": "field",
     "detail": "funcvarparam",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_funcvarparam",

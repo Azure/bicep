@@ -783,6 +783,10 @@
     "label": "equals",
     "kind": "field",
     "detail": "equals",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_equals",
@@ -1638,6 +1642,10 @@
     "label": "mod",
     "kind": "field",
     "detail": "mod",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mod",
@@ -1890,6 +1898,10 @@
     "label": "myInt",
     "kind": "variable",
     "detail": "myInt",
+    "documentation": {
+      "kind": "markdown",
+      "value": "an int variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myInt",
@@ -1918,6 +1930,10 @@
     "label": "myObj",
     "kind": "variable",
     "detail": "myObj",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a object variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myObj",
@@ -1946,6 +1962,10 @@
     "label": "myStr",
     "kind": "variable",
     "detail": "myStr",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a string variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myStr",
@@ -1960,6 +1980,10 @@
     "label": "myTruth",
     "kind": "variable",
     "detail": "myTruth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a bool variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myTruth",
@@ -2086,6 +2110,10 @@
     "label": "objWithInterp",
     "kind": "variable",
     "detail": "objWithInterp",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a object with interp"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objWithInterp",
@@ -2135,6 +2163,10 @@
     "label": "parameters",
     "kind": "field",
     "detail": "parameters",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_parameters",

@@ -696,6 +696,10 @@
     "label": "dataCollectionRule",
     "kind": "field",
     "detail": "dataCollectionRule",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: object  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_dataCollectionRule",
@@ -2839,6 +2843,10 @@
     "label": "issue4668_identity",
     "kind": "field",
     "detail": "issue4668_identity",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: object  \nThe identity that will be used to execute the Deployment Script."
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_issue4668_identity",
@@ -2853,6 +2861,10 @@
     "label": "issue4668_kind",
     "kind": "field",
     "detail": "issue4668_kind",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: 'AzureCLI' | 'AzurePowerShell'  \nThe language of the Deployment Script. AzurePowerShell or AzureCLI."
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_issue4668_kind",
@@ -2884,6 +2896,10 @@
     "label": "issue4668_properties",
     "kind": "field",
     "detail": "issue4668_properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: object  \nThe properties of the Deployment Script."
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_issue4668_properties",
@@ -4771,6 +4787,10 @@
     "label": "resrefpar",
     "kind": "field",
     "detail": "resrefpar",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resrefpar",
@@ -5672,6 +5692,10 @@
     "label": "tags",
     "kind": "field",
     "detail": "tags",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: object  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_tags",

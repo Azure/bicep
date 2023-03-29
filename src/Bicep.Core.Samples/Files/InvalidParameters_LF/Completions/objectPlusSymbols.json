@@ -3,6 +3,10 @@
     "label": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
     "kind": "field",
     "detail": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
@@ -59,6 +63,10 @@
     "label": "arrayCompletions",
     "kind": "field",
     "detail": "arrayCompletions",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: array  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_arrayCompletions",
@@ -91,6 +99,10 @@
     "label": "badInterpolatedString",
     "kind": "field",
     "detail": "badInterpolatedString",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badInterpolatedString",
@@ -105,6 +117,10 @@
     "label": "badInterpolatedString2",
     "kind": "field",
     "detail": "badInterpolatedString2",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badInterpolatedString2",
@@ -203,6 +219,10 @@
     "label": "boolCompletions",
     "kind": "field",
     "detail": "boolCompletions",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_boolCompletions",
@@ -217,6 +237,10 @@
     "label": "commaOne",
     "kind": "field",
     "detail": "commaOne",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: 'abc' | 'def'  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_commaOne",
@@ -378,6 +402,10 @@
     "label": "defaultValueOneLinerCompletions",
     "kind": "field",
     "detail": "defaultValueOneLinerCompletions",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_defaultValueOneLinerCompletions",
@@ -409,6 +437,10 @@
     "label": "duplicateDecorators",
     "kind": "field",
     "detail": "duplicateDecorators",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_duplicateDecorators",
@@ -444,6 +476,10 @@
     "label": "emptyAllowedInt",
     "kind": "field",
     "detail": "emptyAllowedInt",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_emptyAllowedInt",
@@ -458,6 +494,10 @@
     "label": "emptyAllowedString",
     "kind": "field",
     "detail": "emptyAllowedString",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_emptyAllowedString",
@@ -510,6 +550,10 @@
     "label": "expressionInModifier",
     "kind": "field",
     "detail": "expressionInModifier",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_expressionInModifier",
@@ -545,6 +589,10 @@
     "label": "fatalErrorInIssue1713",
     "kind": "field",
     "detail": "fatalErrorInIssue1713",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: any  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_fatalErrorInIssue1713",
@@ -678,6 +726,10 @@
     "label": "incompleteDecorators",
     "kind": "field",
     "detail": "incompleteDecorators",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_incompleteDecorators",
@@ -755,6 +807,10 @@
     "label": "invalidDefaultWithAllowedArrayDecorator",
     "kind": "field",
     "detail": "invalidDefaultWithAllowedArrayDecorator",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: ['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidDefaultWithAllowedArrayDecorator",
@@ -769,6 +825,10 @@
     "label": "invalidLength",
     "kind": "field",
     "detail": "invalidLength",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidLength",
@@ -783,6 +843,10 @@
     "label": "invalidPermutation",
     "kind": "field",
     "detail": "invalidPermutation",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidPermutation",
@@ -986,6 +1050,10 @@
     "label": "malformedModifier",
     "kind": "field",
     "detail": "malformedModifier",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_malformedModifier",
@@ -1000,6 +1068,10 @@
     "label": "malformedType",
     "kind": "field",
     "detail": "malformedType",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_malformedType",
@@ -1014,6 +1086,10 @@
     "label": "malformedType2",
     "kind": "field",
     "detail": "malformedType2",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_malformedType2",
@@ -1133,6 +1209,10 @@
     "label": "missingType",
     "kind": "field",
     "detail": "missingType",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: any  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingType",
@@ -1147,6 +1227,10 @@
     "label": "missingTypeWithSpaceAfter",
     "kind": "field",
     "detail": "missingTypeWithSpaceAfter",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: any  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingTypeWithSpaceAfter",
@@ -1161,6 +1245,10 @@
     "label": "missingTypeWithTabAfter",
     "kind": "field",
     "detail": "missingTypeWithTabAfter",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: any  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingTypeWithTabAfter",
@@ -1175,6 +1263,10 @@
     "label": "myBool",
     "kind": "field",
     "detail": "myBool",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myBool",
@@ -1189,6 +1281,10 @@
     "label": "myFalsehood",
     "kind": "field",
     "detail": "myFalsehood",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myFalsehood",
@@ -1203,6 +1299,10 @@
     "label": "myInt",
     "kind": "field",
     "detail": "myInt",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myInt",
@@ -1217,6 +1317,10 @@
     "label": "myInt2",
     "kind": "field",
     "detail": "myInt2",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myInt2",
@@ -1231,6 +1335,10 @@
     "label": "myString",
     "kind": "field",
     "detail": "myString",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myString",
@@ -1245,6 +1353,10 @@
     "label": "myString2",
     "kind": "field",
     "detail": "myString2",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myString2",
@@ -1259,6 +1371,10 @@
     "label": "myTruth",
     "kind": "field",
     "detail": "myTruth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myTruth",
@@ -1290,6 +1406,10 @@
     "label": "noValueAfterColon",
     "kind": "field",
     "detail": "noValueAfterColon",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_noValueAfterColon",
@@ -1304,6 +1424,10 @@
     "label": "nonCompileTimeConstant",
     "kind": "field",
     "detail": "nonCompileTimeConstant",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nonCompileTimeConstant",
@@ -1318,6 +1442,10 @@
     "label": "nonConstantInDecorator",
     "kind": "field",
     "detail": "nonConstantInDecorator",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nonConstantInDecorator",
@@ -1353,6 +1481,10 @@
     "label": "paramAccessingOutput",
     "kind": "field",
     "detail": "paramAccessingOutput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramAccessingOutput",
@@ -1367,6 +1499,10 @@
     "label": "paramAccessingResource",
     "kind": "field",
     "detail": "paramAccessingResource",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramAccessingResource",
@@ -1381,6 +1517,10 @@
     "label": "paramAccessingVar",
     "kind": "field",
     "detail": "paramAccessingVar",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramAccessingVar",
@@ -1395,6 +1535,10 @@
     "label": "paramDefaultOneCycle",
     "kind": "field",
     "detail": "paramDefaultOneCycle",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramDefaultOneCycle",
@@ -1409,6 +1553,10 @@
     "label": "paramDefaultTwoCycle1",
     "kind": "field",
     "detail": "paramDefaultTwoCycle1",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramDefaultTwoCycle1",
@@ -1423,6 +1571,10 @@
     "label": "paramDefaultTwoCycle2",
     "kind": "field",
     "detail": "paramDefaultTwoCycle2",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramDefaultTwoCycle2",
@@ -1437,6 +1589,10 @@
     "label": "paramModifierSelfCycle",
     "kind": "field",
     "detail": "paramModifierSelfCycle",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_paramModifierSelfCycle",
@@ -1451,6 +1607,10 @@
     "label": "partialType",
     "kind": "field",
     "detail": "partialType",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_partialType",
@@ -1664,6 +1824,10 @@
     "label": "secureInt",
     "kind": "field",
     "detail": "secureInt",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_secureInt",
@@ -1699,6 +1863,10 @@
     "label": "someArray",
     "kind": "field",
     "detail": "someArray",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_someArray",
@@ -1713,6 +1881,10 @@
     "label": "someInteger",
     "kind": "field",
     "detail": "someInteger",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_someInteger",
@@ -1727,6 +1899,10 @@
     "label": "someString",
     "kind": "field",
     "detail": "someString",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_someString",
@@ -2028,6 +2204,10 @@
     "label": "tooManyArguments1",
     "kind": "field",
     "detail": "tooManyArguments1",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_tooManyArguments1",
@@ -2042,6 +2222,10 @@
     "label": "tooManyArguments2",
     "kind": "field",
     "detail": "tooManyArguments2",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_tooManyArguments2",
@@ -2056,6 +2240,10 @@
     "label": "trailingSpace",
     "kind": "field",
     "detail": "trailingSpace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: any  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_trailingSpace",
@@ -2091,6 +2279,10 @@
     "label": "unaryMinusOnFunction",
     "kind": "field",
     "detail": "unaryMinusOnFunction",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_unaryMinusOnFunction",
@@ -2231,6 +2423,10 @@
     "label": "wrongAssignmentToken",
     "kind": "field",
     "detail": "wrongAssignmentToken",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_wrongAssignmentToken",
@@ -2245,6 +2441,10 @@
     "label": "wrongDefaultValue",
     "kind": "field",
     "detail": "wrongDefaultValue",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_wrongDefaultValue",
@@ -2259,6 +2459,10 @@
     "label": "wrongIntModifier",
     "kind": "field",
     "detail": "wrongIntModifier",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: int  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_wrongIntModifier",
@@ -2273,6 +2477,10 @@
     "label": "wrongMetadataSchema",
     "kind": "field",
     "detail": "wrongMetadataSchema",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: string  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_wrongMetadataSchema",
@@ -2287,6 +2495,10 @@
     "label": "wrongType",
     "kind": "field",
     "detail": "wrongType",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: error  \n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_wrongType",
