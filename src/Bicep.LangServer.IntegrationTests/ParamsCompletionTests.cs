@@ -305,11 +305,15 @@ using 'bar.bicep'
                 });
         }
         
-    [DataRow(
-@"using './main.bicep'
+        [TestMethod]
+        public async Task Parameter_type_description_should_be_shown_for_params_symbol_completions()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
 
-param |", 
-@"
+param |";
+
+            var bicepText = @"
 @allowed(
     [
         0
@@ -330,14 +334,7 @@ param myStr string
 
 @description('this is a bool value')
 param myBool bool
-", 
-new[] {"myBool", "myInt", "myStr"}, 
-new[] {"[Markdown] Type: bool  \nthis is a bool value",
-       "[Markdown] Type: 0 | 1  \nthis is an int value",
-       "[Markdown] Type: 'value1' | 'value2'  \nthis is a string value"})]
-        [DataTestMethod]
-        public async Task Parameter_type_description_should_be_shown_for_params_symbol_completions(string paramTextWithCursor, string bicepText, string[] expectedLabels, string[] expectedDocumentation)
-        {
+";
             var fileTextsByUri = new Dictionary<Uri, string>
             {
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
@@ -345,9 +342,25 @@ new[] {"[Markdown] Type: bool  \nthis is a bool value",
         
             var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
 
-            completions.Select(completion => completion.Label).Should().Equal(expectedLabels);
-            completions.Select(completion => completion.Documentation!.MarkupContent!.ToString()).Should().Equal(expectedDocumentation);
-            completions.Select(completion => completion.Kind).Should().OnlyContain(kind => kind == CompletionItemKind.Field);
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("myBool");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myInt");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myStr");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                });
         }
 
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)

@@ -304,8 +304,10 @@ output baz object = {|
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty, '|');
         }
 
-    [DataRow(
-@"
+        [TestMethod]
+        public async Task Parameter_type_description_should_be_shown_for_bicep_symbol_completions()
+        {
+            var bicepTextWithCursor = @"
 @allowed(
     [
         0
@@ -330,21 +332,30 @@ param myBool bool
 resource storageAct 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: |
 }
-", 
-new[] {"myInt", "myStr", "myBool"}, 
-new[] {"[Markdown] Type: 0 | 1  \nthis is an int value",
-       "[Markdown] Type: 'value1' | 'value2'  \nthis is a string value",
-       "[Markdown] Type: bool  \nthis is a bool value"})]
-        [DataTestMethod]
-        public async Task Parameter_type_description_should_be_shown_for_bicep_symbol_completions(string bicepTextWithCursor, string[] expectedLabels, string[] expectedDocumentation)
-        {
+";
+
             await RunCompletionScenarioTest(this.TestContext, DefaultServer, bicepTextWithCursor, completions => {
               
               completions.Count().Should().Be(1);
               var symbolCompletions = completions.First().Items.Where(x => x.Kind == CompletionItemKind.Field);
-              
-              symbolCompletions.Select(completion => completion.Label).Should().Equal(expectedLabels);
-              symbolCompletions.Select(completion => completion.Documentation!.MarkupContent!.ToString()).Should().Equal(expectedDocumentation);
+
+              symbolCompletions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("myInt");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myStr");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myBool");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+                }
+              );              
             }, '|');
         }
 
