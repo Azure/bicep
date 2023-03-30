@@ -4355,6 +4355,47 @@ output vaultId string = CertificateVault.id
             evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
         }
 
+        // https://github.com/Azure/bicep/issues/9024
+        [TestMethod]
+        public void Test_Issue9024()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'foo'
+  location: resourceGroup().location
+
+  resource ext 'extensions' = {
+    name: 'ZipDeploy'
+  }
+}
+");
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().ContainDiagnostic("BCP088", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'MSDeploy' | 'onedeploy'\" but the provided value is of type \"'ZipDeploy'\". Did you mean \"'MSDeploy'\"?");
+        }
+
+        // https://github.com/Azure/bicep/issues/10235
+        [TestMethod]
+        public void Test_Issue10235()
+        {
+            var result = CompilationHelper.Compile(@"
+resource site 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'mySite'
+  location: resourceGroup().location
+}
+
+resource config 'Microsoft.Web/sites/config@2022-03-01' = {
+  parent: site
+  name: 'virtualNetwork'
+  properties: {
+    subnetResourceId: 'subnetId'
+    swiftSupported: true
+  }
+}
+");
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().ContainDiagnostic("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'appsettings' | 'authsettings' | 'authsettingsV2' | 'azurestorageaccounts' | 'backup' | 'connectionstrings' | 'logs' | 'metadata' | 'pushsettings' | 'slotConfigNames' | 'web'\" but the provided value is of type \"'virtualNetwork'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.");
+        }
+
         // https://github.com/Azure/bicep/issues/9978
         [TestMethod]
         public void Test_Issue9978()
@@ -4373,6 +4414,136 @@ resource asdf 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"foo\" is not valid."),
             });
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' = {
+  scope: workspace
+  name: 'new2'
+  kind: 'Fusion'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  parent: alertRule
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_negative()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' = {
+  scope: workspace
+  name: 'new2'
+  kind: 'Fusion'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().ContainDiagnostic("BCP135", DiagnosticLevel.Error, "Scope \"resourceGroup\" is not valid for this resource type. Permitted scopes: \"resource\".");
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_existing()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' existing = {
+  scope: workspace
+  name: 'new2'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  parent: alertRule
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_nested()
+        {
+            var result = CompilationHelper.Compile(@"
+param watchlistItems array
+param watchlistName string
+param workspaceName string
+
+resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  name: workspaceName
+}
+
+var firstColumnName = !empty(watchlistItems) ? watchlistItems[0][0] : ''
+
+resource watchlist 'Microsoft.SecurityInsights/watchlists@2023-02-01-preview' = {
+  scope: workspace
+  name: watchlistName
+  properties: {
+    provider: 'Microsoft'
+    displayName: watchlistName
+    itemsSearchKey: firstColumnName
+  }
+
+  resource watchlistItemsDeployment 'watchlistItems@2023-02-01-preview' = [for item in watchlistItems: {
+    name: guid(item)
+    properties: {
+      itemsKeyValue: item
+    }
+  }]
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
         }
     }
 }

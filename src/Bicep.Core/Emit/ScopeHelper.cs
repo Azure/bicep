@@ -359,7 +359,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (!IsDeployableResourceScope(semanticModel, scopeData))
+            if (!IsDeployableResourceScope(semanticModel, scopeInfo, scopeData))
             {
                 writeScopeDiagnostic(x => x.InvalidCrossResourceScope());
             }
@@ -370,8 +370,14 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static bool IsDeployableResourceScope(SemanticModel semanticModel, ScopeData scopeData)
+        private static bool IsDeployableResourceScope(SemanticModel semanticModel, IReadOnlyDictionary<DeclaredResourceMetadata, ScopeData> scopeInfo, ScopeData scopeData)
         {
+            if (scopeData.ResourceScope is not null)
+            {
+                // extension resource - check if the resource being extended is deployable
+                return IsDeployableResourceScope(semanticModel, scopeInfo, scopeInfo[scopeData.ResourceScope]);
+            }
+
             if (scopeData.RequestedScope == ResourceScope.Tenant)
             {
                 // tenant resources can be deployed cross-scope
@@ -382,8 +388,7 @@ namespace Bicep.Core.Emit
             var matchesTargetScope = (scopeData.RequestedScope == semanticModel.TargetScope &&
                 scopeData.ManagementGroupNameProperty is null &&
                 scopeData.SubscriptionIdProperty is null &&
-                scopeData.ResourceGroupProperty is null &&
-                scopeData.ResourceScope is null);
+                scopeData.ResourceGroupProperty is null);
 
             return matchesTargetScope;
         }
@@ -422,7 +427,7 @@ namespace Bicep.Core.Emit
                     var firstAncestor = ancestors.First();
                     if (!resource.IsExistingResource &&
                         firstAncestor.Resource.IsExistingResource &&
-                        !IsDeployableResourceScope(semanticModel, scopeInfo[firstAncestor.Resource]))
+                        !IsDeployableResourceScope(semanticModel, scopeInfo, scopeInfo[firstAncestor.Resource]))
                     {
                         // Setting 'scope' is blocked for child resources, so we just need to check whether the root ancestor has 'scope' set.
                         // If it does, it could be an 'existing' resource - which can be assigned any scope - so we need to ensure the assigned scope can be used to deploy.
