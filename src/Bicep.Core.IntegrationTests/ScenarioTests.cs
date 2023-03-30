@@ -4355,6 +4355,47 @@ output vaultId string = CertificateVault.id
             evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
         }
 
+        // https://github.com/Azure/bicep/issues/9024
+        [TestMethod]
+        public void Test_Issue9024()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'foo'
+  location: resourceGroup().location
+
+  resource ext 'extensions' = {
+    name: 'ZipDeploy'
+  }
+}
+");
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().ContainDiagnostic("BCP088", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'MSDeploy' | 'onedeploy'\" but the provided value is of type \"'ZipDeploy'\". Did you mean \"'MSDeploy'\"?");
+        }
+
+        // https://github.com/Azure/bicep/issues/10235
+        [TestMethod]
+        public void Test_Issue10235()
+        {
+            var result = CompilationHelper.Compile(@"
+resource site 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'mySite'
+  location: resourceGroup().location
+}
+
+resource config 'Microsoft.Web/sites/config@2022-03-01' = {
+  parent: site
+  name: 'virtualNetwork'
+  properties: {
+    subnetResourceId: 'subnetId'
+    swiftSupported: true
+  }
+}
+");
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().ContainDiagnostic("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'appsettings' | 'authsettings' | 'authsettingsV2' | 'azurestorageaccounts' | 'backup' | 'connectionstrings' | 'logs' | 'metadata' | 'pushsettings' | 'slotConfigNames' | 'web'\" but the provided value is of type \"'virtualNetwork'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.");
+        }
+
         // https://github.com/Azure/bicep/issues/9978
         [TestMethod]
         public void Test_Issue9978()

@@ -935,9 +935,7 @@ namespace Bicep.Core.TypeSystem
             // At some point in the future we may want to relax the expectation of a string literal key, and allow a generic string.
             // In this case, the best we can do is validate against the union of all the settable properties.
             // Let's not do this just yet, and see if a use-case arises.
-
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
             switch (discriminatorType)
             {
                 case AnyType:
@@ -949,6 +947,9 @@ namespace Bicep.Core.TypeSystem
                         // no matches
                         var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
 
+                        // Treat as a warning, regardless of whether a property is a 'SystemProperty'.
+                        // We don't want to block compilation if the RP has an incomplete discriminator on the 'name' field.
+                        var shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
 
                         diagnosticWriter.Write(
                             config.OriginSyntax ?? discriminatorProperty.Value,
@@ -962,7 +963,7 @@ namespace Bicep.Core.TypeSystem
                                     return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
                                 }
 
-                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty));
+                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration);
                             });
 
                         return LanguageConstants.Any;
@@ -985,10 +986,13 @@ namespace Bicep.Core.TypeSystem
                     return LanguageConstants.Any;
 
                 default:
+                {
+                    var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
                     diagnosticWriter.Write(
                         config.OriginSyntax ?? discriminatorProperty.Value,
                         x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
                     return LanguageConstants.Any;
+                }
             }
         }
 
