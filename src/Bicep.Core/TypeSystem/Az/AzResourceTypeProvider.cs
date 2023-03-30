@@ -285,7 +285,7 @@ namespace Bicep.Core.TypeSystem.Az
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
             var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
-            if (validParentScopes == ResourceScope.Resource)
+            if (validParentScopes == ResourceScope.Resource && typeReference.TypeSegments.Length < 2)
             {
                 // resource can only be deployed as an extension resource - scope should be required
                 scopePropertyFlags |= TypePropertyFlags.Required;

@@ -4374,5 +4374,135 @@ resource asdf 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"foo\" is not valid."),
             });
         }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' = {
+  scope: workspace
+  name: 'new2'
+  kind: 'Fusion'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  parent: alertRule
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_negative()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' = {
+  scope: workspace
+  name: 'new2'
+  kind: 'Fusion'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().ContainDiagnostic("BCP135", DiagnosticLevel.Error, "Scope \"resourceGroup\" is not valid for this resource type. Permitted scopes: \"resource\".");
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_existing()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' existing = {
+  scope: workspace
+  name: 'new2'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  parent: alertRule
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_nested()
+        {
+            var result = CompilationHelper.Compile(@"
+param watchlistItems array
+param watchlistName string
+param workspaceName string
+
+resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  name: workspaceName
+}
+
+var firstColumnName = !empty(watchlistItems) ? watchlistItems[0][0] : ''
+
+resource watchlist 'Microsoft.SecurityInsights/watchlists@2023-02-01-preview' = {
+  scope: workspace
+  name: watchlistName
+  properties: {
+    provider: 'Microsoft'
+    displayName: watchlistName
+    itemsSearchKey: firstColumnName
+  }
+
+  resource watchlistItemsDeployment 'watchlistItems@2023-02-01-preview' = [for item in watchlistItems: {
+    name: guid(item)
+    properties: {
+      itemsKeyValue: item
+    }
+  }]
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }
