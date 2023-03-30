@@ -785,7 +785,7 @@
     "detail": "equals",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,
@@ -1644,7 +1644,7 @@
     "detail": "mod",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,
@@ -2165,7 +2165,7 @@
     "detail": "parameters",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,

@@ -5,7 +5,7 @@
     "detail": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -65,7 +65,7 @@
     "detail": "arrayCompletions",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: array  \n"
+      "value": "Type: array"
     },
     "deprecated": false,
     "preselect": false,
@@ -101,7 +101,7 @@
     "detail": "badInterpolatedString",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -119,7 +119,7 @@
     "detail": "badInterpolatedString2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -221,7 +221,7 @@
     "detail": "commaOne",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: 'abc' | 'def'  \n"
+      "value": "Type: 'abc' | 'def'"
     },
     "deprecated": false,
     "preselect": false,
@@ -386,7 +386,7 @@
     "detail": "defaultValueOneLinerCompletions",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -421,7 +421,7 @@
     "detail": "duplicateDecorators",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -460,7 +460,7 @@
     "detail": "emptyAllowedInt",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -478,7 +478,7 @@
     "detail": "emptyAllowedString",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -534,7 +534,7 @@
     "detail": "expressionInModifier",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -587,7 +587,7 @@
     "detail": "fatalErrorInIssue1713",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: any  \n"
+      "value": "Type: any"
     },
     "deprecated": false,
     "preselect": false,
@@ -724,7 +724,7 @@
     "detail": "incompleteDecorators",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -805,7 +805,7 @@
     "detail": "invalidDefaultWithAllowedArrayDecorator",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: ['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']  \n"
+      "value": "Type: ['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service'] | ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']"
     },
     "deprecated": false,
     "preselect": false,
@@ -823,7 +823,7 @@
     "detail": "invalidLength",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -841,7 +841,7 @@
     "detail": "invalidPermutation",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]  \n"
+      "value": "Type: ('Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways')[]"
     },
     "deprecated": false,
     "preselect": false,
@@ -1048,7 +1048,7 @@
     "detail": "malformedModifier",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -1066,7 +1066,7 @@
     "detail": "malformedType",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -1084,7 +1084,7 @@
     "detail": "malformedType2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -1207,7 +1207,7 @@
     "detail": "missingType",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: any  \n"
+      "value": "Type: any"
     },
     "deprecated": false,
     "preselect": false,
@@ -1225,7 +1225,7 @@
     "detail": "missingTypeWithSpaceAfter",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: any  \n"
+      "value": "Type: any"
     },
     "deprecated": false,
     "preselect": false,
@@ -1243,7 +1243,7 @@
     "detail": "missingTypeWithTabAfter",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: any  \n"
+      "value": "Type: any"
     },
     "deprecated": false,
     "preselect": false,
@@ -1261,7 +1261,7 @@
     "detail": "myBool",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,
@@ -1279,7 +1279,7 @@
     "detail": "myFalsehood",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,
@@ -1297,7 +1297,7 @@
     "detail": "myInt",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -1315,7 +1315,7 @@
     "detail": "myInt2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -1333,7 +1333,7 @@
     "detail": "myString",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1351,7 +1351,7 @@
     "detail": "myString2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1369,7 +1369,7 @@
     "detail": "myTruth",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,
@@ -1404,7 +1404,7 @@
     "detail": "noValueAfterColon",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -1422,7 +1422,7 @@
     "detail": "nonCompileTimeConstant",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1440,7 +1440,7 @@
     "detail": "nonConstantInDecorator",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1458,7 +1458,7 @@
     "detail": "objectCompletions",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: object  \n"
+      "value": "Type: object"
     },
     "deprecated": false,
     "preselect": false,
@@ -1497,7 +1497,7 @@
     "detail": "paramAccessingOutput",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1515,7 +1515,7 @@
     "detail": "paramAccessingResource",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1533,7 +1533,7 @@
     "detail": "paramAccessingVar",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1551,7 +1551,7 @@
     "detail": "paramDefaultOneCycle",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1569,7 +1569,7 @@
     "detail": "paramDefaultTwoCycle1",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1587,7 +1587,7 @@
     "detail": "paramDefaultTwoCycle2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1605,7 +1605,7 @@
     "detail": "paramModifierSelfCycle",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -1623,7 +1623,7 @@
     "detail": "partialType",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -1840,7 +1840,7 @@
     "detail": "secureInt",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -1879,7 +1879,7 @@
     "detail": "someArray",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,
@@ -1897,7 +1897,7 @@
     "detail": "someInteger",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -1915,7 +1915,7 @@
     "detail": "someString",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -2220,7 +2220,7 @@
     "detail": "tooManyArguments1",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -2238,7 +2238,7 @@
     "detail": "tooManyArguments2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -2256,7 +2256,7 @@
     "detail": "trailingSpace",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: any  \n"
+      "value": "Type: any"
     },
     "deprecated": false,
     "preselect": false,
@@ -2309,7 +2309,7 @@
     "detail": "unaryMinusOnFunction",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -2453,7 +2453,7 @@
     "detail": "wrongAssignmentToken",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -2471,7 +2471,7 @@
     "detail": "wrongDefaultValue",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -2489,7 +2489,7 @@
     "detail": "wrongIntModifier",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: int  \n"
+      "value": "Type: int"
     },
     "deprecated": false,
     "preselect": false,
@@ -2507,7 +2507,7 @@
     "detail": "wrongMetadataSchema",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -2525,7 +2525,7 @@
     "detail": "wrongType",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error  \n"
+      "value": "Type: error"
     },
     "deprecated": false,
     "preselect": false,

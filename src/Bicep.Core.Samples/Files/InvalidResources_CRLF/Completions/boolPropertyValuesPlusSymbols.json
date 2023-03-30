@@ -667,7 +667,7 @@
     "detail": "dataCollectionRule",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: object  \n"
+      "value": "Type: object"
     },
     "deprecated": false,
     "preselect": false,
@@ -4753,7 +4753,7 @@
     "detail": "resrefpar",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -5658,7 +5658,7 @@
     "detail": "tags",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: object  \n"
+      "value": "Type: object"
     },
     "deprecated": false,
     "preselect": false,

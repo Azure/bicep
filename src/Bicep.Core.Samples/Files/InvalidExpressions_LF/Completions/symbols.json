@@ -841,7 +841,7 @@
     "detail": "fakeFuncP",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: string  \n"
+      "value": "Type: string"
     },
     "deprecated": false,
     "preselect": false,
@@ -971,7 +971,7 @@
     "detail": "funcvarparam",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: bool  \n"
+      "value": "Type: bool"
     },
     "deprecated": false,
     "preselect": false,
