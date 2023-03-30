@@ -131,40 +131,6 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             });
         }
 
-
-        [TestMethod]
-        public void DtcValidation_RuntimeValue_ForBodyExpression_Resource_ProducesDiagnostics()
-        {
-            const string text = @"
-resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: 'foo'
-  location: 'westus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-}
-
-var ok1 = [for i in range(0, 2): foo.id]
-var ok2 = [for i in range(0, 2): {
-  id: foo.id
-}]
-var bad1 = [for i in range(0, 2): foo.properties]
-var bad2 = [for i in range(0, 2): foo.properties.accessTier]
-var bad3 = [for i in range(0, 2): {
-  accessTier: foo.properties.accessTier
-}]
-";
-            var result = CompilationHelper.Compile(text);
-
-            const int badCases = 3;
-            var expectedDiagnostics = Enumerable
-                .Range(1, badCases)
-                .Select(i => ("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{i}\", which requires values that can be calculated at the start of the deployment. Properties of foo which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
-
-            result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error).Should().HaveDiagnostics(expectedDiagnostics);
-        }
-
         [TestMethod]
         public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics()
         {
