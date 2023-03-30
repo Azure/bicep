@@ -19,6 +19,9 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.LanguageServer.Completions
 {
+    /// <summary>
+    /// Provides completions for remote (public or private) module references, e.g. br/public/moduleName
+    /// </summary>
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
         private readonly IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider;
@@ -27,14 +30,21 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
-        private static readonly ImmutableDictionary<string, (string, CompletionPriority)> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, (string, CompletionPriority)>()
+        private enum ModuleCompletionPriority
         {
-            {"br:", ("Bicep registry schema name", CompletionPriority.VeryHigh) },
-            {"br/", ("Bicep registry schema name", CompletionPriority.High) },
-            {"ts:", ("Template spec schema name", CompletionPriority.VeryHigh) }
+            Alias = 0,
+            Default = 1,
+            RawSchema = 2,
+        }
+
+        private static readonly ImmutableDictionary<string, (string, ModuleCompletionPriority)> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, (string, ModuleCompletionPriority)>()
+        {
+            {"br:", ("Bicep registry schema name", ModuleCompletionPriority.Alias) }, //asdfg names
+            {"br/", ("Bicep registry schema name", ModuleCompletionPriority.RawSchema) },
+            {"ts:", ("Template spec schema name", ModuleCompletionPriority.RawSchema) }
         }.ToImmutableDictionary();
 
-        private static readonly Regex ModuleRegistryWithoutAlias = new Regex(@"'br:(?<registry>(.*?))/'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithoutAlias = new Regex(@"'br:(?<regxistry>(.*?))/'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex MCRModuleRegistryWithAlias = new Regex(@"br/public:(?<filePath>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex MCRModuleRegistryWithoutAlias = new Regex($"br:{MCRRegistry}/bicep/(?<filePath>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex ModuleRegistryAliasWithPath = new Regex(@"'br/(.*):(?<filePath>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
@@ -93,7 +103,7 @@ namespace Bicep.LanguageServer.Completions
             var completionLabelsWithDetails = BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails;
             if (templateSpecModuleAliases.Any())
             {
-                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", ("Template spec schema name", CompletionPriority.High));
+                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", ("Template spec schema name", ModuleCompletionPriority.Alias));
             }
 
             List<CompletionItem> completionItems = new List<CompletionItem>();
@@ -101,7 +111,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 var text = kvp.Key;
                 var insertionText = $"'{text}$0'";
-                (var details, CompletionPriority completionPriority) = kvp.Value;
+                (var details, ModuleCompletionPriority completionPriority) = kvp.Value;
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(insertionText)
@@ -159,7 +169,7 @@ namespace Bicep.LanguageServer.Completions
             replacementText = replacementText.TrimEnd('\'');
 
             var versions = await publicRegistryModuleMetadataProvider.GetVersions(filePath);
-            for (int i = versions.Count() - 1; i >= 0; i --)
+            for (int i = versions.Count() - 1; i >= 0; i--)
             {
                 var version = versions.ElementAt(i);
 
@@ -285,6 +295,7 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
+                    // br/[alias]:<cursor>
                     if (registry.Equals(MCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
@@ -302,6 +313,7 @@ namespace Bicep.LanguageServer.Completions
                         // }
                         if (modulePath is null)
                         {
+                            // Completions are e.g. br/[alias]/bicep/[module]
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
                                 var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
@@ -313,7 +325,7 @@ namespace Bicep.LanguageServer.Completions
                                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                         .WithSnippetEdit(context.ReplacementRange, insertText)
                                         .WithFilterText(insertText)
-                                        .WithSortText(GetSortText(label, CompletionPriority.High))
+                                        .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))//asdfg testpoint
                                         .Build();
 
                                     completions.Add(completionItem);
@@ -338,6 +350,7 @@ namespace Bicep.LanguageServer.Completions
                                 continue;
                             }
 
+                            // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
                             var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
 
@@ -357,7 +370,7 @@ namespace Bicep.LanguageServer.Completions
                                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
-                                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                                    .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))//asdfg testpoint
                                     .Build();
                                 completions.Add(completionItem);
                             }
@@ -421,7 +434,7 @@ namespace Bicep.LanguageServer.Completions
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, modulePath)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
-                        .WithSortText(GetSortText(modulePath, CompletionPriority.High))
+                        .WithSortText(GetSortText(modulePath)) //asdfg testpoint
                         .Build();
                     completions.Add(completionItem);
                 }
@@ -445,7 +458,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
-                    .WithSortText(GetSortText(moduleName, CompletionPriority.High))
+                    .WithSortText(GetSortText(moduleName)) //asdfg testpoint
                     .Build();
 
                 completions.Add(completionItem);
@@ -480,7 +493,7 @@ namespace Bicep.LanguageServer.Completions
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, alias)
                         .WithFilterText(insertText)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
-                        .WithSortText(GetSortText(alias, CompletionPriority.High))
+                        .WithSortText(GetSortText(alias)) //asdfg testpoint
                         .Build();
                     completions.Add(completionItem);
                 }
@@ -492,7 +505,7 @@ namespace Bicep.LanguageServer.Completions
                 var mcrCompletionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                    .WithSortText(GetSortText(label)) //asdfg testpoint
                     .Build();
 
                 completions.Add(mcrCompletionItem);
@@ -532,7 +545,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(registryName, CompletionPriority.Medium))
+                    .WithSortText(GetSortText(registryName, ModuleCompletionPriority.RawSchema))
                     .Build();
                 completions.Add(completionItem);
             }
@@ -559,7 +572,7 @@ namespace Bicep.LanguageServer.Completions
                         var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                             .WithFilterText(insertText)
                             .WithSnippetEdit(context.ReplacementRange, insertText)
-                            .WithSortText(GetSortText(label, CompletionPriority.High))
+                            .WithSortText(GetSortText(label)) //asdfg testpoint
                             .Build();
                         completions.Add(completionItem);
 
@@ -573,6 +586,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static string GetSortText(string label, int priority) => $"{priority}_{label}";
 
-        private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
+        private static string GetSortText(string label, ModuleCompletionPriority priority = ModuleCompletionPriority.Default)
+        {
+            // We want all module completion priorities to come after other completions (e.g. local module paths), so we start with "9"
+            return $"9{(int)priority}_{label}";
+        }
     }
 }

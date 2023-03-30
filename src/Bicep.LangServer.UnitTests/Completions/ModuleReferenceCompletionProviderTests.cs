@@ -24,7 +24,7 @@ using IOFileSystem = System.IO.Abstractions.FileSystem;
 namespace Bicep.LangServer.UnitTests.Completions
 {
     [TestClass]
-    public class ModuleReferenceCompletionProviderTests
+    public class ModuleReferenceCompletionProviderTests //asdfg
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
