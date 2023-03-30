@@ -166,9 +166,17 @@ var bad3 = [for i in range(0, 2): {
         }
 
         [TestMethod]
-        public void DtcValidation_RuntimeValue_ForBodyExpression_ResourceCollection_ProducesDiagnostics()
+        public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics()
         {
             StringBuilder textSb = new(@"
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
   name: 'foo-${i}'
   location: 'westus'
@@ -177,41 +185,60 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
   }
   kind: 'StorageV2'
 }]
+var zeroIndex = 0
+var idAccessor = 'id'
+var propertiesAccessor = 'properties'
+var accessTierAccessor = 'accessTier'
 ");
 
-            var arrayAccessors = new[] { "0", "i", "i + 2" };
+            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex" };
 
             // iterate the ok cases
             var okCase = 0;
-            var okCollectionAccessExpressions = new[] { ".id" };
+            var okAccessExps = new[] { ".id", "['id']", "[idAccessor]" };
 
-            foreach (var arrayAccessor in arrayAccessors)
+            foreach (var okAccessExp in okAccessExps)
             {
-                foreach (var okExp in okCollectionAccessExpressions)
+                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foo{okAccessExp}]");
+                textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
+                  prop: foo{okAccessExp}
+                }}]");
+
+                foreach (var arrAccessorExp in arrayAccessorExps)
                 {
-                    textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foos[{arrayAccessor}]{okExp}]");
+                    textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{okAccessExp}]");
                     textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
-  name: foos[{arrayAccessor}]{okExp}
+  prop: foos[{arrAccessorExp}]{okAccessExp}
 }}]");
                 }
             }
-            okCase.Should().Be(arrayAccessors.Length * okCollectionAccessExpressions.Length * 2);
+            okCase.Should().Be(okAccessExps.Length * 2 + arrayAccessorExps.Length * okAccessExps.Length * 2);
 
             // iterate the bad cases
             var badCase = 0;
-            var badCollectionAccessExpressions = new[] { ".properties", ".properties.accessTier" };
-
-            foreach (var arrayAccessor in arrayAccessors)
+            var badAccessExps = new[]
             {
-                foreach (var badExp in badCollectionAccessExpressions)
+                ".properties", ".properties.accessTier",
+                "['properties']", "['properties']['accessTier']",
+                "[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]"
+            };
+
+            foreach (var badAccessExp in badAccessExps)
+            {
+                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
+                textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
+                  prop: foo{badAccessExp}
+                }}]");
+
+                foreach (var arrAccessorExp in arrayAccessorExps)
                 {
-                    textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrayAccessor}]{badExp}]");
+                    textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{badAccessExp}]");
                     textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
-  name: foos[{arrayAccessor}]{badExp}
+  prop: foos[{arrAccessorExp}]{badAccessExp}
 }}]");
                 }
             }
-            badCase.Should().Be(arrayAccessors.Length * badCollectionAccessExpressions.Length * 2);
+            badCase.Should().Be(badAccessExps.Length * 2 + arrayAccessorExps.Length * badAccessExps.Length * 2);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
@@ -220,7 +247,8 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
                 .Range(1, badCase)
                 .Select(i => ("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{i}\", which requires values that can be calculated at the start of the deployment. Properties of foos which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
 
-            result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error).Should().HaveDiagnostics(expectedDiagnostics);
+            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
+            filteredDiagnostics.Should().HaveDiagnostics(expectedDiagnostics);
         }
     }
 }
