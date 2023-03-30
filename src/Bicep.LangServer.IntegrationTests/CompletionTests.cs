@@ -79,10 +79,11 @@ namespace Bicep.LangServer.IntegrationTests
         {
             ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
             ServerWithNamespaceAndTestResolver.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    services => services.AddSingleton<ISettingsProvider>(GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled())));
+                    services => services.AddSingleton<ISettingsProvider>(settingsProvider.Object)));
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
@@ -3190,7 +3191,6 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -3220,7 +3220,6 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "bar.bicep", string.Empty, Path.Combine(testOutputPath, Path.Combine(testOutputPath, "br", "foo")));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -3253,7 +3252,6 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
@@ -3288,7 +3286,6 @@ var file = " + functionName + @"(templ|)
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
@@ -3368,14 +3365,6 @@ var arr6 = [
                 completions.Should().Contain(c => c.Label == "sys");
                 completions.Should().Contain(c => c.Label == "if-else");
             }
-        }
-
-        private static ISettingsProvider GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled()
-        {
-            var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
-
-            return settingsProvider.Object;
         }
     }
 }

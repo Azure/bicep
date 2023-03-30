@@ -106,12 +106,7 @@
         },
         "bicep.experimental.includeAllAccessibleAzureContainerRegistriesForCompletions": {
           "type": "boolean",
-          "description": "(Experimental) NOTE: 'Enable Module Registry Reference Completions' must also be enabled. List all Azure Container Registries when module registry reference completion is invoked. Note: If this option is not selected, only registry login server names configured under moduleAliases in bicepconfig.json would be listed.",
-          "default": false
-        },
-        "bicep.experimental.enableModuleRegistryReferenceCompletions": {
-          "type": "boolean",
-          "description": "(Experimental) Enable Module Registry Reference Completions",
+          "description": "(Experimental) List all Azure Container Registries when module registry reference completion is invoked. (If this option is off, only registry login server names configured under moduleAliases in bicepconfig.json will be listed.)",
           "default": false
         },
         "bicep.trace.server": {
