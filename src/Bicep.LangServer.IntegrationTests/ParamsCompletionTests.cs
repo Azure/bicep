@@ -334,6 +334,8 @@ param myStr string
 
 @description('this is a bool value')
 param myBool bool
+
+param myArray array
 ";
             var fileTextsByUri = new Dictionary<Uri, string>
             {
@@ -343,6 +345,12 @@ param myBool bool
             var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("myArray");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: array");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                },
                 x =>
                 {
                     x.Label.Should().Be("myBool");
@@ -360,7 +368,8 @@ param myBool bool
                     x.Label.Should().Be("myStr");
                     x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
                     x.Kind.Should().Be(CompletionItemKind.Field);
-                });
+                }
+                );
         }
 
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)

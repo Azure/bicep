@@ -1900,8 +1900,11 @@ namespace Bicep.LanguageServer.Completions
         {   
             if(symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
-                var description = SemanticModelHelper.TryGetDescription(model, decorableSyntax);
-                var documentation = declaredSymbol is ParameterSymbol? $"Type: {declaredSymbol.Type.ToString() + MarkdownNewLine + description}" : description;
+                var documentation = SemanticModelHelper.TryGetDescription(model, decorableSyntax);
+                if(declaredSymbol is ParameterSymbol)
+                {
+                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}"); 
+                }
                 return documentation;
             }
             return null;
