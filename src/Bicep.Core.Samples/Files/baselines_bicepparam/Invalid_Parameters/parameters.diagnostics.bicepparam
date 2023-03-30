@@ -13,26 +13,22 @@ para2
 
 param expr = 1 + 2
 //@[00:18) [BCP259 (Error)] The parameter "expr" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param expr = 1 + 2|
-//@[13:18) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |1 + 2|
 
 param interp = 'abc${123}def'
 //@[00:29) [BCP259 (Error)] The parameter "interp" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param interp = 'abc${123}def'|
-//@[15:29) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |'abc${123}def'|
 
 param doubleinterp = 'abc${interp + 'blah'}def'
 //@[00:47) [BCP259 (Error)] The parameter "doubleinterp" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param doubleinterp = 'abc${interp + 'blah'}def'|
-//@[21:47) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |'abc${interp + 'blah'}def'|
+//@[27:42) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'abc123def'" and "'blah'". Use string interpolation instead. (CodeDescription: none) |interp + 'blah'|
 
 param objWithExpressions = {
 //@[00:91) [BCP259 (Error)] The parameter "objWithExpressions" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param objWithExpressions = {\r\n  foo: 1 + 2\r\n  bar: {\r\n    baz: concat('abc', 'def')\r\n  }\r\n}|
   foo: 1 + 2
-//@[07:12) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |1 + 2|
   bar: {
     baz: concat('abc', 'def')
-//@[09:29) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |concat('abc', 'def')|
+//@[09:29) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('abc', 'def')|
   }
 }
 
 param arrayWithExpressions = [1 + 1, 'ok']
 //@[00:42) [BCP259 (Error)] The parameter "arrayWithExpressions" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param arrayWithExpressions = [1 + 1, 'ok']|
-//@[30:35) [BCP338 (Error)] Complex expressions are not permitted in a Bicep Parameters file. (CodeDescription: none) |1 + 1|

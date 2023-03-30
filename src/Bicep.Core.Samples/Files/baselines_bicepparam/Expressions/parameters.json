@@ -1,0 +1,135 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "myObject": {
+      "value": {
+        "any": "foo",
+        "array": [],
+        "base64ToString": "abc",
+        "base64ToJson": "there",
+        "bool": true,
+        "concat": [
+          "abc",
+          "def"
+        ],
+        "contains": true,
+        "dataUriToString": "abc",
+        "dateTimeAdd": "2023-04-01T01:00:38Z",
+        "dateTimeToEpoch": 1680224438,
+        "empty": true,
+        "endsWith": true,
+        "filter": [
+          1
+        ],
+        "first": 124,
+        "flatten": [
+          "abc",
+          "def"
+        ],
+        "format": "->123<-",
+        "guid": "228d27cc-6fdb-5934-b7ac-1efccebade04",
+        "indexOf": 1,
+        "int": 123,
+        "intersection": [
+          2,
+          3
+        ],
+        "items": [
+          {
+            "key": "bar",
+            "value": 123
+          },
+          {
+            "key": "foo",
+            "value": "abc"
+          }
+        ],
+        "join": "abc/def/ghi",
+        "last": 2,
+        "lastIndexOf": 3,
+        "length": 3,
+        "loadFileAsBase64": "SGVsbG8gZnJvbSB0ZXh0IGZpbGU=",
+        "loadJsonContent": {
+          "hello from": "JSON FILE"
+        },
+        "loadTextContent": "Hello from text file",
+        "map": [
+          "Hi 0!",
+          "Hi 1!",
+          "Hi 2!"
+        ],
+        "max": 3,
+        "min": 1,
+        "padLeft": "   13",
+        "range": [
+          0,
+          1,
+          2
+        ],
+        "reduce": "-a-b-c",
+        "replace": "a/c",
+        "skip": [
+          2,
+          3
+        ],
+        "sort": [
+          "a",
+          "c",
+          "d"
+        ],
+        "split": [
+          "a",
+          "b",
+          "c"
+        ],
+        "startsWith": true,
+        "string": "asdf",
+        "substring": "fasf",
+        "take": [
+          1,
+          2
+        ],
+        "toLower": "aikininiin",
+        "toObject": {
+          "a": "Hi a!",
+          "b": "Hi b!",
+          "c": "Hi c!"
+        },
+        "toUpper": "AIKININIIN",
+        "trim": "adf asdf",
+        "union": {
+          "abc": "def",
+          "def": "ghi"
+        },
+        "uniqueString": "iizpqit7ih3cc",
+        "uri": "https://github.com/Azure/bicep",
+        "uriComponent": "UB%2A8h%200%2B%3D_%299h9n",
+        "uriComponentToString": " % "
+      }
+    },
+    "myBool": {
+      "value": true
+    },
+    "myInt": {
+      "value": 123
+    },
+    "myArray": {
+      "value": [
+        "a",
+        false,
+        579,
+        333,
+        6,
+        5,
+        true,
+        false,
+        false,
+        true
+      ]
+    },
+    "myString": {
+      "value": "THis\n  is\n    a\n      multiline\n        string!\n"
+    }
+  }
+}

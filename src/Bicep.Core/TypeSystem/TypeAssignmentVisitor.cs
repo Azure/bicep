@@ -823,12 +823,6 @@ namespace Bicep.Core.TypeSystem
                     return TypeFactory.CreateStringLiteralType(literalValue);
                 }
 
-                if (this.fileKind == BicepSourceFileKind.ParamsFile)
-                {
-                    // interpolated strings unsupported
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
-                }
-
                 var errors = new List<ErrorDiagnostic>();
                 var expressionTypes = new List<TypeSymbol>();
                 long minLength = syntax.SegmentValues.Sum(s => s.Length);
@@ -1088,11 +1082,6 @@ namespace Bicep.Core.TypeSystem
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (this.fileKind == BicepSourceFileKind.ParamsFile)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterExpressionsNotSupported());
-                }
-
                 var errors = new List<ErrorDiagnostic>();
 
                 var operandType = typeManager.GetTypeInfo(syntax.Expression);

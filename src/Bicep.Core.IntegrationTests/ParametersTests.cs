@@ -255,6 +255,9 @@ output baz string = '${foo}${bar}'
     },
     ""bar"": {
       ""value"": ""barfoobar""
+    },
+    ""baz"": {
+      ""value"": ""Hello Anthony!""
     }
   }
 }"));
