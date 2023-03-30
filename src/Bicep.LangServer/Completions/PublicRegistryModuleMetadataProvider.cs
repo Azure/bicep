@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Bicep.LanguageServer.Providers
@@ -23,9 +24,10 @@ namespace Bicep.LanguageServer.Providers
     public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
     {
         private const string LiveDataEndpoint = "https://aka.ms/BicepModulesMetadata";
-        private readonly TimeSpan cacheValidFor = TimeSpan.FromHours(1);
+        private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
+        private readonly TimeSpan ThrottleDelay = TimeSpan.FromSeconds(5);
 
-        private ModuleMetadata[] cachedModules = new ModuleMetadata[] { };
+        private ImmutableArray<ModuleMetadata> cachedModules = ImmutableArray<ModuleMetadata>.Empty;
         private bool isQueryingLiveData = false;
         private object queryingLiveSyncObject = new();
         private DateTime? lastSuccessfulQuery;
@@ -34,11 +36,11 @@ namespace Bicep.LanguageServer.Providers
         {
             if (initializeCache)
             {
-                this.UpdateCacheAsync(true);
+                this.CheckUpdateCacheAsync(true);
             }
         }
 
-        private void UpdateCacheAsync(bool initialDelay = false)
+        private void CheckUpdateCacheAsync(bool initialDelay = false)
         {
             if (!IsCacheExpired() && cachedModules.Any())
             {
@@ -61,18 +63,21 @@ namespace Bicep.LanguageServer.Providers
                 {
                     if (initialDelay)
                     {
-                        await Task.Delay(5000);
+                        // Allow language server to start up a bit before first hit
+                        await Task.Delay(ThrottleDelay);
                     }
 
-                    var modules = await TryGetModulesLive();
+                    if (await TryGetModulesLive() is { } modules)
+                    {
+                        this.cachedModules = modules;
+                    }
 
-                    this.cachedModules = modules;
                     this.lastSuccessfulQuery = DateTime.Now;
                 }
                 finally
                 {
                     // Throttle unsuccessful requests to avoid spamming the endpoint
-                    await Task.Delay(5000);
+                    await Task.Delay(ThrottleDelay);
 
                     lock (this.queryingLiveSyncObject)
                     {
@@ -85,7 +90,7 @@ namespace Bicep.LanguageServer.Providers
 
         private bool IsCacheExpired()
         {
-            var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.cacheValidFor < DateTime.Now;
+            var expired = this.lastSuccessfulQuery.HasValue && this.lastSuccessfulQuery.Value + this.CacheValidFor < DateTime.Now;
             if (expired)
             {
                 Trace.TraceInformation("Public modules cache is expired.");
@@ -94,19 +99,19 @@ namespace Bicep.LanguageServer.Providers
             return expired;
         }
 
-        private async Task<ModuleMetadata[]> TryGetModulesLive()
+        private async Task<ImmutableArray<ModuleMetadata>?> TryGetModulesLive()
         {
             Trace.WriteLine($"Retrieving list of public registry modules...");
 
             try
             {
                 HttpClient httpClient = new HttpClient();
-                var moduleMetadata = await httpClient.GetStringAsync(LiveDataEndpoint);
-                var metadata = JsonConvert.DeserializeObject<ModuleMetadata[]>(moduleMetadata);
+                using var metadataStream = await httpClient.GetStreamAsync(LiveDataEndpoint);
+                var metadata = JsonSerializer.Deserialize<ModuleMetadata[]>(metadataStream);
 
                 if (metadata is not null)
                 {
-                    return metadata;
+                    return metadata.ToImmutableArray();
                 }
                 else
                 {
@@ -116,21 +121,21 @@ namespace Bicep.LanguageServer.Providers
             catch (Exception e)
             {
                 Trace.TraceError(string.Format("Error retrieving MCR modules metadata: {0}", e.Message));
-                return new ModuleMetadata[] { };
+                return null;
             }
         }
 
         // e.g. "app/dapr-containerapp"
         public Task<IEnumerable<string>> GetModuleNames()
         {
-            UpdateCacheAsync();
+            CheckUpdateCacheAsync();
             var modules = cachedModules.ToArray();
             return Task.FromResult(modules.Select(m => m.moduleName));
         }
 
         public Task<IEnumerable<string>> GetVersions(string moduleName)
         {
-            UpdateCacheAsync();
+            CheckUpdateCacheAsync();
             var modules = cachedModules.ToArray();
             ModuleMetadata? metadata = modules.FirstOrDefault(x => x.moduleName.Equals(moduleName, StringComparison.Ordinal));
             var result = metadata?.tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();

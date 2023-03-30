@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
-        private static readonly ImmutableDictionary<string, (string, CompletionPriority)> DefaultShemaCompletionLabelsWithDetails = new Dictionary<string, (string, CompletionPriority)>()
+        private static readonly ImmutableDictionary<string, (string, CompletionPriority)> DefaultSchemaCompletionLabelsWithDetails = new Dictionary<string, (string, CompletionPriority)>()
         {
             {"br:", ("Bicep registry schema name", CompletionPriority.VeryHigh) },
             {"br/", ("Bicep registry schema name", CompletionPriority.High) },
@@ -92,7 +92,7 @@ namespace Bicep.LanguageServer.Completions
             var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
             var templateSpecModuleAliases = rootConfiguration.ModuleAliases.GetTemplateSpecModuleAliases();
 
-            var completionLabelsWithDetails = DefaultShemaCompletionLabelsWithDetails;
+            var completionLabelsWithDetails = DefaultSchemaCompletionLabelsWithDetails;
             if (templateSpecModuleAliases.Any())
             {
                 completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", ("Template spec schema name", CompletionPriority.High));
