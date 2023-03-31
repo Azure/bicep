@@ -1510,12 +1510,12 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
         {
-            var required = property.Flags.HasFlag(TypePropertyFlags.Required);
+            var required = TypeHelper.IsRequired(property);
 
             var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
             var suffix = includeColon ? ":" : string.Empty;
             return CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
-                // property names that much Bicep keywords or containing non-identifier chars need to be escaped
+                // property names that match Bicep keywords or contain non-identifier chars need to be escaped
                 .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
@@ -1861,7 +1861,7 @@ namespace Bicep.LanguageServer.Completions
             !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.Keywords.ContainsKey(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
-            property.Flags.HasFlag(TypePropertyFlags.Required)
+            TypeHelper.IsRequired(property)
                 ? $"{property.Name} (Required)"
                 : property.Name;
 

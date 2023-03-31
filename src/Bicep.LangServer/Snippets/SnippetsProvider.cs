@@ -170,7 +170,7 @@ public class SnippetsProvider : ISnippetsProvider
 
     private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index, string? discrimatedObjectKey = null)
     {
-        if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+        if (TypeHelper.IsRequired(typeProperty))
         {
             StringBuilder sb = new StringBuilder();
 
