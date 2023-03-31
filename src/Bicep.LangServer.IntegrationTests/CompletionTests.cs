@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
@@ -304,6 +305,126 @@ output baz object = {|
         }
 
         [TestMethod]
+        public async Task Documentation_should_be_shown_for_bicep_symbol_completions()
+        {
+            var bicepTextWithCursor = @"
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param myInt int
+
+@allowed(
+    [
+        'value1'
+        'value2'
+    ]
+)
+@description('this is a string value')
+param myStr string
+
+@description('this is a bool value')
+param myBool bool
+
+param myArray array 
+
+@description('this is a variable')
+var myVar = 'foobar'
+
+@description('this is a storage account resource')
+resource storageAct 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foorbar'
+  location: 'westus2'
+  sku: {
+    name: 'standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+@description('this is a bicep module')
+module myMod './myMod.bicep' = {
+  name: 'myModule'
+}
+
+resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
+  name: 'default'
+  parent:  |
+}
+";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(bicepTextWithCursor, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///myMod.bicep")] = "",
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursor);
+
+            var symbolCompletions = completions.Items.Where(x => x.Kind == CompletionItemKind.Field ||
+                                                                 x.Kind == CompletionItemKind.Variable ||
+                                                                 x.Kind == CompletionItemKind.Interface ||
+                                                                 x.Kind == CompletionItemKind.Module);
+
+            symbolCompletions.Should().SatisfyRespectively(
+              x =>
+              {
+                  x.Label.Should().Be("myInt");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myStr");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myBool");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myArray");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: array");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myVar");
+                  x.Kind.Should().Be(CompletionItemKind.Variable);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a variable");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("storageAct");
+                  x.Kind.Should().Be(CompletionItemKind.Interface);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a storage account resource");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myMod");
+                  x.Kind.Should().Be(CompletionItemKind.Module);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a bicep module");
+              }
+            ); 
+        }
+
+        [TestMethod]
         public async Task Completions_are_not_offered_inside_comments()
         {
             var fileWithCursors = @"
@@ -510,6 +631,75 @@ var test2 = /|* block c|omment *|/
                 {
                     c.Label.Should().Be("for-filtered");
                 });
+        }
+
+        [TestMethod]
+        public async Task VerifyNullablePropertiesAreNotLabeledRequired()
+        {
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    foo: {
+      |
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = @"param foo {
+  requiredProperty: string
+  optionalProperty: string?
+}",
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+            completions.Count().Should().Be(1);
+            completions.Single().OrderBy(c => c.SortText).Should().SatisfyRespectively(
+              x => x.Detail.Should().Be("requiredProperty (Required)"),
+              x => x.Detail.Should().Be("optionalProperty"));
+        }
+
+        [TestMethod]
+        public async Task VerifyNullablePropertiesAreNotIncludedInRequiredPropertiesCompletion()
+        {
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: |
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = @"param foo {
+  requiredProperty: string
+  optionalProperty: string?
+}",
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+            completions.Count().Should().Be(1);
+
+            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").ProgramSyntax.ToTextPreserveFormatting();
+            withRequiredProps.Should().Contain("requiredProperty");
+            withRequiredProps.Should().NotContain("optionalProperty");
         }
 
         [TestMethod]

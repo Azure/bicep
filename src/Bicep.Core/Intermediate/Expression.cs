@@ -278,6 +278,17 @@ public record ParametersReferenceExpression(
     protected override object? GetDebugAttributes() => new { Parameter = Parameter.Name };
 }
 
+public record ParametersAssignmentReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ParameterAssignmentSymbol Parameter
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitParametersAssignmentReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Parameter = Parameter.Name };
+}
+
 public record LambdaVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
     LocalVariableSymbol Variable

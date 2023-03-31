@@ -13,8 +13,6 @@ namespace Bicep.LanguageServer.Providers
 {
     public interface IPublicRegistryModuleMetadataProvider
     {
-        Task Initialize();
-
         Task<IEnumerable<string>> GetModuleNames();
 
         Task<IEnumerable<string>> GetVersions(string moduleName);

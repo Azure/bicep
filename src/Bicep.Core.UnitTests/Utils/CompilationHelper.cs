@@ -90,6 +90,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var (uriDictionary, entryUri) = CreateFileDictionary(files, "parameters.bicepparam");
             var fileResolver = new InMemoryFileResolver(uriDictionary);
+            services = services.WithFileResolver(fileResolver);
 
             var sourceFiles = uriDictionary
                 .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))

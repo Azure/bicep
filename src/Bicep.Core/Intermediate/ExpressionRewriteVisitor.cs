@@ -177,6 +177,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression) => ReplaceCurrent(expression, ReplaceParametersAssignmentReferenceExpression);
+    public virtual Expression ReplaceParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitPropertyAccessExpression(PropertyAccessExpression expression) => ReplaceCurrent(expression, ReplacePropertyAccessExpression);
     public virtual Expression ReplacePropertyAccessExpression(PropertyAccessExpression expression)
     {
