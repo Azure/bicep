@@ -74,10 +74,6 @@ namespace Bicep.LanguageServer.Completions
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context)
         {
-            if (!settingsProvider.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting))
-            {
-                return Enumerable.Empty<CompletionItem>();
-            }
             var replacementText = string.Empty;
 
             if (context.ReplacementTarget is Token token)
