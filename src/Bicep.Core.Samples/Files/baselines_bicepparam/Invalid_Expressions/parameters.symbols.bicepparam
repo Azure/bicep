@@ -103,3 +103,13 @@ param testUriComponent = uriComponent(123)
 param testUriComponentToString = uriComponentToString({})
 //@[6:30) ParameterAssignment testUriComponentToString. Type: error. Declaration start char: 0, length: 57
 
+param myObj = {
+//@[6:11) ParameterAssignment myObj. Type: error. Declaration start char: 0, length: 249
+  newGuid: newGuid()
+  utcNow: utcNow()
+  resourceId: resourceId('Microsoft.ContainerService/managedClusters', 'blah')
+  deployment: deployment()
+  environment: environment()
+  azNs: az
+  azNsFunc: az.providers('Microsoft.Compute')
+}

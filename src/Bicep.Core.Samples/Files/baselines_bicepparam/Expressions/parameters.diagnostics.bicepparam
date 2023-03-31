@@ -55,7 +55,7 @@ param myObject = {
 }
 
 param myBool = true
-param myInt = myBool ? 123 : 456
+param myInt = sys.int(myBool ? 123 : 456)
 
 param myArray = [
   (true ? 'a' : 'b')

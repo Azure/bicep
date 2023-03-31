@@ -118,3 +118,19 @@ param testUriComponent = uriComponent(123)
 param testUriComponentToString = uriComponentToString({})
 //@[54:56) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "string". (CodeDescription: none) |{}|
 
+param myObj = {
+  newGuid: newGuid()
+//@[11:18) [BCP065 (Error)] Function "newGuid" is not valid at this location. It can only be used as a parameter default value. (CodeDescription: none) |newGuid|
+  utcNow: utcNow()
+//@[10:16) [BCP065 (Error)] Function "utcNow" is not valid at this location. It can only be used as a parameter default value. (CodeDescription: none) |utcNow|
+  resourceId: resourceId('Microsoft.ContainerService/managedClusters', 'blah')
+//@[14:24) [BCP057 (Error)] The name "resourceId" does not exist in the current context. (CodeDescription: none) |resourceId|
+  deployment: deployment()
+//@[14:24) [BCP057 (Error)] The name "deployment" does not exist in the current context. (CodeDescription: none) |deployment|
+  environment: environment()
+//@[15:26) [BCP057 (Error)] The name "environment" does not exist in the current context. (CodeDescription: none) |environment|
+  azNs: az
+//@[08:10) [BCP057 (Error)] The name "az" does not exist in the current context. (CodeDescription: none) |az|
+  azNsFunc: az.providers('Microsoft.Compute')
+//@[12:14) [BCP057 (Error)] The name "az" does not exist in the current context. (CodeDescription: none) |az|
+}

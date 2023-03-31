@@ -51,3 +51,13 @@ param testUniqueString = uniqueString('asd', 'asdf', 'asdf')
 param testUri = uri('github.com', 'Azure/bicep')
 param testUriComponent = uriComponent(123)
 param testUriComponentToString = uriComponentToString({})
+
+param myObj = {
+  newGuid: newGuid()
+  utcNow: utcNow()
+  resourceId: resourceId('Microsoft.ContainerService/managedClusters', 'blah')
+  deployment: deployment()
+  environment: environment()
+  azNs: az
+  azNsFunc: az.providers('Microsoft.Compute')
+}

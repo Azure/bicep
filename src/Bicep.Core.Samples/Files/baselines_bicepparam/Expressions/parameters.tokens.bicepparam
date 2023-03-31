@@ -643,16 +643,21 @@ param myBool = true
 //@[13:14) Assignment |=|
 //@[15:19) TrueKeyword |true|
 //@[19:20) NewLine |\n|
-param myInt = myBool ? 123 : 456
+param myInt = sys.int(myBool ? 123 : 456)
 //@[00:05) Identifier |param|
 //@[06:11) Identifier |myInt|
 //@[12:13) Assignment |=|
-//@[14:20) Identifier |myBool|
-//@[21:22) Question |?|
-//@[23:26) Integer |123|
-//@[27:28) Colon |:|
-//@[29:32) Integer |456|
-//@[32:34) NewLine |\n\n|
+//@[14:17) Identifier |sys|
+//@[17:18) Dot |.|
+//@[18:21) Identifier |int|
+//@[21:22) LeftParen |(|
+//@[22:28) Identifier |myBool|
+//@[29:30) Question |?|
+//@[31:34) Integer |123|
+//@[35:36) Colon |:|
+//@[37:40) Integer |456|
+//@[40:41) RightParen |)|
+//@[41:43) NewLine |\n\n|
 
 param myArray = [
 //@[00:05) Identifier |param|

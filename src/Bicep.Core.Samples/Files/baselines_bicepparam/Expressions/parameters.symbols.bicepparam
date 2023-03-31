@@ -57,8 +57,8 @@ param myObject = {
 
 param myBool = true
 //@[6:12) ParameterAssignment myBool. Type: true. Declaration start char: 0, length: 19
-param myInt = myBool ? 123 : 456
-//@[6:11) ParameterAssignment myInt. Type: 123 | 456. Declaration start char: 0, length: 32
+param myInt = sys.int(myBool ? 123 : 456)
+//@[6:11) ParameterAssignment myInt. Type: int. Declaration start char: 0, length: 41
 
 param myArray = [
 //@[6:13) ParameterAssignment myArray. Type: ['a' | 'b', false, 579, 333, 6, 20, true, false, false, true]. Declaration start char: 0, length: 123

@@ -49,3 +49,5 @@ param testUniqueString object
 param testUri object
 param testUriComponent object
 param testUriComponentToString object
+
+param myObj object

@@ -264,6 +264,48 @@ output baz string = '${foo}${bar}'
         }
 
         [TestMethod]
+        public void Non_deterministic_functions_are_blocked()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+using 'main.bicep'
+
+param foo = utcNow()
+param bar = newGuid()
+"),
+              ("main.bicep", @"
+param foo string
+param bar string
+"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                ("BCP065", DiagnosticLevel.Error, "Function \"utcNow\" is not valid at this location. It can only be used as a parameter default value."),
+                ("BCP065", DiagnosticLevel.Error, "Function \"newGuid\" is not valid at this location. It can only be used as a parameter default value."),
+            });
+        }
+
+        [TestMethod]
+        public void Az_functions_are_blocked()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+using 'main.bicep'
+
+param foo = resourceId('Microsoft.Compute/virtualMachines', 'foo')
+param bar = deployment()
+"),
+              ("main.bicep", @"
+param foo string
+param bar object
+"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                ("BCP057", DiagnosticLevel.Error, "The name \"resourceId\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"deployment\" does not exist in the current context."),
+            });
+        }
+
+        [TestMethod]
         public void Parameter_with_complex_functions()
         {
             var result = CompilationHelper.CompileParams(

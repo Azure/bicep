@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[00:2374) ProgramSyntax
+//@[00:2624) ProgramSyntax
 //@[00:0018) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
 //@[06:0018) | └─StringSyntax
@@ -1204,6 +1204,106 @@ param testUriComponentToString = uriComponentToString({})
 //@[54:0055) |   |   ├─Token(LeftBrace) |{|
 //@[55:0056) |   |   └─Token(RightBrace) |}|
 //@[56:0057) |   └─Token(RightParen) |)|
-//@[57:0058) ├─Token(NewLine) |\n|
+//@[57:0059) ├─Token(NewLine) |\n\n|
 
-//@[00:0000) └─Token(EndOfFile) ||
+param myObj = {
+//@[00:0249) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0011) | ├─IdentifierSyntax
+//@[06:0011) | | └─Token(Identifier) |myObj|
+//@[12:0013) | ├─Token(Assignment) |=|
+//@[14:0249) | └─ObjectSyntax
+//@[14:0015) |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   ├─Token(NewLine) |\n|
+  newGuid: newGuid()
+//@[02:0020) |   ├─ObjectPropertySyntax
+//@[02:0009) |   | ├─IdentifierSyntax
+//@[02:0009) |   | | └─Token(Identifier) |newGuid|
+//@[09:0010) |   | ├─Token(Colon) |:|
+//@[11:0020) |   | └─FunctionCallSyntax
+//@[11:0018) |   |   ├─IdentifierSyntax
+//@[11:0018) |   |   | └─Token(Identifier) |newGuid|
+//@[18:0019) |   |   ├─Token(LeftParen) |(|
+//@[19:0020) |   |   └─Token(RightParen) |)|
+//@[20:0021) |   ├─Token(NewLine) |\n|
+  utcNow: utcNow()
+//@[02:0018) |   ├─ObjectPropertySyntax
+//@[02:0008) |   | ├─IdentifierSyntax
+//@[02:0008) |   | | └─Token(Identifier) |utcNow|
+//@[08:0009) |   | ├─Token(Colon) |:|
+//@[10:0018) |   | └─FunctionCallSyntax
+//@[10:0016) |   |   ├─IdentifierSyntax
+//@[10:0016) |   |   | └─Token(Identifier) |utcNow|
+//@[16:0017) |   |   ├─Token(LeftParen) |(|
+//@[17:0018) |   |   └─Token(RightParen) |)|
+//@[18:0019) |   ├─Token(NewLine) |\n|
+  resourceId: resourceId('Microsoft.ContainerService/managedClusters', 'blah')
+//@[02:0078) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |resourceId|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0078) |   | └─FunctionCallSyntax
+//@[14:0024) |   |   ├─IdentifierSyntax
+//@[14:0024) |   |   | └─Token(Identifier) |resourceId|
+//@[24:0025) |   |   ├─Token(LeftParen) |(|
+//@[25:0069) |   |   ├─FunctionArgumentSyntax
+//@[25:0069) |   |   | └─StringSyntax
+//@[25:0069) |   |   |   └─Token(StringComplete) |'Microsoft.ContainerService/managedClusters'|
+//@[69:0070) |   |   ├─Token(Comma) |,|
+//@[71:0077) |   |   ├─FunctionArgumentSyntax
+//@[71:0077) |   |   | └─StringSyntax
+//@[71:0077) |   |   |   └─Token(StringComplete) |'blah'|
+//@[77:0078) |   |   └─Token(RightParen) |)|
+//@[78:0079) |   ├─Token(NewLine) |\n|
+  deployment: deployment()
+//@[02:0026) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |deployment|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0026) |   | └─FunctionCallSyntax
+//@[14:0024) |   |   ├─IdentifierSyntax
+//@[14:0024) |   |   | └─Token(Identifier) |deployment|
+//@[24:0025) |   |   ├─Token(LeftParen) |(|
+//@[25:0026) |   |   └─Token(RightParen) |)|
+//@[26:0027) |   ├─Token(NewLine) |\n|
+  environment: environment()
+//@[02:0028) |   ├─ObjectPropertySyntax
+//@[02:0013) |   | ├─IdentifierSyntax
+//@[02:0013) |   | | └─Token(Identifier) |environment|
+//@[13:0014) |   | ├─Token(Colon) |:|
+//@[15:0028) |   | └─FunctionCallSyntax
+//@[15:0026) |   |   ├─IdentifierSyntax
+//@[15:0026) |   |   | └─Token(Identifier) |environment|
+//@[26:0027) |   |   ├─Token(LeftParen) |(|
+//@[27:0028) |   |   └─Token(RightParen) |)|
+//@[28:0029) |   ├─Token(NewLine) |\n|
+  azNs: az
+//@[02:0010) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |azNs|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0010) |   | └─VariableAccessSyntax
+//@[08:0010) |   |   └─IdentifierSyntax
+//@[08:0010) |   |     └─Token(Identifier) |az|
+//@[10:0011) |   ├─Token(NewLine) |\n|
+  azNsFunc: az.providers('Microsoft.Compute')
+//@[02:0045) |   ├─ObjectPropertySyntax
+//@[02:0010) |   | ├─IdentifierSyntax
+//@[02:0010) |   | | └─Token(Identifier) |azNsFunc|
+//@[10:0011) |   | ├─Token(Colon) |:|
+//@[12:0045) |   | └─InstanceFunctionCallSyntax
+//@[12:0014) |   |   ├─VariableAccessSyntax
+//@[12:0014) |   |   | └─IdentifierSyntax
+//@[12:0014) |   |   |   └─Token(Identifier) |az|
+//@[14:0015) |   |   ├─Token(Dot) |.|
+//@[15:0024) |   |   ├─IdentifierSyntax
+//@[15:0024) |   |   | └─Token(Identifier) |providers|
+//@[24:0025) |   |   ├─Token(LeftParen) |(|
+//@[25:0044) |   |   ├─FunctionArgumentSyntax
+//@[25:0044) |   |   | └─StringSyntax
+//@[25:0044) |   |   |   └─Token(StringComplete) |'Microsoft.Compute'|
+//@[44:0045) |   |   └─Token(RightParen) |)|
+//@[45:0046) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0001) └─Token(EndOfFile) ||

@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[00:2199) ProgramSyntax
+//@[00:2208) ProgramSyntax
 //@[00:0018) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
 //@[06:0018) | └─StringSyntax
@@ -1176,23 +1176,33 @@ param myBool = true
 //@[15:0019) | └─BooleanLiteralSyntax
 //@[15:0019) |   └─Token(TrueKeyword) |true|
 //@[19:0020) ├─Token(NewLine) |\n|
-param myInt = myBool ? 123 : 456
-//@[00:0032) ├─ParameterAssignmentSyntax
+param myInt = sys.int(myBool ? 123 : 456)
+//@[00:0041) ├─ParameterAssignmentSyntax
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0011) | ├─IdentifierSyntax
 //@[06:0011) | | └─Token(Identifier) |myInt|
 //@[12:0013) | ├─Token(Assignment) |=|
-//@[14:0032) | └─TernaryOperationSyntax
-//@[14:0020) |   ├─VariableAccessSyntax
-//@[14:0020) |   | └─IdentifierSyntax
-//@[14:0020) |   |   └─Token(Identifier) |myBool|
-//@[21:0022) |   ├─Token(Question) |?|
-//@[23:0026) |   ├─IntegerLiteralSyntax
-//@[23:0026) |   | └─Token(Integer) |123|
-//@[27:0028) |   ├─Token(Colon) |:|
-//@[29:0032) |   └─IntegerLiteralSyntax
-//@[29:0032) |     └─Token(Integer) |456|
-//@[32:0034) ├─Token(NewLine) |\n\n|
+//@[14:0041) | └─InstanceFunctionCallSyntax
+//@[14:0017) |   ├─VariableAccessSyntax
+//@[14:0017) |   | └─IdentifierSyntax
+//@[14:0017) |   |   └─Token(Identifier) |sys|
+//@[17:0018) |   ├─Token(Dot) |.|
+//@[18:0021) |   ├─IdentifierSyntax
+//@[18:0021) |   | └─Token(Identifier) |int|
+//@[21:0022) |   ├─Token(LeftParen) |(|
+//@[22:0040) |   ├─FunctionArgumentSyntax
+//@[22:0040) |   | └─TernaryOperationSyntax
+//@[22:0028) |   |   ├─VariableAccessSyntax
+//@[22:0028) |   |   | └─IdentifierSyntax
+//@[22:0028) |   |   |   └─Token(Identifier) |myBool|
+//@[29:0030) |   |   ├─Token(Question) |?|
+//@[31:0034) |   |   ├─IntegerLiteralSyntax
+//@[31:0034) |   |   | └─Token(Integer) |123|
+//@[35:0036) |   |   ├─Token(Colon) |:|
+//@[37:0040) |   |   └─IntegerLiteralSyntax
+//@[37:0040) |   |     └─Token(Integer) |456|
+//@[40:0041) |   └─Token(RightParen) |)|
+//@[41:0043) ├─Token(NewLine) |\n\n|
 
 param myArray = [
 //@[00:0123) ├─ParameterAssignmentSyntax

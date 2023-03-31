@@ -488,7 +488,8 @@ namespace Bicep.Core.Emit
             var evaluator = new ParameterAssignmentEvaluator(model);
             foreach (var parameter in model.Root.ParameterAssignments)
             {
-                if (model.GetTypeInfo(parameter.DeclaringSyntax) is ErrorType)
+                var type = model.GetTypeInfo(parameter.DeclaringSyntax);
+                if (type is ErrorType)
                 {
                     // no point evaluating if we're already reporting an error
                     continue;
