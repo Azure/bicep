@@ -7,55 +7,51 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using Bicep.Core.Semantics;
 
-namespace Bicep.Core.Emit
+namespace Bicep.Core.Emit;
+
+public class ParametersJsonWriter
 {
-    public class ParametersJsonWriter
+    private readonly SemanticModel model;
+
+    public ParametersJsonWriter(SemanticModel model)
     {
-        private readonly SemanticModel model;
-        private readonly ParameterAssignmentEvaluator assignmentEvaluator;
+        this.model = model;
+    }
 
-        public ParametersJsonWriter(SemanticModel model)
-        {
-            this.model = model;
-            this.assignmentEvaluator = new(model);
-        }
+    public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
+    
+    public JToken GenerateTemplate()
+    {
+        using var stringWriter = new StringWriter();
+        using var jsonWriter = new JsonTextWriter(stringWriter);
 
-        public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
-        
-        public JToken GenerateTemplate()
+        jsonWriter.WriteStartObject();
+
+        jsonWriter.WritePropertyName("$schema");
+        jsonWriter.WriteValue("https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
+
+        jsonWriter.WritePropertyName("contentVersion");
+        jsonWriter.WriteValue("1.0.0.0");
+
+        jsonWriter.WritePropertyName("parameters");
+        jsonWriter.WriteStartObject();
+
+        foreach (var parameter in model.Root.ParameterAssignments)
         {
-            using var stringWriter = new StringWriter();
-            using var jsonWriter = new JsonTextWriter(stringWriter);
+            jsonWriter.WritePropertyName(parameter.Name);
 
             jsonWriter.WriteStartObject();
 
-            jsonWriter.WritePropertyName("$schema");
-            jsonWriter.WriteValue("https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
-
-            jsonWriter.WritePropertyName("contentVersion");
-            jsonWriter.WriteValue("1.0.0.0");
-
-            jsonWriter.WritePropertyName("parameters");
-            jsonWriter.WriteStartObject();
-
-            foreach (var parameter in model.Root.ParameterAssignments)
-            {
-                jsonWriter.WritePropertyName(parameter.Name);
-
-                jsonWriter.WriteStartObject();
-
-                jsonWriter.WritePropertyName("value");
-                var result = assignmentEvaluator.EvaluateParameter(parameter);
-                result.Value!.WriteTo(jsonWriter);
-                jsonWriter.WriteEndObject();
-            }
+            jsonWriter.WritePropertyName("value");
+            model.EmitLimitationInfo.ParameterAssignments[parameter].WriteTo(jsonWriter);
             jsonWriter.WriteEndObject();
-
-            jsonWriter.WriteEndObject();
-
-            var content = stringWriter.ToString();
-
-            return content.FromJson<JToken>();
         }
+        jsonWriter.WriteEndObject();
+
+        jsonWriter.WriteEndObject();
+
+        var content = stringWriter.ToString();
+
+        return content.FromJson<JToken>();
     }
 }

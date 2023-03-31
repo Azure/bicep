@@ -16,6 +16,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax.Visitors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -47,9 +48,9 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
-            ReportParameterAssignmentErrors(model, diagnostics);
+            var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -481,8 +482,9 @@ namespace Bicep.Core.Emit
             }));
         }
 
-        private static void ReportParameterAssignmentErrors(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static ImmutableDictionary<ParameterAssignmentSymbol, JToken> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
+            var generated = new Dictionary<ParameterAssignmentSymbol, JToken>();
             var evaluator = new ParameterAssignmentEvaluator(model);
             foreach (var parameter in model.Root.ParameterAssignments)
             {
@@ -492,12 +494,20 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
+                // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
+                // This is something we should improve before the first release.
                 var result = evaluator.EvaluateParameter(parameter);
                 if (result.Diagnostic is {})
                 {
                     diagnostics.Write(result.Diagnostic);
                 }
+                if (result.Value is {})
+                {
+                    generated[parameter] = result.Value;
+                }
             }
+
+            return generated.ToImmutableDictionary();
         }
     }
 }
