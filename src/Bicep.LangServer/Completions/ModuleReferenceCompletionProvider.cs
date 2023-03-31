@@ -44,7 +44,7 @@ namespace Bicep.LanguageServer.Completions
         private const string TemplateSpecFullPathCompletionLabel = "Template spec";
         private const string TemplateSpecAliasCompletionLabel = "Template spec (alias)";
 
-        private static readonly ImmutableDictionary<string, (string, ModuleCompletionPriority)> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, (string, ModuleCompletionPriority)>()
+        private static readonly ImmutableDictionary<string, (string, ModuleCompletionPriority)> DefaultSchemaCompletionLabelsWithDetails = new Dictionary<string, (string, ModuleCompletionPriority)>()
         {
             {"br:", (ModuleFullPathCompletionLabel, ModuleCompletionPriority.FullPath) },
             {"br/", (ModuleAliasCompletionLabel, ModuleCompletionPriority.Alias) },
