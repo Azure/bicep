@@ -17,8 +17,8 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             var indexExpression = syntax.IndexExpression;
-            if (indexExpression is StringSyntax or VariableAccessSyntax &&
-                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (indexExpression is not IntegerLiteralSyntax
+                && this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 var evalStringLiteralResult = SyntaxHelper.TryGetEvaluatedStringLiteral(SemanticModel, indexExpression, false);
                 var propertyName = evalStringLiteralResult?.stringValue;
@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     // Block property access via interpolated string index (myResource['${myParam}']),
-                    // since we we cannot tell whether the property is readable at deploy-time or not.
+                    // since we we cannot tell whether the property is readable at deploy-time or the expression is non-trivial.
                     this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                 }
             }

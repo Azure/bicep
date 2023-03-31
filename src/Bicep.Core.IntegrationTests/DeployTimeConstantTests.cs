@@ -159,6 +159,7 @@ var idAccessor2 = idAccessor
 var idAccessorInterpolated = '${idAccessor}'
 var propertiesAccessor = 'properties'
 var accessTierAccessor = 'accessTier'
+var strArray = ['id', 'properties']
 ");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
@@ -191,8 +192,8 @@ var accessTierAccessor = 'accessTier'
                 ".properties", ".properties.accessTier",
                 "['properties']", "['properties']['accessTier']",
                 "[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]",
-                "[strParam]",
-                "[idAccessorInterpolated]"
+                "['${'id'}']", "[idAccessorInterpolated]",
+                "[strParam]", "[strArray[0]]", "[first(strArray)]"
             };
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
