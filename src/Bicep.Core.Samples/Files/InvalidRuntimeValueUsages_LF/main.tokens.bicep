@@ -1,3 +1,15 @@
+param location string = resourceGroup().location
+//@[00:05) Identifier |param|
+//@[06:14) Identifier |location|
+//@[15:21) Identifier |string|
+//@[22:23) Assignment |=|
+//@[24:37) Identifier |resourceGroup|
+//@[37:38) LeftParen |(|
+//@[38:39) RightParen |)|
+//@[39:40) Dot |.|
+//@[40:48) Identifier |location|
+//@[48:50) NewLine |\n\n|
+
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[00:08) Identifier |resource|
 //@[09:12) Identifier |foo|
@@ -10,15 +22,11 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[06:07) Colon |:|
 //@[08:13) StringComplete |'foo'|
 //@[13:14) NewLine |\n|
-  location: deployment().location
+  location: location
 //@[02:10) Identifier |location|
 //@[10:11) Colon |:|
-//@[12:22) Identifier |deployment|
-//@[22:23) LeftParen |(|
-//@[23:24) RightParen |)|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:34) NewLine |\n|
+//@[12:20) Identifier |location|
+//@[20:21) NewLine |\n|
   sku: {
 //@[02:05) Identifier |sku|
 //@[05:06) Colon |:|
@@ -65,15 +73,11 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
 //@[15:16) Identifier |i|
 //@[16:18) StringRightPiece |}'|
 //@[18:19) NewLine |\n|
-  location: deployment().location
+  location: location
 //@[02:10) Identifier |location|
 //@[10:11) Colon |:|
-//@[12:22) Identifier |deployment|
-//@[22:23) LeftParen |(|
-//@[23:24) RightParen |)|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:34) NewLine |\n|
+//@[12:20) Identifier |location|
+//@[20:21) NewLine |\n|
   sku: {
 //@[02:05) Identifier |sku|
 //@[05:06) Colon |:|

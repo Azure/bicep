@@ -1,8 +1,8 @@
+param location string = resourceGroup().location
+
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'foo'
-  location: deployment().location
-//@[12:33) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |deployment().location|
-//@[25:33) [BCP053 (Error)] The type "deployment" does not contain property "location". Available properties include "name", "properties". (CodeDescription: none) |location|
+  location: location
   sku: {
     name: 'Standard_LRS'
   }
@@ -10,9 +10,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
   name: 'foo-${i}'
-  location: deployment().location
-//@[12:33) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |deployment().location|
-//@[25:33) [BCP053 (Error)] The type "deployment" does not contain property "location". Available properties include "name", "properties". (CodeDescription: none) |location|
+  location: location
   sku: {
     name: 'Standard_LRS'
   }

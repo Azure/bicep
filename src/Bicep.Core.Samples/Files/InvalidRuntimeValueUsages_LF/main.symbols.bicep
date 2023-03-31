@@ -1,7 +1,10 @@
+param location string = resourceGroup().location
+//@[06:14) Parameter location. Type: string. Declaration start char: 0, length: 48
+
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[09:12) Resource foo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 171
+//@[09:12) Resource foo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 158
   name: 'foo'
-  location: deployment().location
+  location: location
   sku: {
     name: 'Standard_LRS'
   }
@@ -9,9 +12,9 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
-//@[09:13) Resource foos. Type: Microsoft.Storage/storageAccounts@2022-09-01[]. Declaration start char: 0, length: 201
+//@[09:13) Resource foos. Type: Microsoft.Storage/storageAccounts@2022-09-01[]. Declaration start char: 0, length: 188
   name: 'foo-${i}'
-  location: deployment().location
+  location: location
   sku: {
     name: 'Standard_LRS'
   }

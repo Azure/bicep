@@ -1,6 +1,8 @@
-﻿resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+﻿param location string = resourceGroup().location
+
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'foo'
-  location: deployment().location
+  location: location
   sku: {
     name: 'Standard_LRS'
   }
@@ -8,7 +10,7 @@
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
   name: 'foo-${i}'
-  location: deployment().location
+  location: location
   sku: {
     name: 'Standard_LRS'
   }
