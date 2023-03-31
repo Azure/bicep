@@ -47,6 +47,7 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
+            ReportParameterAssignmentErrors(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -478,6 +479,25 @@ namespace Bicep.Core.Emit
                 1 => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicTypeSelfReference(),
                 _ => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicType(kvp.Value.Select(s => s.Name)),
             }));
+        }
+
+        private static void ReportParameterAssignmentErrors(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            var evaluator = new ParameterAssignmentEvaluator(model);
+            foreach (var parameter in model.Root.ParameterAssignments)
+            {
+                if (model.GetTypeInfo(parameter.DeclaringSyntax) is ErrorType)
+                {
+                    // no point evaluating if we're already reporting an error
+                    continue;
+                }
+
+                var result = evaluator.EvaluateParameter(parameter);
+                if (result.Diagnostic is {})
+                {
+                    diagnostics.Write(result.Diagnostic);
+                }
+            }
         }
     }
 }

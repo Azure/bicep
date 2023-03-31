@@ -1899,6 +1899,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP337",
                 $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
+
+            public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
+                TextSpan,
+                "BCP338",
+                $"Failed to evaluate parameter \"{parameterName}\": {message}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

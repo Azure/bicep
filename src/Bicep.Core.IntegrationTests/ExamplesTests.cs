@@ -107,8 +107,7 @@ namespace Bicep.Core.IntegrationTests
             var formattedContents = PrettyPrinter.PrintProgram(program, printOptions, lexingErrorLookup, parsingErrorLookup);
             formattedContents.Should().NotBeNull();
 
-            File.WriteAllText(bicepFile.OutputFilePath, formattedContents);
-
+            bicepFile.WriteToOutputFolder(formattedContents);
             bicepFile.ShouldHaveExpectedValue();
         }
 
