@@ -53,10 +53,21 @@ namespace Bicep.Core.TypeSystem
             return (null, null);
         }
 
-        public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax) =>
-            resourceOrModuleAccessSyntax is ArrayAccessSyntax { BaseExpression: var baseAccessSyntax }
-                ? TryResolveResourceOrModuleSymbolAndBodyType(baseAccessSyntax, true)
-                : TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
+        public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax)
+        {
+            if (resourceOrModuleAccessSyntax is not ArrayAccessSyntax { BaseExpression: var baseAccessSyntax, IndexExpression: var indexExpression })
+            {
+                return TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
+            }
+
+            var symbolInfo = this.semanticModel.Binder.GetSymbolInfo(indexExpression);
+            var isCollection = symbolInfo is DeclaredSymbol { Type: var symbolType }
+                ? symbolType.TypeKind != TypeKind.StringLiteral
+                : indexExpression is not StringSyntax;
+
+            var syntaxToResolve = isCollection ? baseAccessSyntax : resourceOrModuleAccessSyntax;
+            return TryResolveResourceOrModuleSymbolAndBodyType(syntaxToResolve, isCollection);
+        }
 
         private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => this.semanticModel.GetSymbolInfo(syntax) switch
         {

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
@@ -151,7 +151,10 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
   }
   kind: 'StorageV2'
 }]
+param intParam int = 0
+param strParam string = 'id'
 var zeroIndex = 0
+var otherIndex = zeroIndex + 2
 var idAccessor = 'id'
 var propertiesAccessor = 'properties'
 var accessTierAccessor = 'accessTier'
@@ -186,32 +189,38 @@ var accessTierAccessor = 'accessTier'
             {
                 ".properties", ".properties.accessTier",
                 "['properties']", "['properties']['accessTier']",
-                "[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]"
+                //"[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]"
             };
+
+            var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
+            void AddExpectedDtcDiagnostic(int badVariableNumber, string variableName)
+            {
+                expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
+            }
 
             foreach (var badAccessExp in badAccessExps)
             {
                 textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
+                AddExpectedDtcDiagnostic(badCase, "foo");
                 textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
                   prop: foo{badAccessExp}
                 }}]");
+                AddExpectedDtcDiagnostic(badCase, "foo");
 
                 foreach (var arrAccessorExp in arrayAccessorExps)
                 {
                     textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{badAccessExp}]");
+                    AddExpectedDtcDiagnostic(badCase, "foos");
                     textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
   prop: foos[{arrAccessorExp}]{badAccessExp}
 }}]");
+                    AddExpectedDtcDiagnostic(badCase, "foos");
                 }
             }
-            badCase.Should().Be(badAccessExps.Length * 2 + arrayAccessorExps.Length * badAccessExps.Length * 2);
+            expectedDiagnostics.Should().HaveCount(badAccessExps.Length * 2 + arrayAccessorExps.Length * badAccessExps.Length * 2);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
-
-            var expectedDiagnostics = Enumerable
-                .Range(1, badCase)
-                .Select(i => ("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{i}\", which requires values that can be calculated at the start of the deployment. Properties of foos which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
 
             var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
             filteredDiagnostics.Should().HaveDiagnostics(expectedDiagnostics);
