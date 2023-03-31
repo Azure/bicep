@@ -20,7 +20,7 @@ using static System.Net.Mime.MediaTypeNames;
 namespace Bicep.LanguageServer.Completions
 {
     /// <summary>
-    /// Provides completions for remote (public or private) module references, e.g. br/public/moduleName
+    /// Provides completions for remote (public or private) module references, e.g. br/public:modulePath:version
     /// </summary>
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
