@@ -55,7 +55,7 @@ namespace Bicep.LanguageServer.Completions
         ResourceType = 1UL << 7,
 
         /// <summary>
-        /// The current location needs a module path.
+        /// The current location needs a module path (local or remote)
         /// </summary>
         ModulePath = 1UL << 8,
 
