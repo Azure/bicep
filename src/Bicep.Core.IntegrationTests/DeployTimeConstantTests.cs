@@ -155,6 +155,7 @@ param strParam string = 'id'
 var zeroIndex = 0
 var otherIndex = zeroIndex + 2
 var idAccessor = 'id'
+var idAccessor2 = idAccessor
 var idAccessorInterpolated = '${idAccessor}'
 var propertiesAccessor = 'properties'
 var accessTierAccessor = 'accessTier'
@@ -164,7 +165,7 @@ var accessTierAccessor = 'accessTier'
 
             // iterate the ok cases
             var okCase = 0;
-            var okAccessExps = new[] { ".id", "['id']", "[idAccessor]" };
+            var okAccessExps = new[] { ".id", "['id']", "[idAccessor]", "[idAccessor2]" };
 
             foreach (var okAccessExp in okAccessExps)
             {
