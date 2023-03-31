@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -175,7 +174,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 var apiVersionExpression = functionCallSyntax.Arguments[1].Expression;
 
-                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is (string apiVersionString, StringSyntax apiVersionSyntax, _)
+                if (SyntaxHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression, true) is (string apiVersionString, StringSyntax apiVersionSyntax, _)
                     && ApiVersion.TryParse(apiVersionString) is ApiVersion apiVersion2)
                 {
                     apiVersion = apiVersion2;
@@ -195,10 +194,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // resourceId() has optional arguments at the beginning for subscription and resource group IDs that can't always be determined
             //   at build time, so look for the first argument that looks like a resource ID
-            var argsAsStringLiterals = functionCallSyntax.Arguments.Select(x => LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, x)).ToArray();
+            var argsAsStringLiterals = functionCallSyntax.Arguments.Select(x => SyntaxHelper.TryGetEvaluatedStringLiteral(model, x, true)).ToArray();
             for (int i = 0; i < functionCallSyntax.Arguments.Length; ++i)
             {
-                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression) is (string argLiteral, _, _))
+                if (SyntaxHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression, true) is (string argLiteral, _, _))
                 {
                     argLiteral = argLiteral.TrimEnd('/');
 
@@ -211,7 +210,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         string folderLiterals = argLiteral;
                         for (int j = i + 1; j < functionCallSyntax.Arguments.Length; ++j)
                         {
-                            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression) is (string argLiteral2, _, _))
+                            if (SyntaxHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression, true) is (string argLiteral2, _, _))
                             {
                                 folderLiterals += $"/{argLiteral2}";
                             }
@@ -231,7 +230,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static string? TryGetResourceTypeIfEvaluatesToStringLiteral(SemanticModel model, SyntaxBase expression)
         {
-            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression)
+            if (SyntaxHelper.TryGetEvaluatedStringLiteral(model, expression, true)
                 is (string resourceIdResTypeString, _, _))
             {
                 if (resourceTypeRegex.IsMatch(resourceIdResTypeString))

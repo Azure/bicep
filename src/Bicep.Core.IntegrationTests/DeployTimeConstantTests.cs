@@ -151,16 +151,16 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
   }
   kind: 'StorageV2'
 }]
-param intParam int = 0
 param strParam string = 'id'
 var zeroIndex = 0
 var otherIndex = zeroIndex + 2
 var idAccessor = 'id'
+var idAccessorInterpolated = '${idAccessor}'
 var propertiesAccessor = 'properties'
 var accessTierAccessor = 'accessTier'
 ");
 
-            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex" };
+            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
 
             // iterate the ok cases
             var okCase = 0;
@@ -189,7 +189,9 @@ var accessTierAccessor = 'accessTier'
             {
                 ".properties", ".properties.accessTier",
                 "['properties']", "['properties']['accessTier']",
-                //"[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]"
+                "[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]",
+                "[strParam]",
+                "[idAccessorInterpolated]"
             };
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();

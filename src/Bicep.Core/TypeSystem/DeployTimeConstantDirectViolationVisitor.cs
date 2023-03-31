@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using System.Collections.Generic;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -16,10 +16,14 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (syntax.IndexExpression is StringSyntax stringSyntax &&
+            var indexExpression = syntax.IndexExpression;
+            if (indexExpression is StringSyntax or VariableAccessSyntax &&
                 this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                if (stringSyntax.TryGetLiteralValue() is { } propertyName)
+                var evalStringLiteralResult = SyntaxHelper.TryGetEvaluatedStringLiteral(SemanticModel, indexExpression, false);
+                var propertyName = evalStringLiteralResult?.stringValue;
+
+                if (propertyName != null)
                 {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
