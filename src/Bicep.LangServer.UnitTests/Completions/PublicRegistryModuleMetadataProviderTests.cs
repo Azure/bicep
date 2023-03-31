@@ -66,7 +66,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
-        public void GetExponentialDelay_MaxCount_ShouldGiveMaxDelay()
+        public void GetExponentialDelay_AboveMaxCount_ShouldGiveMaxDelay()
         {
             TimeSpan initial = TimeSpan.FromSeconds(1);
             TimeSpan max = TimeSpan.FromDays(365);
