@@ -7,8 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Az;
 using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions
@@ -20,12 +19,12 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         // One cache per target scope type
         private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
         private readonly IFeatureProvider features;
-        private readonly INamespaceProvider namespaceProvider;
+        private readonly IAzResourceTypeLoader resourceTypeLoader;
 
-        public ApiVersionProvider(IFeatureProvider features, INamespaceProvider namespaceProvider)
+        public ApiVersionProvider(IFeatureProvider features, IAzResourceTypeLoader resourceTypeLoader)
         {
             this.features = features;
-            this.namespaceProvider = namespaceProvider;
+            this.resourceTypeLoader = resourceTypeLoader;
         }
 
         // for unit testing
@@ -73,8 +72,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             IEnumerable<ResourceTypeReference> resourceTypeReferences;
             if (cache.injectedTypes is null)
             {
-                NamespaceResolver namespaceResolver = NamespaceResolver.Create(features, namespaceProvider, scope, Enumerable.Empty<ImportedNamespaceSymbol>());
-                resourceTypeReferences = namespaceResolver.GetAvailableResourceTypes();
+                resourceTypeReferences = resourceTypeLoader.GetAvailableTypes();
             }
             else
             {

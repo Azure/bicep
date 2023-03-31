@@ -30,9 +30,9 @@ namespace Bicep.Core.UnitTests.Baselines
 
         public void ShouldHaveExpectedJsonValue()
         {
-            JToken.Parse(this.ReadFromOutputFolder()).Should().EqualWithJsonDiffOutput(
+            this.ReadFromOutputFolder().FromJson<JToken>().Should().EqualWithJsonDiffOutput(
                 TestContext,
-                EmbeddedFile.Contents.TryFromJson<JToken>() ?? JToken.Parse("null"),
+                EmbeddedFile.Contents.TryFromJson<JToken>() ?? JValue.CreateNull(),
                 expectedLocation: EmbeddedFile.RelativeSourcePath,
                 actualLocation: OutputFilePath);
         }

@@ -1900,10 +1900,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP337",
                 $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
 
-            public ErrorDiagnostic ParameterExpressionsNotSupported() => new(
+            public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
                 "BCP338",
-                $"Complex expressions are not permitted in a Bicep Parameters file.");
+                $"Failed to evaluate parameter \"{parameterName}\": {message}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

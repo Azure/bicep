@@ -249,12 +249,6 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            // TODO: Revisit when we support functions in param files
-            if(model.SourceFileKind != BicepSourceFileKind.BicepFile)
-            {
-                return Enumerable.Empty<CompletionItem>();
-            }
-
             if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
@@ -1388,7 +1382,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetExpressionCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.Expression) && model.SourceFileKind == BicepSourceFileKind.BicepFile)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.Expression))
             {
                 yield return CreateConditionCompletion(context.ReplacementRange);
             }
