@@ -1904,6 +1904,10 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP338",
                 $"Failed to evaluate parameter \"{parameterName}\": {message}");
+            public ErrorDiagnostic IndexOutOfBounds(string typeName, long indexSought) => new(
+                TextSpan, 
+                "BCP337",
+                $"""The provided array index value of "{indexSought}" is not valid.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

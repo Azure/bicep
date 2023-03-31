@@ -1197,6 +1197,14 @@ namespace Bicep.Core.TypeSystem
                     return TypeHelper.CreateTypeUnion(possibilities);
 
                 case ArrayType baseArray:
+                    if (indexType is IntegerLiteralType integerLiteralArrayIndex && integerLiteralArrayIndex.Value < 0)
+                    {
+                        return ErrorType.Create(
+                            DiagnosticBuilder
+                                .ForPosition(syntax.IndexExpression)
+                                .IndexOutOfBounds(baseType.Name, integerLiteralArrayIndex.Value));
+                    }
+
                     // we are indexing over an array
                     if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int))
                     {
