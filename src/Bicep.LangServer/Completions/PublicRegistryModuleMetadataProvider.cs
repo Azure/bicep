@@ -25,12 +25,14 @@ namespace Bicep.LanguageServer.Providers
     {
         private const string LiveDataEndpoint = "https://aka.ms/BicepModulesMetadata";
         private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
-        private readonly TimeSpan ThrottleDelay = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan MaxThrottleDelay = TimeSpan.FromMinutes(2);
 
         private ImmutableArray<ModuleMetadata> cachedModules = ImmutableArray<ModuleMetadata>.Empty;
         private bool isQueryingLiveData = false;
         private object queryingLiveSyncObject = new();
         private DateTime? lastSuccessfulQuery;
+        private int consecutiveFailures = 0;
 
         public PublicRegistryModuleMetadataProvider(bool initializeCache = false)
         {
@@ -46,6 +48,7 @@ namespace Bicep.LanguageServer.Providers
             {
                 return;
             }
+            Trace.WriteLineIf(IsCacheExpired(), $"{nameof(PublicRegistryModuleMetadataProvider)}: Cache expired");
 
             lock (this.queryingLiveSyncObject)
             {
@@ -64,20 +67,26 @@ namespace Bicep.LanguageServer.Providers
                     if (initialDelay)
                     {
                         // Allow language server to start up a bit before first hit
-                        await Task.Delay(ThrottleDelay);
+                        await Task.Delay(InitialThrottleDelay);
                     }
 
                     if (await TryGetModulesLive() is { } modules)
                     {
                         this.cachedModules = modules;
+                        this.lastSuccessfulQuery = DateTime.Now;
+                        this.consecutiveFailures = 0;
                     }
-
-                    this.lastSuccessfulQuery = DateTime.Now;
+                    else
+                    {
+                        this.consecutiveFailures++;
+                    }
                 }
                 finally
                 {
-                    // Throttle unsuccessful requests to avoid spamming the endpoint
-                    await Task.Delay(ThrottleDelay);
+                    // Throttle requests to avoid spamming the endpoint with unsuccessful requests
+                    var delay = GetExponentialDelay(InitialThrottleDelay, this.consecutiveFailures, MaxThrottleDelay);
+                    Trace.WriteLine($"{nameof(PublicRegistryModuleMetadataProvider)}: Delaying {delay}...");
+                    await Task.Delay(delay);
 
                     lock (this.queryingLiveSyncObject)
                     {
@@ -140,6 +149,15 @@ namespace Bicep.LanguageServer.Providers
             ModuleMetadata? metadata = modules.FirstOrDefault(x => x.moduleName.Equals(moduleName, StringComparison.Ordinal));
             var result = metadata?.tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
             return Task.FromResult(result);
+        }
+
+        public TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
+        {
+            int maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
+            var secondsDelay = initialDelay.TotalSeconds * Math.Pow(2, Math.Min(consecutiveFailures, maxFailuresToConsider));
+            var delay = TimeSpan.FromSeconds(secondsDelay);
+
+            return delay > maxDelay ? maxDelay : delay;
         }
     }
 }
