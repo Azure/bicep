@@ -114,7 +114,7 @@ namespace Bicep.LanguageServer.Providers
 
             try
             {
-                HttpClient httpClient = new HttpClient();
+                using var httpClient = new HttpClient();
                 using var metadataStream = await httpClient.GetStreamAsync(LiveDataEndpoint);
                 var metadata = JsonSerializer.Deserialize<ModuleMetadata[]>(metadataStream);
 
