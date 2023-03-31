@@ -58,7 +58,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Bicep registry schema name" &&
+                c.Detail == "Bicep registry" &&
                 c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
@@ -70,7 +70,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Bicep registry schema name" &&
+                c.Detail == "Bicep registry (alias)" &&
                 c.TextEdit!.TextEdit!.NewText == "'br/$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
@@ -82,7 +82,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Template spec schema name" &&
+                c.Detail == "Template spec" &&
                 c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
@@ -125,7 +125,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Bicep registry schema name" &&
+                c.Detail == "Bicep registry" &&
                 c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
@@ -137,7 +137,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Bicep registry schema name" &&
+                c.Detail == "Bicep registry (alias)" &&
                 c.TextEdit!.TextEdit!.NewText == "'br/$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
@@ -149,7 +149,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Template spec schema name" &&
+                c.Detail == "Template spec" &&
                 c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
@@ -161,7 +161,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Template spec schema name" &&
+                c.Detail == "Template spec (alias)" &&
                 c.TextEdit!.TextEdit!.NewText == "'ts/$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&

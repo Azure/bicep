@@ -21,6 +21,9 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.LanguageServer.Completions
 {
+    /// <summary>
+    /// Provides completions for remote (public or private) module references, e.g. br/public:modulePath:version
+    /// </summary>
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
         private readonly IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider;
@@ -28,11 +31,24 @@ namespace Bicep.LanguageServer.Completions
         private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
-        private static readonly ImmutableDictionary<string, (string, CompletionPriority)> DefaultSchemaCompletionLabelsWithDetails = new Dictionary<string, (string, CompletionPriority)>()
+
+        private enum ModuleCompletionPriority
         {
-            {"br:", ("Bicep registry schema name", CompletionPriority.VeryHigh) },
-            {"br/", ("Bicep registry schema name", CompletionPriority.High) },
-            {"ts:", ("Template spec schema name", CompletionPriority.VeryHigh) }
+            Alias = 0,     // br/[alias], ts/[alias]
+            Default = 1,
+            FullPath = 2,  // br:, ts:
+        }
+
+        private const string ModuleFullPathCompletionLabel = "Bicep registry";
+        private const string ModuleAliasCompletionLabel = "Bicep registry (alias)";
+        private const string TemplateSpecFullPathCompletionLabel = "Template spec";
+        private const string TemplateSpecAliasCompletionLabel = "Template spec (alias)";
+
+        private static readonly ImmutableDictionary<string, (string, ModuleCompletionPriority)> DefaultSchemaCompletionLabelsWithDetails = new Dictionary<string, (string, ModuleCompletionPriority)>()
+        {
+            {"br:", (ModuleFullPathCompletionLabel, ModuleCompletionPriority.FullPath) },
+            {"br/", (ModuleAliasCompletionLabel, ModuleCompletionPriority.Alias) },
+            {"ts:", (TemplateSpecFullPathCompletionLabel, ModuleCompletionPriority.FullPath) }
         }.ToImmutableDictionary();
 
         private static readonly Regex ModuleRegistryWithoutAlias = new Regex(@"'br:(?<registry>(.*?))/'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
@@ -91,7 +107,7 @@ namespace Bicep.LanguageServer.Completions
             var completionLabelsWithDetails = DefaultSchemaCompletionLabelsWithDetails;
             if (templateSpecModuleAliases.Any())
             {
-                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", ("Template spec schema name", CompletionPriority.High));
+                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", (TemplateSpecAliasCompletionLabel, ModuleCompletionPriority.Alias));
             }
 
             List<CompletionItem> completionItems = new List<CompletionItem>();
@@ -99,7 +115,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 var text = kvp.Key;
                 var insertionText = $"'{text}$0'";
-                (var details, CompletionPriority completionPriority) = kvp.Value;
+                (var details, ModuleCompletionPriority completionPriority) = kvp.Value;
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(insertionText)
@@ -284,6 +300,7 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
+                    // br/[alias]:<cursor>
                     if (registry.Equals(MCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
@@ -301,6 +318,7 @@ namespace Bicep.LanguageServer.Completions
                         // }
                         if (modulePath is null)
                         {
+                            // Completions are e.g. br/[alias]/bicep/[module]
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
                                 var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
@@ -312,7 +330,7 @@ namespace Bicep.LanguageServer.Completions
                                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                         .WithSnippetEdit(context.ReplacementRange, insertText)
                                         .WithFilterText(insertText)
-                                        .WithSortText(GetSortText(label, CompletionPriority.High))
+                                        .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
                                         .Build();
 
                                     completions.Add(completionItem);
@@ -337,6 +355,7 @@ namespace Bicep.LanguageServer.Completions
                                 continue;
                             }
 
+                            // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
                             var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
 
@@ -356,7 +375,7 @@ namespace Bicep.LanguageServer.Completions
                                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
-                                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                                    .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
                                     .Build();
                                 completions.Add(completionItem);
                             }
@@ -420,7 +439,7 @@ namespace Bicep.LanguageServer.Completions
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, modulePath)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
-                        .WithSortText(GetSortText(modulePath, CompletionPriority.High))
+                        .WithSortText(GetSortText(modulePath))
                         .Build();
                     completions.Add(completionItem);
                 }
@@ -445,7 +464,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
-                    .WithSortText(GetSortText(moduleName, CompletionPriority.High))
+                    .WithSortText(GetSortText(moduleName))
                     .Build();
 
                 completions.Add(completionItem);
@@ -480,7 +499,7 @@ namespace Bicep.LanguageServer.Completions
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, alias)
                         .WithFilterText(insertText)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
-                        .WithSortText(GetSortText(alias, CompletionPriority.High))
+                        .WithSortText(GetSortText(alias))
                         .Build();
                     completions.Add(completionItem);
                 }
@@ -492,7 +511,7 @@ namespace Bicep.LanguageServer.Completions
                 var mcrCompletionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                    .WithSortText(GetSortText(label))
                     .Build();
 
                 completions.Add(mcrCompletionItem);
@@ -532,7 +551,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(registryName, CompletionPriority.Medium))
+                    .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
                     .Build();
                 completions.Add(completionItem);
             }
@@ -559,7 +578,7 @@ namespace Bicep.LanguageServer.Completions
                         var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                             .WithFilterText(insertText)
                             .WithSnippetEdit(context.ReplacementRange, insertText)
-                            .WithSortText(GetSortText(label, CompletionPriority.High))
+                            .WithSortText(GetSortText(label))
                             .Build();
                         completions.Add(completionItem);
 
@@ -573,6 +592,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static string GetSortText(string label, int priority) => $"{priority}_{label}";
 
-        private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
+        private static string GetSortText(string label, ModuleCompletionPriority priority = ModuleCompletionPriority.Default)
+        {
+            // We want all module completion priorities to come after other completions (e.g. local module paths), so we start with "9"
+            return $"9{(int)priority}_{label}";
+        }
     }
 }
