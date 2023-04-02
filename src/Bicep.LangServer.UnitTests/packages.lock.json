@@ -1138,11 +1138,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.1",
-        "contentHash": "cLvdtHqSrizAK8+ZdIjEvXvHWvoyhg+7EVPC+c86AeI1TGTPeh6aeY9FTYcoWJ8vba94/WcwptTbyyhMpsRKrg==",
+        "resolved": "19.2.4",
+        "contentHash": "C+56GpvZlWAlBQidoGLKetnPJjLNhp2iHXvtxUSPcDveYqVl7OSFiXZe+98xDtc8XMmPwi5ZivHZyKogfbBaJw==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.1",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.1"
+          "TestableIO.System.IO.Abstractions": "19.2.4",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.4"
         }
       },
       "System.IO.Abstractions.TestingHelpers": {
@@ -1967,8 +1967,8 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.1",
-        "contentHash": "VAyvgRAXJcQSQrzhEFqOCHFc6kC8RAI7LueiNh3Sl648bhVk5Mjmb91Hcv7Ru//A/BDY1MTwrQV+SQDtl4fc9Q=="
+        "resolved": "19.2.4",
+        "contentHash": "VS97RgZwZswoBHwCNUurFr6OWa/oSmRWj9bYIe1JLpPo4EB8uX+jLNowNfx34MP3AooPFbnTVXUzM5vNBtVORA=="
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
@@ -1981,10 +1981,10 @@
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "19.2.1",
-        "contentHash": "2drGatHnWIIkuwP0x7wWcKWdYTtYdnFaXxVyBCeiyXovQ06QWEiCFnz5q5p5Ym7MYumK5P24WbA0gt+P30mpCA==",
+        "resolved": "19.2.4",
+        "contentHash": "n4GbToLpyV2YB9UBryMu7Mzdc3dA5CYpYR3D2SuV6CtR8D4PszG5jA4XEXxWzThRFr7RNOfI3+eVUtuXzlwjDg==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.1"
+          "TestableIO.System.IO.Abstractions": "19.2.4"
         }
       },
       "WindowsAzure.Storage": {
@@ -2015,7 +2015,7 @@
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "System.Collections.Immutable": "[7.0.0, )",
-          "System.IO.Abstractions": "[19.2.1, )",
+          "System.IO.Abstractions": "[19.2.4, )",
           "System.Text.Json": "[8.0.0-preview.2.23128.3, )"
         }
       },
