@@ -14,6 +14,28 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class DeployTimeConstantTests
     {
+        private static string GetDtcValidationResourceBaseline()
+        {
+            return @"
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
+  name: 'foo-${i}'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+";
+        }
+
         [TestMethod]
         public void DtcValidation_EntireResourceOrModuleAccessAtInvalidLocations_ProducesDiagnostics()
         {
@@ -131,74 +153,93 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             });
         }
 
-        [TestMethod]
-        public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics()
+        [DataTestMethod]
+        [DataRow(".id")]
+        [DataRow("['id']")]
+        [DataRow("[idAccessor]")]
+        [DataRow("[idAccessor2]")]
+        [DataRow("['${'id'}']")]
+        [DataRow("[idAccessorInterpolated]")]
+        [DataRow("[idAccessorMixed]")]
+        [DataRow("[strArray[0]]")]
+        [DataRow("[first(strArray)]")]
+        public void DtcValidation_RuntimeValue_ForBodyExpression_Ok(string okAccessExp)
         {
-            StringBuilder textSb = new(@"
-resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: 'foo'
-  location: 'westus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-}
-resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
-  name: 'foo-${i}'
-  location: 'westus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-}]
-param strParam string = 'id'
+            StringBuilder textSb = new(GetDtcValidationResourceBaseline());
+            textSb.Append(
+                @"
 var zeroIndex = 0
 var otherIndex = zeroIndex + 2
 var idAccessor = 'id'
+var dStr = 'd'
 var idAccessor2 = idAccessor
 var idAccessorInterpolated = '${idAccessor}'
+var idAccessorMixed = 'i${dStr}'
+var strArray = ['id', 'properties']
+");
+
+            var okCase = 0;
+            textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foo{okAccessExp}]");
+            textSb.AppendLine(
+                $@"var ok{++okCase} = [for i in range(0, 2): {{
+                  prop: foo{okAccessExp}
+                }}]"
+            );
+
+            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
+            foreach (var arrAccessorExp in arrayAccessorExps)
+            {
+                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{okAccessExp}]");
+                textSb.AppendLine(
+                    $@"var ok{++okCase} = [for i in range(0, 2): {{
+  prop: foos[{arrAccessorExp}]{okAccessExp}
+}}]"
+                );
+            }
+
+            okCase.Should().Be(arrayAccessorExps.Length * 2 + 2);
+
+            var finalText = textSb.ToString();
+            var result = CompilationHelper.Compile(finalText);
+
+            var filteredDiagnostics = result.WithFilteredDiagnostics(d => d.Level == DiagnosticLevel.Error);
+            filteredDiagnostics.Should().NotHaveAnyDiagnostics();
+        }
+
+        [DataTestMethod]
+        [DataRow(".properties")]
+        [DataRow(".properties.accessTier")]
+        [DataRow("['properties']")]
+        [DataRow("['properties']['accessTier']")]
+        [DataRow("[propertiesAccessor]")]
+        [DataRow("[propertiesAccessor][accessTierAccessor]")]
+        [DataRow("[strParam]")]
+        [DataRow("['${strParam}']")]
+        [DataRow("['i${strParam2}']")]
+        [DataRow("[strArray[1]]")]
+        [DataRow("[last(strArray)]")]
+        [DataRow("[cond ? 'id' : 'properties']")]
+        [DataRow("[cond ? 'id' : 'name']")]
+        public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics(string badAccessExp)
+        {
+            StringBuilder textSb = new(GetDtcValidationResourceBaseline());
+            textSb.Append(@"
+param strParam string = 'id'
+param strParam2 string = 'd'
+var zeroIndex = 0
+var otherIndex = zeroIndex + 2
+var idAccessor = 'id'
+var dStr = 'd'
+var cond = false
+var idAccessor2 = idAccessor
+var idAccessorInterpolated = '${idAccessor}'
+var idAccessorMixed = 'i${dStr}'
 var propertiesAccessor = 'properties'
 var accessTierAccessor = 'accessTier'
 var strArray = ['id', 'properties']
 ");
 
-            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
-
-            // iterate the ok cases
-            var okCase = 0;
-            var okAccessExps = new[]
-            {
-                ".id", "['id']", "[idAccessor]", "[idAccessor2]",
-                "['${'id'}']", "[idAccessorInterpolated]",
-                "[strArray[0]]", "[first(strArray)]"
-            };
-
-            foreach (var okAccessExp in okAccessExps)
-            {
-                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foo{okAccessExp}]");
-                textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
-                  prop: foo{okAccessExp}
-                }}]");
-
-                foreach (var arrAccessorExp in arrayAccessorExps)
-                {
-                    textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{okAccessExp}]");
-                    textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
-  prop: foos[{arrAccessorExp}]{okAccessExp}
-}}]");
-                }
-            }
-            okCase.Should().Be(okAccessExps.Length * 2 + arrayAccessorExps.Length * okAccessExps.Length * 2);
-
-            // iterate the bad cases
             var badCase = 0;
-            var badAccessExps = new[]
-            {
-                ".properties", ".properties.accessTier",
-                "['properties']", "['properties']['accessTier']",
-                "[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]",
-                "[strParam]"
-            };
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
             void AddExpectedDtcDiagnostic(int badVariableNumber, string variableName)
@@ -206,26 +247,25 @@ var strArray = ['id', 'properties']
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
 
-            foreach (var badAccessExp in badAccessExps)
-            {
-                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
-                AddExpectedDtcDiagnostic(badCase, "foo");
-                textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
-                  prop: foo{badAccessExp}
-                }}]");
-                AddExpectedDtcDiagnostic(badCase, "foo");
+            textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
+            AddExpectedDtcDiagnostic(badCase, "foo");
+            textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
+              prop: foo{badAccessExp}
+            }}]");
+            AddExpectedDtcDiagnostic(badCase, "foo");
 
-                foreach (var arrAccessorExp in arrayAccessorExps)
-                {
-                    textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{badAccessExp}]");
-                    AddExpectedDtcDiagnostic(badCase, "foos");
-                    textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
-  prop: foos[{arrAccessorExp}]{badAccessExp}
+            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
+            foreach (var arrAccessorExp in arrayAccessorExps)
+            {
+                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{badAccessExp}]");
+                AddExpectedDtcDiagnostic(badCase, "foos");
+                textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
+prop: foos[{arrAccessorExp}]{badAccessExp}
 }}]");
-                    AddExpectedDtcDiagnostic(badCase, "foos");
-                }
+                AddExpectedDtcDiagnostic(badCase, "foos");
             }
-            expectedDiagnostics.Should().HaveCount(badAccessExps.Length * 2 + arrayAccessorExps.Length * badAccessExps.Length * 2);
+
+            expectedDiagnostics.Should().HaveCount(2 + arrayAccessorExps.Length * 2);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
