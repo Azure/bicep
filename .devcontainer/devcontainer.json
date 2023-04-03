@@ -1,6 +1,6 @@
 {
   "name": "Bicep Development Environment",
-  "image": "mcr.microsoft.com/vscode/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:0-7.0",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -9,6 +9,8 @@
         "ms-dotnettools.csharp",
         "ms-azuretools.vscode-docker",
         "editorconfig.editorconfig",
+        "GitHub.copilot",
+        "GitHub.copilot-labs",
         "github.vscode-pull-request-github"
       ]
     }
@@ -20,8 +22,6 @@
       "version": "lts",
       "nodeGypDependencies": true
     },
-    "dotnet": {
-      "version": "7.0"
-    }
+    "dotnet": "7.0"
   }
 }
