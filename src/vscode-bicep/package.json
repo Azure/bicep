@@ -643,7 +643,7 @@
     "@types/vscode": "^1.67.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.53.0",
-    "@typescript-eslint/parser": "^5.54.0",
+    "@typescript-eslint/parser": "^5.57.0",
     "@vscode/test-electron": "^2.3.0",
     "@vscode/vsce": "^2.18.0",
     "copy-webpack-plugin": "^11.0.0",
