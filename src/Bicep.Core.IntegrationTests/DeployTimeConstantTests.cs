@@ -166,7 +166,12 @@ var strArray = ['id', 'properties']
 
             // iterate the ok cases
             var okCase = 0;
-            var okAccessExps = new[] { ".id", "['id']", "[idAccessor]", "[idAccessor2]" };
+            var okAccessExps = new[]
+            {
+                ".id", "['id']", "[idAccessor]", "[idAccessor2]",
+                "['${'id'}']", "[idAccessorInterpolated]",
+                "[strArray[0]]", "[first(strArray)]"
+            };
 
             foreach (var okAccessExp in okAccessExps)
             {
@@ -192,8 +197,7 @@ var strArray = ['id', 'properties']
                 ".properties", ".properties.accessTier",
                 "['properties']", "['properties']['accessTier']",
                 "[propertiesAccessor]", "[propertiesAccessor][accessTierAccessor]",
-                "['${'id'}']", "[idAccessorInterpolated]",
-                "[strParam]", "[strArray[0]]", "[first(strArray)]"
+                "[strParam]"
             };
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();

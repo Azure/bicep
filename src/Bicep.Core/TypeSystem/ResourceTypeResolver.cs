@@ -60,10 +60,8 @@ namespace Bicep.Core.TypeSystem
                 return TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
             }
 
-            var symbolInfo = this.semanticModel.Binder.GetSymbolInfo(indexExpression);
-            var isCollection = symbolInfo is DeclaredSymbol { Type: var symbolType }
-                ? symbolType.TypeKind != TypeKind.StringLiteral
-                : indexExpression is not StringSyntax;
+            var indexExprTypeInfo = this.semanticModel.GetTypeInfo(indexExpression);
+            var isCollection = indexExprTypeInfo.TypeKind != TypeKind.StringLiteral;
 
             var syntaxToResolve = isCollection ? baseAccessSyntax : resourceOrModuleAccessSyntax;
             return TryResolveResourceOrModuleSymbolAndBodyType(syntaxToResolve, isCollection);

@@ -16,18 +16,18 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (syntax.IndexExpression is StringSyntax stringSyntax &&
-                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                if (stringSyntax.TryGetLiteralValue() is { } propertyName)
+                var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
+                if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
                 {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
                 }
-                else
+                else if (indexExprTypeInfo is not IntegerLiteralType)
                 {
-                    // Block property access via interpolated string index (myResource['${myParam}']),
-                    // since we we cannot tell whether the property is readable at deploy-time or not.
+                    // Flag it as dtc constant violation if we cannot resolve the expression to a string and it is not resolvable to an integer. Integer
+                    // index expressions where a property name should be are already flagged by the compiler.
                     this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                 }
             }
