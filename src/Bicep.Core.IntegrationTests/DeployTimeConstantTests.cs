@@ -176,14 +176,15 @@ var idAccessor2 = idAccessor
 var idAccessorInterpolated = '${idAccessor}'
 var idAccessorMixed = 'i${dStr}'
 var strArray = ['id', 'properties']
-");
+"
+            );
 
             var okCase = 0;
             textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foo{okAccessExp}]");
             textSb.AppendLine(
                 $@"var ok{++okCase} = [for i in range(0, 2): {{
-                  prop: foo{okAccessExp}
-                }}]"
+  prop: foo{okAccessExp}
+}}]"
             );
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
@@ -223,7 +224,8 @@ var strArray = ['id', 'properties']
         public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics(string badAccessExp)
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
-            textSb.Append(@"
+            textSb.Append(
+                @"
 param strParam string = 'id'
 param strParam2 string = 'd'
 var zeroIndex = 0
@@ -237,11 +239,13 @@ var idAccessorMixed = 'i${dStr}'
 var propertiesAccessor = 'properties'
 var accessTierAccessor = 'accessTier'
 var strArray = ['id', 'properties']
-");
+"
+            );
 
             var badCase = 0;
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
+
             void AddExpectedDtcDiagnostic(int badVariableNumber, string variableName)
             {
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
@@ -249,9 +253,11 @@ var strArray = ['id', 'properties']
 
             textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
             AddExpectedDtcDiagnostic(badCase, "foo");
-            textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
-              prop: foo{badAccessExp}
-            }}]");
+            textSb.AppendLine(
+                $@"var bad{++badCase} = [for i in range(0, 2): {{
+  prop: foo{badAccessExp}
+}}]"
+            );
             AddExpectedDtcDiagnostic(badCase, "foo");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
@@ -259,9 +265,11 @@ var strArray = ['id', 'properties']
             {
                 textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{badAccessExp}]");
                 AddExpectedDtcDiagnostic(badCase, "foos");
-                textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): {{
-prop: foos[{arrAccessorExp}]{badAccessExp}
-}}]");
+                textSb.AppendLine(
+                    $@"var bad{++badCase} = [for i in range(0, 2): {{
+  prop: foos[{arrAccessorExp}]{badAccessExp}
+}}]"
+                );
                 AddExpectedDtcDiagnostic(badCase, "foos");
             }
 
