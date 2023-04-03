@@ -24,6 +24,10 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
+
+  resource fooChild 'fileServices' = {
+    name: 'default'
+  }
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
   name: 'foo-${i}'
@@ -189,6 +193,7 @@ var strArray = ['id', 'properties']
   prop: foo{okAccessExp}
 }}]"
             );
+            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): foo::fooChild{okAccessExp}]");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
@@ -201,7 +206,7 @@ var strArray = ['id', 'properties']
                 );
             }
 
-            okCase.Should().Be(arrayAccessorExps.Length * 2 + 2);
+            okCase.Should().Be(arrayAccessorExps.Length * 2 + 3);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
@@ -262,6 +267,8 @@ var strArray = ['id', 'properties']
 }}]"
             );
             AddExpectedDtcDiagnostic(badCase, "foo");
+            textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): foo::fooChild{badAccessExp}]");
+            AddExpectedDtcDiagnostic(badCase, "fooChild");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
@@ -276,7 +283,7 @@ var strArray = ['id', 'properties']
                 AddExpectedDtcDiagnostic(badCase, "foos");
             }
 
-            expectedDiagnostics.Should().HaveCount(2 + arrayAccessorExps.Length * 2);
+            expectedDiagnostics.Should().HaveCount(arrayAccessorExps.Length * 2 + 3);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
