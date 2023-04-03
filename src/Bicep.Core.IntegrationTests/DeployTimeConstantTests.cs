@@ -216,6 +216,7 @@ var strArray = ['id', 'properties']
         }
 
         [DataTestMethod]
+        [DataRow("")] // accessing the entire resource
         [DataRow(".properties")]
         [DataRow(".properties.accessTier")]
         [DataRow("['properties']")]
@@ -261,12 +262,14 @@ var strArray = ['id', 'properties']
 
             textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
             AddExpectedDtcDiagnostic(badCase, "foo");
+
             textSb.AppendLine(
                 $@"var bad{++badCase} = [for i in range(0, 2): {{
   prop: foo{badAccessExp}
 }}]"
             );
             AddExpectedDtcDiagnostic(badCase, "foo");
+
             textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): foo::fooChild{badAccessExp}]");
             AddExpectedDtcDiagnostic(badCase, "fooChild");
 

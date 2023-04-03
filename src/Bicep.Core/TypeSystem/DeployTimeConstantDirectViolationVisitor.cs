@@ -97,23 +97,27 @@ namespace Bicep.Core.TypeSystem
                 {
                     case not PropertyAccessSyntax and not ArrayAccessSyntax when
                         this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax) is ({ } resourceSymbol, { } resourceType):
-                        {
-                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                    {
+                        this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
 
-                            return;
-                        }
-                    case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
+                        return;
+                    }
+                    case ArrayAccessSyntax arrayAccessSyntax when
+                        arrayAccessSyntax.BaseExpression == syntax &&
                         this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                         this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
+                    {
+                        var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                        if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                         {
                             this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
-
-                            return;
                         }
+                        return;
+                    }
 
                     default:
                         return;
-            }
+                }
             }
 
             if (this.DeployTimeConstantContainer is not IfConditionSyntax and not ForSyntax)
@@ -131,22 +135,26 @@ namespace Bicep.Core.TypeSystem
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
-                    {
-                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                {
+                    this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
 
-                        return;
-                    }
+                    return;
+                }
                 // var foo = [for x in [...]: {
                 //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
                 // }]
-                case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
+                case ArrayAccessSyntax arrayAccessSyntax when
+                    arrayAccessSyntax.BaseExpression == syntax && // need this condition because this case is hit both when syntax is myVNets (variable access) or the index expression
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } accessedSymbol, { } accessedBodyType):
+                {
+                    var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                    if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                     {
                         this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
-
-                        return;
                     }
+                    return;
+                }
 
                 default:
                     return;
