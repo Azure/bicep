@@ -16,14 +16,10 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            var indexExpression = syntax.IndexExpression;
-            if (indexExpression is not IntegerLiteralSyntax
-                && this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (syntax.IndexExpression is StringSyntax stringSyntax &&
+                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                var evalStringLiteralResult = SyntaxHelper.TryGetEvaluatedStringLiteral(SemanticModel, indexExpression, false);
-                var propertyName = evalStringLiteralResult?.stringValue;
-
-                if (propertyName != null)
+                if (stringSyntax.TryGetLiteralValue() is { } propertyName)
                 {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
@@ -31,7 +27,7 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     // Block property access via interpolated string index (myResource['${myParam}']),
-                    // since we we cannot tell whether the property is readable at deploy-time or the expression is non-trivial.
+                    // since we we cannot tell whether the property is readable at deploy-time or not.
                     this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                 }
             }

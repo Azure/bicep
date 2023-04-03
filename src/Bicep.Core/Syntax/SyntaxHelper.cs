@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
@@ -124,59 +123,5 @@ namespace Bicep.Core.Syntax
                 ArrayAccessSyntax arrayAccess => (arrayAccess.BaseExpression, arrayAccess.IndexExpression),
                 _ => (syntax, null),
             };
-
-        /// <summary>
-        /// Tries to retrieve a string literal from the expression. Will evaluate variables and optionally parameter default values
-        /// </summary>
-        public static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression, bool evaluateParameters)
-        {
-            return TryGetEvaluatedStringLiteral(model, expression, evaluateParameters, Array.Empty<DeclaredSymbol>());
-        }
-
-        private static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(
-            SemanticModel model, SyntaxBase? expression, bool evaluateParameters, DeclaredSymbol[] currentPaths
-        )
-        {
-            if (expression is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string literalValue)
-            {
-                var path = currentPaths.Length > 0 ? string.Join(" => ", currentPaths.Select(symbol => symbol.Name)) : null;
-                return (literalValue, stringSyntax, path);
-            }
-            else if (expression is VariableAccessSyntax)
-            {
-                if (model.GetSymbolInfo(expression) is DeclaredSymbol symbol)
-                {
-                    // Create nested path for recursive call
-                    var nestedPath = new DeclaredSymbol[currentPaths.Length + 1];
-                    Array.Copy(currentPaths, nestedPath, currentPaths.Length);
-                    nestedPath[^1] = symbol;
-
-                    if (symbol is VariableSymbol variable)
-                    {
-                        // Evaluate the variable's definition
-                        var variableValue = (variable.DeclaringSyntax as VariableDeclarationSyntax)?.Value;
-                        return variableValue is null ? null : TryGetEvaluatedStringLiteral(model, variableValue, evaluateParameters, nestedPath);
-                    }
-                    else if (evaluateParameters && symbol is ParameterSymbol parameter)
-                    {
-                        // Evaluate the parameter's default value
-                        var defaultValue = TryGetDefaultValue(parameter);
-                        if (defaultValue is null)
-                        {
-                            // Using a parameter with no default value is acceptable
-                            return null;
-                        }
-                        else
-                        {
-                            // Analyze parameter's default value
-                            return TryGetEvaluatedStringLiteral(model, defaultValue, evaluateParameters, nestedPath);
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
     }
 }
