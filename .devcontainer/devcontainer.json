@@ -9,6 +9,7 @@
         "ms-dotnettools.csharp",
         "ms-azuretools.vscode-docker",
         "editorconfig.editorconfig",
+        "esbenp.prettier-vscode",
         "GitHub.copilot",
         "GitHub.copilot-labs",
         "github.vscode-pull-request-github"
