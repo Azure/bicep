@@ -71,8 +71,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.364",
-        "contentHash": "mLWsbOrayk96GvjUYJTm6izMQUwzfsXPM5i9DHf7QNoFr1OoDFt8g2qP6amrGeCVQa/cfbpY0GEzya6dvAF+Rg==",
+        "resolved": "0.2.407",
+        "contentHash": "S26oPU7Ekekz9Jo3qFbVOstyAoUopI/XxYaIGb6Gi6gxQps3wnsYrwkogzPoRy58gOklTNDIf8zB8J0TR7goYQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.3.99"
         }
@@ -1803,7 +1803,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "[0.3.99, )",
-          "Azure.Bicep.Types.Az": "[0.2.364, )",
+          "Azure.Bicep.Types.Az": "[0.2.407, )",
           "Azure.Bicep.Types.K8s": "[0.1.233, )",
           "Azure.Containers.ContainerRegistry": "[1.1.0-beta.4, )",
           "Azure.Deployments.Core": "[1.0.872, )",
