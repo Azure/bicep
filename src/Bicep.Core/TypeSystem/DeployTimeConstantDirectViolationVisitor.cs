@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -19,16 +20,32 @@ namespace Bicep.Core.TypeSystem
             if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
-                // TODO: handle unions?
                 if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
                 {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
                 }
-                else if (indexExprTypeInfo is not IntegerLiteralType)
+                else if (indexExprTypeInfo is UnionType { Members: var indexUnionMembers } )
                 {
-                    // Flag it as dtc constant violation if we cannot resolve the expression to a string and it is not resolvable to an integer. Integer
-                    // index expressions where a property name should be are already flagged by the compiler.
+                    var unionMemberTypes = indexUnionMembers.Select(m => m.Type).ToList();
+                    if (unionMemberTypes.All(t => t is StringLiteralType))
+                    {
+                        foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>())
+                        {
+                            if (this.FlagIfPropertyNotReadableAtDeployTime(syntax, unionMemberType.RawStringValue, accessedSymbol, accessedBodyType))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                    }
+                }
+                else
+                {
+                    // Flag it as dtc constant violation if we cannot resolve the expression to string literals.
                     this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                 }
             }
@@ -136,13 +153,16 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private void FlagIfPropertyNotReadableAtDeployTime(SyntaxBase syntax, string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
+        private bool FlagIfPropertyNotReadableAtDeployTime(SyntaxBase syntax, string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
         {
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
                 this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                return true;
             }
+
+            return false;
         }
 
         protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)

@@ -163,11 +163,14 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
         [DataRow("[idAccessorMixed]")]
         [DataRow("[strArray[0]]")]
         [DataRow("[first(strArray)]")]
+        [DataRow("[cond ? 'id' : 'name']")]
+        [DataRow("[cond ? first(strArray) : strArray[0]]")]
         public void DtcValidation_RuntimeValue_ForBodyExpression_Ok(string okAccessExp)
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
             textSb.Append(
                 @"
+param cond bool = false
 var zeroIndex = 0
 var otherIndex = zeroIndex + 2
 var idAccessor = 'id'
@@ -220,7 +223,7 @@ var strArray = ['id', 'properties']
         [DataRow("[strArray[1]]")]
         [DataRow("[last(strArray)]")]
         [DataRow("[cond ? 'id' : 'properties']")]
-        [DataRow("[cond ? 'id' : 'name']")]
+        [DataRow("[cond ? 'id' : strParam]")]
         public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics(string badAccessExp)
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
