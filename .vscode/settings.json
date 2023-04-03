@@ -1,8 +1,15 @@
 {
     "eslint.format.enable": true,
     "eslint.lintTask.enable": true,
+    "files.trimTrailingWhitespace": true,
+    "files.autoSave": "onFocusChange",
+    "git.autofetch": true,
+    "githubPullRequests.pullBranch": "always",
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.yml"
