@@ -5158,23 +5158,6 @@
     ]
   },
   {
-    "label": "runtimeInvalidRes9",
-    "kind": "interface",
-    "detail": "runtimeInvalidRes9",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_runtimeInvalidRes9",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "runtimeInvalidRes9"
-    },
-    "commitCharacters": [
-      ":"
-    ]
-  },
-  {
     "label": "runtimeValid",
     "kind": "variable",
     "detail": "runtimeValid",
@@ -5200,6 +5183,23 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "runtimeValidRes10",
+    "kind": "interface",
+    "detail": "runtimeValidRes10",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes10",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes10"
     },
     "commitCharacters": [
       ":"
