@@ -294,7 +294,7 @@ var strArray = ['id', 'properties']
 
             var badCase = 0;
 
-            void AddForBodyExpressionVariants(string valueExp, Func<int, bool> diagnosticAdder)
+            void AddForBodyExpressionVariants(string valueExp, Action<int> diagnosticAdder)
             {
                 textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): {valueExp}]");
                 diagnosticAdder(badCase);
@@ -307,14 +307,7 @@ var strArray = ['id', 'properties']
                 diagnosticAdder(badCase);
             }
 
-            AddForBodyExpressionVariants(
-                $"foo{badAccessExp}",
-                caseNum =>
-                {
-                    AddExpectedDtcDiagnostic(caseNum, "foo");
-                    return true;
-                }
-            );
+            AddForBodyExpressionVariants($"foo{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "foo"));
 
             textSb.AppendLine(
                 $@"var indirect = {{
@@ -333,18 +326,12 @@ var strArray = ['id', 'properties']
                     {
                         AddExpectedIndirectDtc182Diagnostic(caseNum, "foo", "(\"indirect\" -> \"foo\")");
                     }
-
-                    return true;
                 }
             );
 
             AddForBodyExpressionVariants(
                 $"foo::fooChild{badAccessExp}",
-                caseNum =>
-                {
-                    AddExpectedDtcDiagnostic(caseNum, "fooChild");
-                    return true;
-                }
+                caseNum => AddExpectedDtcDiagnostic(caseNum, "fooChild")
             );
 
             textSb.AppendLine(
@@ -364,22 +351,13 @@ var strArray = ['id', 'properties']
                     {
                         AddExpectedIndirectDtc182Diagnostic(caseNum, "fooChild", "(\"indirectNested\" -> \"fooChild\")");
                     }
-
-                    return true;
                 }
             );
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
             {
-                AddForBodyExpressionVariants(
-                    $"foos[{arrAccessorExp}]{badAccessExp}",
-                    caseNum =>
-                    {
-                        AddExpectedDtcDiagnostic(caseNum, "foos");
-                        return true;
-                    }
-                );
+                AddForBodyExpressionVariants($"foos[{arrAccessorExp}]{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "foos"));
             }
 
             var indirectBadCase = 0;
@@ -407,8 +385,6 @@ var strArray = ['id', 'properties']
                         {
                             AddExpectedIndirectDtc182Diagnostic(caseNum, "foos", $"(\"indirect{capturedIndirectBadCase}\" -> \"foos\")");
                         }
-
-                        return true;
                     }
                 );
             }
