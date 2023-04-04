@@ -41,19 +41,36 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (syntax.IndexExpression is StringSyntax stringSyntax &&
-                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                if (stringSyntax.TryGetLiteralValue() is { } propertyName)
+                var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
+                if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
                 {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(propertyName, accessedSymbol, accessedBodyType);
                 }
+                else if (indexExprTypeInfo is UnionType { Members: var indexUnionMembers })
+                {
+                    var unionMemberTypes = indexUnionMembers.Select(m => m.Type).ToList();
+                    if (unionMemberTypes.All(t => t is StringLiteralType))
+                    {
+                        foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>())
+                        {
+                            if (this.FlagIfPropertyNotReadableAtDeployTime(unionMemberType.RawStringValue, accessedSymbol, accessedBodyType))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                    }
+                }
                 else
                 {
-                    // Block property access via interpolated string index (myResource['${myParam}']),
-                    // since we we cannot tell whether the property is readable at deploy-time or not.
-                    this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType);
+                    // Flag it as dtc constant violation if we cannot resolve the expression to string literals.
+                    this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                 }
             }
 
@@ -139,29 +156,37 @@ namespace Bicep.Core.TypeSystem
                 // var foo = [for x in [...]: {
                 //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
                 // }]
-                case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
+                case ArrayAccessSyntax arrayAccessSyntax when
+                    arrayAccessSyntax.BaseExpression == syntax &&
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
+                {
+                    var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                    if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                     {
-                        var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
-                        this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
-
-                        break;
+                        var variableDependencyChain = this.BuildVariablDependencyChain(resourceSymbol.Name);
+                        this.FlagDeployTimeConstantViolation(resourceSymbol, resourceType, variableDependencyChain);
                     }
+
+                    return;
+                }
 
                 default:
                     break;
             }
         }
 
-        private void FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
+        private bool FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
         {
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
                 var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
                 this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+                return true;
             }
+
+            return false;
         }
 
         protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)

@@ -185,8 +185,17 @@ var idAccessorMixed = 'i${dStr}'
 var strArray = ['id', 'properties']
 "
             );
+            textSb.AppendLine(
+                $@"
+var indirect = {{
+  prop: foo{okAccessExp}
+}}
+"
+            );
 
             var okCase = 0;
+            var indirectOkCase = 0;
+
             textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foo{okAccessExp}]");
             textSb.AppendLine(
                 $@"var ok{++okCase} = [for i in range(0, 2): {{
@@ -194,6 +203,10 @@ var strArray = ['id', 'properties']
 }}]"
             );
             textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): foo::fooChild{okAccessExp}]");
+            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): indirect.prop]");
+            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
+  prop: indirect.prop
+}}]");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
@@ -206,7 +219,26 @@ var strArray = ['id', 'properties']
                 );
             }
 
-            okCase.Should().Be(arrayAccessorExps.Length * 2 + 3);
+            var indirectArrayAccessorExps = new[] { "0", "zeroIndex", "otherIndex" };
+            foreach (var arrAccessorExp in indirectArrayAccessorExps)
+            {
+                indirectOkCase++;
+                textSb.AppendLine(
+                    $@"
+var indirectOk{indirectOkCase} = {{
+  prop: foos[{arrAccessorExp}]{okAccessExp}
+}}
+"
+                );
+                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): indirectOk{indirectOkCase}.prop]");
+                textSb.AppendLine(
+                    $@"var ok{++okCase} = [for i in range(0, 2): {{
+  prop: indirectOk{indirectOkCase}.prop
+}}]"
+                );
+            }
+
+            okCase.Should().Be(arrayAccessorExps.Length * 2 + indirectArrayAccessorExps.Length * 2 + 5);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
@@ -251,15 +283,17 @@ var strArray = ['id', 'properties']
 "
             );
 
-            var badCase = 0;
-
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
-
             void AddExpectedDtcDiagnostic(int badVariableNumber, string variableName)
             {
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
+            void AddExpectedIndirectDtcDiagnostic(int badVariableNumber, string dtcVariableName, string dtcVariablePath)
+            {
+                expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start {dtcVariablePath}. Properties of {dtcVariableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
+            }
 
+            var badCase = 0;
             textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
             AddExpectedDtcDiagnostic(badCase, "foo");
 
@@ -272,6 +306,22 @@ var strArray = ['id', 'properties']
 
             textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): foo::fooChild{badAccessExp}]");
             AddExpectedDtcDiagnostic(badCase, "fooChild");
+
+            textSb.AppendLine(
+                $@"var indirect = {{
+  prop: foo{badAccessExp}
+}}"
+            );
+            textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): indirect.prop]");
+            AddExpectedIndirectDtcDiagnostic(badCase, "foo", "(\"indirect\" -> \"foo\")");
+
+            textSb.AppendLine(
+                $@"var bad{++badCase} = [for i in range(0, 2): {{
+  prop: indirect.prop
+}}]
+"
+            );
+            AddExpectedIndirectDtcDiagnostic(badCase, "foo", "(\"indirect\" -> \"foo\")");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
@@ -286,7 +336,31 @@ var strArray = ['id', 'properties']
                 AddExpectedDtcDiagnostic(badCase, "foos");
             }
 
-            expectedDiagnostics.Should().HaveCount(arrayAccessorExps.Length * 2 + 3);
+            var indirectBadCase = 0;
+            var indirectArrayAccessorExps = new[] { "0", "zeroIndex", "otherIndex" };
+            foreach (var arrAccessorExp in indirectArrayAccessorExps)
+            {
+                indirectBadCase++;
+                textSb.AppendLine(
+                    $@"var indirect{indirectBadCase} = {{
+  prop: foos[{arrAccessorExp}]{badAccessExp}
+}}
+"
+                );
+
+                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): indirect{indirectBadCase}.prop]");
+                AddExpectedIndirectDtcDiagnostic(badCase, "foos", $"(\"indirect{indirectBadCase}\" -> \"foos\")");
+
+                textSb.AppendLine(
+                    $@"var bad{++badCase} = [for i in range(0, 2): {{
+  prop: indirect{indirectBadCase}.prop
+}}]
+"
+                );
+                AddExpectedIndirectDtcDiagnostic(badCase, "foos", $"(\"indirect{indirectBadCase}\" -> \"foos\")");
+            }
+
+            expectedDiagnostics.Should().HaveCount(arrayAccessorExps.Length * 2 + indirectArrayAccessorExps.Length * 2 + 5);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
