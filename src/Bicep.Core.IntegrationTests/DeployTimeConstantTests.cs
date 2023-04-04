@@ -37,6 +37,9 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
   }
   kind: 'StorageV2'
 }]
+resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: 'existingFoo'
+}
 ";
         }
 
@@ -206,6 +209,7 @@ var indirect = {{
             }
 
             AddForBodyExpressionVariants($"foo{okAccessExp}");
+            AddForBodyExpressionVariants($"existingFoo{okAccessExp}");
             AddForBodyExpressionVariants("indirect.prop");
             textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): foo::fooChild{okAccessExp}]");
 
@@ -301,6 +305,7 @@ var strArray = ['id', 'properties']
             }
 
             AddForBodyExpressionVariants($"foo{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "foo"));
+            AddForBodyExpressionVariants($"existingFoo{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "existingFoo"));
 
             textSb.AppendLine(
                 $@"var indirect = {{
