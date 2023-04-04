@@ -172,7 +172,7 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
         [DataRow("[first(strArray)]")]
         [DataRow("[cond ? 'id' : 'name']")]
         [DataRow("[cond ? first(strArray) : strArray[0]]")]
-        public void DtcValidation_RuntimeValue_ForBodyExpression_Ok(string okAccessExp)
+        public void DtcValidation_VarForBodyExpression_Ok(string okAccessExp)
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
             textSb.Append(
@@ -261,7 +261,7 @@ var indirectOk{indirectOkCase} = {{
         [DataRow("[last(strArray)]")]
         [DataRow("[cond ? 'id' : 'properties']")]
         [DataRow("[cond ? 'id' : strParam]")]
-        public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics(string badAccessExp)
+        public void DtcValidation_RuntimeValue_VarForBodyExpression_ProducesDiagnostics(string badAccessExp)
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
             textSb.Append(
