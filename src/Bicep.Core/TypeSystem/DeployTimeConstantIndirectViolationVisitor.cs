@@ -64,15 +64,13 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
-                        var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
-                        this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+                        this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                     }
                 }
                 else
                 {
                     // Flag it as dtc constant violation if we cannot resolve the expression to string literals.
-                    var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
-                    this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+                    this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                 }
             }
 
@@ -150,9 +148,7 @@ namespace Bicep.Core.TypeSystem
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
-                        var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
-                        this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
-
+                        this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                         break;
                     }
                 // var foo = [for x in [...]: {
@@ -166,10 +162,8 @@ namespace Bicep.Core.TypeSystem
                     var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
                     if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                     {
-                        var variableDependencyChain = this.BuildVariablDependencyChain(resourceSymbol.Name);
-                        this.FlagDeployTimeConstantViolation(resourceSymbol, resourceType, variableDependencyChain);
+                        this.FlagDeployTimeConstantViolationWithVariableDependencies(resourceSymbol, resourceType);
                     }
-
                     return;
                 }
 
@@ -178,13 +172,18 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        private void FlagDeployTimeConstantViolationWithVariableDependencies(DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
+        {
+            var variableDependencyChain = this.BuildVariableDependencyChain(accessedSymbol.Name);
+            this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+        }
+
         private bool FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
         {
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
-                var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
-                this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+                this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                 return true;
             }
 
@@ -196,11 +195,11 @@ namespace Bicep.Core.TypeSystem
             if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
                 functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                var variableDependencyChain = this.BuildVariablDependencyChain(functionSymbol.Name);
+                var variableDependencyChain = this.BuildVariableDependencyChain(functionSymbol.Name);
                 FlagDeployTimeConstantViolation(variableDependencyChain: variableDependencyChain);
             }
         }
 
-        private IEnumerable<string> BuildVariablDependencyChain(string tail) => this.visitedVariableNameStack.ToArray().Reverse().Append(tail);
+        private IEnumerable<string> BuildVariableDependencyChain(string tail) => this.visitedVariableNameStack.ToArray().Reverse().Append(tail);
     }
 }
