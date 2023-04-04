@@ -206,6 +206,11 @@ var indirect = {{
   prop: {valueExp}
 }}]"
                 );
+                textSb.AppendLine(
+                    $@"var ok{++okCase} = [for i in range(0, 2): {{
+  '${{{valueExp}}}': 'value'
+}}]"
+                );
             }
 
             AddForBodyExpressionVariants($"foo{okAccessExp}");
@@ -299,6 +304,13 @@ var strArray = ['id', 'properties']
                 textSb.AppendLine(
                     $@"var bad{++badCase} = [for i in range(0, 2): {{
   prop: {valueExp}
+}}]"
+                );
+                diagnosticAdder(badCase);
+
+                textSb.AppendLine(
+                    $@"var bad{++badCase} = [for i in range(0, 2): {{
+  '${{{valueExp}}}': 'value'
 }}]"
                 );
                 diagnosticAdder(badCase);
