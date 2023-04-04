@@ -159,7 +159,7 @@ namespace Bicep.Core.TypeSystem
                 case ArrayAccessSyntax arrayAccessSyntax when
                     arrayAccessSyntax.BaseExpression == syntax &&
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                    this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
                 {
                     var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
                     if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
