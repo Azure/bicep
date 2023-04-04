@@ -64,13 +64,15 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
-                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                        var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
+                        this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
                     }
                 }
                 else
                 {
                     // Flag it as dtc constant violation if we cannot resolve the expression to string literals.
-                    this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                    var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
+                    this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
                 }
             }
 

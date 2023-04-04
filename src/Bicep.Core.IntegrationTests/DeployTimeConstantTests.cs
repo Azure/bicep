@@ -238,21 +238,21 @@ var indirectOk{indirectOkCase} = {{
         }
 
         [DataTestMethod]
-        [DataRow("", "BCP182")] // accessing the entire resource
-        [DataRow(".properties", "BCP182")]
-        [DataRow(".properties.accessTier", "BCP182")]
-        [DataRow("['properties']", "BCP182")]
-        [DataRow("['properties']['accessTier']", "BCP182")]
-        [DataRow("[propertiesAccessor]", "BCP182")]
-        [DataRow("[propertiesAccessor][accessTierAccessor]", "BCP182")]
-        [DataRow("[strParam]", "BCP178")]
-        [DataRow("['${strParam}']", "BCP178")]
-        [DataRow("['i${strParam2}']", "BCP178")]
-        [DataRow("[strArray[1]]", "BCP182")]
-        [DataRow("[last(strArray)]", "BCP182")]
-        [DataRow("[cond ? 'id' : 'properties']", "BCP182")]
-        [DataRow("[cond ? 'id' : strParam]", "BCP178")]
-        public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics(string badAccessExp, string indirectUsageDiagnosticCode)
+        [DataRow("")] // accessing the entire resource
+        [DataRow(".properties")]
+        [DataRow(".properties.accessTier")]
+        [DataRow("['properties']")]
+        [DataRow("['properties']['accessTier']")]
+        [DataRow("[propertiesAccessor]")]
+        [DataRow("[propertiesAccessor][accessTierAccessor]")]
+        [DataRow("[strParam]")]
+        [DataRow("['${strParam}']")]
+        [DataRow("['i${strParam2}']")]
+        [DataRow("[strArray[1]]")]
+        [DataRow("[last(strArray)]")]
+        [DataRow("[cond ? 'id' : 'properties']")]
+        [DataRow("[cond ? 'id' : strParam]")]
+        public void DtcValidation_RuntimeValue_ForBodyExpression_ProducesDiagnostics(string badAccessExp)
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
             textSb.Append(
@@ -280,17 +280,10 @@ var strArray = ['id', 'properties']
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
 
-            void AddExpectedIndirectDtc182Diagnostic(int badVariableNumber, string dtcVariableName, string dtcVariablePath)
+            void AddExpectedIndirectDtcDiagnostic(int badVariableNumber, string dtcVariableName, string dtcVariablePath)
             {
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start {dtcVariablePath}. Properties of {dtcVariableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
-
-            void AddExpectedIndirectDtc178Diagnostic(string dtcVariableName)
-            {
-                expectedDiagnostics.Add(("BCP178", DiagnosticLevel.Error, $"This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of {dtcVariableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
-            }
-
-            var isIndirectUsageDiagnostic178 = indirectUsageDiagnosticCode == "BCP178";
 
             var badCase = 0;
 
@@ -314,20 +307,7 @@ var strArray = ['id', 'properties']
   prop: foo{badAccessExp}
 }}"
             );
-            AddForBodyExpressionVariants(
-                "indirect.prop",
-                caseNum =>
-                {
-                    if (isIndirectUsageDiagnostic178)
-                    {
-                        AddExpectedIndirectDtc178Diagnostic("foo");
-                    }
-                    else
-                    {
-                        AddExpectedIndirectDtc182Diagnostic(caseNum, "foo", "(\"indirect\" -> \"foo\")");
-                    }
-                }
-            );
+            AddForBodyExpressionVariants("indirect.prop", caseNum => AddExpectedIndirectDtcDiagnostic(caseNum, "foo", "(\"indirect\" -> \"foo\")"));
 
             AddForBodyExpressionVariants(
                 $"foo::fooChild{badAccessExp}",
@@ -341,17 +321,7 @@ var strArray = ['id', 'properties']
             );
             AddForBodyExpressionVariants(
                 "indirectNested.prop",
-                caseNum =>
-                {
-                    if (isIndirectUsageDiagnostic178)
-                    {
-                        AddExpectedIndirectDtc178Diagnostic("fooChild");
-                    }
-                    else
-                    {
-                        AddExpectedIndirectDtc182Diagnostic(caseNum, "fooChild", "(\"indirectNested\" -> \"fooChild\")");
-                    }
-                }
+                caseNum => AddExpectedIndirectDtcDiagnostic(caseNum, "fooChild", "(\"indirectNested\" -> \"fooChild\")")
             );
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
@@ -375,17 +345,7 @@ var strArray = ['id', 'properties']
                 var capturedIndirectBadCase = indirectBadCase;
                 AddForBodyExpressionVariants(
                     $"indirect{indirectBadCase}.prop",
-                    caseNum =>
-                    {
-                        if (isIndirectUsageDiagnostic178)
-                        {
-                            AddExpectedIndirectDtc178Diagnostic("foos");
-                        }
-                        else
-                        {
-                            AddExpectedIndirectDtc182Diagnostic(caseNum, "foos", $"(\"indirect{capturedIndirectBadCase}\" -> \"foos\")");
-                        }
-                    }
+                    caseNum => AddExpectedIndirectDtcDiagnostic(caseNum, "foos", $"(\"indirect{capturedIndirectBadCase}\" -> \"foos\")")
                 );
             }
 
