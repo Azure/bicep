@@ -7,7 +7,6 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests
@@ -231,8 +230,6 @@ var indirectOk{indirectOkCase} = {{
                 AddForBodyExpressionVariants($"indirectOk{indirectOkCase}.prop");
             }
 
-            okCase.Should().Be(arrayAccessorExps.Length * 2 + indirectArrayAccessorExps.Length * 2 + 5);
-
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
 
@@ -341,8 +338,36 @@ var strArray = ['id', 'properties']
                 }
             );
 
-            textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): foo::fooChild{badAccessExp}]");
-            AddExpectedDtcDiagnostic(badCase, "fooChild");
+            AddForBodyExpressionVariants(
+                $"foo::fooChild{badAccessExp}",
+                caseNum =>
+                {
+                    AddExpectedDtcDiagnostic(caseNum, "fooChild");
+                    return true;
+                }
+            );
+
+            textSb.AppendLine(
+                $@"var indirectNested = {{
+  prop: foo::fooChild{badAccessExp}
+}}"
+            );
+            AddForBodyExpressionVariants(
+                "indirectNested.prop",
+                caseNum =>
+                {
+                    if (isIndirectUsageDiagnostic178)
+                    {
+                        AddExpectedIndirectDtc178Diagnostic("fooChild");
+                    }
+                    else
+                    {
+                        AddExpectedIndirectDtc182Diagnostic(caseNum, "fooChild", "(\"indirectNested\" -> \"fooChild\")");
+                    }
+
+                    return true;
+                }
+            );
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
@@ -387,8 +412,6 @@ var strArray = ['id', 'properties']
                     }
                 );
             }
-
-            expectedDiagnostics.Should().HaveCount(arrayAccessorExps.Length * 2 + indirectArrayAccessorExps.Length * 2 + 5);
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
