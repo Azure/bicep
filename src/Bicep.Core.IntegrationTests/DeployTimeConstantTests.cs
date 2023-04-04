@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Diagnostics;
@@ -194,31 +195,28 @@ var indirect = {{
             );
 
             var okCase = 0;
-            var indirectOkCase = 0;
 
-            textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foo{okAccessExp}]");
-            textSb.AppendLine(
-                $@"var ok{++okCase} = [for i in range(0, 2): {{
-  prop: foo{okAccessExp}
-}}]"
-            );
-            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): foo::fooChild{okAccessExp}]");
-            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): indirect.prop]");
-            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): {{
-  prop: indirect.prop
-}}]");
-
-            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
-            foreach (var arrAccessorExp in arrayAccessorExps)
+            void AddForBodyExpressionVariants(string valueExp)
             {
-                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{okAccessExp}]");
+                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): {valueExp}]");
                 textSb.AppendLine(
                     $@"var ok{++okCase} = [for i in range(0, 2): {{
-  prop: foos[{arrAccessorExp}]{okAccessExp}
+  prop: {valueExp}
 }}]"
                 );
             }
 
+            AddForBodyExpressionVariants($"foo{okAccessExp}");
+            AddForBodyExpressionVariants("indirect.prop");
+            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): foo::fooChild{okAccessExp}]");
+
+            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
+            foreach (var arrAccessorExp in arrayAccessorExps)
+            {
+                AddForBodyExpressionVariants($"foos[{arrAccessorExp}]{okAccessExp}");
+            }
+
+            var indirectOkCase = 0;
             var indirectArrayAccessorExps = new[] { "0", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in indirectArrayAccessorExps)
             {
@@ -230,12 +228,7 @@ var indirectOk{indirectOkCase} = {{
 }}
 "
                 );
-                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): indirectOk{indirectOkCase}.prop]");
-                textSb.AppendLine(
-                    $@"var ok{++okCase} = [for i in range(0, 2): {{
-  prop: indirectOk{indirectOkCase}.prop
-}}]"
-                );
+                AddForBodyExpressionVariants($"indirectOk{indirectOkCase}.prop");
             }
 
             okCase.Should().Be(arrayAccessorExps.Length * 2 + indirectArrayAccessorExps.Length * 2 + 5);
@@ -284,77 +277,84 @@ var strArray = ['id', 'properties']
             );
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
+
             void AddExpectedDtcDiagnostic(int badVariableNumber, string variableName)
             {
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
+
             void AddExpectedIndirectDtc182Diagnostic(int badVariableNumber, string dtcVariableName, string dtcVariablePath)
             {
                 expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start {dtcVariablePath}. Properties of {dtcVariableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
+
             void AddExpectedIndirectDtc178Diagnostic(string dtcVariableName)
             {
                 expectedDiagnostics.Add(("BCP178", DiagnosticLevel.Error, $"This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of {dtcVariableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
+
             var isIndirectUsageDiagnostic178 = indirectUsageDiagnosticCode == "BCP178";
 
             var badCase = 0;
-            textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foo{badAccessExp}]");
-            AddExpectedDtcDiagnostic(badCase, "foo");
 
-            textSb.AppendLine(
-                $@"var bad{++badCase} = [for i in range(0, 2): {{
-  prop: foo{badAccessExp}
+            void AddForBodyExpressionVariants(string valueExp, Func<int, bool> diagnosticAdder)
+            {
+                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): {valueExp}]");
+                diagnosticAdder(badCase);
+
+                textSb.AppendLine(
+                    $@"var bad{++badCase} = [for i in range(0, 2): {{
+  prop: {valueExp}
 }}]"
-            );
-            AddExpectedDtcDiagnostic(badCase, "foo");
+                );
+                diagnosticAdder(badCase);
+            }
 
-            textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): foo::fooChild{badAccessExp}]");
-            AddExpectedDtcDiagnostic(badCase, "fooChild");
+            AddForBodyExpressionVariants(
+                $"foo{badAccessExp}",
+                caseNum =>
+                {
+                    AddExpectedDtcDiagnostic(caseNum, "foo");
+                    return true;
+                }
+            );
 
             textSb.AppendLine(
                 $@"var indirect = {{
   prop: foo{badAccessExp}
 }}"
             );
+            AddForBodyExpressionVariants(
+                "indirect.prop",
+                caseNum =>
+                {
+                    if (isIndirectUsageDiagnostic178)
+                    {
+                        AddExpectedIndirectDtc178Diagnostic("foo");
+                    }
+                    else
+                    {
+                        AddExpectedIndirectDtc182Diagnostic(caseNum, "foo", "(\"indirect\" -> \"foo\")");
+                    }
 
-            textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): indirect.prop]");
-            if (isIndirectUsageDiagnostic178)
-            {
-                AddExpectedIndirectDtc178Diagnostic("foo");
-            }
-            else
-            {
-                AddExpectedIndirectDtc182Diagnostic(badCase, "foo", "(\"indirect\" -> \"foo\")");
-            }
-
-            textSb.AppendLine(
-                $@"var bad{++badCase} = [for i in range(0, 2): {{
-  prop: indirect.prop
-}}]
-"
+                    return true;
+                }
             );
-            if (isIndirectUsageDiagnostic178)
-            {
-                AddExpectedIndirectDtc178Diagnostic("foo");
-            }
-            else
-            {
-                AddExpectedIndirectDtc182Diagnostic(badCase, "foo", "(\"indirect\" -> \"foo\")");
-            }
+
+            textSb.AppendLine($@"var bad{++badCase} = [for i in range(0, 2): foo::fooChild{badAccessExp}]");
+            AddExpectedDtcDiagnostic(badCase, "fooChild");
 
             var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
             foreach (var arrAccessorExp in arrayAccessorExps)
             {
-                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): foos[{arrAccessorExp}]{badAccessExp}]");
-                AddExpectedDtcDiagnostic(badCase, "foos");
-
-                textSb.AppendLine(
-                    $@"var bad{++badCase} = [for i in range(0, 2): {{
-  prop: foos[{arrAccessorExp}]{badAccessExp}
-}}]"
+                AddForBodyExpressionVariants(
+                    $"foos[{arrAccessorExp}]{badAccessExp}",
+                    caseNum =>
+                    {
+                        AddExpectedDtcDiagnostic(caseNum, "foos");
+                        return true;
+                    }
                 );
-                AddExpectedDtcDiagnostic(badCase, "foos");
             }
 
             var indirectBadCase = 0;
@@ -369,30 +369,23 @@ var strArray = ['id', 'properties']
 "
                 );
 
-                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): indirect{indirectBadCase}.prop]");
-                if (isIndirectUsageDiagnostic178)
-                {
-                    AddExpectedIndirectDtc178Diagnostic("foos");
-                }
-                else
-                {
-                    AddExpectedIndirectDtc182Diagnostic(badCase, "foos", $"(\"indirect{indirectBadCase}\" -> \"foos\")");
-                }
+                var capturedIndirectBadCase = indirectBadCase;
+                AddForBodyExpressionVariants(
+                    $"indirect{indirectBadCase}.prop",
+                    caseNum =>
+                    {
+                        if (isIndirectUsageDiagnostic178)
+                        {
+                            AddExpectedIndirectDtc178Diagnostic("foos");
+                        }
+                        else
+                        {
+                            AddExpectedIndirectDtc182Diagnostic(caseNum, "foos", $"(\"indirect{capturedIndirectBadCase}\" -> \"foos\")");
+                        }
 
-                textSb.AppendLine(
-                    $@"var bad{++badCase} = [for i in range(0, 2): {{
-  prop: indirect{indirectBadCase}.prop
-}}]
-"
+                        return true;
+                    }
                 );
-                if (isIndirectUsageDiagnostic178)
-                {
-                    AddExpectedIndirectDtc178Diagnostic("foos");
-                }
-                else
-                {
-                    AddExpectedIndirectDtc182Diagnostic(badCase, "foos", $"(\"indirect{indirectBadCase}\" -> \"foos\")");
-                }
             }
 
             expectedDiagnostics.Should().HaveCount(arrayAccessorExps.Length * 2 + indirectArrayAccessorExps.Length * 2 + 5);
