@@ -162,7 +162,7 @@ namespace Bicep.Core.Semantics
                     TemplateParameterType.Array => GetArrayType(resolved),
                     TemplateParameterType.Object => GetObjectType(SourceFile.Template!, resolved),
                     TemplateParameterType.SecureString => GetStringType(resolved,
-                        TypeSymbolValidationFlags.IsSecure & (allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default)),
+                        TypeSymbolValidationFlags.IsSecure | (allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default)),
                     TemplateParameterType.SecureObject => GetObjectType(SourceFile.Template!, resolved, TypeSymbolValidationFlags.IsSecure),
                     _ => ErrorType.Empty(),
                 };
