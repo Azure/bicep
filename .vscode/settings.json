@@ -6,5 +6,8 @@
     },
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.yml"
-    }
+    },
+    "dotnet-test-explorer.testProjectPath": "src/Bicep.Decompiler.IntegrationTests/*Tests.csproj",
+    "dotnet-test-explorer.enableTelemetry": false
+    
 }

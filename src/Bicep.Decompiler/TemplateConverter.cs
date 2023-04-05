@@ -25,6 +25,7 @@ using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Emit.ResourceDependencyVisitor;
+using Azure.Deployments.Core.Definitions.Identifiers;
 
 namespace Bicep.Decompiler
 {
@@ -1016,6 +1017,20 @@ namespace Bicep.Decompiler
             return (SyntaxFactory.CreateStringLiteral(moduleFilePath), nestedUri);
         }
 
+        /// <summary>
+        /// Used to generate the module's templateSpec format from the id parameter.
+        /// </summary>
+        private SyntaxBase GetModuleFromId(string templateID, JObject resource)
+        {   
+            // eg for modules templateSpec - ts:<subscription-ID>/<resource-group-name>/<Template-spec-name>:<version>   
+            ResourceGroupLevelResourceId id;
+            var templateSpec = "";
+            if (ResourceGroupLevelResourceId.TryParse(templateID, out id) is not true) {
+               throw  new ConversionFailedException($"Unable to parse resourceId {templateID}", resource);
+            }          
+            templateSpec = "ts:" + id.SubscriptionId + "/" + id.ResourceGroup + "/" + id.NameHierarchy.First() + ":" + id.NameHierarchy.Last();
+            return SyntaxFactory.CreateStringLiteral(templateSpec);
+        }
 
         /// <summary>
         /// Used to generate a for-expression for a copy loop, where the copyIndex does not accept a 'name' parameter.
@@ -1388,13 +1403,16 @@ namespace Bicep.Decompiler
             }
             else
             {
-                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") ??
-                    TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
+                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") 
+                                ?? TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
+                                
+                var idProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "id");
 
-                if (pathProperty?.Value<string>() is not string templatePathString)
+                if ((pathProperty?.Value<string>() is not string  && idProperty?.Value<string>() is not string ))
                 {
-                    throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
+                    throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" or \"id\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
                 }
+                var templatePathString = idProperty?.Value<string>() ?? pathProperty?.Value<string>() ?? "";
 
                 // Metadata/description should be first
                 var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
@@ -1403,7 +1421,16 @@ namespace Bicep.Decompiler
                 decoratorsAndNewLines.AddRange(resourceCopyDecorators);
                 var value = ProcessCondition(resource, body);
 
-                var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
+                SyntaxBase modulePath;
+                Uri? jsonTemplateUri = null;
+                if ( idProperty is not null )
+                {
+                    modulePath = GetModuleFromId(templatePathString,resource);
+                } else 
+                {
+                    (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);                  
+                }
+                //
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
                     SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
