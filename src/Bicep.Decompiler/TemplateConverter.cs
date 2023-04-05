@@ -1421,6 +1421,7 @@ namespace Bicep.Decompiler
                 decoratorsAndNewLines.AddRange(resourceCopyDecorators);
                 var value = ProcessCondition(resource, body);
 
+                // fetch the module templatespec if the id property set else fetch the module path
                 SyntaxBase modulePath;
                 Uri? jsonTemplateUri = null;
                 if ( idProperty is not null )
@@ -1430,7 +1431,7 @@ namespace Bicep.Decompiler
                 {
                     (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);                  
                 }
-                //
+                
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
                     SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
