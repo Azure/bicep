@@ -36,6 +36,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidRuntimeValueUsages_LF => CreateDataSet();
 
+        public static DataSet ValidDeployTimeUsages_LF => CreateDataSet();
+
         public static DataSet InvalidTargetScopes_LF => CreateDataSet();
 
         public static DataSet InvalidTypeDeclarations_LF => CreateDataSet();
