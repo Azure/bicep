@@ -56,10 +56,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>())
                         {
-                            if (this.FlagIfPropertyNotReadableAtDeployTime(unionMemberType.RawStringValue, accessedSymbol, accessedBodyType))
-                            {
-                                break;
-                            }
+                            this.FlagIfPropertyNotReadableAtDeployTime(unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
                         }
                     }
                     else
@@ -178,16 +175,13 @@ namespace Bicep.Core.TypeSystem
             this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
         }
 
-        private bool FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
+        private void FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
         {
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
                 this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
-                return true;
             }
-
-            return false;
         }
 
         protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
