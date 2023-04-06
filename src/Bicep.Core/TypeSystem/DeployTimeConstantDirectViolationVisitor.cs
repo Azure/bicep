@@ -30,7 +30,7 @@ namespace Bicep.Core.TypeSystem
                     var unionMemberTypes = indexUnionMembers.Select(m => m.Type).ToList();
                     if (unionMemberTypes.All(t => t is StringLiteralType))
                     {
-                        foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>())
+                        foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>().OrderBy(l => l.RawStringValue))
                         {
                             this.FlagIfPropertyNotReadableAtDeployTime(syntax, unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
                         }

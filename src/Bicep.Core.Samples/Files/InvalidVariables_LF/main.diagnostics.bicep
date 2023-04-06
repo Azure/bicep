@@ -357,7 +357,7 @@ var inlinedVariable = zones[0].properties.zoneType
 var runtimeLoop3 = [for (zone, i) in zoneInput: {
 //@[04:16) [no-unused-vars (Warning)] Variable "runtimeLoop3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |runtimeLoop3|
   a: inlinedVariable
-//@[05:20) [BCP182 (Error)] This expression is being used in the for-body of the variable "runtimeLoop3", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("inlinedVariable" -> "zones"). Properties of zones which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |inlinedVariable|
+//@[05:20) [BCP182 (Error)] This expression is being used in the for-body of the variable "runtimeLoop3", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("inlinedVariable" -> "zones"). The property "properties" of zones cannot be calculated at the start. Properties of zones which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |inlinedVariable|
 }]
 
 var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {

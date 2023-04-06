@@ -54,7 +54,7 @@ namespace Bicep.Core.TypeSystem
                     var unionMemberTypes = indexUnionMembers.Select(m => m.Type).ToList();
                     if (unionMemberTypes.All(t => t is StringLiteralType))
                     {
-                        foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>())
+                        foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>().OrderBy(l => l.RawStringValue))
                         {
                             this.FlagIfPropertyNotReadableAtDeployTime(unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
                         }
@@ -127,10 +127,10 @@ namespace Bicep.Core.TypeSystem
             base.VisitInternal(node);
         }
 
-        private void FlagDeployTimeConstantViolation(DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null)
+        private void FlagDeployTimeConstantViolation(DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null, string? violatingPropertyName = null)
         {
             // For indirect violations, errorSyntax is always variableDependency.
-            this.FlagDeployTimeConstantViolation(this.variableDependency, accessedSymbol, accessedObjectType, variableDependencyChain);
+            this.FlagDeployTimeConstantViolation(this.variableDependency, accessedSymbol, accessedObjectType, variableDependencyChain, violatingPropertyName);
 
             this.hasError = true;
         }
@@ -169,10 +169,10 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private void FlagDeployTimeConstantViolationWithVariableDependencies(DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
+        private void FlagDeployTimeConstantViolationWithVariableDependencies(DeclaredSymbol accessedSymbol, ObjectType accessedBodyType, string? violatingPropertyName = null)
         {
             var variableDependencyChain = this.BuildVariableDependencyChain(accessedSymbol.Name);
-            this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
+            this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain, violatingPropertyName);
         }
 
         private void FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
@@ -180,7 +180,7 @@ namespace Bicep.Core.TypeSystem
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
-                this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
+                this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType, propertyName);
             }
         }
 

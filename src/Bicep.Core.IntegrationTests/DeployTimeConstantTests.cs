@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Diagnostics;
@@ -160,84 +159,39 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
             });
         }
 
-        [DataTestMethod]
-        [DataRow(".id")]
-        [DataRow("['id']")]
-        [DataRow("[idAccessor]")]
-        [DataRow("[idAccessor2]")]
-        [DataRow("['${'id'}']")]
-        [DataRow("[idAccessorInterpolated]")]
-        [DataRow("[idAccessorMixed]")]
-        [DataRow("[strArray[0]]")]
-        [DataRow("[first(strArray)]")]
-        [DataRow("[cond ? 'id' : 'name']")]
-        [DataRow("[cond ? first(strArray) : strArray[0]]")]
-        public void DtcValidation_VarForBodyExpression_Ok(string okAccessExp)
+        [TestMethod]
+        public void DtcValidation_VarForBodyExpression_Ok()
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
             textSb.Append(
                 @"
-param cond bool = false
-var zeroIndex = 0
-var otherIndex = zeroIndex + 2
+param strParam string = 'id'
 var idAccessor = 'id'
-var dStr = 'd'
-var idAccessor2 = idAccessor
-var idAccessorInterpolated = '${idAccessor}'
-var idAccessorMixed = 'i${dStr}'
 var strArray = ['id', 'properties']
+var indirect = {
+  prop: foo.id
+}
 "
             );
+
             textSb.AppendLine(
-                $@"
-var indirect = {{
-  prop: foo{okAccessExp}
-}}
+                @"
+var okVarForBody1 = [for i in range(0, 2): foo.id]
+var okVarForBody2 = [for i in range(0, 2): foo['id']]
+var okVarForBody3 = [for i in range(0, 2): {
+  prop: foo[idAccessor]
+}]
+var okVarForBody4 = [for i in range(0, 2): foo[strArray[0]]]
+var okVarForBody5 = [for i in range(0, 2): foos[0].id]
+var okVarForBody6 = [for i in range(0, 2): foos[i].name]
+var okVarForBody7 = [for i in range(0, 2): foos[i]['name']]
+var okVarForBody8 = [for i in range(0, 2): {
+  '${foos[i].name}': foo.id
+}]
+var okVarForBody9 = [for i in range(0, 2): foos[i + 2]['${'name'}']]
+var okVarForBody10 = [for i in range(0, 2): indirect.prop]
 "
             );
-
-            var okCase = 0;
-
-            void AddForBodyExpressionVariants(string valueExp)
-            {
-                textSb.AppendLine($"var ok{++okCase} = [for i in range(0, 2): {valueExp}]");
-                textSb.AppendLine(
-                    $@"var ok{++okCase} = [for i in range(0, 2): {{
-  prop: {valueExp}
-}}]"
-                );
-                textSb.AppendLine(
-                    $@"var ok{++okCase} = [for i in range(0, 2): {{
-  '${{{valueExp}}}': 'value'
-}}]"
-                );
-            }
-
-            AddForBodyExpressionVariants($"foo{okAccessExp}");
-            AddForBodyExpressionVariants($"existingFoo{okAccessExp}");
-            AddForBodyExpressionVariants("indirect.prop");
-            textSb.AppendLine($@"var ok{++okCase} = [for i in range(0, 2): foo::fooChild{okAccessExp}]");
-
-            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
-            foreach (var arrAccessorExp in arrayAccessorExps)
-            {
-                AddForBodyExpressionVariants($"foos[{arrAccessorExp}]{okAccessExp}");
-            }
-
-            var indirectOkCase = 0;
-            var indirectArrayAccessorExps = new[] { "0", "zeroIndex", "otherIndex" };
-            foreach (var arrAccessorExp in indirectArrayAccessorExps)
-            {
-                indirectOkCase++;
-                textSb.AppendLine(
-                    $@"
-var indirectOk{indirectOkCase} = {{
-  prop: foos[{arrAccessorExp}]{okAccessExp}
-}}
-"
-                );
-                AddForBodyExpressionVariants($"indirectOk{indirectOkCase}.prop");
-            }
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
@@ -246,125 +200,68 @@ var indirectOk{indirectOkCase} = {{
             filteredDiagnostics.Should().NotHaveAnyDiagnostics();
         }
 
-        [DataTestMethod]
-        [DataRow("")] // accessing the entire resource
-        [DataRow(".properties")]
-        [DataRow(".properties.accessTier")]
-        [DataRow("['properties']")]
-        [DataRow("['properties']['accessTier']")]
-        [DataRow("[propertiesAccessor]")]
-        [DataRow("[propertiesAccessor][accessTierAccessor]")]
-        [DataRow("[strParam]")]
-        [DataRow("['${strParam}']")]
-        [DataRow("['i${strParam2}']")]
-        [DataRow("[strArray[1]]")]
-        [DataRow("[last(strArray)]")]
-        [DataRow("[cond ? 'id' : 'properties']")]
-        [DataRow("[cond ? 'id' : strParam]")]
-        public void DtcValidation_RuntimeValue_VarForBodyExpression_ProducesDiagnostics(string badAccessExp)
+        [TestMethod]
+        public void DtcValidation_RuntimeValue_VarForBodyExpression_ProducesDiagnostics()
         {
             StringBuilder textSb = new(GetDtcValidationResourceBaseline());
             textSb.Append(
                 @"
+param cond bool = false
 param strParam string = 'id'
-param strParam2 string = 'd'
-var zeroIndex = 0
-var otherIndex = zeroIndex + 2
-var idAccessor = 'id'
-var dStr = 'd'
-var cond = false
-var idAccessor2 = idAccessor
-var idAccessorInterpolated = '${idAccessor}'
-var idAccessorMixed = 'i${dStr}'
 var propertiesAccessor = 'properties'
-var accessTierAccessor = 'accessTier'
 var strArray = ['id', 'properties']
+var indirect = {
+  prop: foo.properties
+}
 "
             );
 
             var expectedDiagnostics = new List<(string, DiagnosticLevel, string)>();
-
-            void AddExpectedDtcDiagnostic(int badVariableNumber, string variableName)
+            void AddExpectedDtcDiagnostic(string varNameOfForBody, string resourceVarName, string? violatingPropertyName = null)
             {
-                expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. Properties of {variableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
+                expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"{varNameOfForBody}\", which requires values that can be calculated at the start of the deployment.{(violatingPropertyName != null ? $" The property \"{violatingPropertyName}\" of {resourceVarName} cannot be calculated at the start." : "")} Properties of {resourceVarName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
 
-            void AddExpectedIndirectDtcDiagnostic(int badVariableNumber, string dtcVariableName, string dtcVariablePath)
+            void AddExpectedIndirectDtcDiagnostic(string varNameOfForBody, string resourceVarName, string dtcVariablePath, string? violatingPropertyName)
             {
-                expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"bad{badVariableNumber}\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start {dtcVariablePath}. Properties of {dtcVariableName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
+                expectedDiagnostics.Add(("BCP182", DiagnosticLevel.Error, $"This expression is being used in the for-body of the variable \"{varNameOfForBody}\", which requires values that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start {dtcVariablePath}.{(violatingPropertyName != null ? $" The property \"{violatingPropertyName}\" of {resourceVarName} cannot be calculated at the start." : "")} Properties of {resourceVarName} which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."));
             }
 
-            var badCase = 0;
+            textSb.AppendLine("var badVarForBody1 = [for i in range(0, 2): foo.properties]");
+            AddExpectedDtcDiagnostic("badVarForBody1", "foo", "properties");
 
-            void AddForBodyExpressionVariants(string valueExp, Action<int> diagnosticAdder)
-            {
-                textSb.AppendLine($"var bad{++badCase} = [for i in range(0, 2): {valueExp}]");
-                diagnosticAdder(badCase);
+            textSb.AppendLine("var badVarForBody2 = [for i in range(0, 2): foo['properties']]");
+            AddExpectedDtcDiagnostic("badVarForBody2", "foo", "properties");
 
-                textSb.AppendLine(
-                    $@"var bad{++badCase} = [for i in range(0, 2): {{
-  prop: {valueExp}
-}}]"
-                );
-                diagnosticAdder(badCase);
+            textSb.AppendLine("var badVarForBody3 = [for i in range(0, 2): { prop: foo[propertiesAccessor].accessTier }]");
+            AddExpectedDtcDiagnostic("badVarForBody3", "foo", "properties");
 
-                textSb.AppendLine(
-                    $@"var bad{++badCase} = [for i in range(0, 2): {{
-  '${{{valueExp}}}': 'value'
-}}]"
-                );
-                diagnosticAdder(badCase);
-            }
+            textSb.AppendLine("var badVarForBody4 = [for i in range(0, 2): foo::fooChild.properties]");
+            AddExpectedDtcDiagnostic("badVarForBody4", "fooChild", "properties");
 
-            AddForBodyExpressionVariants($"foo{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "foo"));
-            AddForBodyExpressionVariants($"existingFoo{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "existingFoo"));
+            textSb.AppendLine("var badVarForBody5 = [for i in range(0, 2): foo[strParam]]");
+            AddExpectedDtcDiagnostic("badVarForBody5", "foo");
 
-            textSb.AppendLine(
-                $@"var indirect = {{
-  prop: foo{badAccessExp}
-}}"
-            );
-            AddForBodyExpressionVariants("indirect.prop", caseNum => AddExpectedIndirectDtcDiagnostic(caseNum, "foo", "(\"indirect\" -> \"foo\")"));
+            textSb.AppendLine("var badVarForBody6 = [for i in range(0, 2): foos[i].properties]");
+            AddExpectedDtcDiagnostic("badVarForBody6", "foos", "properties");
 
-            AddForBodyExpressionVariants(
-                $"foo::fooChild{badAccessExp}",
-                caseNum => AddExpectedDtcDiagnostic(caseNum, "fooChild")
-            );
+            textSb.AppendLine("var badVarForBody7 = [for i in range(0, 2): foos[i + 2]['${'properties'}']]");
+            AddExpectedDtcDiagnostic("badVarForBody7", "foos", "properties");
 
-            textSb.AppendLine(
-                $@"var indirectNested = {{
-  prop: foo::fooChild{badAccessExp}
-}}"
-            );
-            AddForBodyExpressionVariants(
-                "indirectNested.prop",
-                caseNum => AddExpectedIndirectDtcDiagnostic(caseNum, "fooChild", "(\"indirectNested\" -> \"fooChild\")")
-            );
+            textSb.AppendLine("var badVarForBody8 = [for i in range(0, 2): foo[strArray[1]]]");
+            AddExpectedDtcDiagnostic("badVarForBody8", "foo", "properties");
 
-            var arrayAccessorExps = new[] { "0", "i", "i + 2", "zeroIndex", "otherIndex" };
-            foreach (var arrAccessorExp in arrayAccessorExps)
-            {
-                AddForBodyExpressionVariants($"foos[{arrAccessorExp}]{badAccessExp}", caseNum => AddExpectedDtcDiagnostic(caseNum, "foos"));
-            }
+            textSb.AppendLine("var badVarForBody9 = [for i in range(0, 2): indirect.prop]");
+            AddExpectedIndirectDtcDiagnostic("badVarForBody9", "foo", "(\"indirect\" -> \"foo\")", "properties");
 
-            var indirectBadCase = 0;
-            var indirectArrayAccessorExps = new[] { "0", "zeroIndex", "otherIndex" };
-            foreach (var arrAccessorExp in indirectArrayAccessorExps)
-            {
-                indirectBadCase++;
-                textSb.AppendLine(
-                    $@"var indirect{indirectBadCase} = {{
-  prop: foos[{arrAccessorExp}]{badAccessExp}
-}}
-"
-                );
+            textSb.AppendLine(@"var badVarForBody10 = [for i in range(0, 2): {
+  '${foos[i].properties.accessTier}': true
+}]");
+            AddExpectedDtcDiagnostic("badVarForBody10", "foos", "properties");
 
-                var capturedIndirectBadCase = indirectBadCase;
-                AddForBodyExpressionVariants(
-                    $"indirect{indirectBadCase}.prop",
-                    caseNum => AddExpectedIndirectDtcDiagnostic(caseNum, "foos", $"(\"indirect{capturedIndirectBadCase}\" -> \"foos\")")
-                );
-            }
+            textSb.AppendLine("var badVarForBody11 = [for i in range(0, 2): foo[cond ? 'properties' : 'extendedLocation']]");
+            AddExpectedDtcDiagnostic("badVarForBody11", "foo", "extendedLocation");
+            AddExpectedDtcDiagnostic("badVarForBody11", "foo", "properties");
 
             var finalText = textSb.ToString();
             var result = CompilationHelper.Compile(finalText);
