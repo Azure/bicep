@@ -1,37 +1,84 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+//@    {
+//@      "type": "Microsoft.Storage/storageAccounts",
+//@      "apiVersion": "2022-09-01",
+//@      "name": "foo",
+//@    },
   name: 'foo'
   location: 'westus'
+//@      "location": "westus",
   sku: {
+//@      "sku": {
+//@      },
     name: 'Standard_LRS'
+//@        "name": "Standard_LRS"
   }
   kind: 'StorageV2'
+//@      "kind": "StorageV2"
 
   resource fooChild 'fileServices' = {
+//@    {
+//@      "type": "Microsoft.Storage/storageAccounts/fileServices",
+//@      "apiVersion": "2022-09-01",
+//@      "name": "[format('{0}/{1}', 'foo', 'default')]",
+//@      "dependsOn": [
+//@        "[resourceId('Microsoft.Storage/storageAccounts', 'foo')]"
+//@      ]
+//@    },
     name: 'default'
   }
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
+//@    {
+//@      "copy": {
+//@        "name": "foos",
+//@        "count": "[length(range(0, 2))]"
+//@      },
+//@      "type": "Microsoft.Storage/storageAccounts",
+//@      "apiVersion": "2022-09-01",
+//@      "name": "[format('foo-{0}', range(0, 2)[copyIndex()])]",
+//@    }
   name: 'foo-${i}'
   location: 'westus'
+//@      "location": "westus",
   sku: {
+//@      "sku": {
+//@      },
     name: 'Standard_LRS'
+//@        "name": "Standard_LRS"
   }
   kind: 'StorageV2'
+//@      "kind": "StorageV2"
 }]
 resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: 'existingFoo'
 }
 
 param cond bool = false
+//@    "cond": {
+//@      "type": "bool",
+//@      "defaultValue": false
+//@    }
 
 var zeroIndex = 0
+//@    "zeroIndex": 0,
 var otherIndex = zeroIndex + 2
+//@    "otherIndex": "[add(variables('zeroIndex'), 2)]",
 var idAccessor = 'id'
+//@    "idAccessor": "id",
 var dStr = 'd'
+//@    "dStr": "d",
 var idAccessor2 = idAccessor
+//@    "idAccessor2": "[variables('idAccessor')]",
 var idAccessorInterpolated = '${idAccessor}'
+//@    "idAccessorInterpolated": "[format('{0}', variables('idAccessor'))]",
 var idAccessorMixed = 'i${dStr}'
+//@    "idAccessorMixed": "[format('i{0}', variables('dStr'))]",
 var strArray = ['id', 'properties']
+//@    "strArray": [
+//@      "id",
+//@      "properties"
+//@    ]
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case1: foo.id
@@ -123,3 +170,4 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
+

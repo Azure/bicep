@@ -1,37 +1,100 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+//@[00:4116) ProgramExpression
+//@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
+//@[00:0222) ├─DeclaredResourceExpression
+//@[62:0222) | └─ObjectExpression
   name: 'foo'
   location: 'westus'
+//@[02:0020) |   ├─ObjectPropertyExpression
+//@[02:0010) |   | ├─StringLiteralExpression { Value = location }
+//@[12:0020) |   | └─StringLiteralExpression { Value = westus }
   sku: {
+//@[02:0037) |   ├─ObjectPropertyExpression
+//@[02:0005) |   | ├─StringLiteralExpression { Value = sku }
+//@[07:0037) |   | └─ObjectExpression
     name: 'Standard_LRS'
+//@[04:0024) |   |   └─ObjectPropertyExpression
+//@[04:0008) |   |     ├─StringLiteralExpression { Value = name }
+//@[10:0024) |   |     └─StringLiteralExpression { Value = Standard_LRS }
   }
   kind: 'StorageV2'
+//@[02:0019) |   └─ObjectPropertyExpression
+//@[02:0006) |     ├─StringLiteralExpression { Value = kind }
+//@[08:0019) |     └─StringLiteralExpression { Value = StorageV2 }
 
   resource fooChild 'fileServices' = {
+//@[02:0062) ├─DeclaredResourceExpression
+//@[37:0062) | ├─ObjectExpression
     name: 'default'
   }
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
+//@[00:0188) ├─DeclaredResourceExpression
+//@[63:0188) | └─ForLoopExpression
+//@[73:0084) |   ├─FunctionCallExpression { Name = range }
+//@[79:0080) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[82:0083) |   | └─IntegerLiteralExpression { Value = 2 }
+//@[86:0187) |   └─ObjectExpression
   name: 'foo-${i}'
   location: 'westus'
+//@[02:0020) |     ├─ObjectPropertyExpression
+//@[02:0010) |     | ├─StringLiteralExpression { Value = location }
+//@[12:0020) |     | └─StringLiteralExpression { Value = westus }
   sku: {
+//@[02:0037) |     ├─ObjectPropertyExpression
+//@[02:0005) |     | ├─StringLiteralExpression { Value = sku }
+//@[07:0037) |     | └─ObjectExpression
     name: 'Standard_LRS'
+//@[04:0024) |     |   └─ObjectPropertyExpression
+//@[04:0008) |     |     ├─StringLiteralExpression { Value = name }
+//@[10:0024) |     |     └─StringLiteralExpression { Value = Standard_LRS }
   }
   kind: 'StorageV2'
+//@[02:0019) |     └─ObjectPropertyExpression
+//@[02:0006) |       ├─StringLiteralExpression { Value = kind }
+//@[08:0019) |       └─StringLiteralExpression { Value = StorageV2 }
 }]
 resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+//@[00:0104) └─DeclaredResourceExpression
+//@[79:0104)   └─ObjectExpression
   name: 'existingFoo'
 }
 
 param cond bool = false
+//@[00:0023) ├─DeclaredParameterExpression { Name = cond }
+//@[18:0023) | └─BooleanLiteralExpression { Value = False }
 
 var zeroIndex = 0
+//@[00:0017) ├─DeclaredVariableExpression { Name = zeroIndex }
+//@[16:0017) | └─IntegerLiteralExpression { Value = 0 }
 var otherIndex = zeroIndex + 2
+//@[00:0030) ├─DeclaredVariableExpression { Name = otherIndex }
+//@[17:0030) | └─BinaryExpression { Operator = Add }
+//@[17:0026) |   ├─VariableReferenceExpression { Variable = zeroIndex }
+//@[29:0030) |   └─IntegerLiteralExpression { Value = 2 }
 var idAccessor = 'id'
+//@[00:0021) ├─DeclaredVariableExpression { Name = idAccessor }
+//@[17:0021) | └─StringLiteralExpression { Value = id }
 var dStr = 'd'
+//@[00:0014) ├─DeclaredVariableExpression { Name = dStr }
+//@[11:0014) | └─StringLiteralExpression { Value = d }
 var idAccessor2 = idAccessor
+//@[00:0028) ├─DeclaredVariableExpression { Name = idAccessor2 }
+//@[18:0028) | └─VariableReferenceExpression { Variable = idAccessor }
 var idAccessorInterpolated = '${idAccessor}'
+//@[00:0044) ├─DeclaredVariableExpression { Name = idAccessorInterpolated }
+//@[29:0044) | └─InterpolatedStringExpression
+//@[32:0042) |   └─VariableReferenceExpression { Variable = idAccessor }
 var idAccessorMixed = 'i${dStr}'
+//@[00:0032) ├─DeclaredVariableExpression { Name = idAccessorMixed }
+//@[22:0032) | └─InterpolatedStringExpression
+//@[26:0030) |   └─VariableReferenceExpression { Variable = dStr }
 var strArray = ['id', 'properties']
+//@[00:0035) ├─DeclaredVariableExpression { Name = strArray }
+//@[15:0035) | └─ArrayExpression
+//@[16:0020) |   ├─StringLiteralExpression { Value = id }
+//@[22:0034) |   └─StringLiteralExpression { Value = properties }
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case1: foo.id
@@ -123,3 +186,4 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
+

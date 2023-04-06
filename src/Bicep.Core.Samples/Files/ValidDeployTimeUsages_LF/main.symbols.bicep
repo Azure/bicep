@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[09:12) Resource foo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 233
+//@[09:12) Resource foo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 222
   name: 'foo'
   location: 'westus'
   sku: {
@@ -8,13 +8,13 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
 
   resource fooChild 'fileServices' = {
-//@[11:19) Resource fooChild. Type: Microsoft.Storage/storageAccounts/fileServices@2022-09-01. Declaration start char: 2, length: 62
+//@[11:19) Resource fooChild. Type: Microsoft.Storage/storageAccounts/fileServices@2022-09-01. Declaration start char: 2, length: 60
     name: 'default'
   }
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
-//@[09:13) Resource foos. Type: Microsoft.Storage/storageAccounts@2022-09-01[]. Declaration start char: 0, length: 195
+//@[09:13) Resource foos. Type: Microsoft.Storage/storageAccounts@2022-09-01[]. Declaration start char: 0, length: 188
   name: 'foo-${i}'
   location: 'westus'
   sku: {
@@ -23,7 +23,7 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
   kind: 'StorageV2'
 }]
 resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-//@[09:20) Resource existingFoo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 106
+//@[09:20) Resource existingFoo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 104
   name: 'existingFoo'
 }
 
@@ -49,7 +49,7 @@ var strArray = ['id', 'properties']
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
-//@[04:32) Variable varForBodyOkDeployTimeUsages. Type: object[]. Declaration start char: 0, length: 3431
+//@[04:32) Variable varForBodyOkDeployTimeUsages. Type: object[]. Declaration start char: 0, length: 3342
   case1: foo.id
   case2: existingFoo.id
   case3: foo::fooChild.id

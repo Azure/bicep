@@ -1,15 +1,15 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:4241) ProgramSyntax
-//@[00:0233) ├─ResourceDeclarationSyntax
+//@[00:4116) ProgramSyntax
+//@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
 //@[09:0012) | | └─Token(Identifier) |foo|
 //@[13:0059) | ├─StringSyntax
 //@[13:0059) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[60:0061) | ├─Token(Assignment) |=|
-//@[62:0233) | └─ObjectSyntax
+//@[62:0222) | └─ObjectSyntax
 //@[62:0063) |   ├─Token(LeftBrace) |{|
-//@[63:0065) |   ├─Token(NewLine) |\r\n|
+//@[63:0064) |   ├─Token(NewLine) |\n|
   name: 'foo'
 //@[02:0013) |   ├─ObjectPropertySyntax
 //@[02:0006) |   | ├─IdentifierSyntax
@@ -17,7 +17,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[06:0007) |   | ├─Token(Colon) |:|
 //@[08:0013) |   | └─StringSyntax
 //@[08:0013) |   |   └─Token(StringComplete) |'foo'|
-//@[13:0015) |   ├─Token(NewLine) |\r\n|
+//@[13:0014) |   ├─Token(NewLine) |\n|
   location: 'westus'
 //@[02:0020) |   ├─ObjectPropertySyntax
 //@[02:0010) |   | ├─IdentifierSyntax
@@ -25,15 +25,15 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[10:0011) |   | ├─Token(Colon) |:|
 //@[12:0020) |   | └─StringSyntax
 //@[12:0020) |   |   └─Token(StringComplete) |'westus'|
-//@[20:0022) |   ├─Token(NewLine) |\r\n|
+//@[20:0021) |   ├─Token(NewLine) |\n|
   sku: {
-//@[02:0039) |   ├─ObjectPropertySyntax
+//@[02:0037) |   ├─ObjectPropertySyntax
 //@[02:0005) |   | ├─IdentifierSyntax
 //@[02:0005) |   | | └─Token(Identifier) |sku|
 //@[05:0006) |   | ├─Token(Colon) |:|
-//@[07:0039) |   | └─ObjectSyntax
+//@[07:0037) |   | └─ObjectSyntax
 //@[07:0008) |   |   ├─Token(LeftBrace) |{|
-//@[08:0010) |   |   ├─Token(NewLine) |\r\n|
+//@[08:0009) |   |   ├─Token(NewLine) |\n|
     name: 'Standard_LRS'
 //@[04:0024) |   |   ├─ObjectPropertySyntax
 //@[04:0008) |   |   | ├─IdentifierSyntax
@@ -41,10 +41,10 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[08:0009) |   |   | ├─Token(Colon) |:|
 //@[10:0024) |   |   | └─StringSyntax
 //@[10:0024) |   |   |   └─Token(StringComplete) |'Standard_LRS'|
-//@[24:0026) |   |   ├─Token(NewLine) |\r\n|
+//@[24:0025) |   |   ├─Token(NewLine) |\n|
   }
 //@[02:0003) |   |   └─Token(RightBrace) |}|
-//@[03:0005) |   ├─Token(NewLine) |\r\n|
+//@[03:0004) |   ├─Token(NewLine) |\n|
   kind: 'StorageV2'
 //@[02:0019) |   ├─ObjectPropertySyntax
 //@[02:0006) |   | ├─IdentifierSyntax
@@ -52,19 +52,19 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[06:0007) |   | ├─Token(Colon) |:|
 //@[08:0019) |   | └─StringSyntax
 //@[08:0019) |   |   └─Token(StringComplete) |'StorageV2'|
-//@[19:0023) |   ├─Token(NewLine) |\r\n\r\n|
+//@[19:0021) |   ├─Token(NewLine) |\n\n|
 
   resource fooChild 'fileServices' = {
-//@[02:0064) |   ├─ResourceDeclarationSyntax
+//@[02:0062) |   ├─ResourceDeclarationSyntax
 //@[02:0010) |   | ├─Token(Identifier) |resource|
 //@[11:0019) |   | ├─IdentifierSyntax
 //@[11:0019) |   | | └─Token(Identifier) |fooChild|
 //@[20:0034) |   | ├─StringSyntax
 //@[20:0034) |   | | └─Token(StringComplete) |'fileServices'|
 //@[35:0036) |   | ├─Token(Assignment) |=|
-//@[37:0064) |   | └─ObjectSyntax
+//@[37:0062) |   | └─ObjectSyntax
 //@[37:0038) |   |   ├─Token(LeftBrace) |{|
-//@[38:0040) |   |   ├─Token(NewLine) |\r\n|
+//@[38:0039) |   |   ├─Token(NewLine) |\n|
     name: 'default'
 //@[04:0019) |   |   ├─ObjectPropertySyntax
 //@[04:0008) |   |   | ├─IdentifierSyntax
@@ -72,22 +72,22 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //@[08:0009) |   |   | ├─Token(Colon) |:|
 //@[10:0019) |   |   | └─StringSyntax
 //@[10:0019) |   |   |   └─Token(StringComplete) |'default'|
-//@[19:0021) |   |   ├─Token(NewLine) |\r\n|
+//@[19:0020) |   |   ├─Token(NewLine) |\n|
   }
 //@[02:0003) |   |   └─Token(RightBrace) |}|
-//@[03:0005) |   ├─Token(NewLine) |\r\n|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
-//@[01:0003) ├─Token(NewLine) |\r\n|
+//@[01:0002) ├─Token(NewLine) |\n|
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
-//@[00:0195) ├─ResourceDeclarationSyntax
+//@[00:0188) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0013) | ├─IdentifierSyntax
 //@[09:0013) | | └─Token(Identifier) |foos|
 //@[14:0060) | ├─StringSyntax
 //@[14:0060) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[61:0062) | ├─Token(Assignment) |=|
-//@[63:0195) | └─ForSyntax
+//@[63:0188) | └─ForSyntax
 //@[63:0064) |   ├─Token(LeftSquare) |[|
 //@[64:0067) |   ├─Token(Identifier) |for|
 //@[68:0069) |   ├─LocalVariableSyntax
@@ -107,9 +107,9 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
 //@[82:0083) |   | |   └─Token(Integer) |2|
 //@[83:0084) |   | └─Token(RightParen) |)|
 //@[84:0085) |   ├─Token(Colon) |:|
-//@[86:0194) |   ├─ObjectSyntax
+//@[86:0187) |   ├─ObjectSyntax
 //@[86:0087) |   | ├─Token(LeftBrace) |{|
-//@[87:0089) |   | ├─Token(NewLine) |\r\n|
+//@[87:0088) |   | ├─Token(NewLine) |\n|
   name: 'foo-${i}'
 //@[02:0018) |   | ├─ObjectPropertySyntax
 //@[02:0006) |   | | ├─IdentifierSyntax
@@ -121,7 +121,7 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
 //@[15:0016) |   | |   | └─IdentifierSyntax
 //@[15:0016) |   | |   |   └─Token(Identifier) |i|
 //@[16:0018) |   | |   └─Token(StringRightPiece) |}'|
-//@[18:0020) |   | ├─Token(NewLine) |\r\n|
+//@[18:0019) |   | ├─Token(NewLine) |\n|
   location: 'westus'
 //@[02:0020) |   | ├─ObjectPropertySyntax
 //@[02:0010) |   | | ├─IdentifierSyntax
@@ -129,15 +129,15 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
 //@[10:0011) |   | | ├─Token(Colon) |:|
 //@[12:0020) |   | | └─StringSyntax
 //@[12:0020) |   | |   └─Token(StringComplete) |'westus'|
-//@[20:0022) |   | ├─Token(NewLine) |\r\n|
+//@[20:0021) |   | ├─Token(NewLine) |\n|
   sku: {
-//@[02:0039) |   | ├─ObjectPropertySyntax
+//@[02:0037) |   | ├─ObjectPropertySyntax
 //@[02:0005) |   | | ├─IdentifierSyntax
 //@[02:0005) |   | | | └─Token(Identifier) |sku|
 //@[05:0006) |   | | ├─Token(Colon) |:|
-//@[07:0039) |   | | └─ObjectSyntax
+//@[07:0037) |   | | └─ObjectSyntax
 //@[07:0008) |   | |   ├─Token(LeftBrace) |{|
-//@[08:0010) |   | |   ├─Token(NewLine) |\r\n|
+//@[08:0009) |   | |   ├─Token(NewLine) |\n|
     name: 'Standard_LRS'
 //@[04:0024) |   | |   ├─ObjectPropertySyntax
 //@[04:0008) |   | |   | ├─IdentifierSyntax
@@ -145,10 +145,10 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
 //@[08:0009) |   | |   | ├─Token(Colon) |:|
 //@[10:0024) |   | |   | └─StringSyntax
 //@[10:0024) |   | |   |   └─Token(StringComplete) |'Standard_LRS'|
-//@[24:0026) |   | |   ├─Token(NewLine) |\r\n|
+//@[24:0025) |   | |   ├─Token(NewLine) |\n|
   }
 //@[02:0003) |   | |   └─Token(RightBrace) |}|
-//@[03:0005) |   | ├─Token(NewLine) |\r\n|
+//@[03:0004) |   | ├─Token(NewLine) |\n|
   kind: 'StorageV2'
 //@[02:0019) |   | ├─ObjectPropertySyntax
 //@[02:0006) |   | | ├─IdentifierSyntax
@@ -156,13 +156,13 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0
 //@[06:0007) |   | | ├─Token(Colon) |:|
 //@[08:0019) |   | | └─StringSyntax
 //@[08:0019) |   | |   └─Token(StringComplete) |'StorageV2'|
-//@[19:0021) |   | ├─Token(NewLine) |\r\n|
+//@[19:0020) |   | ├─Token(NewLine) |\n|
 }]
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|
-//@[02:0004) ├─Token(NewLine) |\r\n|
+//@[02:0003) ├─Token(NewLine) |\n|
 resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-//@[00:0106) ├─ResourceDeclarationSyntax
+//@[00:0104) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0020) | ├─IdentifierSyntax
 //@[09:0020) | | └─Token(Identifier) |existingFoo|
@@ -170,9 +170,9 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 //@[21:0067) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[68:0076) | ├─Token(Identifier) |existing|
 //@[77:0078) | ├─Token(Assignment) |=|
-//@[79:0106) | └─ObjectSyntax
+//@[79:0104) | └─ObjectSyntax
 //@[79:0080) |   ├─Token(LeftBrace) |{|
-//@[80:0082) |   ├─Token(NewLine) |\r\n|
+//@[80:0081) |   ├─Token(NewLine) |\n|
   name: 'existingFoo'
 //@[02:0021) |   ├─ObjectPropertySyntax
 //@[02:0006) |   | ├─IdentifierSyntax
@@ -180,10 +180,10 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 //@[06:0007) |   | ├─Token(Colon) |:|
 //@[08:0021) |   | └─StringSyntax
 //@[08:0021) |   |   └─Token(StringComplete) |'existingFoo'|
-//@[21:0023) |   ├─Token(NewLine) |\r\n|
+//@[21:0022) |   ├─Token(NewLine) |\n|
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
-//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 param cond bool = false
 //@[00:0023) ├─ParameterDeclarationSyntax
@@ -197,7 +197,7 @@ param cond bool = false
 //@[16:0017) |   ├─Token(Assignment) |=|
 //@[18:0023) |   └─BooleanLiteralSyntax
 //@[18:0023) |     └─Token(FalseKeyword) |false|
-//@[23:0027) ├─Token(NewLine) |\r\n\r\n|
+//@[23:0025) ├─Token(NewLine) |\n\n|
 
 var zeroIndex = 0
 //@[00:0017) ├─VariableDeclarationSyntax
@@ -207,7 +207,7 @@ var zeroIndex = 0
 //@[14:0015) | ├─Token(Assignment) |=|
 //@[16:0017) | └─IntegerLiteralSyntax
 //@[16:0017) |   └─Token(Integer) |0|
-//@[17:0019) ├─Token(NewLine) |\r\n|
+//@[17:0018) ├─Token(NewLine) |\n|
 var otherIndex = zeroIndex + 2
 //@[00:0030) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -221,7 +221,7 @@ var otherIndex = zeroIndex + 2
 //@[27:0028) |   ├─Token(Plus) |+|
 //@[29:0030) |   └─IntegerLiteralSyntax
 //@[29:0030) |     └─Token(Integer) |2|
-//@[30:0032) ├─Token(NewLine) |\r\n|
+//@[30:0031) ├─Token(NewLine) |\n|
 var idAccessor = 'id'
 //@[00:0021) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -230,7 +230,7 @@ var idAccessor = 'id'
 //@[15:0016) | ├─Token(Assignment) |=|
 //@[17:0021) | └─StringSyntax
 //@[17:0021) |   └─Token(StringComplete) |'id'|
-//@[21:0023) ├─Token(NewLine) |\r\n|
+//@[21:0022) ├─Token(NewLine) |\n|
 var dStr = 'd'
 //@[00:0014) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -239,7 +239,7 @@ var dStr = 'd'
 //@[09:0010) | ├─Token(Assignment) |=|
 //@[11:0014) | └─StringSyntax
 //@[11:0014) |   └─Token(StringComplete) |'d'|
-//@[14:0016) ├─Token(NewLine) |\r\n|
+//@[14:0015) ├─Token(NewLine) |\n|
 var idAccessor2 = idAccessor
 //@[00:0028) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -249,7 +249,7 @@ var idAccessor2 = idAccessor
 //@[18:0028) | └─VariableAccessSyntax
 //@[18:0028) |   └─IdentifierSyntax
 //@[18:0028) |     └─Token(Identifier) |idAccessor|
-//@[28:0030) ├─Token(NewLine) |\r\n|
+//@[28:0029) ├─Token(NewLine) |\n|
 var idAccessorInterpolated = '${idAccessor}'
 //@[00:0044) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -262,7 +262,7 @@ var idAccessorInterpolated = '${idAccessor}'
 //@[32:0042) |   | └─IdentifierSyntax
 //@[32:0042) |   |   └─Token(Identifier) |idAccessor|
 //@[42:0044) |   └─Token(StringRightPiece) |}'|
-//@[44:0046) ├─Token(NewLine) |\r\n|
+//@[44:0045) ├─Token(NewLine) |\n|
 var idAccessorMixed = 'i${dStr}'
 //@[00:0032) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -275,7 +275,7 @@ var idAccessorMixed = 'i${dStr}'
 //@[26:0030) |   | └─IdentifierSyntax
 //@[26:0030) |   |   └─Token(Identifier) |dStr|
 //@[30:0032) |   └─Token(StringRightPiece) |}'|
-//@[32:0034) ├─Token(NewLine) |\r\n|
+//@[32:0033) ├─Token(NewLine) |\n|
 var strArray = ['id', 'properties']
 //@[00:0035) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -292,15 +292,15 @@ var strArray = ['id', 'properties']
 //@[22:0034) |   | └─StringSyntax
 //@[22:0034) |   |   └─Token(StringComplete) |'properties'|
 //@[34:0035) |   └─Token(RightSquare) |]|
-//@[35:0039) ├─Token(NewLine) |\r\n\r\n|
+//@[35:0037) ├─Token(NewLine) |\n\n|
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
-//@[00:3431) ├─VariableDeclarationSyntax
+//@[00:3342) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0032) | ├─IdentifierSyntax
 //@[04:0032) | | └─Token(Identifier) |varForBodyOkDeployTimeUsages|
 //@[33:0034) | ├─Token(Assignment) |=|
-//@[35:3431) | └─ForSyntax
+//@[35:3342) | └─ForSyntax
 //@[35:0036) |   ├─Token(LeftSquare) |[|
 //@[36:0039) |   ├─Token(Identifier) |for|
 //@[40:0041) |   ├─LocalVariableSyntax
@@ -320,9 +320,9 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[54:0055) |   | |   └─Token(Integer) |2|
 //@[55:0056) |   | └─Token(RightParen) |)|
 //@[56:0057) |   ├─Token(Colon) |:|
-//@[58:3430) |   ├─ObjectSyntax
+//@[58:3341) |   ├─ObjectSyntax
 //@[58:0059) |   | ├─Token(LeftBrace) |{|
-//@[59:0061) |   | ├─Token(NewLine) |\r\n|
+//@[59:0060) |   | ├─Token(NewLine) |\n|
   case1: foo.id
 //@[02:0015) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -335,7 +335,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[12:0013) |   | |   ├─Token(Dot) |.|
 //@[13:0015) |   | |   └─IdentifierSyntax
 //@[13:0015) |   | |     └─Token(Identifier) |id|
-//@[15:0017) |   | ├─Token(NewLine) |\r\n|
+//@[15:0016) |   | ├─Token(NewLine) |\n|
   case2: existingFoo.id
 //@[02:0023) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -348,7 +348,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[20:0021) |   | |   ├─Token(Dot) |.|
 //@[21:0023) |   | |   └─IdentifierSyntax
 //@[21:0023) |   | |     └─Token(Identifier) |id|
-//@[23:0025) |   | ├─Token(NewLine) |\r\n|
+//@[23:0024) |   | ├─Token(NewLine) |\n|
   case3: foo::fooChild.id
 //@[02:0025) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -365,7 +365,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0023) |   | |   ├─Token(Dot) |.|
 //@[23:0025) |   | |   └─IdentifierSyntax
 //@[23:0025) |   | |     └─Token(Identifier) |id|
-//@[25:0027) |   | ├─Token(NewLine) |\r\n|
+//@[25:0026) |   | ├─Token(NewLine) |\n|
   case4: foos[0].id
 //@[02:0019) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -383,7 +383,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[16:0017) |   | |   ├─Token(Dot) |.|
 //@[17:0019) |   | |   └─IdentifierSyntax
 //@[17:0019) |   | |     └─Token(Identifier) |id|
-//@[19:0021) |   | ├─Token(NewLine) |\r\n|
+//@[19:0020) |   | ├─Token(NewLine) |\n|
   case5: foos[i].id
 //@[02:0019) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -402,7 +402,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[16:0017) |   | |   ├─Token(Dot) |.|
 //@[17:0019) |   | |   └─IdentifierSyntax
 //@[17:0019) |   | |     └─Token(Identifier) |id|
-//@[19:0021) |   | ├─Token(NewLine) |\r\n|
+//@[19:0020) |   | ├─Token(NewLine) |\n|
   case6: foos[i + 2].id
 //@[02:0023) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -425,7 +425,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[20:0021) |   | |   ├─Token(Dot) |.|
 //@[21:0023) |   | |   └─IdentifierSyntax
 //@[21:0023) |   | |     └─Token(Identifier) |id|
-//@[23:0025) |   | ├─Token(NewLine) |\r\n|
+//@[23:0024) |   | ├─Token(NewLine) |\n|
   case7: foos[zeroIndex].id
 //@[02:0027) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -444,7 +444,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0025) |   | |   ├─Token(Dot) |.|
 //@[25:0027) |   | |   └─IdentifierSyntax
 //@[25:0027) |   | |     └─Token(Identifier) |id|
-//@[27:0029) |   | ├─Token(NewLine) |\r\n|
+//@[27:0028) |   | ├─Token(NewLine) |\n|
   case8: foos[otherIndex].id
 //@[02:0028) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -463,7 +463,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[25:0026) |   | |   ├─Token(Dot) |.|
 //@[26:0028) |   | |   └─IdentifierSyntax
 //@[26:0028) |   | |     └─Token(Identifier) |id|
-//@[28:0030) |   | ├─Token(NewLine) |\r\n|
+//@[28:0029) |   | ├─Token(NewLine) |\n|
   case9: foo['id']
 //@[02:0018) |   | ├─ObjectPropertySyntax
 //@[02:0007) |   | | ├─IdentifierSyntax
@@ -477,7 +477,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[13:0017) |   | |   ├─StringSyntax
 //@[13:0017) |   | |   | └─Token(StringComplete) |'id'|
 //@[17:0018) |   | |   └─Token(RightSquare) |]|
-//@[18:0020) |   | ├─Token(NewLine) |\r\n|
+//@[18:0019) |   | ├─Token(NewLine) |\n|
   case10: existingFoo['id']
 //@[02:0027) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -491,7 +491,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0026) |   | |   ├─StringSyntax
 //@[22:0026) |   | |   | └─Token(StringComplete) |'id'|
 //@[26:0027) |   | |   └─Token(RightSquare) |]|
-//@[27:0029) |   | ├─Token(NewLine) |\r\n|
+//@[27:0028) |   | ├─Token(NewLine) |\n|
   case11: foo::fooChild['id']
 //@[02:0029) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -509,7 +509,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0028) |   | |   ├─StringSyntax
 //@[24:0028) |   | |   | └─Token(StringComplete) |'id'|
 //@[28:0029) |   | |   └─Token(RightSquare) |]|
-//@[29:0031) |   | ├─Token(NewLine) |\r\n|
+//@[29:0030) |   | ├─Token(NewLine) |\n|
   case12: foos[0]['id']
 //@[02:0023) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -528,7 +528,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0022) |   | |   ├─StringSyntax
 //@[18:0022) |   | |   | └─Token(StringComplete) |'id'|
 //@[22:0023) |   | |   └─Token(RightSquare) |]|
-//@[23:0025) |   | ├─Token(NewLine) |\r\n|
+//@[23:0024) |   | ├─Token(NewLine) |\n|
   case13: foos[i]['id']
 //@[02:0023) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -548,7 +548,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0022) |   | |   ├─StringSyntax
 //@[18:0022) |   | |   | └─Token(StringComplete) |'id'|
 //@[22:0023) |   | |   └─Token(RightSquare) |]|
-//@[23:0025) |   | ├─Token(NewLine) |\r\n|
+//@[23:0024) |   | ├─Token(NewLine) |\n|
   case14: foos[i + 2]['id']
 //@[02:0027) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -572,7 +572,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0026) |   | |   ├─StringSyntax
 //@[22:0026) |   | |   | └─Token(StringComplete) |'id'|
 //@[26:0027) |   | |   └─Token(RightSquare) |]|
-//@[27:0029) |   | ├─Token(NewLine) |\r\n|
+//@[27:0028) |   | ├─Token(NewLine) |\n|
   case15: foos[zeroIndex]['id']
 //@[02:0031) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -592,7 +592,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[26:0030) |   | |   ├─StringSyntax
 //@[26:0030) |   | |   | └─Token(StringComplete) |'id'|
 //@[30:0031) |   | |   └─Token(RightSquare) |]|
-//@[31:0033) |   | ├─Token(NewLine) |\r\n|
+//@[31:0032) |   | ├─Token(NewLine) |\n|
   case16: foos[otherIndex]['id']
 //@[02:0032) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -612,7 +612,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0031) |   | |   ├─StringSyntax
 //@[27:0031) |   | |   | └─Token(StringComplete) |'id'|
 //@[31:0032) |   | |   └─Token(RightSquare) |]|
-//@[32:0034) |   | ├─Token(NewLine) |\r\n|
+//@[32:0033) |   | ├─Token(NewLine) |\n|
   case17: foo[idAccessor]
 //@[02:0025) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -627,7 +627,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[14:0024) |   | |   | └─IdentifierSyntax
 //@[14:0024) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[24:0025) |   | |   └─Token(RightSquare) |]|
-//@[25:0027) |   | ├─Token(NewLine) |\r\n|
+//@[25:0026) |   | ├─Token(NewLine) |\n|
   case18: existingFoo[idAccessor]
 //@[02:0033) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -642,7 +642,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0032) |   | |   | └─IdentifierSyntax
 //@[22:0032) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[32:0033) |   | |   └─Token(RightSquare) |]|
-//@[33:0035) |   | ├─Token(NewLine) |\r\n|
+//@[33:0034) |   | ├─Token(NewLine) |\n|
   case19: foo::fooChild[idAccessor]
 //@[02:0035) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -661,7 +661,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0034) |   | |   | └─IdentifierSyntax
 //@[24:0034) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[34:0035) |   | |   └─Token(RightSquare) |]|
-//@[35:0037) |   | ├─Token(NewLine) |\r\n|
+//@[35:0036) |   | ├─Token(NewLine) |\n|
   case20: foos[0][idAccessor]
 //@[02:0029) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -681,7 +681,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0028) |   | |   | └─IdentifierSyntax
 //@[18:0028) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[28:0029) |   | |   └─Token(RightSquare) |]|
-//@[29:0031) |   | ├─Token(NewLine) |\r\n|
+//@[29:0030) |   | ├─Token(NewLine) |\n|
   case21: foos[i][idAccessor]
 //@[02:0029) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -702,7 +702,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0028) |   | |   | └─IdentifierSyntax
 //@[18:0028) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[28:0029) |   | |   └─Token(RightSquare) |]|
-//@[29:0031) |   | ├─Token(NewLine) |\r\n|
+//@[29:0030) |   | ├─Token(NewLine) |\n|
   case22: foos[i + 2][idAccessor]
 //@[02:0033) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -727,7 +727,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0032) |   | |   | └─IdentifierSyntax
 //@[22:0032) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[32:0033) |   | |   └─Token(RightSquare) |]|
-//@[33:0035) |   | ├─Token(NewLine) |\r\n|
+//@[33:0034) |   | ├─Token(NewLine) |\n|
   case23: foos[zeroIndex][idAccessor]
 //@[02:0037) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -748,7 +748,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[26:0036) |   | |   | └─IdentifierSyntax
 //@[26:0036) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[36:0037) |   | |   └─Token(RightSquare) |]|
-//@[37:0039) |   | ├─Token(NewLine) |\r\n|
+//@[37:0038) |   | ├─Token(NewLine) |\n|
   case24: foos[otherIndex][idAccessor]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -769,7 +769,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0037) |   | |   | └─IdentifierSyntax
 //@[27:0037) |   | |   |   └─Token(Identifier) |idAccessor|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case25: foo[idAccessor2]
 //@[02:0026) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -784,7 +784,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[14:0025) |   | |   | └─IdentifierSyntax
 //@[14:0025) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[25:0026) |   | |   └─Token(RightSquare) |]|
-//@[26:0028) |   | ├─Token(NewLine) |\r\n|
+//@[26:0027) |   | ├─Token(NewLine) |\n|
   case26: existingFoo[idAccessor2]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -799,7 +799,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0033) |   | |   | └─IdentifierSyntax
 //@[22:0033) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case27: foo::fooChild[idAccessor2]
 //@[02:0036) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -818,7 +818,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0035) |   | |   | └─IdentifierSyntax
 //@[24:0035) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[35:0036) |   | |   └─Token(RightSquare) |]|
-//@[36:0038) |   | ├─Token(NewLine) |\r\n|
+//@[36:0037) |   | ├─Token(NewLine) |\n|
   case28: foos[0][idAccessor2]
 //@[02:0030) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -838,7 +838,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0029) |   | |   | └─IdentifierSyntax
 //@[18:0029) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[29:0030) |   | |   └─Token(RightSquare) |]|
-//@[30:0032) |   | ├─Token(NewLine) |\r\n|
+//@[30:0031) |   | ├─Token(NewLine) |\n|
   case29: foos[i][idAccessor2]
 //@[02:0030) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -859,7 +859,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0029) |   | |   | └─IdentifierSyntax
 //@[18:0029) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[29:0030) |   | |   └─Token(RightSquare) |]|
-//@[30:0032) |   | ├─Token(NewLine) |\r\n|
+//@[30:0031) |   | ├─Token(NewLine) |\n|
   case30: foos[i + 2][idAccessor2]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -884,7 +884,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0033) |   | |   | └─IdentifierSyntax
 //@[22:0033) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case31: foos[zeroIndex][idAccessor2]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -905,7 +905,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[26:0037) |   | |   | └─IdentifierSyntax
 //@[26:0037) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case32: foos[otherIndex][idAccessor2]
 //@[02:0039) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -926,7 +926,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0038) |   | |   | └─IdentifierSyntax
 //@[27:0038) |   | |   |   └─Token(Identifier) |idAccessor2|
 //@[38:0039) |   | |   └─Token(RightSquare) |]|
-//@[39:0041) |   | ├─Token(NewLine) |\r\n|
+//@[39:0040) |   | ├─Token(NewLine) |\n|
   case33: foo['${'id'}']
 //@[02:0024) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -943,7 +943,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[17:0021) |   | |   | | └─Token(StringComplete) |'id'|
 //@[21:0023) |   | |   | └─Token(StringRightPiece) |}'|
 //@[23:0024) |   | |   └─Token(RightSquare) |]|
-//@[24:0026) |   | ├─Token(NewLine) |\r\n|
+//@[24:0025) |   | ├─Token(NewLine) |\n|
   case34: existingFoo['${'id'}']
 //@[02:0032) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -960,7 +960,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[25:0029) |   | |   | | └─Token(StringComplete) |'id'|
 //@[29:0031) |   | |   | └─Token(StringRightPiece) |}'|
 //@[31:0032) |   | |   └─Token(RightSquare) |]|
-//@[32:0034) |   | ├─Token(NewLine) |\r\n|
+//@[32:0033) |   | ├─Token(NewLine) |\n|
   case35: foo::fooChild['${'id'}']
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -981,7 +981,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0031) |   | |   | | └─Token(StringComplete) |'id'|
 //@[31:0033) |   | |   | └─Token(StringRightPiece) |}'|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case36: foos[0]['${'id'}']
 //@[02:0028) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1003,7 +1003,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[21:0025) |   | |   | | └─Token(StringComplete) |'id'|
 //@[25:0027) |   | |   | └─Token(StringRightPiece) |}'|
 //@[27:0028) |   | |   └─Token(RightSquare) |]|
-//@[28:0030) |   | ├─Token(NewLine) |\r\n|
+//@[28:0029) |   | ├─Token(NewLine) |\n|
   case37: foos[i]['${'id'}']
 //@[02:0028) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1026,7 +1026,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[21:0025) |   | |   | | └─Token(StringComplete) |'id'|
 //@[25:0027) |   | |   | └─Token(StringRightPiece) |}'|
 //@[27:0028) |   | |   └─Token(RightSquare) |]|
-//@[28:0030) |   | ├─Token(NewLine) |\r\n|
+//@[28:0029) |   | ├─Token(NewLine) |\n|
   case38: foos[i + 2]['${'id'}']
 //@[02:0032) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1053,7 +1053,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[25:0029) |   | |   | | └─Token(StringComplete) |'id'|
 //@[29:0031) |   | |   | └─Token(StringRightPiece) |}'|
 //@[31:0032) |   | |   └─Token(RightSquare) |]|
-//@[32:0034) |   | ├─Token(NewLine) |\r\n|
+//@[32:0033) |   | ├─Token(NewLine) |\n|
   case39: foos[zeroIndex]['${'id'}']
 //@[02:0036) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1076,7 +1076,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[29:0033) |   | |   | | └─Token(StringComplete) |'id'|
 //@[33:0035) |   | |   | └─Token(StringRightPiece) |}'|
 //@[35:0036) |   | |   └─Token(RightSquare) |]|
-//@[36:0038) |   | ├─Token(NewLine) |\r\n|
+//@[36:0037) |   | ├─Token(NewLine) |\n|
   case40: foos[otherIndex]['${'id'}']
 //@[02:0037) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1099,7 +1099,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[30:0034) |   | |   | | └─Token(StringComplete) |'id'|
 //@[34:0036) |   | |   | └─Token(StringRightPiece) |}'|
 //@[36:0037) |   | |   └─Token(RightSquare) |]|
-//@[37:0039) |   | ├─Token(NewLine) |\r\n|
+//@[37:0038) |   | ├─Token(NewLine) |\n|
   case41: foo[idAccessorInterpolated]
 //@[02:0037) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1114,7 +1114,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[14:0036) |   | |   | └─IdentifierSyntax
 //@[14:0036) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[36:0037) |   | |   └─Token(RightSquare) |]|
-//@[37:0039) |   | ├─Token(NewLine) |\r\n|
+//@[37:0038) |   | ├─Token(NewLine) |\n|
   case42: existingFoo[idAccessorInterpolated]
 //@[02:0045) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1129,7 +1129,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0044) |   | |   | └─IdentifierSyntax
 //@[22:0044) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[44:0045) |   | |   └─Token(RightSquare) |]|
-//@[45:0047) |   | ├─Token(NewLine) |\r\n|
+//@[45:0046) |   | ├─Token(NewLine) |\n|
   case43: foo::fooChild[idAccessorInterpolated]
 //@[02:0047) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1148,7 +1148,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0046) |   | |   | └─IdentifierSyntax
 //@[24:0046) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[46:0047) |   | |   └─Token(RightSquare) |]|
-//@[47:0049) |   | ├─Token(NewLine) |\r\n|
+//@[47:0048) |   | ├─Token(NewLine) |\n|
   case44: foos[0][idAccessorInterpolated]
 //@[02:0041) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1168,7 +1168,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0040) |   | |   | └─IdentifierSyntax
 //@[18:0040) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[40:0041) |   | |   └─Token(RightSquare) |]|
-//@[41:0043) |   | ├─Token(NewLine) |\r\n|
+//@[41:0042) |   | ├─Token(NewLine) |\n|
   case45: foos[i][idAccessorInterpolated]
 //@[02:0041) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1189,7 +1189,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0040) |   | |   | └─IdentifierSyntax
 //@[18:0040) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[40:0041) |   | |   └─Token(RightSquare) |]|
-//@[41:0043) |   | ├─Token(NewLine) |\r\n|
+//@[41:0042) |   | ├─Token(NewLine) |\n|
   case46: foos[i + 2][idAccessorInterpolated]
 //@[02:0045) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1214,7 +1214,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0044) |   | |   | └─IdentifierSyntax
 //@[22:0044) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[44:0045) |   | |   └─Token(RightSquare) |]|
-//@[45:0047) |   | ├─Token(NewLine) |\r\n|
+//@[45:0046) |   | ├─Token(NewLine) |\n|
   case47: foos[zeroIndex][idAccessorInterpolated]
 //@[02:0049) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1235,7 +1235,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[26:0048) |   | |   | └─IdentifierSyntax
 //@[26:0048) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[48:0049) |   | |   └─Token(RightSquare) |]|
-//@[49:0051) |   | ├─Token(NewLine) |\r\n|
+//@[49:0050) |   | ├─Token(NewLine) |\n|
   case48: foos[otherIndex][idAccessorInterpolated]
 //@[02:0050) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1256,7 +1256,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0049) |   | |   | └─IdentifierSyntax
 //@[27:0049) |   | |   |   └─Token(Identifier) |idAccessorInterpolated|
 //@[49:0050) |   | |   └─Token(RightSquare) |]|
-//@[50:0052) |   | ├─Token(NewLine) |\r\n|
+//@[50:0051) |   | ├─Token(NewLine) |\n|
   case49: foo[idAccessorMixed]
 //@[02:0030) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1271,7 +1271,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[14:0029) |   | |   | └─IdentifierSyntax
 //@[14:0029) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[29:0030) |   | |   └─Token(RightSquare) |]|
-//@[30:0032) |   | ├─Token(NewLine) |\r\n|
+//@[30:0031) |   | ├─Token(NewLine) |\n|
   case50: existingFoo[idAccessorMixed]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1286,7 +1286,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0037) |   | |   | └─IdentifierSyntax
 //@[22:0037) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case51: foo::fooChild[idAccessorMixed]
 //@[02:0040) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1305,7 +1305,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0039) |   | |   | └─IdentifierSyntax
 //@[24:0039) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[39:0040) |   | |   └─Token(RightSquare) |]|
-//@[40:0042) |   | ├─Token(NewLine) |\r\n|
+//@[40:0041) |   | ├─Token(NewLine) |\n|
   case52: foos[0][idAccessorMixed]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1325,7 +1325,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0033) |   | |   | └─IdentifierSyntax
 //@[18:0033) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case53: foos[i][idAccessorMixed]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1346,7 +1346,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[18:0033) |   | |   | └─IdentifierSyntax
 //@[18:0033) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case54: foos[i + 2][idAccessorMixed]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1371,7 +1371,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[22:0037) |   | |   | └─IdentifierSyntax
 //@[22:0037) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case55: foos[zeroIndex][idAccessorMixed]
 //@[02:0042) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1392,7 +1392,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[26:0041) |   | |   | └─IdentifierSyntax
 //@[26:0041) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[41:0042) |   | |   └─Token(RightSquare) |]|
-//@[42:0044) |   | ├─Token(NewLine) |\r\n|
+//@[42:0043) |   | ├─Token(NewLine) |\n|
   case56: foos[otherIndex][idAccessorMixed]
 //@[02:0043) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1413,7 +1413,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0042) |   | |   | └─IdentifierSyntax
 //@[27:0042) |   | |   |   └─Token(Identifier) |idAccessorMixed|
 //@[42:0043) |   | |   └─Token(RightSquare) |]|
-//@[43:0045) |   | ├─Token(NewLine) |\r\n|
+//@[43:0044) |   | ├─Token(NewLine) |\n|
   case57: foo[strArray[0]]
 //@[02:0026) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1433,7 +1433,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[23:0024) |   | |   | | └─Token(Integer) |0|
 //@[24:0025) |   | |   | └─Token(RightSquare) |]|
 //@[25:0026) |   | |   └─Token(RightSquare) |]|
-//@[26:0028) |   | ├─Token(NewLine) |\r\n|
+//@[26:0027) |   | ├─Token(NewLine) |\n|
   case58: existingFoo[strArray[0]]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1453,7 +1453,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[31:0032) |   | |   | | └─Token(Integer) |0|
 //@[32:0033) |   | |   | └─Token(RightSquare) |]|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case59: foo::fooChild[strArray[0]]
 //@[02:0036) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1477,7 +1477,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[33:0034) |   | |   | | └─Token(Integer) |0|
 //@[34:0035) |   | |   | └─Token(RightSquare) |]|
 //@[35:0036) |   | |   └─Token(RightSquare) |]|
-//@[36:0038) |   | ├─Token(NewLine) |\r\n|
+//@[36:0037) |   | ├─Token(NewLine) |\n|
   case60: foos[0][strArray[0]]
 //@[02:0030) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1502,7 +1502,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0028) |   | |   | | └─Token(Integer) |0|
 //@[28:0029) |   | |   | └─Token(RightSquare) |]|
 //@[29:0030) |   | |   └─Token(RightSquare) |]|
-//@[30:0032) |   | ├─Token(NewLine) |\r\n|
+//@[30:0031) |   | ├─Token(NewLine) |\n|
   case61: foos[i][strArray[0]]
 //@[02:0030) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1528,7 +1528,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[27:0028) |   | |   | | └─Token(Integer) |0|
 //@[28:0029) |   | |   | └─Token(RightSquare) |]|
 //@[29:0030) |   | |   └─Token(RightSquare) |]|
-//@[30:0032) |   | ├─Token(NewLine) |\r\n|
+//@[30:0031) |   | ├─Token(NewLine) |\n|
   case62: foos[i + 2][strArray[0]]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1558,7 +1558,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[31:0032) |   | |   | | └─Token(Integer) |0|
 //@[32:0033) |   | |   | └─Token(RightSquare) |]|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case63: foos[zeroIndex][strArray[0]]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1584,7 +1584,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[35:0036) |   | |   | | └─Token(Integer) |0|
 //@[36:0037) |   | |   | └─Token(RightSquare) |]|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case64: foos[otherIndex][strArray[0]]
 //@[02:0039) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1610,7 +1610,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[36:0037) |   | |   | | └─Token(Integer) |0|
 //@[37:0038) |   | |   | └─Token(RightSquare) |]|
 //@[38:0039) |   | |   └─Token(RightSquare) |]|
-//@[39:0041) |   | ├─Token(NewLine) |\r\n|
+//@[39:0040) |   | ├─Token(NewLine) |\n|
   case65: foo[first(strArray)]
 //@[02:0030) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1631,7 +1631,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[20:0028) |   | |   | |     └─Token(Identifier) |strArray|
 //@[28:0029) |   | |   | └─Token(RightParen) |)|
 //@[29:0030) |   | |   └─Token(RightSquare) |]|
-//@[30:0032) |   | ├─Token(NewLine) |\r\n|
+//@[30:0031) |   | ├─Token(NewLine) |\n|
   case66: existingFoo[first(strArray)]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1652,7 +1652,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[28:0036) |   | |   | |     └─Token(Identifier) |strArray|
 //@[36:0037) |   | |   | └─Token(RightParen) |)|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case67: foo::fooChild[first(strArray)]
 //@[02:0040) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1677,7 +1677,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[30:0038) |   | |   | |     └─Token(Identifier) |strArray|
 //@[38:0039) |   | |   | └─Token(RightParen) |)|
 //@[39:0040) |   | |   └─Token(RightSquare) |]|
-//@[40:0042) |   | ├─Token(NewLine) |\r\n|
+//@[40:0041) |   | ├─Token(NewLine) |\n|
   case68: foos[0][first(strArray)]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1703,7 +1703,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0032) |   | |   | |     └─Token(Identifier) |strArray|
 //@[32:0033) |   | |   | └─Token(RightParen) |)|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case69: foos[i][first(strArray)]
 //@[02:0034) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1730,7 +1730,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[24:0032) |   | |   | |     └─Token(Identifier) |strArray|
 //@[32:0033) |   | |   | └─Token(RightParen) |)|
 //@[33:0034) |   | |   └─Token(RightSquare) |]|
-//@[34:0036) |   | ├─Token(NewLine) |\r\n|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
   case70: foos[i + 2][first(strArray)]
 //@[02:0038) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1761,7 +1761,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[28:0036) |   | |   | |     └─Token(Identifier) |strArray|
 //@[36:0037) |   | |   | └─Token(RightParen) |)|
 //@[37:0038) |   | |   └─Token(RightSquare) |]|
-//@[38:0040) |   | ├─Token(NewLine) |\r\n|
+//@[38:0039) |   | ├─Token(NewLine) |\n|
   case71: foos[zeroIndex][first(strArray)]
 //@[02:0042) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1788,7 +1788,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[32:0040) |   | |   | |     └─Token(Identifier) |strArray|
 //@[40:0041) |   | |   | └─Token(RightParen) |)|
 //@[41:0042) |   | |   └─Token(RightSquare) |]|
-//@[42:0044) |   | ├─Token(NewLine) |\r\n|
+//@[42:0043) |   | ├─Token(NewLine) |\n|
   case72: foos[otherIndex][first(strArray)]
 //@[02:0043) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1815,7 +1815,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[33:0041) |   | |   | |     └─Token(Identifier) |strArray|
 //@[41:0042) |   | |   | └─Token(RightParen) |)|
 //@[42:0043) |   | |   └─Token(RightSquare) |]|
-//@[43:0045) |   | ├─Token(NewLine) |\r\n|
+//@[43:0044) |   | ├─Token(NewLine) |\n|
   case73: foo[cond ? 'id' : 'name']
 //@[02:0035) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1837,7 +1837,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[28:0034) |   | |   | └─StringSyntax
 //@[28:0034) |   | |   |   └─Token(StringComplete) |'name'|
 //@[34:0035) |   | |   └─Token(RightSquare) |]|
-//@[35:0037) |   | ├─Token(NewLine) |\r\n|
+//@[35:0036) |   | ├─Token(NewLine) |\n|
   case74: existingFoo[cond ? 'id' : 'name']
 //@[02:0043) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1859,7 +1859,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[36:0042) |   | |   | └─StringSyntax
 //@[36:0042) |   | |   |   └─Token(StringComplete) |'name'|
 //@[42:0043) |   | |   └─Token(RightSquare) |]|
-//@[43:0045) |   | ├─Token(NewLine) |\r\n|
+//@[43:0044) |   | ├─Token(NewLine) |\n|
   case75: foo::fooChild[cond ? 'id' : 'name']
 //@[02:0045) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1885,7 +1885,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[38:0044) |   | |   | └─StringSyntax
 //@[38:0044) |   | |   |   └─Token(StringComplete) |'name'|
 //@[44:0045) |   | |   └─Token(RightSquare) |]|
-//@[45:0047) |   | ├─Token(NewLine) |\r\n|
+//@[45:0046) |   | ├─Token(NewLine) |\n|
   case76: foos[0][cond ? 'id' : 'name']
 //@[02:0039) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1912,7 +1912,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[32:0038) |   | |   | └─StringSyntax
 //@[32:0038) |   | |   |   └─Token(StringComplete) |'name'|
 //@[38:0039) |   | |   └─Token(RightSquare) |]|
-//@[39:0041) |   | ├─Token(NewLine) |\r\n|
+//@[39:0040) |   | ├─Token(NewLine) |\n|
   case77: foos[i][cond ? 'id' : 'name']
 //@[02:0039) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1940,7 +1940,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[32:0038) |   | |   | └─StringSyntax
 //@[32:0038) |   | |   |   └─Token(StringComplete) |'name'|
 //@[38:0039) |   | |   └─Token(RightSquare) |]|
-//@[39:0041) |   | ├─Token(NewLine) |\r\n|
+//@[39:0040) |   | ├─Token(NewLine) |\n|
   case78: foos[i + 2][cond ? 'id' : 'name']
 //@[02:0043) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -1972,7 +1972,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[36:0042) |   | |   | └─StringSyntax
 //@[36:0042) |   | |   |   └─Token(StringComplete) |'name'|
 //@[42:0043) |   | |   └─Token(RightSquare) |]|
-//@[43:0045) |   | ├─Token(NewLine) |\r\n|
+//@[43:0044) |   | ├─Token(NewLine) |\n|
   case79: foos[zeroIndex][cond ? 'id' : 'name']
 //@[02:0047) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2000,7 +2000,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[40:0046) |   | |   | └─StringSyntax
 //@[40:0046) |   | |   |   └─Token(StringComplete) |'name'|
 //@[46:0047) |   | |   └─Token(RightSquare) |]|
-//@[47:0049) |   | ├─Token(NewLine) |\r\n|
+//@[47:0048) |   | ├─Token(NewLine) |\n|
   case80: foos[otherIndex][cond ? 'id' : 'name']
 //@[02:0048) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2028,7 +2028,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[41:0047) |   | |   | └─StringSyntax
 //@[41:0047) |   | |   |   └─Token(StringComplete) |'name'|
 //@[47:0048) |   | |   └─Token(RightSquare) |]|
-//@[48:0050) |   | ├─Token(NewLine) |\r\n|
+//@[48:0049) |   | ├─Token(NewLine) |\n|
   case81: foo[cond ? first(strArray) : strArray[0]]
 //@[02:0051) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2063,7 +2063,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[48:0049) |   | |   |   | └─Token(Integer) |0|
 //@[49:0050) |   | |   |   └─Token(RightSquare) |]|
 //@[50:0051) |   | |   └─Token(RightSquare) |]|
-//@[51:0053) |   | ├─Token(NewLine) |\r\n|
+//@[51:0052) |   | ├─Token(NewLine) |\n|
   case82: existingFoo[cond ? first(strArray) : strArray[0]]
 //@[02:0059) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2098,7 +2098,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[56:0057) |   | |   |   | └─Token(Integer) |0|
 //@[57:0058) |   | |   |   └─Token(RightSquare) |]|
 //@[58:0059) |   | |   └─Token(RightSquare) |]|
-//@[59:0061) |   | ├─Token(NewLine) |\r\n|
+//@[59:0060) |   | ├─Token(NewLine) |\n|
   case83: foo::fooChild[cond ? first(strArray) : strArray[0]]
 //@[02:0061) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2137,7 +2137,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[58:0059) |   | |   |   | └─Token(Integer) |0|
 //@[59:0060) |   | |   |   └─Token(RightSquare) |]|
 //@[60:0061) |   | |   └─Token(RightSquare) |]|
-//@[61:0063) |   | ├─Token(NewLine) |\r\n|
+//@[61:0062) |   | ├─Token(NewLine) |\n|
   case84: foos[0][cond ? first(strArray) : strArray[0]]
 //@[02:0055) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2177,7 +2177,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[52:0053) |   | |   |   | └─Token(Integer) |0|
 //@[53:0054) |   | |   |   └─Token(RightSquare) |]|
 //@[54:0055) |   | |   └─Token(RightSquare) |]|
-//@[55:0057) |   | ├─Token(NewLine) |\r\n|
+//@[55:0056) |   | ├─Token(NewLine) |\n|
   case85: foos[i][cond ? first(strArray) : strArray[0]]
 //@[02:0055) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2218,7 +2218,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[52:0053) |   | |   |   | └─Token(Integer) |0|
 //@[53:0054) |   | |   |   └─Token(RightSquare) |]|
 //@[54:0055) |   | |   └─Token(RightSquare) |]|
-//@[55:0057) |   | ├─Token(NewLine) |\r\n|
+//@[55:0056) |   | ├─Token(NewLine) |\n|
   case86: foos[i + 2][cond ? first(strArray) : strArray[0]]
 //@[02:0059) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2263,7 +2263,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[56:0057) |   | |   |   | └─Token(Integer) |0|
 //@[57:0058) |   | |   |   └─Token(RightSquare) |]|
 //@[58:0059) |   | |   └─Token(RightSquare) |]|
-//@[59:0061) |   | ├─Token(NewLine) |\r\n|
+//@[59:0060) |   | ├─Token(NewLine) |\n|
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
 //@[02:0063) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2304,7 +2304,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[60:0061) |   | |   |   | └─Token(Integer) |0|
 //@[61:0062) |   | |   |   └─Token(RightSquare) |]|
 //@[62:0063) |   | |   └─Token(RightSquare) |]|
-//@[63:0065) |   | ├─Token(NewLine) |\r\n|
+//@[63:0064) |   | ├─Token(NewLine) |\n|
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 //@[02:0064) |   | ├─ObjectPropertySyntax
 //@[02:0008) |   | | ├─IdentifierSyntax
@@ -2345,10 +2345,10 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[61:0062) |   | |   |   | └─Token(Integer) |0|
 //@[62:0063) |   | |   |   └─Token(RightSquare) |]|
 //@[63:0064) |   | |   └─Token(RightSquare) |]|
-//@[64:0066) |   | ├─Token(NewLine) |\r\n|
+//@[64:0065) |   | ├─Token(NewLine) |\n|
 }]
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|
-//@[02:0004) ├─Token(NewLine) |\r\n|
+//@[02:0003) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||
