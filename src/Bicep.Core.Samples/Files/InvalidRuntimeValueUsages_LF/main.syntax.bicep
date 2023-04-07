@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:5689) ProgramSyntax
+//@[00:5715) ProgramSyntax
 //@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
@@ -339,12 +339,12 @@ var strArray = ['id', 'properties']
 //@[35:0037) ├─Token(NewLine) |\n\n|
 
 var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
-//@[00:4567) ├─VariableDeclarationSyntax
+//@[00:4593) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0034) | ├─IdentifierSyntax
 //@[04:0034) | | └─Token(Identifier) |varForBodyInvalidRuntimeUsages|
 //@[35:0036) | ├─Token(Assignment) |=|
-//@[37:4567) | └─ForSyntax
+//@[37:4593) | └─ForSyntax
 //@[37:0038) |   ├─Token(LeftSquare) |[|
 //@[38:0041) |   ├─Token(Identifier) |for|
 //@[42:0043) |   ├─LocalVariableSyntax
@@ -364,7 +364,7 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[56:0057) |   | |   └─Token(Integer) |2|
 //@[57:0058) |   | └─Token(RightParen) |)|
 //@[58:0059) |   ├─Token(Colon) |:|
-//@[60:4566) |   ├─ObjectSyntax
+//@[60:4592) |   ├─ObjectSyntax
 //@[60:0061) |   | ├─Token(LeftBrace) |{|
 //@[61:0062) |   | ├─Token(NewLine) |\n|
   case1: foo
@@ -2871,6 +2871,26 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[30:0040) |   | |   └─IdentifierSyntax
 //@[30:0040) |   | |     └─Token(Identifier) |properties|
 //@[40:0041) |   | ├─Token(NewLine) |\n|
+  case114: foo[any('id')]
+//@[02:0025) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case114|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0025) |   | | └─ArrayAccessSyntax
+//@[11:0014) |   | |   ├─VariableAccessSyntax
+//@[11:0014) |   | |   | └─IdentifierSyntax
+//@[11:0014) |   | |   |   └─Token(Identifier) |foo|
+//@[14:0015) |   | |   ├─Token(LeftSquare) |[|
+//@[15:0024) |   | |   ├─FunctionCallSyntax
+//@[15:0018) |   | |   | ├─IdentifierSyntax
+//@[15:0018) |   | |   | | └─Token(Identifier) |any|
+//@[18:0019) |   | |   | ├─Token(LeftParen) |(|
+//@[19:0023) |   | |   | ├─FunctionArgumentSyntax
+//@[19:0023) |   | |   | | └─StringSyntax
+//@[19:0023) |   | |   | |   └─Token(StringComplete) |'id'|
+//@[23:0024) |   | |   | └─Token(RightParen) |)|
+//@[24:0025) |   | |   └─Token(RightSquare) |]|
+//@[25:0026) |   | ├─Token(NewLine) |\n|
 }]
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|

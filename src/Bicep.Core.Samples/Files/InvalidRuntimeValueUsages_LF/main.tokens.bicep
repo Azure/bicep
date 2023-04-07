@@ -1575,6 +1575,17 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[29:30) Dot |.|
 //@[30:40) Identifier |properties|
 //@[40:41) NewLine |\n|
+  case114: foo[any('id')]
+//@[02:09) Identifier |case114|
+//@[09:10) Colon |:|
+//@[11:14) Identifier |foo|
+//@[14:15) LeftSquare |[|
+//@[15:18) Identifier |any|
+//@[18:19) LeftParen |(|
+//@[19:23) StringComplete |'id'|
+//@[23:24) RightParen |)|
+//@[24:25) RightSquare |]|
+//@[25:26) NewLine |\n|
 }]
 //@[00:01) RightBrace |}|
 //@[01:02) RightSquare |]|

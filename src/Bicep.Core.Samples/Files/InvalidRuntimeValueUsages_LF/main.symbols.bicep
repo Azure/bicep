@@ -57,7 +57,7 @@ var strArray = ['id', 'properties']
 
 var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[42:43) Local i. Type: int. Declaration start char: 42, length: 1
-//@[04:34) Variable varForBodyInvalidRuntimeUsages. Type: object[]. Declaration start char: 0, length: 4567
+//@[04:34) Variable varForBodyInvalidRuntimeUsages. Type: object[]. Declaration start char: 0, length: 4593
   case1: foo
   case2: existingFoo
   case3: foo::fooChild
@@ -171,6 +171,7 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
   case111: foos[zeroIndex][cond ? 'id' : strParam]
   case112: foos[otherIndex][cond ? 'id' : strParam]
   case113: foos[cond ? 0 : 1].properties
+  case114: foo[any('id')]
 }]
 var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
 //@[51:52) Local i. Type: int. Declaration start char: 51, length: 1
