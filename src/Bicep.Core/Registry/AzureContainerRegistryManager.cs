@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -174,7 +175,7 @@ namespace Bicep.Core.Registry
             // so we must allow null here
             if(manifest.ArtifactType is not null && !string.Equals(manifest.ArtifactType, BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.");
+                throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.", InvalidModuleExceptionKind.WrongArtifactType);
             }
 
             ProcessConfig(manifest.Config);
@@ -211,7 +212,7 @@ namespace Bicep.Core.Registry
         {
             if (!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".");
+                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
 
             Response<DownloadBlobResult> blobResult;
@@ -252,18 +253,6 @@ namespace Bicep.Core.Registry
             catch (Exception exception)
             {
                 throw new InvalidModuleException("Unable to deserialize the module manifest.", exception);
-            }
-        }
-
-        private class InvalidModuleException : OciModuleRegistryException
-        {
-            public InvalidModuleException(string innerMessage) : base($"The OCI artifact is not a valid Bicep module. {innerMessage}")
-            {
-            }
-
-            public InvalidModuleException(string innerMessage, Exception innerException)
-                : base($"The OCI artifact is not a valid Bicep module. {innerMessage}", innerException)
-            {
             }
         }
     }

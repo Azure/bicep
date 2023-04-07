@@ -95,7 +95,7 @@ namespace Bicep.Core.Registry
                 // Found no module at all
                 return false;
             }
-            catch (RequestFailedException exception) when (exception.Message.StartsWith("The requested digest does not match the digest of the received manifest."))
+            catch (InvalidModuleException exception) when (exception.Kind == InvalidModuleExceptionKind.WrongArtifactType || exception.Kind == InvalidModuleExceptionKind.WrongModuleLayerMediaType)
             {
                 throw new ExternalModuleException("An artifact with the tag already exists in the registry, but the artifact is not a Bicep file or module!", exception);
             }
