@@ -78,6 +78,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
      * The name of the entry should match the name of the folder you create (same casing), and there should be a main.bicep file in that folder.
   1. Make changes to main.bicep.
   1. Create empty `main.<suffix>.bicep` assertion files in the folder. You need to create following suffixes: `diagnostics`, `formatted`, `symbols`, `syntax`, `tokens`
+     * If the dataset is expected to compile successfully, add an additional bicep files with suffixes `ir`, `sourcemap` and two json files `main.json` and `main.symbolicnames.json` with initial content `{}`.
   1. Follow [Updating test baselines](#updating-test-baselines) to generate baseline files.
 * The naming and file structure is important here as it's used by the test runner to assert e.g. whether the example should compile, and the end-of-line characters.
 * For tests that deal with module, you may see some unexpected behavior because the test could be using a mock file resolver instead of the standard one. Similarly, some tests may be using a mock resource type provider instead of the standard ones - usually that explains why some types aren't recognized in tests.
