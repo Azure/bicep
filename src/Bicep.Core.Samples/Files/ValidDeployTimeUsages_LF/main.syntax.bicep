@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:4330) ProgramSyntax
+//@[00:4400) ProgramSyntax
 //@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
@@ -295,12 +295,12 @@ var strArray = ['id', 'properties']
 //@[35:0037) ├─Token(NewLine) |\n\n|
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
-//@[00:3385) ├─VariableDeclarationSyntax
+//@[00:3455) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0032) | ├─IdentifierSyntax
 //@[04:0032) | | └─Token(Identifier) |varForBodyOkDeployTimeUsages|
 //@[33:0034) | ├─Token(Assignment) |=|
-//@[35:3385) | └─ForSyntax
+//@[35:3455) | └─ForSyntax
 //@[35:0036) |   ├─Token(LeftSquare) |[|
 //@[36:0039) |   ├─Token(Identifier) |for|
 //@[40:0041) |   ├─LocalVariableSyntax
@@ -320,7 +320,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[54:0055) |   | |   └─Token(Integer) |2|
 //@[55:0056) |   | └─Token(RightParen) |)|
 //@[56:0057) |   ├─Token(Colon) |:|
-//@[58:3384) |   ├─ObjectSyntax
+//@[58:3454) |   ├─ObjectSyntax
 //@[58:0059) |   | ├─Token(LeftBrace) |{|
 //@[59:0060) |   | ├─Token(NewLine) |\n|
   case1: foo.id
@@ -2375,6 +2375,68 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[37:0041) |   | |   | └─Token(StringComplete) |'id'|
 //@[41:0042) |   | |   └─Token(RightSquare) |]|
 //@[42:0043) |   | ├─Token(NewLine) |\n|
+  case90: foos[any(0)].id
+//@[02:0025) |   | ├─ObjectPropertySyntax
+//@[02:0008) |   | | ├─IdentifierSyntax
+//@[02:0008) |   | | | └─Token(Identifier) |case90|
+//@[08:0009) |   | | ├─Token(Colon) |:|
+//@[10:0025) |   | | └─PropertyAccessSyntax
+//@[10:0022) |   | |   ├─ArrayAccessSyntax
+//@[10:0014) |   | |   | ├─VariableAccessSyntax
+//@[10:0014) |   | |   | | └─IdentifierSyntax
+//@[10:0014) |   | |   | |   └─Token(Identifier) |foos|
+//@[14:0015) |   | |   | ├─Token(LeftSquare) |[|
+//@[15:0021) |   | |   | ├─FunctionCallSyntax
+//@[15:0018) |   | |   | | ├─IdentifierSyntax
+//@[15:0018) |   | |   | | | └─Token(Identifier) |any|
+//@[18:0019) |   | |   | | ├─Token(LeftParen) |(|
+//@[19:0020) |   | |   | | ├─FunctionArgumentSyntax
+//@[19:0020) |   | |   | | | └─IntegerLiteralSyntax
+//@[19:0020) |   | |   | | |   └─Token(Integer) |0|
+//@[20:0021) |   | |   | | └─Token(RightParen) |)|
+//@[21:0022) |   | |   | └─Token(RightSquare) |]|
+//@[22:0023) |   | |   ├─Token(Dot) |.|
+//@[23:0025) |   | |   └─IdentifierSyntax
+//@[23:0025) |   | |     └─Token(Identifier) |id|
+//@[25:0026) |   | ├─Token(NewLine) |\n|
+  case91: foos[cond ? any(0) : i - 1]['id']
+//@[02:0043) |   | ├─ObjectPropertySyntax
+//@[02:0008) |   | | ├─IdentifierSyntax
+//@[02:0008) |   | | | └─Token(Identifier) |case91|
+//@[08:0009) |   | | ├─Token(Colon) |:|
+//@[10:0043) |   | | └─ArrayAccessSyntax
+//@[10:0037) |   | |   ├─ArrayAccessSyntax
+//@[10:0014) |   | |   | ├─VariableAccessSyntax
+//@[10:0014) |   | |   | | └─IdentifierSyntax
+//@[10:0014) |   | |   | |   └─Token(Identifier) |foos|
+//@[14:0015) |   | |   | ├─Token(LeftSquare) |[|
+//@[15:0036) |   | |   | ├─TernaryOperationSyntax
+//@[15:0019) |   | |   | | ├─VariableAccessSyntax
+//@[15:0019) |   | |   | | | └─IdentifierSyntax
+//@[15:0019) |   | |   | | |   └─Token(Identifier) |cond|
+//@[20:0021) |   | |   | | ├─Token(Question) |?|
+//@[22:0028) |   | |   | | ├─FunctionCallSyntax
+//@[22:0025) |   | |   | | | ├─IdentifierSyntax
+//@[22:0025) |   | |   | | | | └─Token(Identifier) |any|
+//@[25:0026) |   | |   | | | ├─Token(LeftParen) |(|
+//@[26:0027) |   | |   | | | ├─FunctionArgumentSyntax
+//@[26:0027) |   | |   | | | | └─IntegerLiteralSyntax
+//@[26:0027) |   | |   | | | |   └─Token(Integer) |0|
+//@[27:0028) |   | |   | | | └─Token(RightParen) |)|
+//@[29:0030) |   | |   | | ├─Token(Colon) |:|
+//@[31:0036) |   | |   | | └─BinaryOperationSyntax
+//@[31:0032) |   | |   | |   ├─VariableAccessSyntax
+//@[31:0032) |   | |   | |   | └─IdentifierSyntax
+//@[31:0032) |   | |   | |   |   └─Token(Identifier) |i|
+//@[33:0034) |   | |   | |   ├─Token(Minus) |-|
+//@[35:0036) |   | |   | |   └─IntegerLiteralSyntax
+//@[35:0036) |   | |   | |     └─Token(Integer) |1|
+//@[36:0037) |   | |   | └─Token(RightSquare) |]|
+//@[37:0038) |   | |   ├─Token(LeftSquare) |[|
+//@[38:0042) |   | |   ├─StringSyntax
+//@[38:0042) |   | |   | └─Token(StringComplete) |'id'|
+//@[42:0043) |   | |   └─Token(RightSquare) |]|
+//@[43:0044) |   | ├─Token(NewLine) |\n|
 }]
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|

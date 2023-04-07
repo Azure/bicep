@@ -27,6 +27,8 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: 'existingFoo'
 }
 
+param intParam int = 0
+//@[06:14) Parameter intParam. Type: int. Declaration start char: 0, length: 22
 param strParam string = 'id'
 //@[06:14) Parameter strParam. Type: string. Declaration start char: 0, length: 28
 param strParam2 string = 'd'
@@ -54,10 +56,12 @@ var accessTierAccessor = 'accessTier'
 //@[04:22) Variable accessTierAccessor. Type: 'accessTier'. Declaration start char: 0, length: 37
 var strArray = ['id', 'properties']
 //@[04:12) Variable strArray. Type: ['id', 'properties']. Declaration start char: 0, length: 35
+var intArray = [0, 1]
+//@[04:12) Variable intArray. Type: [0, 1]. Declaration start char: 0, length: 21
 
 var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[42:43) Local i. Type: int. Declaration start char: 42, length: 1
-//@[04:34) Variable varForBodyInvalidRuntimeUsages. Type: object[]. Declaration start char: 0, length: 4593
+//@[04:34) Variable varForBodyInvalidRuntimeUsages. Type: object[]. Declaration start char: 0, length: 4824
   case1: foo
   case2: existingFoo
   case3: foo::fooChild
@@ -172,6 +176,13 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
   case112: foos[otherIndex][cond ? 'id' : strParam]
   case113: foos[cond ? 0 : 1].properties
   case114: foo[any('id')]
+  case115: foos[any(0)]
+  case116: foos[cond ? i : 0]
+  case117: foos[cond ? i : i - 1]
+  case118: foos[cond ? i + 1 : i - 1]
+  case119: foos[cond ? any(0) : i]
+  case120: foos[cond ? i : first(intArray)]
+  case121: foos[intParam]
 }]
 var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
 //@[51:52) Local i. Type: int. Declaration start char: 51, length: 1

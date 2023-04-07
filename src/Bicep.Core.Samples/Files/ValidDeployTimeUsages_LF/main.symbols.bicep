@@ -49,7 +49,7 @@ var strArray = ['id', 'properties']
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
-//@[04:32) Variable varForBodyOkDeployTimeUsages. Type: object[]. Declaration start char: 0, length: 3385
+//@[04:32) Variable varForBodyOkDeployTimeUsages. Type: object[]. Declaration start char: 0, length: 3455
   case1: foo.id
   case2: existingFoo.id
   case3: foo::fooChild.id
@@ -139,6 +139,8 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
   case89: foos[cond ? i : zeroIndex]['id']
+  case90: foos[any(0)].id
+  case91: foos[cond ? any(0) : i - 1]['id']
 }]
 var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
 //@[49:50) Local i. Type: int. Declaration start char: 49, length: 1

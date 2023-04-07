@@ -121,6 +121,13 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
+param intParam int = 0
+//@[00:05) Identifier |param|
+//@[06:14) Identifier |intParam|
+//@[15:18) Identifier |int|
+//@[19:20) Assignment |=|
+//@[21:22) Integer |0|
+//@[22:23) NewLine |\n|
 param strParam string = 'id'
 //@[00:05) Identifier |param|
 //@[06:14) Identifier |strParam|
@@ -212,7 +219,17 @@ var strArray = ['id', 'properties']
 //@[20:21) Comma |,|
 //@[22:34) StringComplete |'properties'|
 //@[34:35) RightSquare |]|
-//@[35:37) NewLine |\n\n|
+//@[35:36) NewLine |\n|
+var intArray = [0, 1]
+//@[00:03) Identifier |var|
+//@[04:12) Identifier |intArray|
+//@[13:14) Assignment |=|
+//@[15:16) LeftSquare |[|
+//@[16:17) Integer |0|
+//@[17:18) Comma |,|
+//@[19:20) Integer |1|
+//@[20:21) RightSquare |]|
+//@[21:23) NewLine |\n\n|
 
 var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[00:03) Identifier |var|
@@ -1584,6 +1601,97 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[18:19) LeftParen |(|
 //@[19:23) StringComplete |'id'|
 //@[23:24) RightParen |)|
+//@[24:25) RightSquare |]|
+//@[25:26) NewLine |\n|
+  case115: foos[any(0)]
+//@[02:09) Identifier |case115|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:19) Identifier |any|
+//@[19:20) LeftParen |(|
+//@[20:21) Integer |0|
+//@[21:22) RightParen |)|
+//@[22:23) RightSquare |]|
+//@[23:24) NewLine |\n|
+  case116: foos[cond ? i : 0]
+//@[02:09) Identifier |case116|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:20) Identifier |cond|
+//@[21:22) Question |?|
+//@[23:24) Identifier |i|
+//@[25:26) Colon |:|
+//@[27:28) Integer |0|
+//@[28:29) RightSquare |]|
+//@[29:30) NewLine |\n|
+  case117: foos[cond ? i : i - 1]
+//@[02:09) Identifier |case117|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:20) Identifier |cond|
+//@[21:22) Question |?|
+//@[23:24) Identifier |i|
+//@[25:26) Colon |:|
+//@[27:28) Identifier |i|
+//@[29:30) Minus |-|
+//@[31:32) Integer |1|
+//@[32:33) RightSquare |]|
+//@[33:34) NewLine |\n|
+  case118: foos[cond ? i + 1 : i - 1]
+//@[02:09) Identifier |case118|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:20) Identifier |cond|
+//@[21:22) Question |?|
+//@[23:24) Identifier |i|
+//@[25:26) Plus |+|
+//@[27:28) Integer |1|
+//@[29:30) Colon |:|
+//@[31:32) Identifier |i|
+//@[33:34) Minus |-|
+//@[35:36) Integer |1|
+//@[36:37) RightSquare |]|
+//@[37:38) NewLine |\n|
+  case119: foos[cond ? any(0) : i]
+//@[02:09) Identifier |case119|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:20) Identifier |cond|
+//@[21:22) Question |?|
+//@[23:26) Identifier |any|
+//@[26:27) LeftParen |(|
+//@[27:28) Integer |0|
+//@[28:29) RightParen |)|
+//@[30:31) Colon |:|
+//@[32:33) Identifier |i|
+//@[33:34) RightSquare |]|
+//@[34:35) NewLine |\n|
+  case120: foos[cond ? i : first(intArray)]
+//@[02:09) Identifier |case120|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:20) Identifier |cond|
+//@[21:22) Question |?|
+//@[23:24) Identifier |i|
+//@[25:26) Colon |:|
+//@[27:32) Identifier |first|
+//@[32:33) LeftParen |(|
+//@[33:41) Identifier |intArray|
+//@[41:42) RightParen |)|
+//@[42:43) RightSquare |]|
+//@[43:44) NewLine |\n|
+  case121: foos[intParam]
+//@[02:09) Identifier |case121|
+//@[09:10) Colon |:|
+//@[11:15) Identifier |foos|
+//@[15:16) LeftSquare |[|
+//@[16:24) Identifier |intParam|
 //@[24:25) RightSquare |]|
 //@[25:26) NewLine |\n|
 }]

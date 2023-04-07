@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:5715) ProgramSyntax
+//@[00:5991) ProgramSyntax
 //@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
@@ -185,6 +185,19 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
+param intParam int = 0
+//@[00:0022) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0014) | ├─IdentifierSyntax
+//@[06:0014) | | └─Token(Identifier) |intParam|
+//@[15:0018) | ├─VariableAccessSyntax
+//@[15:0018) | | └─IdentifierSyntax
+//@[15:0018) | |   └─Token(Identifier) |int|
+//@[19:0022) | └─ParameterDefaultValueSyntax
+//@[19:0020) |   ├─Token(Assignment) |=|
+//@[21:0022) |   └─IntegerLiteralSyntax
+//@[21:0022) |     └─Token(Integer) |0|
+//@[22:0023) ├─Token(NewLine) |\n|
 param strParam string = 'id'
 //@[00:0028) ├─ParameterDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |param|
@@ -336,15 +349,32 @@ var strArray = ['id', 'properties']
 //@[22:0034) |   | └─StringSyntax
 //@[22:0034) |   |   └─Token(StringComplete) |'properties'|
 //@[34:0035) |   └─Token(RightSquare) |]|
-//@[35:0037) ├─Token(NewLine) |\n\n|
+//@[35:0036) ├─Token(NewLine) |\n|
+var intArray = [0, 1]
+//@[00:0021) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0012) | ├─IdentifierSyntax
+//@[04:0012) | | └─Token(Identifier) |intArray|
+//@[13:0014) | ├─Token(Assignment) |=|
+//@[15:0021) | └─ArraySyntax
+//@[15:0016) |   ├─Token(LeftSquare) |[|
+//@[16:0017) |   ├─ArrayItemSyntax
+//@[16:0017) |   | └─IntegerLiteralSyntax
+//@[16:0017) |   |   └─Token(Integer) |0|
+//@[17:0018) |   ├─Token(Comma) |,|
+//@[19:0020) |   ├─ArrayItemSyntax
+//@[19:0020) |   | └─IntegerLiteralSyntax
+//@[19:0020) |   |   └─Token(Integer) |1|
+//@[20:0021) |   └─Token(RightSquare) |]|
+//@[21:0023) ├─Token(NewLine) |\n\n|
 
 var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
-//@[00:4593) ├─VariableDeclarationSyntax
+//@[00:4824) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0034) | ├─IdentifierSyntax
 //@[04:0034) | | └─Token(Identifier) |varForBodyInvalidRuntimeUsages|
 //@[35:0036) | ├─Token(Assignment) |=|
-//@[37:4593) | └─ForSyntax
+//@[37:4824) | └─ForSyntax
 //@[37:0038) |   ├─Token(LeftSquare) |[|
 //@[38:0041) |   ├─Token(Identifier) |for|
 //@[42:0043) |   ├─LocalVariableSyntax
@@ -364,7 +394,7 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[56:0057) |   | |   └─Token(Integer) |2|
 //@[57:0058) |   | └─Token(RightParen) |)|
 //@[58:0059) |   ├─Token(Colon) |:|
-//@[60:4592) |   ├─ObjectSyntax
+//@[60:4823) |   ├─ObjectSyntax
 //@[60:0061) |   | ├─Token(LeftBrace) |{|
 //@[61:0062) |   | ├─Token(NewLine) |\n|
   case1: foo
@@ -2889,6 +2919,183 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[19:0023) |   | |   | | └─StringSyntax
 //@[19:0023) |   | |   | |   └─Token(StringComplete) |'id'|
 //@[23:0024) |   | |   | └─Token(RightParen) |)|
+//@[24:0025) |   | |   └─Token(RightSquare) |]|
+//@[25:0026) |   | ├─Token(NewLine) |\n|
+  case115: foos[any(0)]
+//@[02:0023) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case115|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0023) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0022) |   | |   ├─FunctionCallSyntax
+//@[16:0019) |   | |   | ├─IdentifierSyntax
+//@[16:0019) |   | |   | | └─Token(Identifier) |any|
+//@[19:0020) |   | |   | ├─Token(LeftParen) |(|
+//@[20:0021) |   | |   | ├─FunctionArgumentSyntax
+//@[20:0021) |   | |   | | └─IntegerLiteralSyntax
+//@[20:0021) |   | |   | |   └─Token(Integer) |0|
+//@[21:0022) |   | |   | └─Token(RightParen) |)|
+//@[22:0023) |   | |   └─Token(RightSquare) |]|
+//@[23:0024) |   | ├─Token(NewLine) |\n|
+  case116: foos[cond ? i : 0]
+//@[02:0029) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case116|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0029) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0028) |   | |   ├─TernaryOperationSyntax
+//@[16:0020) |   | |   | ├─VariableAccessSyntax
+//@[16:0020) |   | |   | | └─IdentifierSyntax
+//@[16:0020) |   | |   | |   └─Token(Identifier) |cond|
+//@[21:0022) |   | |   | ├─Token(Question) |?|
+//@[23:0024) |   | |   | ├─VariableAccessSyntax
+//@[23:0024) |   | |   | | └─IdentifierSyntax
+//@[23:0024) |   | |   | |   └─Token(Identifier) |i|
+//@[25:0026) |   | |   | ├─Token(Colon) |:|
+//@[27:0028) |   | |   | └─IntegerLiteralSyntax
+//@[27:0028) |   | |   |   └─Token(Integer) |0|
+//@[28:0029) |   | |   └─Token(RightSquare) |]|
+//@[29:0030) |   | ├─Token(NewLine) |\n|
+  case117: foos[cond ? i : i - 1]
+//@[02:0033) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case117|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0033) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0032) |   | |   ├─TernaryOperationSyntax
+//@[16:0020) |   | |   | ├─VariableAccessSyntax
+//@[16:0020) |   | |   | | └─IdentifierSyntax
+//@[16:0020) |   | |   | |   └─Token(Identifier) |cond|
+//@[21:0022) |   | |   | ├─Token(Question) |?|
+//@[23:0024) |   | |   | ├─VariableAccessSyntax
+//@[23:0024) |   | |   | | └─IdentifierSyntax
+//@[23:0024) |   | |   | |   └─Token(Identifier) |i|
+//@[25:0026) |   | |   | ├─Token(Colon) |:|
+//@[27:0032) |   | |   | └─BinaryOperationSyntax
+//@[27:0028) |   | |   |   ├─VariableAccessSyntax
+//@[27:0028) |   | |   |   | └─IdentifierSyntax
+//@[27:0028) |   | |   |   |   └─Token(Identifier) |i|
+//@[29:0030) |   | |   |   ├─Token(Minus) |-|
+//@[31:0032) |   | |   |   └─IntegerLiteralSyntax
+//@[31:0032) |   | |   |     └─Token(Integer) |1|
+//@[32:0033) |   | |   └─Token(RightSquare) |]|
+//@[33:0034) |   | ├─Token(NewLine) |\n|
+  case118: foos[cond ? i + 1 : i - 1]
+//@[02:0037) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case118|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0037) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0036) |   | |   ├─TernaryOperationSyntax
+//@[16:0020) |   | |   | ├─VariableAccessSyntax
+//@[16:0020) |   | |   | | └─IdentifierSyntax
+//@[16:0020) |   | |   | |   └─Token(Identifier) |cond|
+//@[21:0022) |   | |   | ├─Token(Question) |?|
+//@[23:0028) |   | |   | ├─BinaryOperationSyntax
+//@[23:0024) |   | |   | | ├─VariableAccessSyntax
+//@[23:0024) |   | |   | | | └─IdentifierSyntax
+//@[23:0024) |   | |   | | |   └─Token(Identifier) |i|
+//@[25:0026) |   | |   | | ├─Token(Plus) |+|
+//@[27:0028) |   | |   | | └─IntegerLiteralSyntax
+//@[27:0028) |   | |   | |   └─Token(Integer) |1|
+//@[29:0030) |   | |   | ├─Token(Colon) |:|
+//@[31:0036) |   | |   | └─BinaryOperationSyntax
+//@[31:0032) |   | |   |   ├─VariableAccessSyntax
+//@[31:0032) |   | |   |   | └─IdentifierSyntax
+//@[31:0032) |   | |   |   |   └─Token(Identifier) |i|
+//@[33:0034) |   | |   |   ├─Token(Minus) |-|
+//@[35:0036) |   | |   |   └─IntegerLiteralSyntax
+//@[35:0036) |   | |   |     └─Token(Integer) |1|
+//@[36:0037) |   | |   └─Token(RightSquare) |]|
+//@[37:0038) |   | ├─Token(NewLine) |\n|
+  case119: foos[cond ? any(0) : i]
+//@[02:0034) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case119|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0034) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0033) |   | |   ├─TernaryOperationSyntax
+//@[16:0020) |   | |   | ├─VariableAccessSyntax
+//@[16:0020) |   | |   | | └─IdentifierSyntax
+//@[16:0020) |   | |   | |   └─Token(Identifier) |cond|
+//@[21:0022) |   | |   | ├─Token(Question) |?|
+//@[23:0029) |   | |   | ├─FunctionCallSyntax
+//@[23:0026) |   | |   | | ├─IdentifierSyntax
+//@[23:0026) |   | |   | | | └─Token(Identifier) |any|
+//@[26:0027) |   | |   | | ├─Token(LeftParen) |(|
+//@[27:0028) |   | |   | | ├─FunctionArgumentSyntax
+//@[27:0028) |   | |   | | | └─IntegerLiteralSyntax
+//@[27:0028) |   | |   | | |   └─Token(Integer) |0|
+//@[28:0029) |   | |   | | └─Token(RightParen) |)|
+//@[30:0031) |   | |   | ├─Token(Colon) |:|
+//@[32:0033) |   | |   | └─VariableAccessSyntax
+//@[32:0033) |   | |   |   └─IdentifierSyntax
+//@[32:0033) |   | |   |     └─Token(Identifier) |i|
+//@[33:0034) |   | |   └─Token(RightSquare) |]|
+//@[34:0035) |   | ├─Token(NewLine) |\n|
+  case120: foos[cond ? i : first(intArray)]
+//@[02:0043) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case120|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0043) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0042) |   | |   ├─TernaryOperationSyntax
+//@[16:0020) |   | |   | ├─VariableAccessSyntax
+//@[16:0020) |   | |   | | └─IdentifierSyntax
+//@[16:0020) |   | |   | |   └─Token(Identifier) |cond|
+//@[21:0022) |   | |   | ├─Token(Question) |?|
+//@[23:0024) |   | |   | ├─VariableAccessSyntax
+//@[23:0024) |   | |   | | └─IdentifierSyntax
+//@[23:0024) |   | |   | |   └─Token(Identifier) |i|
+//@[25:0026) |   | |   | ├─Token(Colon) |:|
+//@[27:0042) |   | |   | └─FunctionCallSyntax
+//@[27:0032) |   | |   |   ├─IdentifierSyntax
+//@[27:0032) |   | |   |   | └─Token(Identifier) |first|
+//@[32:0033) |   | |   |   ├─Token(LeftParen) |(|
+//@[33:0041) |   | |   |   ├─FunctionArgumentSyntax
+//@[33:0041) |   | |   |   | └─VariableAccessSyntax
+//@[33:0041) |   | |   |   |   └─IdentifierSyntax
+//@[33:0041) |   | |   |   |     └─Token(Identifier) |intArray|
+//@[41:0042) |   | |   |   └─Token(RightParen) |)|
+//@[42:0043) |   | |   └─Token(RightSquare) |]|
+//@[43:0044) |   | ├─Token(NewLine) |\n|
+  case121: foos[intParam]
+//@[02:0025) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case121|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0025) |   | | └─ArrayAccessSyntax
+//@[11:0015) |   | |   ├─VariableAccessSyntax
+//@[11:0015) |   | |   | └─IdentifierSyntax
+//@[11:0015) |   | |   |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   ├─Token(LeftSquare) |[|
+//@[16:0024) |   | |   ├─VariableAccessSyntax
+//@[16:0024) |   | |   | └─IdentifierSyntax
+//@[16:0024) |   | |   |   └─Token(Identifier) |intParam|
 //@[24:0025) |   | |   └─Token(RightSquare) |]|
 //@[25:0026) |   | ├─Token(NewLine) |\n|
 }]

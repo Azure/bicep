@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:4330) ProgramExpression
+//@[00:4400) ProgramExpression
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0222) ├─DeclaredResourceExpression
@@ -186,6 +186,8 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
   case89: foos[cond ? i : zeroIndex]['id']
+  case90: foos[any(0)].id
+  case91: foos[cond ? any(0) : i - 1]['id']
 }]
 var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
 //@[00:0074) ├─DeclaredVariableExpression { Name = varForBodyOkDeployTimeUsageExpression }

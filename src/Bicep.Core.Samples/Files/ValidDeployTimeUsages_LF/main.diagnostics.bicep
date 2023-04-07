@@ -136,6 +136,9 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
   case89: foos[cond ? i : zeroIndex]['id']
 //@[36:42) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['id']|
+  case90: foos[any(0)].id
+  case91: foos[cond ? any(0) : i - 1]['id']
+//@[37:43) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['id']|
 }]
 var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
 //@[04:41) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageExpression" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |varForBodyOkDeployTimeUsageExpression|

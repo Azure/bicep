@@ -157,7 +157,9 @@ namespace Bicep.Core.TypeSystem
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
                 {
                     var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
-                    if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
+                    if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
+                        || arrayIndexExprType.TypeKind == TypeKind.Any
+                        || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
                     {
                         this.FlagDeployTimeConstantViolationWithVariableDependencies(resourceSymbol, resourceType);
                     }
