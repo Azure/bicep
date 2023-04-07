@@ -295,6 +295,8 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[11:50) [BCP182 (Error)] This expression is being used in the for-body of the variable "varForBodyInvalidRuntimeUsages", which requires values that can be calculated at the start of the deployment. Properties of foos which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |foos[zeroIndex][cond ? 'id' : strParam]|
   case112: foos[otherIndex][cond ? 'id' : strParam]
 //@[11:51) [BCP182 (Error)] This expression is being used in the for-body of the variable "varForBodyInvalidRuntimeUsages", which requires values that can be calculated at the start of the deployment. Properties of foos which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |foos[otherIndex][cond ? 'id' : strParam]|
+  case113: foos[cond ? 0 : 1].properties
+//@[11:40) [BCP182 (Error)] This expression is being used in the for-body of the variable "varForBodyInvalidRuntimeUsages", which requires values that can be calculated at the start of the deployment. The property "properties" of foos cannot be calculated at the start. Properties of foos which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |foos[cond ? 0 : 1].properties|
 }]
 var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
 //@[04:43) [no-unused-vars (Warning)] Variable "varForBodyInvalidRuntimeUsageExpression" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |varForBodyInvalidRuntimeUsageExpression|

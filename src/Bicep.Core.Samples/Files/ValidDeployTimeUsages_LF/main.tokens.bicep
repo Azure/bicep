@@ -1286,6 +1286,21 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[62:63) RightSquare |]|
 //@[63:64) RightSquare |]|
 //@[64:65) NewLine |\n|
+  case89: foos[cond ? i : zeroIndex]['id']
+//@[02:08) Identifier |case89|
+//@[08:09) Colon |:|
+//@[10:14) Identifier |foos|
+//@[14:15) LeftSquare |[|
+//@[15:19) Identifier |cond|
+//@[20:21) Question |?|
+//@[22:23) Identifier |i|
+//@[24:25) Colon |:|
+//@[26:35) Identifier |zeroIndex|
+//@[35:36) RightSquare |]|
+//@[36:37) LeftSquare |[|
+//@[37:41) StringComplete |'id'|
+//@[41:42) RightSquare |]|
+//@[42:43) NewLine |\n|
 }]
 //@[00:01) RightBrace |}|
 //@[01:02) RightSquare |]|

@@ -169,6 +169,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case86: foos[i + 2][cond ? first(strArray) : strArray[0]]
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
+  case89: foos[cond ? i : zeroIndex]['id']
 }]
 var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
 //@      {

@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:5648) ProgramSyntax
+//@[00:5689) ProgramSyntax
 //@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
@@ -339,12 +339,12 @@ var strArray = ['id', 'properties']
 //@[35:0037) ├─Token(NewLine) |\n\n|
 
 var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
-//@[00:4526) ├─VariableDeclarationSyntax
+//@[00:4567) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0034) | ├─IdentifierSyntax
 //@[04:0034) | | └─Token(Identifier) |varForBodyInvalidRuntimeUsages|
 //@[35:0036) | ├─Token(Assignment) |=|
-//@[37:4526) | └─ForSyntax
+//@[37:4567) | └─ForSyntax
 //@[37:0038) |   ├─Token(LeftSquare) |[|
 //@[38:0041) |   ├─Token(Identifier) |for|
 //@[42:0043) |   ├─LocalVariableSyntax
@@ -364,7 +364,7 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[56:0057) |   | |   └─Token(Integer) |2|
 //@[57:0058) |   | └─Token(RightParen) |)|
 //@[58:0059) |   ├─Token(Colon) |:|
-//@[60:4525) |   ├─ObjectSyntax
+//@[60:4566) |   ├─ObjectSyntax
 //@[60:0061) |   | ├─Token(LeftBrace) |{|
 //@[61:0062) |   | ├─Token(NewLine) |\n|
   case1: foo
@@ -2845,6 +2845,32 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[42:0050) |   | |   |     └─Token(Identifier) |strParam|
 //@[50:0051) |   | |   └─Token(RightSquare) |]|
 //@[51:0052) |   | ├─Token(NewLine) |\n|
+  case113: foos[cond ? 0 : 1].properties
+//@[02:0040) |   | ├─ObjectPropertySyntax
+//@[02:0009) |   | | ├─IdentifierSyntax
+//@[02:0009) |   | | | └─Token(Identifier) |case113|
+//@[09:0010) |   | | ├─Token(Colon) |:|
+//@[11:0040) |   | | └─PropertyAccessSyntax
+//@[11:0029) |   | |   ├─ArrayAccessSyntax
+//@[11:0015) |   | |   | ├─VariableAccessSyntax
+//@[11:0015) |   | |   | | └─IdentifierSyntax
+//@[11:0015) |   | |   | |   └─Token(Identifier) |foos|
+//@[15:0016) |   | |   | ├─Token(LeftSquare) |[|
+//@[16:0028) |   | |   | ├─TernaryOperationSyntax
+//@[16:0020) |   | |   | | ├─VariableAccessSyntax
+//@[16:0020) |   | |   | | | └─IdentifierSyntax
+//@[16:0020) |   | |   | | |   └─Token(Identifier) |cond|
+//@[21:0022) |   | |   | | ├─Token(Question) |?|
+//@[23:0024) |   | |   | | ├─IntegerLiteralSyntax
+//@[23:0024) |   | |   | | | └─Token(Integer) |0|
+//@[25:0026) |   | |   | | ├─Token(Colon) |:|
+//@[27:0028) |   | |   | | └─IntegerLiteralSyntax
+//@[27:0028) |   | |   | |   └─Token(Integer) |1|
+//@[28:0029) |   | |   | └─Token(RightSquare) |]|
+//@[29:0030) |   | |   ├─Token(Dot) |.|
+//@[30:0040) |   | |   └─IdentifierSyntax
+//@[30:0040) |   | |     └─Token(Identifier) |properties|
+//@[40:0041) |   | ├─Token(NewLine) |\n|
 }]
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|

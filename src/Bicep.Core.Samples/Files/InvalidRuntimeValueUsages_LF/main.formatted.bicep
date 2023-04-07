@@ -150,6 +150,7 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
   case110: foos[i + 2][cond ? 'id' : strParam]
   case111: foos[zeroIndex][cond ? 'id' : strParam]
   case112: foos[otherIndex][cond ? 'id' : strParam]
+  case113: foos[cond ? 0 : 1].properties
 }]
 var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
 var varForBodyInvalidRuntimeUsageInterpolatedKey = [for i in range(0, 2): {
