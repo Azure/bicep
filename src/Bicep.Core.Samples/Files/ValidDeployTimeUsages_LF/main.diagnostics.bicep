@@ -135,4 +135,9 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
-
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+//@[04:41) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageExpression" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |varForBodyOkDeployTimeUsageExpression|
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[04:46) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageInterpolatedKey" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |varForBodyOkDeployTimeUsageInterpolatedKey|
+  '${foo.id}': 'id'
+}]

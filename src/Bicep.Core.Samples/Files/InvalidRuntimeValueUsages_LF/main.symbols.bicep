@@ -171,3 +171,11 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
   case111: foos[zeroIndex][cond ? 'id' : strParam]
   case112: foos[otherIndex][cond ? 'id' : strParam]
 }]
+var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
+//@[51:52) Local i. Type: int. Declaration start char: 51, length: 1
+//@[04:43) Variable varForBodyInvalidRuntimeUsageExpression. Type: StorageAccountPropertiesCreateParametersOrStorageAccountProperties[]. Declaration start char: 0, length: 84
+var varForBodyInvalidRuntimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[56:57) Local i. Type: int. Declaration start char: 56, length: 1
+//@[04:48) Variable varForBodyInvalidRuntimeUsageInterpolatedKey. Type: object[]. Declaration start char: 0, length: 129
+  '${foos[i].properties.accessTier}': 'accessTier'
+}]

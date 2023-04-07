@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:4116) ProgramExpression
+//@[00:4287) ProgramExpression
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[00:0222) ├─DeclaredResourceExpression
@@ -186,4 +186,25 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
-
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+//@[00:0074) ├─DeclaredVariableExpression { Name = varForBodyOkDeployTimeUsageExpression }
+//@[44:0074) | └─ForLoopExpression
+//@[54:0065) |   ├─FunctionCallExpression { Name = range }
+//@[60:0061) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[63:0064) |   | └─IntegerLiteralExpression { Value = 2 }
+//@[67:0073) |   └─PropertyAccessExpression { PropertyName = id }
+//@[67:0070) |     └─ResourceReferenceExpression
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[00:0096) ├─DeclaredVariableExpression { Name = varForBodyOkDeployTimeUsageInterpolatedKey }
+//@[49:0096) | └─ForLoopExpression
+//@[59:0070) |   ├─FunctionCallExpression { Name = range }
+//@[65:0066) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[68:0069) |   | └─IntegerLiteralExpression { Value = 2 }
+//@[72:0095) |   └─ObjectExpression
+  '${foo.id}': 'id'
+//@[02:0019) |     └─ObjectPropertyExpression
+//@[02:0013) |       ├─InterpolatedStringExpression
+//@[05:0011) |       | └─PropertyAccessExpression { PropertyName = id }
+//@[05:0008) |       |   └─ResourceReferenceExpression
+//@[15:0019) |       └─StringLiteralExpression { Value = id }
+}]

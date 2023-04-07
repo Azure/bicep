@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:4116) ProgramSyntax
+//@[00:4287) ProgramSyntax
 //@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
@@ -2350,5 +2350,87 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|
 //@[02:0003) ├─Token(NewLine) |\n|
-
-//@[00:0000) └─Token(EndOfFile) ||
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+//@[00:0074) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0041) | ├─IdentifierSyntax
+//@[04:0041) | | └─Token(Identifier) |varForBodyOkDeployTimeUsageExpression|
+//@[42:0043) | ├─Token(Assignment) |=|
+//@[44:0074) | └─ForSyntax
+//@[44:0045) |   ├─Token(LeftSquare) |[|
+//@[45:0048) |   ├─Token(Identifier) |for|
+//@[49:0050) |   ├─LocalVariableSyntax
+//@[49:0050) |   | └─IdentifierSyntax
+//@[49:0050) |   |   └─Token(Identifier) |i|
+//@[51:0053) |   ├─Token(Identifier) |in|
+//@[54:0065) |   ├─FunctionCallSyntax
+//@[54:0059) |   | ├─IdentifierSyntax
+//@[54:0059) |   | | └─Token(Identifier) |range|
+//@[59:0060) |   | ├─Token(LeftParen) |(|
+//@[60:0061) |   | ├─FunctionArgumentSyntax
+//@[60:0061) |   | | └─IntegerLiteralSyntax
+//@[60:0061) |   | |   └─Token(Integer) |0|
+//@[61:0062) |   | ├─Token(Comma) |,|
+//@[63:0064) |   | ├─FunctionArgumentSyntax
+//@[63:0064) |   | | └─IntegerLiteralSyntax
+//@[63:0064) |   | |   └─Token(Integer) |2|
+//@[64:0065) |   | └─Token(RightParen) |)|
+//@[65:0066) |   ├─Token(Colon) |:|
+//@[67:0073) |   ├─PropertyAccessSyntax
+//@[67:0070) |   | ├─VariableAccessSyntax
+//@[67:0070) |   | | └─IdentifierSyntax
+//@[67:0070) |   | |   └─Token(Identifier) |foo|
+//@[70:0071) |   | ├─Token(Dot) |.|
+//@[71:0073) |   | └─IdentifierSyntax
+//@[71:0073) |   |   └─Token(Identifier) |id|
+//@[73:0074) |   └─Token(RightSquare) |]|
+//@[74:0075) ├─Token(NewLine) |\n|
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[00:0096) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0046) | ├─IdentifierSyntax
+//@[04:0046) | | └─Token(Identifier) |varForBodyOkDeployTimeUsageInterpolatedKey|
+//@[47:0048) | ├─Token(Assignment) |=|
+//@[49:0096) | └─ForSyntax
+//@[49:0050) |   ├─Token(LeftSquare) |[|
+//@[50:0053) |   ├─Token(Identifier) |for|
+//@[54:0055) |   ├─LocalVariableSyntax
+//@[54:0055) |   | └─IdentifierSyntax
+//@[54:0055) |   |   └─Token(Identifier) |i|
+//@[56:0058) |   ├─Token(Identifier) |in|
+//@[59:0070) |   ├─FunctionCallSyntax
+//@[59:0064) |   | ├─IdentifierSyntax
+//@[59:0064) |   | | └─Token(Identifier) |range|
+//@[64:0065) |   | ├─Token(LeftParen) |(|
+//@[65:0066) |   | ├─FunctionArgumentSyntax
+//@[65:0066) |   | | └─IntegerLiteralSyntax
+//@[65:0066) |   | |   └─Token(Integer) |0|
+//@[66:0067) |   | ├─Token(Comma) |,|
+//@[68:0069) |   | ├─FunctionArgumentSyntax
+//@[68:0069) |   | | └─IntegerLiteralSyntax
+//@[68:0069) |   | |   └─Token(Integer) |2|
+//@[69:0070) |   | └─Token(RightParen) |)|
+//@[70:0071) |   ├─Token(Colon) |:|
+//@[72:0095) |   ├─ObjectSyntax
+//@[72:0073) |   | ├─Token(LeftBrace) |{|
+//@[73:0074) |   | ├─Token(NewLine) |\n|
+  '${foo.id}': 'id'
+//@[02:0019) |   | ├─ObjectPropertySyntax
+//@[02:0013) |   | | ├─StringSyntax
+//@[02:0005) |   | | | ├─Token(StringLeftPiece) |'${|
+//@[05:0011) |   | | | ├─PropertyAccessSyntax
+//@[05:0008) |   | | | | ├─VariableAccessSyntax
+//@[05:0008) |   | | | | | └─IdentifierSyntax
+//@[05:0008) |   | | | | |   └─Token(Identifier) |foo|
+//@[08:0009) |   | | | | ├─Token(Dot) |.|
+//@[09:0011) |   | | | | └─IdentifierSyntax
+//@[09:0011) |   | | | |   └─Token(Identifier) |id|
+//@[11:0013) |   | | | └─Token(StringRightPiece) |}'|
+//@[13:0014) |   | | ├─Token(Colon) |:|
+//@[15:0019) |   | | └─StringSyntax
+//@[15:0019) |   | |   └─Token(StringComplete) |'id'|
+//@[19:0020) |   | ├─Token(NewLine) |\n|
+}]
+//@[00:0001) |   | └─Token(RightBrace) |}|
+//@[01:0002) |   └─Token(RightSquare) |]|
+//@[02:0002) └─Token(EndOfFile) ||

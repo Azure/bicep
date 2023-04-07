@@ -1,5 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-//@[00:5433) ProgramSyntax
+//@[00:5648) ProgramSyntax
 //@[00:0222) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0012) | ├─IdentifierSyntax
@@ -2845,6 +2845,100 @@ var varForBodyInvalidRuntimeUsages = [for i in range(0, 2): {
 //@[42:0050) |   | |   |     └─Token(Identifier) |strParam|
 //@[50:0051) |   | |   └─Token(RightSquare) |]|
 //@[51:0052) |   | ├─Token(NewLine) |\n|
+}]
+//@[00:0001) |   | └─Token(RightBrace) |}|
+//@[01:0002) |   └─Token(RightSquare) |]|
+//@[02:0003) ├─Token(NewLine) |\n|
+var varForBodyInvalidRuntimeUsageExpression = [for i in range(0, 2): foo.properties]
+//@[00:0084) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0043) | ├─IdentifierSyntax
+//@[04:0043) | | └─Token(Identifier) |varForBodyInvalidRuntimeUsageExpression|
+//@[44:0045) | ├─Token(Assignment) |=|
+//@[46:0084) | └─ForSyntax
+//@[46:0047) |   ├─Token(LeftSquare) |[|
+//@[47:0050) |   ├─Token(Identifier) |for|
+//@[51:0052) |   ├─LocalVariableSyntax
+//@[51:0052) |   | └─IdentifierSyntax
+//@[51:0052) |   |   └─Token(Identifier) |i|
+//@[53:0055) |   ├─Token(Identifier) |in|
+//@[56:0067) |   ├─FunctionCallSyntax
+//@[56:0061) |   | ├─IdentifierSyntax
+//@[56:0061) |   | | └─Token(Identifier) |range|
+//@[61:0062) |   | ├─Token(LeftParen) |(|
+//@[62:0063) |   | ├─FunctionArgumentSyntax
+//@[62:0063) |   | | └─IntegerLiteralSyntax
+//@[62:0063) |   | |   └─Token(Integer) |0|
+//@[63:0064) |   | ├─Token(Comma) |,|
+//@[65:0066) |   | ├─FunctionArgumentSyntax
+//@[65:0066) |   | | └─IntegerLiteralSyntax
+//@[65:0066) |   | |   └─Token(Integer) |2|
+//@[66:0067) |   | └─Token(RightParen) |)|
+//@[67:0068) |   ├─Token(Colon) |:|
+//@[69:0083) |   ├─PropertyAccessSyntax
+//@[69:0072) |   | ├─VariableAccessSyntax
+//@[69:0072) |   | | └─IdentifierSyntax
+//@[69:0072) |   | |   └─Token(Identifier) |foo|
+//@[72:0073) |   | ├─Token(Dot) |.|
+//@[73:0083) |   | └─IdentifierSyntax
+//@[73:0083) |   |   └─Token(Identifier) |properties|
+//@[83:0084) |   └─Token(RightSquare) |]|
+//@[84:0085) ├─Token(NewLine) |\n|
+var varForBodyInvalidRuntimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[00:0129) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0048) | ├─IdentifierSyntax
+//@[04:0048) | | └─Token(Identifier) |varForBodyInvalidRuntimeUsageInterpolatedKey|
+//@[49:0050) | ├─Token(Assignment) |=|
+//@[51:0129) | └─ForSyntax
+//@[51:0052) |   ├─Token(LeftSquare) |[|
+//@[52:0055) |   ├─Token(Identifier) |for|
+//@[56:0057) |   ├─LocalVariableSyntax
+//@[56:0057) |   | └─IdentifierSyntax
+//@[56:0057) |   |   └─Token(Identifier) |i|
+//@[58:0060) |   ├─Token(Identifier) |in|
+//@[61:0072) |   ├─FunctionCallSyntax
+//@[61:0066) |   | ├─IdentifierSyntax
+//@[61:0066) |   | | └─Token(Identifier) |range|
+//@[66:0067) |   | ├─Token(LeftParen) |(|
+//@[67:0068) |   | ├─FunctionArgumentSyntax
+//@[67:0068) |   | | └─IntegerLiteralSyntax
+//@[67:0068) |   | |   └─Token(Integer) |0|
+//@[68:0069) |   | ├─Token(Comma) |,|
+//@[70:0071) |   | ├─FunctionArgumentSyntax
+//@[70:0071) |   | | └─IntegerLiteralSyntax
+//@[70:0071) |   | |   └─Token(Integer) |2|
+//@[71:0072) |   | └─Token(RightParen) |)|
+//@[72:0073) |   ├─Token(Colon) |:|
+//@[74:0128) |   ├─ObjectSyntax
+//@[74:0075) |   | ├─Token(LeftBrace) |{|
+//@[75:0076) |   | ├─Token(NewLine) |\n|
+  '${foos[i].properties.accessTier}': 'accessTier'
+//@[02:0050) |   | ├─ObjectPropertySyntax
+//@[02:0036) |   | | ├─StringSyntax
+//@[02:0005) |   | | | ├─Token(StringLeftPiece) |'${|
+//@[05:0034) |   | | | ├─PropertyAccessSyntax
+//@[05:0023) |   | | | | ├─PropertyAccessSyntax
+//@[05:0012) |   | | | | | ├─ArrayAccessSyntax
+//@[05:0009) |   | | | | | | ├─VariableAccessSyntax
+//@[05:0009) |   | | | | | | | └─IdentifierSyntax
+//@[05:0009) |   | | | | | | |   └─Token(Identifier) |foos|
+//@[09:0010) |   | | | | | | ├─Token(LeftSquare) |[|
+//@[10:0011) |   | | | | | | ├─VariableAccessSyntax
+//@[10:0011) |   | | | | | | | └─IdentifierSyntax
+//@[10:0011) |   | | | | | | |   └─Token(Identifier) |i|
+//@[11:0012) |   | | | | | | └─Token(RightSquare) |]|
+//@[12:0013) |   | | | | | ├─Token(Dot) |.|
+//@[13:0023) |   | | | | | └─IdentifierSyntax
+//@[13:0023) |   | | | | |   └─Token(Identifier) |properties|
+//@[23:0024) |   | | | | ├─Token(Dot) |.|
+//@[24:0034) |   | | | | └─IdentifierSyntax
+//@[24:0034) |   | | | |   └─Token(Identifier) |accessTier|
+//@[34:0036) |   | | | └─Token(StringRightPiece) |}'|
+//@[36:0037) |   | | ├─Token(Colon) |:|
+//@[38:0050) |   | | └─StringSyntax
+//@[38:0050) |   | |   └─Token(StringComplete) |'accessTier'|
+//@[50:0051) |   | ├─Token(NewLine) |\n|
 }]
 //@[00:0001) |   | └─Token(RightBrace) |}|
 //@[01:0002) |   └─Token(RightSquare) |]|

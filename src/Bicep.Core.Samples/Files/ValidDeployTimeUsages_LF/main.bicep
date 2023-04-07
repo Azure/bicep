@@ -123,3 +123,7 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+  '${foo.id}': 'id'
+}]

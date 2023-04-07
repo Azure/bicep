@@ -170,4 +170,19 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
-
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+//@      {
+//@        "name": "varForBodyOkDeployTimeUsageExpression",
+//@        "count": "[length(range(0, 2))]",
+//@        "input": "[resourceId('Microsoft.Storage/storageAccounts', 'foo')]"
+//@      },
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@      {
+//@        "name": "varForBodyOkDeployTimeUsageInterpolatedKey",
+//@        "count": "[length(range(0, 2))]",
+//@        "input": {
+//@        }
+//@      }
+  '${foo.id}': 'id'
+//@          "[format('{0}', resourceId('Microsoft.Storage/storageAccounts', 'foo'))]": "id"
+}]

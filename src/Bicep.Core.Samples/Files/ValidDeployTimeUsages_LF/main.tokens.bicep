@@ -1290,5 +1290,53 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
 //@[00:01) RightBrace |}|
 //@[01:02) RightSquare |]|
 //@[02:03) NewLine |\n|
-
-//@[00:00) EndOfFile ||
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+//@[00:03) Identifier |var|
+//@[04:41) Identifier |varForBodyOkDeployTimeUsageExpression|
+//@[42:43) Assignment |=|
+//@[44:45) LeftSquare |[|
+//@[45:48) Identifier |for|
+//@[49:50) Identifier |i|
+//@[51:53) Identifier |in|
+//@[54:59) Identifier |range|
+//@[59:60) LeftParen |(|
+//@[60:61) Integer |0|
+//@[61:62) Comma |,|
+//@[63:64) Integer |2|
+//@[64:65) RightParen |)|
+//@[65:66) Colon |:|
+//@[67:70) Identifier |foo|
+//@[70:71) Dot |.|
+//@[71:73) Identifier |id|
+//@[73:74) RightSquare |]|
+//@[74:75) NewLine |\n|
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[00:03) Identifier |var|
+//@[04:46) Identifier |varForBodyOkDeployTimeUsageInterpolatedKey|
+//@[47:48) Assignment |=|
+//@[49:50) LeftSquare |[|
+//@[50:53) Identifier |for|
+//@[54:55) Identifier |i|
+//@[56:58) Identifier |in|
+//@[59:64) Identifier |range|
+//@[64:65) LeftParen |(|
+//@[65:66) Integer |0|
+//@[66:67) Comma |,|
+//@[68:69) Integer |2|
+//@[69:70) RightParen |)|
+//@[70:71) Colon |:|
+//@[72:73) LeftBrace |{|
+//@[73:74) NewLine |\n|
+  '${foo.id}': 'id'
+//@[02:05) StringLeftPiece |'${|
+//@[05:08) Identifier |foo|
+//@[08:09) Dot |.|
+//@[09:11) Identifier |id|
+//@[11:13) StringRightPiece |}'|
+//@[13:14) Colon |:|
+//@[15:19) StringComplete |'id'|
+//@[19:20) NewLine |\n|
+}]
+//@[00:01) RightBrace |}|
+//@[01:02) RightSquare |]|
+//@[02:02) EndOfFile ||

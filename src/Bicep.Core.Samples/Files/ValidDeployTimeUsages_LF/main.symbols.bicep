@@ -139,4 +139,11 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
 }]
-
+var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
+//@[49:50) Local i. Type: int. Declaration start char: 49, length: 1
+//@[04:41) Variable varForBodyOkDeployTimeUsageExpression. Type: string[]. Declaration start char: 0, length: 74
+var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
+//@[54:55) Local i. Type: int. Declaration start char: 54, length: 1
+//@[04:46) Variable varForBodyOkDeployTimeUsageInterpolatedKey. Type: object[]. Declaration start char: 0, length: 96
+  '${foo.id}': 'id'
+}]
