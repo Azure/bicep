@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -20,6 +21,8 @@ using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using YamlDotNet.Serialization;
+
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -1061,6 +1064,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 : new(ErrorType.Create(errorDiagnostic));
         }
 
+        private static IDeserializer Deserializer = new DeserializerBuilder().Build();
+
         private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
@@ -1082,8 +1087,8 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return new(ErrorType.Create(errorDiagnostic));
             }
-
-            if (fileContent.TryFromJson<JToken>() is not { } token)
+  
+            if (ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1119,6 +1124,23 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
+        }
+
+        [Obsolete("This method has been replaced by ExtractTokenFromObject which supports both YAML and JSON")]
+        public static JToken OldExtractTokenFromObject(string fileContent)
+        {
+            return fileContent.TryFromJson<JToken>();
+        }
+
+        public static JToken ExtractTokenFromObject(string fileContent)
+        {
+            // Replace // with # unless in quotes
+            fileContent = fileContent.Replace("//", "#");
+            //fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
+            // Manually fix multi-line comment with regex by appending # and manually fix first line
+            fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
+
+            return JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
