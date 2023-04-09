@@ -751,7 +751,7 @@ namespace Bicep.Core.TypeSystem
         private SyntaxBase? DeclaringSyntax(VariableAccessSyntax variableAccess) => binder.GetSymbolInfo(variableAccess) switch
         {
             VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.Value,
-            LocalVariableSymbol localVariableSymbol => localVariableSymbol.DeclaringLocalVariable,
+            LocalVariableSymbol localVariableSymbol => localVariableSymbol.DeclaringSyntax,
             _ => null,
         };
 

@@ -36,13 +36,14 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = outermostScopes.ToImmutableArray();
 
-            // TODO: Avoid looping 8 times?
+            // TODO: Avoid looping 9 times?
             this.DeclarationsBySyntax = declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
             this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
             this.TypeDeclarations = declarations.OfType<TypeAliasSymbol>().ToImmutableArray();
             this.VariableDeclarations = declarations.OfType<VariableSymbol>().ToImmutableArray();
+            this.FunctionDeclarations = declarations.OfType<DeclaredFunctionSymbol>().ToImmutableArray();
             this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
             this.ModuleDeclarations = declarations.OfType<ModuleSymbol>().ToImmutableArray();
             this.OutputDeclarations = declarations.OfType<OutputSymbol>().ToImmutableArray();
@@ -61,6 +62,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.ParameterDeclarations)
             .Concat(this.TypeDeclarations)
             .Concat(this.VariableDeclarations)
+            .Concat(this.FunctionDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations)
@@ -93,6 +95,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<TypeAliasSymbol> TypeDeclarations { get; }
 
         public ImmutableArray<VariableSymbol> VariableDeclarations { get; }
+
+        public ImmutableArray<DeclaredFunctionSymbol> FunctionDeclarations { get; }
 
         public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
 

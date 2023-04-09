@@ -199,7 +199,8 @@ namespace Bicep.Core.Syntax
 
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
             hasChanges |= TryRewrite(syntax.Value, out var value);
@@ -209,7 +210,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new VariableDeclarationSyntax(keyword, name, assignment, value);
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
         void ISyntaxVisitor.VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableDeclarationSyntax);
 
@@ -947,5 +948,64 @@ namespace Bicep.Core.Syntax
             return new NonNullAssertionSyntax(baseExpression, assertionOperator);
         }
         void ISyntaxVisitor.VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax) => ReplaceCurrent(syntax, ReplaceNonNullAssertionSyntax);
+
+        protected virtual SyntaxBase ReplaceTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OpenParen, out var openParen);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
+            hasChanges |= TryRewrite(syntax.CloseParen, out var closeParen);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TypedVariableBlockSyntax(openParen, children, closeParen);
+        }
+        void ISyntaxVisitor.VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedVariableBlockSyntax);
+
+        protected virtual SyntaxBase ReplaceTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Type, out var type);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TypedLocalVariableSyntax(type, name);
+        }
+        void ISyntaxVisitor.VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLocalVariableSyntax);
+
+        protected virtual SyntaxBase ReplaceTypedLambdaSyntax(TypedLambdaSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
+            hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
+            hasChanges |= TryRewrite(syntax.Body, out var body);
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TypedLambdaSyntax(variableSection, arrow, body);
+        }
+        void ISyntaxVisitor.VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLambdaSyntax);
+
+        protected virtual SyntaxBase ReplaceFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Lambda, out var lambda);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, assignment, lambda);
+        }
+        void ISyntaxVisitor.VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionDeclarationSyntax);
     }
 }

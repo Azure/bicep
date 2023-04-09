@@ -79,7 +79,15 @@ namespace Bicep.Core.Semantics
         {
             base.VisitVariableDeclarationSyntax(syntax);
 
-            var symbol = new VariableSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            var symbol = new VariableSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            base.VisitFunctionDeclarationSyntax(syntax);
+
+            var symbol = new DeclaredFunctionSymbol(this.context, syntax.Name.IdentifierName, syntax);
             DeclareSymbol(symbol);
         }
 
@@ -179,6 +187,28 @@ namespace Bicep.Core.Semantics
 
             // visit the children
             base.VisitLambdaSyntax(syntax);
+
+            this.PopScope();
+        }
+
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
+        {
+            // create new scope without any descendants
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty);
+            this.PushScope(scope);
+
+            /*
+             * We cannot add the local symbol to the list of declarations because it will
+             * break name binding at the global namespace level
+            */
+            foreach (var variable in syntax.GetLocalVariables())
+            {
+                var itemVariableSymbol = new LocalVariableSymbol(this.context, variable.Name.IdentifierName, variable, LocalKind.LambdaItemVariable);
+                DeclareSymbol(itemVariableSymbol);
+            }
+
+            // visit the children
+            base.VisitTypedLambdaSyntax(syntax);
 
             this.PopScope();
         }

@@ -41,6 +41,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitDeclaredFunctionSymbol(DeclaredFunctionSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitResourceSymbol(ResourceSymbol symbol)
         {
             VisitDescendants(symbol);

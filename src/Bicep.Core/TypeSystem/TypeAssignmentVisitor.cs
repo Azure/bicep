@@ -211,6 +211,18 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
+            => AssignType(syntax, () => 
+            {
+                if (typeManager.GetDeclaredType(syntax) is not {} declaredType)
+                {
+                    // TODO(functions) needs an error?
+                    return ErrorType.Empty();
+                }
+
+                return declaredType;
+            });
+
         public override void VisitForSyntax(ForSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -798,6 +810,24 @@ namespace Bicep.Core.TypeSystem
                 this.ValidateDecorators(syntax.Decorators, valueType, diagnostics);
 
                 return valueType;
+            });
+
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var errors = new List<ErrorDiagnostic>();
+
+                var lambdaType = typeManager.GetTypeInfo(syntax.Lambda);
+                CollectErrors(errors, lambdaType);
+
+                if (PropagateErrorType(errors, lambdaType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                this.ValidateDecorators(syntax.Decorators, lambdaType, diagnostics);
+
+                return lambdaType;
             });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -1426,6 +1456,9 @@ namespace Bicep.Core.TypeSystem
                     case FunctionSymbol function:
                         return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
+                    case DeclaredFunctionSymbol declaredFunction:
+                        return GetDeclaredFunctionSymbolReturnType(declaredFunction, syntax, errors, diagnostics);
+
                     case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is {} knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
                         return ErrorType.Create(
@@ -1445,6 +1478,21 @@ namespace Bicep.Core.TypeSystem
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
 
                 return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
+            });
+
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                if (typeManager.GetDeclaredType(syntax) is not LambdaType declaredType)
+                {
+                    // TODO(functions) needs an error?
+                    return ErrorType.Empty();
+                }
+
+                var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
+                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredType.ReturnType.Type);
+
+                return new LambdaType(declaredType.ArgumentTypes, returnType);
             });
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)
@@ -1798,6 +1846,40 @@ namespace Bicep.Core.TypeSystem
             // and we also don't want users to have to use the converter functions to work around it
             // instead, we will return the "any" type to short circuit the type checking for those cases
             return LanguageConstants.Any;
+        }
+
+        private TypeSymbol GetDeclaredFunctionSymbolReturnType(
+            DeclaredFunctionSymbol function,
+            FunctionCallSyntaxBase syntax,
+            IList<ErrorDiagnostic> errors,
+            IDiagnosticWriter diagnostics)
+        {
+            if (typeManager.GetDeclaredType(function.DeclaringFunction.Lambda) is not LambdaType lambdaType)
+            {
+                // TODO(functions) errors here?
+                return ErrorType.Empty();
+            }
+
+            if (syntax.Arguments.Length != lambdaType.ArgumentTypes.Length)
+            {
+                // TODO(functions) argument legnth mismatch error
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ArgumentCountMismatch(syntax.Arguments.Length, lambdaType.ArgumentTypes.Length, lambdaType.ArgumentTypes.Length));
+            }
+
+            var resolvedArgumentTypes = new List<TypeSymbol>();
+            for (var i = 0; i < syntax.Arguments.Length; i++)
+            {
+                var resolvedType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Arguments[i], lambdaType.ArgumentTypes[i].Type);
+                resolvedArgumentTypes.Add(resolvedType);
+            }
+
+            if (resolvedArgumentTypes.Any(x => x is ErrorType))
+            {
+                return ErrorType.Empty();
+            }
+
+            // TODO(functions) can do better here by using the actual types of the arguments, rather than returning the generic returntype
+            return lambdaType.ReturnType.Type;
         }
 
         /// <summary>

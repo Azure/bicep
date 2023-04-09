@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -974,6 +975,7 @@ namespace Bicep.Decompiler
             }
 
             return new VariableDeclarationSyntax(
+                ImmutableArray<SyntaxBase>.Empty,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "var"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 SyntaxFactory.AssignmentToken,

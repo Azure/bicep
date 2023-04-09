@@ -119,5 +119,13 @@ namespace Bicep.Core.Syntax
         void VisitLambdaSyntax(LambdaSyntax syntax);
 
         void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax);
+
+        void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax);
+
+        void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax);
+
+        void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax);
+
+        void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax);
     }
 }

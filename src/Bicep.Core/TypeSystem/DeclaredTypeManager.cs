@@ -153,9 +153,35 @@ namespace Bicep.Core.TypeSystem
 
                 case NonNullAssertionSyntax nonNullAssertion:
                     return GetNonNullType(nonNullAssertion);
+
+                case TypedLocalVariableSyntax typedLocalVariable:
+                    return GetTypedLocalVariableType(typedLocalVariable);
+
+                case TypedLambdaSyntax typedLambda:
+                    return GetTypedLambdaType(typedLambda);
             }
 
             return null;
+        }
+
+        private DeclaredTypeAssignment GetTypedLocalVariableType(TypedLocalVariableSyntax syntax)
+        {
+            if (TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) is {} declaredType)
+            {
+                return new(declaredType, syntax);
+            }
+
+            return new(LanguageConstants.Any, syntax);
+        }
+
+        private DeclaredTypeAssignment GetTypedLambdaType(TypedLambdaSyntax syntax)
+        {
+            var argumentTypes = syntax.GetLocalVariables()
+                .Select(x => GetDeclaredTypeAssignment(x)?.Reference ?? ErrorType.Empty())
+                .ToImmutableArray();
+
+            var type = new LambdaType(argumentTypes, LanguageConstants.Any);
+            return new(type, syntax);
         }
 
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)

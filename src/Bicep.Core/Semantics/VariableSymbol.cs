@@ -7,15 +7,12 @@ namespace Bicep.Core.Semantics
 {
     public class VariableSymbol : DeclaredSymbol
     {
-        public VariableSymbol(ISymbolContext context, string name, VariableDeclarationSyntax declaringSyntax, SyntaxBase value)
+        public VariableSymbol(ISymbolContext context, string name, VariableDeclarationSyntax declaringSyntax)
             : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.Value = value;
         }
 
         public VariableDeclarationSyntax DeclaringVariable => (VariableDeclarationSyntax)this.DeclaringSyntax;
-
-        public SyntaxBase Value { get; }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitVariableSymbol(this);
 

@@ -104,6 +104,9 @@ namespace Bicep.LanguageServer.Handlers
                 case VariableSymbol variable:
                     return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 
+                case DeclaredFunctionSymbol func:
+                    return WithMarkdown(CodeBlockWithDescription($"func {func.Name}: {func.Type}", TryGetDescriptionMarkdown(result, func)));
+
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
                     var description = TryGetDescriptionMarkdown(result, resource);
