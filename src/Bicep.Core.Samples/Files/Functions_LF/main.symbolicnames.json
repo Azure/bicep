@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10420723583018431071"
+    }
+  },
+  "functions": [
+    {
+      "namespace": "_bicep",
+      "members": {
+        "buildUrl": {
+          "parameters": [
+            {
+              "name": "https",
+              "type": "string"
+            },
+            {
+              "name": "hostname",
+              "type": "string"
+            },
+            {
+              "name": "path",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}://{1}{2}', if(lambdaVariables('https'), 'https', 'http'), lambdaVariables('hostname'), if(empty(lambdaVariables('path')), '', format('/{0}', lambdaVariables('path'))))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": {},
+  "outputs": {
+    "foo": {
+      "type": "string",
+      "value": "[buildUrl(true(), 'google.com', 'search')]"
+    }
+  }
+}

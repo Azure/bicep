@@ -446,6 +446,7 @@ public record ProgramExpression(
     ImmutableArray<DeclaredImportExpression> Imports,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
+    ImmutableArray<DeclaredFunctionExpression> Functions,
     ImmutableArray<DeclaredResourceExpression> Resources,
     ImmutableArray<DeclaredModuleExpression> Modules,
     ImmutableArray<DeclaredOutputExpression> Outputs
@@ -463,4 +464,28 @@ public record AccessChainExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitAccessChainExpression(this);
+}
+
+public record DeclaredFunctionExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    Expression Lambda
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredFunctionExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record UserDefinedFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitUserDefinedFunctionCallExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
 }

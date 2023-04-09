@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "638669339646738219"
+    }
+  },
+  "functions": [
+    {
+      "namespace": "_bicep",
+      "members": {
+        "buildUrl": {
+          "parameters": [
+            {
+              "name": "https",
+              "type": "string"
+            },
+            {
+              "name": "hostname",
+              "type": "string"
+            },
+            {
+              "name": "path",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}://{1}{2}', if(lambdaVariables('https'), 'https', 'http'), lambdaVariables('hostname'), if(empty(lambdaVariables('path')), '', format('/{0}', lambdaVariables('path'))))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [],
+  "outputs": {
+    "foo": {
+      "type": "string",
+      "value": "[buildUrl(true(), 'google.com', 'search')]"
+    }
+  }
+}

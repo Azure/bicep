@@ -130,6 +130,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Modifier);
             });
 
+        // TODO(functions) add implementation for new syntax
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {

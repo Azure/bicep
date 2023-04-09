@@ -272,6 +272,24 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Value = value } : expression;
     }
 
+    void IExpressionVisitor.VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredFunctionExpression);
+    public virtual Expression ReplaceDeclaredFunctionExpression(DeclaredFunctionExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Lambda, out var lambda);
+
+        return hasChanges ? expression with { Lambda = lambda } : expression;
+    }
+
+    void IExpressionVisitor.VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceUserDefinedFunctionCallExpression);
+    public virtual Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Parameters, out var parameters);
+
+        return hasChanges ? expression with { Parameters = parameters } : expression;
+    }
+
     void IExpressionVisitor.VisitDeclaredOutputExpression(DeclaredOutputExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredOutputExpression);
     public virtual Expression ReplaceDeclaredOutputExpression(DeclaredOutputExpression expression)
     {
@@ -319,11 +337,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewriteStrict(expression.Imports, out var imports) |
             TryRewriteStrict(expression.Parameters, out var parameters) |
             TryRewriteStrict(expression.Variables, out var variables) |
+            TryRewriteStrict(expression.Functions, out var functions) |
             TryRewriteStrict(expression.Resources, out var resources) |
             TryRewriteStrict(expression.Modules, out var modules) |
             TryRewriteStrict(expression.Outputs, out var outputs);
 
-        return hasChanges ? expression with { Metadata = metadata, Imports = imports, Parameters = parameters, Variables = variables, Resources = resources, Modules = modules, Outputs = outputs } : expression;
+        return hasChanges ? expression with { Metadata = metadata, Imports = imports, Parameters = parameters, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
     }
 
     protected Expression Replace(Expression expression)

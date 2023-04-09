@@ -120,6 +120,8 @@ namespace Bicep.Core.Emit
 
             this.EmitTypeDefinitionsIfPresent(jsonWriter, emitter);
 
+            this.EmitUserDefinedFunctions(emitter, program.Functions);
+
             this.EmitParametersIfPresent(emitter, program.Parameters);
 
             this.EmitVariablesIfPresent(emitter, program.Variables);
@@ -155,6 +157,28 @@ namespace Bicep.Core.Emit
             }
 
             jsonWriter.WriteEndObject();
+        }
+
+        private void EmitUserDefinedFunctions(ExpressionEmitter emitter, ImmutableArray<DeclaredFunctionExpression> functions)
+        {
+            if (!functions.Any())
+            {
+                return;
+            }
+
+            emitter.EmitArrayProperty("functions", () => {
+                emitter.EmitObject(() => {
+                    // TODO(functions) pick namespace, use constant for it
+                    emitter.EmitProperty("namespace", "_bicep");
+
+                    emitter.EmitObjectProperty("members", () => {
+                        foreach (var function in functions)
+                        {
+                            EmitUserDefinedFunction(emitter, function);
+                        }
+                    });
+                });
+            });
         }
 
         private void EmitParametersIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredParameterExpression> parameters)
@@ -218,6 +242,34 @@ namespace Bicep.Core.Emit
 
                 EmitProperties(emitter, AddDecoratorsToBody(declaringParameter, parameterObject, parameter.Symbol.Type));
             }, parameter.SourceSyntax);
+        }
+
+        private void EmitUserDefinedFunction(ExpressionEmitter emitter, DeclaredFunctionExpression function)
+        {
+            if (function.Lambda is not LambdaExpression lambda)
+            {
+                throw new ArgumentException("Invalid function expression lambda encountered.");
+            }
+
+            emitter.EmitObjectProperty(function.Name, () =>
+            {
+                emitter.EmitArrayProperty("parameters", () => {
+                    foreach (var param in lambda.Parameters)
+                    {
+                        emitter.EmitObject(() => {
+                            emitter.EmitProperty("name", param);
+                            // TODO(functions) needs a proper implementation
+                            emitter.EmitProperty("type", "string");
+                        });
+                    }
+                });
+
+                emitter.EmitObjectProperty("output", () => {
+                    // TODO(functions) needs a proper implementation
+                    emitter.EmitProperty("type", "string");
+                    emitter.EmitProperty("value", lambda.Body);
+                });
+            }, function.SourceSyntax);
         }
 
         private void EmitProperties(ExpressionEmitter emitter, ObjectExpression objectExpression)

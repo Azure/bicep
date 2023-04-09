@@ -133,6 +133,13 @@ public class ExpressionBuilder
                     lambda,
                     variableNames.ToImmutableArray(),
                     ConvertWithoutLowering(lambda.Body));
+            case TypedLambdaSyntax lambda:
+                var typedVariableNames = lambda.GetLocalVariables().Select(x => x.Name.IdentifierName);
+
+                return new LambdaExpression(
+                    lambda,
+                    typedVariableNames.ToImmutableArray(),
+                    ConvertWithoutLowering(lambda.Body));
 
             case ForSyntax forSyntax:
                 return new ForLoopExpression(
@@ -174,6 +181,12 @@ public class ExpressionBuilder
                     variable,
                     variable.Name.IdentifierName,
                     ConvertWithoutLowering(variable.Value));
+
+            case FunctionDeclarationSyntax function:
+                return new DeclaredFunctionExpression(
+                    function,
+                    function.Name.IdentifierName,
+                    ConvertWithoutLowering(function.Lambda));
 
             case OutputDeclarationSyntax output:
                 return new DeclaredOutputExpression(
@@ -262,12 +275,18 @@ public class ExpressionBuilder
             .OfType<DeclaredOutputExpression>()
             .ToImmutableArray();
 
+        var functions = Context.SemanticModel.Root.FunctionDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredFunctionExpression>()
+            .ToImmutableArray();
+
         return new ProgramExpression(
             syntax,
             metadataArray,
             imports,
             parameters,
             functionVariables.AddRange(variables),
+            functions,
             resources,
             modules,
             outputs);
@@ -501,6 +520,11 @@ public class ExpressionBuilder
             return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
         }
 
+        if (Context.SemanticModel.GetSymbolInfo(functionCall) is DeclaredFunctionSymbol declaredFunction)
+        {
+
+        }
+
         if (Context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is {} functionValue)
         {
             return functionValue;
@@ -712,7 +736,8 @@ public class ExpressionBuilder
         {
             case ForSyntax @for:
                 return GetLoopVariable(localVariableSymbol, @for, new CopyIndexExpression(sourceSyntax, GetCopyIndexName(@for)));
-            case LambdaSyntax lambda:
+            case LambdaSyntax:
+            case TypedLambdaSyntax:
                 return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol);
         }
 
