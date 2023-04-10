@@ -45,7 +45,7 @@ describe("bicep publish", () => {
       "v1"
     );
 
-    invokingBicepCommand("publish", exampleFilePath, "--target", target)
+    invokingBicepCommand("publish", exampleFilePath, "--target", target, "--force")
       .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed();
   });
