@@ -202,6 +202,18 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.Default;
         }
 
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.FunctionDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Lambda);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             allowedFlags = FunctionFlags.OutputDecorator;

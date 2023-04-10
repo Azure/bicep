@@ -1909,6 +1909,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan, 
                 "BCP339",
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
+
+            public ErrorDiagnostic FunctionBodiesCannotReferenceOuterDeclaredSymbols(string symbolName) => new(
+                TextSpan,
+                "BCP340",
+                $"""Symbol "{symbolName}" cannot be used here. Function bodies must only refer to symbols declared as parameters.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

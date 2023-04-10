@@ -156,6 +156,10 @@ namespace Bicep.Core.Emit
                         variableNames.Concat(body));
 
                 case LambdaVariableReferenceExpression exp:
+                    if (exp.IsFunctionLambda)
+                    {
+                        return CreateFunction("parameters", new JTokenExpression(exp.Variable.Name));
+                    }
                     return CreateFunction("lambdaVariables", new JTokenExpression(exp.Variable.Name));
 
                 case CopyIndexExpression exp:

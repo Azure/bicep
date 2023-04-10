@@ -127,18 +127,20 @@ public class ExpressionBuilder
             case ResourceAccessSyntax resourceAccess:
                 return ConvertResourceAccess(resourceAccess);
             case LambdaSyntax lambda:
-                var variableNames = lambda.GetLocalVariables().Select(x => x.Name.IdentifierName);
+                var variables = lambda.GetLocalVariables();
 
                 return new LambdaExpression(
                     lambda,
-                    variableNames.ToImmutableArray(),
+                    variables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
+                    variables.Select<LocalVariableSyntax, SyntaxBase?>(x => null).ToImmutableArray(),
                     ConvertWithoutLowering(lambda.Body));
             case TypedLambdaSyntax lambda:
-                var typedVariableNames = lambda.GetLocalVariables().Select(x => x.Name.IdentifierName);
+                var typedVariables = lambda.GetLocalVariables();
 
                 return new LambdaExpression(
                     lambda,
-                    typedVariableNames.ToImmutableArray(),
+                    typedVariables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
+                    typedVariables.Select<TypedLocalVariableSyntax, SyntaxBase?>(x => x.Type).ToImmutableArray(),
                     ConvertWithoutLowering(lambda.Body));
 
             case ForSyntax forSyntax:
@@ -522,7 +524,10 @@ public class ExpressionBuilder
 
         if (Context.SemanticModel.GetSymbolInfo(functionCall) is DeclaredFunctionSymbol declaredFunction)
         {
-
+            return new UserDefinedFunctionCallExpression(
+                functionCall,
+                functionCall.Name.IdentifierName,
+                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
         }
 
         if (Context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is {} functionValue)
@@ -737,8 +742,9 @@ public class ExpressionBuilder
             case ForSyntax @for:
                 return GetLoopVariable(localVariableSymbol, @for, new CopyIndexExpression(sourceSyntax, GetCopyIndexName(@for)));
             case LambdaSyntax:
+                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol, IsFunctionLambda: false);
             case TypedLambdaSyntax:
-                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol);
+                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol, IsFunctionLambda: true);
         }
 
         throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{enclosingSyntax?.GetType().Name}'.");

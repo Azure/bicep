@@ -254,12 +254,14 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperty(function.Name, () =>
             {
                 emitter.EmitArrayProperty("parameters", () => {
-                    foreach (var param in lambda.Parameters)
+                    for (var i = 0; i < lambda.Parameters.Length; i++)
                     {
+                        // TODO(functions) make this less hacky
+                        var parameterObject = TypePropertiesForTypeExpression(lambda.ParameterTypes[i]!);
+                        parameterObject = parameterObject.MergeProperty("name", new StringLiteralExpression(null, lambda.Parameters[i]));
+
                         emitter.EmitObject(() => {
-                            emitter.EmitProperty("name", param);
-                            // TODO(functions) needs a proper implementation
-                            emitter.EmitProperty("type", "string");
+                            EmitProperties(emitter, parameterObject);
                         });
                     }
                 });

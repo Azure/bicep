@@ -291,7 +291,8 @@ public record ParametersAssignmentReferenceExpression(
 
 public record LambdaVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
-    LocalVariableSymbol Variable
+    LocalVariableSymbol Variable,
+    bool IsFunctionLambda
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -334,6 +335,7 @@ public record ConditionExpression(
 public record LambdaExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> Parameters,
+    ImmutableArray<SyntaxBase?> ParameterTypes,
     Expression Body
 ) : Expression(SourceSyntax)
 {

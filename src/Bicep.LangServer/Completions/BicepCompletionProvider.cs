@@ -967,6 +967,7 @@ namespace Bicep.LanguageServer.Completions
                 // reverse loop iteration
                 for (int depth = context.ActiveScopes.Length - 1; depth >= 0; depth--)
                 {
+                    // TODO(functions) don't return invalid symbols here from parent scopes
                     // add the non-output declarations with valid identifiers at current scope
                     var currentScope = context.ActiveScopes[depth];
                     AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSource.IsValid && !(decl is OutputSymbol)));
