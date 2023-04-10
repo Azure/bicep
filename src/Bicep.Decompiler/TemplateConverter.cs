@@ -1023,12 +1023,10 @@ namespace Bicep.Decompiler
         private SyntaxBase GetModuleFromId(string templateID, JObject resource)
         {   
             // eg for modules templateSpec - ts:<subscription-ID>/<resource-group-name>/<Template-spec-name>:<version>   
-            ResourceGroupLevelResourceId id;
-            var templateSpec = "";
-            if (ResourceGroupLevelResourceId.TryParse(templateID, out id) is not true) {
-               throw  new ConversionFailedException($"Unable to parse resourceId {templateID}", resource);
+            if (!ResourceGroupLevelResourceId.TryParse(templateID, out var id)) {
+               throw  new ConversionFailedException($"Unable to interpret \"{templateID}\" as a valid template spec resource id under property {resource["name"]}.properties.templateLink.id", resource);
             }          
-            templateSpec = "ts:" + id.SubscriptionId + "/" + id.ResourceGroup + "/" + id.NameHierarchy.First() + ":" + id.NameHierarchy.Last();
+            var templateSpec = $"ts:{id.SubscriptionId}/{id.ResourceGroup}/{id.NameHierarchy.First()}:{id.NameHierarchy.Last()}";
             return SyntaxFactory.CreateStringLiteral(templateSpec);
         }
 
@@ -1408,12 +1406,6 @@ namespace Bicep.Decompiler
                                 
                 var idProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "id");
 
-                if ((pathProperty?.Value<string>() is not string  && idProperty?.Value<string>() is not string ))
-                {
-                    throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" or \"id\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
-                }
-                var templatePathString = idProperty?.Value<string>() ?? pathProperty?.Value<string>() ?? "";
-
                 // Metadata/description should be first
                 var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
 
@@ -1424,14 +1416,18 @@ namespace Bicep.Decompiler
                 // fetch the module templatespec if the id property set else fetch the module path
                 SyntaxBase modulePath;
                 Uri? jsonTemplateUri = null;
-                if ( idProperty is not null )
+                if (pathProperty?.Value<string>() is string templatePathString)
                 {
-                    modulePath = GetModuleFromId(templatePathString,resource);
-                } else 
+                    (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);      
+                } 
+                else if (idProperty?.Value<string>() is string templateSpecIdString)
                 {
-                    (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);                  
+                    modulePath = GetModuleFromId(templateSpecIdString,resource);            
                 }
-                
+                else
+                {
+                     throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" or \"id\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
+                }
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
                     SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
