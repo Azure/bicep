@@ -122,7 +122,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private string? TryGetDescription(JsonElement element)
         {
-            if(element.TryGetProperty("metadata", out var metdataElement) &&
+            if (element.TryGetProperty("metadata", out var metdataElement) &&
                 metdataElement.TryGetProperty("description", out var descriptionElement))
             {
                 return descriptionElement.ToNonNullString();
