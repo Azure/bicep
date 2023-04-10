@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[000:3790) ProgramSyntax
+//@[000:3888) ProgramSyntax
 //@[000:0061) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0015) | ├─IdentifierSyntax
@@ -1027,6 +1027,36 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[071:0103) |   | └─StringSyntax
 //@[071:0103) |   |   └─Token(StringComplete) |'.products[?(@.price > 3)].name'|
 //@[103:0104) |   └─Token(RightParen) |)|
-//@[104:0106) ├─Token(NewLine) |\r\n|
+//@[104:0108) ├─Token(NewLine) |\r\n\r\n|
+
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@[000:0056) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0012) | ├─IdentifierSyntax
+//@[004:0012) | | └─Token(Identifier) |testYaml|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0056) | └─FunctionCallSyntax
+//@[015:0030) |   ├─IdentifierSyntax
+//@[015:0030) |   | └─Token(Identifier) |loadYamlContent|
+//@[030:0031) |   ├─Token(LeftParen) |(|
+//@[031:0055) |   ├─FunctionArgumentSyntax
+//@[031:0055) |   | └─StringSyntax
+//@[031:0055) |   |   └─Token(StringComplete) |'./Assets/test.yaml.txt'|
+//@[055:0056) |   └─Token(RightParen) |)|
+//@[056:0058) ├─Token(NewLine) |\r\n|
+var testYamlString = testYaml.string
+//@[000:0036) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |testYamlString|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0036) | └─PropertyAccessSyntax
+//@[021:0029) |   ├─VariableAccessSyntax
+//@[021:0029) |   | └─IdentifierSyntax
+//@[021:0029) |   |   └─Token(Identifier) |testYaml|
+//@[029:0030) |   ├─Token(Dot) |.|
+//@[030:0036) |   └─IdentifierSyntax
+//@[030:0036) |     └─Token(Identifier) |string|
+//@[036:0038) ├─Token(NewLine) |\r\n|
 
 //@[000:0000) └─Token(EndOfFile) ||
