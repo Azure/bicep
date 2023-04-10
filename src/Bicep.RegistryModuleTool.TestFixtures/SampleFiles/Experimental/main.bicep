@@ -28,7 +28,9 @@ The OS disk size (in GB)
 ''')
 @minValue(0)
 @maxValue(1023)
-type DiskSizeGB = int
+type MinDiskSizeGB = int
+
+type DiskSizeGB = MinDiskSizeGB
 
 param osDiskSizeGB DiskSizeGB
 

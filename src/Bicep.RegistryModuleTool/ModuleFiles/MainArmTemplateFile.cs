@@ -116,9 +116,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private string GetTypeFromDefinition(JsonElement element)
         {
-            return element.TryGetProperty("type", out _)
-            ? element.GetProperty("type").ToNonNullString()
-            : this.lazyRootElement.Value.GetPropertyByPath("definitions." + element.GetProperty("$ref").ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
+            return element.TryGetProperty("type", out var typeElement)
+            ? typeElement.ToNonNullString()
+            : GetTypeFromDefinition(LookupRef(element));
         }
 
         private string? TryGetDescription(JsonElement element)
@@ -129,13 +129,19 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 return descriptionElement.ToNonNullString();
             }
 
-            // The order of the checks, allow the user to optionally override the default description for a user defined type
-            if(element.TryGetProperty("$ref", out var refElement)){
-              return this.lazyRootElement.Value.GetPropertyByPath("definitions." + refElement.ToNonNullString().Split('/')[2] + ".metadata.description").ToNonNullString();
+            // The order of the checks allow the user to optionally override the default description for a user defined type
+            if(element.TryGetProperty("$ref", out var _)){
+                return TryGetDescription(LookupRef(element));
             }
 
             return null;
         }
+
+        private JsonElement LookupRef(JsonElement element)
+        {
+            return this.lazyRootElement.Value.GetPropertyByPath("definitions." + element.GetProperty("$ref").ToNonNullString().Split('/')[2]);
+        }
+
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
