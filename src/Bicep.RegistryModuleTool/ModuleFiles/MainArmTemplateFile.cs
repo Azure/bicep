@@ -129,7 +129,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             // The order of the checks, allow the user to optionally override the default description for a user defined type
             if(element.TryGetProperty("$ref", out var refElement)){
-              return this.lazyRootElement.Value.GetPropertyByPath("definitions." + refElement.ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
+              return this.lazyRootElement.Value.GetPropertyByPath("definitions." + refElement.ToNonNullString().Split('/')[2] + ".metadata.description").ToNonNullString();
             }
 
             return null;

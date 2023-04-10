@@ -7,14 +7,17 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "5060076073504053920"
+      "templateHash": "8659056611366475969"
     }
   },
   "definitions": {
     "DiskSizeGB": {
       "type": "int",
       "maxValue": 1023,
-      "minValue": 0
+      "minValue": 0,
+      "metadata": {
+        "description": "The OS disk size (in GB)\r\n- Minimum value is 0\r\n- Maximum value is 1023\r\n"
+      }
     }
   },
   "parameters": {

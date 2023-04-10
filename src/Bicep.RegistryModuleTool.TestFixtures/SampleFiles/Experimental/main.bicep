@@ -21,6 +21,11 @@ param clusterName string = 'aks101cluster'
 @description('The deployment location')
 param location string = resourceGroup().location
 
+@description('''
+The OS disk size (in GB)
+- Minimum value is 0
+- Maximum value is 1023
+''')
 @minValue(0)
 @maxValue(1023)
 type DiskSizeGB = int
