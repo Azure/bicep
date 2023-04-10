@@ -101,6 +101,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             string type = GetTypeFromDefinition(parameterProperty.Value);
             bool required = !parameterProperty.Value.TryGetProperty("defaultValue", out _);
             string? description = TryGetDescription(parameterProperty.Value);
+
             return new(name, type, required, description);
         }
 
