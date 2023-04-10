@@ -40,12 +40,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             this.lazyParameters = new(() => !lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement)
                 ? Enumerable.Empty<MainArmTemplateParameter>()
                 : parametersElement.EnumerateObject().Select(ToParameter));
-            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
-                    ? Enumerable.Empty<MainArmTemplateOutput>()
-                    : outputsElement.EnumerateObject().Select(ToOutput));
-            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
-                    ? Enumerable.Empty<MainArmTemplateOutput>()
-                    : outputsElement.EnumerateObject().Select(ToOutput));
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
         }
 
