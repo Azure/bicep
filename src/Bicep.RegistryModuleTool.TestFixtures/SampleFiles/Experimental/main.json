@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "4990425821140341644"
+      "templateHash": "5060076073504053920"
     }
   },
   "definitions": {
@@ -63,10 +63,7 @@
       }
     },
     "osDiskSizeGB": {
-      "$ref": "#/definitions/DiskSizeGB",
-      "metadata": {
-        "description": "The OS disk size (in GB)\r\n- Minimum value is 0\r\n- Maximum value is 1023\r\n"
-      }
+      "$ref": "#/definitions/DiskSizeGB"
     },
     "agentCount": {
       "type": "int",
@@ -131,7 +128,7 @@
     "osDiskSizeGB": {
       "$ref": "#/definitions/DiskSizeGB",
       "metadata": {
-        "description": "The OS disk size (in GB)\r\n- Minimum value is 0\r\n- Maximum value is 1023\r\n"
+        "description": "Override the type description"
       },
       "value": "[parameters('osDiskSizeGB')]"
     }

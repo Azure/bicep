@@ -25,11 +25,6 @@ param location string = resourceGroup().location
 @maxValue(1023)
 type DiskSizeGB = int
 
-@description('''
-The OS disk size (in GB)
-- Minimum value is 0
-- Maximum value is 1023
-''')
 param osDiskSizeGB DiskSizeGB
 
 @description('The agent count')
@@ -76,9 +71,5 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
 @description('The control plane FQDN')
 output controlPlaneFQDN string = aks.properties.fqdn
 
-@description('''
-The OS disk size (in GB)
-- Minimum value is 0
-- Maximum value is 1023
-''')
+@description('Override the type description')
 output osDiskSizeGB DiskSizeGB = osDiskSizeGB

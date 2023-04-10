@@ -117,17 +117,17 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             return element.TryGetProperty("type", out _)
             ? element.GetProperty("type").ToNonNullString()
-            :this.lazyRootElement.Value.GetPropertyByPath("definitions." + element.GetProperty("$ref").ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
+            : this.lazyRootElement.Value.GetPropertyByPath("definitions." + element.GetProperty("$ref").ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
         }
 
-        private static string? TryGetDescription(JsonElement element)
+        private string? TryGetDescription(JsonElement element)
         {
-            if (element.TryGetProperty("metadata", out var metdataElement) &&
-                metdataElement.TryGetProperty("description", out var descriptionElement))
-            {
+            if(element.TryGetProperty("metadata", out _) && element.GetProperty("metadata").TryGetProperty("description", out var descriptionElement)){
                 return descriptionElement.ToNonNullString();
             }
-
+            if(element.TryGetProperty("$ref", out var refElement)){
+              return this.lazyRootElement.Value.GetPropertyByPath("definitions." + refElement.ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
+            }
             return null;
         }
 
