@@ -25,6 +25,7 @@ using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Emit.ResourceDependencyVisitor;
+using Azure.Deployments.Core.Definitions.Identifiers;
 
 namespace Bicep.Decompiler
 {
@@ -1016,6 +1017,18 @@ namespace Bicep.Decompiler
             return (SyntaxFactory.CreateStringLiteral(moduleFilePath), nestedUri);
         }
 
+        /// <summary>
+        /// Used to generate the module's templateSpec format from the id parameter.
+        /// </summary>
+        private SyntaxBase GetModuleFromId(string templateID, JObject resource)
+        {   
+            // eg for modules templateSpec - ts:<subscription-ID>/<resource-group-name>/<Template-spec-name>:<version>   
+            if (!ResourceGroupLevelResourceId.TryParse(templateID, out var id)) {
+               throw  new ConversionFailedException($"Unable to interpret \"{templateID}\" as a valid template spec resource id under property {resource["name"]}.properties.templateLink.id", resource);
+            }          
+            var templateSpec = $"ts:{id.SubscriptionId}/{id.ResourceGroup}/{id.NameHierarchy.First()}:{id.NameHierarchy.Last()}";
+            return SyntaxFactory.CreateStringLiteral(templateSpec);
+        }
 
         /// <summary>
         /// Used to generate a for-expression for a copy loop, where the copyIndex does not accept a 'name' parameter.
@@ -1388,13 +1401,10 @@ namespace Bicep.Decompiler
             }
             else
             {
-                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") ??
-                    TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
-
-                if (pathProperty?.Value<string>() is not string templatePathString)
-                {
-                    throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
-                }
+                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") 
+                                ?? TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
+                                
+                var idProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "id");
 
                 // Metadata/description should be first
                 var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
@@ -1403,7 +1413,21 @@ namespace Bicep.Decompiler
                 decoratorsAndNewLines.AddRange(resourceCopyDecorators);
                 var value = ProcessCondition(resource, body);
 
-                var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
+                // fetch the module templatespec if the id property set else fetch the module path
+                SyntaxBase modulePath;
+                Uri? jsonTemplateUri = null;
+                if (pathProperty?.Value<string>() is string templatePathString)
+                {
+                    (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);      
+                } 
+                else if (idProperty?.Value<string>() is string templateSpecIdString)
+                {
+                    modulePath = GetModuleFromId(templateSpecIdString,resource);            
+                }
+                else
+                {
+                     throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" or \"id\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
+                }
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
                     SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
