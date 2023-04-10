@@ -52,6 +52,12 @@ namespace Bicep.Core.Registry
         bool TryGetLocalModuleEntryPointUri(ModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         /// <summary>
+        /// Returns true if the specified module exists in the registry.
+        /// </summary>
+        /// <param name="reference">The reference to the module.</param>
+        Task<bool> CheckModuleExists(ModuleReference reference);
+
+        /// <summary>
         /// Downloads the specified modules from the registry and caches them locally.
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>

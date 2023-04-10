@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Containers.ContainerRegistry;
 using Azure.Containers.ContainerRegistry.Specialized;
 using Bicep.Core.Configuration;
 using System;
@@ -15,6 +16,6 @@ namespace Bicep.Core.Registry
     {
         ContainerRegistryBlobClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
 
-        ContainerRegistryBlobClient CreateAnonymouosBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
+        ContainerRegistryBlobClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
     }
 }

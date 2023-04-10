@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
@@ -19,6 +21,9 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.LanguageServer.Completions
 {
+    /// <summary>
+    /// Provides completions for remote (public or private) module references, e.g. br/public:modulePath:version
+    /// </summary>
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
         private readonly IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider;
@@ -27,11 +32,23 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
-        private static readonly ImmutableDictionary<string, (string, CompletionPriority)> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, (string, CompletionPriority)>()
+        private enum ModuleCompletionPriority
         {
-            {"br:", ("Bicep registry schema name", CompletionPriority.VeryHigh) },
-            {"br/", ("Bicep registry schema name", CompletionPriority.High) },
-            {"ts:", ("Template spec schema name", CompletionPriority.VeryHigh) }
+            Alias = 0,     // br/[alias], ts/[alias]
+            Default = 1,
+            FullPath = 2,  // br:, ts:
+        }
+
+        private const string ModuleFullPathCompletionLabel = "Bicep registry";
+        private const string ModuleAliasCompletionLabel = "Bicep registry (alias)";
+        private const string TemplateSpecFullPathCompletionLabel = "Template spec";
+        private const string TemplateSpecAliasCompletionLabel = "Template spec (alias)";
+
+        private static readonly ImmutableDictionary<string, (string, ModuleCompletionPriority)> DefaultSchemaCompletionLabelsWithDetails = new Dictionary<string, (string, ModuleCompletionPriority)>()
+        {
+            {"br:", (ModuleFullPathCompletionLabel, ModuleCompletionPriority.FullPath) },
+            {"br/", (ModuleAliasCompletionLabel, ModuleCompletionPriority.Alias) },
+            {"ts:", (TemplateSpecFullPathCompletionLabel, ModuleCompletionPriority.FullPath) }
         }.ToImmutableDictionary();
 
         private static readonly Regex ModuleRegistryWithoutAlias = new Regex(@"'br:(?<registry>(.*?))/'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
@@ -55,12 +72,8 @@ namespace Bicep.LanguageServer.Completions
             this.telemetryProvider = telemetryProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context)
         {
-            if (!settingsProvider.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting))
-            {
-                return Enumerable.Empty<CompletionItem>();
-            }
             var replacementText = string.Empty;
 
             if (context.ReplacementTarget is Token token)
@@ -68,14 +81,15 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            return GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText, templateUri)
-                .Concat(await GetPathCompletions(context, replacementText, templateUri))
-                .Concat(await GetMCRModuleRegistryVersionCompletions(context, replacementText, templateUri))
-                .Concat(await GetRegistryCompletions(context, replacementText, templateUri));
+            return GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText, sourceFileUri)
+                .Concat(await GetOciModulePathCompletions(context, replacementText, sourceFileUri))
+                .Concat(await GetMCRModuleRegistryVersionCompletions(context, replacementText, sourceFileUri))
+                .Concat(await GetRegistryCompletions(context, replacementText, sourceFileUri));
         }
 
-        // Handles bicep registry and template spec schema completions.
-        private IEnumerable<CompletionItem> GetBicepRegistryAndTemplateSpecShemaCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        // Handles bicep registry and template spec top-level schema completions.
+        // E.g. br:, br/, ts:, ts/[alias]
+        private IEnumerable<CompletionItem> GetBicepRegistryAndTemplateSpecShemaCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
             {
@@ -87,13 +101,13 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
             var templateSpecModuleAliases = rootConfiguration.ModuleAliases.GetTemplateSpecModuleAliases();
 
-            var completionLabelsWithDetails = BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails;
+            var completionLabelsWithDetails = DefaultSchemaCompletionLabelsWithDetails;
             if (templateSpecModuleAliases.Any())
             {
-                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", ("Template spec schema name", CompletionPriority.High));
+                completionLabelsWithDetails = completionLabelsWithDetails.Add("ts/", (TemplateSpecAliasCompletionLabel, ModuleCompletionPriority.Alias));
             }
 
             List<CompletionItem> completionItems = new List<CompletionItem>();
@@ -101,7 +115,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 var text = kvp.Key;
                 var insertionText = $"'{text}$0'";
-                (var details, CompletionPriority completionPriority) = kvp.Value;
+                (var details, ModuleCompletionPriority completionPriority) = kvp.Value;
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
                     .WithFilterText(insertionText)
@@ -126,7 +140,8 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles version completions for Microsoft Container Registries(MCR).
-        private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        // I.e. completions starting with "br/" or "br:"
+        private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             if (!IsOciModuleRegistryReference(replacementText))
             {
@@ -147,7 +162,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
-                filePath = GetNonPublicMCRFilePathForVersionCompletion(replacementText, templateUri);
+                filePath = GetNonPublicMCRFilePathForVersionCompletion(replacementText, sourceFileUri);
             }
 
             if (filePath is null)
@@ -159,7 +174,7 @@ namespace Bicep.LanguageServer.Completions
             replacementText = replacementText.TrimEnd('\'');
 
             var versions = await publicRegistryModuleMetadataProvider.GetVersions(filePath);
-            for (int i = versions.Count() - 1; i >= 0; i --)
+            for (int i = versions.Count() - 1; i >= 0; i--)
             {
                 var version = versions.ElementAt(i);
 
@@ -178,9 +193,9 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles scenario where the user has configured an alias for MCR in bicepconfig.json.
-        private string? GetNonPublicMCRFilePathForVersionCompletion(string replacementText, Uri templateUri)
+        private string? GetNonPublicMCRFilePathForVersionCompletion(string replacementText, Uri sourceFileUri)
         {
-            foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
+            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
             {
                 if (kvp.Value.Registry is string registry &&
                     registry.Equals(MCRRegistry, StringComparison.Ordinal))
@@ -228,14 +243,14 @@ namespace Bicep.LanguageServer.Completions
             return null;
         }
 
-        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases(Uri templateUri)
+        private ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases(Uri sourceFileUri)
         {
-            var rootConfiguration = configurationManager.GetConfiguration(templateUri);
+            var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
             return rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
         }
 
-        // Handles path completions.
-        private async Task<IEnumerable<CompletionItem>> GetPathCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        // Handles remote path completions
+        private async Task<IEnumerable<CompletionItem>> GetOciModulePathCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             if (!IsOciModuleRegistryReference(replacementText))
             {
@@ -253,8 +268,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 List<CompletionItem> completions = new List<CompletionItem>();
 
-                completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, templateUri));
-                completions.AddRange(await GetMCRPathCompletionFromBicepConfig(replacementText, context, templateUri));
+                completions.AddRange(GetACRPartialPathCompletionsFromBicepConfig(replacementText, context, sourceFileUri));
+                completions.AddRange(await GetMCRPathCompletionFromBicepConfig(replacementText, context, sourceFileUri));
 
                 return completions;
             }
@@ -262,7 +277,7 @@ namespace Bicep.LanguageServer.Completions
 
 
         // Handles path completions for case where user has specified an alias in bicepconfig.json with registry set to "mcr.microsoft.com".
-        private async Task<IEnumerable<CompletionItem>> GetMCRPathCompletionFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetMCRPathCompletionFromBicepConfig(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
@@ -273,7 +288,7 @@ namespace Bicep.LanguageServer.Completions
                 return completions;
             }
 
-            foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
+            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
             {
                 if (kvp.Value.Registry is string registry)
                 {
@@ -285,6 +300,7 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
+                    // br/[alias]:<cursor>
                     if (registry.Equals(MCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
@@ -302,6 +318,7 @@ namespace Bicep.LanguageServer.Completions
                         // }
                         if (modulePath is null)
                         {
+                            // Completions are e.g. br/[alias]/bicep/[module]
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
                                 var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
@@ -313,7 +330,7 @@ namespace Bicep.LanguageServer.Completions
                                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                         .WithSnippetEdit(context.ReplacementRange, insertText)
                                         .WithFilterText(insertText)
-                                        .WithSortText(GetSortText(label, CompletionPriority.High))
+                                        .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
                                         .Build();
 
                                     completions.Add(completionItem);
@@ -338,6 +355,7 @@ namespace Bicep.LanguageServer.Completions
                                 continue;
                             }
 
+                            // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
                             var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
 
@@ -357,7 +375,7 @@ namespace Bicep.LanguageServer.Completions
                                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
-                                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                                    .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
                                     .Build();
                                 completions.Add(completionItem);
                             }
@@ -394,7 +412,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // We only support partial path completions for ACR using module paths listed in bicepconfig.json
-        private IEnumerable<CompletionItem> GetACRPartialPathCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
+        private IEnumerable<CompletionItem> GetACRPartialPathCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
@@ -406,7 +424,7 @@ namespace Bicep.LanguageServer.Completions
 
             telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR));
 
-            foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
+            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
             {
                 if (registry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
                 {
@@ -421,7 +439,7 @@ namespace Bicep.LanguageServer.Completions
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, modulePath)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
-                        .WithSortText(GetSortText(modulePath, CompletionPriority.High))
+                        .WithSortText(GetSortText(modulePath))
                         .Build();
                     completions.Add(completionItem);
                 }
@@ -431,6 +449,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles path completions for MCR.
+        // I.e., completions after "br/public:" or "br:{MCRRegistry}/bicep/:"
         private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
@@ -445,7 +464,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
-                    .WithSortText(GetSortText(moduleName, CompletionPriority.High))
+                    .WithSortText(GetSortText(moduleName))
                     .Build();
 
                 completions.Add(completionItem);
@@ -460,7 +479,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles registry completions.
-        private async Task<IEnumerable<CompletionItem>> GetRegistryCompletions(BicepCompletionContext context, string replacementText, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetRegistryCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             var completions = new List<CompletionItem>();
 
@@ -473,14 +492,14 @@ namespace Bicep.LanguageServer.Completions
 
             if (replacementTextWithTrimmedEnd == "'br/")
             {
-                foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
+                foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
                 {
                     var alias = kvp.Key;
                     var insertText = $"{replacementTextWithTrimmedEnd}{alias}:$0'";
                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, alias)
                         .WithFilterText(insertText)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
-                        .WithSortText(GetSortText(alias, CompletionPriority.High))
+                        .WithSortText(GetSortText(alias))
                         .Build();
                     completions.Add(completionItem);
                 }
@@ -492,12 +511,12 @@ namespace Bicep.LanguageServer.Completions
                 var mcrCompletionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                    .WithSortText(GetSortText(label))
                     .Build();
 
                 completions.Add(mcrCompletionItem);
 
-                IEnumerable<CompletionItem> acrCompletions = await GetACRModuleRegistriesCompletions(replacementText, context, templateUri);
+                IEnumerable<CompletionItem> acrCompletions = await GetACRModuleRegistriesCompletions(replacementText, context, sourceFileUri);
                 completions.AddRange(acrCompletions);
             }
 
@@ -505,24 +524,24 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles registry completions for modules configured in ACR.
-        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletions(string replacementText, BicepCompletionContext context, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletions(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
         {
             if (settingsProvider.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting))
             {
-                return await GetACRModuleRegistriesCompletionsFromGraphClient(replacementText, context, templateUri);
+                return await GetACRModuleRegistriesCompletionsFromGraphClient(replacementText, context, sourceFileUri);
             }
             else
             {
-                return GetACRModuleRegistriesCompletionsFromBicepConfig(replacementText, context, templateUri);
+                return GetACRModuleRegistriesCompletionsFromBicepConfig(replacementText, context, sourceFileUri);
             }
         }
 
         // Handles registry completions for modules configured in ACR using ResourceGraphClient query.
-        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri templateUri)
+        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            var registryNames = await azureContainerRegistryNamesProvider.GetRegistryNames(templateUri);
+            var registryNames = await azureContainerRegistryNamesProvider.GetRegistryNames(sourceFileUri);
 
             foreach (string registryName in registryNames)
             {
@@ -532,7 +551,7 @@ namespace Bicep.LanguageServer.Completions
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
                     .WithFilterText(insertText)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(registryName, CompletionPriority.Medium))
+                    .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
                     .Build();
                 completions.Add(completionItem);
             }
@@ -541,12 +560,12 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles ACR registry completions for entries in bicepconfig.json.
-        private IEnumerable<CompletionItem> GetACRModuleRegistriesCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri templateUri)
+        private IEnumerable<CompletionItem> GetACRModuleRegistriesCompletionsFromBicepConfig(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
             HashSet<string> aliases = new HashSet<string>();
 
-            foreach (var kvp in GetOciArtifactModuleAliases(templateUri))
+            foreach (var kvp in GetOciArtifactModuleAliases(sourceFileUri))
             {
                 var label = kvp.Value.Registry;
 
@@ -559,7 +578,7 @@ namespace Bicep.LanguageServer.Completions
                         var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                             .WithFilterText(insertText)
                             .WithSnippetEdit(context.ReplacementRange, insertText)
-                            .WithSortText(GetSortText(label, CompletionPriority.High))
+                            .WithSortText(GetSortText(label))
                             .Build();
                         completions.Add(completionItem);
 
@@ -573,6 +592,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static string GetSortText(string label, int priority) => $"{priority}_{label}";
 
-        private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
+        private static string GetSortText(string label, ModuleCompletionPriority priority = ModuleCompletionPriority.Default)
+        {
+            // We want all module completion priorities to come after other completions (e.g. local module paths), so we start with "9"
+            return $"9{(int)priority}_{label}";
+        }
     }
 }

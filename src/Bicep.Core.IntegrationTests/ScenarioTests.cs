@@ -4545,5 +4545,36 @@ resource watchlist 'Microsoft.SecurityInsights/watchlists@2023-02-01-preview' = 
 
             result.Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/issues/10321
+        [TestMethod]
+        public void Test_Issue10321()
+        {
+            var result = CompilationHelper.Compile(
+("main.bicep", @"
+module mod 'mod.json' = {
+  name: 'mod'
+  params: {
+    secret: kv.getSecret('secret')
+  }
+}
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'kv'
+}
+"),
+("mod.json", @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""secret"": {
+      ""type"": ""secureString""
+    }
+  },
+  ""resources"": []
+}"));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
     }
 }

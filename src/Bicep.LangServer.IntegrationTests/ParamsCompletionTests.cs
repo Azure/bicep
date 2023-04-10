@@ -141,8 +141,6 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
         }
 
         [DataRow(@"using './main.bicep'
-param myInt = |", @"param myInt int", new string[0], new CompletionItemKind[0])]
-        [DataRow(@"using './main.bicep'
 param myBool = |", @"param myBool bool", new[] { "false", "true" }, new[] { CompletionItemKind.Keyword, CompletionItemKind.Keyword })]
         [DataRow(@"using './main.bicep'
 param myBool =|", @"param myBool bool", new[] { "false", "true" }, new[] { CompletionItemKind.Keyword, CompletionItemKind.Keyword })]
@@ -161,8 +159,6 @@ param firstParam = |", @"@allowed([
 ])
 param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember })]
         [DataRow(@"using './main.bicep'
-param firstParam = |", @"param firstParam string", new string[0], new CompletionItemKind[0])]
-        [DataRow(@"using './main.bicep'
 param firstParam = 'o|'", @"@allowed([
   'one'
   'two'
@@ -177,8 +173,8 @@ param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind
             };
 
             var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
-            completions.Select(completion => completion.Label).Should().Equal(expectedLabels);
-            completions.Select(completion => completion.Kind).Should().Equal(expectedKinds);
+            completions.Select(completion => completion.Label).Should().Contain(expectedLabels);
+            completions.Select(completion => completion.Kind).Should().Contain(expectedKinds);
         }
 
         [TestMethod]
@@ -303,6 +299,73 @@ using 'bar.bicep'
                     x.Detail.Should().Be("Parameter assignment keyword");
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
                 });
+        }
+        
+        [TestMethod]
+        public async Task Parameter_type_description_should_be_shown_for_params_symbol_completions()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param |";
+
+            var bicepText = @"
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param myInt int
+
+@allowed(
+    [
+        'value1'
+        'value2'
+    ]
+)
+@description('this is a string value')
+param myStr string
+
+@description('this is a bool value')
+param myBool bool
+
+param myArray array
+";
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
+            }; 
+        
+            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("myArray");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: array");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myBool");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myInt");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("myStr");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+                    x.Kind.Should().Be(CompletionItemKind.Field);
+                }
+                );
         }
 
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)

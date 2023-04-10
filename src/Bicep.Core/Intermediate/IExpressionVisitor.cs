@@ -47,6 +47,8 @@ public interface IExpressionVisitor
 
     void VisitParametersReferenceExpression(ParametersReferenceExpression expression);
 
+    void VisitParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression);
+
     void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression);
 
     void VisitForLoopExpression(ForLoopExpression expression);

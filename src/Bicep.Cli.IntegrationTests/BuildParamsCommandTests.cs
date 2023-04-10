@@ -162,15 +162,9 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            var parametersStdout = JsonSerializer.Deserialize<ParametersStdout>(output);
-
-            string compiledFilePath = data.Compiled!.OutputFilePath;
-            File.Exists(compiledFilePath);
-
-            // overwrite the output file
-            File.WriteAllText(compiledFilePath, parametersStdout!.parametersJson);
-
-            data.Compiled!.ShouldHaveExpectedJsonValue();
+            var parametersStdout = JsonSerializer.Deserialize<ParametersStdout>(output)!;
+            data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
+            data.Compiled.ShouldHaveExpectedJsonValue();
         }
 
         [DataTestMethod]

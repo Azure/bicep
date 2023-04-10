@@ -6,6 +6,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Bicep.Core.Semantics.Namespaces
             this.BuiltIns = builtIns;
         }
 
-        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, ResourceScope targetScope, IEnumerable<ImportedNamespaceSymbol> importedNamespaces)
+        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, IEnumerable<ImportedNamespaceSymbol> importedNamespaces)
         {
             var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
             var namespaceTypes = importedNamespaces
@@ -57,7 +58,11 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
-            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
+            if (sourceFile.FileKind == BicepSourceFileKind.BicepFile)
+            {
+                // don't register "az" namespace for Bicep Parameters files
+                TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
+            }
 
             return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
         }

@@ -76,6 +76,41 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
+        public override async Task<bool> CheckModuleExists(OciArtifactModuleReference reference)
+        {
+            try
+            {
+                // Get module
+                await this.client.PullArtifactAsync(configuration, reference);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 404)
+            {
+                // Found module but tag doesn't exist
+                return false;
+            }
+            catch (ExternalModuleException exception) when
+                (exception.InnerException is RequestFailedException &&
+                ((RequestFailedException)exception.InnerException).Status == 404)
+            {
+                // Found no module at all
+                return false;
+            }
+            catch (InvalidModuleException exception) when (exception.Kind == InvalidModuleExceptionKind.WrongArtifactType || exception.Kind == InvalidModuleExceptionKind.WrongModuleLayerMediaType)
+            {
+                throw new ExternalModuleException("An artifact with the tag already exists in the registry, but the artifact is not a Bicep file or module!", exception);
+            }
+            catch (RequestFailedException exception)
+            {
+                throw new ExternalModuleException(exception.Message, exception);
+            }
+            catch (Exception exception)
+            {
+                throw new ExternalModuleException(exception.Message, exception);
+            }
+
+            return true;
+        }
+
         public override bool TryGetLocalModuleEntryPointUri(OciArtifactModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;

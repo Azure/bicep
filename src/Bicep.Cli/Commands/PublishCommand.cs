@@ -12,6 +12,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using System;
+using System.Data.Common;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
@@ -49,12 +50,13 @@ namespace Bicep.Cli.Commands
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var documentationUri = args.DocumentationUri;
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
+            var overwriteIfExists = args.Force;
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
-                await this.PublishModuleAsync(moduleReference, armTemplateStream, documentationUri);
+                await this.PublishModuleAsync(moduleReference, armTemplateStream, documentationUri, overwriteIfExists);
 
                 return 0;
             }
@@ -71,15 +73,20 @@ namespace Bicep.Cli.Commands
             compilationWriter.ToStream(compilation, stream);
 
             stream.Position = 0;
-            await this.PublishModuleAsync(moduleReference, stream, documentationUri);
+            await this.PublishModuleAsync(moduleReference, stream, documentationUri, overwriteIfExists);
 
             return 0;
         }
 
-        private async Task PublishModuleAsync(ModuleReference target, Stream stream, string? documentationUri)
+        private async Task PublishModuleAsync(ModuleReference target, Stream stream, string? documentationUri, bool overwriteIfExists)
         {
             try
             {
+                // If we don't want to overwrite, ensure module doesn't exist
+                if (!overwriteIfExists && await this.moduleDispatcher.CheckModuleExists(target))
+                {
+                    throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
+                }
                 await this.moduleDispatcher.PublishModule(target, stream, documentationUri);
             }
             catch (ExternalModuleException exception)

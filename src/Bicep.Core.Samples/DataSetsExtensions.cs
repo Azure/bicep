@@ -100,7 +100,7 @@ namespace Bicep.Core.Samples
                 });
 
             clientFactory
-                .Setup(m => m.CreateAnonymouosBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))

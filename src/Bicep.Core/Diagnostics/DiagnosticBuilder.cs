@@ -1906,10 +1906,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP337",
                 $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
 
-            public ErrorDiagnostic ParameterExpressionsNotSupported() => new(
+            public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
                 "BCP338",
-                $"Complex expressions are not permitted in a Bicep Parameters file.");
+                $"Failed to evaluate parameter \"{parameterName}\": {message}");
+                
+            public ErrorDiagnostic ArrayIndexOutOfBounds(long indexSought) => new(
+                TextSpan, 
+                "BCP339",
+                $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

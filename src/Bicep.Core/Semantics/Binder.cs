@@ -24,7 +24,7 @@ namespace Bicep.Core.Semantics
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
             var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(declarations);
-            this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, this.TargetScope, uniqueDeclarations);
+            this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, sourceFile, this.TargetScope, uniqueDeclarations);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
@@ -71,11 +71,11 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
-        private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)
+        private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)
         {
             var importedNamespaces = uniqueDeclarations.Values.OfType<ImportedNamespaceSymbol>();
 
-            return NamespaceResolver.Create(features, namespaceProvider, targetScope, importedNamespaces);
+            return NamespaceResolver.Create(features, namespaceProvider, sourceFile, targetScope, importedNamespaces);
         }
     }
 }
