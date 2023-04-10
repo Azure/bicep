@@ -54,7 +54,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public JsonElement RootElement => this.lazyRootElement.Value;
 
         public IEnumerable<MainArmTemplateParameter> Parameters => this.lazyParameters.Value;
-        
+
         public IEnumerable<MainArmTemplateOutput> Outputs => this.lazyOutputs.Value;
 
         public string TemplateHash => this.lazyTemplateHash.Value;
@@ -98,23 +98,29 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return this;
         }
 
-        private static MainArmTemplateParameter ToParameter(JsonProperty parameterProperty)
+        private MainArmTemplateParameter ToParameter(JsonProperty parameterProperty)
         {
             string name = parameterProperty.Name;
-            string type = parameterProperty.Value.GetProperty("type").ToNonNullString();
+            string type = GetTypeFromDefinition(parameterProperty.Value);
             bool required = !parameterProperty.Value.TryGetProperty("defaultValue", out _);
             string? description = TryGetDescription(parameterProperty.Value);
-
             return new(name, type, required, description);
         }
 
-        private static MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
+        private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
         {
             string name = outputProperty.Name;
-            string type = outputProperty.Value.GetProperty("type").ToNonNullString();
+            string type = GetTypeFromDefinition(outputProperty.Value);
             string? description = TryGetDescription(outputProperty.Value);
 
             return new(name, type, description);
+        }
+
+        private string GetTypeFromDefinition(JsonElement element)
+        {
+            return element.TryGetProperty("type", out _)
+            ? element.GetProperty("type").ToNonNullString()
+            :this.lazyRootElement.Value.GetPropertyByPath("definitions." + element.GetProperty("$ref").ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
         }
 
         private static string? TryGetDescription(JsonElement element)
