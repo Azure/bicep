@@ -679,7 +679,7 @@
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^3.1.3",
     "@microsoft/vscode-azext-azureutils": "^1.0.1",
-    "@microsoft/vscode-azext-utils": "^0.5.1",
+    "@microsoft/vscode-azext-utils": "^1.1.0",
     "cytoscape": "^3.23.0",
     "cytoscape-elk": "^2.1.0",
     "fs-extra": "^11.1.1",
