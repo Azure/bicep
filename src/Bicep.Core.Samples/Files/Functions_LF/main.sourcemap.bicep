@@ -2,27 +2,27 @@ func buildUrl = (bool https, string hostname, string path) => '${https ? 'https'
 //@        "buildUrl": {
 //@          "parameters": [
 //@            {
-//@              "name": "https",
-//@              "type": "string"
+//@              "type": "bool",
+//@              "name": "https"
 //@            },
 //@            {
-//@              "name": "hostname",
-//@              "type": "string"
+//@              "type": "string",
+//@              "name": "hostname"
 //@            },
 //@            {
-//@              "name": "path",
-//@              "type": "string"
+//@              "type": "string",
+//@              "name": "path"
 //@            }
 //@          ],
 //@          "output": {
 //@            "type": "string",
-//@            "value": "[format('{0}://{1}{2}', if(lambdaVariables('https'), 'https', 'http'), lambdaVariables('hostname'), if(empty(lambdaVariables('path')), '', format('/{0}', lambdaVariables('path'))))]"
+//@            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
 //@          }
 //@        }
 
 output foo string = buildUrl(true, 'google.com', 'search')
 //@    "foo": {
 //@      "type": "string",
-//@      "value": "[buildUrl(true(), 'google.com', 'search')]"
+//@      "value": "[_bicep.buildUrl(true(), 'google.com', 'search')]"
 //@    }
 

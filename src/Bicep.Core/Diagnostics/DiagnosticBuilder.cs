@@ -1913,7 +1913,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FunctionBodiesCannotReferenceOuterDeclaredSymbols(string symbolName) => new(
                 TextSpan,
                 "BCP340",
-                $"""Symbol "{symbolName}" cannot be used here. Function bodies must only refer to symbols declared as parameters.""");
+                $"""Symbol "{symbolName}" cannot be used here. Function bodies must only refer to symbols defined as function arguments.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

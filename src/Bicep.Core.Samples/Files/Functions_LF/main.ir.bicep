@@ -17,7 +17,7 @@ func buildUrl = (bool https, string hostname, string path) => '${https ? 'https'
 
 output foo string = buildUrl(true, 'google.com', 'search')
 //@[000:058) └─DeclaredOutputExpression { Name = foo }
-//@[020:058)   └─FunctionCallExpression { Name = buildUrl }
+//@[020:058)   └─UserDefinedFunctionCallExpression { Name = buildUrl }
 //@[029:033)     ├─BooleanLiteralExpression { Value = True }
 //@[035:047)     ├─StringLiteralExpression { Value = google.com }
 //@[049:057)     └─StringLiteralExpression { Value = search }

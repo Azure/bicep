@@ -40,9 +40,9 @@ func testFunc = (string baz) => '${foo}-${bar}-${baz}-${getBaz()}'
 ");
 
         result.Should().HaveDiagnostics(new [] {
-            ("BCP340", DiagnosticLevel.Error, """Symbol "foo" cannot be used here. Function bodies must only refer to symbols declared as parameters."""),
-            ("BCP340", DiagnosticLevel.Error, """Symbol "bar" cannot be used here. Function bodies must only refer to symbols declared as parameters."""),
-            ("BCP340", DiagnosticLevel.Error, """Symbol "getBaz" cannot be used here. Function bodies must only refer to symbols declared as parameters."""),
+            ("BCP340", DiagnosticLevel.Error, """Symbol "foo" cannot be used here. Function bodies must only refer to symbols defined as function arguments."""),
+            ("BCP340", DiagnosticLevel.Error, """Symbol "bar" cannot be used here. Function bodies must only refer to symbols defined as function arguments."""),
+            ("BCP340", DiagnosticLevel.Error, """Symbol "getBaz" cannot be used here. Function bodies must only refer to symbols defined as function arguments."""),
         });
     }
 
