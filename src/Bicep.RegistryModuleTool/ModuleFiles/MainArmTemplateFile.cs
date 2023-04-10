@@ -122,12 +122,16 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private string? TryGetDescription(JsonElement element)
         {
-            if(element.TryGetProperty("metadata", out _) && element.GetProperty("metadata").TryGetProperty("description", out var descriptionElement)){
+            if(element.TryGetProperty("metadata", out var metdataElement) &&
+                metdataElement.TryGetProperty("description", out var descriptionElement)){
                 return descriptionElement.ToNonNullString();
             }
+
+            // The order of the checks, allow the user to optionally override the default description for a user defined type
             if(element.TryGetProperty("$ref", out var refElement)){
               return this.lazyRootElement.Value.GetPropertyByPath("definitions." + refElement.ToNonNullString().Split('/')[2] + ".type").ToNonNullString();
             }
+
             return null;
         }
 
