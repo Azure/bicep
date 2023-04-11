@@ -22,7 +22,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     public class GenerateCommandTests
     {
         [DataTestMethod]
-        // [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
         [DynamicData(nameof(GetExperimentalData), DynamicDataSourceType.Method)]
         public void Invoke_OnSuccess_ReturnsZero(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "18159476262841631239"
+      "templateHash": "15984918200177464288"
     }
   },
   "definitions": {
@@ -137,6 +137,9 @@
     },
     "osDiskSizeGB": {
       "$ref": "#/definitions/DiskSizeGB",
+      "metadata": {
+        "description": "Override default describtion"
+      },
       "value": "[parameters('osDiskSizeGB')]"
     }
   }

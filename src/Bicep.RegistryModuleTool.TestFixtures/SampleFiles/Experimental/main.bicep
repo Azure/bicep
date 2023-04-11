@@ -79,4 +79,5 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
 @description('The control plane FQDN')
 output controlPlaneFQDN string = aks.properties.fqdn
 
+@description('Override default describtion')
 output osDiskSizeGB DiskSizeGB = osDiskSizeGB
