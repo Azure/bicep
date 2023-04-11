@@ -36,7 +36,6 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
-        // [DynamicData(nameof(GetExperimentalData), DynamicDataSourceType.Method)] // This fails because the main.bicep that is prodcued does not include the custom type
         public void Invoke_OnSuccess_ProducesExpectedFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
             var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
@@ -49,7 +48,6 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
-        // [DynamicData(nameof(GetExperimentalData), DynamicDataSourceType.Method)] // This fails because the main.bicep that is prodcued does not include the custom type
         public void Invoke_RepeatOnSuccess_ProducesSameFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
             var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
