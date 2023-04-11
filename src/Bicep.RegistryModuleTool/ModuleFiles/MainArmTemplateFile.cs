@@ -53,10 +53,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 ? Enumerable.Empty<MainArmTemplateOutput>()
                 : outputsElement.EnumerateObject().Select(ToOutput));
 
-            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
-                ? Enumerable.Empty<MainArmTemplateOutput>()
-                : outputsElement.EnumerateObject().Select(ToOutputNew));
-
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
         }
 
@@ -137,7 +133,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return new(name, type, isRequired, description);
         }
 
-        private MainArmTemplateOutput ToOutputNew(JsonProperty outputProperty)
+        private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
         {
 
             var outputs = this.armTemplate.Outputs.ToImmutableDictionaryExcludingNullValues(x => x.Name, new MyEqualityComparer());
@@ -145,15 +141,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             string name = outputs[outputProperty.Name].Name;
             string type = GetPrimitiveTypeName(outputs[outputProperty.Name].TypeReference);
             string? description = outputs[outputProperty.Name].Description;
-
-            return new(name, type, description);
-        }
-
-        private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
-        {
-            string name = outputProperty.Name;
-            string type = GetTypeFromDefinition(outputProperty.Value);
-            string? description = TryGetDescription(outputProperty.Value);
 
             return new(name, type, description);
         }
