@@ -393,9 +393,11 @@ namespace Bicep.Core.Semantics
 
         private TypeSymbol GetType(TemplateOutputParameter output)
         {
-            return output.Type.Value switch
+            var resolved = TemplateEngine.ResolveSchemaReferences(SourceFile.Template, output);
+
+            return resolved.Type.Value switch
             {
-                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(output.Metadata?.Value, out var resourceType) =>
+                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(resolved.Metadata?.Value, out var resourceType) =>
                     resourceType,
 
                 _ => GetType((ITemplateSchemaNode)output),
