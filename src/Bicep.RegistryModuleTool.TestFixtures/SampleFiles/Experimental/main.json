@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "3660759329895993454"
+      "templateHash": "15984918200177464288"
     }
   },
   "definitions": {
@@ -49,7 +49,7 @@
       }
     },
     "servicePrincipalClientSecret": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "The service principal client secret"
       }

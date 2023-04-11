@@ -43,28 +43,30 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             var armTemplate = new ArmTemplateSemanticModel(SourceFileFactory.CreateArmTemplateFile(new Uri("inmemory://" + path), content));
 
-            this.lazyParameters = new(() =>
-            {
-                return lazyRootElement.Value.GetProperty("parameters").EnumerateObject().Select(parameter =>
+            this.lazyParameters = new(() => !lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement)
+                ? Enumerable.Empty<MainArmTemplateParameter>()
+                : parametersElement.EnumerateObject().Select(parameter =>
                      new MainArmTemplateParameter(
                         armTemplate.Parameters[parameter.Name].Name,
                         GetPrimitiveTypeName(armTemplate.Parameters[parameter.Name].TypeReference),
                         armTemplate.Parameters[parameter.Name].IsRequired,
                         armTemplate.Parameters[parameter.Name].Description
-                    ));
-            });
+                    )));
             // this.lazyParameters = new(() => !lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement)
             //     ? Enumerable.Empty<MainArmTemplateParameter>()
             //     : parametersElement.EnumerateObject().Select(ToParameter));
 
-            this.lazyOutputs = new(() =>
-            {
-                return armTemplate.Outputs.Select(output =>
-                    new MainArmTemplateOutput(output.Name, GetPrimitiveTypeName(output.TypeReference), output.Description));
-            });
-            // this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
-            //     ? Enumerable.Empty<MainArmTemplateOutput>()
-            //     : outputsElement.EnumerateObject().Select(ToOutput));
+            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
+                ? Enumerable.Empty<MainArmTemplateOutput>()
+                : armTemplate.Outputs.Select(output =>
+                    new MainArmTemplateOutput(
+                        output.Name,
+                        GetPrimitiveTypeName(output.TypeReference),
+                        output.Description
+                    )));
+            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
+                ? Enumerable.Empty<MainArmTemplateOutput>()
+                : outputsElement.EnumerateObject().Select(ToOutput));
 
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
         }
@@ -144,14 +146,14 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         //     return new(name, type, required, description);
         // }
 
-        // private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
-        // {
-        //     string name = outputProperty.Name;
-        //     string type = GetTypeFromDefinition(outputProperty.Value);
-        //     string? description = TryGetDescription(outputProperty.Value);
+        private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
+        {
+            string name = outputProperty.Name;
+            string type = GetTypeFromDefinition(outputProperty.Value);
+            string? description = TryGetDescription(outputProperty.Value);
 
-        //     return new(name, type, description);
-        // }
+            return new(name, type, description);
+        }
 
         private string GetTypeFromDefinition(JsonElement element)
         {
