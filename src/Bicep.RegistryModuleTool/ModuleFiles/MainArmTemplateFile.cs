@@ -44,15 +44,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             this.lazyRootElement = new(() => JsonElementFactory.CreateElement(content));
 
             this.armTemplate = new ArmTemplateSemanticModel(SourceFileFactory.CreateArmTemplateFile(new Uri("inmemory://" + this.Path), this.Content));
-
             this.lazyParameters = new(() => !lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement)
                 ? Enumerable.Empty<MainArmTemplateParameter>()
-                : lazyRootElement.Value.GetProperty("parameters").EnumerateObject().Select(ToParameter));
-
+                : parametersElement.EnumerateObject().Select(ToParameter));
             this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
                 ? Enumerable.Empty<MainArmTemplateOutput>()
                 : outputsElement.EnumerateObject().Select(ToOutput));
-
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
         }
 
