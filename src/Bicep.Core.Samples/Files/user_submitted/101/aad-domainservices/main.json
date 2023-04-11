@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4044771961515085745"
+      "templateHash": "12869406271262180935"
     }
   },
   "parameters": {
@@ -121,8 +123,8 @@
       "23.99.93.197"
     ]
   },
-  "resources": [
-    {
+  "resources": {
+    "nsg": {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-11-01",
       "name": "[variables('domainServicesNSGName')]",
@@ -184,7 +186,7 @@
         ]
       }
     },
-    {
+    "vnet": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-11-01",
       "name": "[parameters('domainServicesVnetName')]",
@@ -197,7 +199,7 @@
         }
       }
     },
-    {
+    "subnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-11-01",
       "name": "[format('{0}/{1}', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName'))]",
@@ -208,11 +210,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('domainServicesNSGName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('domainServicesVnetName'))]"
+        "nsg",
+        "vnet"
       ]
     },
-    {
+    "domainServices": {
       "type": "Microsoft.AAD/domainServices",
       "apiVersion": "2020-01-01",
       "name": "[parameters('domainName')]",
@@ -230,8 +232,8 @@
         "sku": "[parameters('sku')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('domainServicesVnetName'), parameters('domainServicesSubnetName'))]"
+        "subnet"
       ]
     }
-  ]
+  }
 }

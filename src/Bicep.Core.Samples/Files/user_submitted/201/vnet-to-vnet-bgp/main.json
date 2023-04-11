@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18295993990649876384"
+      "templateHash": "16103084072365035481"
     }
   },
   "parameters": {
@@ -52,8 +54,8 @@
       "asn": 65020
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "vnet1": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').name]",
@@ -120,7 +122,7 @@
         ]
       }
     },
-    {
+    "vnet2": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').name]",
@@ -187,7 +189,7 @@
         ]
       }
     },
-    {
+    "gw1pip": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').gatewayPublicIPName]",
@@ -196,7 +198,7 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-    {
+    "gw2pip": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').gatewayPublicIPName]",
@@ -205,7 +207,7 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-    {
+    "vpngw1": {
       "type": "Microsoft.Network/virtualNetworkGateways",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').gatewayName]",
@@ -237,11 +239,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet1cfg').gatewayPublicIPName)]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet1cfg').name)]"
+        "gw1pip",
+        "vnet1"
       ]
     },
-    {
+    "vpngw2": {
       "type": "Microsoft.Network/virtualNetworkGateways",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').gatewayName]",
@@ -273,11 +275,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('vnet2cfg').gatewayPublicIPName)]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet2cfg').name)]"
+        "gw2pip",
+        "vnet2"
       ]
     },
-    {
+    "vpn1to2": {
       "type": "Microsoft.Network/connections",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').connectionName]",
@@ -297,11 +299,11 @@
         "enableBgp": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet1cfg').gatewayName)]",
-        "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet2cfg').gatewayName)]"
+        "vpngw1",
+        "vpngw2"
       ]
     },
-    {
+    "vpn2to1": {
       "type": "Microsoft.Network/connections",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').connectionName]",
@@ -321,9 +323,9 @@
         "enableBgp": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet1cfg').gatewayName)]",
-        "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet2cfg').gatewayName)]"
+        "vpngw1",
+        "vpngw2"
       ]
     }
-  ]
+  }
 }

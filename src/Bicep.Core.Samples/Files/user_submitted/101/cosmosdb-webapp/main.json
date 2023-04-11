@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6471299566797212199"
+      "templateHash": "1787077827269547158"
     }
   },
   "parameters": {
@@ -88,8 +90,8 @@
     "websiteName": "[parameters('applicationName')]",
     "hostingPlanName": "[parameters('applicationName')]"
   },
-  "resources": [
-    {
+  "resources": {
+    "cosmosAccount": {
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2021-04-15",
       "name": "[variables('cosmosAccountName')]",
@@ -109,7 +111,7 @@
         "databaseAccountOfferType": "Standard"
       }
     },
-    {
+    "hostingPlan": {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('hostingPlanName')]",
@@ -119,7 +121,7 @@
         "capacity": "[parameters('appServicePlanInstances')]"
       }
     },
-    {
+    "website": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('websiteName')]",
@@ -130,7 +132,7 @@
           "appSettings": [
             {
               "name": "CosmosDb:Account",
-              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), '2021-04-15').documentEndpoint]"
+              "value": "[reference('cosmosAccount').documentEndpoint]"
             },
             {
               "name": "CosmosDb:Key",
@@ -148,11 +150,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]",
-        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+        "cosmosAccount",
+        "hostingPlan"
       ]
     },
-    {
+    "srcControls": {
       "type": "Microsoft.Web/sites/sourcecontrols",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', variables('websiteName'))]",
@@ -162,8 +164,8 @@
         "isManualIntegration": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('websiteName'))]"
+        "website"
       ]
     }
-  ]
+  }
 }

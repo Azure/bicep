@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2681152781874804439"
+      "templateHash": "3562708831309571470"
     }
   },
   "parameters": {
@@ -130,38 +132,38 @@
       "defaultValue": false
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "rgavd": {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]",
       "location": "westeurope"
     },
-    {
+    "rgnetw": {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
       "location": "westeurope"
     },
-    {
+    "rgfs": {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))]",
       "location": "westeurope"
     },
-    {
+    "rdmon": {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}MONITOR', parameters('resourceGroupPrefrix'))]",
       "location": "westeurope"
     },
-    {
+    "rgsig": {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "location": "westeurope"
     },
-    {
+    "avdbackplane": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "avdbackplane",
@@ -220,12 +222,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8569593233825144249"
+              "templateHash": "14232420119402199964"
             }
           },
           "parameters": {
@@ -284,8 +288,8 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "hp": {
               "type": "Microsoft.DesktopVirtualization/hostPools",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('hostpoolName')]",
@@ -297,7 +301,7 @@
                 "preferredAppGroupType": "[parameters('preferredAppGroupType')]"
               }
             },
-            {
+            "ag": {
               "type": "Microsoft.DesktopVirtualization/applicationGroups",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('appgroupName')]",
@@ -308,10 +312,10 @@
                 "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
+                "hp"
               ]
             },
-            {
+            "ws": {
               "type": "Microsoft.DesktopVirtualization/workspaces",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('workspaceName')]",
@@ -323,10 +327,10 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
+                "ag"
               ]
             },
-            {
+            "avdmonitor": {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "LAWorkspace",
@@ -358,12 +362,14 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.10-experimental",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
+                    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "3547092196470580673"
+                      "templateHash": "17360174109371358486"
                     }
                   },
                   "parameters": {
@@ -388,8 +394,8 @@
                       "type": "string"
                     }
                   },
-                  "resources": [
-                    {
+                  "resources": {
+                    "avdla": {
                       "type": "Microsoft.OperationalInsights/workspaces",
                       "apiVersion": "2020-08-01",
                       "name": "[parameters('logAnalyticsWorkspaceName')]",
@@ -400,7 +406,7 @@
                         }
                       }
                     },
-                    {
+                    "avdmonitor": {
                       "type": "Microsoft.Resources/deployments",
                       "apiVersion": "2022-09-01",
                       "name": "myBicepLADiag",
@@ -423,12 +429,14 @@
                         },
                         "template": {
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.10-experimental",
                           "contentVersion": "1.0.0.0",
                           "metadata": {
+                            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "4134091672904132879"
+                              "templateHash": "13594450377905290817"
                             }
                           },
                           "parameters": {
@@ -442,8 +450,20 @@
                               "type": "string"
                             }
                           },
-                          "resources": [
-                            {
+                          "resources": {
+                            "hostPool": {
+                              "existing": true,
+                              "type": "Microsoft.DesktopVirtualization/hostPools",
+                              "apiVersion": "2020-11-02-preview",
+                              "name": "[parameters('hostpoolName')]"
+                            },
+                            "workspace": {
+                              "existing": true,
+                              "type": "Microsoft.DesktopVirtualization/workspaces",
+                              "apiVersion": "2020-11-02-preview",
+                              "name": "[parameters('workspaceName')]"
+                            },
+                            "avdhpds": {
                               "type": "Microsoft.Insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
                               "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
@@ -474,7 +494,7 @@
                                 ]
                               }
                             },
-                            {
+                            "avdwsds": {
                               "type": "Microsoft.Insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
                               "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
@@ -501,30 +521,30 @@
                                 ]
                               }
                             }
-                          ]
+                          }
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                        "avdla"
                       ]
                     }
-                  ]
+                  }
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]",
-                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
+                "hp",
+                "ws"
               ]
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}MONITOR', parameters('resourceGroupPrefrix')))]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}BACKPLANE', parameters('resourceGroupPrefrix')))]"
+        "rdmon",
+        "rgavd"
       ]
     },
-    {
+    "avdnetwork": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "avdnetwork",
@@ -553,12 +573,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15190290029861526532"
+              "templateHash": "17467554710727696659"
             }
           },
           "parameters": {
@@ -580,8 +602,8 @@
               "defaultValue": "AVD"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "vnet": {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2019-12-01",
               "name": "[parameters('vnetName')]",
@@ -623,11 +645,11 @@
                 ]
               }
             }
-          ],
+          },
           "outputs": {
             "subnetId": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName')), '2019-12-01').subnets[0].id]"
+              "value": "[reference('vnet').subnets[0].id]"
             },
             "vnetId": {
               "type": "string",
@@ -637,10 +659,10 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]"
+        "rgnetw"
       ]
     },
-    {
+    "avdFileServices": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "avdFileServices",
@@ -669,12 +691,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13719396606305828840"
+              "templateHash": "3282224269400261115"
             }
           },
           "parameters": {
@@ -699,8 +723,8 @@
           "variables": {
             "filesharelocation": "[format('{0}/default/{1}', parameters('storageaccountName'), parameters('fileshareFolderName'))]"
           },
-          "resources": [
-            {
+          "resources": {
+            "sa": {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2020-08-01-preview",
               "name": "[parameters('storageaccountName')]",
@@ -710,15 +734,15 @@
                 "name": "[parameters('storgeaccountglobalRedundancy')]"
               }
             },
-            {
+            "fs": {
               "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
               "apiVersion": "2020-08-01-preview",
               "name": "[variables('filesharelocation')]",
               "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
+                "sa"
               ]
             }
-          ],
+          },
           "outputs": {
             "storageAccountId": {
               "type": "string",
@@ -728,10 +752,10 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}FILESERVICES', parameters('resourceGroupPrefrix')))]"
+        "rgfs"
       ]
     },
-    {
+    "pep": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "privateEndpoint",
@@ -749,23 +773,25 @@
             "value": "pep-sto"
           },
           "storageAccountId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdFileServices'), '2022-09-01').outputs.storageAccountId.value]"
+            "value": "[reference('avdFileServices').outputs.storageAccountId.value]"
           },
           "vnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2022-09-01').outputs.vnetId.value]"
+            "value": "[reference('avdnetwork').outputs.vnetId.value]"
           },
           "subnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2022-09-01').outputs.subnetId.value]"
+            "value": "[reference('avdnetwork').outputs.subnetId.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2260198603101712361"
+              "templateHash": "11289023994914791241"
             }
           },
           "parameters": {
@@ -794,8 +820,8 @@
               "defaultValue": "privatelink.file.core.windows.net"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "privateEndpoint::privateDNSZoneGroup": {
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'dnsgroupname')]",
@@ -810,11 +836,11 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDNSZoneName'))]",
-                "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+                "privateDNSZone",
+                "privateEndpoint"
               ]
             },
-            {
+            "privateDNSZone::virtualNetworkLink": {
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/{1}', parameters('privateDNSZoneName'), format('{0}-link', parameters('privateDNSZoneName')))]",
@@ -826,10 +852,10 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDNSZoneName'))]"
+                "privateDNSZone"
               ]
             },
-            {
+            "privateEndpoint": {
               "type": "Microsoft.Network/privateEndpoints",
               "apiVersion": "2020-06-01",
               "name": "[parameters('privateEndpointName')]",
@@ -851,22 +877,22 @@
                 ]
               }
             },
-            {
+            "privateDNSZone": {
               "type": "Microsoft.Network/privateDnsZones",
               "apiVersion": "2020-06-01",
               "name": "[parameters('privateDNSZoneName')]",
               "location": "global"
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdFileServices')]",
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork')]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]"
+        "avdFileServices",
+        "avdnetwork",
+        "rgnetw"
       ]
     },
-    {
+    "avdsig": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "avdsig",
@@ -881,7 +907,7 @@
             "value": "[parameters('sigName')]"
           },
           "sigLocation": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix'))), '2020-06-01', 'full').location]"
+            "value": "[reference('rgsig', '2020-06-01', 'full').location]"
           },
           "imagePublisher": {
             "value": "[parameters('imagePublisher')]"
@@ -904,12 +930,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3415198297049534922"
+              "templateHash": "4809662570664543995"
             }
           },
           "parameters": {
@@ -938,20 +966,20 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "avdsig": {
               "type": "Microsoft.Compute/galleries",
               "apiVersion": "2020-09-30",
               "name": "[parameters('sigName')]",
               "location": "[parameters('sigLocation')]"
             },
-            {
+            "managedidentity": {
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[parameters('uamiName')]",
               "location": "[resourceGroup().location]"
             },
-            {
+            "gallerydef": {
               "type": "Microsoft.Authorization/roleDefinitions",
               "apiVersion": "2018-01-01-preview",
               "name": "[guid(parameters('roleNameGalleryImage'))]",
@@ -976,24 +1004,24 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
+                "managedidentity"
               ]
             },
-            {
+            "galleryassignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
               "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
+                "principalId": "[reference('managedidentity').principalId]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
-                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
+                "gallerydef",
+                "managedidentity"
               ]
             },
-            {
+            "avdid": {
               "type": "Microsoft.Compute/galleries/images",
               "apiVersion": "2019-07-01",
               "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
@@ -1020,14 +1048,14 @@
               },
               "tags": {},
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/galleries', parameters('sigName'))]"
+                "avdsig"
               ]
             }
-          ],
+          },
           "outputs": {
             "sigid": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), '2018-01-01-preview').roleName]"
+              "value": "[reference('gallerydef').roleName]"
             },
             "avdidoutput": {
               "type": "string",
@@ -1037,10 +1065,10 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix')))]"
+        "rgsig"
       ]
     },
-    {
+    "avdaib": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('avdimagebuilder{0}', 'avdsig')]",
@@ -1052,7 +1080,7 @@
         "mode": "Incremental",
         "parameters": {
           "siglocation": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix'))), '2020-06-01', 'full').location]"
+            "value": "[reference('rgsig', '2020-06-01', 'full').location]"
           },
           "uamiName": {
             "value": "[parameters('uamiName')]"
@@ -1067,7 +1095,7 @@
             "value": "[parameters('imageSKU')]"
           },
           "galleryImageId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdsig'), '2022-09-01').outputs.avdidoutput.value]"
+            "value": "[reference('avdsig').outputs.avdidoutput.value]"
           },
           "InvokeRunImageBuildThroughDeploymentScript": {
             "value": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]"
@@ -1075,12 +1103,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5788686735444811125"
+              "templateHash": "18154557577220218550"
             }
           },
           "parameters": {
@@ -1126,8 +1156,14 @@
               "defaultValue": "[resourceGroup().name]"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "managedidentity": {
+              "existing": true,
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2018-11-30",
+              "name": "[parameters('uamiName')]"
+            },
+            "imageTemplateName_resource": {
               "type": "Microsoft.VirtualMachineImages/imageTemplates",
               "apiVersion": "2020-02-14",
               "name": "[parameters('imageTemplateName')]",
@@ -1169,7 +1205,7 @@
                 ]
               }
             },
-            {
+            "aibdef": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
               "type": "Microsoft.Authorization/roleDefinitions",
               "apiVersion": "2018-01-01-preview",
@@ -1193,32 +1229,32 @@
                 ]
               }
             },
-            {
+            "aibrunnerassignment": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
               "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom')))]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
+                "principalId": "[reference('managedidentity').principalId]",
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom')))]"
+                "aibdef"
               ]
             },
-            {
+            "miorole": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
               "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
               "properties": {
                 "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
+                "principalId": "[reference('managedidentity').principalId]",
                 "principalType": "ServicePrincipal"
               }
             },
-            {
+            "scriptName_BuildVMImage": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
@@ -1241,16 +1277,16 @@
                 "retentionInterval": "P1D"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', parameters('imageTemplateName'))]"
+                "imageTemplateName_resource"
               ]
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdsig')]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}SIG', parameters('resourceGroupPrefrix')))]"
+        "avdsig",
+        "rgsig"
       ]
     }
-  ]
+  }
 }

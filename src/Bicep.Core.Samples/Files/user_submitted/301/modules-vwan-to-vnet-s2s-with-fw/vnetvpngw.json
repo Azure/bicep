@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9355385094073877227"
+      "templateHash": "4678077202719623870"
     }
   },
   "parameters": {
@@ -32,8 +34,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "vpngwpip": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vpngwpipname')]",
@@ -45,7 +47,7 @@
         "publicIPAllocationMethod": "Static"
       }
     },
-    {
+    "vpngw": {
       "type": "Microsoft.Network/virtualNetworkGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vpngwname')]",
@@ -79,10 +81,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))]"
+        "vpngwpip"
       ]
     }
-  ],
+  },
   "outputs": {
     "id": {
       "type": "string",
@@ -90,15 +92,15 @@
     },
     "vpngwip": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname')), '2020-06-01').ipAddress]"
+      "value": "[reference('vpngwpip').ipAddress]"
     },
     "vpngwbgpaddress": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.bgpPeeringAddress]"
+      "value": "[reference('vpngw').bgpSettings.bgpPeeringAddress]"
     },
     "bgpasn": {
       "type": "int",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.asn]"
+      "value": "[reference('vpngw').bgpSettings.asn]"
     }
   }
 }

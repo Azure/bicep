@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8709710893014230448"
+      "templateHash": "3373423370772403079"
     }
   },
   "parameters": {
@@ -162,8 +164,14 @@
     "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]",
     "logAnalyticsWorkspaceName": "[last(split(parameters('logAnalyticsWorkspaceId'), '/'))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "logAnalyticsWorkspace": {
+      "existing": true,
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-10-01",
+      "name": "[variables('logAnalyticsWorkspaceName')]"
+    },
+    "blobStorageAccount": {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-01-01",
       "name": "[parameters('blobStorageAccountName')]",
@@ -173,7 +181,7 @@
       },
       "kind": "StorageV2"
     },
-    {
+    "vmNic": {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-08-01",
       "name": "[variables('vmNicName')]",
@@ -192,7 +200,7 @@
         ]
       }
     },
-    {
+    "virtualMachines": {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-12-01",
       "name": "[parameters('vmName')]",
@@ -249,16 +257,16 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName')), '2021-01-01').primaryEndpoints.blob]"
+            "storageUri": "[reference('blobStorageAccount').primaryEndpoints.blob]"
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+        "blobStorageAccount",
+        "vmNic"
       ]
     },
-    {
+    "omsAgentForLinux": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', parameters('vmName'), format('{0}', variables('omsAgentForLinuxName')))]",
@@ -268,7 +276,7 @@
         "type": "OmsAgentForLinux",
         "typeHandlerVersion": "1.13",
         "settings": {
-          "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').customerId]",
+          "workspaceId": "[reference('logAnalyticsWorkspace').customerId]",
           "stopOnMultipleConnections": false
         },
         "protectedSettings": {
@@ -276,10 +284,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        "virtualMachines"
       ]
     },
-    {
+    "omsDependencyAgentForLinux": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', parameters('vmName'), format('{0}', variables('omsDependencyAgentForLinuxName')))]",
@@ -291,16 +299,16 @@
         "autoUpgradeMinorVersion": true
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        "virtualMachines"
       ]
     },
-    {
+    "blobPrivateDnsZone": {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
       "name": "[variables('blobPrivateDnsZoneName')]",
       "location": "global"
     },
-    {
+    "blobPrivateDnsZoneLinkToVirtualNetwork": {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('blobPrivateDnsZoneName'), format('link_to_{0}', toLower(variables('virtualNetworkName'))))]",
@@ -312,10 +320,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/privateDnsZones', variables('blobPrivateDnsZoneName'))]"
+        "blobPrivateDnsZone"
       ]
     },
-    {
+    "blobStorageAccountPrivateEndpoint": {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-08-01",
       "name": "[parameters('blobStorageAccountPrivateEndpointName')]",
@@ -342,10 +350,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))]"
+        "blobStorageAccount"
       ]
     },
-    {
+    "blobPrivateDnsZoneGroup": {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-08-01",
       "name": "[format('{0}/{1}', parameters('blobStorageAccountPrivateEndpointName'), format('{0}PrivateDnsZoneGroup', variables('blobStorageAccountPrivateEndpointGroupName')))]",
@@ -360,9 +368,9 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/privateDnsZones', variables('blobPrivateDnsZoneName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', parameters('blobStorageAccountPrivateEndpointName'))]"
+        "blobPrivateDnsZone",
+        "blobStorageAccountPrivateEndpoint"
       ]
     }
-  ]
+  }
 }

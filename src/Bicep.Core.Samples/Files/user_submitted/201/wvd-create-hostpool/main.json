@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16044931613901748829"
+      "templateHash": "14641791797984039205"
     }
   },
   "parameters": {
@@ -544,8 +546,8 @@
       "customRdpProperty": "[parameters('customRdpProperty')]"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "hostpool": {
       "type": "Microsoft.DesktopVirtualization/hostPools",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('hostpoolName')]",
@@ -553,7 +555,7 @@
       "tags": "[parameters('hostpoolTags')]",
       "properties": "[if(empty(parameters('customRdpProperty')), variables('hostpoolRequiredProps'), union(variables('hostpoolOptionalProps'), variables('hostpoolRequiredProps')))]"
     },
-    {
+    "appGroupName": {
       "type": "Microsoft.DesktopVirtualization/applicationGroups",
       "apiVersion": "2019-12-10-preview",
       "name": "[variables('appGroupName_var')]",
@@ -566,10 +568,10 @@
         "applicationGroupType": "Desktop"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
+        "hostpool"
       ]
     },
-    {
+    "workspace": {
       "condition": "[parameters('addToWorkspace')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -593,12 +595,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10744375107263133706"
+              "templateHash": "11900281492122678541"
             }
           },
           "parameters": {
@@ -612,8 +616,8 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "workSpace": {
               "type": "Microsoft.DesktopVirtualization/workspaces",
               "apiVersion": "2019-12-10-preview",
               "name": "[parameters('workSpaceName')]",
@@ -622,11 +626,11 @@
                 "applicationGroupReferences": "[parameters('applicationGroupReferencesArr')]"
               }
             }
-          ]
+          }
         }
       }
     },
-    {
+    "AVSet": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('availabilityOption'), 'AvailabilitySet')), parameters('createAvailabilitySet'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -659,12 +663,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2813905246495879379"
+              "templateHash": "3211583636901785721"
             }
           },
           "parameters": {
@@ -687,8 +693,8 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "availabilitySet": {
               "type": "Microsoft.Compute/availabilitySets",
               "apiVersion": "2018-10-01",
               "name": "[parameters('availabilitySetName')]",
@@ -702,14 +708,14 @@
                 "name": "[parameters('avSetSKU')]"
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', variables('appGroupName_var'))]"
+        "appGroupName"
       ]
     },
-    {
+    "vmCreation_customVHD_managedDisks": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -832,12 +838,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5496671400759637143"
+              "templateHash": "11281229788072385683"
             }
           },
           "parameters": {
@@ -1117,8 +1125,8 @@
               "id": "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "imageName": {
               "type": "Microsoft.Compute/images",
               "apiVersion": "2018-10-01",
               "name": "[variables('imageName_var')]",
@@ -1135,7 +1143,7 @@
                 }
               }
             },
-            {
+            "nic": {
               "copy": {
                 "name": "nic",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1161,10 +1169,10 @@
                 "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
+                "NSG"
               ]
             },
-            {
+            "vm": {
               "copy": {
                 "name": "vm",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1214,11 +1222,11 @@
               },
               "zones": "[if(equals(parameters('availabilityOption'), 'AvailabilityZone'), array(parameters('availabilityZone')), variables('emptyArray'))]",
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/images', variables('imageName_var'))]",
+                "imageName",
                 "nic"
               ]
             },
-            {
+            "vm_DSC": {
               "copy": {
                 "name": "vm_DSC",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1246,7 +1254,7 @@
                 "vm"
               ]
             },
-            {
+            "vm_AADLoginForWindows": {
               "copy": {
                 "name": "vm_AADLoginForWindows",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1266,7 +1274,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_AADLoginForWindowsWithIntune": {
               "copy": {
                 "name": "vm_AADLoginForWindowsWithIntune",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1289,7 +1297,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_joindomain": {
               "copy": {
                 "name": "vm_joindomain",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1319,7 +1327,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "NSG": {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
@@ -1347,12 +1355,14 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.10-experimental",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
+                    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8777864661194051401"
+                      "templateHash": "4892198028949632780"
                     }
                   },
                   "parameters": {
@@ -1372,8 +1382,8 @@
                       "type": "array"
                     }
                   },
-                  "resources": [
-                    {
+                  "resources": {
+                    "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
                       "type": "Microsoft.Network/networkSecurityGroups",
                       "apiVersion": "2019-02-01",
@@ -1384,18 +1394,18 @@
                         "securityRules": "[parameters('networkSecurityGroupRules')]"
                       }
                     }
-                  ]
+                  }
                 }
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('vmResourceGroup')), 'Microsoft.Resources/deployments', 'AVSet-deployment')]"
+        "AVSet"
       ]
     },
-    {
+    "vmCreation_customVHD_unmanagedDisks": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), not(parameters('vmUseManagedDisks')))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -1518,12 +1528,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12820056084073504429"
+              "templateHash": "14190063536201337959"
             }
           },
           "parameters": {
@@ -1803,8 +1815,8 @@
               "id": "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "nic": {
               "copy": {
                 "name": "nic",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1830,10 +1842,10 @@
                 "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
+                "NSG"
               ]
             },
-            {
+            "vm": {
               "copy": {
                 "name": "vm",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1889,7 +1901,7 @@
                 "nic"
               ]
             },
-            {
+            "vm_DSC": {
               "copy": {
                 "name": "vm_DSC",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1917,7 +1929,7 @@
                 "vm"
               ]
             },
-            {
+            "vm_AADLoginForWindows": {
               "copy": {
                 "name": "vm_AADLoginForWindows",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1937,7 +1949,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_AADLoginForWindowsWithIntune": {
               "copy": {
                 "name": "vm_AADLoginForWindowsWithIntune",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1960,7 +1972,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_joindomain": {
               "copy": {
                 "name": "vm_joindomain",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -1990,7 +2002,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "NSG": {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
@@ -2018,12 +2030,14 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.10-experimental",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
+                    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8777864661194051401"
+                      "templateHash": "4892198028949632780"
                     }
                   },
                   "parameters": {
@@ -2043,8 +2057,8 @@
                       "type": "array"
                     }
                   },
-                  "resources": [
-                    {
+                  "resources": {
+                    "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
                       "type": "Microsoft.Network/networkSecurityGroups",
                       "apiVersion": "2019-02-01",
@@ -2055,18 +2069,18 @@
                         "securityRules": "[parameters('networkSecurityGroupRules')]"
                       }
                     }
-                  ]
+                  }
                 }
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('vmResourceGroup')), 'Microsoft.Resources/deployments', 'AVSet-deployment')]"
+        "AVSet"
       ]
     },
-    {
+    "vmCreation_customeImage": {
       "condition": "[and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomImage'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -2189,12 +2203,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5275119469596650755"
+              "templateHash": "5228748956448808827"
             }
           },
           "parameters": {
@@ -2473,8 +2489,8 @@
               "id": "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "nic": {
               "copy": {
                 "name": "nic",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -2500,10 +2516,10 @@
                 "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
+                "NSG"
               ]
             },
-            {
+            "vm": {
               "copy": {
                 "name": "vm",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -2556,7 +2572,7 @@
                 "nic"
               ]
             },
-            {
+            "vm_DSC": {
               "copy": {
                 "name": "vm_DSC",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -2584,7 +2600,7 @@
                 "vm"
               ]
             },
-            {
+            "vm_AADLoginForWindows": {
               "copy": {
                 "name": "vm_AADLoginForWindows",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -2604,7 +2620,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_AADLoginForWindowsWithIntune": {
               "copy": {
                 "name": "vm_AADLoginForWindowsWithIntune",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -2627,7 +2643,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_joindomain": {
               "copy": {
                 "name": "vm_joindomain",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -2657,7 +2673,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "NSG": {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
@@ -2685,12 +2701,14 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.10-experimental",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
+                    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8777864661194051401"
+                      "templateHash": "4892198028949632780"
                     }
                   },
                   "parameters": {
@@ -2710,8 +2728,8 @@
                       "type": "array"
                     }
                   },
-                  "resources": [
-                    {
+                  "resources": {
+                    "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
                       "type": "Microsoft.Network/networkSecurityGroups",
                       "apiVersion": "2019-02-01",
@@ -2722,18 +2740,18 @@
                         "securityRules": "[parameters('networkSecurityGroupRules')]"
                       }
                     }
-                  ]
+                  }
                 }
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('vmResourceGroup')), 'Microsoft.Resources/deployments', 'AVSet-deployment')]"
+        "AVSet"
       ]
     },
-    {
+    "vmCreation_Gallery": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'Gallery')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -2856,12 +2874,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "951626561695186356"
+              "templateHash": "5026583956773796744"
             }
           },
           "parameters": {
@@ -3140,8 +3160,8 @@
               "id": "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "nic": {
               "copy": {
                 "name": "nic",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -3167,10 +3187,10 @@
                 "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
+                "NSG"
               ]
             },
-            {
+            "vm": {
               "copy": {
                 "name": "vm",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -3226,7 +3246,7 @@
                 "nic"
               ]
             },
-            {
+            "vm_DSC": {
               "copy": {
                 "name": "vm_DSC",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -3254,7 +3274,7 @@
                 "vm"
               ]
             },
-            {
+            "vm_AADLoginForWindows": {
               "copy": {
                 "name": "vm_AADLoginForWindows",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -3274,7 +3294,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_AADLoginForWindowsWithIntune": {
               "copy": {
                 "name": "vm_AADLoginForWindowsWithIntune",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -3297,7 +3317,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "vm_joindomain": {
               "copy": {
                 "name": "vm_joindomain",
                 "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -3327,7 +3347,7 @@
                 "vm_DSC"
               ]
             },
-            {
+            "NSG": {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
@@ -3355,12 +3375,14 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.10-experimental",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
+                    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8777864661194051401"
+                      "templateHash": "4892198028949632780"
                     }
                   },
                   "parameters": {
@@ -3380,8 +3402,8 @@
                       "type": "array"
                     }
                   },
-                  "resources": [
-                    {
+                  "resources": {
+                    "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
                       "type": "Microsoft.Network/networkSecurityGroups",
                       "apiVersion": "2019-02-01",
@@ -3392,18 +3414,18 @@
                         "securityRules": "[parameters('networkSecurityGroupRules')]"
                       }
                     }
-                  ]
+                  }
                 }
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('vmResourceGroup')), 'Microsoft.Resources/deployments', 'AVSet-deployment')]"
+        "AVSet"
       ]
     }
-  ],
+  },
   "outputs": {
     "rdshVmNamesObject": {
       "type": "array",

@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1298853548212285545"
+      "templateHash": "11159205909589042222"
     }
   },
   "parameters": {
@@ -69,8 +71,14 @@
       }
     ]
   },
-  "resources": [
-    {
+  "resources": {
+    "apiManagementService": {
+      "existing": true,
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2020-12-01",
+      "name": "[parameters('apimInstanceName')]"
+    },
+    "ProductRecords": {
       "copy": {
         "name": "ProductRecords",
         "count": "[length(variables('productsSet'))]"
@@ -88,7 +96,7 @@
         "state": "[variables('productsSet')[copyIndex()].publishState]"
       }
     },
-    {
+    "functionAPI": {
       "type": "Microsoft.ApiManagement/service/apis",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', parameters('apimInstanceName'), parameters('apiName'))]",
@@ -98,7 +106,7 @@
         "path": "[parameters('apiPath')]"
       }
     },
-    {
+    "attachAPIToProducts": {
       "copy": {
         "name": "attachAPIToProducts",
         "count": "[length(variables('productsSet'))]"
@@ -107,10 +115,10 @@
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}/{2}', parameters('apimInstanceName'), variables('productsSet')[copyIndex()].productName, parameters('apiName'))]",
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service/products', parameters('apimInstanceName'), variables('productsSet')[copyIndex()].productName)]"
+        "[format('ProductRecords[{0}]', copyIndex())]"
       ]
     }
-  ],
+  },
   "outputs": {
     "apimProducts": {
       "type": "array",

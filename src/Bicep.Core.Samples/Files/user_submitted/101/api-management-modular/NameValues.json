@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5498141100152018886"
+      "templateHash": "13285121027589828236"
     }
   },
   "parameters": {
@@ -35,8 +37,14 @@
       }
     ]
   },
-  "resources": [
-    {
+  "resources": {
+    "parentAPIM": {
+      "existing": true,
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]"
+    },
+    "apiManagementNVPair": {
       "copy": {
         "name": "apiManagementNVPair",
         "count": "[length(variables('apimNameValueSet'))]"
@@ -51,7 +59,7 @@
         "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
       }
     }
-  ],
+  },
   "outputs": {
     "apimNameValues": {
       "type": "array",

@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13466318512342251126"
+      "templateHash": "18418497797363694154"
     }
   },
   "parameters": {
@@ -22,8 +24,8 @@
       "defaultValue": "[format('ds{0}', uniqueString(resourceGroup().name))]"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "script": {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2020-10-01",
       "name": "[parameters('dsName')]",
@@ -36,11 +38,11 @@
         "retentionInterval": "PT4H"
       }
     }
-  ],
+  },
   "outputs": {
     "scriptOutput": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', parameters('dsName')), '2020-10-01').outputs.test]"
+      "value": "[reference('script').outputs.test]"
     }
   }
 }

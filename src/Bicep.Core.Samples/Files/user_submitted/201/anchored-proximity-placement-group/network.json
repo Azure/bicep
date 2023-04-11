@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10154278416046209142"
+      "templateHash": "4630933237527913417"
     }
   },
   "parameters": {
@@ -18,8 +20,8 @@
       "defaultValue": "1.1.1.1"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "nsg": {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-06-01",
       "name": "demo-nsg",
@@ -68,7 +70,7 @@
         ]
       }
     },
-    {
+    "vnet": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-05-01",
       "name": "demo-vnet",
@@ -92,10 +94,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'demo-nsg')]"
+        "nsg"
       ]
     }
-  ],
+  },
   "outputs": {
     "vnetId": {
       "type": "string",

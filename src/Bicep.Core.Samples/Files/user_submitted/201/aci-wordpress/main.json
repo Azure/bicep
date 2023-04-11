@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12764816078959271221"
+      "templateHash": "696954864064958221"
     }
   },
   "parameters": {
@@ -46,27 +48,27 @@
     "wpScriptToExecute": "[format('Get-AzStorageAccount -StorageAccountName {0} -ResourceGroupName {1} | New-AzStorageShare -Name {2}', parameters('storageAccountName'), resourceGroup().name, variables('wpShareName'))]",
     "sqlScriptToExecute": "[format('Get-AzStorageAccount -StorageAccountName {0} -ResourceGroupName {1} | New-AzStorageShare -Name {2}', parameters('storageAccountName'), resourceGroup().name, variables('sqlShareName'))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "mi": {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "name": "scratch",
       "location": "[parameters('location')]"
     },
-    {
+    "miRoleAssign": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[variables('roleAssignmentName')]",
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'scratch'), '2018-11-30').principalId]",
+        "principalId": "[reference('mi').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'scratch')]"
+        "mi"
       ]
     },
-    {
+    "stg": {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[parameters('storageAccountName')]",
@@ -76,10 +78,10 @@
       },
       "kind": "StorageV2",
       "dependsOn": [
-        "[resourceId('Microsoft.Authorization/roleAssignments', variables('roleAssignmentName'))]"
+        "miRoleAssign"
       ]
     },
-    {
+    "dScriptWp": {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2019-10-01-preview",
       "name": "[format('{0}-{1}', variables('scriptName'), variables('wpShareName'))]",
@@ -103,11 +105,11 @@
         "timeout": "PT5M"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'scratch')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        "mi",
+        "stg"
       ]
     },
-    {
+    "dScriptSql": {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2019-10-01-preview",
       "name": "[format('{0}-{1}', variables('scriptName'), variables('sqlShareName'))]",
@@ -131,11 +133,11 @@
         "timeout": "PT5M"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'scratch')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        "mi",
+        "stg"
       ]
     },
-    {
+    "wpAci": {
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2019-12-01",
       "name": "wordpress-containerinstance",
@@ -238,16 +240,16 @@
         "osType": "Linux"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deploymentScripts', format('{0}-{1}', variables('scriptName'), variables('sqlShareName')))]",
-        "[resourceId('Microsoft.Resources/deploymentScripts', format('{0}-{1}', variables('scriptName'), variables('wpShareName')))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        "dScriptSql",
+        "dScriptWp",
+        "stg"
       ]
     }
-  ],
+  },
   "outputs": {
     "siteFQDN": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', 'wordpress-containerinstance'), '2019-12-01').ipAddress.fqdn]"
+      "value": "[reference('wpAci').ipAddress.fqdn]"
     }
   }
 }

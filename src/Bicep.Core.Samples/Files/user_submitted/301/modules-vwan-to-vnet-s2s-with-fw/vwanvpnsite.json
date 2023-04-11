@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8505973820543281231"
+      "templateHash": "6223556652513066188"
     }
   },
   "parameters": {
@@ -47,8 +49,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "vpnsite": {
       "type": "Microsoft.Network/vpnSites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vpnsitename')]",
@@ -73,7 +75,7 @@
         }
       }
     }
-  ],
+  },
   "outputs": {
     "id": {
       "type": "string",

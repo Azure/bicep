@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4526302250036862177"
+      "templateHash": "11204456882726619300"
     }
   },
   "parameters": {
@@ -17,8 +19,8 @@
       "type": "string"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "appinsights": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2018-05-01-preview",
       "name": "[parameters('appInsightsName')]",
@@ -28,7 +30,7 @@
         "Application_Type": "web"
       }
     },
-    {
+    "dashboard": {
       "type": "Microsoft.Portal/dashboards",
       "apiVersion": "2015-08-01-preview",
       "name": "[guid(resourceGroup().name, 'dashboard')]",
@@ -191,8 +193,8 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
+        "appinsights"
       ]
     }
-  ]
+  }
 }

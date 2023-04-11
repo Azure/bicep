@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3252090373674473917"
+      "templateHash": "13921700731420413442"
     }
   },
   "parameters": {
@@ -30,8 +32,8 @@
     "environmentName": "Production",
     "costCenterName": "IT"
   },
-  "resources": [
-    {
+  "resources": {
+    "logAnalyticsWorkspace": {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-03-01-preview",
       "name": "[parameters('logAnalyticsWorkspaceName')]",
@@ -50,7 +52,7 @@
         }
       }
     },
-    {
+    "logAnalyticsWorkspaceDiagnostics": {
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('logAnalyticsWorkspaceName'))]",
@@ -79,10 +81,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+        "logAnalyticsWorkspace"
       ]
     },
-    {
+    "solutionsVMInsights": {
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
       "name": "[variables('vmInsights').name]",
@@ -97,10 +99,10 @@
         "promotionCode": ""
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+        "logAnalyticsWorkspace"
       ]
     },
-    {
+    "solutionsContainerInsights": {
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
       "name": "[variables('containerInsights').name]",
@@ -115,8 +117,8 @@
         "promotionCode": ""
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+        "logAnalyticsWorkspace"
       ]
     }
-  ]
+  }
 }

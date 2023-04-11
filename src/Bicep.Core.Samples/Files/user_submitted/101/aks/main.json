@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17647525524174820404"
+      "templateHash": "11713169269269294837"
     }
   },
   "parameters": {
@@ -49,8 +51,8 @@
       "defaultValue": "Standard_DS2_v2"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "aks": {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2020-09-01",
       "name": "[parameters('clusterName')]",
@@ -83,11 +85,11 @@
         }
       }
     }
-  ],
+  },
   "outputs": {
     "controlPlaneFQDN": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2020-09-01').fqdn]"
+      "value": "[reference('aks').fqdn]"
     }
   }
 }

@@ -55,21 +55,18 @@ output 2
 
 // malformed type
 output malformedType 3
-//@[21:22) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |3|
 //@[22:22) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // malformed type but type check should still happen
 output malformedType2 3 = 2 + null
-//@[22:23) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |3|
 //@[26:34) [BCP045 (Error)] Cannot apply operator "+" to operands of type "2" and "null". (CodeDescription: none) |2 + null|
 
 // malformed type assignment
 output malformedAssignment 2 = 2
-//@[27:28) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |2|
 
 // malformed type before assignment
 output lol 2 = true
-//@[11:12) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |2|
+//@[15:19) [BCP026 (Error)] The output expects a value of type "2" but the provided value is of type "true". (CodeDescription: none) |true|
 
 // wrong type + missing value
 output foo fluffy

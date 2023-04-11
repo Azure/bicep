@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8431332347365725334"
+      "templateHash": "7499784839275907343"
     }
   },
   "parameters": {
@@ -44,8 +46,8 @@
     "dataFactoryDataSetOutName": "ArmtemplateTestDatasetOut",
     "pipelineName": "ArmtemplateSampleCopyPipeline"
   },
-  "resources": [
-    {
+  "resources": {
+    "storageAccount": {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
       "name": "[parameters('storageAccountName')]",
@@ -55,15 +57,15 @@
       },
       "kind": "StorageV2"
     },
-    {
+    "blobContainer": {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2021-04-01",
       "name": "[format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName'))]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        "storageAccount"
       ]
     },
-    {
+    "dataFactory": {
       "type": "Microsoft.DataFactory/factories",
       "apiVersion": "2018-06-01",
       "name": "[parameters('dataFactoryName')]",
@@ -72,7 +74,7 @@
         "type": "SystemAssigned"
       }
     },
-    {
+    "dataFactoryLinkedService": {
       "type": "Microsoft.DataFactory/factories/linkedservices",
       "apiVersion": "2018-06-01",
       "name": "[format('{0}/{1}', parameters('dataFactoryName'), variables('dataFactoryLinkedServiceName'))]",
@@ -83,11 +85,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DataFactory/factories', parameters('dataFactoryName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        "dataFactory",
+        "storageAccount"
       ]
     },
-    {
+    "dataFactoryDataSetIn": {
       "type": "Microsoft.DataFactory/factories/datasets",
       "apiVersion": "2018-06-01",
       "name": "[format('{0}/{1}', parameters('dataFactoryName'), variables('dataFactoryDataSetInName'))]",
@@ -107,12 +109,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName')), '/')[0], split(format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName')), '/')[1], split(format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName')), '/')[2])]",
-        "[resourceId('Microsoft.DataFactory/factories', parameters('dataFactoryName'))]",
-        "[resourceId('Microsoft.DataFactory/factories/linkedservices', parameters('dataFactoryName'), variables('dataFactoryLinkedServiceName'))]"
+        "blobContainer",
+        "dataFactory",
+        "dataFactoryLinkedService"
       ]
     },
-    {
+    "dataFactoryDataSetOut": {
       "type": "Microsoft.DataFactory/factories/datasets",
       "apiVersion": "2018-06-01",
       "name": "[format('{0}/{1}', parameters('dataFactoryName'), variables('dataFactoryDataSetOutName'))]",
@@ -131,12 +133,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName')), '/')[0], split(format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName')), '/')[1], split(format('{0}/default/{1}', parameters('storageAccountName'), parameters('blobContainerName')), '/')[2])]",
-        "[resourceId('Microsoft.DataFactory/factories', parameters('dataFactoryName'))]",
-        "[resourceId('Microsoft.DataFactory/factories/linkedservices', parameters('dataFactoryName'), variables('dataFactoryLinkedServiceName'))]"
+        "blobContainer",
+        "dataFactory",
+        "dataFactoryLinkedService"
       ]
     },
-    {
+    "dataFactoryPipeline": {
       "type": "Microsoft.DataFactory/factories/pipelines",
       "apiVersion": "2018-06-01",
       "name": "[format('{0}/{1}', parameters('dataFactoryName'), variables('pipelineName'))]",
@@ -184,10 +186,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DataFactory/factories', parameters('dataFactoryName'))]",
-        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('dataFactoryDataSetInName'))]",
-        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('dataFactoryDataSetOutName'))]"
+        "dataFactory",
+        "dataFactoryDataSetIn",
+        "dataFactoryDataSetOut"
       ]
     }
-  ]
+  }
 }

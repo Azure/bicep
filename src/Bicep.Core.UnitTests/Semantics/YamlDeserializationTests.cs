@@ -31,12 +31,12 @@ namespace Bicep.Core.UnitTests.Semantics
               multi line
               comment
               */
-              "array": [//comment
+              "array": [
                 1,
                 2
               ],
               //comment
-              "object": { 
+              "object": {
                 "nestedString": "someVal"
               }
             }
@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests.Semantics
         public void Commented_YAML_file_content_gets_deserialized_into_JSON()
         {
             var yml = @"
-                string: someVal 
+                string: someVal
                 int: 123
                 /*
                 this is a
@@ -126,10 +126,32 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual("someVal", jToken["object"]?.ToObject<Dictionary<string, string>>()?["nestedString"]);
         }
 
+        private void areJTokensEqual(JToken jTokenNew, JToken jTokenOld)
+        {
+            foreach (var child in jTokenNew.AsJEnumerable())
+            {
+                if (jTokenNew[child.Path] is JArray)
+                {
+                    for (var x = 0; x < jTokenNew[child.Path].AsArray().Length; x++)
+                    {
+                        areJTokensEqual(jTokenNew[child.Path]![x]!, jTokenOld[child.Path]![x]!);
+                    }
+                }
+                else if (jTokenNew[child.Path] is JObject)
+                {
+                    areJTokensEqual(jTokenNew[child.Path]!, jTokenOld[child.Path]!);
+                }
+                else
+                {
+                    Assert.AreEqual(jTokenNew[child.Path]!.ToString(), jTokenOld[child.Path]!.ToString());
+                }
+            }
+        }
+
         [TestMethod]
         public void Complex_JSON_gets_deserialized_into_JSON()
         {
-            var json = COMPLEX_JSON;  
+            var json = COMPLEX_JSON;
             var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
             var expectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
             Assert.AreEqual(expectedValue, jToken["documentation"]?["value"]);

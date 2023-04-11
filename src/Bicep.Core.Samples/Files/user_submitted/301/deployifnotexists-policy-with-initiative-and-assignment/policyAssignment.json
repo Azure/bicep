@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2499499889172227804"
+      "templateHash": "18358407073538210510"
     }
   },
   "parameters": {
@@ -19,8 +21,8 @@
       "type": "string"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "bicepExampleAssignment": {
       "type": "Microsoft.Authorization/policyAssignments",
       "apiVersion": "2020-09-01",
       "name": "bicepExampleAssignment",
@@ -44,17 +46,17 @@
         ]
       }
     },
-    {
+    "roleAssignment": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid('bicepExampleAssignment', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
       "properties": {
-        "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment'), '2020-09-01', 'full').identity.principalId]",
+        "principalId": "[reference('bicepExampleAssignment', '2020-09-01', 'full').identity.principalId]",
         "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment')]"
+        "bicepExampleAssignment"
       ]
     }
-  ]
+  }
 }

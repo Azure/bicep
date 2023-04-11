@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11678485373313306625"
+      "templateHash": "17113698757488559431"
     }
   },
   "parameters": {
@@ -89,8 +91,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "defaultStorageAccount": {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
       "name": "[format('storage{0}', uniqueString(resourceGroup().id))]",
@@ -100,7 +102,7 @@
       },
       "kind": "StorageV2"
     },
-    {
+    "cluster": {
       "type": "Microsoft.HDInsight/clusters",
       "apiVersion": "2018-06-01-preview",
       "name": "[parameters('clusterName')]",
@@ -122,7 +124,7 @@
         "storageProfile": {
           "storageaccounts": [
             {
-              "name": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-04-01').primaryEndpoints.blob, 'https://', ''), '/', '')]",
+              "name": "[replace(replace(reference('defaultStorageAccount').primaryEndpoints.blob, 'https://', ''), '/', '')]",
               "isDefault": true,
               "container": "[parameters('clusterName')]",
               "key": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-04-01').keys[0].value]"
@@ -161,18 +163,18 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id)))]"
+        "defaultStorageAccount"
       ]
     }
-  ],
+  },
   "outputs": {
     "storage": {
       "type": "object",
-      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('storage{0}', uniqueString(resourceGroup().id))), '2021-04-01')]"
+      "value": "[reference('defaultStorageAccount')]"
     },
     "cluster": {
       "type": "object",
-      "value": "[reference(resourceId('Microsoft.HDInsight/clusters', parameters('clusterName')), '2018-06-01-preview')]"
+      "value": "[reference('cluster')]"
     }
   }
 }

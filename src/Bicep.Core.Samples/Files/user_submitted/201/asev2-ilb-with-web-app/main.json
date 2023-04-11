@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "812777055705081661"
+      "templateHash": "2714848311980574354"
     }
   },
   "parameters": {
@@ -49,8 +51,8 @@
       ]
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "virtualNetwork": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "vnet-01",
@@ -63,7 +65,7 @@
         }
       }
     },
-    {
+    "subnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/subnet-01', 'vnet-01')]",
@@ -91,10 +93,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-01')]"
+        "virtualNetwork"
       ]
     },
-    {
+    "hostingEnvironment": {
       "type": "Microsoft.Web/hostingEnvironments",
       "apiVersion": "2020-06-01",
       "name": "[parameters('aseName')]",
@@ -113,11 +115,11 @@
         "workerPools": []
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/subnet-01', 'vnet-01'), '/')[0], split(format('{0}/subnet-01', 'vnet-01'), '/')[1])]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-01')]"
+        "subnet",
+        "virtualNetwork"
       ]
     },
-    {
+    "serverFarm": {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[parameters('appServicePlanName')]",
@@ -135,10 +137,10 @@
         "capacity": "[parameters('numberOfWorkers')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/hostingEnvironments', parameters('aseName'))]"
+        "hostingEnvironment"
       ]
     },
-    {
+    "website": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('websiteName')]",
@@ -150,9 +152,9 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/hostingEnvironments', parameters('aseName'))]",
-        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+        "hostingEnvironment",
+        "serverFarm"
       ]
     }
-  ]
+  }
 }

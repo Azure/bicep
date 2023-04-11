@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12912365708546008340"
+      "templateHash": "17852884369956354145"
     }
   },
   "parameters": {
@@ -92,8 +94,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "vault": {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
       "name": "[parameters('keyVaultName')]",
@@ -126,7 +128,7 @@
         }
       }
     },
-    {
+    "secrets": {
       "copy": {
         "name": "secrets",
         "count": "[length(parameters('secretsObject').secrets)]"
@@ -138,8 +140,8 @@
         "value": "[parameters('secretsObject').secrets[copyIndex()].secretValue]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+        "vault"
       ]
     }
-  ]
+  }
 }

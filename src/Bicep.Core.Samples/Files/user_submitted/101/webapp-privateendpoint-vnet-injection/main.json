@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3381465633689497253"
+      "templateHash": "10139934751077593297"
     }
   },
   "parameters": {
@@ -135,8 +137,8 @@
     "privateDNSZoneName": "privatelink.azurewebsites.net",
     "SKU_tier": "PremiumV2"
   },
-  "resources": [
-    {
+  "resources": {
+    "virtualNetwork": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -149,7 +151,7 @@
         }
       }
     },
-    {
+    "subnet1": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet1Name'))]",
@@ -178,10 +180,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "virtualNetwork"
       ]
     },
-    {
+    "subnet2": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet2Name'))]",
@@ -218,11 +220,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnet1Name'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "subnet1",
+        "virtualNetwork"
       ]
     },
-    {
+    "serverFarm": {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[parameters('serverFarmName')]",
@@ -236,7 +238,7 @@
       },
       "kind": "app"
     },
-    {
+    "webApp1": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('site1_Name')]",
@@ -246,10 +248,10 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
+        "serverFarm"
       ]
     },
-    {
+    "webApp2": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('site2_Name')]",
@@ -259,10 +261,10 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
+        "serverFarm"
       ]
     },
-    {
+    "webApp2AppSettings": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('site2_Name'), 'appsettings')]",
@@ -271,10 +273,10 @@
         "WEBSITE_VNET_ROUTE_ALL": "1"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('site2_Name'))]"
+        "webApp2"
       ]
     },
-    {
+    "webApp1Config": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('site1_Name'), 'web')]",
@@ -282,10 +284,10 @@
         "ftpsState": "AllAllowed"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('site1_Name'))]"
+        "webApp1"
       ]
     },
-    {
+    "webApp2Config": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('site2_Name'), 'web')]",
@@ -293,10 +295,10 @@
         "ftpsState": "AllAllowed"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('site2_Name'))]"
+        "webApp2"
       ]
     },
-    {
+    "webApp1Binding": {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2019-08-01",
       "name": "[format('{0}/{1}', parameters('site1_Name'), format('{0}{1}', parameters('site1_Name'), variables('webapp_dns_name')))]",
@@ -305,10 +307,10 @@
         "hostNameType": "Verified"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('site1_Name'))]"
+        "webApp1"
       ]
     },
-    {
+    "webApp2Binding": {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2019-08-01",
       "name": "[format('{0}/{1}', parameters('site2_Name'), format('{0}{1}', parameters('site2_Name'), variables('webapp_dns_name')))]",
@@ -317,10 +319,10 @@
         "hostNameType": "Verified"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('site2_Name'))]"
+        "webApp2"
       ]
     },
-    {
+    "webApp2NetworkConfig": {
       "type": "Microsoft.Web/sites/networkConfig",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('site2_Name'), 'virtualNetwork')]",
@@ -328,11 +330,11 @@
         "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnet2Name'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnet2Name'))]",
-        "[resourceId('Microsoft.Web/sites', parameters('site2_Name'))]"
+        "subnet2",
+        "webApp2"
       ]
     },
-    {
+    "privateEndpoint": {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-06-01",
       "name": "[parameters('privateEndpointName')]",
@@ -354,20 +356,20 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnet1Name'))]",
-        "[resourceId('Microsoft.Web/sites', parameters('site1_Name'))]"
+        "subnet1",
+        "webApp1"
       ]
     },
-    {
+    "privateDnsZones": {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2018-09-01",
       "name": "[variables('privateDNSZoneName')]",
       "location": "global",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "virtualNetwork"
       ]
     },
-    {
+    "privateDnsZoneLink": {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2018-09-01",
       "name": "[format('{0}/{1}', variables('privateDNSZoneName'), format('{0}-link', variables('privateDNSZoneName')))]",
@@ -379,11 +381,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "privateDnsZones",
+        "virtualNetwork"
       ]
     },
-    {
+    "privateDnsZoneGroup": {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-03-01",
       "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'dnsgroupname')]",
@@ -398,9 +400,9 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDNSZoneName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
+        "privateDnsZones",
+        "privateEndpoint"
       ]
     }
-  ]
+  }
 }

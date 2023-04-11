@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10058849782192575637"
+      "templateHash": "674517531258487404"
     }
   },
   "parameters": {
@@ -56,8 +58,8 @@
     "sqlserverName": "[format('sqlserver{0}', uniqueString(resourceGroup().id))]",
     "databaseName": "sampledb"
   },
-  "resources": [
-    {
+  "resources": {
+    "sqlserver": {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2019-06-01-preview",
       "name": "[variables('sqlserverName')]",
@@ -68,7 +70,7 @@
         "version": "12.0"
       }
     },
-    {
+    "sqlserverName_databaseName": {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2020-08-01-preview",
       "name": "[format('{0}/{1}', variables('sqlserverName'), variables('databaseName'))]",
@@ -81,10 +83,10 @@
         "maxSizeBytes": 1073741824
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+        "sqlserver"
       ]
     },
-    {
+    "sqlserverName_AllowAllWindowsAzureIps": {
       "type": "Microsoft.Sql/servers/firewallRules",
       "apiVersion": "2014-04-01",
       "name": "[format('{0}/AllowAllWindowsAzureIps', variables('sqlserverName'))]",
@@ -93,10 +95,10 @@
         "startIpAddress": "0.0.0.0"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]"
+        "sqlserver"
       ]
     },
-    {
+    "hostingPlan": {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('hostingPlanName')]",
@@ -106,7 +108,7 @@
         "capacity": "[parameters('skuCapacity')]"
       }
     },
-    {
+    "webSite": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('webSiteName')]",
@@ -125,45 +127,45 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
+        "hostingPlan",
+        "msi"
       ]
     },
-    {
+    "webSiteConnectionStrings": {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/connectionstrings', variables('webSiteName'))]",
       "properties": {
         "DefaultConnection": {
-          "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName')), '2019-06-01-preview').fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName')), '2019-06-01-preview').fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
+          "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference('sqlserver').fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference('sqlserver').fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
           "type": "SQLAzure"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', variables('sqlserverName'))]",
-        "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+        "sqlserver",
+        "webSite"
       ]
     },
-    {
+    "msi": {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "name": "[parameters('managedIdentityName')]",
       "location": "[parameters('location')]"
     },
-    {
+    "roleassignment": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(parameters('roleDefinitionId'), resourceGroup().id)]",
       "properties": {
         "principalType": "ServicePrincipal",
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2018-11-30').principalId]"
+        "principalId": "[reference('msi').principalId]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"
+        "msi"
       ]
     },
-    {
+    "AppInsights_webSiteName": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2018-05-01-preview",
       "name": "[format('AppInsights{0}', variables('webSiteName'))]",
@@ -177,8 +179,8 @@
         "Application_Type": "web"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+        "webSite"
       ]
     }
-  ]
+  }
 }

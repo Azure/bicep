@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5496671400759637143"
+      "templateHash": "11281229788072385683"
     }
   },
   "parameters": {
@@ -285,8 +287,8 @@
       "id": "[resourceId('Microsoft.Compute/availabilitySets/', parameters('availabilitySetName'))]"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "imageName": {
       "type": "Microsoft.Compute/images",
       "apiVersion": "2018-10-01",
       "name": "[variables('imageName_var')]",
@@ -303,7 +305,7 @@
         }
       }
     },
-    {
+    "nic": {
       "copy": {
         "name": "nic",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -329,10 +331,10 @@
         "networkSecurityGroup": "[if(empty(parameters('networkSecurityGroupId')), null(), json(format('{{\"id\": \"{0}\"}}', variables('nsgId'))))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'NSG-linkedTemplate')]"
+        "NSG"
       ]
     },
-    {
+    "vm": {
       "copy": {
         "name": "vm",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -382,11 +384,11 @@
       },
       "zones": "[if(equals(parameters('availabilityOption'), 'AvailabilityZone'), array(parameters('availabilityZone')), variables('emptyArray'))]",
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/images', variables('imageName_var'))]",
+        "imageName",
         "nic"
       ]
     },
-    {
+    "vm_DSC": {
       "copy": {
         "name": "vm_DSC",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -414,7 +416,7 @@
         "vm"
       ]
     },
-    {
+    "vm_AADLoginForWindows": {
       "copy": {
         "name": "vm_AADLoginForWindows",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -434,7 +436,7 @@
         "vm_DSC"
       ]
     },
-    {
+    "vm_AADLoginForWindowsWithIntune": {
       "copy": {
         "name": "vm_AADLoginForWindowsWithIntune",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -457,7 +459,7 @@
         "vm_DSC"
       ]
     },
-    {
+    "vm_joindomain": {
       "copy": {
         "name": "vm_joindomain",
         "count": "[length(range(0, parameters('rdshNumberOfInstances')))]"
@@ -487,7 +489,7 @@
         "vm_DSC"
       ]
     },
-    {
+    "NSG": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "NSG-linkedTemplate",
@@ -515,12 +517,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8777864661194051401"
+              "templateHash": "4892198028949632780"
             }
           },
           "parameters": {
@@ -540,8 +544,8 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "newNsg": {
               "condition": "[parameters('createNetworkSecurityGroup')]",
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2019-02-01",
@@ -552,9 +556,9 @@
                 "securityRules": "[parameters('networkSecurityGroupRules')]"
               }
             }
-          ]
+          }
         }
       }
     }
-  ]
+  }
 }

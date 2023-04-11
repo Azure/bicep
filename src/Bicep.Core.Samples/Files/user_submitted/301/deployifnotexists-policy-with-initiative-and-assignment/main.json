@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11445298703890420186"
+      "templateHash": "17913465126883830954"
     }
   },
   "parameters": {
@@ -106,14 +108,14 @@
       "defaultValue": "Default"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "rg": {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[parameters('resourceGroupName')]",
       "location": "[parameters('resourceGrouplocation')]"
     },
-    {
+    "ag": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "actionGroup",
@@ -145,12 +147,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12934238208461793439"
+              "templateHash": "3363487232697040175"
             }
           },
           "parameters": {
@@ -173,8 +177,8 @@
               "type": "bool"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "actionGroup": {
               "type": "microsoft.insights/actionGroups",
               "apiVersion": "2019-06-01",
               "name": "[parameters('actionGroupName')]",
@@ -191,7 +195,7 @@
                 ]
               }
             }
-          ],
+          },
           "outputs": {
             "actionGroupId": {
               "type": "string",
@@ -205,10 +209,10 @@
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+        "rg"
       ]
     },
-    {
+    "policy": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "policy",
@@ -220,13 +224,13 @@
         "mode": "Incremental",
         "parameters": {
           "actionGroupName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2022-09-01').outputs.actionGroupName.value]"
+            "value": "[reference('ag').outputs.actionGroupName.value]"
           },
           "actionGroupRG": {
             "value": "[parameters('resourceGroupName')]"
           },
           "actionGroupId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2022-09-01').outputs.actionGroupId.value]"
+            "value": "[reference('ag').outputs.actionGroupId.value]"
           },
           "metricAlertResourceNamespace": {
             "value": "[parameters('metricAlertResourceNamespace')]"
@@ -276,12 +280,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7507947354320390204"
+              "templateHash": "4627692963775771425"
             }
           },
           "parameters": {
@@ -344,8 +350,8 @@
             "policyDefCategory": "Custom",
             "policySource": "Bicep"
           },
-          "resources": [
-            {
+          "resources": {
+            "bicepExampleDINEpolicy": {
               "type": "Microsoft.Authorization/policyDefinitions",
               "apiVersion": "2020-09-01",
               "name": "bicepExampleDINEpolicy",
@@ -543,7 +549,7 @@
                 }
               }
             },
-            {
+            "bicepExampleInitiative": {
               "type": "Microsoft.Authorization/policySetDefinitions",
               "apiVersion": "2020-09-01",
               "name": "bicepExampleInitiative",
@@ -565,10 +571,10 @@
                 ]
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'bicepExampleDINEpolicy')]"
+                "bicepExampleDINEpolicy"
               ]
             }
-          ],
+          },
           "outputs": {
             "bicepExampleInitiativeId": {
               "type": "string",
@@ -578,10 +584,10 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup')]"
+        "ag"
       ]
     },
-    {
+    "assignment": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "assignment",
@@ -593,7 +599,7 @@
         "mode": "Incremental",
         "parameters": {
           "bicepExampleInitiativeId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2022-09-01').outputs.bicepExampleInitiativeId.value]"
+            "value": "[reference('policy').outputs.bicepExampleInitiativeId.value]"
           },
           "assignmentIdentityLocation": {
             "value": "[parameters('resourceGrouplocation')]"
@@ -604,12 +610,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2499499889172227804"
+              "templateHash": "18358407073538210510"
             }
           },
           "parameters": {
@@ -623,8 +631,8 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "bicepExampleAssignment": {
               "type": "Microsoft.Authorization/policyAssignments",
               "apiVersion": "2020-09-01",
               "name": "bicepExampleAssignment",
@@ -648,24 +656,24 @@
                 ]
               }
             },
-            {
+            "roleAssignment": {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
               "name": "[guid('bicepExampleAssignment', 'Microsoft.Authorization/policyAssignments', subscription().subscriptionId)]",
               "properties": {
-                "principalId": "[reference(subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment'), '2020-09-01', 'full').identity.principalId]",
+                "principalId": "[reference('bicepExampleAssignment', '2020-09-01', 'full').identity.principalId]",
                 "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
               },
               "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Authorization/policyAssignments', 'bicepExampleAssignment')]"
+                "bicepExampleAssignment"
               ]
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/deployments', 'policy')]"
+        "policy"
       ]
     }
-  ]
+  }
 }

@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9847526936443091703"
+      "templateHash": "14929036771503298733"
     }
   },
   "parameters": {
@@ -23,8 +25,8 @@
   "variables": {
     "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "appInsights": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('appInsightName')]",
@@ -39,11 +41,11 @@
         "WorkspaceResourceId": "[parameters('logAnalaticsWorkspaceResourceID')]"
       }
     }
-  ],
+  },
   "outputs": {
     "APPINSIGHTS_INSTRUMENTATIONKEY": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName')), '2020-02-02-preview').InstrumentationKey]"
+      "value": "[reference('appInsights').InstrumentationKey]"
     }
   }
 }

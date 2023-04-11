@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18045462463900965650"
+      "templateHash": "7375194342402278455"
     }
   },
   "parameters": {
@@ -54,8 +56,8 @@
       "defaultValue": "BreadthFirst"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "hp": {
       "type": "Microsoft.DesktopVirtualization/hostPools",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('hostpoolName')]",
@@ -67,7 +69,7 @@
         "preferredAppGroupType": "[parameters('preferredAppGroupType')]"
       }
     },
-    {
+    "ag": {
       "type": "Microsoft.DesktopVirtualization/applicationGroups",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('appgroupName')]",
@@ -78,10 +80,10 @@
         "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
+        "hp"
       ]
     },
-    {
+    "ws": {
       "type": "Microsoft.DesktopVirtualization/workspaces",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('workspaceName')]",
@@ -93,8 +95,8 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
+        "ag"
       ]
     }
-  ]
+  }
 }

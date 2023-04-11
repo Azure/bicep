@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5754326839291847658"
+      "templateHash": "4759894428559370958"
     }
   },
   "parameters": {
@@ -19,8 +21,8 @@
       "type": "string"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "app1": {
       "type": "Microsoft.AppPlatform/Spring/apps",
       "apiVersion": "2020-07-01",
       "name": "[parameters('app1Name')]",
@@ -29,7 +31,7 @@
         "activeDeploymentName": "default"
       }
     },
-    {
+    "app2": {
       "type": "Microsoft.AppPlatform/Spring/apps",
       "apiVersion": "2020-07-01",
       "name": "[parameters('app2Name')]",
@@ -38,7 +40,7 @@
         "activeDeploymentName": "default"
       }
     },
-    {
+    "app3": {
       "type": "Microsoft.AppPlatform/Spring/apps",
       "apiVersion": "2020-07-01",
       "name": "[parameters('app3Name')]",
@@ -47,5 +49,5 @@
         "activeDeploymentName": "default"
       }
     }
-  ]
+  }
 }

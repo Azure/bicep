@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5787099956571712004"
+      "templateHash": "10300526386742868252"
     }
   },
   "parameters": {
@@ -30,8 +32,8 @@
     "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]",
     "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "appServicePlan": {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('appServicePlanName')]",
@@ -45,7 +47,7 @@
         "ProjectName": "[parameters('appName')]"
       }
     },
-    {
+    "appService": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('webSiteName')]",
@@ -65,8 +67,8 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+        "appServicePlan"
       ]
     }
-  ]
+  }
 }

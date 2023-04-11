@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14339240566669068445"
+      "templateHash": "12336310512912447555"
     }
   },
   "parameters": {
@@ -57,8 +59,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "localnetworkgw": {
       "type": "Microsoft.Network/localNetworkGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('localnetworkgwname')]",
@@ -74,7 +76,7 @@
         }
       }
     },
-    {
+    "s2sconnection": {
       "type": "Microsoft.Network/connections",
       "apiVersion": "2020-06-01",
       "name": "[parameters('connectionname')]",
@@ -94,8 +96,8 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
+        "localnetworkgw"
       ]
     }
-  ]
+  }
 }

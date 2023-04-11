@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1060883810516541578"
+      "templateHash": "4169629721319784163"
     }
   },
   "parameters": {
@@ -78,8 +80,8 @@
     "deployUsers": true,
     "deployNameValuePairs": true
   },
-  "resources": [
-    {
+  "resources": {
+    "applicationInsights": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2015-05-01",
       "name": "[parameters('appInsightsName')]",
@@ -90,7 +92,7 @@
         "Application_Type": "web"
       }
     },
-    {
+    "apiManagement": {
       "type": "Microsoft.ApiManagement/service",
       "apiVersion": "2019-01-01",
       "name": "[parameters('apimInstanceName')]",
@@ -105,7 +107,7 @@
         "publisherName": "[parameters('publisherName')]"
       }
     },
-    {
+    "apiManagementLogger": {
       "type": "Microsoft.ApiManagement/service/loggers",
       "apiVersion": "2019-01-01",
       "name": "[format('{0}/{1}', parameters('apimInstanceName'), parameters('appInsightsName'))]",
@@ -113,15 +115,15 @@
         "loggerType": "applicationInsights",
         "description": "Logger resources to APIM",
         "credentials": {
-          "instrumentationKey": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
+          "instrumentationKey": "[reference('applicationInsights').InstrumentationKey]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))]",
-        "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
+        "apiManagement",
+        "applicationInsights"
       ]
     },
-    {
+    "apimInstanceDiagnostics": {
       "type": "Microsoft.ApiManagement/service/diagnostics",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/{1}', parameters('apimInstanceName'), 'applicationinsights')]",
@@ -135,11 +137,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))]",
-        "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('apimInstanceName'), parameters('appInsightsName'))]"
+        "apiManagement",
+        "apiManagementLogger"
       ]
     },
-    {
+    "apimGroups": {
       "condition": "[variables('deployGroups')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -156,12 +158,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16874817407208375046"
+              "templateHash": "15536703310639180592"
             }
           },
           "parameters": {
@@ -184,8 +188,14 @@
               }
             ]
           },
-          "resources": [
-            {
+          "resources": {
+            "parentAPIM": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]"
+            },
+            "apimGroup": {
               "copy": {
                 "name": "apimGroup",
                 "count": "[length(variables('groupsSet'))]"
@@ -198,7 +208,7 @@
                 "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
               }
             }
-          ],
+          },
           "outputs": {
             "apimGroups": {
               "type": "array",
@@ -214,10 +224,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))]"
+        "apiManagement"
       ]
     },
-    {
+    "apimUsers": {
       "condition": "[variables('deployUsers')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -234,12 +244,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5207859696763036868"
+              "templateHash": "17377028341123358060"
             }
           },
           "parameters": {
@@ -268,8 +280,14 @@
               }
             ]
           },
-          "resources": [
-            {
+          "resources": {
+            "parentAPIM": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]"
+            },
+            "apimUser": {
               "copy": {
                 "name": "apimUser",
                 "count": "[length(variables('usersSet'))]"
@@ -285,14 +303,14 @@
                 "note": "[variables('usersSet')[copyIndex()].notes]"
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))]"
+        "apiManagement"
       ]
     },
-    {
+    "apimNVPairs": {
       "condition": "[variables('deployNameValuePairs')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -309,12 +327,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5498141100152018886"
+              "templateHash": "13285121027589828236"
             }
           },
           "parameters": {
@@ -344,8 +364,14 @@
               }
             ]
           },
-          "resources": [
-            {
+          "resources": {
+            "parentAPIM": {
+              "existing": true,
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]"
+            },
+            "apiManagementNVPair": {
               "copy": {
                 "name": "apiManagementNVPair",
                 "count": "[length(variables('apimNameValueSet'))]"
@@ -360,7 +386,7 @@
                 "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
               }
             }
-          ],
+          },
           "outputs": {
             "apimNameValues": {
               "type": "array",
@@ -376,18 +402,18 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))]"
+        "apiManagement"
       ]
     }
-  ],
+  },
   "outputs": {
     "appInsightsInstrumentationKey": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
+      "value": "[reference('applicationInsights').InstrumentationKey]"
     },
     "apimURL": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName')), '2019-01-01').portalUrl]"
+      "value": "[reference('apiManagement').portalUrl]"
     }
   }
 }

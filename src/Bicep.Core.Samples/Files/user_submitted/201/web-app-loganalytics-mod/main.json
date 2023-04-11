@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2507679041385979875"
+      "templateHash": "13077378601139967077"
     }
   },
   "parameters": {
@@ -14,8 +16,8 @@
       "defaultValue": "[uniqueString(resourceGroup().id)]"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "appServicePlanModule": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "appServicePlanDeploy",
@@ -31,12 +33,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6377278430554620476"
+              "templateHash": "4348490288930824288"
             }
           },
           "parameters": {
@@ -59,8 +63,8 @@
           "variables": {
             "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]"
           },
-          "resources": [
-            {
+          "resources": {
+            "appServicePlan": {
               "type": "Microsoft.Web/serverfarms",
               "apiVersion": "2020-06-01",
               "name": "[variables('appServicePlanName')]",
@@ -74,7 +78,7 @@
                 "ProjectName": "[parameters('appName')]"
               }
             }
-          ],
+          },
           "outputs": {
             "appServicePlanID": {
               "type": "string",
@@ -84,7 +88,7 @@
         }
       }
     },
-    {
+    "appServiceModule": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "appServiceDeploy",
@@ -98,20 +102,22 @@
             "value": "[parameters('appName')]"
           },
           "appServicePlanID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServicePlanDeploy'), '2022-09-01').outputs.appServicePlanID.value]"
+            "value": "[reference('appServicePlanModule').outputs.appServicePlanID.value]"
           },
           "APPINSIGHTS_INSTRUMENTATIONKEY": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appInsightsDeploy'), '2022-09-01').outputs.APPINSIGHTS_INSTRUMENTATIONKEY.value]"
+            "value": "[reference('appInsightsModule').outputs.APPINSIGHTS_INSTRUMENTATIONKEY.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18103039888546629598"
+              "templateHash": "2584926401232129554"
             }
           },
           "parameters": {
@@ -132,8 +138,8 @@
           "variables": {
             "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"
           },
-          "resources": [
-            {
+          "resources": {
+            "appService": {
               "type": "Microsoft.Web/sites",
               "apiVersion": "2020-06-01",
               "name": "[variables('webSiteName')]",
@@ -153,7 +159,7 @@
                 }
               }
             },
-            {
+            "appServiceLogging": {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/logs', variables('webSiteName'))]",
@@ -177,10 +183,10 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+                "appService"
               ]
             },
-            {
+            "appServiceAppSettings": {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/appsettings', variables('webSiteName'))]",
@@ -188,26 +194,26 @@
                 "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('APPINSIGHTS_INSTRUMENTATIONKEY')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+                "appService"
               ]
             },
-            {
+            "appServiceSiteExtension": {
               "type": "Microsoft.Web/sites/siteextensions",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', variables('webSiteName'))]",
               "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+                "appService"
               ]
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'appInsightsDeploy')]",
-        "[resourceId('Microsoft.Resources/deployments', 'appServicePlanDeploy')]"
+        "appInsightsModule",
+        "appServicePlanModule"
       ]
     },
-    {
+    "appInsightsModule": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "appInsightsDeploy",
@@ -221,17 +227,19 @@
             "value": "[parameters('appName')]"
           },
           "logAnalaticsWorkspaceResourceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logAnalyticsWorkspaceDeploy'), '2022-09-01').outputs.logAnalaticsWorkspaceResourceID.value]"
+            "value": "[reference('logAnalyticsWorkspace').outputs.logAnalaticsWorkspaceResourceID.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9847526936443091703"
+              "templateHash": "14929036771503298733"
             }
           },
           "parameters": {
@@ -249,8 +257,8 @@
           "variables": {
             "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]"
           },
-          "resources": [
-            {
+          "resources": {
+            "appInsights": {
               "type": "Microsoft.Insights/components",
               "apiVersion": "2020-02-02-preview",
               "name": "[variables('appInsightName')]",
@@ -265,20 +273,20 @@
                 "WorkspaceResourceId": "[parameters('logAnalaticsWorkspaceResourceID')]"
               }
             }
-          ],
+          },
           "outputs": {
             "APPINSIGHTS_INSTRUMENTATIONKEY": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName')), '2020-02-02-preview').InstrumentationKey]"
+              "value": "[reference('appInsights').InstrumentationKey]"
             }
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'logAnalyticsWorkspaceDeploy')]"
+        "logAnalyticsWorkspace"
       ]
     },
-    {
+    "logAnalyticsWorkspace": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "logAnalyticsWorkspaceDeploy",
@@ -294,12 +302,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5504464194433425799"
+              "templateHash": "2161972898944636182"
             }
           },
           "parameters": {
@@ -314,8 +324,8 @@
           "variables": {
             "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"
           },
-          "resources": [
-            {
+          "resources": {
+            "logAnalyticsWorkspace": {
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2020-03-01-preview",
               "name": "[variables('logAnalyticsName')]",
@@ -331,7 +341,7 @@
                 "retentionInDays": 120
               }
             }
-          ],
+          },
           "outputs": {
             "logAnalaticsWorkspaceResourceID": {
               "type": "string",
@@ -341,5 +351,5 @@
         }
       }
     }
-  ]
+  }
 }

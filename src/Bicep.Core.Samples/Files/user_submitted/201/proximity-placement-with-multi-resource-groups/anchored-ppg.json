@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17798777799174646976"
+      "templateHash": "16769211848912349672"
     }
   },
   "parameters": {
@@ -31,8 +33,8 @@
       ]
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "ppg": {
       "type": "Microsoft.Compute/proximityPlacementGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('Zone-{0}', parameters('zone'))]",
@@ -41,7 +43,7 @@
         "proximityPlacementGroupType": "Standard"
       }
     },
-    {
+    "pip": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-05-01",
       "name": "[format('{0}-pip', parameters('vmName'))]",
@@ -56,7 +58,7 @@
         "[format('{0}', parameters('zone'))]"
       ]
     },
-    {
+    "nic": {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-05-01",
       "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -78,10 +80,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
+        "pip"
       ]
     },
-    {
+    "vm": {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vmName')]",
@@ -135,11 +137,11 @@
         "[format('{0}', parameters('zone'))]"
       ],
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
-        "[resourceId('Microsoft.Compute/proximityPlacementGroups', format('Zone-{0}', parameters('zone')))]"
+        "nic",
+        "ppg"
       ]
     }
-  ],
+  },
   "outputs": {
     "ppgId": {
       "type": "string",

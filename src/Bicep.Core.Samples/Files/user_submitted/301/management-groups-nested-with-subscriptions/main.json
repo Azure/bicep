@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16963693881196701218"
+      "templateHash": "9096157249164297893"
     }
   },
   "parameters": {
@@ -35,8 +37,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "managementGroup": {
       "type": "Microsoft.Management/managementGroups",
       "apiVersion": "2020-05-01",
       "name": "[parameters('managementGroupId')]",
@@ -49,7 +51,7 @@
         }
       }
     },
-    {
+    "managementGroupsubscriptions": {
       "copy": {
         "name": "managementGroupsubscriptions",
         "count": "[length(parameters('subscriptionIds'))]"
@@ -58,10 +60,10 @@
       "apiVersion": "2020-05-01",
       "name": "[format('{0}/{1}', parameters('managementGroupId'), parameters('subscriptionIds')[copyIndex()])]",
       "dependsOn": [
-        "[tenantResourceId('Microsoft.Management/managementGroups', parameters('managementGroupId'))]"
+        "managementGroup"
       ]
     }
-  ],
+  },
   "outputs": {
     "managementGroupID": {
       "type": "string",

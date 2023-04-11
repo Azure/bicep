@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "336987510423517988"
+      "templateHash": "11818408786239638984"
     }
   },
   "parameters": {
@@ -23,8 +25,8 @@
       "BATCH_COMPLETED_GROUP"
     ]
   },
-  "resources": [
-    {
+  "resources": {
+    "auditSettings": {
       "type": "Microsoft.Sql/servers/databases/auditingSettings",
       "apiVersion": "2021-02-01-preview",
       "name": "[format('{0}/{1}/Default', parameters('sqlServerName'), parameters('sqlDatabase').name)]",
@@ -38,5 +40,5 @@
         "isAzureMonitorTargetEnabled": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]"
       }
     }
-  ]
+  }
 }

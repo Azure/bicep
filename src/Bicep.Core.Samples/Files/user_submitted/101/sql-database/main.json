@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14952617381517963413"
+      "templateHash": "418456085362667789"
     }
   },
   "parameters": {
@@ -28,8 +30,8 @@
       "type": "securestring"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "server": {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2019-06-01-preview",
       "name": "[parameters('serverName')]",
@@ -39,7 +41,7 @@
         "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
       }
     },
-    {
+    "sqlDB": {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2020-08-01-preview",
       "name": "[format('{0}/{1}', parameters('serverName'), parameters('sqlDBName'))]",
@@ -49,8 +51,8 @@
         "tier": "Standard"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
+        "server"
       ]
     }
-  ]
+  }
 }

@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1856631488954082264"
+      "templateHash": "5237019938634106800"
     }
   },
   "parameters": {
@@ -67,8 +69,8 @@
     },
     "imageReference": "[variables('osType')]"
   },
-  "resources": [
-    {
+  "resources": {
+    "virtualNetwork": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2021-05-01",
       "name": "[variables('virtualNetworkName')]",
@@ -109,7 +111,7 @@
         ]
       }
     },
-    {
+    "publicIP": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('publicIPAddressName')]",
@@ -121,7 +123,7 @@
         }
       }
     },
-    {
+    "loadBalancer": {
       "type": "Microsoft.Network/loadBalancers",
       "apiVersion": "2020-06-01",
       "name": "[variables('loadBalancerName')]",
@@ -158,10 +160,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+        "publicIP"
       ]
     },
-    {
+    "vmss": {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vmssName')]",
@@ -222,11 +224,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+        "loadBalancer",
+        "virtualNetwork"
       ]
     },
-    {
+    "autoScaleSettings": {
       "type": "Microsoft.Insights/autoscalesettings",
       "apiVersion": "2015-04-01",
       "name": "cpuautoscale",
@@ -287,8 +289,8 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
+        "vmss"
       ]
     }
-  ]
+  }
 }

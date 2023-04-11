@@ -894,7 +894,7 @@ namespace Bicep.Core.Semantics.Namespaces
                .WithRequiredParameter("filePath", LanguageConstants.StringYamlFilePath, "The path to the file that will be loaded.")
                .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
                .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
-               .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)
+               .WithReturnResultBuilder(LoadYamlContentResultBuilder, LanguageConstants.Any)
                .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                .Build();
 
@@ -1096,7 +1096,67 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return new(ErrorType.Create(errorDiagnostic));
             }
-  
+
+            if (fileContent.TryFromJson<JToken>() is not { } token)
+            {
+                // Instead of catching and returning the JSON parse exception, we simply return a generic error.
+                // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType()));
+            }
+
+            if (tokenSelectorPath is not null)
+            {
+                try
+                {
+                    var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
+                    switch (selectTokens.Count)
+                    {
+                        case 0:
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                        case 1:
+                            token = selectTokens.First();
+                            break;
+                        default:
+                            token = new JArray();
+                            foreach (var selectToken in selectTokens)
+                            {
+                                ((JArray)token).Add(selectToken);
+                            }
+                            break;
+                    }
+                }
+                catch (JsonException)
+                {
+                    //path is invalid or user hasn't finished typing it yet
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                }
+            }
+
+            return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
+        }
+
+        private static FunctionResult LoadYamlContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            var arguments = functionCall.Arguments.ToImmutableArray();
+            string? tokenSelectorPath = null;
+            if (arguments.Length > 1)
+            {
+                if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
+                {
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
+                }
+                tokenSelectorPath = tokenSelectorType.RawStringValue;
+            }
+            if (!TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
+                    (arguments[0], argumentTypes[0]),
+                    arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null,
+                    out var fileContent,
+                    out var errorDiagnostic,
+                    LanguageConstants.MaxJsonFileCharacterLimit))
+            {
+                return new(ErrorType.Create(errorDiagnostic));
+            }
+
             if (ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.

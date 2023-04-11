@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "845289579932239356"
+      "templateHash": "10735039051738294118"
     }
   },
   "parameters": {
@@ -14,8 +16,8 @@
       "defaultValue": "aaddscontoso.com"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "aadds": {
       "type": "Microsoft.AAD/domainServices",
       "apiVersion": "2020-01-01",
       "name": "[parameters('domainName')]",
@@ -41,22 +43,22 @@
         },
         "replicaSets": [
           {
-            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet'), '2020-06-01').subnets[0].id]",
-            "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet'), '2020-06-01', 'full').location]"
+            "subnetId": "[reference('vnetEUS').subnets[0].id]",
+            "location": "[reference('vnetEUS', '2020-06-01', 'full').location]"
           },
           {
-            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet'), '2020-06-01').subnets[0].id]",
-            "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet'), '2020-06-01', 'full').location]"
+            "subnetId": "[reference('vnetWEU').subnets[0].id]",
+            "location": "[reference('vnetWEU', '2020-06-01', 'full').location]"
           }
         ],
         "sku": "Enterprise"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+        "vnetEUS",
+        "vnetWEU"
       ]
     },
-    {
+    "nsgEUS": {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-06-01",
       "name": "aadds-eus-nsg",
@@ -105,7 +107,7 @@
         ]
       }
     },
-    {
+    "vnetEUS": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "aadds-eus-vnet",
@@ -129,10 +131,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-eus-nsg')]"
+        "nsgEUS"
       ]
     },
-    {
+    "nsgWEU": {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-06-01",
       "name": "aadds-weu-nsg",
@@ -181,7 +183,7 @@
         ]
       }
     },
-    {
+    "vnetWEU": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "aadds-weu-vnet",
@@ -205,10 +207,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-weu-nsg')]"
+        "nsgWEU"
       ]
     },
-    {
+    "peerEUS": {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}-peering-{2}', 'aadds-eus-vnet', 'aadds-eus-vnet', 'aadds-weu-vnet')]",
@@ -222,11 +224,11 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+        "vnetEUS",
+        "vnetWEU"
       ]
     },
-    {
+    "peerWEU": {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}-peering-{2}', 'aadds-weu-vnet', 'aadds-weu-vnet', 'aadds-eus-vnet')]",
@@ -240,9 +242,9 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+        "vnetEUS",
+        "vnetWEU"
       ]
     }
-  ]
+  }
 }

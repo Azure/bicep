@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12683546045009937644"
+      "templateHash": "15954703861724376173"
     }
   },
   "parameters": {
@@ -42,8 +44,8 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "virtualNetwork": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -56,7 +58,7 @@
         }
       }
     },
-    {
+    "subnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName'))]",
@@ -84,10 +86,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "virtualNetwork"
       ]
     },
-    {
+    "gatewaySubnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/GatewaySubnet', parameters('virtualNetworkName'))]",
@@ -115,10 +117,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "virtualNetwork"
       ]
     },
-    {
+    "publicIP": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[parameters('gatewayPublicIPName')]",
@@ -127,7 +129,7 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-    {
+    "virtualNetworkGateway": {
       "type": "Microsoft.Network/virtualNetworkGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('gatewayName')]",
@@ -150,11 +152,11 @@
         "gatewayType": "ExpressRoute"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/GatewaySubnet', parameters('virtualNetworkName')), '/')[0], split(format('{0}/GatewaySubnet', parameters('virtualNetworkName')), '/')[1])]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('gatewayPublicIPName'))]"
+        "gatewaySubnet",
+        "publicIP"
       ]
     },
-    {
+    "connection": {
       "type": "Microsoft.Network/connections",
       "apiVersion": "2020-06-01",
       "name": "[parameters('connectionName')]",
@@ -171,8 +173,8 @@
         "routingWeight": 3
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('gatewayName'))]"
+        "virtualNetworkGateway"
       ]
     }
-  ]
+  }
 }

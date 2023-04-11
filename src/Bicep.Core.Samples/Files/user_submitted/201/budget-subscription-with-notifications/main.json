@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "355457022239797229"
+      "templateHash": "4888548908338098066"
     }
   },
   "parameters": {
@@ -66,8 +68,8 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "budget": {
       "type": "Microsoft.Consumption/budgets",
       "apiVersion": "2019-10-01",
       "name": "[parameters('name')]",
@@ -82,5 +84,5 @@
         "notifications": "[if(not(empty(parameters('notifications'))), parameters('notifications'), null())]"
       }
     }
-  ]
+  }
 }

@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17746964786378268703"
+      "templateHash": "7937190845056302899"
     }
   },
   "parameters": {
@@ -32,8 +34,8 @@
   "variables": {
     "bastionPublicIpAddressName": "[format('{0}PublicIp', parameters('bastionHostName'))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "bastionPublicIpAddress": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-08-01",
       "name": "[variables('bastionPublicIpAddressName')]",
@@ -45,7 +47,7 @@
         "publicIPAllocationMethod": "Static"
       }
     },
-    {
+    "bastionHost": {
       "type": "Microsoft.Network/bastionHosts",
       "apiVersion": "2020-08-01",
       "name": "[parameters('bastionHostName')]",
@@ -66,8 +68,8 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpAddressName'))]"
+        "bastionPublicIpAddress"
       ]
     }
-  ]
+  }
 }

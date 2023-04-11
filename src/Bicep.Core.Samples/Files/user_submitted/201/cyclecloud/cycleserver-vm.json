@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4861645218776431507"
+      "templateHash": "9511219932050400951"
     }
   },
   "parameters": {
@@ -27,8 +29,8 @@
       "type": "string"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "pip": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-05-01",
       "name": "cycleserver-pip",
@@ -37,7 +39,7 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-    {
+    "nic": {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-05-01",
       "name": "cycleserver-nic",
@@ -59,10 +61,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', 'cycleserver-pip')]"
+        "pip"
       ]
     },
-    {
+    "vm": {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
       "name": "cycleserver",
@@ -117,8 +119,8 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
+        "nic"
       ]
     }
-  ]
+  }
 }

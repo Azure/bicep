@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4085144587624051739"
+      "templateHash": "555090127079618623"
     }
   },
   "parameters": {
@@ -48,8 +50,8 @@
     "vnetName": "certVnet",
     "nsgName": "[format('{0}-nsg', variables('subnet1Name'))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "pip": {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "certPublicIp",
@@ -58,7 +60,7 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-    {
+    "nsg": {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-08-01",
       "name": "[variables('nsgName')]",
@@ -81,7 +83,7 @@
         ]
       }
     },
-    {
+    "vnet": {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnetName')]",
@@ -105,10 +107,10 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        "nsg"
       ]
     },
-    {
+    "nic": {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-06-01",
       "name": "certNic",
@@ -130,11 +132,11 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', 'certPublicIp')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+        "pip",
+        "vnet"
       ]
     },
-    {
+    "vm": {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vmName')]",
@@ -182,8 +184,8 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
+        "nic"
       ]
     }
-  ]
+  }
 }

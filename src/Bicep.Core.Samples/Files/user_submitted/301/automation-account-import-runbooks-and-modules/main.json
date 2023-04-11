@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7700084129878109462"
+      "templateHash": "6969935979085600344"
     }
   },
   "parameters": {
@@ -109,8 +111,8 @@
     "lockName": "[format('{0}-lck', parameters('name'))]",
     "diagnosticsName": "[format('{0}-dgs', parameters('name'))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "automationAccount": {
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2020-01-13-preview",
       "name": "[parameters('name')]",
@@ -124,7 +126,7 @@
         }
       }
     },
-    {
+    "automationAccountModules": {
       "copy": {
         "name": "automationAccountModules",
         "count": "[length(parameters('modules'))]"
@@ -139,10 +141,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Automation/automationAccounts', parameters('name'))]"
+        "automationAccount"
       ]
     },
-    {
+    "runbook": {
       "copy": {
         "name": "runbook",
         "count": "[length(parameters('runbooks'))]"
@@ -160,10 +162,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Automation/automationAccounts', parameters('name'))]"
+        "automationAccount"
       ]
     },
-    {
+    "lock": {
       "condition": "[parameters('enableDeleteLock')]",
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
@@ -173,10 +175,10 @@
         "level": "CanNotDelete"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Automation/automationAccounts', parameters('name'))]"
+        "automationAccount"
       ]
     },
-    {
+    "diagnostics": {
       "condition": "[parameters('enableDiagnostics')]",
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
@@ -207,14 +209,14 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Automation/automationAccounts', parameters('name'))]"
+        "automationAccount"
       ]
     }
-  ],
+  },
   "outputs": {
     "systemIdentityPrincipalId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('name')), '2020-01-13-preview', 'full').identity.principalId]"
+      "value": "[reference('automationAccount', '2020-01-13-preview', 'full').identity.principalId]"
     }
   }
 }

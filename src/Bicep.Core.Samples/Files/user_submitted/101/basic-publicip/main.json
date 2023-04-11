@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10831612777047662097"
+      "templateHash": "18429428395474695757"
     }
   },
   "parameters": {
@@ -14,8 +16,8 @@
       "defaultValue": "mypublicip"
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "publicIp": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "publicIp",
@@ -34,12 +36,14 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9887703658498367123"
+              "templateHash": "1110145340351330896"
             }
           },
           "parameters": {
@@ -58,8 +62,8 @@
               "type": "bool"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "publicIp": {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-06-01",
               "name": "[parameters('publicIpResourceName')]",
@@ -71,21 +75,21 @@
                 }
               }
             }
-          ],
+          },
           "outputs": {
             "ipFqdn": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName')), '2020-06-01').dnsSettings.fqdn]"
+              "value": "[reference('publicIp').dnsSettings.fqdn]"
             }
           }
         }
       }
     }
-  ],
+  },
   "outputs": {
     "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2022-09-01').outputs.ipFqdn.value]"
+      "value": "[reference('publicIp').outputs.ipFqdn.value]"
     }
   }
 }

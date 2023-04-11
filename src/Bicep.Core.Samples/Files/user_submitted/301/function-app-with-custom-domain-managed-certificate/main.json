@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7505587682154385275"
+      "templateHash": "5931821411364537702"
     }
   },
   "parameters": {
@@ -23,8 +25,8 @@
     "location": "[resourceGroup().location]",
     "componentBase": "[format('{0}-{1}', substring(uniqueString(resourceGroup().id), 4), parameters('applicationName'))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "hostingPlan": {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}-asp', variables('componentBase'))]",
@@ -37,7 +39,7 @@
         "capacity": 0
       }
     },
-    {
+    "storage": {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}st', replace(variables('componentBase'), '-', ''))]",
@@ -47,7 +49,7 @@
         "name": "Standard_LRS"
       }
     },
-    {
+    "appInsights": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2015-05-01",
       "name": "[format('{0}-ai', variables('componentBase'))]",
@@ -57,7 +59,7 @@
         "Application_Type": "web"
       }
     },
-    {
+    "functionApp": {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}-functionapp', variables('componentBase'))]",
@@ -90,11 +92,11 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase'))), '2015-05-01').InstrumentationKey]"
+              "value": "[reference('appInsights').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase'))), '2015-05-01').InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference('appInsights').InstrumentationKey)]"
             },
             {
               "name": "AzureWebJobsStorage",
@@ -112,12 +114,12 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase')))]",
-        "[resourceId('Microsoft.Web/serverfarms', format('{0}-asp', variables('componentBase')))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}st', replace(variables('componentBase'), '-', '')))]"
+        "appInsights",
+        "hostingPlan",
+        "storage"
       ]
     },
-    {
+    "dnsTxt": {
       "type": "Microsoft.Network/dnsZones/TXT",
       "apiVersion": "2018-05-01",
       "name": "[format('{0}/asuid.{1}', parameters('dnsZone'), parameters('applicationName'))]",
@@ -126,16 +128,16 @@
         "TXTRecords": [
           {
             "value": [
-              "[format('{0}', reference(resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase'))), '2020-06-01').customDomainVerificationId)]"
+              "[format('{0}', reference('functionApp').customDomainVerificationId)]"
             ]
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))]"
+        "functionApp"
       ]
     },
-    {
+    "dnsCname": {
       "type": "Microsoft.Network/dnsZones/CNAME",
       "apiVersion": "2018-05-01",
       "name": "[format('{0}/{1}', parameters('dnsZone'), parameters('applicationName'))]",
@@ -146,10 +148,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))]"
+        "functionApp"
       ]
     },
-    {
+    "functionAppCustomHost": {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}.{2}', format('{0}-functionapp', variables('componentBase')), parameters('applicationName'), parameters('dnsZone'))]",
@@ -160,12 +162,12 @@
         "siteName": "[format('{0}-functionapp', variables('componentBase'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/dnsZones/CNAME', split(format('{0}/{1}', parameters('dnsZone'), parameters('applicationName')), '/')[0], split(format('{0}/{1}', parameters('dnsZone'), parameters('applicationName')), '/')[1])]",
-        "[resourceId('Microsoft.Network/dnsZones/TXT', split(format('{0}/asuid.{1}', parameters('dnsZone'), parameters('applicationName')), '/')[0], split(format('{0}/asuid.{1}', parameters('dnsZone'), parameters('applicationName')), '/')[1])]",
-        "[resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))]"
+        "dnsCname",
+        "dnsTxt",
+        "functionApp"
       ]
     },
-    {
+    "functionAppCustomHostCertificate": {
       "type": "Microsoft.Web/certificates",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}.{1}', parameters('applicationName'), parameters('dnsZone'))]",
@@ -175,11 +177,11 @@
         "canonicalName": "[format('{0}.{1}', parameters('applicationName'), parameters('dnsZone'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites/hostNameBindings', split(format('{0}/{1}.{2}', format('{0}-functionapp', variables('componentBase')), parameters('applicationName'), parameters('dnsZone')), '/')[0], split(format('{0}/{1}.{2}', format('{0}-functionapp', variables('componentBase')), parameters('applicationName'), parameters('dnsZone')), '/')[1])]",
-        "[resourceId('Microsoft.Web/serverfarms', format('{0}-asp', variables('componentBase')))]"
+        "functionAppCustomHost",
+        "hostingPlan"
       ]
     },
-    {
+    "functionAppCustomHostEnable": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[format('{0}-{1}-sni-enable', deployment().name, parameters('applicationName'))]",
@@ -196,17 +198,19 @@
             "value": "[format('{0}', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))]"
           },
           "certificateThumbprint": {
-            "value": "[reference(resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone'))), '2020-06-01').thumbprint]"
+            "value": "[reference('functionAppCustomHostCertificate').thumbprint]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5111727942093536492"
+              "templateHash": "10222560319669658916"
             }
           },
           "parameters": {
@@ -220,8 +224,8 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "functionAppCustomHostEnable": {
               "type": "Microsoft.Web/sites/hostNameBindings",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/{1}', parameters('functionAppName'), parameters('functionAppHostname'))]",
@@ -230,13 +234,13 @@
                 "thumbprint": "[parameters('certificateThumbprint')]"
               }
             }
-          ]
+          }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))]",
-        "[resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))]"
+        "functionApp",
+        "functionAppCustomHostCertificate"
       ]
     }
-  ]
+  }
 }

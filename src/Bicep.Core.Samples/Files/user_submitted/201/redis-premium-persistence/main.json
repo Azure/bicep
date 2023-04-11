@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18376013986871716906"
+      "templateHash": "3159184401528468285"
     }
   },
   "parameters": {
@@ -88,8 +90,14 @@
       }
     }
   },
-  "resources": [
-    {
+  "resources": {
+    "storageAccount": {
+      "existing": true,
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('storageAccountName')]"
+    },
+    "cache": {
       "type": "Microsoft.Cache/redis",
       "apiVersion": "2020-06-01",
       "name": "[parameters('redisCacheName')]",
@@ -110,7 +118,7 @@
         }
       }
     },
-    {
+    "diagSettings": {
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Cache/redis/{0}', parameters('redisCacheName'))]",
@@ -129,8 +137,8 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Cache/redis', parameters('redisCacheName'))]"
+        "cache"
       ]
     }
-  ]
+  }
 }

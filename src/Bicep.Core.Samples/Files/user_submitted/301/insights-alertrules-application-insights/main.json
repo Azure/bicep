@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18221291617889272327"
+      "templateHash": "5012794014945376665"
     }
   },
   "parameters": {
@@ -43,8 +45,8 @@
   "variables": {
     "responseAlertName": "[format('ResponseTime-{0}', toLower(parameters('applicationInsightsName')))]"
   },
-  "resources": [
-    {
+  "resources": {
+    "workspace": {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-10-01",
       "name": "[parameters('workspaceName')]",
@@ -55,7 +57,7 @@
         }
       }
     },
-    {
+    "applicationInsights": {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[parameters('applicationInsightsName')]",
@@ -66,10 +68,10 @@
         "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+        "workspace"
       ]
     },
-    {
+    "metricAlert": {
       "type": "Microsoft.Insights/metricAlerts",
       "apiVersion": "2018-03-01",
       "name": "[variables('responseAlertName')]",
@@ -103,11 +105,11 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
-        "[resourceId('microsoft.insights/actionGroups', 'emailActionGroup')]"
+        "applicationInsights",
+        "emailActionGroup"
       ]
     },
-    {
+    "emailActionGroup": {
       "type": "microsoft.insights/actionGroups",
       "apiVersion": "2019-06-01",
       "name": "emailActionGroup",
@@ -124,5 +126,5 @@
         ]
       }
     }
-  ]
+  }
 }
