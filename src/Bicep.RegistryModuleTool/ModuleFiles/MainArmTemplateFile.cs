@@ -130,7 +130,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
 
             // The order of the checks allow the user to optionally override the default description for a user defined type
-            if(element.TryGetProperty("$ref", out var _))
+            if (element.TryGetProperty("$ref", out var _))
             {
                 return TryGetDescription(LookupRef(element));
             }
