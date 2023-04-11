@@ -11,7 +11,6 @@ param sshRSAPublicKey string
 param servicePrincipalClientId string
 
 @description('The service principal client secret')
-@secure()
 param servicePrincipalClientSecret string
 
 // optional params

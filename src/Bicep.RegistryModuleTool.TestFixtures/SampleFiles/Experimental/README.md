@@ -16,7 +16,7 @@ The quick brown fox jumps over the lazy dog.
 | `linuxAdminUsername`           | `string`       | Yes      | The linux administrator username                                                |
 | `sshRSAPublicKey`              | `string`       | Yes      | The RSA public key for SSH                                                      |
 | `servicePrincipalClientId`     | `string`       | Yes      | The service principal client ID                                                 |
-| `servicePrincipalClientSecret` | `securestring` | Yes      | The service principal client secret                                             |
+| `servicePrincipalClientSecret` | `string`       | Yes      | The service principal client secret                                             |
 | `clusterName`                  | `string`       | No       | The cluster name                                                                |
 | `location`                     | `string`       | No       | The deployment location                                                         |
 | `osDiskSizeGB`                 | `int`          | Yes      | The OS disk size (in GB)<br />- Minimum value is 0<br />- Maximum value is 1023 |

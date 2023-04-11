@@ -40,51 +40,50 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             this.Content = content;
 
             this.lazyRootElement = new(() => JsonElementFactory.CreateElement(content));
-            this.lazyParameters = new(() => !lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement)
-                ? Enumerable.Empty<MainArmTemplateParameter>()
-                : parametersElement.EnumerateObject().Select(ToParameter));
-            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
-                    ? Enumerable.Empty<MainArmTemplateOutput>()
-                    : outputsElement.EnumerateObject().Select(ToOutput));
+
+            var armTemplate = new ArmTemplateSemanticModel(SourceFileFactory.CreateArmTemplateFile(new Uri("inmemory://" + path), content));
+
+            this.lazyParameters = new(() =>
+            {
+                return lazyRootElement.Value.GetProperty("parameters").EnumerateObject().Select(parameter =>
+                     new MainArmTemplateParameter(
+                        armTemplate.Parameters[parameter.Name].Name,
+                        GetPrimitiveTypeName(armTemplate.Parameters[parameter.Name].TypeReference),
+                        armTemplate.Parameters[parameter.Name].IsRequired,
+                        armTemplate.Parameters[parameter.Name].Description
+                    ));
+            });
+            // this.lazyParameters = new(() => !lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement)
+            //     ? Enumerable.Empty<MainArmTemplateParameter>()
+            //     : parametersElement.EnumerateObject().Select(ToParameter));
+
+            this.lazyOutputs = new(() =>
+            {
+                return armTemplate.Outputs.Select(output =>
+                    new MainArmTemplateOutput(output.Name, GetPrimitiveTypeName(output.TypeReference), output.Description));
+            });
+            // this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
+            //     ? Enumerable.Empty<MainArmTemplateOutput>()
+            //     : outputsElement.EnumerateObject().Select(ToOutput));
+
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
-
-            // var armTemplate = new ArmTemplateSemanticModel(SourceFileFactory.CreateArmTemplateFile(new Uri(System.IO.Path.GetFullPath(path)), content));
-
-            // this.lazyParameters = new Lazy<IEnumerable<Bicep.RegistryModuleTool.ModuleFiles.MainArmTemplateParameter>>(() =>
-            // {
-            //     return armTemplate.Parameters.Select(kv =>
-            //         new MainArmTemplateParameter(kv.Value.Name, GetPrimitiveTypeName(kv.Value.TypeReference), kv.Value.IsRequired, kv.Value.Description));
-            // });
-
-            // this.lazyParameters = new Lazy<IEnumerable<Bicep.RegistryModuleTool.ModuleFiles.MainArmTemplateParameter>>(() =>
-            // {
-            //     var parameters = armTemplate.Parameters;
-            //     lazyRootElement.Value.TryGetProperty("parameters", out var parametersElement);
-            //     return parametersElement.EnumerateObject().Select(parameter =>
-            //          new MainArmTemplateParameter(parameters[parameter.Name].Name, GetPrimitiveTypeName(parameters[parameter.Name].TypeReference), parameters[parameter.Name].IsRequired, parameters[parameter.Name].Description));
-            // });
-            // this.lazyOutputs = new Lazy<IEnumerable<Bicep.RegistryModuleTool.ModuleFiles.MainArmTemplateOutput>>(() =>
-            // {
-            //     return armTemplate.Outputs.Select(kv =>
-            //         new MainArmTemplateOutput(kv.Name, GetPrimitiveTypeName(kv.TypeReference), kv.Description));
-            // });
         }
 
-        // private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch {
-        //     StringType or StringLiteralType
-        //         => typeRef.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? "securestring" : "string",
-        //     UnionType unionOfStrings when unionOfStrings.Members.All(m => m.Type is StringLiteralType || m.Type is StringType)
-        //         => "string",
-        //     IntegerType or IntegerLiteralType => "int",
-        //     UnionType unionOfInts when unionOfInts.Members.All(m => m.Type is IntegerLiteralType || m.Type is IntegerType)
-        //         => "int",
-        //     BooleanType or BooleanLiteralType => "bool",
-        //     UnionType unionOfBools when unionOfBools.Members.All(m => m.Type is BooleanLiteralType || m.Type is BooleanType)
-        //         => "bool",
-        //     ObjectType => "object",
-        //     ArrayType => "array",
-        //     TypeSymbol otherwise => throw new InvalidOperationException($"Unable to determine primitive type of {otherwise.Name}"),
-        // };
+        private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch {
+            StringType or StringLiteralType
+                => typeRef.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? "securestring" : "string",
+            UnionType unionOfStrings when unionOfStrings.Members.All(m => m.Type is StringLiteralType || m.Type is StringType)
+                => "string",
+            IntegerType or IntegerLiteralType => "int",
+            UnionType unionOfInts when unionOfInts.Members.All(m => m.Type is IntegerLiteralType || m.Type is IntegerType)
+                => "int",
+            BooleanType or BooleanLiteralType => "bool",
+            UnionType unionOfBools when unionOfBools.Members.All(m => m.Type is BooleanLiteralType || m.Type is BooleanType)
+                => "bool",
+            ObjectType => "object",
+            ArrayType => "array",
+            TypeSymbol otherwise => throw new InvalidOperationException($"Unable to determine primitive type of {otherwise.Name}"),
+        };
 
         public string Content { get; }
 
@@ -135,24 +134,24 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return this;
         }
 
-        private MainArmTemplateParameter ToParameter(JsonProperty parameterProperty)
-        {
-            string name = parameterProperty.Name;
-            string type = GetTypeFromDefinition(parameterProperty.Value);
-            bool required = !parameterProperty.Value.TryGetProperty("defaultValue", out _);
-            string? description = TryGetDescription(parameterProperty.Value);
+        // private MainArmTemplateParameter ToParameter(JsonProperty parameterProperty)
+        // {
+        //     string name = parameterProperty.Name;
+        //     string type = GetTypeFromDefinition(parameterProperty.Value);
+        //     bool required = !parameterProperty.Value.TryGetProperty("defaultValue", out _);
+        //     string? description = TryGetDescription(parameterProperty.Value);
 
-            return new(name, type, required, description);
-        }
+        //     return new(name, type, required, description);
+        // }
 
-        private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
-        {
-            string name = outputProperty.Name;
-            string type = GetTypeFromDefinition(outputProperty.Value);
-            string? description = TryGetDescription(outputProperty.Value);
+        // private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
+        // {
+        //     string name = outputProperty.Name;
+        //     string type = GetTypeFromDefinition(outputProperty.Value);
+        //     string? description = TryGetDescription(outputProperty.Value);
 
-            return new(name, type, description);
-        }
+        //     return new(name, type, description);
+        // }
 
         private string GetTypeFromDefinition(JsonElement element)
         {
