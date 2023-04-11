@@ -140,7 +140,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private JsonElement LookupRef(JsonElement element)
         {
-            return this.lazyRootElement.Value.GetProperty("definitions").GetProperty(element.GetProperty("$ref").ToNonNullString().Split('/')[2]);
+            return this.RootElement.GetProperty("definitions").GetProperty(element.GetProperty("$ref").ToNonNullString().Split('/')[2]);
         }
 
 
