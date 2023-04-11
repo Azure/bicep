@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.16.1.55165",
-      "templateHash": "16423119646313264968"
+      "templateHash": "18159476262841631239"
     }
   },
   "definitions": {
@@ -83,6 +83,10 @@
     "agentVMSize": {
       "type": "string",
       "defaultValue": "Standard_DS2_v2",
+      "allowedValues": [
+        "Standard_DS2_v2",
+        "Standard_DS4_v2"
+      ],
       "metadata": {
         "description": "The agent VM size"
       }
@@ -133,9 +137,6 @@
     },
     "osDiskSizeGB": {
       "$ref": "#/definitions/DiskSizeGB",
-      "metadata": {
-        "description": "Override the type description"
-      },
       "value": "[parameters('osDiskSizeGB')]"
     }
   }
