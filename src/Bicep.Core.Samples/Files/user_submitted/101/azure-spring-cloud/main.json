@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "399206377356114672"
+      "templateHash": "4239200344224620335"
     }
   },
   "parameters": {
@@ -31,8 +29,8 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "resources": {
-    "service": {
+  "resources": [
+    {
       "type": "Microsoft.AppPlatform/Spring",
       "apiVersion": "2019-05-01-preview",
       "name": "[parameters('serviceName')]",
@@ -51,7 +49,7 @@
         }
       }
     },
-    "app1": {
+    {
       "type": "Microsoft.AppPlatform/Spring/apps",
       "apiVersion": "2020-07-01",
       "name": "[format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))]",
@@ -59,10 +57,10 @@
         "public": true
       },
       "dependsOn": [
-        "service"
+        "[resourceId('Microsoft.AppPlatform/Spring', parameters('serviceName'))]"
       ]
     },
-    "app1deployment": {
+    {
       "type": "Microsoft.AppPlatform/Spring/apps/deployments",
       "apiVersion": "2020-07-01",
       "name": "[format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name')))]",
@@ -73,10 +71,10 @@
         }
       },
       "dependsOn": [
-        "app1"
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app1Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app1Name')), '/')[1])]"
       ]
     },
-    "app2": {
+    {
       "type": "Microsoft.AppPlatform/Spring/apps",
       "apiVersion": "2020-07-01",
       "name": "[format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))]",
@@ -84,10 +82,10 @@
         "public": false
       },
       "dependsOn": [
-        "service"
+        "[resourceId('Microsoft.AppPlatform/Spring', parameters('serviceName'))]"
       ]
     },
-    "app2deployment": {
+    {
       "type": "Microsoft.AppPlatform/Spring/apps/deployments",
       "apiVersion": "2020-07-01",
       "name": "[format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name')))]",
@@ -98,10 +96,10 @@
         }
       },
       "dependsOn": [
-        "app2"
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app2Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app2Name')), '/')[1])]"
       ]
     },
-    "app3": {
+    {
       "type": "Microsoft.AppPlatform/Spring/apps",
       "apiVersion": "2020-07-01",
       "name": "[format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))]",
@@ -109,10 +107,10 @@
         "public": false
       },
       "dependsOn": [
-        "service"
+        "[resourceId('Microsoft.AppPlatform/Spring', parameters('serviceName'))]"
       ]
     },
-    "app3deployment": {
+    {
       "type": "Microsoft.AppPlatform/Spring/apps/deployments",
       "apiVersion": "2020-07-01",
       "name": "[format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name')))]",
@@ -123,10 +121,10 @@
         }
       },
       "dependsOn": [
-        "app3"
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[1])]"
       ]
     },
-    "activeDeployment": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "setActiveDeployment",
@@ -148,14 +146,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4759894428559370958"
+              "templateHash": "5754326839291847658"
             }
           },
           "parameters": {
@@ -169,8 +165,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "app1": {
+          "resources": [
+            {
               "type": "Microsoft.AppPlatform/Spring/apps",
               "apiVersion": "2020-07-01",
               "name": "[parameters('app1Name')]",
@@ -179,7 +175,7 @@
                 "activeDeploymentName": "default"
               }
             },
-            "app2": {
+            {
               "type": "Microsoft.AppPlatform/Spring/apps",
               "apiVersion": "2020-07-01",
               "name": "[parameters('app2Name')]",
@@ -188,7 +184,7 @@
                 "activeDeploymentName": "default"
               }
             },
-            "app3": {
+            {
               "type": "Microsoft.AppPlatform/Spring/apps",
               "apiVersion": "2020-07-01",
               "name": "[parameters('app3Name')]",
@@ -197,17 +193,17 @@
                 "activeDeploymentName": "default"
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "app1",
-        "app1deployment",
-        "app2",
-        "app2deployment",
-        "app3",
-        "app3deployment"
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app1Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app1Name')), '/')[1])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))), '/')[2])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app2Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app2Name')), '/')[1])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))), '/')[2])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[1])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[2])]"
       ]
     }
-  }
+  ]
 }

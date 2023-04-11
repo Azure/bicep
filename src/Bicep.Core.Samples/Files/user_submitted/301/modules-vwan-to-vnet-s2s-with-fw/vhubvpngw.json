@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18420123275266949915"
+      "templateHash": "16630818117462838473"
     }
   },
   "parameters": {
@@ -31,8 +29,8 @@
       }
     }
   },
-  "resources": {
-    "hubvpngw": {
+  "resources": [
+    {
       "type": "Microsoft.Network/vpnGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('hubvpngwname')]",
@@ -46,7 +44,7 @@
         }
       }
     }
-  },
+  ],
   "outputs": {
     "id": {
       "type": "string",
@@ -58,15 +56,15 @@
     },
     "gwpublicip": {
       "type": "string",
-      "value": "[reference('hubvpngw').ipConfigurations[0].publicIpAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].publicIpAddress]"
     },
     "gwprivateip": {
       "type": "string",
-      "value": "[reference('hubvpngw').ipConfigurations[0].privateIpAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].privateIpAddress]"
     },
     "bgpasn": {
       "type": "int",
-      "value": "[reference('hubvpngw').bgpSettings.asn]"
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').bgpSettings.asn]"
     }
   }
 }

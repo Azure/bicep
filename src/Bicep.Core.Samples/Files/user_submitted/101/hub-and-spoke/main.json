@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8557767377083791159"
+      "templateHash": "17944433273694515491"
     }
   },
   "parameters": {
@@ -16,20 +14,20 @@
       "defaultValue": "westeurope"
     }
   },
-  "resources": {
-    "hubrg": {
+  "resources": [
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "hub-rg",
       "location": "[parameters('region')]"
     },
-    "spokerg": {
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "spoke-rg",
       "location": "[parameters('region')]"
     },
-    "hubVNET": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "hub-vnet",
@@ -61,14 +59,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1817984579596233755"
+              "templateHash": "15495507930110483956"
             }
           },
           "parameters": {
@@ -82,8 +78,8 @@
               "type": "array"
             }
           },
-          "resources": {
-            "vnet": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}-rg', parameters('prefix'))]",
@@ -95,7 +91,7 @@
                 "subnets": "[parameters('subnets')]"
               }
             }
-          },
+          ],
           "outputs": {
             "name": {
               "type": "string",
@@ -109,10 +105,10 @@
         }
       },
       "dependsOn": [
-        "hubrg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'hub-rg')]"
       ]
     },
-    "spokeVNET": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "spoke-vnet",
@@ -139,7 +135,7 @@
                 "properties": {
                   "addressPrefix": "10.0.0.0/24",
                   "routeTable": {
-                    "id": "[reference('route').outputs.id.value]"
+                    "id": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-rot'), '2022-09-01').outputs.id.value]"
                   }
                 }
               }
@@ -148,14 +144,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1817984579596233755"
+              "templateHash": "15495507930110483956"
             }
           },
           "parameters": {
@@ -169,8 +163,8 @@
               "type": "array"
             }
           },
-          "resources": {
-            "vnet": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}-rg', parameters('prefix'))]",
@@ -182,7 +176,7 @@
                 "subnets": "[parameters('subnets')]"
               }
             }
-          },
+          ],
           "outputs": {
             "name": {
               "type": "string",
@@ -196,11 +190,11 @@
         }
       },
       "dependsOn": [
-        "route",
-        "spokerg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-rot')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'spoke-rg')]"
       ]
     },
-    "Hubfwl": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "hub-fwl",
@@ -215,19 +209,17 @@
             "value": "hub"
           },
           "hubId": {
-            "value": "[reference('hubVNET').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16791915871453454064"
+              "templateHash": "18175539014458142340"
             }
           },
           "parameters": {
@@ -238,8 +230,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "publicIp": {
+          "resources": [
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}-fwl-ip', parameters('prefix'))]",
@@ -252,7 +244,7 @@
                 "name": "Standard"
               }
             },
-            "fwl": {
+            {
               "type": "Microsoft.Network/azureFirewalls",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}-fwl', parameters('prefix'))]",
@@ -273,24 +265,24 @@
                 ]
               },
               "dependsOn": [
-                "publicIp"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-fwl-ip', parameters('prefix')))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "privateIp": {
               "type": "string",
-              "value": "[reference('fwl').ipConfigurations[0].properties.privateIPAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix'))), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
             }
           }
         }
       },
       "dependsOn": [
-        "hubrg",
-        "hubVNET"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'hub-rg')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet')]"
       ]
     },
-    "HubToSpokePeering": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "hub-to-spoke-peering",
@@ -302,25 +294,23 @@
         "mode": "Incremental",
         "parameters": {
           "localVnetName": {
-            "value": "[reference('hubVNET').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2022-09-01').outputs.name.value]"
           },
           "remoteVnetName": {
             "value": "spoke"
           },
           "remoteVnetId": {
-            "value": "[reference('spokeVNET').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3986516496485311144"
+              "templateHash": "15531165796545459208"
             }
           },
           "parameters": {
@@ -334,8 +324,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "peer": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/to-{1}', parameters('localVnetName'), parameters('remoteVnetName'))]",
@@ -349,16 +339,16 @@
                 }
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "hubrg",
-        "hubVNET",
-        "spokeVNET"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'hub-rg')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet')]"
       ]
     },
-    "SpokeToHubPeering": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "spoke-to-hub-peering",
@@ -370,25 +360,23 @@
         "mode": "Incremental",
         "parameters": {
           "localVnetName": {
-            "value": "[reference('spokeVNET').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2022-09-01').outputs.name.value]"
           },
           "remoteVnetName": {
             "value": "hub"
           },
           "remoteVnetId": {
-            "value": "[reference('hubVNET').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3986516496485311144"
+              "templateHash": "15531165796545459208"
             }
           },
           "parameters": {
@@ -402,8 +390,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "peer": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/to-{1}', parameters('localVnetName'), parameters('remoteVnetName'))]",
@@ -417,16 +405,16 @@
                 }
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "hubVNET",
-        "spokerg",
-        "spokeVNET"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'spoke-rg')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet')]"
       ]
     },
-    "route": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "spoke-rot",
@@ -441,19 +429,17 @@
             "value": "spoke"
           },
           "azFwlIp": {
-            "value": "[reference('Hubfwl').outputs.privateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-fwl'), '2022-09-01').outputs.privateIp.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "857962728516652629"
+              "templateHash": "16189283045692667809"
             }
           },
           "parameters": {
@@ -464,8 +450,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "route": {
+          "resources": [
+            {
               "type": "Microsoft.Network/routeTables",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}-rot', parameters('prefix'))]",
@@ -484,7 +470,7 @@
                 ]
               }
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -494,9 +480,9 @@
         }
       },
       "dependsOn": [
-        "Hubfwl",
-        "spokerg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-fwl')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'spoke-rg')]"
       ]
     }
-  }
+  ]
 }

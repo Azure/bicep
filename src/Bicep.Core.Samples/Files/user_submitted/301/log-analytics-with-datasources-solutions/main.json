@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11065460230845505841"
+      "templateHash": "7661581430833195871"
     }
   },
   "parameters": {
@@ -100,8 +98,8 @@
     "lockName": "[format('{0}-lck', parameters('name'))]",
     "diagnosticsName": "[format('{0}-dgs', parameters('name'))]"
   },
-  "resources": {
-    "logAnalyticsWorkspace": {
+  "resources": [
+    {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-08-01",
       "name": "[parameters('name')]",
@@ -113,7 +111,7 @@
         "retentionInDays": "[parameters('retentionInDays')]"
       }
     },
-    "logAnalyticsSolutions": {
+    {
       "copy": {
         "name": "logAnalyticsSolutions",
         "count": "[length(parameters('solutions'))]"
@@ -132,10 +130,10 @@
         "promotionCode": "[parameters('solutions')[copyIndex()].promotionCode]"
       },
       "dependsOn": [
-        "logAnalyticsWorkspace"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
       ]
     },
-    "logAnalyticsAutomation": {
+    {
       "condition": "[not(empty(parameters('automationAccountName')))]",
       "type": "Microsoft.OperationalInsights/workspaces/linkedServices",
       "apiVersion": "2020-08-01",
@@ -144,10 +142,10 @@
         "resourceId": "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
       },
       "dependsOn": [
-        "logAnalyticsWorkspace"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
       ]
     },
-    "logAnalyticsDataSource": {
+    {
       "copy": {
         "name": "logAnalyticsDataSource",
         "count": "[length(parameters('dataSources'))]"
@@ -158,10 +156,10 @@
       "kind": "[parameters('dataSources')[copyIndex()].kind]",
       "properties": "[parameters('dataSources')[copyIndex()].properties]",
       "dependsOn": [
-        "logAnalyticsWorkspace"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
       ]
     },
-    "lock": {
+    {
       "condition": "[parameters('enableDeleteLock')]",
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
@@ -171,10 +169,10 @@
         "level": "CanNotDelete"
       },
       "dependsOn": [
-        "logAnalyticsWorkspace"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
       ]
     },
-    "diagnostics": {
+    {
       "condition": "[parameters('enableDiagnostics')]",
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
@@ -197,8 +195,8 @@
         ]
       },
       "dependsOn": [
-        "logAnalyticsWorkspace"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]"
       ]
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7094727738859386523"
+      "templateHash": "18207223353410271342"
     }
   },
   "parameters": {
@@ -41,27 +39,27 @@
     "sftpEnvVariable": "[format('{0}:{1}:1001', parameters('sftpUser'), parameters('sftpPassword'))]",
     "storageAccountName": "[format('sftpstg{0}', uniqueString(resourceGroup().id))]"
   },
-  "resources": {
-    "managedIdentity": {
+  "resources": [
+    {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "name": "[variables('identityName')]",
       "location": "[parameters('location')]"
     },
-    "roleAssignment": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[variables('roleAssignmentName')]",
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
-        "principalId": "[reference('managedIdentity').principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName')), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "managedIdentity"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]"
       ]
     },
-    "storageAccount": {
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2020-08-01-preview",
       "name": "[variables('storageAccountName')]",
@@ -71,10 +69,10 @@
       },
       "kind": "StorageV2",
       "dependsOn": [
-        "roleAssignment"
+        "[resourceId('Microsoft.Authorization/roleAssignments', variables('roleAssignmentName'))]"
       ]
     },
-    "deploymentScript": {
+    {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2020-10-01",
       "name": "[variables('scriptName')]",
@@ -96,11 +94,11 @@
         "retentionInterval": "P1D"
       },
       "dependsOn": [
-        "managedIdentity",
-        "storageAccount"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "containerGroup": {
+    {
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2019-12-01",
       "name": "[variables('sftpContainerGroupName')]",
@@ -162,15 +160,15 @@
         ]
       },
       "dependsOn": [
-        "deploymentScript",
-        "storageAccount"
+        "[resourceId('Microsoft.Resources/deploymentScripts', variables('scriptName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "containerIpv4Address": {
       "type": "string",
-      "value": "[reference('containerGroup').ipAddress.ip]"
+      "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', variables('sftpContainerGroupName')), '2019-12-01').ipAddress.ip]"
     }
   }
 }

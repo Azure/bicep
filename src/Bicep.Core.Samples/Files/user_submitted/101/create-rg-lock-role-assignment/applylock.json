@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17179089892866277966"
+      "templateHash": "6218015697076008944"
     }
   },
   "parameters": {
@@ -30,8 +28,8 @@
       }
     }
   },
-  "resources": {
-    "dontDeleteLock": {
+  "resources": [
+    {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
       "name": "DontDelete",
@@ -40,7 +38,7 @@
         "notes": "Prevent deletion of the resourceGroup"
       }
     },
-    "roleAssignment": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(parameters('roleAssignmentName'))]",
@@ -49,5 +47,5 @@
         "principalId": "[parameters('principalId')]"
       }
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17267489257234649340"
+      "templateHash": "12862994173378472724"
     }
   },
   "parameters": {
@@ -44,8 +42,8 @@
       }
     }
   },
-  "resources": {
-    "newRg": {
+  "resources": [
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
       "name": "[parameters('rgName')]",
@@ -55,7 +53,7 @@
       },
       "properties": {}
     },
-    "applyLock": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "applyLock",
@@ -78,14 +76,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17179089892866277966"
+              "templateHash": "6218015697076008944"
             }
           },
           "parameters": {
@@ -108,8 +104,8 @@
               }
             }
           },
-          "resources": {
-            "dontDeleteLock": {
+          "resources": [
+            {
               "type": "Microsoft.Authorization/locks",
               "apiVersion": "2016-09-01",
               "name": "DontDelete",
@@ -118,7 +114,7 @@
                 "notes": "Prevent deletion of the resourceGroup"
               }
             },
-            "roleAssignment": {
+            {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2020-04-01-preview",
               "name": "[guid(parameters('roleAssignmentName'))]",
@@ -127,12 +123,12 @@
                 "principalId": "[parameters('principalId')]"
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "newRg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('rgName'))]"
       ]
     }
-  }
+  ]
 }

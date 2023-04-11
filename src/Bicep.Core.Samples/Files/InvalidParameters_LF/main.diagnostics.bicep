@@ -50,17 +50,19 @@ param partialType str
 
 param malformedType 44
 //@[06:019) [no-unused-params (Warning)] Parameter "malformedType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedType|
+//@[20:022) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |44|
 
 // malformed type but type check should still happen
 param malformedType2 44 = f
 //@[06:020) [no-unused-params (Warning)] Parameter "malformedType2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedType2|
-//@[26:027) [BCP057 (Error)] The name "f" does not exist in the current context. (CodeDescription: none) |f|
+//@[21:023) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |44|
 
 // malformed type but type check should still happen
 @secure('s')
 //@[07:012) [BCP071 (Error)] Expected 0 arguments, but got 1. (CodeDescription: none) |('s')|
 param malformedModifier 44
 //@[06:023) [no-unused-params (Warning)] Parameter "malformedModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedModifier|
+//@[24:026) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |44|
 
 param myString2 string = 'string value'
 //@[06:015) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|

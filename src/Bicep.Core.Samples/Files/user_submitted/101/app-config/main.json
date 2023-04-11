@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2621377661616383225"
+      "templateHash": "6691820365612966943"
     }
   },
   "parameters": {
@@ -38,8 +36,8 @@
       "defaultValue": "the-content-type"
     }
   },
-  "resources": {
-    "config": {
+  "resources": [
+    {
       "type": "Microsoft.AppConfiguration/configurationStores",
       "apiVersion": "2020-07-01-preview",
       "name": "[parameters('configStoreName')]",
@@ -48,7 +46,7 @@
         "name": "Standard"
       }
     },
-    "key1": {
+    {
       "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
       "apiVersion": "2020-07-01-preview",
       "name": "[format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0])]",
@@ -57,10 +55,10 @@
         "contentType": "[parameters('contentType')]"
       },
       "dependsOn": [
-        "config"
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', parameters('configStoreName'))]"
       ]
     },
-    "key2": {
+    {
       "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
       "apiVersion": "2020-07-01-preview",
       "name": "[format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[1])]",
@@ -69,14 +67,14 @@
         "contentType": "[parameters('contentType')]"
       },
       "dependsOn": [
-        "config"
+        "[resourceId('Microsoft.AppConfiguration/configurationStores', parameters('configStoreName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "keys": {
       "type": "object",
-      "value": "[reference('key1', '2020-07-01-preview', 'full')]"
+      "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores/keyValues', split(format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0]), '/')[0], split(format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0]), '/')[1]), '2020-07-01-preview', 'full')]"
     }
   }
 }

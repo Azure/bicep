@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6864010638310943900"
+      "templateHash": "2831520916330363176"
     }
   },
   "parameters": {
@@ -58,8 +56,8 @@
     "publicipname": "[format('{0}-pip', parameters('vnetname'))]",
     "ipprefixname": "[format('{0}-ipprefix', parameters('vnetname'))]"
   },
-  "resources": {
-    "vnet": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-05-01",
       "name": "[parameters('vnetname')]",
@@ -80,7 +78,7 @@
         ]
       }
     },
-    "ipprefix": {
+    {
       "type": "Microsoft.Network/publicIPPrefixes",
       "apiVersion": "2020-05-01",
       "name": "[variables('ipprefixname')]",
@@ -94,7 +92,7 @@
         "ipTags": []
       }
     },
-    "publicip": {
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-05-01",
       "name": "[variables('publicipname')]",
@@ -109,10 +107,10 @@
         }
       },
       "dependsOn": [
-        "ipprefix"
+        "[resourceId('Microsoft.Network/publicIPPrefixes', variables('ipprefixname'))]"
       ]
     },
-    "firewall": {
+    {
       "type": "Microsoft.Network/azureFirewalls",
       "apiVersion": "2020-05-01",
       "name": "[variables('firewallname')]",
@@ -134,9 +132,9 @@
         ]
       },
       "dependsOn": [
-        "publicip",
-        "vnet"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipname'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
       ]
     }
-  }
+  ]
 }

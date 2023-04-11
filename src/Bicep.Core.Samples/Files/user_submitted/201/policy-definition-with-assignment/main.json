@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17467024018678263378"
+      "templateHash": "8842163985142754986"
     }
   },
   "parameters": {
@@ -26,8 +24,8 @@
       ]
     }
   },
-  "resources": {
-    "locationPolicyDefinition": {
+  "resources": [
+    {
       "type": "Microsoft.Authorization/policyDefinitions",
       "apiVersion": "2020-09-01",
       "name": "custom-allowed-location",
@@ -69,7 +67,7 @@
         }
       }
     },
-    "locationPolicy": {
+    {
       "type": "Microsoft.Authorization/policyAssignments",
       "apiVersion": "2020-09-01",
       "name": "Resource-location-restriction",
@@ -87,8 +85,8 @@
         }
       },
       "dependsOn": [
-        "locationPolicyDefinition"
+        "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'custom-allowed-location')]"
       ]
     }
-  }
+  ]
 }

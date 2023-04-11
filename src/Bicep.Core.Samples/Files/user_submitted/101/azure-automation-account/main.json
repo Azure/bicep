@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2385613125708189168"
+      "templateHash": "4229699038022914740"
     }
   },
   "parameters": {
@@ -33,8 +31,8 @@
     "automationaccountName": "[toLower(format('aa{0}', parameters('appName')))]",
     "automationaccountDiagName": "[toLower(format('diag-aa{0}', parameters('appName')))]"
   },
-  "resources": {
-    "automation_log_analytics": {
+  "resources": [
+    {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-03-01-preview",
       "name": "[variables('workspaceName')]",
@@ -46,7 +44,7 @@
         "retentionInDays": "[parameters('dataRetention')]"
       }
     },
-    "automation_account": {
+    {
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2015-10-31",
       "name": "[variables('automationaccountName')]",
@@ -57,7 +55,7 @@
         }
       }
     },
-    "automation_account_diagnostic": {
+    {
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Automation/automationAccounts/{0}', variables('automationaccountName'))]",
@@ -72,9 +70,9 @@
         ]
       },
       "dependsOn": [
-        "automation_account",
-        "automation_log_analytics"
+        "[resourceId('Microsoft.Automation/automationAccounts', variables('automationaccountName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]"
       ]
     }
-  }
+  ]
 }

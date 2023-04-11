@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1344477251848009864"
+      "templateHash": "11164534960160840547"
     }
   },
   "parameters": {
@@ -36,8 +34,8 @@
     "saName": "[take(format('cclocker{0}', replace(guid(resourceGroup().id), '-', '')), 24)]",
     "customData": "[format('#cloud-config\n#\n# installs CycleCloud on the VM\n#\n\nyum_repos:\n  azure-cli:\n    baseurl: https://packages.microsoft.com/yumrepos/azure-cli\n    enabled: true\n    gpgcheck: true\n    gpgkey: https://packages.microsoft.com/keys/microsoft.asc\n    name: Azure CLI\n  cyclecloud:\n    baseurl: https://packages.microsoft.com/yumrepos/cyclecloud\n    enabled: true\n    gpgcheck: true\n    gpgkey: https://packages.microsoft.com/keys/microsoft.asc\n    name: Cycle Cloud\n\npackages:\n- java-1.8.0-openjdk-headless\n- azure-cli\n- cyclecloud8\n\nwrite_files:\n- content: |\n    [{{\n        \"AdType\": \"Application.Setting\",\n        \"Name\": \"cycleserver.installation.initial_user\",\n        \"Value\": \"ccadmin\"\n    }},\n    {{\n        \"AdType\": \"Application.Setting\",\n        \"Name\": \"cycleserver.installation.complete\",\n        \"Value\": true\n    }},\n    {{\n        \"AdType\": \"AuthenticatedUser\",\n        \"Name\": \"ccadmin\",\n        \"RawPassword\": \"{0}\",\n        \"Superuser\": true\n    }}] \n  owner: root:root\n  path: ./account_data.json\n  permissions: ''0644''\n- content: |\n    {{\n      \"Name\": \"Azure\",\n      \"Environment\": \"public\",\n      \"AzureRMSubscriptionId\": \"{1}\",\n      \"AzureRMUseManagedIdentity\": true,\n      \"Location\": \"westeurope\",\n      \"RMStorageAccount\": \"{2}\",\n      \"RMStorageContainer\": \"cyclecloud\"\n    }}\n  owner: root:root\n  path: ./azure_data.json\n  permissions: ''0644''\n\nruncmd:\n- sed -i --follow-symlinks \"s/webServerPort=.*/webServerPort=80/g\" /opt/cycle_server/config/cycle_server.properties\n- sed -i --follow-symlinks \"s/webServerSslPort=.*/webServerSslPort=443/g\" /opt/cycle_server/config/cycle_server.properties\n- sed -i --follow-symlinks \"s/webServerEnableHttps=.*/webServerEnableHttps=true/g\" /opt/cycle_server/config/cycle_server.properties\n- systemctl restart cycle_server\n- mv ./account_data.json /opt/cycle_server/config/data/\n- sleep 5\n- /opt/cycle_server/cycle_server execute \"update Application.Setting set Value = false where name == \\\"authorization.check_datastore_permissions\\\"\"\n- unzip /opt/cycle_server/tools/cyclecloud-cli\n- ./cyclecloud-cli-installer/install.sh --system\n- sleep 60\n- /usr/local/bin/cyclecloud initialize --batch --url=https://localhost --verify-ssl=false --username=\"ccadmin\" --password=\"{3}\"\n- /usr/local/bin/cyclecloud account create -f ./azure_data.json', parameters('ccadminRawPassword'), subscription().subscriptionId, variables('saName'), parameters('ccadminRawPassword'))]"
   },
-  "resources": {
-    "storage": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('saName')]",
@@ -47,26 +45,26 @@
         "name": "Standard_LRS"
       }
     },
-    "mid": {
+    {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "name": "CycleCloud-MI",
       "location": "[parameters('location')]"
     },
-    "rbac": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceGroup().id)]",
       "properties": {
         "roleDefinitionId": "[tenantResourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').contributor)]",
-        "principalId": "[reference('mid').principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI'), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "mid"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')]"
       ]
     },
-    "network": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "network",
@@ -82,14 +80,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12599538789207727282"
+              "templateHash": "897418147390595997"
             }
           },
           "parameters": {
@@ -102,8 +98,8 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "resources": {
-            "nsg": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2020-06-01",
               "name": "cc-nsg",
@@ -152,7 +148,7 @@
                 ]
               }
             },
-            "vnet": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-05-01",
               "name": "cc-vnet",
@@ -176,10 +172,10 @@
                 ]
               },
               "dependsOn": [
-                "nsg"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'cc-nsg')]"
               ]
             }
-          },
+          ],
           "outputs": {
             "vnetId": {
               "type": "string",
@@ -189,7 +185,7 @@
         }
       }
     },
-    "vm": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "cycleserver",
@@ -206,7 +202,7 @@
             "value": "[variables('customData')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(resourceId('Microsoft.Resources/deployments', 'network'), '2022-09-01').outputs.vnetId.value)]"
           },
           "userAssignedIdentity": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')]"
@@ -214,14 +210,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9511219932050400951"
+              "templateHash": "4861645218776431507"
             }
           },
           "parameters": {
@@ -243,8 +237,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "pip": {
+          "resources": [
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-05-01",
               "name": "cycleserver-pip",
@@ -253,7 +247,7 @@
                 "publicIPAllocationMethod": "Dynamic"
               }
             },
-            "nic": {
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
               "name": "cycleserver-nic",
@@ -275,10 +269,10 @@
                 ]
               },
               "dependsOn": [
-                "pip"
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'cycleserver-pip')]"
               ]
             },
-            "vm": {
+            {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2020-06-01",
               "name": "cycleserver",
@@ -333,16 +327,16 @@
                 }
               },
               "dependsOn": [
-                "nic"
+                "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "mid",
-        "network"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')]",
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
       ]
     }
-  }
+  ]
 }

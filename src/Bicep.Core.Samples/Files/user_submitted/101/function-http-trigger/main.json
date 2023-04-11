@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15004289881835684946"
+      "templateHash": "16175315886631928512"
     }
   },
   "parameters": {
@@ -34,8 +32,8 @@
     "keyVaultName": "[format('kv{0}', replace(parameters('appNameSuffix'), '-', ''))]",
     "functionAppKeySecretName": "FunctionAppHostKey"
   },
-  "resources": {
-    "storageAccount": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccountName')]",
@@ -62,7 +60,7 @@
         "accessTier": "Hot"
       }
     },
-    "appInsights": {
+    {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2018-05-01-preview",
       "name": "[variables('appInsightsName')]",
@@ -74,7 +72,7 @@
         "publicNetworkAccessForQuery": "Enabled"
       }
     },
-    "plan": {
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('appServicePlanName')]",
@@ -85,7 +83,7 @@
       },
       "properties": {}
     },
-    "functionApp": {
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('functionAppName')]",
@@ -105,11 +103,11 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference('appInsights').InstrumentationKey]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference('appInsights').InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey)]"
             },
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
@@ -124,12 +122,12 @@
         "httpsOnly": true
       },
       "dependsOn": [
-        "appInsights",
-        "plan",
-        "storageAccount"
+        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "function": {
+    {
       "type": "Microsoft.Web/sites/functions",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('functionAppName'), variables('functionNameComputed'))]",
@@ -158,10 +156,10 @@
         }
       },
       "dependsOn": [
-        "functionApp"
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
       ]
     },
-    "keyVault": {
+    {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
       "name": "[variables('keyVaultName')]",
@@ -175,7 +173,7 @@
         "accessPolicies": []
       }
     },
-    "keyVaultSecret": {
+    {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2018-02-14",
       "name": "[format('{0}/{1}', variables('keyVaultName'), variables('functionAppKeySecretName'))]",
@@ -183,15 +181,15 @@
         "value": "[listKeys(format('{0}/host/default', resourceId('Microsoft.Web/sites', variables('functionAppName'))), '2020-06-01').functionKeys.default]"
       },
       "dependsOn": [
-        "functionApp",
-        "keyVault"
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "functionAppHostName": {
       "type": "string",
-      "value": "[reference('functionApp').defaultHostName]"
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2020-06-01').defaultHostName]"
     },
     "functionName": {
       "type": "string",

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9158190888841514755"
+      "templateHash": "6116784116946033021"
     }
   },
   "parameters": {
@@ -29,8 +27,8 @@
   "variables": {
     "storageAccountName": "[format('storage{0}', uniqueString(resourceGroup().id))]"
   },
-  "resources": {
-    "mediaService": {
+  "resources": [
+    {
       "type": "Microsoft.Media/mediaservices",
       "apiVersion": "2020-05-01",
       "name": "[parameters('mediaServiceName')]",
@@ -44,10 +42,10 @@
         ]
       },
       "dependsOn": [
-        "storageAccount"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "storageAccount": {
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
       "name": "[variables('storageAccountName')]",
@@ -57,5 +55,5 @@
         "name": "Standard_LRS"
       }
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7986943065536119570"
+      "templateHash": "14328881484475865442"
     }
   },
   "parameters": {
@@ -42,8 +40,8 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "resources": {
-    "namespace": {
+  "resources": [
+    {
       "type": "Microsoft.EventHub/namespaces",
       "apiVersion": "2017-04-01",
       "name": "[parameters('namespaceName')]",
@@ -55,23 +53,23 @@
       },
       "properties": {}
     },
-    "eventHub": {
+    {
       "type": "Microsoft.EventHub/namespaces/eventhubs",
       "apiVersion": "2017-04-01",
       "name": "[format('{0}/{1}', parameters('namespaceName'), parameters('eventHubName'))]",
       "properties": {},
       "dependsOn": [
-        "namespace"
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaceName'))]"
       ]
     },
-    "consumerGroup": {
+    {
       "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
       "apiVersion": "2017-04-01",
       "name": "[format('{0}/{1}', format('{0}/{1}', parameters('namespaceName'), parameters('eventHubName')), parameters('consumerGroupName'))]",
       "properties": {},
       "dependsOn": [
-        "eventHub"
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', split(format('{0}/{1}', parameters('namespaceName'), parameters('eventHubName')), '/')[0], split(format('{0}/{1}', parameters('namespaceName'), parameters('eventHubName')), '/')[1])]"
       ]
     }
-  }
+  ]
 }

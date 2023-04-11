@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14232420119402199964"
+      "templateHash": "8569593233825144249"
     }
   },
   "parameters": {
@@ -66,8 +64,8 @@
       "type": "string"
     }
   },
-  "resources": {
-    "hp": {
+  "resources": [
+    {
       "type": "Microsoft.DesktopVirtualization/hostPools",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('hostpoolName')]",
@@ -79,7 +77,7 @@
         "preferredAppGroupType": "[parameters('preferredAppGroupType')]"
       }
     },
-    "ag": {
+    {
       "type": "Microsoft.DesktopVirtualization/applicationGroups",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('appgroupName')]",
@@ -90,10 +88,10 @@
         "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
       },
       "dependsOn": [
-        "hp"
+        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
       ]
     },
-    "ws": {
+    {
       "type": "Microsoft.DesktopVirtualization/workspaces",
       "apiVersion": "2019-12-10-preview",
       "name": "[parameters('workspaceName')]",
@@ -105,10 +103,10 @@
         ]
       },
       "dependsOn": [
-        "ag"
+        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
       ]
     },
-    "avdmonitor": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "LAWorkspace",
@@ -140,14 +138,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17360174109371358486"
+              "templateHash": "3547092196470580673"
             }
           },
           "parameters": {
@@ -172,8 +168,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "avdla": {
+          "resources": [
+            {
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2020-08-01",
               "name": "[parameters('logAnalyticsWorkspaceName')]",
@@ -184,7 +180,7 @@
                 }
               }
             },
-            "avdmonitor": {
+            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "myBicepLADiag",
@@ -207,14 +203,12 @@
                 },
                 "template": {
                   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "languageVersion": "1.10-experimental",
                   "contentVersion": "1.0.0.0",
                   "metadata": {
-                    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "13594450377905290817"
+                      "templateHash": "4134091672904132879"
                     }
                   },
                   "parameters": {
@@ -228,20 +222,8 @@
                       "type": "string"
                     }
                   },
-                  "resources": {
-                    "hostPool": {
-                      "existing": true,
-                      "type": "Microsoft.DesktopVirtualization/hostPools",
-                      "apiVersion": "2020-11-02-preview",
-                      "name": "[parameters('hostpoolName')]"
-                    },
-                    "workspace": {
-                      "existing": true,
-                      "type": "Microsoft.DesktopVirtualization/workspaces",
-                      "apiVersion": "2020-11-02-preview",
-                      "name": "[parameters('workspaceName')]"
-                    },
-                    "avdhpds": {
+                  "resources": [
+                    {
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
@@ -272,7 +254,7 @@
                         ]
                       }
                     },
-                    "avdwsds": {
+                    {
                       "type": "Microsoft.Insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
@@ -299,20 +281,20 @@
                         ]
                       }
                     }
-                  }
+                  ]
                 }
               },
               "dependsOn": [
-                "avdla"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "hp",
-        "ws"
+        "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]",
+        "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
       ]
     }
-  }
+  ]
 }

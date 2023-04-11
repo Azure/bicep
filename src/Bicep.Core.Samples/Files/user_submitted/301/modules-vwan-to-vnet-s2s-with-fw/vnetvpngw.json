@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4678077202719623870"
+      "templateHash": "9355385094073877227"
     }
   },
   "parameters": {
@@ -34,8 +32,8 @@
       }
     }
   },
-  "resources": {
-    "vpngwpip": {
+  "resources": [
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vpngwpipname')]",
@@ -47,7 +45,7 @@
         "publicIPAllocationMethod": "Static"
       }
     },
-    "vpngw": {
+    {
       "type": "Microsoft.Network/virtualNetworkGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vpngwname')]",
@@ -81,10 +79,10 @@
         }
       },
       "dependsOn": [
-        "vpngwpip"
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "id": {
       "type": "string",
@@ -92,15 +90,15 @@
     },
     "vpngwip": {
       "type": "string",
-      "value": "[reference('vpngwpip').ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname')), '2020-06-01').ipAddress]"
     },
     "vpngwbgpaddress": {
       "type": "string",
-      "value": "[reference('vpngw').bgpSettings.bgpPeeringAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.bgpPeeringAddress]"
     },
     "bgpasn": {
       "type": "int",
-      "value": "[reference('vpngw').bgpSettings.asn]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.asn]"
     }
   }
 }

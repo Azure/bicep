@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13597860548792197246"
+      "templateHash": "13099933352562359027"
     }
   },
   "parameters": {
@@ -32,8 +30,8 @@
       }
     }
   },
-  "resources": {
-    "cosmosAccount": {
+  "resources": [
+    {
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2021-04-15",
       "name": "[toLower(parameters('accountName'))]",
@@ -51,7 +49,7 @@
         ]
       }
     },
-    "cosmosDB": {
+    {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
       "apiVersion": "2021-04-15",
       "name": "[format('{0}/{1}', toLower(parameters('accountName')), toLower(parameters('databaseName')))]",
@@ -64,8 +62,8 @@
         }
       },
       "dependsOn": [
-        "cosmosAccount"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', toLower(parameters('accountName')))]"
       ]
     }
-  }
+  ]
 }

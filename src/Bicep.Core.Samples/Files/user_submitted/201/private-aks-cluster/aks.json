@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1017403415027411761"
+      "templateHash": "8669984809251085106"
     }
   },
   "parameters": {
@@ -325,20 +323,8 @@
     },
     "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]"
   },
-  "resources": {
-    "virtualNetwork": {
-      "existing": true,
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-08-01",
-      "name": "[variables('virtualNetworkName')]"
-    },
-    "aksSubnet": {
-      "existing": true,
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2020-08-01",
-      "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]"
-    },
-    "aksCluster": {
+  "resources": [
+    {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2021-02-01",
       "name": "[parameters('aksClusterName')]",
@@ -408,5 +394,5 @@
         }
       }
     }
-  }
+  ]
 }

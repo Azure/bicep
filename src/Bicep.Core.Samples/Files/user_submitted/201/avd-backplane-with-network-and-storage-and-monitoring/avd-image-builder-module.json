@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18154557577220218550"
+      "templateHash": "5788686735444811125"
     }
   },
   "parameters": {
@@ -53,14 +51,8 @@
       "defaultValue": "[resourceGroup().name]"
     }
   },
-  "resources": {
-    "managedidentity": {
-      "existing": true,
-      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "apiVersion": "2018-11-30",
-      "name": "[parameters('uamiName')]"
-    },
-    "imageTemplateName_resource": {
+  "resources": [
+    {
       "type": "Microsoft.VirtualMachineImages/imageTemplates",
       "apiVersion": "2020-02-14",
       "name": "[parameters('imageTemplateName')]",
@@ -102,7 +94,7 @@
         ]
       }
     },
-    "aibdef": {
+    {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleDefinitions",
       "apiVersion": "2018-01-01-preview",
@@ -126,32 +118,32 @@
         ]
       }
     },
-    "aibrunnerassignment": {
+    {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
       "properties": {
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom')))]",
-        "principalId": "[reference('managedidentity').principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "aibdef"
+        "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameAIBCustom')))]"
       ]
     },
-    "miorole": {
+    {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
       "properties": {
         "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
-        "principalId": "[reference('managedidentity').principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
       }
     },
-    "scriptName_BuildVMImage": {
+    {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2020-10-01",
@@ -174,8 +166,8 @@
         "retentionInterval": "P1D"
       },
       "dependsOn": [
-        "imageTemplateName_resource"
+        "[resourceId('Microsoft.VirtualMachineImages/imageTemplates', parameters('imageTemplateName'))]"
       ]
     }
-  }
+  ]
 }

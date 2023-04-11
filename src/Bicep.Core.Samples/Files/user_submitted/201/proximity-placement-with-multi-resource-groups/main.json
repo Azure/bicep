@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2161638637279308186"
+      "templateHash": "11745064405835740649"
     }
   },
   "parameters": {
@@ -28,26 +26,26 @@
       "defaultValue": 1
     }
   },
-  "resources": {
-    "rgnet": {
+  "resources": [
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-05-01",
       "name": "bicep-network-rg",
       "location": "[parameters('location')]"
     },
-    "rganchor": {
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-05-01",
       "name": "bicep-anchor-rg",
       "location": "[parameters('location')]"
     },
-    "rgworkload": {
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-05-01",
       "name": "bicep-workload-rg",
       "location": "[parameters('location')]"
     },
-    "network": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "network",
@@ -64,14 +62,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4630933237527913417"
+              "templateHash": "10154278416046209142"
             }
           },
           "parameters": {
@@ -84,8 +80,8 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "resources": {
-            "nsg": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2020-06-01",
               "name": "demo-nsg",
@@ -134,7 +130,7 @@
                 ]
               }
             },
-            "vnet": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-05-01",
               "name": "demo-vnet",
@@ -158,10 +154,10 @@
                 ]
               },
               "dependsOn": [
-                "nsg"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'demo-nsg')]"
               ]
             }
-          },
+          ],
           "outputs": {
             "vnetId": {
               "type": "string",
@@ -171,10 +167,10 @@
         }
       },
       "dependsOn": [
-        "rgnet"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'bicep-network-rg')]"
       ]
     },
-    "ppg": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "anchor",
@@ -189,7 +185,7 @@
             "value": "[parameters('adminSshKey')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2022-09-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "anchor"
@@ -200,14 +196,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16769211848912349672"
+              "templateHash": "17798777799174646976"
             }
           },
           "parameters": {
@@ -233,8 +227,8 @@
               ]
             }
           },
-          "resources": {
-            "ppg": {
+          "resources": [
+            {
               "type": "Microsoft.Compute/proximityPlacementGroups",
               "apiVersion": "2020-06-01",
               "name": "[format('Zone-{0}', parameters('zone'))]",
@@ -243,7 +237,7 @@
                 "proximityPlacementGroupType": "Standard"
               }
             },
-            "pip": {
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}-pip', parameters('vmName'))]",
@@ -258,7 +252,7 @@
                 "[format('{0}', parameters('zone'))]"
               ]
             },
-            "nic": {
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -280,10 +274,10 @@
                 ]
               },
               "dependsOn": [
-                "pip"
+                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
               ]
             },
-            "vm": {
+            {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2020-06-01",
               "name": "[parameters('vmName')]",
@@ -337,11 +331,11 @@
                 "[format('{0}', parameters('zone'))]"
               ],
               "dependsOn": [
-                "nic",
-                "ppg"
+                "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
+                "[resourceId('Microsoft.Compute/proximityPlacementGroups', format('Zone-{0}', parameters('zone')))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "ppgId": {
               "type": "string",
@@ -351,11 +345,11 @@
         }
       },
       "dependsOn": [
-        "network",
-        "rganchor"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'bicep-anchor-rg')]"
       ]
     },
-    "vm01": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vm01",
@@ -370,10 +364,10 @@
             "value": "[parameters('adminSshKey')]"
           },
           "ppgId": {
-            "value": "[reference('ppg').outputs.ppgId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2022-09-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2022-09-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm01"
@@ -381,14 +375,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11158607617869968114"
+              "templateHash": "838009304435023175"
             }
           },
           "parameters": {
@@ -409,8 +401,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "availabilitySets": {
+          "resources": [
+            {
               "type": "Microsoft.Compute/availabilitySets",
               "apiVersion": "2020-06-01",
               "name": "as",
@@ -426,7 +418,7 @@
                 "name": "Aligned"
               }
             },
-            "nic": {
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -445,7 +437,7 @@
                 ]
               }
             },
-            "vm": {
+            {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2020-06-01",
               "name": "[parameters('vmName')]",
@@ -496,20 +488,20 @@
                 }
               },
               "dependsOn": [
-                "availabilitySets",
-                "nic"
+                "[resourceId('Microsoft.Compute/availabilitySets', 'as')]",
+                "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "network",
-        "ppg",
-        "rgworkload"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'bicep-workload-rg')]"
       ]
     },
-    "vm02": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vm02",
@@ -524,10 +516,10 @@
             "value": "[parameters('adminSshKey')]"
           },
           "ppgId": {
-            "value": "[reference('ppg').outputs.ppgId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2022-09-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2022-09-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm02"
@@ -535,14 +527,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11158607617869968114"
+              "templateHash": "838009304435023175"
             }
           },
           "parameters": {
@@ -563,8 +553,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "availabilitySets": {
+          "resources": [
+            {
               "type": "Microsoft.Compute/availabilitySets",
               "apiVersion": "2020-06-01",
               "name": "as",
@@ -580,7 +570,7 @@
                 "name": "Aligned"
               }
             },
-            "nic": {
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -599,7 +589,7 @@
                 ]
               }
             },
-            "vm": {
+            {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2020-06-01",
               "name": "[parameters('vmName')]",
@@ -650,18 +640,18 @@
                 }
               },
               "dependsOn": [
-                "availabilitySets",
-                "nic"
+                "[resourceId('Microsoft.Compute/availabilitySets', 'as')]",
+                "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "network",
-        "ppg",
-        "rgworkload"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'bicep-workload-rg')]"
       ]
     }
-  }
+  ]
 }

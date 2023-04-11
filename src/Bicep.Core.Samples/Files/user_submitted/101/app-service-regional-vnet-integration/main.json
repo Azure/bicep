@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16939871461862228962"
+      "templateHash": "4514882270377428345"
     }
   },
   "parameters": {
@@ -34,8 +32,8 @@
     "subnetAddressPrefix": "10.0.0.0/24",
     "appServicePlanSku": "S1"
   },
-  "resources": {
-    "appServicePlan": {
+  "resources": [
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('appServicePlanName')]",
@@ -45,7 +43,7 @@
       },
       "kind": "app"
     },
-    "vnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('vnetName')]",
@@ -94,7 +92,7 @@
         ]
       }
     },
-    "webApp": {
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('appName')]",
@@ -104,22 +102,22 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       },
       "dependsOn": [
-        "appServicePlan",
-        "vnet"
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
-    "webappVnet": {
+    {
       "type": "Microsoft.Web/sites/networkConfig",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('appName'), 'virtualNetwork')]",
       "properties": {
-        "subnetResourceId": "[reference('vnet').subnets[0].id]",
+        "subnetResourceId": "[reference(resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), '2020-06-01').subnets[0].id]",
         "swiftSupported": true
       },
       "dependsOn": [
-        "vnet",
-        "webApp"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
       ]
     }
-  }
+  ]
 }

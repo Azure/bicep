@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3927735002575623953"
+      "templateHash": "5853821456770597375"
     }
   },
   "parameters": {
@@ -115,8 +113,8 @@
       }
     }
   },
-  "resources": {
-    "keyvault": {
+  "resources": [
+    {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
       "name": "[parameters('vaultName')]",
@@ -136,7 +134,7 @@
         "networkAcls": "[parameters('networkAcls')]"
       }
     },
-    "key": {
+    {
       "type": "Microsoft.KeyVault/vaults/keys",
       "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', parameters('vaultName'), parameters('keyName'))]",
@@ -149,10 +147,10 @@
         "keySize": 4096
       },
       "dependsOn": [
-        "keyvault"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
       ]
     },
-    "secret": {
+    {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2018-02-14",
       "name": "[format('{0}/{1}', parameters('vaultName'), parameters('secretName'))]",
@@ -160,14 +158,14 @@
         "value": "[parameters('secretValue')]"
       },
       "dependsOn": [
-        "keyvault"
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "proxyKey": {
       "type": "object",
-      "value": "[reference('key', '2019-09-01', 'full')]"
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', split(format('{0}/{1}', parameters('vaultName'), parameters('keyName')), '/')[0], split(format('{0}/{1}', parameters('vaultName'), parameters('keyName')), '/')[1]), '2019-09-01', 'full')]"
     }
   }
 }

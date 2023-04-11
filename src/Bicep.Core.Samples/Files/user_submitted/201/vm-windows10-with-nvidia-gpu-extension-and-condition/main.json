@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2218066636651118858"
+      "templateHash": "11460263666974607466"
     }
   },
   "parameters": {
@@ -51,8 +49,8 @@
     },
     "privateIPAllocationMethod": "Dynamic"
   },
-  "resources": {
-    "vnet": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-05-01",
       "name": "[parameters('vnetName')]",
@@ -93,7 +91,7 @@
         ]
       }
     },
-    "vmNic": {
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2017-06-01",
       "name": "[variables('defaultVmNicName')]",
@@ -112,10 +110,10 @@
         ]
       },
       "dependsOn": [
-        "vnet"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
-    "vm": {
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2019-07-01",
       "name": "[parameters('vmName')]",
@@ -153,10 +151,10 @@
         }
       },
       "dependsOn": [
-        "vmNic"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('defaultVmNicName'))]"
       ]
     },
-    "vmgpu": {
+    {
       "condition": "[parameters('installNVidiaGPUDriver')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
@@ -170,8 +168,8 @@
         "settings": {}
       },
       "dependsOn": [
-        "vm"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5606918733535086745"
+      "templateHash": "17616543420192955257"
     }
   },
   "parameters": {
@@ -65,8 +63,8 @@
   "variables": {
     "apiManagementServiceName": "[format('apiservice{0}', uniqueString(resourceGroup().id))]"
   },
-  "resources": {
-    "apiManagementService": {
+  "resources": [
+    {
       "type": "Microsoft.ApiManagement/service",
       "apiVersion": "2020-06-01-preview",
       "name": "[variables('apiManagementServiceName')]",
@@ -80,7 +78,7 @@
         "publisherEmail": "[parameters('publisherEmail')]"
       }
     },
-    "policy": {
+    {
       "type": "Microsoft.ApiManagement/service/policies",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/policy', variables('apiManagementServiceName'))]",
@@ -88,10 +86,10 @@
         "value": "[parameters('tenantPolicy')]"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "petStoreApiExample": {
+    {
       "type": "Microsoft.ApiManagement/service/apis",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/PetStoreSwaggerImportExample', variables('apiManagementServiceName'))]",
@@ -101,10 +99,10 @@
         "path": "examplepetstore"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleApi": {
+    {
       "type": "Microsoft.ApiManagement/service/apis",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleApi', variables('apiManagementServiceName'))]",
@@ -118,10 +116,10 @@
         ]
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleApiOperationDelete": {
+    {
       "type": "Microsoft.ApiManagement/service/apis/operations",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleOperationsDELETE', format('{0}/exampleApi', variables('apiManagementServiceName')))]",
@@ -132,10 +130,10 @@
         "description": "A demonstration of a DELETE call"
       },
       "dependsOn": [
-        "exampleApi"
+        "[resourceId('Microsoft.ApiManagement/service/apis', split(format('{0}/exampleApi', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleApi', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "exampleApiOperationGet": {
+    {
       "type": "Microsoft.ApiManagement/service/apis/operations",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleOperationsGET', format('{0}/exampleApi', variables('apiManagementServiceName')))]",
@@ -146,10 +144,10 @@
         "description": "A demonstration of a GET call"
       },
       "dependsOn": [
-        "exampleApi"
+        "[resourceId('Microsoft.ApiManagement/service/apis', split(format('{0}/exampleApi', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleApi', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "exampleApiOperationGetPolicy": {
+    {
       "type": "Microsoft.ApiManagement/service/apis/operations/policies",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/policy', format('{0}/exampleOperationsGET', format('{0}/exampleApi', variables('apiManagementServiceName'))))]",
@@ -157,10 +155,10 @@
         "value": "[parameters('operationPolicy')]"
       },
       "dependsOn": [
-        "exampleApiOperationGet"
+        "[resourceId('Microsoft.ApiManagement/service/apis/operations', split(format('{0}/exampleOperationsGET', format('{0}/exampleApi', variables('apiManagementServiceName'))), '/')[0], split(format('{0}/exampleOperationsGET', format('{0}/exampleApi', variables('apiManagementServiceName'))), '/')[1], split(format('{0}/exampleOperationsGET', format('{0}/exampleApi', variables('apiManagementServiceName'))), '/')[2])]"
       ]
     },
-    "exampleApiWithPolicy": {
+    {
       "type": "Microsoft.ApiManagement/service/apis",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleApiWithPolicy', variables('apiManagementServiceName'))]",
@@ -174,10 +172,10 @@
         ]
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleApiWithPolicyPolicy": {
+    {
       "type": "Microsoft.ApiManagement/service/apis/operations/policies",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/policy', format('{0}/exampleApiWithPolicy', variables('apiManagementServiceName')))]",
@@ -185,10 +183,10 @@
         "value": "[parameters('apiPolicy')]"
       },
       "dependsOn": [
-        "exampleApiWithPolicy"
+        "[resourceId('Microsoft.ApiManagement/service/apis', split(format('{0}/exampleApiWithPolicy', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleApiWithPolicy', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "exampleProduct": {
+    {
       "type": "Microsoft.ApiManagement/service/products",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleProduct', variables('apiManagementServiceName'))]",
@@ -202,18 +200,18 @@
         "state": "published"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleProductApi": {
+    {
       "type": "Microsoft.ApiManagement/service/apis",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleApi', format('{0}/exampleProduct', variables('apiManagementServiceName')))]",
       "dependsOn": [
-        "exampleProduct"
+        "[resourceId('Microsoft.ApiManagement/service/products', split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "exampleProductPolicy": {
+    {
       "type": "Microsoft.ApiManagement/service/products/policies",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/policy', format('{0}/exampleProduct', variables('apiManagementServiceName')))]",
@@ -221,10 +219,10 @@
         "value": "[parameters('productPolicy')]"
       },
       "dependsOn": [
-        "exampleProduct"
+        "[resourceId('Microsoft.ApiManagement/service/products', split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "exampleUser1": {
+    {
       "type": "Microsoft.ApiManagement/service/users",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleUser1', variables('apiManagementServiceName'))]",
@@ -236,10 +234,10 @@
         "note": "note for example user 1"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleUser2": {
+    {
       "type": "Microsoft.ApiManagement/service/users",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleUser2', variables('apiManagementServiceName'))]",
@@ -251,10 +249,10 @@
         "note": "note for example user 2"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleUser3": {
+    {
       "type": "Microsoft.ApiManagement/service/users",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleUser1', variables('apiManagementServiceName'))]",
@@ -266,10 +264,10 @@
         "note": "note for example user 3"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleProperty": {
+    {
       "type": "Microsoft.ApiManagement/service/properties",
       "apiVersion": "2019-01-01",
       "name": "[format('{0}/exampleproperties', variables('apiManagementServiceName'))]",
@@ -281,10 +279,10 @@
         ]
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "subscription1": {
+    {
       "type": "Microsoft.ApiManagement/service/subscriptions",
       "apiVersion": "2017-03-01",
       "name": "[format('{0}/examplesubscription1', variables('apiManagementServiceName'))]",
@@ -294,12 +292,12 @@
         "userId": "[resourceId('Microsoft.ApiManagement/service/users', split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[1])]"
       },
       "dependsOn": [
-        "apiManagementService",
-        "exampleProduct",
-        "exampleUser1"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]",
+        "[resourceId('Microsoft.ApiManagement/service/products', split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[1])]",
+        "[resourceId('Microsoft.ApiManagement/service/users', split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "subscription2": {
+    {
       "type": "Microsoft.ApiManagement/service/subscriptions",
       "apiVersion": "2017-03-01",
       "name": "[format('{0}/examplesubscription2', variables('apiManagementServiceName'))]",
@@ -309,12 +307,12 @@
         "userId": "[resourceId('Microsoft.ApiManagement/service/users', split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[1])]"
       },
       "dependsOn": [
-        "apiManagementService",
-        "exampleProduct",
-        "exampleUser3"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]",
+        "[resourceId('Microsoft.ApiManagement/service/products', split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleProduct', variables('apiManagementServiceName')), '/')[1])]",
+        "[resourceId('Microsoft.ApiManagement/service/users', split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[0], split(format('{0}/exampleUser1', variables('apiManagementServiceName')), '/')[1])]"
       ]
     },
-    "certificate": {
+    {
       "type": "Microsoft.ApiManagement/service/certificates",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleCertificate', variables('apiManagementServiceName'))]",
@@ -323,10 +321,10 @@
         "password": "[parameters('certificatePassword')]"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleGroup": {
+    {
       "type": "Microsoft.ApiManagement/service/groups",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleGroup', variables('apiManagementServiceName'))]",
@@ -335,10 +333,10 @@
         "description": "Example group description"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "openIdConnectProvider": {
+    {
       "type": "Microsoft.ApiManagement/service/openidConnectProviders",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleOpenIdConnectProvider', variables('apiManagementServiceName'))]",
@@ -350,10 +348,10 @@
         "clientSecret": "[parameters('openIdConnectClientSecret')]"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "exampleLogger": {
+    {
       "type": "Microsoft.ApiManagement/service/loggers",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/exampleLogger', variables('apiManagementServiceName'))]",
@@ -366,10 +364,10 @@
         }
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     },
-    "identityProvider": {
+    {
       "type": "Microsoft.ApiManagement/service/identityProviders",
       "apiVersion": "2020-06-01-preview",
       "name": "[format('{0}/google', variables('apiManagementServiceName'))]",
@@ -378,8 +376,8 @@
         "clientSecret": "[parameters('googleClientSecret')]"
       },
       "dependsOn": [
-        "apiManagementService"
+        "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     }
-  }
+  ]
 }

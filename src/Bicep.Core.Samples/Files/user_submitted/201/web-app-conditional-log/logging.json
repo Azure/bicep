@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18405326976270098476"
+      "templateHash": "15094956310531558961"
     }
   },
   "parameters": {
@@ -23,28 +21,28 @@
     "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]",
     "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"
   },
-  "resources": {
-    "appServiceAppSettings": {
+  "resources": [
+    {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/appsettings', parameters('appName'))]",
       "properties": {
-        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference('appInsights').InstrumentationKey]"
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName')), '2020-02-02-preview').InstrumentationKey]"
       },
       "dependsOn": [
-        "appInsights",
-        "appServiceSiteExtension"
+        "[resourceId('Microsoft.Insights/components', variables('appInsightName'))]",
+        "[resourceId('Microsoft.Web/sites/siteextensions', split(format('{0}/Microsoft.ApplicationInsights.AzureWebsites', parameters('appName')), '/')[0], split(format('{0}/Microsoft.ApplicationInsights.AzureWebsites', parameters('appName')), '/')[1])]"
       ]
     },
-    "appServiceSiteExtension": {
+    {
       "type": "Microsoft.Web/sites/siteextensions",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', parameters('appName'))]",
       "dependsOn": [
-        "appInsights"
+        "[resourceId('Microsoft.Insights/components', variables('appInsightName'))]"
       ]
     },
-    "appInsights": {
+    {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('appInsightName')]",
@@ -58,10 +56,10 @@
         "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
       },
       "dependsOn": [
-        "logAnalyticsWorkspace"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
       ]
     },
-    "logAnalyticsWorkspace": {
+    {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-03-01-preview",
       "name": "[variables('logAnalyticsName')]",
@@ -76,5 +74,5 @@
         "retentionInDays": 120
       }
     }
-  }
+  ]
 }

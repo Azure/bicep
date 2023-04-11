@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "797113468123589"
+      "templateHash": "257994635605773627"
     }
   },
   "parameters": {
@@ -44,16 +42,8 @@
     "websiteName": "[format('{0}-site', parameters('name'))]",
     "farmName": "[format('{0}-farm', parameters('name'))]"
   },
-  "resources": {
-    "containerRegistry": {
-      "existing": true,
-      "type": "Microsoft.ContainerRegistry/registries",
-      "apiVersion": "2019-05-01",
-      "subscriptionId": "[parameters('acrSubscription')]",
-      "resourceGroup": "[parameters('acrResourceGroup')]",
-      "name": "[parameters('acrName')]"
-    },
-    "site": {
+  "resources": [
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('websiteName')]",
@@ -83,10 +73,10 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('farmName'))]"
       },
       "dependsOn": [
-        "farm"
+        "[resourceId('Microsoft.Web/serverfarms', variables('farmName'))]"
       ]
     },
-    "farm": {
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('farmName')]",
@@ -102,15 +92,15 @@
         "reserved": true
       }
     }
-  },
+  ],
   "outputs": {
     "publicUrl": {
       "type": "string",
-      "value": "[reference('site').defaultHostName]"
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('websiteName')), '2020-06-01').defaultHostName]"
     },
     "ftpUser": {
       "type": "string",
-      "value": "[reference('site').ftpUsername]"
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('websiteName')), '2020-06-01').ftpUsername]"
     }
   }
 }

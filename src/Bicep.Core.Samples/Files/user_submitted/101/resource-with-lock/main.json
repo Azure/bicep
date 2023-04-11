@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12150945458765543782"
+      "templateHash": "12432572088371158198"
     }
   },
   "parameters": {
@@ -15,8 +13,8 @@
       "type": "string"
     }
   },
-  "resources": {
-    "storageAcc": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[parameters('accountName')]",
@@ -26,7 +24,7 @@
       },
       "location": "[resourceGroup().location]"
     },
-    "lockResource": {
+    {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName'))]",
@@ -35,8 +33,8 @@
         "level": "CanNotDelete"
       },
       "dependsOn": [
-        "storageAcc"
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]"
       ]
     }
-  }
+  ]
 }

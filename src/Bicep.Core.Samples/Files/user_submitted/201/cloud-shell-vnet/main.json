@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15692396994899436281"
+      "templateHash": "6854917204260024602"
     }
   },
   "parameters": {
@@ -90,14 +88,8 @@
     "privateDnsZoneName": "[if(equals(toLower(environment().name), 'azureusgovernment'), 'privatelink.servicebus.usgovcloudapi.net', 'privatelink.servicebus.windows.net')]",
     "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]"
   },
-  "resources": {
-    "existingVNET": {
-      "existing": true,
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-04-01",
-      "name": "[parameters('existingVNETName')]"
-    },
-    "containerSubnet": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-04-01",
       "name": "[format('{0}/{1}', parameters('existingVNETName'), parameters('containerSubnetName'))]",
@@ -141,7 +133,7 @@
         ]
       }
     },
-    "networkProfile": {
+    {
       "type": "Microsoft.Network/networkProfiles",
       "apiVersion": "2019-11-01",
       "name": "[variables('networkProfileName')]",
@@ -166,10 +158,10 @@
         ]
       },
       "dependsOn": [
-        "containerSubnet"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVNETName'), parameters('containerSubnetName'))]"
       ]
     },
-    "networkProfile_roleAssignment": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "scope": "[format('Microsoft.Network/networkProfiles/{0}', variables('networkProfileName'))]",
@@ -179,10 +171,10 @@
         "principalId": "[parameters('azureContainerInstanceOID')]"
       },
       "dependsOn": [
-        "networkProfile"
+        "[resourceId('Microsoft.Network/networkProfiles', variables('networkProfileName'))]"
       ]
     },
-    "relayNamespace": {
+    {
       "type": "Microsoft.Relay/namespaces",
       "apiVersion": "2018-01-01-preview",
       "name": "[parameters('relayNamespaceName')]",
@@ -192,7 +184,7 @@
         "tier": "Standard"
       }
     },
-    "relayNamespace_roleAssignment": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "scope": "[format('Microsoft.Relay/namespaces/{0}', parameters('relayNamespaceName'))]",
@@ -202,10 +194,10 @@
         "principalId": "[parameters('azureContainerInstanceOID')]"
       },
       "dependsOn": [
-        "relayNamespace"
+        "[resourceId('Microsoft.Relay/namespaces', parameters('relayNamespaceName'))]"
       ]
     },
-    "relaySubnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-04-01",
       "name": "[format('{0}/{1}', parameters('existingVNETName'), parameters('relaySubnetName'))]",
@@ -235,10 +227,10 @@
         }
       },
       "dependsOn": [
-        "containerSubnet"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVNETName'), parameters('containerSubnetName'))]"
       ]
     },
-    "privateEndpoint": {
+    {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-04-01",
       "name": "[parameters('privateEndpointName')]",
@@ -260,11 +252,11 @@
         }
       },
       "dependsOn": [
-        "relayNamespace",
-        "relaySubnet"
+        "[resourceId('Microsoft.Relay/namespaces', parameters('relayNamespaceName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVNETName'), parameters('relaySubnetName'))]"
       ]
     },
-    "storageSubnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-04-01",
       "name": "[format('{0}/{1}', parameters('existingVNETName'), parameters('storageSubnetName'))]",
@@ -300,16 +292,16 @@
         }
       },
       "dependsOn": [
-        "relaySubnet"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVNETName'), parameters('relaySubnetName'))]"
       ]
     },
-    "privateDnsZone": {
+    {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-01-01",
       "name": "[variables('privateDnsZoneName')]",
       "location": "global"
     },
-    "privateDnsZoneARecord": {
+    {
       "type": "Microsoft.Network/privateDnsZones/A",
       "apiVersion": "2020-01-01",
       "name": "[format('{0}/{1}', variables('privateDnsZoneName'), parameters('relayNamespaceName'))]",
@@ -317,16 +309,16 @@
         "ttl": 3600,
         "aRecords": [
           {
-            "ipv4Address": "[first(first(reference('privateEndpoint').customDnsConfigs).ipAddresses)]"
+            "ipv4Address": "[first(first(reference(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName')), '2020-04-01').customDnsConfigs).ipAddresses)]"
           }
         ]
       },
       "dependsOn": [
-        "privateDnsZone",
-        "privateEndpoint"
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
       ]
     },
-    "privateDnsZoneVnetLink": {
+    {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-01-01",
       "name": "[format('{0}/{1}', variables('privateDnsZoneName'), parameters('relayNamespaceName'))]",
@@ -338,10 +330,10 @@
         }
       },
       "dependsOn": [
-        "privateDnsZone"
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "vnetId": {
       "type": "string",

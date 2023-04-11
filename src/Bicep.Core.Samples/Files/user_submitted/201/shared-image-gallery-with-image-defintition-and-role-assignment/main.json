@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1217092655851573084"
+      "templateHash": "7412961710344620480"
     }
   },
   "parameters": {
@@ -48,14 +46,14 @@
   "variables": {
     "templateImageResourceGroupId": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]"
   },
-  "resources": {
-    "wvdsig": {
+  "resources": [
+    {
       "type": "Microsoft.Compute/galleries",
       "apiVersion": "2020-09-30",
       "name": "[parameters('sigName')]",
       "location": "[parameters('sigLocation')]"
     },
-    "wvdid": {
+    {
       "type": "Microsoft.Compute/galleries/images",
       "apiVersion": "2020-09-30",
       "name": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]",
@@ -70,10 +68,10 @@
         }
       },
       "dependsOn": [
-        "wvdsig"
+        "[resourceId('Microsoft.Compute/galleries', parameters('sigName'))]"
       ]
     },
-    "gallerydef": {
+    {
       "type": "Microsoft.Authorization/roleDefinitions",
       "apiVersion": "2018-01-01-preview",
       "name": "[guid(parameters('roleNameGalleryImage'))]",
@@ -98,7 +96,7 @@
         ]
       }
     },
-    "galleryass": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), parameters('principalId'))]",
@@ -107,8 +105,8 @@
         "principalId": "[parameters('principalId')]"
       },
       "dependsOn": [
-        "gallerydef"
+        "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]"
       ]
     }
-  }
+  ]
 }

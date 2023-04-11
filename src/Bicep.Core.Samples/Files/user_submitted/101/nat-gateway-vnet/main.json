@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8659887820617513441"
+      "templateHash": "602232936202381050"
     }
   },
   "parameters": {
@@ -69,8 +67,8 @@
       }
     ]
   },
-  "resources": {
-    "publicIp": {
+  "resources": [
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('publicIpName')]",
@@ -87,7 +85,7 @@
         }
       }
     },
-    "natGateway": {
+    {
       "type": "Microsoft.Network/natGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('natGatewayName')]",
@@ -100,10 +98,10 @@
         "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), variables('publicIpAddresses'), null())]"
       },
       "dependsOn": [
-        "publicIp"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
       ]
     },
-    "vnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vnetName')]",
@@ -151,10 +149,10 @@
         "enableVmProtection": false
       },
       "dependsOn": [
-        "natGateway"
+        "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]"
       ]
     },
-    "subnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('vnetName'), 'mySubnet')]",
@@ -187,9 +185,9 @@
         }
       },
       "dependsOn": [
-        "natGateway",
-        "vnet"
+        "[resourceId('Microsoft.Network/natGateways', parameters('natGatewayName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4566243446453807707"
+      "templateHash": "4180162331319940394"
     }
   },
   "parameters": {
@@ -76,8 +74,8 @@
     "storageAccountName": "[format('{0}azfunctions', uniqueString(resourceGroup().id))]",
     "functionWorkerRuntime": "[parameters('runtime')]"
   },
-  "resources": {
-    "virtualNetwork": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('vnetName')]",
@@ -126,7 +124,7 @@
         ]
       }
     },
-    "storageAccount": {
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
       "name": "[variables('storageAccountName')]",
@@ -136,7 +134,7 @@
       },
       "kind": "StorageV2"
     },
-    "appInsights": {
+    {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2018-05-01-preview",
       "name": "[variables('functionAppName')]",
@@ -146,7 +144,7 @@
         "Application_Type": "web"
       }
     },
-    "serverFarm": {
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('hostingPlanName')]",
@@ -160,7 +158,7 @@
         "maximumElasticWorkerCount": 20
       }
     },
-    "function": {
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('functionAppName')]",
@@ -172,11 +170,11 @@
           "appSettings": [
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference('appInsights').InstrumentationKey]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('functionAppName')), '2018-05-01-preview').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference('appInsights').InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('functionAppName')), '2018-05-01-preview').InstrumentationKey)]"
             },
             {
               "name": "AzureWebJobsStorage",
@@ -202,13 +200,13 @@
         }
       },
       "dependsOn": [
-        "appInsights",
-        "serverFarm",
-        "storageAccount",
-        "virtualNetwork"
+        "[resourceId('Microsoft.Insights/components', variables('functionAppName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
-    "networkConfig": {
+    {
       "type": "Microsoft.Web/sites/networkConfig",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('functionAppName'), 'virtualNetwork')]",
@@ -217,18 +215,9 @@
         "swiftSupported": true
       },
       "dependsOn": [
-        "function",
-        "virtualNetwork"
-      ]
-    },
-    "subnet": {
-      "existing": true,
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2021-02-01",
-      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetName'))]",
-      "dependsOn": [
-        "virtualNetwork"
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     }
-  }
+  ]
 }

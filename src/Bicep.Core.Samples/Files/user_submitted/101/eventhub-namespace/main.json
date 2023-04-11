@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7968327599704272094"
+      "templateHash": "6986273389867179581"
     }
   },
   "parameters": {
@@ -28,8 +26,8 @@
     "eventHubNamespaceName": "[format('{0}ns', parameters('projectName'))]",
     "eventHubName": "[parameters('projectName')]"
   },
-  "resources": {
-    "eventHubNamespace": {
+  "resources": [
+    {
       "type": "Microsoft.EventHub/namespaces",
       "apiVersion": "2018-01-01-preview",
       "name": "[variables('eventHubNamespaceName')]",
@@ -44,7 +42,7 @@
         "maximumThroughputUnits": 0
       }
     },
-    "eventHub": {
+    {
       "type": "Microsoft.EventHub/namespaces/eventhubs",
       "apiVersion": "2017-04-01",
       "name": "[format('{0}/{1}', variables('eventHubNamespaceName'), variables('eventHubName'))]",
@@ -53,8 +51,8 @@
         "partitionCount": 1
       },
       "dependsOn": [
-        "eventHubNamespace"
+        "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]"
       ]
     }
-  }
+  ]
 }

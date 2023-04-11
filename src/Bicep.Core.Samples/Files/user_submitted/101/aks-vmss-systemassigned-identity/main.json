@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14328234599741086766"
+      "templateHash": "13668530403792753639"
     }
   },
   "parameters": {
@@ -62,8 +60,8 @@
     },
     "agentPoolName": "agentpool01"
   },
-  "resources": {
-    "vn": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('virtualNetworkName')]",
@@ -105,7 +103,7 @@
         ]
       }
     },
-    "aks": {
+    {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2020-09-01",
       "name": "[parameters('clusterName')]",
@@ -139,10 +137,10 @@
         }
       },
       "dependsOn": [
-        "vn"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "id": {
       "type": "string",
@@ -150,7 +148,7 @@
     },
     "apiServerAddress": {
       "type": "string",
-      "value": "[reference('aks').fqdn]"
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2020-09-01').fqdn]"
     }
   }
 }

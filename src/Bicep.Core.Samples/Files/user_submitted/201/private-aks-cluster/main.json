@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9451447587212366180"
+      "templateHash": "3234558960987152966"
     }
   },
   "parameters": {
@@ -483,8 +481,8 @@
       }
     }
   },
-  "resources": {
-    "vnet": {
+  "resources": [
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vnet",
@@ -521,14 +519,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6867656603712922060"
+              "templateHash": "14784418504334794988"
             }
           },
           "parameters": {
@@ -596,8 +592,8 @@
             "vmSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('vmSubnetName'))]",
             "aksSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('aksSubnetName'))]"
           },
-          "resources": {
-            "vmSubnetNsg": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2020-08-01",
               "name": "[variables('vmSubnetNsgName')]",
@@ -620,7 +616,7 @@
                 ]
               }
             },
-            "bastionSubnetNsg": {
+            {
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2020-08-01",
               "name": "[variables('bastionSubnetNsgName')]",
@@ -730,7 +726,7 @@
                 ]
               }
             },
-            "virtualNetwork": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-08-01",
               "name": "[parameters('virtualNetworkName')]",
@@ -795,38 +791,11 @@
                 "enableVmProtection": false
               },
               "dependsOn": [
-                "bastionSubnetNsg",
-                "vmSubnetNsg"
-              ]
-            },
-            "bastionSubnet": {
-              "existing": true,
-              "type": "Microsoft.Network/virtualNetworks/subnets",
-              "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('bastionSubnetName'))]",
-              "dependsOn": [
-                "virtualNetwork"
-              ]
-            },
-            "aksSubnet": {
-              "existing": true,
-              "type": "Microsoft.Network/virtualNetworks/subnets",
-              "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('aksSubnetName'))]",
-              "dependsOn": [
-                "virtualNetwork"
-              ]
-            },
-            "vmSubnet": {
-              "existing": true,
-              "type": "Microsoft.Network/virtualNetworks/subnets",
-              "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('vmSubnetName'))]",
-              "dependsOn": [
-                "virtualNetwork"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastionSubnetNsgName'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('vmSubnetNsgName'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "virtualNetworkResourceId": {
               "type": "string",
@@ -848,7 +817,7 @@
         }
       }
     },
-    "bastion": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "bastion",
@@ -862,7 +831,7 @@
             "value": "[parameters('bastionName')]"
           },
           "bastionSubnetId": {
-            "value": "[reference('vnet').outputs.bastionSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.bastionSubnetId.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -870,14 +839,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7937190845056302899"
+              "templateHash": "17746964786378268703"
             }
           },
           "parameters": {
@@ -904,8 +871,8 @@
           "variables": {
             "bastionPublicIpAddressName": "[format('{0}PublicIp', parameters('bastionHostName'))]"
           },
-          "resources": {
-            "bastionPublicIpAddress": {
+          "resources": [
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-08-01",
               "name": "[variables('bastionPublicIpAddressName')]",
@@ -917,7 +884,7 @@
                 "publicIPAllocationMethod": "Static"
               }
             },
-            "bastionHost": {
+            {
               "type": "Microsoft.Network/bastionHosts",
               "apiVersion": "2020-08-01",
               "name": "[parameters('bastionHostName')]",
@@ -938,17 +905,17 @@
                 ]
               },
               "dependsOn": [
-                "bastionPublicIpAddress"
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('bastionPublicIpAddressName'))]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "vnet"
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]"
       ]
     },
-    "logAnalytics": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "log-analytics.bicep",
@@ -973,14 +940,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12683860597748257406"
+              "templateHash": "14176816021127228926"
             }
           },
           "parameters": {
@@ -1018,8 +983,8 @@
               }
             }
           },
-          "resources": {
-            "logAnalyticsWorkspace": {
+          "resources": [
+            {
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2020-10-01",
               "name": "[parameters('logAnalyticsWorkspaceName')]",
@@ -1031,7 +996,7 @@
                 "retentionInDays": "[parameters('logAnalyticsRetentionInDays')]"
               }
             }
-          },
+          ],
           "outputs": {
             "logAnalyticsWorkspaceId": {
               "type": "string",
@@ -1041,7 +1006,7 @@
         }
       }
     },
-    "jumpbox": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "jumpbox",
@@ -1097,25 +1062,23 @@
             "value": "[parameters('blobStorageAccountPrivateEndpointName')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference('logAnalytics').outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2022-09-01').outputs.logAnalyticsWorkspaceId.value]"
           },
           "virtualNetworkId": {
-            "value": "[reference('vnet').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
           },
           "vmSubnetId": {
-            "value": "[reference('vnet').outputs.vmSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.vmSubnetId.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3373423370772403079"
+              "templateHash": "8709710893014230448"
             }
           },
           "parameters": {
@@ -1272,14 +1235,8 @@
             "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]",
             "logAnalyticsWorkspaceName": "[last(split(parameters('logAnalyticsWorkspaceId'), '/'))]"
           },
-          "resources": {
-            "logAnalyticsWorkspace": {
-              "existing": true,
-              "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2020-10-01",
-              "name": "[variables('logAnalyticsWorkspaceName')]"
-            },
-            "blobStorageAccount": {
+          "resources": [
+            {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2021-01-01",
               "name": "[parameters('blobStorageAccountName')]",
@@ -1289,7 +1246,7 @@
               },
               "kind": "StorageV2"
             },
-            "vmNic": {
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-08-01",
               "name": "[variables('vmNicName')]",
@@ -1308,7 +1265,7 @@
                 ]
               }
             },
-            "virtualMachines": {
+            {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2020-12-01",
               "name": "[parameters('vmName')]",
@@ -1365,16 +1322,16 @@
                 "diagnosticsProfile": {
                   "bootDiagnostics": {
                     "enabled": true,
-                    "storageUri": "[reference('blobStorageAccount').primaryEndpoints.blob]"
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName')), '2021-01-01').primaryEndpoints.blob]"
                   }
                 }
               },
               "dependsOn": [
-                "blobStorageAccount",
-                "vmNic"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
               ]
             },
-            "omsAgentForLinux": {
+            {
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2020-12-01",
               "name": "[format('{0}/{1}', parameters('vmName'), format('{0}', variables('omsAgentForLinuxName')))]",
@@ -1384,7 +1341,7 @@
                 "type": "OmsAgentForLinux",
                 "typeHandlerVersion": "1.13",
                 "settings": {
-                  "workspaceId": "[reference('logAnalyticsWorkspace').customerId]",
+                  "workspaceId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').customerId]",
                   "stopOnMultipleConnections": false
                 },
                 "protectedSettings": {
@@ -1392,10 +1349,10 @@
                 }
               },
               "dependsOn": [
-                "virtualMachines"
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
               ]
             },
-            "omsDependencyAgentForLinux": {
+            {
               "type": "Microsoft.Compute/virtualMachines/extensions",
               "apiVersion": "2020-12-01",
               "name": "[format('{0}/{1}', parameters('vmName'), format('{0}', variables('omsDependencyAgentForLinuxName')))]",
@@ -1407,16 +1364,16 @@
                 "autoUpgradeMinorVersion": true
               },
               "dependsOn": [
-                "virtualMachines"
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
               ]
             },
-            "blobPrivateDnsZone": {
+            {
               "type": "Microsoft.Network/privateDnsZones",
               "apiVersion": "2020-06-01",
               "name": "[variables('blobPrivateDnsZoneName')]",
               "location": "global"
             },
-            "blobPrivateDnsZoneLinkToVirtualNetwork": {
+            {
               "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/{1}', variables('blobPrivateDnsZoneName'), format('link_to_{0}', toLower(variables('virtualNetworkName'))))]",
@@ -1428,10 +1385,10 @@
                 }
               },
               "dependsOn": [
-                "blobPrivateDnsZone"
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('blobPrivateDnsZoneName'))]"
               ]
             },
-            "blobStorageAccountPrivateEndpoint": {
+            {
               "type": "Microsoft.Network/privateEndpoints",
               "apiVersion": "2020-08-01",
               "name": "[parameters('blobStorageAccountPrivateEndpointName')]",
@@ -1458,10 +1415,10 @@
                 ]
               },
               "dependsOn": [
-                "blobStorageAccount"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))]"
               ]
             },
-            "blobPrivateDnsZoneGroup": {
+            {
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
               "apiVersion": "2020-08-01",
               "name": "[format('{0}/{1}', parameters('blobStorageAccountPrivateEndpointName'), format('{0}PrivateDnsZoneGroup', variables('blobStorageAccountPrivateEndpointGroupName')))]",
@@ -1476,19 +1433,19 @@
                 ]
               },
               "dependsOn": [
-                "blobPrivateDnsZone",
-                "blobStorageAccountPrivateEndpoint"
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('blobPrivateDnsZoneName'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('blobStorageAccountPrivateEndpointName'))]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "logAnalytics",
-        "vnet"
+        "[resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep')]",
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]"
       ]
     },
-    "aks": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "aks",
@@ -1610,22 +1567,20 @@
             "value": "[parameters('nodePoolVmSize')]"
           },
           "virtualNetworkId": {
-            "value": "[reference('vnet').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2022-09-01').outputs.virtualNetworkResourceId.value]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference('logAnalytics').outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2022-09-01').outputs.logAnalyticsWorkspaceId.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1017403415027411761"
+              "templateHash": "8669984809251085106"
             }
           },
           "parameters": {
@@ -1943,20 +1898,8 @@
             },
             "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]"
           },
-          "resources": {
-            "virtualNetwork": {
-              "existing": true,
-              "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2020-08-01",
-              "name": "[variables('virtualNetworkName')]"
-            },
-            "aksSubnet": {
-              "existing": true,
-              "type": "Microsoft.Network/virtualNetworks/subnets",
-              "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]"
-            },
-            "aksCluster": {
+          "resources": [
+            {
               "type": "Microsoft.ContainerService/managedClusters",
               "apiVersion": "2021-02-01",
               "name": "[parameters('aksClusterName')]",
@@ -2026,13 +1969,13 @@
                 }
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "logAnalytics",
-        "vnet"
+        "[resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep')]",
+        "[resourceId('Microsoft.Resources/deployments', 'vnet')]"
       ]
     }
-  }
+  ]
 }

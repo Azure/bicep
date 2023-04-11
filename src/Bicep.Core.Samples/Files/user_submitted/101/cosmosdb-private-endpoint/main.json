@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6030246552421548823"
+      "templateHash": "141923850895735968"
     }
   },
   "parameters": {
@@ -34,8 +32,8 @@
       "type": "string"
     }
   },
-  "resources": {
-    "virtualNetwork": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -48,7 +46,7 @@
         }
       }
     },
-    "subNet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/default', parameters('virtualNetworkName'))]",
@@ -77,10 +75,10 @@
         }
       },
       "dependsOn": [
-        "virtualNetwork"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "databaseAccount": {
+    {
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2020-06-01-preview",
       "name": "[parameters('accountName')]",
@@ -104,7 +102,7 @@
         "publicNetworkAccess": "[parameters('publicNetworkAccess')]"
       }
     },
-    "privateEndpoint": {
+    {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-06-01",
       "name": "[parameters('privateEndpointName')]",
@@ -126,9 +124,9 @@
         ]
       },
       "dependsOn": [
-        "databaseAccount",
-        "subNet"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('accountName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/default', parameters('virtualNetworkName')), '/')[0], split(format('{0}/default', parameters('virtualNetworkName')), '/')[1])]"
       ]
     }
-  }
+  ]
 }

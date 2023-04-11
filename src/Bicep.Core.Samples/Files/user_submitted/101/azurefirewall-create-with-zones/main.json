@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4081769721525064183"
+      "templateHash": "9707219038654328345"
     }
   },
   "parameters": {
@@ -43,8 +41,8 @@
   "variables": {
     "azureFirewallSubnetName": "AzureFirewallSubnet"
   },
-  "resources": {
-    "virtualNetwork": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -57,7 +55,7 @@
         }
       }
     },
-    "subnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName'))]",
@@ -65,10 +63,10 @@
         "addressPrefix": "[parameters('azureFirewallSubnetAddressPrefix')]"
       },
       "dependsOn": [
-        "virtualNetwork"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "publicIP": {
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "publicIp1",
@@ -81,7 +79,7 @@
         "publicIPAddressVersion": "IPv4"
       }
     },
-    "firewall": {
+    {
       "type": "Microsoft.Network/azureFirewalls",
       "apiVersion": "2020-06-01",
       "name": "[parameters('firewallName')]",
@@ -159,9 +157,9 @@
         ]
       },
       "dependsOn": [
-        "publicIP",
-        "subnet"
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'publicIp1')]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), variables('azureFirewallSubnetName')), '/')[1])]"
       ]
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13353250073873420885"
+      "templateHash": "7034305354985346660"
     }
   },
   "parameters": {
@@ -58,8 +56,8 @@
       "defaultValue": []
     }
   },
-  "resources": {
-    "actionGroup": {
+  "resources": [
+    {
       "type": "microsoft.insights/actionGroups",
       "apiVersion": "2019-06-01",
       "name": "[parameters('actionGroupName')]",
@@ -79,7 +77,7 @@
         "armRoleReceivers": "[parameters('armRoleReceivers')]"
       }
     }
-  },
+  ],
   "outputs": {
     "actionGroupId": {
       "type": "string",

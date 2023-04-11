@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3469936969249670847"
+      "templateHash": "5048724502667668975"
     }
   },
   "parameters": {
@@ -18,8 +16,8 @@
   "variables": {
     "roleName": "Bicep Custom Role demo"
   },
-  "resources": {
-    "definition": {
+  "resources": [
+    {
       "type": "Microsoft.Authorization/roleDefinitions",
       "apiVersion": "2018-01-01-preview",
       "name": "[guid(variables('roleName'))]",
@@ -38,7 +36,7 @@
         ]
       }
     },
-    "assignment": {
+    {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[guid(variables('roleName'), parameters('principalId'), subscription().subscriptionId)]",
@@ -47,8 +45,8 @@
         "principalId": "[parameters('principalId')]"
       },
       "dependsOn": [
-        "definition"
+        "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('roleName')))]"
       ]
     }
-  }
+  ]
 }

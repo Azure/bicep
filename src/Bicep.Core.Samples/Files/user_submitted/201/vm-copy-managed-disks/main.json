@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4867617653210169727"
+      "templateHash": "10971996125074772404"
     }
   },
   "parameters": {
@@ -79,8 +77,8 @@
     "availabilitySetPlatformUpdateDomainCount": 5,
     "networkSecurityGroupName": "default-NSG"
   },
-  "resources": {
-    "networkSecurityGroup": {
+  "resources": [
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-06-01",
       "name": "[variables('networkSecurityGroupName')]",
@@ -103,7 +101,7 @@
         ]
       }
     },
-    "virtualNetwork": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('myVNETName')]",
@@ -116,7 +114,7 @@
         }
       }
     },
-    "subNet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('myVNETName'), variables('myVNETSubnet1Name'))]",
@@ -127,10 +125,10 @@
         }
       },
       "dependsOn": [
-        "networkSecurityGroup"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
       ]
     },
-    "storageAccount": {
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2020-08-01-preview",
       "name": "[variables('diagnosticStorageAccountName')]",
@@ -140,7 +138,7 @@
       },
       "kind": "StorageV2"
     },
-    "availabilitySet": {
+    {
       "type": "Microsoft.Compute/availabilitySets",
       "apiVersion": "2020-06-01",
       "name": "[parameters('availabilitySetName')]",
@@ -153,7 +151,7 @@
         "name": "Aligned"
       }
     },
-    "virtualMachines": {
+    {
       "copy": {
         "name": "virtualMachines",
         "count": "[length(range(0, parameters('virtualMachineCount')))]"
@@ -203,16 +201,16 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference('storageAccount').primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName')), '2020-08-01-preview').primaryEndpoints.blob]"
           }
         }
       },
       "dependsOn": [
-        "availabilitySet",
-        "storageAccount"
+        "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('diagnosticStorageAccountName'))]"
       ]
     },
-    "networkInterfaces": {
+    {
       "copy": {
         "name": "networkInterfaces",
         "count": "[length(range(0, parameters('virtualMachineCount')))]"
@@ -239,10 +237,10 @@
         "enableIPForwarding": false
       },
       "dependsOn": [
-        "subNet"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', variables('myVNETName'), variables('myVNETSubnet1Name')), '/')[0], split(format('{0}/{1}', variables('myVNETName'), variables('myVNETSubnet1Name')), '/')[1])]"
       ]
     },
-    "publicIPAddresses": {
+    {
       "copy": {
         "name": "publicIPAddresses",
         "count": "[length(range(0, parameters('virtualMachineCount')))]"
@@ -258,5 +256,5 @@
         }
       }
     }
-  }
+  ]
 }

@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8472473103659835388"
+      "templateHash": "6965233980809723068"
     }
   },
   "parameters": {
@@ -30,8 +28,8 @@
   "variables": {
     "redisCacheName": "[format('{0}{1}', parameters('environmentName'), uniqueString(resourceGroup().id))]"
   },
-  "resources": {
-    "redisCache": {
+  "resources": [
+    {
       "type": "Microsoft.Cache/Redis",
       "apiVersion": "2019-07-01",
       "name": "[variables('redisCacheName')]",
@@ -46,5 +44,5 @@
         }
       }
     }
-  }
+  ]
 }

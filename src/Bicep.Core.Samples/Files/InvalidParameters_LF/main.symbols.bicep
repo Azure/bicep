@@ -41,16 +41,16 @@ param partialType str
 //@[06:017) Parameter partialType. Type: error. Declaration start char: 0, length: 21
 
 param malformedType 44
-//@[06:019) Parameter malformedType. Type: 44. Declaration start char: 0, length: 22
+//@[06:019) Parameter malformedType. Type: error. Declaration start char: 0, length: 22
 
 // malformed type but type check should still happen
 param malformedType2 44 = f
-//@[06:020) Parameter malformedType2. Type: 44. Declaration start char: 0, length: 27
+//@[06:020) Parameter malformedType2. Type: error. Declaration start char: 0, length: 27
 
 // malformed type but type check should still happen
 @secure('s')
 param malformedModifier 44
-//@[06:023) Parameter malformedModifier. Type: 44. Declaration start char: 0, length: 39
+//@[06:023) Parameter malformedModifier. Type: error. Declaration start char: 0, length: 39
 
 param myString2 string = 'string value'
 //@[06:015) Parameter myString2. Type: string. Declaration start char: 0, length: 39

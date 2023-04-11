@@ -168,23 +168,6 @@
     }
   },
   {
-    "label": "sealed",
-    "kind": "function",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nsealed(): any\n\n```\n\n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_sealed",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "sealed()$0"
-    }
-  },
-  {
     "label": "secure",
     "kind": "function",
     "documentation": {

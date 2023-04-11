@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16290047865146733616"
+      "templateHash": "12926412205073443641"
     }
   },
   "parameters": {
@@ -37,8 +35,8 @@
       "AppName": "My Function App"
     }
   },
-  "resources": {
-    "storageAccount": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccountName')]",
@@ -66,7 +64,7 @@
       },
       "tags": "[variables('appTags')]"
     },
-    "blobServices": {
+    {
       "type": "Microsoft.Storage/storageAccounts/blobServices",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
@@ -80,10 +78,10 @@
         }
       },
       "dependsOn": [
-        "storageAccount"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "appInsights": {
+    {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('appInsightsName')]",
@@ -97,7 +95,7 @@
       },
       "tags": "[variables('appTags')]"
     },
-    "appService": {
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('appServiceName')]",
@@ -122,7 +120,7 @@
       },
       "tags": "[variables('appTags')]"
     },
-    "functionApp": {
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('functionAppName')]",
@@ -158,11 +156,11 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference('appInsights').InstrumentationKey]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02-preview').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference('appInsights').InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02-preview').InstrumentationKey)]"
             },
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
@@ -184,12 +182,12 @@
       },
       "tags": "[variables('appTags')]",
       "dependsOn": [
-        "appInsights",
-        "appService",
-        "storageAccount"
+        "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServiceName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "functionAppConfig": {
+    {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('functionAppName'), 'web')]",
@@ -265,10 +263,10 @@
         "preWarmedInstanceCount": 0
       },
       "dependsOn": [
-        "functionApp"
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
       ]
     },
-    "functionAppBinding": {
+    {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('functionAppName'), format('{0}.azurewebsites.net', variables('functionAppName')))]",
@@ -277,8 +275,8 @@
         "hostNameType": "Verified"
       },
       "dependsOn": [
-        "functionApp"
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
       ]
     }
-  }
+  ]
 }

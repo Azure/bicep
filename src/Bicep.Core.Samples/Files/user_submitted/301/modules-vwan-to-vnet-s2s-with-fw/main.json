@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "656388433720155968"
+      "templateHash": "3169094683099930793"
     }
   },
   "parameters": {
@@ -56,20 +54,20 @@
     "vhubfwpolicyname": "[format('{0}-{1}-fw-policy', parameters('nameprefix'), parameters('vwanlocation'))]",
     "vhubvpngwname": "[format('{0}-vpn-gw', variables('vhubname'))]"
   },
-  "resources": {
-    "hubrg": {
+  "resources": [
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "location": "[parameters('vwanlocation')]"
     },
-    "vwanrg": {
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "location": "[parameters('location')]"
     },
-    "vnet": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "[variables('vnetname')]",
@@ -104,14 +102,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5658935252658511101"
+              "templateHash": "3745439856706238497"
             }
           },
           "parameters": {
@@ -247,14 +243,14 @@
               ]
             }
           },
-          "resources": {
-            "servernsg": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2020-05-01",
               "name": "[variables('servernsgname')]",
               "location": "[parameters('location')]"
             },
-            "bastionnsg": {
+            {
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2020-06-01",
               "name": "[variables('bastionnsgname')]",
@@ -263,7 +259,7 @@
                 "securityRules": "[variables('bastionnsgrules').securityRules]"
               }
             },
-            "vnet": {
+            {
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-05-01",
               "name": "[parameters('vnetname')]",
@@ -308,11 +304,11 @@
                 ]
               },
               "dependsOn": [
-                "bastionnsg",
-                "servernsg"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('bastionnsgname'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('servernsgname'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -320,20 +316,20 @@
             },
             "subnets": {
               "type": "array",
-              "value": "[reference('vnet').subnets]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2020-05-01').subnets]"
             },
             "vnetaddress": {
               "type": "array",
-              "value": "[reference('vnet').addressSpace.addressPrefixes]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2020-05-01').addressSpace.addressPrefixes]"
             }
           }
         }
       },
       "dependsOn": [
-        "hubrg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]"
       ]
     },
-    "vpngw": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vpngw-deploy",
@@ -351,7 +347,7 @@
             "value": "[variables('vpngwname')]"
           },
           "subnetref": {
-            "value": "[reference('vnet').outputs.subnets.value[2].id]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2022-09-01').outputs.subnets.value[2].id]"
           },
           "vpngwpipname": {
             "value": "[variables('vpngwpipname')]"
@@ -362,14 +358,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4678077202719623870"
+              "templateHash": "9355385094073877227"
             }
           },
           "parameters": {
@@ -396,8 +390,8 @@
               }
             }
           },
-          "resources": {
-            "vpngwpip": {
+          "resources": [
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-06-01",
               "name": "[parameters('vpngwpipname')]",
@@ -409,7 +403,7 @@
                 "publicIPAllocationMethod": "Static"
               }
             },
-            "vpngw": {
+            {
               "type": "Microsoft.Network/virtualNetworkGateways",
               "apiVersion": "2020-06-01",
               "name": "[parameters('vpngwname')]",
@@ -443,10 +437,10 @@
                 }
               },
               "dependsOn": [
-                "vpngwpip"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -454,25 +448,25 @@
             },
             "vpngwip": {
               "type": "string",
-              "value": "[reference('vpngwpip').ipAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname')), '2020-06-01').ipAddress]"
             },
             "vpngwbgpaddress": {
               "type": "string",
-              "value": "[reference('vpngw').bgpSettings.bgpPeeringAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.bgpPeeringAddress]"
             },
             "bgpasn": {
               "type": "int",
-              "value": "[reference('vpngw').bgpSettings.asn]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.asn]"
             }
           }
         }
       },
       "dependsOn": [
-        "hubrg",
-        "vnet"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))]"
       ]
     },
-    "fwpolicy": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "fwpolicy-deploy",
@@ -492,14 +486,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12590057851914992814"
+              "templateHash": "11491474669810947162"
             }
           },
           "parameters": {
@@ -520,8 +512,8 @@
               }
             }
           },
-          "resources": {
-            "policy": {
+          "resources": [
+            {
               "type": "Microsoft.Network/firewallPolicies",
               "apiVersion": "2020-06-01",
               "name": "[parameters('policyname')]",
@@ -534,7 +526,7 @@
                 }
               }
             },
-            "platformrcgroup": {
+            {
               "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/Platform-Rules', parameters('policyname'))]",
@@ -622,10 +614,10 @@
                 ]
               },
               "dependsOn": [
-                "policy"
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "name": {
               "type": "string",
@@ -639,10 +631,10 @@
         }
       },
       "dependsOn": [
-        "hubrg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]"
       ]
     },
-    "fwpip": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "pip-deploy",
@@ -668,14 +660,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9718385071669135075"
+              "templateHash": "15270029119568726075"
             }
           },
           "parameters": {
@@ -705,8 +695,8 @@
               ]
             }
           },
-          "resources": {
-            "fwipprefix": {
+          "resources": [
+            {
               "type": "Microsoft.Network/publicIPPrefixes",
               "apiVersion": "2020-06-01",
               "name": "[parameters('ipprefixname')]",
@@ -720,7 +710,7 @@
                 "ipTags": []
               }
             },
-            "fwip": {
+            {
               "type": "Microsoft.Network/publicIPAddresses",
               "apiVersion": "2020-06-01",
               "name": "[parameters('pipname')]",
@@ -735,10 +725,10 @@
                 }
               },
               "dependsOn": [
-                "fwipprefix"
+                "[resourceId('Microsoft.Network/publicIPPrefixes', parameters('ipprefixname'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -748,10 +738,10 @@
         }
       },
       "dependsOn": [
-        "hubrg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]"
       ]
     },
-    "fw": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "fw-deploy",
@@ -772,25 +762,23 @@
             "value": "VNet"
           },
           "fwpolicyid": {
-            "value": "[reference('fwpolicy').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'fwpolicy-deploy'), '2022-09-01').outputs.id.value]"
           },
           "publicipid": {
-            "value": "[reference('fwpip').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'pip-deploy'), '2022-09-01').outputs.id.value]"
           },
           "subnetid": {
-            "value": "[reference('vnet').outputs.subnets.value[3].id]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2022-09-01').outputs.subnets.value[3].id]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16431620072406623429"
+              "templateHash": "13061494399356137884"
             }
           },
           "parameters": {
@@ -891,25 +879,25 @@
               }
             }
           },
-          "resources": {
-            "firewall": {
+          "resources": [
+            {
               "type": "Microsoft.Network/azureFirewalls",
               "apiVersion": "2020-06-01",
               "name": "[parameters('fwname')]",
               "location": "[parameters('location')]",
               "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "fwpip",
-        "fwpolicy",
-        "hubrg",
-        "vnet"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'pip-deploy')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'fwpolicy-deploy')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))]"
       ]
     },
-    "vwan": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vwan-deploy",
@@ -932,14 +920,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17572858859082591050"
+              "templateHash": "280056674023652647"
             }
           },
           "parameters": {
@@ -962,8 +948,8 @@
               ]
             }
           },
-          "resources": {
-            "wan": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualWans",
               "apiVersion": "2020-06-01",
               "name": "[parameters('wanname')]",
@@ -975,7 +961,7 @@
                 "office365LocalBreakoutCategory": "None"
               }
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -985,10 +971,10 @@
         }
       },
       "dependsOn": [
-        "vwanrg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
       ]
     },
-    "vhub": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vhub-deploy",
@@ -1009,19 +995,17 @@
             "value": "10.10.0.0/24"
           },
           "wanid": {
-            "value": "[reference('vwan').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15019631432326516188"
+              "templateHash": "15694398023338821197"
             }
           },
           "parameters": {
@@ -1046,8 +1030,8 @@
               }
             }
           },
-          "resources": {
-            "hub": {
+          "resources": [
+            {
               "type": "Microsoft.Network/virtualHubs",
               "apiVersion": "2020-06-01",
               "name": "[parameters('hubname')]",
@@ -1059,7 +1043,7 @@
                 }
               }
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -1071,17 +1055,17 @@
             },
             "vhubaddress": {
               "type": "string",
-              "value": "[reference('hub').addressPrefix]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname')), '2020-06-01').addressPrefix]"
             }
           }
         }
       },
       "dependsOn": [
-        "vwan",
-        "vwanrg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
       ]
     },
-    "vhubfwpolicy": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vhubfwpolicy-deploy",
@@ -1101,14 +1085,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12590057851914992814"
+              "templateHash": "11491474669810947162"
             }
           },
           "parameters": {
@@ -1129,8 +1111,8 @@
               }
             }
           },
-          "resources": {
-            "policy": {
+          "resources": [
+            {
               "type": "Microsoft.Network/firewallPolicies",
               "apiVersion": "2020-06-01",
               "name": "[parameters('policyname')]",
@@ -1143,7 +1125,7 @@
                 }
               }
             },
-            "platformrcgroup": {
+            {
               "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}/Platform-Rules', parameters('policyname'))]",
@@ -1231,10 +1213,10 @@
                 ]
               },
               "dependsOn": [
-                "policy"
+                "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
               ]
             }
-          },
+          ],
           "outputs": {
             "name": {
               "type": "string",
@@ -1248,10 +1230,10 @@
         }
       },
       "dependsOn": [
-        "vwanrg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
       ]
     },
-    "vhubfw": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vhubfw-deploy",
@@ -1272,25 +1254,23 @@
             "value": "vWAN"
           },
           "hubid": {
-            "value": "[reference('vhub').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2022-09-01').outputs.id.value]"
           },
           "hubpublicipcount": {
             "value": 1
           },
           "fwpolicyid": {
-            "value": "[reference('vhubfwpolicy').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubfwpolicy-deploy'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16431620072406623429"
+              "templateHash": "13061494399356137884"
             }
           },
           "parameters": {
@@ -1391,24 +1371,24 @@
               }
             }
           },
-          "resources": {
-            "firewall": {
+          "resources": [
+            {
               "type": "Microsoft.Network/azureFirewalls",
               "apiVersion": "2020-06-01",
               "name": "[parameters('fwname')]",
               "location": "[parameters('location')]",
               "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "vhub",
-        "vhubfwpolicy",
-        "vwanrg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubfwpolicy-deploy')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
       ]
     },
-    "vhubvpngw": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vhubvpngw",
@@ -1426,7 +1406,7 @@
             "value": "[variables('vhubvpngwname')]"
           },
           "hubid": {
-            "value": "[reference('vhub').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2022-09-01').outputs.id.value]"
           },
           "asn": {
             "value": 65515
@@ -1434,14 +1414,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18420123275266949915"
+              "templateHash": "16630818117462838473"
             }
           },
           "parameters": {
@@ -1465,8 +1443,8 @@
               }
             }
           },
-          "resources": {
-            "hubvpngw": {
+          "resources": [
+            {
               "type": "Microsoft.Network/vpnGateways",
               "apiVersion": "2020-06-01",
               "name": "[parameters('hubvpngwname')]",
@@ -1480,7 +1458,7 @@
                 }
               }
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -1492,25 +1470,25 @@
             },
             "gwpublicip": {
               "type": "string",
-              "value": "[reference('hubvpngw').ipConfigurations[0].publicIpAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].publicIpAddress]"
             },
             "gwprivateip": {
               "type": "string",
-              "value": "[reference('hubvpngw').ipConfigurations[0].privateIpAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].privateIpAddress]"
             },
             "bgpasn": {
               "type": "int",
-              "value": "[reference('hubvpngw').bgpSettings.asn]"
+              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').bgpSettings.asn]"
             }
           }
         }
       },
       "dependsOn": [
-        "vhub",
-        "vwanrg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
       ]
     },
-    "vwanvpnsite": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vwanvpnsite-deploy",
@@ -1528,31 +1506,29 @@
             "value": "[parameters('vwanlocation')]"
           },
           "addressprefix": {
-            "value": "[reference('vnet').outputs.vnetaddress.value[0]]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2022-09-01').outputs.vnetaddress.value[0]]"
           },
           "bgppeeringpddress": {
-            "value": "[reference('vpngw').outputs.vpngwbgpaddress.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2022-09-01').outputs.vpngwbgpaddress.value]"
           },
           "ipaddress": {
-            "value": "[reference('vpngw').outputs.vpngwip.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2022-09-01').outputs.vpngwip.value]"
           },
           "remotesiteasn": {
-            "value": "[reference('vpngw').outputs.bgpasn.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2022-09-01').outputs.bgpasn.value]"
           },
           "wanid": {
-            "value": "[reference('vwan').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6223556652513066188"
+              "templateHash": "8505973820543281231"
             }
           },
           "parameters": {
@@ -1594,8 +1570,8 @@
               }
             }
           },
-          "resources": {
-            "vpnsite": {
+          "resources": [
+            {
               "type": "Microsoft.Network/vpnSites",
               "apiVersion": "2020-06-01",
               "name": "[parameters('vpnsitename')]",
@@ -1620,7 +1596,7 @@
                 }
               }
             }
-          },
+          ],
           "outputs": {
             "id": {
               "type": "string",
@@ -1630,13 +1606,13 @@
         }
       },
       "dependsOn": [
-        "vnet",
-        "vpngw",
-        "vwan",
-        "vwanrg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
       ]
     },
-    "vhubs2s": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vhubs2s-deploy",
@@ -1648,25 +1624,23 @@
         "mode": "Incremental",
         "parameters": {
           "hubvpngwname": {
-            "value": "[reference('vhubvpngw').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2022-09-01').outputs.name.value]"
           },
           "psk": {
             "value": "[parameters('psk')]"
           },
           "vpnsiteid": {
-            "value": "[reference('vwanvpnsite').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwanvpnsite-deploy'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17536894062096877847"
+              "templateHash": "5178333219212442667"
             }
           },
           "parameters": {
@@ -1686,8 +1660,8 @@
               }
             }
           },
-          "resources": {
-            "hubvpnconnection": {
+          "resources": [
+            {
               "type": "Microsoft.Network/vpnGateways/vpnConnections",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}/HubToOnPremConnection', parameters('hubvpngwname'))]",
@@ -1700,16 +1674,16 @@
                 }
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "vhubvpngw",
-        "vwanrg",
-        "vwanvpnsite"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwanvpnsite-deploy')]"
       ]
     },
-    "vnets2s": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vnets2s-deploy",
@@ -1728,38 +1702,36 @@
           },
           "addressprefixes": {
             "value": [
-              "[reference('vhub').outputs.vhubaddress.value]"
+              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2022-09-01').outputs.vhubaddress.value]"
             ]
           },
           "connectionname": {
             "value": "[variables('vpnconname')]"
           },
           "bgppeeringpddress": {
-            "value": "[reference('vhubvpngw').outputs.gwprivateip.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2022-09-01').outputs.gwprivateip.value]"
           },
           "gwipaddress": {
-            "value": "[reference('vhubvpngw').outputs.gwpublicip.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2022-09-01').outputs.gwpublicip.value]"
           },
           "remotesiteasn": {
-            "value": "[reference('vhubvpngw').outputs.bgpasn.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2022-09-01').outputs.bgpasn.value]"
           },
           "psk": {
             "value": "[parameters('psk')]"
           },
           "vpngwid": {
-            "value": "[reference('vpngw').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2022-09-01').outputs.id.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12336310512912447555"
+              "templateHash": "14339240566669068445"
             }
           },
           "parameters": {
@@ -1811,8 +1783,8 @@
               }
             }
           },
-          "resources": {
-            "localnetworkgw": {
+          "resources": [
+            {
               "type": "Microsoft.Network/localNetworkGateways",
               "apiVersion": "2020-06-01",
               "name": "[parameters('localnetworkgwname')]",
@@ -1828,7 +1800,7 @@
                 }
               }
             },
-            "s2sconnection": {
+            {
               "type": "Microsoft.Network/connections",
               "apiVersion": "2020-06-01",
               "name": "[parameters('connectionname')]",
@@ -1848,18 +1820,18 @@
                 }
               },
               "dependsOn": [
-                "localnetworkgw"
+                "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
               ]
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "hubrg",
-        "vhub",
-        "vhubvpngw",
-        "vpngw"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')]"
       ]
     }
-  }
+  ]
 }

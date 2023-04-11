@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13594450377905290817"
+      "templateHash": "4134091672904132879"
     }
   },
   "parameters": {
@@ -21,20 +19,8 @@
       "type": "string"
     }
   },
-  "resources": {
-    "hostPool": {
-      "existing": true,
-      "type": "Microsoft.DesktopVirtualization/hostPools",
-      "apiVersion": "2020-11-02-preview",
-      "name": "[parameters('hostpoolName')]"
-    },
-    "workspace": {
-      "existing": true,
-      "type": "Microsoft.DesktopVirtualization/workspaces",
-      "apiVersion": "2020-11-02-preview",
-      "name": "[parameters('workspaceName')]"
-    },
-    "avdhpds": {
+  "resources": [
+    {
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
@@ -65,7 +51,7 @@
         ]
       }
     },
-    "avdwsds": {
+    {
       "type": "Microsoft.Insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
@@ -92,5 +78,5 @@
         ]
       }
     }
-  }
+  ]
 }

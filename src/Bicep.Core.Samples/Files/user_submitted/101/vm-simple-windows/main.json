@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4728053783041386375"
+      "templateHash": "5744010469498652358"
     }
   },
   "parameters": {
@@ -114,8 +112,8 @@
     "virtualNetworkName": "MyVNET",
     "networkSecurityGroupName": "default-NSG"
   },
-  "resources": {
-    "stg": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
       "name": "[variables('storageAccountName')]",
@@ -125,7 +123,7 @@
       },
       "kind": "Storage"
     },
-    "pip": {
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2021-02-01",
       "name": "[parameters('publicIpName')]",
@@ -140,7 +138,7 @@
         }
       }
     },
-    "securityGroup": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2021-02-01",
       "name": "[variables('networkSecurityGroupName')]",
@@ -163,7 +161,7 @@
         ]
       }
     },
-    "vn": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2021-02-01",
       "name": "[variables('virtualNetworkName')]",
@@ -176,7 +174,7 @@
         }
       }
     },
-    "subnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2021-02-01",
       "name": "[format('{0}/{1}', variables('virtualNetworkName'), variables('subnetName'))]",
@@ -187,11 +185,11 @@
         }
       },
       "dependsOn": [
-        "securityGroup",
-        "vn"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     },
-    "nic": {
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2021-02-01",
       "name": "[variables('nicName')]",
@@ -213,11 +211,11 @@
         ]
       },
       "dependsOn": [
-        "pip",
-        "subnet"
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
       ]
     },
-    "vm": {
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2021-03-01",
       "name": "[parameters('vmName')]",
@@ -262,20 +260,20 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference('stg').primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-04-01').primaryEndpoints.blob]"
           }
         }
       },
       "dependsOn": [
-        "nic",
-        "stg"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "hostname": {
       "type": "string",
-      "value": "[reference('pip').dnsSettings.fqdn]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '2021-02-01').dnsSettings.fqdn]"
     }
   }
 }

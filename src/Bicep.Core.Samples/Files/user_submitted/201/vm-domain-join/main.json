@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10387210937323850205"
+      "templateHash": "8189289060757639754"
     }
   },
   "parameters": {
@@ -65,8 +63,8 @@
     "publicIpName": "[format('{0}-pip', parameters('dnsLabelPrefix'))]",
     "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]"
   },
-  "resources": {
-    "publicIp": {
+  "resources": [
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('publicIpName')]",
@@ -78,7 +76,7 @@
         }
       }
     },
-    "storageAccount": {
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2020-08-01-preview",
       "name": "[variables('storageAccountName')]",
@@ -88,7 +86,7 @@
         "name": "Standard_LRS"
       }
     },
-    "nic": {
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-06-01",
       "name": "[variables('nicName')]",
@@ -110,10 +108,10 @@
         ]
       },
       "dependsOn": [
-        "publicIp"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
       ]
     },
-    "virtualMachine": {
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
       "name": "[parameters('dnsLabelPrefix')]",
@@ -159,16 +157,16 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference('storageAccount').primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2020-08-01-preview').primaryEndpoints.blob]"
           }
         }
       },
       "dependsOn": [
-        "nic",
-        "storageAccount"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "virtualMachineExtension": {
+    {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/joindomain', parameters('dnsLabelPrefix'))]",
@@ -190,8 +188,8 @@
         }
       },
       "dependsOn": [
-        "virtualMachine"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('dnsLabelPrefix'))]"
       ]
     }
-  }
+  ]
 }

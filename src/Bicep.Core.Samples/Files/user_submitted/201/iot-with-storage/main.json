@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4339804801596155684"
+      "templateHash": "12046213833593348371"
     }
   },
   "parameters": {
@@ -41,8 +39,8 @@
     "storageEndpoint": "[format('{0}StorageEndpoint', parameters('projectName'))]",
     "storageContainerName": "[format('{0}results', toLower(parameters('projectName')))]"
   },
-  "resources": {
-    "stg": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccountName')]",
@@ -52,7 +50,7 @@
       },
       "kind": "Storage"
     },
-    "blob": {
+    {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('storageContainerName'))]",
@@ -60,10 +58,10 @@
         "publicAccess": "None"
       },
       "dependsOn": [
-        "stg"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
-    "iot": {
+    {
       "type": "Microsoft.Devices/IotHubs",
       "apiVersion": "2020-03-01",
       "name": "[variables('iotHubName')]",
@@ -133,8 +131,8 @@
         }
       },
       "dependsOn": [
-        "stg"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
-  }
+  ]
 }

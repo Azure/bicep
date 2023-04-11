@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11997721149539574938"
+      "templateHash": "13597868732513035325"
     }
   },
   "parameters": {
@@ -24,8 +22,8 @@
     "endpointName": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",
     "profileName": "[format('cdn-{0}', uniqueString(resourceGroup().id))]"
   },
-  "resources": {
-    "storageAccount": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-01-01",
       "name": "[variables('storageAccountName')]",
@@ -38,7 +36,7 @@
         "name": "Standard_LRS"
       }
     },
-    "cdnProfile": {
+    {
       "type": "Microsoft.Cdn/profiles",
       "apiVersion": "2020-09-01",
       "name": "[variables('profileName')]",
@@ -50,7 +48,7 @@
         "name": "Standard_Verizon"
       }
     },
-    "endpoint": {
+    {
       "type": "Microsoft.Cdn/profiles/endpoints",
       "apiVersion": "2020-09-01",
       "name": "[format('{0}/{1}', variables('profileName'), variables('endpointName'))]",
@@ -59,7 +57,7 @@
         "displayName": "[variables('endpointName')]"
       },
       "properties": {
-        "originHostHeader": "[replace(replace(reference('storageAccount').primaryEndpoints.blob, 'https://', ''), '/', '')]",
+        "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-01-01').primaryEndpoints.blob, 'https://', ''), '/', '')]",
         "isHttpAllowed": true,
         "isHttpsAllowed": true,
         "queryStringCachingBehavior": "IgnoreQueryString",
@@ -75,25 +73,25 @@
           {
             "name": "origin1",
             "properties": {
-              "hostName": "[replace(replace(reference('storageAccount').primaryEndpoints.blob, 'https://', ''), '/', '')]"
+              "hostName": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-01-01').primaryEndpoints.blob, 'https://', ''), '/', '')]"
             }
           }
         ]
       },
       "dependsOn": [
-        "cdnProfile",
-        "storageAccount"
+        "[resourceId('Microsoft.Cdn/profiles', variables('profileName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "hostName": {
       "type": "string",
-      "value": "[reference('endpoint').hostName]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName')), '2020-09-01').hostName]"
     },
     "originHostHeader": {
       "type": "string",
-      "value": "[reference('endpoint').originHostHeader]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName')), '2020-09-01').originHostHeader]"
     }
   }
 }

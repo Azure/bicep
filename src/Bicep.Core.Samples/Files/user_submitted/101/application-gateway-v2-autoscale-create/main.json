@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18286074558077950553"
+      "templateHash": "6105399184206539846"
     }
   },
   "parameters": {
@@ -111,8 +109,8 @@
     "appGwPublicIpName": "[format('{0}-pip', parameters('applicationGatewayName'))]",
     "appGwSize": "Standard_v2"
   },
-  "resources": {
-    "virtualNetwork": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -153,7 +151,7 @@
         ]
       }
     },
-    "publicIP": {
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('appGwPublicIpName')]",
@@ -165,7 +163,7 @@
         "publicIPAllocationMethod": "Static"
       }
     },
-    "applicationGateway": {
+    {
       "type": "Microsoft.Network/applicationGateways",
       "apiVersion": "2020-06-01",
       "name": "[parameters('applicationGatewayName')]",
@@ -258,9 +256,9 @@
         ]
       },
       "dependsOn": [
-        "publicIP",
-        "virtualNetwork"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('appGwPublicIpName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     }
-  }
+  ]
 }

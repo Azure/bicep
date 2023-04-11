@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16991113981479792928"
+      "templateHash": "1900123565039237162"
     }
   },
   "parameters": {
@@ -72,8 +70,8 @@
       "defaultValue": ".azurewebsites.net"
     }
   },
-  "resources": {
-    "virtualNetwork": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -86,7 +84,7 @@
         }
       }
     },
-    "subnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName'))]",
@@ -115,10 +113,10 @@
         }
       },
       "dependsOn": [
-        "virtualNetwork"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "serverFarm": {
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[parameters('serverFarmName')]",
@@ -132,7 +130,7 @@
       },
       "kind": "app"
     },
-    "website": {
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[parameters('websiteName')]",
@@ -155,10 +153,10 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
       },
       "dependsOn": [
-        "serverFarm"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverFarmName'))]"
       ]
     },
-    "hostnameBinding": {
+    {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}{2}', parameters('websiteName'), parameters('websiteName'), parameters('websiteDNSName'))]",
@@ -167,10 +165,10 @@
         "hostNameType": "Verified"
       },
       "dependsOn": [
-        "website"
+        "[resourceId('Microsoft.Web/sites', parameters('websiteName'))]"
       ]
     },
-    "privateEndpoint": {
+    {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-06-01",
       "name": "[parameters('privateEndpointName')]",
@@ -192,17 +190,17 @@
         ]
       },
       "dependsOn": [
-        "subnet",
-        "website"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName')), '/')[1])]",
+        "[resourceId('Microsoft.Web/sites', parameters('websiteName'))]"
       ]
     },
-    "privateDNSZone": {
+    {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2020-06-01",
       "name": "[parameters('privateDNSZoneName')]",
       "location": "global"
     },
-    "virtualNetworkLink": {
+    {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}-link', parameters('privateDNSZoneName'), parameters('privateDNSZoneName'))]",
@@ -214,11 +212,11 @@
         }
       },
       "dependsOn": [
-        "privateDNSZone",
-        "virtualNetwork"
+        "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDNSZoneName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "privateDNSZoneGroup": {
+    {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/dnsgroupname', parameters('privateEndpointName'))]",
@@ -233,9 +231,9 @@
         ]
       },
       "dependsOn": [
-        "privateDNSZone",
-        "privateEndpoint"
+        "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDNSZoneName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))]"
       ]
     }
-  }
+  ]
 }

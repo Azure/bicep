@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10521698676463711085"
+      "templateHash": "12360193174347893668"
     }
   },
   "parameters": {
@@ -75,8 +73,8 @@
       "[format('echo hello; sleep {0}', parameters('sessionTime'))]"
     ]
   },
-  "resources": {
-    "containerGroupName": {
+  "resources": [
+    {
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2019-12-01",
       "name": "[parameters('name')]",
@@ -123,5 +121,5 @@
         ]
       }
     }
-  }
+  ]
 }

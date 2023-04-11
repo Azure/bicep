@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16087589206325078585"
+      "templateHash": "15170593239736320559"
     }
   },
   "parameters": {
@@ -126,8 +124,8 @@
     "DSCInstallWindowsFeaturesUri": "[uri(parameters('_artifactsLocation'), format('dsc/dscinstallwindowsfeatures.zip{0}', parameters('_artifactsLocationSasToken')))]",
     "HVHostSetupScriptUri": "[uri(parameters('_artifactsLocation'), format('hvhostsetup.ps1{0}', parameters('_artifactsLocationSasToken')))]"
   },
-  "resources": {
-    "publicIp": {
+  "resources": [
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-04-01",
       "name": "[parameters('HostPublicIPAddressName')]",
@@ -142,35 +140,35 @@
         }
       }
     },
-    "natNsg": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-04-01",
       "name": "[variables('NATSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
-    "hyperVNsg": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-04-01",
       "name": "[variables('hyperVSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
-    "ghostedNsg": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-04-01",
       "name": "[variables('ghostedSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
-    "azureVmsSubnet": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-04-01",
       "name": "[variables('azureVMsSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
-    "vnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2019-04-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -217,21 +215,21 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('azureVMsSubnetNSGName'))]"
               },
               "routeTable": {
-                "id": "[reference('createAzureVmUdr').outputs.udrId.value]"
+                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'udrDeploy'), '2022-09-01').outputs.udrId.value]"
               }
             }
           }
         ]
       },
       "dependsOn": [
-        "azureVmsSubnet",
-        "createAzureVmUdr",
-        "ghostedNsg",
-        "hyperVNsg",
-        "natNsg"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('azureVMsSubnetNSGName'))]",
+        "[resourceId('Microsoft.Resources/deployments', 'udrDeploy')]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ghostedSubnetNSGName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('hyperVSubnetNSGName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('NATSubnetNSGName'))]"
       ]
     },
-    "hostVm": {
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2019-03-01",
       "name": "[parameters('HostVirtualMachineName')]",
@@ -276,13 +274,13 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[reference('createNic1').outputs.nicId.value]",
+              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2022-09-01').outputs.nicId.value]",
               "properties": {
                 "primary": true
               }
             },
             {
-              "id": "[reference('createNic2').outputs.nicId.value]",
+              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2022-09-01').outputs.nicId.value]",
               "properties": {
                 "primary": false
               }
@@ -291,11 +289,11 @@
         }
       },
       "dependsOn": [
-        "createNic1",
-        "createNic2"
+        "[resourceId('Microsoft.Resources/deployments', 'createNic1')]",
+        "[resourceId('Microsoft.Resources/deployments', 'createNic2')]"
       ]
     },
-    "vmExtension": {
+    {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
       "name": "[format('{0}/InstallWindowsFeatures', parameters('HostVirtualMachineName'))]",
@@ -315,10 +313,10 @@
         }
       },
       "dependsOn": [
-        "hostVm"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName'))]"
       ]
     },
-    "hostVmSetupExtension": {
+    {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
       "name": "[format('{0}/HVHOSTSetup', parameters('HostVirtualMachineName'))]",
@@ -332,16 +330,16 @@
           "fileUris": [
             "[variables('HVHostSetupScriptUri')]"
           ],
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference('createNic1').outputs.assignedIp.value, reference('createNic2').outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2022-09-01').outputs.assignedIp.value, reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2022-09-01').outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
         }
       },
       "dependsOn": [
-        "createNic1",
-        "createNic2",
-        "hostVm"
+        "[resourceId('Microsoft.Resources/deployments', 'createNic1')]",
+        "[resourceId('Microsoft.Resources/deployments', 'createNic2')]",
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName'))]"
       ]
     },
-    "createNic1": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "createNic1",
@@ -363,14 +361,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13730191872646967098"
+              "templateHash": "9277618774445059994"
             }
           },
           "parameters": {
@@ -405,8 +401,8 @@
               "defaultValue": false
             }
           },
-          "resources": {
-            "nic": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-06-01",
               "name": "[parameters('nicName')]",
@@ -429,7 +425,7 @@
                 "enableIPForwarding": "[parameters('enableIPForwarding')]"
               }
             }
-          },
+          ],
           "outputs": {
             "nicId": {
               "type": "string",
@@ -437,17 +433,17 @@
             },
             "assignedIp": {
               "type": "string",
-              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName')), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
             }
           }
         }
       },
       "dependsOn": [
-        "publicIp",
-        "vnet"
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "createNic2": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "createNic2",
@@ -469,14 +465,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13730191872646967098"
+              "templateHash": "9277618774445059994"
             }
           },
           "parameters": {
@@ -511,8 +505,8 @@
               "defaultValue": false
             }
           },
-          "resources": {
-            "nic": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-06-01",
               "name": "[parameters('nicName')]",
@@ -535,7 +529,7 @@
                 "enableIPForwarding": "[parameters('enableIPForwarding')]"
               }
             }
-          },
+          ],
           "outputs": {
             "nicId": {
               "type": "string",
@@ -543,16 +537,16 @@
             },
             "assignedIp": {
               "type": "string",
-              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName')), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
             }
           }
         }
       },
       "dependsOn": [
-        "vnet"
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "updateNic1": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "updateNic1",
@@ -566,7 +560,7 @@
             "value": "Static"
           },
           "staticIpAddress": {
-            "value": "[reference('createNic1').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2022-09-01').outputs.assignedIp.value]"
           },
           "nicName": {
             "value": "[parameters('HostNetworkInterface1Name')]"
@@ -580,14 +574,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13730191872646967098"
+              "templateHash": "9277618774445059994"
             }
           },
           "parameters": {
@@ -622,8 +614,8 @@
               "defaultValue": false
             }
           },
-          "resources": {
-            "nic": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-06-01",
               "name": "[parameters('nicName')]",
@@ -646,7 +638,7 @@
                 "enableIPForwarding": "[parameters('enableIPForwarding')]"
               }
             }
-          },
+          ],
           "outputs": {
             "nicId": {
               "type": "string",
@@ -654,18 +646,18 @@
             },
             "assignedIp": {
               "type": "string",
-              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName')), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
             }
           }
         }
       },
       "dependsOn": [
-        "createNic1",
-        "publicIp",
-        "vnet"
+        "[resourceId('Microsoft.Resources/deployments', 'createNic1')]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "updateNic2": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "updateNic2",
@@ -679,7 +671,7 @@
             "value": "Static"
           },
           "staticIpAddress": {
-            "value": "[reference('createNic2').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2022-09-01').outputs.assignedIp.value]"
           },
           "nicName": {
             "value": "[parameters('HostNetworkInterface2Name')]"
@@ -693,14 +685,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13730191872646967098"
+              "templateHash": "9277618774445059994"
             }
           },
           "parameters": {
@@ -735,8 +725,8 @@
               "defaultValue": false
             }
           },
-          "resources": {
-            "nic": {
+          "resources": [
+            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-06-01",
               "name": "[parameters('nicName')]",
@@ -759,7 +749,7 @@
                 "enableIPForwarding": "[parameters('enableIPForwarding')]"
               }
             }
-          },
+          ],
           "outputs": {
             "nicId": {
               "type": "string",
@@ -767,17 +757,17 @@
             },
             "assignedIp": {
               "type": "string",
-              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName')), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
             }
           }
         }
       },
       "dependsOn": [
-        "createNic2",
-        "vnet"
+        "[resourceId('Microsoft.Resources/deployments', 'createNic2')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
-    "createAzureVmUdr": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "udrDeploy",
@@ -793,14 +783,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3787539603979627417"
+              "templateHash": "13192308342682473598"
             }
           },
           "parameters": {
@@ -820,8 +808,8 @@
               "defaultValue": ""
             }
           },
-          "resources": {
-            "udr": {
+          "resources": [
+            {
               "type": "Microsoft.Network/routeTables",
               "apiVersion": "2020-06-01",
               "name": "[parameters('udrName')]",
@@ -830,7 +818,7 @@
                 "routes": "[if(equals(parameters('addressPrefix'), ''), null(), createArray(createObject('name', 'Nested-VMs', 'properties', createObject('addressPrefix', parameters('addressPrefix'), 'nextHopType', 'VirtualAppliance', 'nextHopIpAddress', parameters('nextHopAddress')))))]"
               }
             }
-          },
+          ],
           "outputs": {
             "udrId": {
               "type": "string",
@@ -840,7 +828,7 @@
         }
       }
     },
-    "updateAzureVmUdr": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "udrUpdate",
@@ -857,19 +845,17 @@
             "value": "[parameters('ghostedSubnetPrefix')]"
           },
           "nextHopAddress": {
-            "value": "[reference('createNic2').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2022-09-01').outputs.assignedIp.value]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3787539603979627417"
+              "templateHash": "13192308342682473598"
             }
           },
           "parameters": {
@@ -889,8 +875,8 @@
               "defaultValue": ""
             }
           },
-          "resources": {
-            "udr": {
+          "resources": [
+            {
               "type": "Microsoft.Network/routeTables",
               "apiVersion": "2020-06-01",
               "name": "[parameters('udrName')]",
@@ -899,7 +885,7 @@
                 "routes": "[if(equals(parameters('addressPrefix'), ''), null(), createArray(createObject('name', 'Nested-VMs', 'properties', createObject('addressPrefix', parameters('addressPrefix'), 'nextHopType', 'VirtualAppliance', 'nextHopIpAddress', parameters('nextHopAddress')))))]"
               }
             }
-          },
+          ],
           "outputs": {
             "udrId": {
               "type": "string",
@@ -909,8 +895,8 @@
         }
       },
       "dependsOn": [
-        "createNic2"
+        "[resourceId('Microsoft.Resources/deployments', 'createNic2')]"
       ]
     }
-  }
+  ]
 }

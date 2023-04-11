@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8858998543079328997"
+      "templateHash": "15849314752825028364"
     }
   },
   "parameters": {
@@ -39,8 +37,8 @@
     "networkSecurityGroupName": "NSG",
     "networkSecurityGroupName2": "[concat(variables('subnet2Name'), '-nsg')]"
   },
-  "resources": {
-    "diagsAccount": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2017-06-01",
       "name": "[variables('diagStorageAccountName')]",
@@ -50,14 +48,14 @@
       },
       "kind": "Storage"
     },
-    "nsg2": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-08-01",
       "name": "[variables('networkSecurityGroupName2')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
-    "vnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2017-06-01",
       "name": "[variables('virtualNetworkName')]",
@@ -87,10 +85,10 @@
         ]
       },
       "dependsOn": [
-        "nsg2"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
       ]
     },
-    "nic1": {
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2017-06-01",
       "name": "[variables('nic1Name')]",
@@ -115,12 +113,12 @@
         }
       },
       "dependsOn": [
-        "nsg",
-        "pip",
-        "vnet"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     },
-    "nic2": {
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2017-06-01",
       "name": "[variables('nic2Name')]",
@@ -139,10 +137,10 @@
         ]
       },
       "dependsOn": [
-        "vnet"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     },
-    "pip": {
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2017-06-01",
       "name": "[variables('publicIPAddressName')]",
@@ -151,7 +149,7 @@
         "publicIPAllocationMethod": "Dynamic"
       }
     },
-    "nsg": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2016-09-01",
       "name": "[variables('networkSecurityGroupName')]",
@@ -174,7 +172,7 @@
         ]
       }
     },
-    "vmMod": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "vmMod",
@@ -203,19 +201,17 @@
             "value": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]"
           },
           "diagsStorageUri": {
-            "value": "[reference('diagsAccount').primaryEndpoints.blob]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName')), '2017-06-01').primaryEndpoints.blob]"
           }
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1817983194503927081"
+              "templateHash": "14259845034974441060"
             }
           },
           "parameters": {
@@ -245,8 +241,8 @@
               "type": "string"
             }
           },
-          "resources": {
-            "vm": {
+          "resources": [
+            {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "2017-03-30",
               "name": "[parameters('virtualMachineName')]",
@@ -299,20 +295,20 @@
                 }
               }
             }
-          }
+          ]
         }
       },
       "dependsOn": [
-        "diagsAccount",
-        "nic1",
-        "nic2"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]"
       ]
     }
-  },
+  ],
   "outputs": {
     "publicIp": {
       "type": "string",
-      "value": "[reference('pip').ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2017-06-01').ipAddress]"
     }
   }
 }

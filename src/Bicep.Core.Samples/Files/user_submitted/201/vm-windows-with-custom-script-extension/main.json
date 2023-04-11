@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1044477408029374098"
+      "templateHash": "10400776470073514583"
     }
   },
   "parameters": {
@@ -173,8 +171,8 @@
       "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))]"
     }
   },
-  "resources": {
-    "st": {
+  "resources": [
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccount').name]",
@@ -184,7 +182,7 @@
         "name": "Standard_LRS"
       }
     },
-    "pip": {
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-06-01",
       "name": "[variables('publicIp').name]",
@@ -196,7 +194,7 @@
         }
       }
     },
-    "nsg": {
+    {
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-06-01",
       "name": "[variables('networkSecurityGroup').name]",
@@ -205,7 +203,7 @@
         "securityRules": "[variables('networkSecurityGroup').securityRules]"
       }
     },
-    "vnet": {
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[variables('virtualNetwork').name]",
@@ -217,10 +215,10 @@
         "subnets": "[variables('virtualNetwork').subnets]"
       },
       "dependsOn": [
-        "nsg"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroup').name)]"
       ]
     },
-    "nic": {
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-06-01",
       "name": "[variables('networkInterface').name]",
@@ -229,11 +227,11 @@
         "ipConfigurations": "[variables('networkInterface').ipConfigurations]"
       },
       "dependsOn": [
-        "pip",
-        "vnet"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIp').name)]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetwork').name)]"
       ]
     },
-    "vm": {
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
       "name": "[variables('virtualMachine').name]",
@@ -267,16 +265,16 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference('st').primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), '2019-06-01').primaryEndpoints.blob]"
           }
         }
       },
       "dependsOn": [
-        "nic",
-        "st"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterface').name)]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)]"
       ]
     },
-    "vmext": {
+    {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
       "name": "[variables('virtualMachineExtensionCustomScript').name]",
@@ -293,8 +291,8 @@
         "protectedSettings": {}
       },
       "dependsOn": [
-        "vm"
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachine').name)]"
       ]
     }
-  }
+  ]
 }

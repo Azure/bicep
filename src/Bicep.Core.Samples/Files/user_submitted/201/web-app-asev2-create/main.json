@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9515025945939879460"
+      "templateHash": "1558433929532206392"
     }
   },
   "parameters": {
@@ -28,8 +26,8 @@
       "defaultValue": "[uniqueString(resourceGroup().name)]"
     }
   },
-  "resources": {
-    "virtualNetwork": {
+  "resources": [
+    {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-06-01",
       "name": "[parameters('virtualNetworkName')]",
@@ -42,7 +40,7 @@
         }
       }
     },
-    "subNet": {
+    {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
       "name": "[parameters('subnetName')]",
@@ -50,7 +48,7 @@
         "addressPrefix": "10.0.1.0/25"
       }
     },
-    "ase": {
+    {
       "type": "Microsoft.Web/hostingEnvironments",
       "apiVersion": "2020-06-01",
       "name": "[parameters('aseName')]",
@@ -65,8 +63,8 @@
         }
       },
       "dependsOn": [
-        "subNet"
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1])]"
       ]
     }
-  }
+  ]
 }

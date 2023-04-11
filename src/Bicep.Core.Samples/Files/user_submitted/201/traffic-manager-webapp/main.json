@@ -1,13 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11927048560880797394"
+      "templateHash": "12122858581609267396"
     }
   },
   "parameters": {
@@ -40,8 +38,8 @@
       }
     }
   },
-  "resources": {
-    "appServicePlan": {
+  "resources": [
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-12-01",
       "name": "[parameters('appServicePlanName')]",
@@ -51,7 +49,7 @@
         "tier": "Standard"
       }
     },
-    "webSite": {
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2020-12-01",
       "name": "[parameters('uniqueDnsNameForWebApp')]",
@@ -60,10 +58,10 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       },
       "dependsOn": [
-        "appServicePlan"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
       ]
     },
-    "trafficManagerProfile": {
+    {
       "type": "Microsoft.Network/trafficmanagerprofiles",
       "apiVersion": "2018-08-01",
       "name": "[parameters('trafficManagerName')]",
@@ -92,8 +90,8 @@
         ]
       },
       "dependsOn": [
-        "webSite"
+        "[resourceId('Microsoft.Web/sites', parameters('uniqueDnsNameForWebApp'))]"
       ]
     }
-  }
+  ]
 }
