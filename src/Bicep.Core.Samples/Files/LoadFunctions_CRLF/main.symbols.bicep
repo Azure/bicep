@@ -136,3 +136,8 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 //@[4:25) Variable testJsonTokensAsArray. Type: ('pizza' | 'salad')[]. Declaration start char: 0, length: 104
 
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@[4:12) Variable testYaml. Type: object. Declaration start char: 0, length: 56
+var testYamlString = testYaml.string
+//@[4:18) Variable testYamlString. Type: 'someVal'. Declaration start char: 0, length: 36
+

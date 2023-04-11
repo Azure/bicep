@@ -136,3 +136,7 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 //@[4:25) [no-unused-vars (Warning)] Variable "testJsonTokensAsArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonTokensAsArray|
 
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+var testYamlString = testYaml.string
+//@[4:18) [no-unused-vars (Warning)] Variable "testYamlString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testYamlString|
+

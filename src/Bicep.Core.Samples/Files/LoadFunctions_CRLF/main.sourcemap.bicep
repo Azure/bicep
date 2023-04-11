@@ -235,5 +235,10 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 //@    "testJsonNestedString2_2": "[variables('$fxv#21')]",
 
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
-//@    "testJsonTokensAsArray": "[variables('$fxv#22')]"
+//@    "testJsonTokensAsArray": "[variables('$fxv#22')]",
+
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@    "testYaml": "[variables('$fxv#23')]",
+var testYamlString = testYaml.string
+//@    "testYamlString": "[variables('testYaml').string]"
 

@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[00:3790) ProgramExpression
+//@[00:3888) ProgramExpression
 //@[00:0000) | └─ObjectExpression [UNPARENTED]
 //@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
 //@[00:0000) |   | ├─StringLiteralExpression { Value = string } [UNPARENTED]
@@ -29,6 +29,24 @@ var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
 //@[00:0000) | └─ArrayExpression [UNPARENTED]
 //@[00:0000) |   ├─StringLiteralExpression { Value = pizza } [UNPARENTED]
 //@[00:0000) |   └─StringLiteralExpression { Value = salad } [UNPARENTED]
+//@[00:0000) | └─ObjectExpression [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = string } [UNPARENTED]
+//@[00:0000) |   | └─StringLiteralExpression { Value = someVal } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = int } [UNPARENTED]
+//@[00:0000) |   | └─StringLiteralExpression { Value = 123 } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = array } [UNPARENTED]
+//@[00:0000) |   | └─ArrayExpression [UNPARENTED]
+//@[00:0000) |   |   ├─StringLiteralExpression { Value = 1 } [UNPARENTED]
+//@[00:0000) |   |   └─StringLiteralExpression { Value = 2 } [UNPARENTED]
+//@[00:0000) |   └─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |     ├─StringLiteralExpression { Value = object } [UNPARENTED]
+//@[00:0000) |     └─ObjectExpression [UNPARENTED]
+//@[00:0000) |       └─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |         ├─StringLiteralExpression { Value = nestedString } [UNPARENTED]
+//@[00:0000) |         └─StringLiteralExpression { Value = someVal } [UNPARENTED]
 //@[00:0061) ├─DeclaredVariableExpression { Name = loadedText1 }
 //@[18:0061) | └─StringLiteralExpression { Value = Lorem ipsum dolor sit amet, consectetur adipiscing elit.\r\n\tProin varius in nunc et laoreet.\r\n  Nam pulvinar ipsum sed lectus porttitor, at porttitor ipsum faucibus.\r\n  \tAliquam euismod, odio tincidunt convallis pulvinar, felis sem porttitor turpis, a condimentum dui erat nec tellus.\r\n  Duis elementum cursus est, congue efficitur risus.\r\n\tMauris sit amet.\r\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n }
 var loadedText2 = sys.loadTextContent('Assets/TextFile.LF.txt')
@@ -313,4 +331,13 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[28:0104) ├─DeclaredVariableExpression { Name = $fxv#22 }
 //@[00:0104) ├─DeclaredVariableExpression { Name = testJsonTokensAsArray }
 //@[28:0104) | └─SynthesizedVariableReferenceExpression { Name = $fxv#22 }
+
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@[15:0056) ├─DeclaredVariableExpression { Name = $fxv#23 }
+//@[00:0056) ├─DeclaredVariableExpression { Name = testYaml }
+//@[15:0056) | └─SynthesizedVariableReferenceExpression { Name = $fxv#23 }
+var testYamlString = testYaml.string
+//@[00:0036) ├─DeclaredVariableExpression { Name = testYamlString }
+//@[21:0036) | └─PropertyAccessExpression { PropertyName = string }
+//@[21:0029) |   └─VariableReferenceExpression { Variable = testYaml }
 

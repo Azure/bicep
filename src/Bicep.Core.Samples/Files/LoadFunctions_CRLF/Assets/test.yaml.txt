@@ -1,5 +1,5 @@
 string: someVal 
-  int: 123
+int: 123
 array:
 - 1
 - 2
