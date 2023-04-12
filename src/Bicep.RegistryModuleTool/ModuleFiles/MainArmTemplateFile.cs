@@ -142,36 +142,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return new(name, type, description);
         }
 
-        private string GetTypeFromDefinition(JsonElement element)
-        {
-            return element.TryGetProperty("type", out var typeElement)
-            ? typeElement.ToNonNullString()
-            : GetTypeFromDefinition(LookupRef(element));
-        }
-
-        private string? TryGetDescription(JsonElement element)
-        {
-            if (element.TryGetProperty("metadata", out var metdataElement) &&
-                metdataElement.TryGetProperty("description", out var descriptionElement))
-            {
-                return descriptionElement.ToNonNullString();
-            }
-
-            // The order of the checks allow the user to optionally override the default description for a user defined type
-            if (element.TryGetProperty("$ref", out var _))
-            {
-                return TryGetDescription(LookupRef(element));
-            }
-
-            return null;
-        }
-
-        private JsonElement LookupRef(JsonElement element)
-        {
-            return this.RootElement.GetProperty("definitions").GetProperty(element.GetProperty("$ref").ToNonNullString().Split('/')[2]);
-        }
-
-
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }
