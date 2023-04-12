@@ -1,5 +1,5 @@
 
-//@[000:51879) ProgramSyntax
+//@[000:51742) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -1988,50 +1988,6 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
-// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-//@[132:00134) ├─Token(NewLine) |\r\n|
-var magicString2 = 'name'
-//@[000:00025) ├─VariableDeclarationSyntax
-//@[000:00003) | ├─Token(Identifier) |var|
-//@[004:00016) | ├─IdentifierSyntax
-//@[004:00016) | | └─Token(Identifier) |magicString2|
-//@[017:00018) | ├─Token(Assignment) |=|
-//@[019:00025) | └─StringSyntax
-//@[019:00025) |   └─Token(StringComplete) |'name'|
-//@[025:00027) ├─Token(NewLine) |\r\n|
-resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00139) ├─ResourceDeclarationSyntax
-//@[000:00008) | ├─Token(Identifier) |resource|
-//@[009:00027) | ├─IdentifierSyntax
-//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes9|
-//@[028:00087) | ├─StringSyntax
-//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[088:00089) | ├─Token(Assignment) |=|
-//@[090:00139) | └─ObjectSyntax
-//@[090:00091) |   ├─Token(LeftBrace) |{|
-//@[091:00093) |   ├─Token(NewLine) |\r\n|
-  name: runtimeValidRes2['${magicString2}']
-//@[002:00043) |   ├─ObjectPropertySyntax
-//@[002:00006) |   | ├─IdentifierSyntax
-//@[002:00006) |   | | └─Token(Identifier) |name|
-//@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00043) |   | └─ArrayAccessSyntax
-//@[008:00024) |   |   ├─VariableAccessSyntax
-//@[008:00024) |   |   | └─IdentifierSyntax
-//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes2|
-//@[024:00025) |   |   ├─Token(LeftSquare) |[|
-//@[025:00042) |   |   ├─StringSyntax
-//@[025:00028) |   |   | ├─Token(StringLeftPiece) |'${|
-//@[028:00040) |   |   | ├─VariableAccessSyntax
-//@[028:00040) |   |   | | └─IdentifierSyntax
-//@[028:00040) |   |   | |   └─Token(Identifier) |magicString2|
-//@[040:00042) |   |   | └─Token(StringRightPiece) |}'|
-//@[042:00043) |   |   └─Token(RightSquare) |]|
-//@[043:00045) |   ├─Token(NewLine) |\r\n|
-}
-//@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
-
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[000:00135) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
@@ -2720,8 +2676,49 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[025:00027) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00007) ├─Token(NewLine) |\r\n\r\n\r\n|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
+var magicString2 = 'name'
+//@[000:00025) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00016) | ├─IdentifierSyntax
+//@[004:00016) | | └─Token(Identifier) |magicString2|
+//@[017:00018) | ├─Token(Assignment) |=|
+//@[019:00025) | └─StringSyntax
+//@[019:00025) |   └─Token(StringComplete) |'name'|
+//@[025:00027) ├─Token(NewLine) |\r\n|
+resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:00138) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00026) | ├─IdentifierSyntax
+//@[009:00026) | | └─Token(Identifier) |runtimeValidRes10|
+//@[027:00086) | ├─StringSyntax
+//@[027:00086) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00138) | └─ObjectSyntax
+//@[089:00090) |   ├─Token(LeftBrace) |{|
+//@[090:00092) |   ├─Token(NewLine) |\r\n|
+  name: runtimeValidRes2['${magicString2}']
+//@[002:00043) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00043) |   | └─ArrayAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes2|
+//@[024:00025) |   |   ├─Token(LeftSquare) |[|
+//@[025:00042) |   |   ├─StringSyntax
+//@[025:00028) |   |   | ├─Token(StringLeftPiece) |'${|
+//@[028:00040) |   |   | ├─VariableAccessSyntax
+//@[028:00040) |   |   | | └─IdentifierSyntax
+//@[028:00040) |   |   | |   └─Token(Identifier) |magicString2|
+//@[040:00042) |   |   | └─Token(StringRightPiece) |}'|
+//@[042:00043) |   |   └─Token(RightSquare) |]|
+//@[043:00045) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[000:00130) ├─ResourceDeclarationSyntax
