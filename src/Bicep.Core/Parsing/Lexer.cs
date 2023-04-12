@@ -9,6 +9,7 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
+using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.Parsing
 {
@@ -312,30 +313,36 @@ namespace Bicep.Core.Parsing
 
         private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
         {
+            SyntaxTrivia? current = null;
+
             while (true)
             {
                 if (IsWhiteSpace(textWindow.Peek()))
                 {
-                    yield return ScanWhitespace();
+                    current = ScanWhitespace();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
-                    yield return ScanSingleLineComment();
+                    current = ScanSingleLineComment();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
-                    yield return ScanMultiLineComment();
+                    current = ScanMultiLineComment();
                 }
-                else if (textWindow.Peek() == '#' &&
+                else if (
+                    (current is null || !current.IsComment()) &&
+                    textWindow.Peek() == '#' &&
                     CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
                     string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
                 {
-                    yield return ScanDisableNextLineDiagnosticsDirective();
+                    current = ScanDisableNextLineDiagnosticsDirective();
                 }
                 else
                 {
                     yield break;
                 }
+
+                yield return current;
             }
         }
 

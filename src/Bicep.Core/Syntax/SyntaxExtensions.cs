@@ -48,6 +48,13 @@ namespace Bicep.Core.Syntax
 
         public static bool IsOf(this Token token, TokenType type) => token.Type == type;
 
+        public static bool IsOneOf(this Token token, TokenType firstType, TokenType secondType, params TokenType[] types) =>
+            types.Append(firstType).Append(secondType).Any(x => token.Type == x);
+
+        public static bool IsMultiLineNewLine(this Token token) => token.IsOf(TokenType.NewLine) && StringUtils.CountNewlines(token.Text) > 1;
+
+        public static bool HasProperties(this ObjectSyntax syntax) => syntax.Properties.Any();
+
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
 
