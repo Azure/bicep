@@ -73,6 +73,8 @@ namespace Bicep.Core.TypeSystem
                 (resourceSymbol, this.existingResourceBodyTypeOverrides.GetValueOrDefault(resourceSymbol) ?? resourceSymbol.TryGetBodyObjectType()),
             ModuleSymbol moduleSymbol when moduleSymbol.IsCollection == isCollection =>
                 (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
+            ParameterSymbol parameterSymbol when parameterSymbol.IsCollection == isCollection =>
+                    (parameterSymbol, parameterSymbol.TryGetBodyObjectType()),
             _ => (null, null),
         };
 
