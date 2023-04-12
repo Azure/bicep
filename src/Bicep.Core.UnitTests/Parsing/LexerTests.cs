@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'\u{D801}\u{DC37}'", "\uD801\uDC37")]
         public void TryGetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
         {
-            var token = new Token(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+            var token = new FreeformToken(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             var actual = Lexer.TryGetStringValue(token);
 
@@ -42,7 +42,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [TestMethod]
         public void TryGetStringValue_WrongTokenType_ShouldReturnNull()
         {
-            var token = new Token(TokenType.Integer, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+            var token = new FreeformToken(TokenType.Integer, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Lexer.TryGetStringValue(token).Should().BeNull();
         }
@@ -70,7 +70,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'prefix\u{FFFFFFFFsufffix'")]
         public void GetStringValue_InvalidStringLiteralToken_ShouldReturnNull(string literalText)
         {
-            var token = new Token(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+            var token = new FreeformToken(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Lexer.TryGetStringValue(token).Should().BeNull();
         }

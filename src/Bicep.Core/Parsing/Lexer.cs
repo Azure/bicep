@@ -462,7 +462,7 @@ namespace Bicep.Core.Parsing
 
             if (!string.IsNullOrWhiteSpace(text))
             {
-                return new Token(TokenType.StringComplete, textWindow.GetSpan(), textWindow.GetText(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), textWindow.GetText(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
             }
 
             return null;
@@ -498,7 +498,10 @@ namespace Bicep.Core.Parsing
             var includeComments = tokenType.GetCommentStickiness() >= CommentStickiness.Trailing;
             var trailingTrivia = ScanTrailingTrivia(includeComments).ToImmutableArray();
 
-            var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
+            var token = SyntaxFacts.GetText(tokenType) is not null
+                ? new Token(tokenType, tokenSpan, leadingTrivia, trailingTrivia)
+                : new FreeformToken(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
+
             this.tokens.Add(token);
         }
 
