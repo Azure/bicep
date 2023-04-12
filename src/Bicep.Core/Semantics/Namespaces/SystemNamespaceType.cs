@@ -1207,59 +1207,54 @@ namespace Bicep.Core.Semantics.Namespaces
             return fileContent.TryFromJson<JToken>();
         }
 
-        //missing the type replacement TODO
-        public static void CastPrimiteTypes(JToken jtoken, JValue? jValue = null)
+        public static void CastPrimiteTypes(JToken jtoken)
         {
-            if (jValue != null)
+            foreach (var child in jtoken.AsJEnumerable())
             {
-                if (Boolean.TryParse((string?)jValue.Value, out bool boolean))
+                switch (jtoken[child.Path])
                 {
-                    jValue.Replace(boolean);
-
-                }
-                else if (Int64.TryParse((string?)jValue.Value, out long num))
-                {
-                    jValue.Replace(num);
+                    case JArray jArray:
+                        {
+                            for (int i = 0; i < jArray.Count; i++)
+                            {
+                                CastPrimiteTypes(jtoken);
+                            }
+                            break;
+                        }
+                    case JObject jObject:
+                        {
+                            foreach (var item in jObject)
+                            {
+                                if ((item.Value as JValue) != null)
+                                {
+                                    CastPrimiteTypes(jtoken);
+                                }
+                                else
+                                {
+                                    CastPrimiteTypes(item.Value!);
+                                }
+                            }
+                            break;
+                        }
+                    default:
+                        CastJToken(jtoken, child);
+                        break;
                 }
             }
-            else
-            {
-                foreach (var child in jtoken.AsJEnumerable())
-                {
-                    if (jtoken[child.Path] is JArray jArray)
-                    {
-                        for (int i = 0; i < jArray.Count; i++)
-                        {
-                            CastPrimiteTypes(jtoken, (JValue?)jArray[i]);
-                        }
-                    }
-                    else if (jtoken[child.Path] is JObject jObject)
-                    {
-                        foreach (var item in jObject)
-                        {
-                            var jValueFromItem = item.Value as JValue;
-                            /*jValueFromItem != null ? CastPrimiteTypes(jtoken, (JValue?)item.Value) : CastPrimiteTypes(item.Value!);*/
-                            if (jValueFromItem != null)
-                            {
-                                CastPrimiteTypes(jtoken, (JValue?)item.Value);
-                            }
-                            else
-                            {
-                                CastPrimiteTypes(item.Value!);
-                            }
-                        }
-                    }
-                    else if (Boolean.TryParse((string?)jtoken[child.Path], out bool boolean1))
-                    {
-                        jtoken[child.Path]!.Replace(boolean1);
+        }
 
-                    }
-                    else if (Int64.TryParse((string?)jtoken[child.Path], out long num1))
-                    {
-                        jtoken[child.Path]!.Replace(num1);
-                    }
-                }
+        private static void CastJToken(JToken jtoken, JToken? child = null)
+        {
+            var token = child != null ? jtoken[child.Path] : jtoken as JValue;
+            if (bool.TryParse((string?)token, out bool boolean))
+            {
+                token.Replace(boolean);
             }
+            else if (long.TryParse((string?)token, out long num))
+            {
+                token.Replace(num);
+            }
+
         }
 
         public static JToken ExtractTokenFromObject(string fileContent)

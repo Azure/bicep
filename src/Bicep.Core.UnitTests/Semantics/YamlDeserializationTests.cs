@@ -107,14 +107,16 @@ namespace Bicep.Core.UnitTests.Semantics
             var correctObject = new Dictionary<string, string> { { "nestedString", "someVal" } };
 
             Assert.AreEqual("someVal", jToken["string"]);
-            Assert.AreEqual(123, jToken["int"]?.ToObject<int>());
+            Assert.AreEqual(123, jToken["int"]);
 
             CollectionAssert.AreEqual(correctList, jToken["array"]?.ToObject<List<int>>());
-            Assert.AreEqual(1, jToken["array"]?.ToObject<List<int>>()?[0]);
-            Assert.AreEqual(2, jToken["array"]?.ToObject<List<int>>()?[1]);
+            Assert.AreEqual(1, jToken["array"]![0]);
+            Assert.AreEqual(2, jToken["array"]![1]);
 
             CollectionAssert.AreEqual(correctObject, jToken["object"]?.ToObject<Dictionary<string, string>>());
-            Assert.AreEqual("someVal", jToken["object"]?.ToObject<Dictionary<string, string>>()?["nestedString"]);
+            Assert.AreEqual("someVal", jToken["object"]?["nestedString"]);
+
+            Assert.AreEqual(1, jToken["object"]?["nestedObject"]?["nestedInt"]);
         }
 
         private void areJTokensEqual(JToken jTokenNew, JToken jTokenOld)
@@ -186,8 +188,8 @@ namespace Bicep.Core.UnitTests.Semantics
 
         }
 
-        //[TestMethod]
-        /*public void Simple_YAML_file_content_gets_deserialized_into_JSON()
+        [TestMethod]
+        public void Simple_YAML_file_content_gets_deserialized_into_JSON()
         {
             var yml = @"
                  name: George Washington
@@ -200,9 +202,13 @@ namespace Bicep.Core.UnitTests.Semantics
                      state: Hawidaho #if //comment then, {[state, Hawidaho //comment]}
                      zip: 99970";
 
-            CompareSimpleJSON(yml);
+            var jToken = SystemNamespaceType.ExtractTokenFromObject(yml);
+            Assert.AreEqual("George Washington", jToken["name"]);
+            Assert.AreEqual(89, jToken["age"]);
+            Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
 
-        }*/
+
+        }
     }
 
 }
