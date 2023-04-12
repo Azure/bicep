@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
@@ -18,11 +19,12 @@ using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
-
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -100,11 +102,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         minLength switch
                         {
                             var zero when zero <= 0 => null,
-                            _ => (long) BigInteger.Min(minLength, long.MaxValue),
+                            _ => (long)BigInteger.Min(minLength, long.MaxValue),
                         },
                         maxLength switch
                         {
-                            BigInteger bi => (long) BigInteger.Min(bi, long.MaxValue),
+                            BigInteger bi => (long)BigInteger.Min(bi, long.MaxValue),
                             _ => null,
                         },
                         TypeSymbolValidationFlags.Default));
@@ -213,7 +215,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     DiscriminatedObjectType discriminatedObject => TypeFactory.CreateIntegerType(
                         minValue: discriminatedObject.UnionMembersByKey.Values.Min(MinLength),
                         maxValue: discriminatedObject.UnionMembersByKey.Values
-                            .Aggregate((long?) 0, (acc, memberObject) => acc.HasValue && MaxLength(memberObject) is int maxLength
+                            .Aggregate((long?)0, (acc, memberObject) => acc.HasValue && MaxLength(memberObject) is int maxLength
                                 ? Math.Max(acc.Value, maxLength) : null)),
                     _ => LanguageConstants.Int,
                 })), LanguageConstants.Int)
@@ -223,7 +225,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(
-                    (_, _, _, _, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
+                    (_, _, _, _, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch
+                    {
                         TupleType tupleType => new(TypeFactory.CreateIntegerLiteralType(tupleType.Items.Length)),
                         ArrayType arrayType => new(TypeFactory.CreateIntegerType(arrayType.MinLength ?? 0, arrayType.MaxLength)),
                         _ => new(LanguageConstants.Int),
@@ -416,7 +419,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         TupleType tupleType when minToTake == maxToTake && minToTake >= tupleType.Items.Length => tupleType,
                         TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType(ImmutableArray<ITypeReference>.Empty, tupleType.ValidationFlags),
-                        TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int) minToTake).ToImmutableArray(), tupleType.ValidationFlags),
+                        TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int)minToTake).ToImmutableArray(), tupleType.ValidationFlags),
                         ArrayType array => TypeFactory.CreateArrayType(array.Item,
                             !array.MinLength.HasValue ? null : minToTake switch
                             {
@@ -483,7 +486,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(argumentTypes[0] switch
                     {
                         TypeSymbol original when maxToSkip <= 0 => original,
-                        TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType(tupleType.Items.Skip((int) minToSkip).ToImmutableArray(), tupleType.ValidationFlags),
+                        TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType(tupleType.Items.Skip((int)minToSkip).ToImmutableArray(), tupleType.ValidationFlags),
                         ArrayType array => TypeFactory.CreateArrayType(array.Item,
                             ((array.MinLength ?? 0) - maxToSkip) switch
                             {
@@ -603,7 +606,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                .WithReturnResultBuilder((_, _, _, _, argumentTypes) =>  new(argumentTypes[0] switch
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => new(argumentTypes[0] switch
                 {
                     TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
                     ArrayType arrayType when arrayType.MinLength.HasValue && arrayType.MinLength.Value > 0 => arrayType.Item.Type,
@@ -973,12 +976,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => {
-                    if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType) {
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) =>
+                {
+                    if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType)
+                    {
                         return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
                     }
 
-                    if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType) {
+                    if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType)
+                    {
                         return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, valueLambdaType.ReturnType));
                     }
 
@@ -1201,14 +1207,71 @@ namespace Bicep.Core.Semantics.Namespaces
             return fileContent.TryFromJson<JToken>();
         }
 
+        //missing the type replacement TODO
+        public static void CastPrimiteTypes(JToken jtoken, JValue? jValue = null)
+        {
+            if (jValue != null)
+            {
+                if (Boolean.TryParse((string?)jValue.Value, out bool boolean))
+                {
+                    jValue.Replace(boolean);
+
+                }
+                else if (Int64.TryParse((string?)jValue.Value, out long num))
+                {
+                    jValue.Replace(num);
+                }
+            }
+            else
+            {
+                foreach (var child in jtoken.AsJEnumerable())
+                {
+                    if (jtoken[child.Path] is JArray jArray)
+                    {
+                        for (int i = 0; i < jArray.Count; i++)
+                        {
+                            CastPrimiteTypes(jtoken, (JValue?)jArray[i]);
+                        }
+                    }
+                    else if (jtoken[child.Path] is JObject jObject)
+                    {
+                        foreach (var item in jObject)
+                        {
+                            var jValueFromItem = item.Value as JValue;
+                            /*jValueFromItem != null ? CastPrimiteTypes(jtoken, (JValue?)item.Value) : CastPrimiteTypes(item.Value!);*/
+                            if (jValueFromItem != null)
+                            {
+                                CastPrimiteTypes(jtoken, (JValue?)item.Value);
+                            }
+                            else
+                            {
+                                CastPrimiteTypes(item.Value!);
+                            }
+                        }
+                    }
+                    else if (Boolean.TryParse((string?)jtoken[child.Path], out bool boolean1))
+                    {
+                        jtoken[child.Path]!.Replace(boolean1);
+
+                    }
+                    else if (Int64.TryParse((string?)jtoken[child.Path], out long num1))
+                    {
+                        jtoken[child.Path]!.Replace(num1);
+                    }
+                }
+            }
+        }
+
         public static JToken ExtractTokenFromObject(string fileContent)
         {
             // Replace // with # unless in quotes
             fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
             // Manually fix multi-line comment with regex by appending # and manually fix first line
             fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
-
-            return JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));
+            JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));
+            CastPrimiteTypes(jToken);
+            return jToken;
+            /*return JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
@@ -1280,7 +1343,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
         private static Expression ConvertJsonToExpression(JToken token)
-            => token switch {
+            => token switch
+            {
                 JObject @object => new ObjectExpression(null, @object.Properties()
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type))
                     .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))

@@ -15,6 +15,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text.RegularExpressions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.UnitTests.Assertions;
+using System.Dynamic;
 
 namespace Bicep.Core.UnitTests.Semantics
 {
@@ -59,7 +60,7 @@ namespace Bicep.Core.UnitTests.Semantics
               "textEdit": {
                 "range": {},
                 "newText": "dateTimeFromEpoch($0)"
-              },
+                },
               "command": {
                 "title": "signature help",
                 "command": "editor.action.triggerParameterHints"
@@ -94,22 +95,12 @@ namespace Bicep.Core.UnitTests.Semantics
         public void JSON_file_content_gets_deserialized_into_JSON()
         {
             var json = SIMPLE_JSON;
-
             CompareSimpleJSON(json);
 
         }
 
         private static void CompareSimpleJSON(string json)
         {
-
-            // Manual fixes to allow extended json comment syntax
-            //json = json.Replace("//", "#");
-            // Manually fix multi-line comment with regex by appending # and manually fix first line
-            //json = Regex.Replace(json, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
-
-            /*var deserializer = new DeserializerBuilder().Build();
-            var p = deserializer.Deserialize<Dictionary<string, object>>(json);
-            var jToken = JToken.FromObject(p);*/
 
             var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
             var correctList = new List<int> { 1, 2 };
@@ -130,22 +121,43 @@ namespace Bicep.Core.UnitTests.Semantics
         {
             foreach (var child in jTokenNew.AsJEnumerable())
             {
-                if (jTokenNew[child.Path] is JArray)
+                var jTokenNewChildPath = jTokenNew[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path];
+                var jTokenOldChildPath = jTokenOld[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path];
+                switch (jTokenNewChildPath)
                 {
-                    for (var x = 0; x < jTokenNew[child.Path].AsArray().Length; x++)
-                    {
-                        areJTokensEqual(jTokenNew[child.Path]![x]!, jTokenOld[child.Path]![x]!);
-                    }
-                }
-                else if (jTokenNew[child.Path] is JObject)
-                {
-                    areJTokensEqual(jTokenNew[child.Path]!, jTokenOld[child.Path]!);
-                }
-                else
-                {
-                    Assert.AreEqual(jTokenNew[child.Path]!.ToString(), jTokenOld[child.Path]!.ToString());
+                    case JArray:
+                        for (var x = 0; x < jTokenNewChildPath.AsArray().Length; x++)
+                        {
+                            areJTokensEqual(jTokenNewChildPath![x]!, jTokenOldChildPath![x]!);
+                        }
+                        break;
+                    case JObject:
+                        areJTokensEqual(jTokenNewChildPath, jTokenOldChildPath!);
+                        break;
+                    default:
+                        Assert.AreEqual(jTokenNewChildPath, jTokenOldChildPath);
+                        break;
+
                 }
             }
+        }
+
+        [DataTestMethod]
+        [DataRow(SIMPLE_JSON)]
+        [DataRow(COMPLEX_JSON)]
+        public void Compare_new_and_old_JSON_parsing(string json)
+        {
+            var jTokenNew = SystemNamespaceType.ExtractTokenFromObject(json);
+
+#pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
+            var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
+#pragma warning restore CS0618
+
+            new JTokenEqualityComparer().Equals(jTokenNew, jTokenOld);
+            Assert.AreEqual(jTokenNew["value"], jTokenOld["value"]);
+            Assert.AreEqual(jTokenNew["documentation"]?["value"], jTokenOld["documentation"]?["value"]);
+            areJTokensEqual(jTokenNew, jTokenOld);
+
         }
 
         [TestMethod]
@@ -164,37 +176,13 @@ namespace Bicep.Core.UnitTests.Semantics
         {
             var json = COMPLEX_JSON;
 
-            #pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
-            var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
-            #pragma warning restore CS0618
-
-            var exptectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
-
-            Assert.AreEqual(exptectedValue, jTokenOld["documentation"]?["value"]);
-
-        }
-
-        [DataTestMethod]
-        [DataRow(SIMPLE_JSON)]
-        [DataRow(COMPLEX_JSON)]
-        public void Compare_new_and_old_JSON_parsing(string json)
-        {
-            var jTokenNew = SystemNamespaceType.ExtractTokenFromObject(json);
-
 #pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
             var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
 #pragma warning restore CS0618
 
-            new JTokenEqualityComparer().Equals(jTokenNew, jTokenOld);
-            Assert.AreEqual(jTokenNew["value"], jTokenOld["value"]);
-            Assert.AreEqual(jTokenNew["documentation"]?["value"], jTokenOld["documentation"]?["value"]);
-            /*foreach (var item in jTokenNew.OfType<Dictionary<string, object>>()) {
-                Assert.AreEqual(item.Value, jTokenOld[item.Key]);
-            }*/
-            /* foreach (JProperty prop in jTokenNew.OfType<JProperty>()) TODO
-             {
-                 Assert.AreEqual(prop, "2");
-             }*/
+            var exptectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
+
+            Assert.AreEqual(exptectedValue, jTokenOld["documentation"]?["value"]);
 
         }
 
