@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15360311378380432848"
+      "templateHash": "11669324362880351006"
     }
   },
   "variables": {
@@ -42,13 +42,24 @@
     ],
     "$fxv#23": {
       "string": "someVal",
-      "int": "123",
-      "array": [
-        "1",
-        "2"
+      "int": 123,
+      "bool": true,
+      "arrayInt": [
+        1,
+        2
+      ],
+      "arrayString": [
+        "someVal",
+        "someVal2"
+      ],
+      "arrayBool": [
+        true,
+        true
       ],
       "object": {
-        "nestedString": "someVal"
+        "nestedString": "someVal",
+        "nestedInt": 123,
+        "nestedBool": true
       }
     },
     "$fxv#3": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Donec laoreet sem tortor, ut dignissim ipsum ornare vel.\n  Duis ac ipsum turpis.\n\tMaecenas at condimentum dui.\n Suspendisse aliquet efficitur iaculis.\nIn hac habitasse platea dictumst.\nEtiam consectetur ut libero ac lobortis.\n\tNullam vitae auctor massa.\nFusce tincidunt urna purus, sit amet.\n",
@@ -124,7 +135,19 @@
     "testJsonNestedString2_2": "[variables('$fxv#21')]",
     "testJsonTokensAsArray": "[variables('$fxv#22')]",
     "testYaml": "[variables('$fxv#23')]",
-    "testYamlString": "[variables('testYaml').string]"
+    "testYamlString": "[variables('testYaml').string]",
+    "testYamlInt": "[variables('testYaml').int]",
+    "testYamlBool": "[variables('testYaml').bool]",
+    "testYamlArrayInt": "[variables('testYaml').arrayInt]",
+    "testYamlArrayIntVal": "[variables('testYaml').arrayInt[0]]",
+    "testYamlArrayString": "[variables('testYaml').arrayString]",
+    "testYamlArrayStringVal": "[variables('testYaml').arrayString[0]]",
+    "testYamlArrayBool": "[variables('testYaml').arrayBool]",
+    "testYamlArrayBoolVal": "[variables('testYaml').arrayBool[0]]",
+    "testYamlObject": "[variables('testYaml').object]",
+    "testYamlObjectNestedString": "[variables('testYaml').object.nestedString]",
+    "testYamlObjectNestedInt": "[variables('testYaml').object.nestedInt]",
+    "testYamlObjectNestedBool": "[variables('testYaml').object.nestedBool]"
   },
   "resources": [
     {
@@ -193,5 +216,59 @@
         }
       }
     }
-  ]
+  ],
+  "outputs": {
+    "testYamlString": {
+      "type": "string",
+      "value": "[variables('testYamlString')]"
+    },
+    "testYamlInt": {
+      "type": "int",
+      "value": "[variables('testYamlInt')]"
+    },
+    "testYamlBool": {
+      "type": "bool",
+      "value": "[variables('testYamlBool')]"
+    },
+    "testYamlArrayInt": {
+      "type": "array",
+      "value": "[variables('testYamlArrayInt')]"
+    },
+    "testYamlArrayIntVal": {
+      "type": "int",
+      "value": "[variables('testYamlArrayIntVal')]"
+    },
+    "testYamlArrayString": {
+      "type": "array",
+      "value": "[variables('testYamlArrayString')]"
+    },
+    "testYamlArrayStringVal": {
+      "type": "string",
+      "value": "[variables('testYamlArrayStringVal')]"
+    },
+    "testYamlArrayBool": {
+      "type": "array",
+      "value": "[variables('testYamlArrayBool')]"
+    },
+    "testYamlArrayBoolVal": {
+      "type": "bool",
+      "value": "[variables('testYamlArrayBoolVal')]"
+    },
+    "testYamlObject": {
+      "type": "object",
+      "value": "[variables('testYamlObject')]"
+    },
+    "testYamlObjectNestedString": {
+      "type": "string",
+      "value": "[variables('testYamlObjectNestedString')]"
+    },
+    "testYamlObjectNestedInt": {
+      "type": "int",
+      "value": "[variables('testYamlObjectNestedInt')]"
+    },
+    "testYamlObjectNestedBool": {
+      "type": "bool",
+      "value": "[variables('testYamlObjectNestedBool')]"
+    }
+  }
 }

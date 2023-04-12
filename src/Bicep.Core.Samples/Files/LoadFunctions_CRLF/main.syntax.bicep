@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[000:5161) ProgramSyntax
+//@[000:5162) ProgramSyntax
 //@[000:0061) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0015) | ├─IdentifierSyntax
@@ -1199,13 +1199,13 @@ var testYamlObject = testYaml.object
 //@[030:0036) |   └─IdentifierSyntax
 //@[030:0036) |     └─Token(Identifier) |object|
 //@[036:0038) ├─Token(NewLine) |\r\n|
-var testYamlObjectNestedString = testYaml.object.nestedStrin
-//@[000:0060) ├─VariableDeclarationSyntax
+var testYamlObjectNestedString = testYaml.object.nestedString
+//@[000:0061) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0030) | ├─IdentifierSyntax
 //@[004:0030) | | └─Token(Identifier) |testYamlObjectNestedString|
 //@[031:0032) | ├─Token(Assignment) |=|
-//@[033:0060) | └─PropertyAccessSyntax
+//@[033:0061) | └─PropertyAccessSyntax
 //@[033:0048) |   ├─PropertyAccessSyntax
 //@[033:0041) |   | ├─VariableAccessSyntax
 //@[033:0041) |   | | └─IdentifierSyntax
@@ -1214,9 +1214,9 @@ var testYamlObjectNestedString = testYaml.object.nestedStrin
 //@[042:0048) |   | └─IdentifierSyntax
 //@[042:0048) |   |   └─Token(Identifier) |object|
 //@[048:0049) |   ├─Token(Dot) |.|
-//@[049:0060) |   └─IdentifierSyntax
-//@[049:0060) |     └─Token(Identifier) |nestedStrin|
-//@[060:0062) ├─Token(NewLine) |\r\n|
+//@[049:0061) |   └─IdentifierSyntax
+//@[049:0061) |     └─Token(Identifier) |nestedString|
+//@[061:0063) ├─Token(NewLine) |\r\n|
 var testYamlObjectNestedInt = testYaml.object.nestedInt
 //@[000:0055) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|

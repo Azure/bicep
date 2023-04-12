@@ -717,7 +717,7 @@ var testYamlObject = testYaml.object
 //@[029:030) Dot |.|
 //@[030:036) Identifier |object|
 //@[036:038) NewLine |\r\n|
-var testYamlObjectNestedString = testYaml.object.nestedStrin
+var testYamlObjectNestedString = testYaml.object.nestedString
 //@[000:003) Identifier |var|
 //@[004:030) Identifier |testYamlObjectNestedString|
 //@[031:032) Assignment |=|
@@ -725,8 +725,8 @@ var testYamlObjectNestedString = testYaml.object.nestedStrin
 //@[041:042) Dot |.|
 //@[042:048) Identifier |object|
 //@[048:049) Dot |.|
-//@[049:060) Identifier |nestedStrin|
-//@[060:062) NewLine |\r\n|
+//@[049:061) Identifier |nestedString|
+//@[061:063) NewLine |\r\n|
 var testYamlObjectNestedInt = testYaml.object.nestedInt
 //@[000:003) Identifier |var|
 //@[004:027) Identifier |testYamlObjectNestedInt|

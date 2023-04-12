@@ -100,7 +100,7 @@ var testYamlArrayStringVal = testYaml.arrayString[0]
 var testYamlArrayBool = testYaml.arrayBool
 var testYamlArrayBoolVal = testYaml.arrayBool[0]
 var testYamlObject = testYaml.object
-var testYamlObjectNestedString = testYaml.object.nestedStrin
+var testYamlObjectNestedString = testYaml.object.nestedString
 var testYamlObjectNestedInt = testYaml.object.nestedInt
 var testYamlObjectNestedBool = testYaml.object.nestedBool
 
