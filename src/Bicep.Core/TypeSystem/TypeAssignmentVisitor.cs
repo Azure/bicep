@@ -803,12 +803,18 @@ namespace Bicep.Core.TypeSystem
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
-                diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
+                ErrorTrackingDiagnosticWriterDecorator diagnosticWriter = new(diagnostics);
+                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnosticWriter);
 
                 base.VisitOutputDeclarationSyntax(syntax);
 
-                return declaredType;
+                return NarrowOutputDeclarationType(diagnosticWriter, declaredType, syntax) switch
+                {
+                    // If the type narrowed to 'any' or an error-level diagnostic was encountered, fall back to the declared type (which will be enforced at deploy time)
+                    AnyType => declaredType,
+                    _ when diagnosticWriter.HasErrors => declaredType,
+                    TypeSymbol narrowed => narrowed,
+                };
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -1828,29 +1834,20 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<IDiagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
+        private TypeSymbol NarrowOutputDeclarationType(IDiagnosticWriter diagnosticWriter, TypeSymbol declaredType, OutputDeclarationSyntax syntax)
         {
             var valueType = typeManager.GetTypeInfo(syntax.Value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
-            var diagnostics = new List<IDiagnostic>();
-            diagnostics.AddRange(valueType.GetDiagnostics());
+            diagnosticWriter.WriteMultiple(valueType.GetDiagnostics());
 
             // Avoid reporting an additional error if we failed to bind the output type.
-            if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false && valueType is not ErrorType && assignedType is not ErrorType)
+            if (valueType is not ErrorType && declaredType is not ErrorType)
             {
-                var builder = DiagnosticBuilder.ForPosition(syntax.Value);
-                if (TypeHelper.WouldBeAssignableIfNonNullable(valueType, assignedType, out var nonNullableValueType))
-                {
-                    diagnostics.Add(builder.PossibleNullReferenceAssignment(assignedType, valueType, syntax.Value));
-                }
-                else
-                {
-                    return builder.OutputTypeMismatch(assignedType, valueType).AsEnumerable();
-                }
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, syntax.Value, declaredType);
             }
 
-            return diagnostics;
+            return declaredType;
         }
 
         private IEnumerable<IDiagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)

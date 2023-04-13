@@ -4576,5 +4576,43 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/discussions/10354
+        [TestMethod]
+        public void Test_Issue10354()
+        {
+            var result = CompilationHelper.Compile(
+("main.bicep", @"
+module name 'name.bicep' = {
+  name: 'create-a-name'
+}
+
+module storage 'storage.bicep' = {
+  name: 'create-storage'
+  params: {
+    storageAccountName: name.outputs.name
+  }
+}
+
+module storage2 'storage.bicep' = {
+  name: 'create-another-storage'
+  params: {
+    storageAccountName: storage.outputs.name
+  }
+}
+"),
+("name.bicep", @"
+output name string = 'somestring'
+"),
+("storage.bicep", @"
+@minLength(3)
+@maxLength(24)
+param storageAccountName string
+
+output name string = storageAccountName
+"));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
     }
 }

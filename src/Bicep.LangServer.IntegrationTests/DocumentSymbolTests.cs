@@ -87,7 +87,7 @@ output myOutput string = 'myOutput'
                     x.DocumentSymbol!.Name.Should().Be("myOutput");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Interface);
                     x.DocumentSymbol.Children.Should().BeEmpty();
-                    x.DocumentSymbol.Detail.Should().Be("string");
+                    x.DocumentSymbol.Detail.Should().Be("'myOutput'");
                 }
             );
 
