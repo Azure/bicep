@@ -38,7 +38,14 @@ namespace Bicep.Core.UnitTests.Semantics
               ],
               //comment
               "object": {
-                "nestedString": "someVal"
+                "nestedString": "someVal",
+                "nestedObject": {
+                  "nestedInt": 1
+                },
+                "nestedArray": [
+                  1,
+                  2
+                ]
               }
             }
             """;
@@ -86,7 +93,12 @@ namespace Bicep.Core.UnitTests.Semantics
                 //comment
                 #comment
                 object: #more comments
-                    nestedString: someVal";
+                    nestedString: someVal
+                    nestedObject:
+                        nestedInt: 1
+                    nestedArray:
+                    - 1
+                    - 2";
 
             CompareSimpleJSON(yml);
         }
@@ -104,7 +116,7 @@ namespace Bicep.Core.UnitTests.Semantics
 
             var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
             var correctList = new List<int> { 1, 2 };
-            var correctObject = new Dictionary<string, string> { { "nestedString", "someVal" } };
+            var correctObject = new Dictionary<string, int> { { "nestedInt", 1},  };
 
             Assert.AreEqual("someVal", jToken["string"]);
             Assert.AreEqual(123, jToken["int"]);
@@ -113,13 +125,15 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual(1, jToken["array"]![0]);
             Assert.AreEqual(2, jToken["array"]![1]);
 
-            CollectionAssert.AreEqual(correctObject, jToken["object"]?.ToObject<Dictionary<string, string>>());
+            CollectionAssert.AreEqual(correctObject, jToken["object"]?["nestedObject"]?.ToObject<Dictionary<string, int>>());
             Assert.AreEqual("someVal", jToken["object"]?["nestedString"]);
 
             Assert.AreEqual(1, jToken["object"]?["nestedObject"]?["nestedInt"]);
+            Assert.AreEqual(1, jToken["object"]?["nestedArray"]![0]);
+            Assert.AreEqual(2, jToken["object"]?["nestedArray"]![1]);
         }
 
-        private void areJTokensEqual(JToken jTokenNew, JToken jTokenOld)
+        private void AreJTokensEqual(JToken jTokenNew, JToken jTokenOld)
         {
             foreach (var child in jTokenNew.AsJEnumerable())
             {
@@ -130,11 +144,11 @@ namespace Bicep.Core.UnitTests.Semantics
                     case JArray:
                         for (var x = 0; x < jTokenNewChildPath.AsArray().Length; x++)
                         {
-                            areJTokensEqual(jTokenNewChildPath![x]!, jTokenOldChildPath![x]!);
+                            AreJTokensEqual(jTokenNewChildPath![x]!, jTokenOldChildPath![x]!);
                         }
                         break;
                     case JObject:
-                        areJTokensEqual(jTokenNewChildPath, jTokenOldChildPath!);
+                        AreJTokensEqual(jTokenNewChildPath, jTokenOldChildPath!);
                         break;
                     default:
                         Assert.AreEqual(jTokenNewChildPath, jTokenOldChildPath);
@@ -158,7 +172,7 @@ namespace Bicep.Core.UnitTests.Semantics
             new JTokenEqualityComparer().Equals(jTokenNew, jTokenOld);
             Assert.AreEqual(jTokenNew["value"], jTokenOld["value"]);
             Assert.AreEqual(jTokenNew["documentation"]?["value"], jTokenOld["documentation"]?["value"]);
-            areJTokensEqual(jTokenNew, jTokenOld);
+            AreJTokensEqual(jTokenNew, jTokenOld);
 
         }
 

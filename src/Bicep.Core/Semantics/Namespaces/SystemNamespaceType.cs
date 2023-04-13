@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -1209,50 +1210,75 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static void CastPrimiteTypes(JToken jtoken)
         {
-            foreach (var child in jtoken.AsJEnumerable())
+            if (jtoken.AsJEnumerable().Count() == 0)
             {
-                switch (jtoken[child.Path])
+                CastJToken(jtoken);
+            }
+            else if (jtoken is JArray jArray1)
+            {
+                /* for (int i = 0; i < jArray1.Count; i++)
+                 {
+                     CastPrimiteTypes(jArray1[i]);
+                 }*/
+                CastArray(jArray1);
+            }
+            else
+            {
+                foreach (var child in jtoken.AsJEnumerable())
                 {
-                    case JArray jArray:
+                    if (!CastJToken(child))
+                    {
+                        switch (jtoken[child.Path])
                         {
-                            for (int i = 0; i < jArray.Count; i++)
-                            {
-                                CastPrimiteTypes(jtoken);
-                            }
-                            break;
-                        }
-                    case JObject jObject:
-                        {
-                            foreach (var item in jObject)
-                            {
-                                if ((item.Value as JValue) != null)
+                            case JArray jArray2:
                                 {
-                                    CastPrimiteTypes(jtoken);
+                                    /*   for (int i = 0; i < jArray2.Count; i++)
+                                       {
+                                           CastPrimiteTypes(jArray2[i]);
+                                       }*/
+                                    CastArray(jArray2);
+                                    break;
                                 }
-                                else
+                            case JObject jObject:
                                 {
-                                    CastPrimiteTypes(item.Value!);
+                                    foreach (var item in jObject)
+                                    {
+                                        CastPrimiteTypes(item.Value!);
+                                    }
+                                    break;
                                 }
-                            }
-                            break;
+                            default:
+                                CastJToken(jtoken, child); //nestedInt is not getting typed either
+                                break;
                         }
-                    default:
-                        CastJToken(jtoken, child);
-                        break;
+                    }
+
                 }
             }
+
         }
 
-        private static void CastJToken(JToken jtoken, JToken? child = null)
+        private static bool CastJToken(JToken jtoken, JToken? child = null)
         {
-            var token = child != null ? jtoken[child.Path] : jtoken as JValue;
+            var token = child != null ? jtoken[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path] : jtoken as JValue;
             if (bool.TryParse((string?)token, out bool boolean))
             {
                 token.Replace(boolean);
+                return true;
             }
             else if (long.TryParse((string?)token, out long num))
             {
                 token.Replace(num);
+                return true;
+            }
+            return false;
+        }
+
+        private static void CastArray(JArray jArray)
+        {
+            for (int i = 0; i < jArray.Count; i++)
+            {
+                CastPrimiteTypes(jArray[i]);
             }
 
         }
@@ -1266,7 +1292,6 @@ namespace Bicep.Core.Semantics.Namespaces
             JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));
             CastPrimiteTypes(jToken);
             return jToken;
-            /*return JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
