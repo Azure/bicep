@@ -203,7 +203,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            return new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, typeString.ToLowerInvariant())));
+            return new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken(typeString.ToLowerInvariant())));
         }
 
         private string? TryLookupResource(LanguageExpression expression)
@@ -292,14 +292,14 @@ namespace Bicep.Decompiler
 
                 var binaryOperation = new BinaryOperationSyntax(
                     ParseLanguageExpression(leftParameter),
-                    SyntaxFactory.CreateToken(binaryTokenType, Operators.BinaryOperatorToText[binaryOperator]),
+                    SyntaxFactory.CreateToken(binaryTokenType),
                     ParseLanguageExpression(rightParameter));
 
                 foreach (var parameter in expression.Parameters.Skip(2))
                 {
                     binaryOperation = new BinaryOperationSyntax(
                         binaryOperation,
-                        SyntaxFactory.CreateToken(binaryTokenType, Operators.BinaryOperatorToText[binaryOperator]),
+                        SyntaxFactory.CreateToken(binaryTokenType),
                         ParseLanguageExpression(parameter));
                 }
 
@@ -884,7 +884,7 @@ namespace Bicep.Decompiler
             List<SyntaxBase> leadingNodes = new();
             return new MetadataDeclarationSyntax(
                 leadingNodes,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "metadata"),
+                SyntaxFactory.CreateIdentifierToken("metadata"),
                 SyntaxFactory.CreateIdentifier(value.Name),
                 SyntaxFactory.AssignmentToken,
                 ParseJToken(value.Value)
@@ -918,12 +918,12 @@ namespace Bicep.Decompiler
             switch (typeSyntax.Name.IdentifierName)
             {
                 case "securestring":
-                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "string")));
+                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string")));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "secureobject":
-                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "object")));
+                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("object")));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
@@ -946,7 +946,7 @@ namespace Bicep.Decompiler
 
             return new ParameterDeclarationSyntax(
                 leadingNodes,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "param"),
+                SyntaxFactory.CreateIdentifierToken("param"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 typeSyntax,
                 modifier);
@@ -975,7 +975,7 @@ namespace Bicep.Decompiler
             }
 
             return new VariableDeclarationSyntax(
-                SyntaxFactory.CreateToken(TokenType.Identifier, "var"),
+                SyntaxFactory.CreateIdentifierToken("var"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 SyntaxFactory.AssignmentToken,
                 variableValue);
@@ -1215,7 +1215,7 @@ namespace Bicep.Decompiler
             }
 
             return new IfConditionSyntax(
-                SyntaxFactory.CreateToken(TokenType.Identifier, "if"),
+                SyntaxFactory.CreateIdentifierToken("if"),
                 conditionExpression,
                 body);
         }
@@ -1393,7 +1393,7 @@ namespace Bicep.Decompiler
 
                 return new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
-                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
+                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ModuleKeyword),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
@@ -1430,7 +1430,7 @@ namespace Bicep.Decompiler
                 }
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
-                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
+                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ModuleKeyword),
                     SyntaxFactory.CreateIdentifier(identifier),
                     modulePath,
                     SyntaxFactory.AssignmentToken,
@@ -1540,7 +1540,7 @@ namespace Bicep.Decompiler
 
             return new ResourceDeclarationSyntax(
                 decoratorsAndNewLines,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "resource"),
+                SyntaxFactory.CreateIdentifierToken("resource"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 SyntaxFactory.CreateStringLiteral($"{typeString}@{apiVersionString}"),
                 null,
@@ -1652,7 +1652,7 @@ namespace Bicep.Decompiler
 
             return new OutputDeclarationSyntax(
                 decoratorsAndNewLines,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "output"),
+                SyntaxFactory.CreateIdentifierToken("output"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 typeSyntax,
                 SyntaxFactory.AssignmentToken,
@@ -1671,17 +1671,17 @@ namespace Bicep.Decompiler
             {
                 case "/schemas/2019-08-01/tenantDeploymentTemplate.json":
                     return new TargetScopeSyntax(
-                        SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
+                        SyntaxFactory.CreateIdentifierToken("targetScope"),
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("tenant"));
                 case "/schemas/2019-08-01/managementGroupDeploymentTemplate.json":
                     return new TargetScopeSyntax(
-                        SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
+                        SyntaxFactory.CreateIdentifierToken("targetScope"),
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("managementGroup"));
                 case "/schemas/2018-05-01/subscriptionDeploymentTemplate.json":
                     return new TargetScopeSyntax(
-                        SyntaxFactory.CreateToken(TokenType.Identifier, "targetScope"),
+                        SyntaxFactory.CreateIdentifierToken("targetScope"),
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
                 case "/schemas/2014-04-01-preview/deploymentTemplate.json":
@@ -1796,7 +1796,7 @@ namespace Bicep.Decompiler
 
             return new ProgramSyntax(
                 statements.SelectMany(x => new[] { x, SyntaxFactory.NewlineToken }),
-                SyntaxFactory.CreateToken(TokenType.EndOfFile, ""));
+                SyntaxFactory.CreateToken(TokenType.EndOfFile));
         }
 
         private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables)

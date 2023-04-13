@@ -21,12 +21,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
-        public void AllBinaryOperatorsShouldHaveValidText()
-        {
-            RunTextTest(Operators.BinaryOperatorToText);
-        }
-
-        [TestMethod]
         public void AllUnaryOperatorsShouldMapToTokens()
         {
             RunTokenTest(Operators.TokenTypeToUnaryOperator);
