@@ -1208,62 +1208,28 @@ namespace Bicep.Core.Semantics.Namespaces
             return fileContent.TryFromJson<JToken>();
         }
 
-        public static void CastPrimiteTypes(JToken jtoken)
-        {
-            if (!jtoken.AsJEnumerable().Any() || jtoken is JArray || jtoken is JObject)
-            {
-                CastJToken(jtoken);
-            }
-            else
-            {
-                foreach (var child in from child in jtoken.AsJEnumerable()
-                                      where !CastJToken(child)
-                                      select child)
-                {
-                    switch (jtoken[child.Path])
-                    {
-                        case JArray jArray2:
-                            {
-                                CastArray(jArray2);
-                                break;
-                            }
-                        case JObject jObject2:
-                            {
-                                CastObject(jObject2);
-                                break;
-                            }
-                        default:
-                            CastJToken(jtoken, child);
-                            break;
-                    }
-                }
-            }
-        }
-
-        private static bool CastJToken(JToken jtoken, JToken? child = null)
+        private static void CastPrimiteTypes(JToken jtoken)
         {
             switch (jtoken)
             {
                 case JArray jArray:
                     CastArray(jArray);
-                    return true;
+                    break;
                 case JObject jObject:
                     CastObject(jObject);
-                    return true;
+                    break;
                 default:
                     {
-                        var token = child != null ? jtoken[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path] : jtoken as JValue;
+                        var token = jtoken as JValue;
                         if (bool.TryParse((string?)token, out bool boolean))
                         {
                             token.Replace(boolean);
-                            return true;
                         }
                         else if (long.TryParse((string?)token, out long num))
                         {
                             token.Replace(num);
-                            return true;
                         }
-                        return false;
+                        break;
                     }
             }
         }

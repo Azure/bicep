@@ -108,15 +108,13 @@ namespace Bicep.Core.UnitTests.Semantics
         {
             var json = SIMPLE_JSON;
             CompareSimpleJSON(json);
-
         }
 
         private static void CompareSimpleJSON(string json)
         {
-
             var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
             var correctList = new List<int> { 1, 2 };
-            var correctObject = new Dictionary<string, int> { { "nestedInt", 1},  };
+            var correctObject = new Dictionary<string, int> { { "nestedInt", 1 }, };
 
             Assert.AreEqual("someVal", jToken["string"]);
             Assert.AreEqual(123, jToken["int"]);
@@ -173,7 +171,6 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual(jTokenNew["value"], jTokenOld["value"]);
             Assert.AreEqual(jTokenNew["documentation"]?["value"], jTokenOld["documentation"]?["value"]);
             AreJTokensEqual(jTokenNew, jTokenOld);
-
         }
 
         [TestMethod]
@@ -183,7 +180,6 @@ namespace Bicep.Core.UnitTests.Semantics
             var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
             var expectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
             Assert.AreEqual(expectedValue, jToken["documentation"]?["value"]);
-
         }
 
 
@@ -191,15 +187,12 @@ namespace Bicep.Core.UnitTests.Semantics
         public void Complex_JSON_gets_deserialized_into_JSON_by_old_method()
         {
             var json = COMPLEX_JSON;
-
 #pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
             var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
 #pragma warning restore CS0618
 
             var exptectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
-
             Assert.AreEqual(exptectedValue, jTokenOld["documentation"]?["value"]);
-
         }
 
         [TestMethod]
@@ -222,8 +215,6 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual("George Washington", jToken["name"]);
             Assert.AreEqual(89, jToken["age"]);
             Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
-
-
         }
     }
 
