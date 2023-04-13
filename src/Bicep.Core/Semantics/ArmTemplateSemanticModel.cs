@@ -395,7 +395,7 @@ namespace Bicep.Core.Semantics
         {
             return output.Type?.Value switch
             {
-                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(resolved.Metadata?.Value, out var resourceType) =>
+                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(output.Metadata?.Value, out var resourceType) =>
                     resourceType,
 
                 _ => GetType((ITemplateSchemaNode)output),
