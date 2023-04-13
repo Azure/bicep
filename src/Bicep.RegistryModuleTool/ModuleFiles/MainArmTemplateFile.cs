@@ -145,16 +145,3 @@ var outputs = this.armTemplate.Outputs.ToImmutableDictionaryExcludingNullValues(
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }
-
-class MyEqualityComparer : IEqualityComparer<string>
-{
-    public bool Equals(string? x, string? y)
-    {
-        return x == y;
-    }
-
-    public int GetHashCode(string obj)
-    {
-        return obj.GetHashCode();
-    }
-}
