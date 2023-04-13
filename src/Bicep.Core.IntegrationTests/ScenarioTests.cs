@@ -4581,8 +4581,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
         [TestMethod]
         public void Test_Issue10398()
         {
-            var result = CompilationHelper.Compile(
-("main.bicep", @"
+            var main = @"
 module mod1 'module1.bicep' = {
   name: 'example-mod1'
 }
@@ -4593,16 +4592,27 @@ module mod2 'module2.bicep' = {
     name: mod1.outputs.name
   }
 }
-"),
-("module1.bicep", @"
-@minLength(3)
-@maxLength(24)
-output name string = uniqueString(resourceGroup().name)
-"),
-("module2.bicep", @"
+";
+
+            var mod2 = @"
 @minLength(3)
 @maxLength(24)
 param name string
+";
+
+            var result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"output name string = uniqueString(resourceGroup().name)"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP334", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 3."),
+                ("BCP335", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 24."),
+            });
+
+            // if the output of module1 has length restrictions added, the above warnings should be cleared
+            result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"
+@minLength(3)
+@maxLength(24)
+output name string = uniqueString(resourceGroup().name)
 "));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
