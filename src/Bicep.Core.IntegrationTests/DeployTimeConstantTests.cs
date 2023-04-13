@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,6 +14,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class DeployTimeConstantTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         private static string GetDtcValidationResourceBaseline()
         {
             return @"
@@ -45,7 +48,9 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
         [TestMethod]
         public void DtcValidation_EntireResourceOrModuleAccessAtInvalidLocations_ProducesDiagnostics()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), @"
+param ident resource 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'
+
 var foo = [for x in [
   dnsZone
   storageAccounts[0]
@@ -115,6 +120,14 @@ resource diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'  = {
   name: 'diag'
   scope: vnet::subnet1
 }
+
+resource assignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: ident.properties.principalId
+  properties: {
+    roleDefinitionId: 'a'
+    principalId: 'a'
+  }
+}
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
@@ -127,6 +140,7 @@ resource diag 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview'  = {
                 ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""name"" property of the ""Microsoft.Network/virtualNetworks/subnets"" type, which requires a value that can be calculated at the start of the deployment. Properties of appPlan which can be calculated at the start include ""apiVersion"", ""id"", ""name"", ""type""."),
                 ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""parent"" property of the ""Microsoft.Network/virtualNetworks/subnets"" type, which requires a value that can be calculated at the start of the deployment. Properties of vnet which can be calculated at the start include ""apiVersion"", ""id"", ""type""."),
                 ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""scope"" property of the ""Microsoft.Insights/diagnosticSettings"" type, which requires a value that can be calculated at the start of the deployment. Properties of subnet1 which can be calculated at the start include ""apiVersion"", ""id"", ""type""."),
+                ("BCP120", DiagnosticLevel.Error, @"This expression is being used in an assignment to the ""name"" property of the ""Microsoft.Authorization/roleAssignments"" type, which requires a value that can be calculated at the start of the deployment. Properties of ident which can be calculated at the start include ""apiVersion"", ""id"", ""name"", ""type""."),
             });
         }
 
