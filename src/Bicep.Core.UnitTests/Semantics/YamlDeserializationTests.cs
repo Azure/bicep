@@ -211,9 +211,11 @@ namespace Bicep.Core.UnitTests.Semantics
                  height_in_inches: 5.75
                  addresses:
                    home:
-                     street: 400 Mockingbird Lane
+                     street:
+                        house_number: 400
+                        street_name: Mockingbird Lane
                      city: Louaryland
-                     state: Hawidaho #if //comment then, {[state, Hawidaho //comment]}
+                     state: Hawidaho
                      zip: 99970";
 
             var jToken = SystemNamespaceType.ExtractTokenFromObject(yml);

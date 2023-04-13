@@ -1210,52 +1210,48 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static void CastPrimiteTypes(JToken jtoken)
         {
-            if (jtoken.AsJEnumerable().Count() == 0)
+            if (!jtoken.AsJEnumerable().Any())
             {
                 CastJToken(jtoken);
             }
-            else if (jtoken is JArray jArray1)
-            {
-                /* for (int i = 0; i < jArray1.Count; i++)
-                 {
-                     CastPrimiteTypes(jArray1[i]);
-                 }*/
-                CastArray(jArray1);
-            }
             else
             {
-                foreach (var child in jtoken.AsJEnumerable())
+                switch (jtoken)
                 {
-                    if (!CastJToken(child))
-                    {
-                        switch (jtoken[child.Path])
+                    case JArray jArray1:
+                        CastArray(jArray1);
+                        break;
+                    case JObject jObject1:
+                        CastObject(jObject1);
+                        break;
+                    default:
                         {
-                            case JArray jArray2:
+                            foreach (var child in jtoken.AsJEnumerable())
+                            {
+                                if (!CastJToken(child))
                                 {
-                                    /*   for (int i = 0; i < jArray2.Count; i++)
-                                       {
-                                           CastPrimiteTypes(jArray2[i]);
-                                       }*/
-                                    CastArray(jArray2);
-                                    break;
-                                }
-                            case JObject jObject:
-                                {
-                                    foreach (var item in jObject)
+                                    switch (jtoken[child.Path])
                                     {
-                                        CastPrimiteTypes(item.Value!);
+                                        case JArray jArray2:
+                                            {
+                                                CastArray(jArray2);
+                                                break;
+                                            }
+                                        case JObject jObject2:
+                                            {
+                                                CastObject(jObject2);
+                                                break;
+                                            }
+                                        default:
+                                            CastJToken(jtoken, child);
+                                            break;
                                     }
-                                    break;
                                 }
-                            default:
-                                CastJToken(jtoken, child); //nestedInt is not getting typed either
-                                break;
+                            }
+                            break;
                         }
-                    }
-
                 }
             }
-
         }
 
         private static bool CastJToken(JToken jtoken, JToken? child = null)
@@ -1279,6 +1275,15 @@ namespace Bicep.Core.Semantics.Namespaces
             for (int i = 0; i < jArray.Count; i++)
             {
                 CastPrimiteTypes(jArray[i]);
+            }
+
+        }
+
+        private static void CastObject(JObject jObject)
+        {
+            foreach (var item in jObject)
+            {
+                CastPrimiteTypes(item.Value!);
             }
 
         }
