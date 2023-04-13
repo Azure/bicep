@@ -56,7 +56,7 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 
 output managementGroupIds array = [for i in range(0, length(managementGroups)): {
 //@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
-//@[07:25) Output managementGroupIds. Type: array. Declaration start char: 0, length: 172
+//@[07:25) Output managementGroupIds. Type: object[]. Declaration start char: 0, length: 172
   name: yetAnotherSet[i].name
   displayName: yetAnotherSet[i].properties.displayName
 }]

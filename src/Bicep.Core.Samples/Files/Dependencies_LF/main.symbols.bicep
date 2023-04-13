@@ -22,7 +22,7 @@ var resourceDependency = {
 }
 
 output resourceAType string = resA.type
-//@[7:20) Output resourceAType. Type: string. Declaration start char: 0, length: 39
+//@[7:20) Output resourceAType. Type: 'My.Rp/myResourceType'. Declaration start char: 0, length: 39
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 134
   name: 'resA'

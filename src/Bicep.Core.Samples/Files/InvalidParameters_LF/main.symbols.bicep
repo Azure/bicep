@@ -222,7 +222,7 @@ resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
   name: 'foo'
 }
 output sampleOutput string = 'hello'
-//@[07:019) Output sampleOutput. Type: string. Declaration start char: 0, length: 36
+//@[07:019) Output sampleOutput. Type: 'hello'. Declaration start char: 0, length: 36
 
 param paramAccessingVar string = concat(sampleVar, 's')
 //@[06:023) Parameter paramAccessingVar. Type: string. Declaration start char: 0, length: 55

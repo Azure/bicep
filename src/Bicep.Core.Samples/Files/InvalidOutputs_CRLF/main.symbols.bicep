@@ -153,14 +153,14 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[07:13) Output deeper. Type: bool. Declaration start char: 0, length: 52
 
 output myOutput string = 'hello'
-//@[07:15) Output myOutput. Type: string. Declaration start char: 0, length: 32
+//@[07:15) Output myOutput. Type: 'hello'. Declaration start char: 0, length: 32
 var attemptToReferenceAnOutput = myOutput
 //@[04:30) Variable attemptToReferenceAnOutput. Type: error. Declaration start char: 0, length: 41
 
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
-//@[07:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 73
+//@[07:30) Output notAttachableDecorators. Type: 32. Declaration start char: 0, length: 73
 
 // nested loops inside output loops are not supported
 output noNestedLoops array = [for thing in things: {
@@ -202,11 +202,11 @@ output keyVaultSecretObjectOutput object = {
   secret: kv.getSecret('mySecret')
 }
 output keyVaultSecretArrayOutput array = [
-//@[07:32) Output keyVaultSecretArrayOutput. Type: array. Declaration start char: 0, length: 73
+//@[07:32) Output keyVaultSecretArrayOutput. Type: [string]. Declaration start char: 0, length: 73
   kv.getSecret('mySecret')
 ]
 output keyVaultSecretArrayInterpolatedOutput array = [
-//@[07:44) Output keyVaultSecretArrayInterpolatedOutput. Type: array. Declaration start char: 0, length: 90
+//@[07:44) Output keyVaultSecretArrayInterpolatedOutput. Type: [string]. Declaration start char: 0, length: 90
   '${kv.getSecret('mySecret')}'
 ]
 

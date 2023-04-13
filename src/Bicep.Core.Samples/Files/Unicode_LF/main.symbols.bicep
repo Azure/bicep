@@ -26,7 +26,7 @@ var variousAlphabets = {
 output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[7:27) Output concatUnicodeStrings. Type: string. Declaration start char: 0, length: 61
 output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
-//@[7:32) Output interpolateUnicodeStrings. Type: string. Declaration start char: 0, length: 70
+//@[7:32) Output interpolateUnicodeStrings. Type: 'Θμ二💪😊😈🍕☕头肌🐱‍👤α'. Declaration start char: 0, length: 70
 
 // all of these should produce the same string
 var surrogate_char      = '𐐷'

@@ -141,7 +141,7 @@ output stringOutputB string = modATest.outputs.stringOutputB
 output objOutput object = modATest.outputs.objOutput
 //@[07:16) Output objOutput. Type: object. Declaration start char: 0, length: 52
 output arrayOutput array = modATest.outputs.arrayOutput
-//@[07:18) Output arrayOutput. Type: array. Declaration start char: 0, length: 55
+//@[07:18) Output arrayOutput. Type: string[]. Declaration start char: 0, length: 55
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
 //@[07:30) Output modCalculatedNameOutput. Type: object. Declaration start char: 0, length: 82
 

@@ -96,13 +96,13 @@ output indexedCollectionName string = storageAccounts[index].name
 output indexedCollectionId string = storageAccounts[index].id
 //@[007:026) Output indexedCollectionId. Type: string. Declaration start char: 0, length: 61
 output indexedCollectionType string = storageAccounts[index].type
-//@[007:028) Output indexedCollectionType. Type: string. Declaration start char: 0, length: 65
+//@[007:028) Output indexedCollectionType. Type: 'Microsoft.Storage/storageAccounts'. Declaration start char: 0, length: 65
 output indexedCollectionVersion string = storageAccounts[index].apiVersion
-//@[007:031) Output indexedCollectionVersion. Type: string. Declaration start char: 0, length: 74
+//@[007:031) Output indexedCollectionVersion. Type: '2019-06-01'. Declaration start char: 0, length: 74
 
 // general case property access
 output indexedCollectionIdentity object = storageAccounts[index].identity
-//@[007:032) Output indexedCollectionIdentity. Type: object. Declaration start char: 0, length: 73
+//@[007:032) Output indexedCollectionIdentity. Type: Identity. Declaration start char: 0, length: 73
 
 // indexed access of two properties
 output indexedEndpointPair object = {
@@ -113,7 +113,7 @@ output indexedEndpointPair object = {
 
 // nested indexer?
 output indexViaReference string = storageAccounts[int(storageAccounts[index].properties.creationTime)].properties.accessTier
-//@[007:024) Output indexViaReference. Type: string. Declaration start char: 0, length: 124
+//@[007:024) Output indexViaReference. Type: 'Cool' | 'Hot'. Declaration start char: 0, length: 124
 
 // dependency on a resource collection
 resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, idx) in accounts: {
@@ -318,13 +318,13 @@ output existingIndexedResourceName string = existingStorageAccounts[index * 0].n
 output existingIndexedResourceId string = existingStorageAccounts[index * 1].id
 //@[007:032) Output existingIndexedResourceId. Type: string. Declaration start char: 0, length: 79
 output existingIndexedResourceType string = existingStorageAccounts[index+2].type
-//@[007:034) Output existingIndexedResourceType. Type: string. Declaration start char: 0, length: 81
+//@[007:034) Output existingIndexedResourceType. Type: 'Microsoft.Storage/storageAccounts'. Declaration start char: 0, length: 81
 output existingIndexedResourceApiVersion string = existingStorageAccounts[index-7].apiVersion
-//@[007:040) Output existingIndexedResourceApiVersion. Type: string. Declaration start char: 0, length: 93
+//@[007:040) Output existingIndexedResourceApiVersion. Type: '2019-06-01'. Declaration start char: 0, length: 93
 output existingIndexedResourceLocation string = existingStorageAccounts[index/2].location
 //@[007:038) Output existingIndexedResourceLocation. Type: string. Declaration start char: 0, length: 89
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
-//@[007:040) Output existingIndexedResourceAccessTier. Type: string. Declaration start char: 0, length: 104
+//@[007:040) Output existingIndexedResourceAccessTier. Type: 'Cool' | 'Hot'. Declaration start char: 0, length: 104
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[073:077) Local zone. Type: never. Declaration start char: 73, length: 4

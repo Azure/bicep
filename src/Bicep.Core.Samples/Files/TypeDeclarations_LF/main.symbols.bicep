@@ -94,13 +94,13 @@ var nonNull = mightIncludeNull[0]!.key
 //@[4:11) Variable nonNull. Type: 'value'. Declaration start char: 0, length: 38
 
 output nonNull string = nonNull
-//@[7:14) Output nonNull. Type: string. Declaration start char: 0, length: 31
+//@[7:14) Output nonNull. Type: 'value'. Declaration start char: 0, length: 31
 
 var maybeNull = mightIncludeNull[0].?key
 //@[4:13) Variable maybeNull. Type: 'value' | null. Declaration start char: 0, length: 40
 
 output maybeNull string? = maybeNull
-//@[7:16) Output maybeNull. Type: null | string. Declaration start char: 0, length: 36
+//@[7:16) Output maybeNull. Type: 'value' | null. Declaration start char: 0, length: 36
 
 type nullable = string?
 //@[5:13) TypeAlias nullable. Type: Type<null | string>. Declaration start char: 0, length: 23

@@ -121,20 +121,20 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0,
 
 output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
-//@[07:14) Output stgKeys. Type: array. Declaration start char: 0, length: 77
+//@[07:14) Output stgKeys. Type: string[]. Declaration start char: 0, length: 77
 output stgKeys2 array = map(range(0, 2), j => stg[((j + 2) % 123)].listKeys().keys[0].value)
 //@[41:42) Local j. Type: int. Declaration start char: 41, length: 1
-//@[07:15) Output stgKeys2. Type: array. Declaration start char: 0, length: 92
+//@[07:15) Output stgKeys2. Type: string[]. Declaration start char: 0, length: 92
 output stgKeys3 array = map(ids, id => listKeys(id, stg[0].apiVersion).keys[0].value)
 //@[33:35) Local id. Type: any. Declaration start char: 33, length: 2
 //@[07:15) Output stgKeys3. Type: array. Declaration start char: 0, length: 85
 output accessTiers array = map(range(0, 2), k => stg[k].properties.accessTier)
 //@[44:45) Local k. Type: int. Declaration start char: 44, length: 1
-//@[07:18) Output accessTiers. Type: array. Declaration start char: 0, length: 78
+//@[07:18) Output accessTiers. Type: ('Cool' | 'Hot' | 'Premium')[]. Declaration start char: 0, length: 78
 output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / y].properties.accessTier))
 //@[67:68) Local y. Type: int. Declaration start char: 67, length: 1
 //@[45:46) Local x. Type: int. Declaration start char: 45, length: 1
-//@[07:19) Output accessTiers2. Type: array. Declaration start char: 0, length: 106
+//@[07:19) Output accessTiers2. Type: ('Cool' | 'Hot' | 'Premium')[][]. Declaration start char: 0, length: 106
 output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 //@[37:40) Local foo. Type: any. Declaration start char: 37, length: 3
 //@[07:19) Output accessTiers3. Type: array. Declaration start char: 0, length: 75

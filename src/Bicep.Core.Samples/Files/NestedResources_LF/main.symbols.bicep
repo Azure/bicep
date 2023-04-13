@@ -100,4 +100,4 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
 }
 
 output loopChildOutput string = loopParent::loopChild[0].name
-//@[07:22) Output loopChildOutput. Type: string. Declaration start char: 0, length: 61
+//@[07:22) Output loopChildOutput. Type: 'loopChild'. Declaration start char: 0, length: 61

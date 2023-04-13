@@ -106,7 +106,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
 //@[30:34) Local site. Type: object | object. Declaration start char: 30, length: 4
 //@[36:37) Local i. Type: int. Declaration start char: 36, length: 1
-//@[07:15) Output siteUrls. Type: array. Declaration start char: 0, length: 82
+//@[07:15) Output siteUrls. Type: string[]. Declaration start char: 0, length: 82
 
 module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@[07:22) Module passthroughPort. Type: module. Declaration start char: 0, length: 128

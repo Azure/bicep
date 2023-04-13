@@ -115,7 +115,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
 //@[035:039) Local item. Type: object. Declaration start char: 35, length: 4
-//@[007:021) Output doggoGreetings. Type: array. Declaration start char: 0, length: 68
+//@[007:021) Output doggoGreetings. Type: string[]. Declaration start char: 0, length: 68
 
 resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
 //@[009:019) Resource storageAcc. Type: Microsoft.Storage/storageAccounts@2021-09-01. Declaration start char: 0, length: 100

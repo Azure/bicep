@@ -1,23 +1,23 @@
 
 @sys.description('string output description')
 output myStr string = 'hello'
-//@[07:12) Output myStr. Type: string. Declaration start char: 0, length: 76
+//@[07:12) Output myStr. Type: 'hello'. Declaration start char: 0, length: 76
 
 @sys.description('int output description')
 output myInt int = 7
-//@[07:12) Output myInt. Type: int. Declaration start char: 0, length: 64
+//@[07:12) Output myInt. Type: 7. Declaration start char: 0, length: 64
 output myOtherInt int = 20 / 13 + 80 % -4
-//@[07:17) Output myOtherInt. Type: int. Declaration start char: 0, length: 41
+//@[07:17) Output myOtherInt. Type: 260. Declaration start char: 0, length: 41
 
 @sys.description('bool output description')
 output myBool bool = !false
-//@[07:13) Output myBool. Type: bool. Declaration start char: 0, length: 72
+//@[07:13) Output myBool. Type: true. Declaration start char: 0, length: 72
 output myOtherBool bool = true
-//@[07:18) Output myOtherBool. Type: bool. Declaration start char: 0, length: 30
+//@[07:18) Output myOtherBool. Type: true. Declaration start char: 0, length: 30
 
 @sys.description('object array description')
 output suchEmpty array = [
-//@[07:16) Output suchEmpty. Type: array. Declaration start char: 0, length: 75
+//@[07:16) Output suchEmpty. Type: <empty array>. Declaration start char: 0, length: 75
 ]
 
 output suchEmpty2 object = {
@@ -47,7 +47,7 @@ output obj object = {
 }
 
 output myArr array = [
-//@[07:12) Output myArr. Type: array. Declaration start char: 0, length: 74
+//@[07:12) Output myArr. Type: ['pirates', 'say', 'arr' | 'arr2']. Declaration start char: 0, length: 74
   'pirates'
   'say'
    false ? 'arr2' : 'arr'
@@ -57,7 +57,7 @@ output rgLocation string = resourceGroup().location
 //@[07:17) Output rgLocation. Type: string. Declaration start char: 0, length: 51
 
 output isWestUs bool = resourceGroup().location != 'westus' ? false : true
-//@[07:15) Output isWestUs. Type: bool. Declaration start char: 0, length: 74
+//@[07:15) Output isWestUs. Type: false | true. Declaration start char: 0, length: 74
 
 output expressionBasedIndexer string = {
 //@[07:29) Output expressionBasedIndexer. Type: string. Declaration start char: 0, length: 140
@@ -83,12 +83,12 @@ param paramWithOverlappingOutput string
 //@[06:32) Parameter paramWithOverlappingOutput. Type: string. Declaration start char: 0, length: 39
 
 output varWithOverlappingOutput string = varWithOverlappingOutput
-//@[07:31) Output varWithOverlappingOutput. Type: string. Declaration start char: 0, length: 65
+//@[07:31) Output varWithOverlappingOutput. Type: 'hello'. Declaration start char: 0, length: 65
 output paramWithOverlappingOutput string = paramWithOverlappingOutput
 //@[07:33) Output paramWithOverlappingOutput. Type: string. Declaration start char: 0, length: 69
 
 // top-level output loops are supported
 output generatedArray array = [for i in range(0,10): i]
 //@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
-//@[07:21) Output generatedArray. Type: array. Declaration start char: 0, length: 55
+//@[07:21) Output generatedArray. Type: int[]. Declaration start char: 0, length: 55
 

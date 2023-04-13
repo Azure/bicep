@@ -146,9 +146,9 @@ var _siteType = site.type
 //@[04:013) Variable _siteType. Type: 'Microsoft.Web/sites'. Declaration start char: 0, length: 25
 
 output siteApiVersion string = site.apiVersion
-//@[07:021) Output siteApiVersion. Type: string. Declaration start char: 0, length: 46
+//@[07:021) Output siteApiVersion. Type: '2019-08-01'. Declaration start char: 0, length: 46
 output siteType string = site.type
-//@[07:015) Output siteType. Type: string. Declaration start char: 0, length: 34
+//@[07:015) Output siteType. Type: 'Microsoft.Web/sites'. Declaration start char: 0, length: 34
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[09:015) Resource nested. Type: Microsoft.Resources/deployments@2019-10-01. Declaration start char: 0, length: 354
@@ -491,9 +491,9 @@ resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[07:023) Output p1_subnet1prefix. Type: string. Declaration start char: 0, length: 68
 output p1_subnet1name string = p1_subnet1.name
-//@[07:021) Output p1_subnet1name. Type: string. Declaration start char: 0, length: 46
+//@[07:021) Output p1_subnet1name. Type: 'subnet1'. Declaration start char: 0, length: 46
 output p1_subnet1type string = p1_subnet1.type
-//@[07:021) Output p1_subnet1type. Type: string. Declaration start char: 0, length: 46
+//@[07:021) Output p1_subnet1type. Type: 'Microsoft.Network/virtualNetworks/subnets'. Declaration start char: 0, length: 46
 output p1_subnet1id string = p1_subnet1.id
 //@[07:019) Output p1_subnet1id. Type: string. Declaration start char: 0, length: 42
 
@@ -524,9 +524,9 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 output p2_res2childprop string = p2_res2child.properties.someProp
 //@[07:023) Output p2_res2childprop. Type: string. Declaration start char: 0, length: 65
 output p2_res2childname string = p2_res2child.name
-//@[07:023) Output p2_res2childname. Type: string. Declaration start char: 0, length: 50
+//@[07:023) Output p2_res2childname. Type: 'child2'. Declaration start char: 0, length: 50
 output p2_res2childtype string = p2_res2child.type
-//@[07:023) Output p2_res2childtype. Type: string. Declaration start char: 0, length: 50
+//@[07:023) Output p2_res2childtype. Type: 'Microsoft.Rp2/resource2/child2'. Declaration start char: 0, length: 50
 output p2_res2childid string = p2_res2child.id
 //@[07:021) Output p2_res2childid. Type: string. Declaration start char: 0, length: 46
 
@@ -545,9 +545,9 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 output p3_res1childprop string = p3_child1.properties.someProp
 //@[07:023) Output p3_res1childprop. Type: string. Declaration start char: 0, length: 62
 output p3_res1childname string = p3_child1.name
-//@[07:023) Output p3_res1childname. Type: string. Declaration start char: 0, length: 47
+//@[07:023) Output p3_res1childname. Type: 'child1'. Declaration start char: 0, length: 47
 output p3_res1childtype string = p3_child1.type
-//@[07:023) Output p3_res1childtype. Type: string. Declaration start char: 0, length: 47
+//@[07:023) Output p3_res1childtype. Type: 'Microsoft.Rp1/resource1/child1'. Declaration start char: 0, length: 47
 output p3_res1childid string = p3_child1.id
 //@[07:021) Output p3_res1childid. Type: string. Declaration start char: 0, length: 43
 
@@ -567,9 +567,9 @@ resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
 output p4_res1childprop string = p4_child1.properties.someProp
 //@[07:023) Output p4_res1childprop. Type: string. Declaration start char: 0, length: 62
 output p4_res1childname string = p4_child1.name
-//@[07:023) Output p4_res1childname. Type: string. Declaration start char: 0, length: 47
+//@[07:023) Output p4_res1childname. Type: 'child1'. Declaration start char: 0, length: 47
 output p4_res1childtype string = p4_child1.type
-//@[07:023) Output p4_res1childtype. Type: string. Declaration start char: 0, length: 47
+//@[07:023) Output p4_res1childtype. Type: 'Microsoft.Rp1/resource1/child1'. Declaration start char: 0, length: 47
 output p4_res1childid string = p4_child1.id
 //@[07:021) Output p4_res1childid. Type: string. Declaration start char: 0, length: 43
 
