@@ -1216,27 +1216,25 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             else
             {
-
-                foreach (var child in jtoken.AsJEnumerable())
+                foreach (var child in from child in jtoken.AsJEnumerable()
+                                      where !CastJToken(child)
+                                      select child)
                 {
-                    if (!CastJToken(child))
+                    switch (jtoken[child.Path])
                     {
-                        switch (jtoken[child.Path])
-                        {
-                            case JArray jArray2:
-                                {
-                                    CastArray(jArray2);
-                                    break;
-                                }
-                            case JObject jObject2:
-                                {
-                                    CastObject(jObject2);
-                                    break;
-                                }
-                            default:
-                                CastJToken(jtoken, child);
+                        case JArray jArray2:
+                            {
+                                CastArray(jArray2);
                                 break;
-                        }
+                            }
+                        case JObject jObject2:
+                            {
+                                CastObject(jObject2);
+                                break;
+                            }
+                        default:
+                            CastJToken(jtoken, child);
+                            break;
                     }
                 }
             }
@@ -1244,27 +1242,30 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static bool CastJToken(JToken jtoken, JToken? child = null)
         {
-            if (jtoken is JArray jArray1)
+            switch (jtoken)
             {
-                CastArray(jArray1);
+                case JArray jArray:
+                    CastArray(jArray);
+                    return true;
+                case JObject jObject:
+                    CastObject(jObject);
+                    return true;
+                default:
+                    {
+                        var token = child != null ? jtoken[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path] : jtoken as JValue;
+                        if (bool.TryParse((string?)token, out bool boolean))
+                        {
+                            token.Replace(boolean);
+                            return true;
+                        }
+                        else if (long.TryParse((string?)token, out long num))
+                        {
+                            token.Replace(num);
+                            return true;
+                        }
+                        return false;
+                    }
             }
-            else if (jtoken is JObject jObject1)
-            {
-                CastObject(jObject1);
-            }
-
-            var token = child != null ? jtoken[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path] : jtoken as JValue;
-            if (bool.TryParse((string?)token, out bool boolean))
-            {
-                token.Replace(boolean);
-                return true;
-            }
-            else if (long.TryParse((string?)token, out long num))
-            {
-                token.Replace(num);
-                return true;
-            }
-            return false;
         }
 
         private static void CastArray(JArray jArray)
