@@ -5,8 +5,11 @@ using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Schemas;
+using Json.Pointer;
 using Json.Schema;
 using Microsoft.Extensions.Logging;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -17,9 +20,12 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
     {
         private const string AdditionalPropertiesSchemaLocationSuffix = "/additionalProperties";
 
-        private const string RegexSchemaLocationSuffix = "/pattern";
-
         private readonly ILogger logger;
+
+        static JsonSchemaValidator()
+        {
+            ErrorMessages.Pattern = @"Value does not match the pattern of [[pattern]]";
+        }
 
         public JsonSchemaValidator(ILogger logger)
         {
@@ -34,10 +40,10 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
         {
             this.logger.LogInformation("Validating \"{FilePath}\" against JSON schema...", filePath);
 
-            var results = schema.Validate(element, new ValidationOptions
+            var results = schema.Evaluate(element, new EvaluationOptions
             {
-                OutputFormat = OutputFormat.Basic, // Indicates that all nodes will be listed as children of the top node.
-                ValidateAs = Draft.Draft7
+                OutputFormat = OutputFormat.List, // Indicates that all nodes will be listed as children of the top node.
+                EvaluateAs = SpecVersion.Draft7,
             });
 
             if (!results.IsValid)
@@ -46,8 +52,9 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
                 var errorMessageBuilder = new StringBuilder();
                 errorMessageBuilder.AppendLine($"The file \"{filePath}\" is invalid:");
 
-                // TODO: enumerable.
-                var invalidResults = results.NestedResults.Count == 0 ? new[] { results } : results.NestedResults;
+                IEnumerable<EvaluationResults> invalidResults = results.Details.Count == 0 ? new[] { results } : results.Details;
+                invalidResults = invalidResults.Where(x => !x.IsValid && x.HasErrors);
+
                 var shouldSkipAdditionalPropertyError = invalidResults.Any(x => !IsAdditionalPropertyError(x));
 
                 foreach (var result in invalidResults)
@@ -65,7 +72,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
                     }
 
                     errorMessageBuilder.Append("  ");
-                    errorMessageBuilder.Append(result.InstanceLocation.Source);
+                    errorMessageBuilder.Append(result.InstanceLocation.ToString(JsonPointerStyle.UriEncoded));
                     errorMessageBuilder.Append(": ");
 
                     if (isAdditionalPropertyError)
@@ -80,16 +87,12 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
                         // but it may confuse users.
                         break;
                     }
-                    else if (IsRegexError(result))
+                    else if (result.Errors is not null)
                     {
-                        // The built-in error message does not include the regex pattern.
-                        var schemaElement = JsonElementFactory.CreateElement(JsonSerializer.Serialize(schema));
-                        var regex = result.SchemaLocation.Evaluate(schemaElement);
-                        errorMessageBuilder.AppendLine($"Value does not match the pattern of \"{regex}\"");
-                    }
-                    else
-                    {
-                        errorMessageBuilder.AppendLine(result.Message);
+                        foreach (var (key, value) in result.Errors)
+                        {
+                            errorMessageBuilder.AppendLine(value);
+                        }
                     }
                 }
 
@@ -97,10 +100,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
             }
         }
 
-        private static bool IsAdditionalPropertyError(ValidationResults results) =>
-            results.SchemaLocation.Source.EndsWith(AdditionalPropertiesSchemaLocationSuffix);
-
-        private static bool IsRegexError(ValidationResults results) =>
-            results.SchemaLocation.Source.EndsWith(RegexSchemaLocationSuffix);
+        private static bool IsAdditionalPropertyError(EvaluationResults results) =>
+            results.EvaluationPath.ToString().EndsWith(AdditionalPropertiesSchemaLocationSuffix);
     }
 }

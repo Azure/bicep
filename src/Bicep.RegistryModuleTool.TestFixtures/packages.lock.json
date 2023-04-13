@@ -13,11 +13,11 @@
       },
       "JsonPatch.Net": {
         "type": "Direct",
-        "requested": "[2.0.4, )",
-        "resolved": "2.0.4",
-        "contentHash": "Pr0lHxEYOpa2r6cEJaji9HTamKrp3pIey8Cxg0sV7EovGFf/e24TemwLPHjJD/zZ2q2YDFf/53VQCbPoDh3kPw==",
+        "requested": "[2.0.6, )",
+        "resolved": "2.0.6",
+        "contentHash": "gEFF6F1Mtcy3x7d1LCrnFPI6jWQOz6/xDG1eHctIQKr2BombVLJNn8Q5pSa/vqi7GZeo9Du3J6og7daOvydHgA==",
         "dependencies": {
-          "JsonPointer.Net": "2.2.1"
+          "JsonPointer.Net": "3.0.0"
         }
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
@@ -191,36 +191,36 @@
       },
       "Json.More.Net": {
         "type": "Transitive",
-        "resolved": "1.7.0",
-        "contentHash": "+c+VvrowC36hANAihpa9uIQj4+hLmQza37d/+FCjj5Yea7QFp7l3MH7VFvJpXiEiIxWHSL5tNHXRvQu+svVUvg==",
+        "resolved": "1.8.0",
+        "contentHash": "JWxlYwCSYXZIWezmrvRgaxhI/vEEpQlZVm6/lskuS7p/uPrNJzQxbe2CPjzkF3UUz4RI8WkmObs6ycpxoE9T7w==",
         "dependencies": {
           "System.Text.Json": "6.0.2"
         }
       },
       "JsonPath.Net": {
         "type": "Transitive",
-        "resolved": "0.4.0",
-        "contentHash": "s8XJRgP0+9pcyM1S0g2MWWaNwUo2qwR5tB7Lv4Ys+9l9QVWz27tXTN8p0EbfOGHlya8fTlsVZoZWrtHdv4lZVQ==",
+        "resolved": "0.5.1",
+        "contentHash": "JMryNDpS3tx6lL1CdHkCt+VLAffXTHxPqRscdxkUdowRQfubCgu8MVgHa4pvvoMOHzCY7mSfBS28E6HadCdh6A==",
         "dependencies": {
           "Json.More.Net": "1.7.0"
         }
       },
       "JsonPointer.Net": {
         "type": "Transitive",
-        "resolved": "2.2.1",
-        "contentHash": "yiofs6GG1rwwMecQeuzaY9SCXsCStAXZgU7Ek2IA5TFTUfNbzYKClmfaSl1ZB9PKyTjEj/mcp9fNHzP2ZkdQTA==",
+        "resolved": "3.0.1",
+        "contentHash": "TtUFnAp/0wK4v16quNKAbtAngXV7NrTBe3t70beTxiBU9VRhHFnLqjjU+MKWFMbM3AK++oiI2b4abgK2/7WNJA==",
         "dependencies": {
-          "Json.More.Net": "1.6.0"
+          "Json.More.Net": "1.8.0"
         }
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "3.3.2",
-        "contentHash": "1HXsDZyrDoq7kYKYkxxLQzUaq7URHFB6EynoAOSPYZaSUdpDA4M/lu/8mm6M4KM4KuWGdwsyKAawpQUtFpC1+Q==",
+        "resolved": "4.0.3",
+        "contentHash": "qX8KvGNkaHnsCWXHWLWsE4cXEWq53ONkwwTJTbrMn3DYr+PQ9x61ngoz3fPRiteXPAAGZuYRo1KJVOFhheh3kg==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
-          "Json.More.Net": "1.7.0",
-          "JsonPointer.Net": "2.2.1"
+          "Json.More.Net": "1.8.0",
+          "JsonPointer.Net": "3.0.1"
         }
       },
       "Markdig": {
@@ -2034,8 +2034,8 @@
           "Azure.Deployments.Templates": "[1.0.872, )",
           "Azure.Identity": "[1.8.2, )",
           "Azure.ResourceManager.Resources": "[1.4.0, )",
-          "JsonPatch.Net": "[2.0.4, )",
-          "JsonPath.Net": "[0.4.0, )",
+          "JsonPatch.Net": "[2.0.6, )",
+          "JsonPath.Net": "[0.5.1, )",
           "Microsoft.Extensions.Configuration": "[7.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[7.0.3, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
@@ -2051,8 +2051,8 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "DiffPlex": "[1.7.1, )",
           "FluentAssertions": "[6.10.0, )",
-          "JsonPath.Net": "[0.4.0, )",
-          "JsonSchema.Net": "[3.3.2, )",
+          "JsonPath.Net": "[0.5.1, )",
+          "JsonSchema.Net": "[4.0.3, )",
           "Markdig": "[0.31.0, )",
           "Microsoft.Extensions.Logging": "[7.0.0, )",
           "Serilog.Extensions.Hosting": "[5.0.1, )",

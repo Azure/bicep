@@ -23,7 +23,12 @@ namespace Bicep.Core.Extensions
                 throw new InvalidOperationException(error);
             }
 
-            return result.Matches as IEnumerable<JsonNode> ?? Enumerable.Empty<JsonNode>();
+            if (result.Matches is not null)
+            {
+                return result.Matches.Select(x => x.Value).OfType<JsonNode>();
+            }
+
+            return Enumerable.Empty<JsonNode>();
         }
 
     }
