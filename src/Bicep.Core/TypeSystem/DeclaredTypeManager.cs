@@ -407,7 +407,7 @@ namespace Bicep.Core.TypeSystem
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
                 ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
 
-            return new(declaredType, syntax);
+            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax), syntax);
         }
 
         private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
