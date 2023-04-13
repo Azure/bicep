@@ -1210,52 +1210,49 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static void CastPrimiteTypes(JToken jtoken)
         {
-            if (!jtoken.AsJEnumerable().Any())
+            if (!jtoken.AsJEnumerable().Any() || jtoken is JArray || jtoken is JObject)
             {
                 CastJToken(jtoken);
             }
             else
             {
-                switch (jtoken)
+
+                foreach (var child in jtoken.AsJEnumerable())
                 {
-                    case JArray jArray1:
-                        CastArray(jArray1);
-                        break;
-                    case JObject jObject1:
-                        CastObject(jObject1);
-                        break;
-                    default:
+                    if (!CastJToken(child))
+                    {
+                        switch (jtoken[child.Path])
                         {
-                            foreach (var child in jtoken.AsJEnumerable())
-                            {
-                                if (!CastJToken(child))
+                            case JArray jArray2:
                                 {
-                                    switch (jtoken[child.Path])
-                                    {
-                                        case JArray jArray2:
-                                            {
-                                                CastArray(jArray2);
-                                                break;
-                                            }
-                                        case JObject jObject2:
-                                            {
-                                                CastObject(jObject2);
-                                                break;
-                                            }
-                                        default:
-                                            CastJToken(jtoken, child);
-                                            break;
-                                    }
+                                    CastArray(jArray2);
+                                    break;
                                 }
-                            }
-                            break;
+                            case JObject jObject2:
+                                {
+                                    CastObject(jObject2);
+                                    break;
+                                }
+                            default:
+                                CastJToken(jtoken, child);
+                                break;
                         }
+                    }
                 }
             }
         }
 
         private static bool CastJToken(JToken jtoken, JToken? child = null)
         {
+            if (jtoken is JArray jArray1)
+            {
+                CastArray(jArray1);
+            }
+            else if (jtoken is JObject jObject1)
+            {
+                CastObject(jObject1);
+            }
+
             var token = child != null ? jtoken[child.Path.Contains('.') ? child.Path.Split(".")[child.Path.Split(".").Length - 1] : child.Path] : jtoken as JValue;
             if (bool.TryParse((string?)token, out bool boolean))
             {
