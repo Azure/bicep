@@ -431,6 +431,48 @@
     }
   },
   {
+    "label": "cidrHost",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```\nCalculates the IP address of the specified host on a network.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrHost",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrHost($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "cidrSubnet",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrSubnet(network: string, cidr: int, subnetIndex: int): string\n\n```\nReturns the specified subnet of a CIDR network.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrSubnet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrSubnet($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "concat",
     "kind": "function",
     "documentation": {
@@ -783,6 +825,10 @@
     "label": "equals",
     "kind": "field",
     "detail": "equals",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_equals",
@@ -1638,6 +1684,10 @@
     "label": "mod",
     "kind": "field",
     "detail": "mod",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mod",
@@ -1890,6 +1940,10 @@
     "label": "myInt",
     "kind": "variable",
     "detail": "myInt",
+    "documentation": {
+      "kind": "markdown",
+      "value": "an int variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myInt",
@@ -1918,6 +1972,10 @@
     "label": "myObj",
     "kind": "variable",
     "detail": "myObj",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a object variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myObj",
@@ -1946,6 +2004,10 @@
     "label": "myStr",
     "kind": "variable",
     "detail": "myStr",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a string variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myStr",
@@ -1960,6 +2022,10 @@
     "label": "myTruth",
     "kind": "variable",
     "detail": "myTruth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a bool variable"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myTruth",
@@ -2086,6 +2152,10 @@
     "label": "objWithInterp",
     "kind": "variable",
     "detail": "objWithInterp",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a object with interp"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objWithInterp",
@@ -2135,6 +2205,10 @@
     "label": "parameters",
     "kind": "field",
     "detail": "parameters",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: bool"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_parameters",
@@ -2143,6 +2217,27 @@
     "textEdit": {
       "range": {},
       "newText": "parameters"
+    }
+  },
+  {
+    "label": "parseCidr",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseCidr(network: string): parseCidr\n\n```\nParses an IP address into individual components and other useful information.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseCidr",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseCidr($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {

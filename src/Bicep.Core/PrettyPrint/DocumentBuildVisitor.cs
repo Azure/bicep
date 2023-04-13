@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint.Documents;
@@ -33,13 +34,32 @@ namespace Bicep.Core.PrettyPrint
             .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
             .ToImmutableDictionary(value => value, value => new TextDocument(value));
 
-        private readonly Stack<ILinkedDocument> documentStack = new Stack<ILinkedDocument>();
+        private readonly Stack<ILinkedDocument> documentStack = new();
+
+        private readonly IDiagnosticLookup lexingErrorLookup;
+
+        private readonly IDiagnosticLookup parsingErrorLookup;
 
         private bool visitingSkippedTriviaSyntax;
 
         private bool visitingBrokenStatement;
 
         private bool visitingComment;
+
+        private bool visitingLeadingTrivia;
+
+        private ILinkedDocument? LeadingDirectiveOrComments = null;
+
+        public DocumentBuildVisitor()
+            : this(EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance)
+        {
+        }
+
+        public DocumentBuildVisitor(IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        {
+            this.lexingErrorLookup = lexingErrorLookup;
+            this.parsingErrorLookup = parsingErrorLookup;
+        }
 
         public ILinkedDocument BuildDocument(SyntaxBase syntax)
         {
@@ -240,6 +260,26 @@ namespace Bicep.Core.PrettyPrint
 
         private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)
         {
+            if (nodes.Length == 1 && nodes[0] is Token { Type: TokenType.NewLine })
+            {
+                this.Build(() => this.Visit(nodes[0]), children =>
+                {
+                    if (children.Length == 1)
+                    {
+                        if (children[0] == Line || children[0] == SingleLine || children[0] == DoubleLine)
+                        {
+                            return Nil;
+                        }
+
+                        // Trailing comment.
+                        return children[0];
+                    }
+
+                    return new NestDocument(1, children.ToImmutableArray());
+                });
+                return;
+            }
+
             SyntaxBase? leadingNewLine = null;
             if (nodes.Length > 0 && nodes[0] is Token { Type: TokenType.NewLine })
             {
@@ -265,7 +305,7 @@ namespace Bicep.Core.PrettyPrint
                 {
                     var visitingBrokenStatement = this.visitingBrokenStatement;
 
-                    if (nodes[i].GetParseDiagnostics().Any())
+                    if (this.HasSyntaxError(nodes[i]))
                     {
                         this.visitingBrokenStatement = true;
                     }
@@ -362,7 +402,9 @@ namespace Bicep.Core.PrettyPrint
         {
             foreach (var trivia in token.LeadingTrivia)
             {
+                this.visitingLeadingTrivia = true;
                 this.VisitSyntaxTrivia(trivia);
+                this.visitingLeadingTrivia = false;
             }
 
             var pushDocument = this.visitingBrokenStatement
@@ -371,6 +413,11 @@ namespace Bicep.Core.PrettyPrint
 
             if (token.Type == TokenType.NewLine)
             {
+                if (this.LeadingDirectiveOrComments is not null)
+                {
+                    pushDocument(this.LeadingDirectiveOrComments);
+                }
+
                 int newlineCount = StringUtils.CountNewlines(token.Text);
 
                 for (int i = 0; i < newlineCount; i++)
@@ -380,8 +427,19 @@ namespace Bicep.Core.PrettyPrint
             }
             else
             {
-                pushDocument(Text(token.Text));
+                if (this.LeadingDirectiveOrComments is not null)
+                {
+                    var separator = token.IsOf(TokenType.EndOfFile) ? Nil : Space;
+
+                    pushDocument(Concat(this.LeadingDirectiveOrComments, separator, Text(token.Text)));
+                }
+                else
+                {
+                    pushDocument(Text(token.Text));
+                }
             }
+
+            this.LeadingDirectiveOrComments = null;
 
             foreach (var trivia in token.TrailingTrivia)
             {
@@ -414,7 +472,14 @@ namespace Bicep.Core.PrettyPrint
 
             if (syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective)
             {
-                this.PushDocument(Text(syntaxTrivia.Text));
+                if (this.LeadingDirectiveOrComments is null)
+                {
+                    this.LeadingDirectiveOrComments = Text(syntaxTrivia.Text);
+                }
+                else
+                {
+                    this.LeadingDirectiveOrComments = Concat(this.LeadingDirectiveOrComments, Space, Text(syntaxTrivia.Text));
+                }
             }
         }
 
@@ -429,7 +494,9 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) =>
             this.Build(() => base.VisitObjectPropertySyntax(syntax), children =>
             {
-                Debug.Assert(children.Length == 3);
+                // When a property value is an unterminated string, there can be more than
+                // 3 children.
+                Debug.Assert(children.Length >= 3);
 
                 ILinkedDocument key = children[0];
                 ILinkedDocument colon = children[1];
@@ -577,7 +644,7 @@ namespace Bicep.Core.PrettyPrint
 
         private void BuildStatement(SyntaxBase syntax, Action visitAction)
         {
-            if (syntax.GetParseDiagnostics().Count > 0)
+            if (this.HasSyntaxError(syntax))
             {
                 this.visitingBrokenStatement = true;
                 visitAction();
@@ -679,12 +746,24 @@ namespace Bicep.Core.PrettyPrint
 
                 this.documentStack.Push(document);
             }
+            else if (this.visitingComment && this.visitingLeadingTrivia)
+            {
+                if (this.LeadingDirectiveOrComments is null)
+                {
+                    this.LeadingDirectiveOrComments = document;
+                }
+                else
+                {
+                    this.LeadingDirectiveOrComments = Concat(this.LeadingDirectiveOrComments, Space, document);
+                }
+            }
             else if (visitingComment)
             {
                 // Add a space before the comment if it's not at the begining of the file or after a newline.
                 ILinkedDocument gap = top != NoLine && top != Line && top != SingleLine && top != DoubleLine ? Space : Nil;
 
                 // Combine the comment and the document at the top of the stack. This is the key to simplify VisitToken.
+
                 this.documentStack.Push(Concat(this.documentStack.Pop(), gap, document));
             }
             else
@@ -692,5 +771,9 @@ namespace Bicep.Core.PrettyPrint
                 this.documentStack.Push(document);
             }
         }
+
+        private bool HasSyntaxError(SyntaxBase syntax) =>
+            this.lexingErrorLookup.Contains(syntax) ||
+            this.parsingErrorLookup.Contains(syntax);
     }
 }

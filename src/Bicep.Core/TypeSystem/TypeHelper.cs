@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using Azure.Deployments.Expression.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -18,48 +17,13 @@ namespace Bicep.Core.TypeSystem
 {
     public static class TypeHelper
     {
+        private static TypeComparer typeComparer = new();
+
         /// <summary>
         /// Try to collapse multiple types into a single (non-union) type. Returns null if this is not possible.
         /// </summary>
         public static TypeSymbol? TryCollapseTypes(IEnumerable<ITypeReference> itemTypes)
-        {
-            var aggregatedItemType = CreateTypeUnion(itemTypes);
-
-            if (aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)
-            {
-                // it doesn't really make sense to collapse 'never' or 'any'
-                return null;
-            }
-
-            if (aggregatedItemType is UnionType unionType)
-            {
-                if (unionType.Members.All(x => x is StringLiteralType || x == LanguageConstants.String))
-                {
-                    return unionType.Members.Any(x => x == LanguageConstants.String) ?
-                        LanguageConstants.String :
-                        unionType;
-                }
-
-                if (unionType.Members.All(x => TypeValidator.AreTypesAssignable(x.Type, LanguageConstants.Bool)))
-                {
-                    return unionType.Members.Any(x => x == LanguageConstants.Bool)
-                        ? LanguageConstants.Bool
-                        : unionType;
-                }
-
-                if (unionType.Members.All(x => TypeValidator.AreTypesAssignable(x.Type, LanguageConstants.Int)))
-                {
-                    return unionType.Members.Any(x => x == LanguageConstants.Int)
-                        ? LanguageConstants.Bool
-                        : unionType;
-                }
-
-                // We have a mix of item types that cannot be collapsed
-                return null;
-            }
-
-            return aggregatedItemType;
-        }
+            => TypeCollapser.TryCollapse(CreateTypeUnion(itemTypes));
 
         /// <summary>
         /// Collapses multiple types into either:
@@ -353,6 +317,11 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
+        public static bool IsNullable(TypeSymbol type) => TryRemoveNullability(type) is not null;
+
+        public static bool IsRequired(TypeProperty typeProperty)
+            => typeProperty.Flags.HasFlag(TypePropertyFlags.Required) && !TypeHelper.IsNullable(typeProperty.TypeReference.Type);
+
         /// <summary>
         /// Determines if the provided candidate type would be assignable to the provided expected type if the former were stripped of its nullability.
         /// </summary>
@@ -415,31 +384,35 @@ namespace Bicep.Core.TypeSystem
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {
-            // flatten and then de-duplicate members
-            var flattenedMembers = FlattenMembers(unionMembers)
-                .Distinct()
-                .OrderBy(m => m.Type.Name, StringComparer.Ordinal)
-                .ToImmutableArray();
-
-            if (flattenedMembers.Any(member => member is AnyType))
+            HashSet<TypeSymbol> distinctMembers = new();
+            bool hasUnrefinedUntypedArrayMember = false;
+            foreach (var member in FlattenMembers(unionMembers))
             {
-                // a union type with "| any" is the same as "any" type
-                return ImmutableArray.Create<ITypeReference>(LanguageConstants.Any);
+                if (member is AnyType)
+                {
+                    // a union type with "| any" is the same as "any" type
+                    return ImmutableArray.Create<ITypeReference>(LanguageConstants.Any);
+                }
+
+                if (hasUnrefinedUntypedArrayMember && member is ArrayType)
+                {
+                    continue;
+                }
+
+                if (member.Equals(LanguageConstants.Array))
+                {
+                    hasUnrefinedUntypedArrayMember = true;
+                    distinctMembers.RemoveWhere(t => t is ArrayType);
+                }
+
+                distinctMembers.Add(member);
             }
 
-            IEnumerable<ITypeReference> intermediateMembers = flattenedMembers;
-
-            if (flattenedMembers.Any(member => member.Type == LanguageConstants.Array))
-            {
-                // the union has the base "array" type, so we can drop any more specific array types
-                intermediateMembers = intermediateMembers.Where(member => member.Type is not ArrayType || member.Type == LanguageConstants.Array);
-            }
-
-            return intermediateMembers.ToImmutableArray();
+            return distinctMembers.Order(typeComparer).ToImmutableArray<ITypeReference>();
         }
 
-        private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) =>
-            members.SelectMany(member => member.Type is UnionType union
+        private static IEnumerable<TypeSymbol> FlattenMembers(IEnumerable<ITypeReference> members) =>
+            members.Select(member => member.Type).SelectMany(member => member is UnionType union
                 ? FlattenMembers(union.Members)
                 : member.AsEnumerable());
 

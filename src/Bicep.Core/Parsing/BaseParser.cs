@@ -17,19 +17,24 @@ namespace Bicep.Core.Parsing
     {
         protected readonly TokenReader reader;
 
-        protected readonly ImmutableArray<IDiagnostic> lexerDiagnostics;
-
         protected BaseParser(string text)
         {
             // treating the lexer as an implementation detail of the parser
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            var lexingErrorTree = new DiagnosticTree();
+            var lexer = new Lexer(new SlidingTextWindow(text), lexingErrorTree);
             lexer.Lex();
 
-            this.lexerDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
-
             this.reader = new TokenReader(lexer.GetTokens());
+
+            this.ParsingErrorTree = new DiagnosticTree();
+            this.LexingErrorLookup = lexingErrorTree;
         }
+
+        protected DiagnosticTree ParsingErrorTree { get; }
+
+        public IDiagnosticLookup LexingErrorLookup { get; }
+
+        public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
@@ -307,7 +312,7 @@ namespace Bicep.Core.Parsing
                 _ => this.SkipEmpty(b => b.ExpectedLoopItemIdentifierOrVariableBlockStart())
             };
 
-            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), variableSection.HasParseErrors() ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None, TokenType.RightSquare, TokenType.NewLine);
+            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), this.HasSyntaxError(variableSection) ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None, TokenType.RightSquare, TokenType.NewLine);
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
             var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
             var body = this.WithRecovery(
@@ -325,7 +330,7 @@ namespace Bicep.Core.Parsing
 
             var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-            if (variableBlock.Arguments.Length != 2 && !variableBlock.HasParseErrors())
+            if (variableBlock.Arguments.Length != 2 && !this.HasSyntaxError(variableBlock))
             {
                 return Skip(variableBlock.AsEnumerable(), x => x.ExpectedLoopVariableBlockWith2Elements(variableBlock.Arguments.Length));
             }
@@ -426,7 +431,7 @@ namespace Bicep.Core.Parsing
                 VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
                 Token { Type: TokenType.Comma } => item,
                 SkippedTriviaSyntax => item,
-                _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable(), Enumerable.Empty<IDiagnostic>()),
+                _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable()),
             });
 
             return new VariableBlockSyntax(openParen, rewritten, closeParen);
@@ -643,7 +648,7 @@ namespace Bicep.Core.Parsing
                         // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
                         // Rather than trying to add two expression nodes, combine them.
                         var combined = new[] { interpExpression, skippedSyntax };
-                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<IDiagnostic>());
+                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined);
                     }
 
                     tokensOrSyntax.Add(interpExpression);
@@ -702,7 +707,7 @@ namespace Bicep.Core.Parsing
                 {
                     // This error-handling is just for cases where we were completely unable to interpret the string.
                     var span = TextSpan.BetweenInclusiveAndExclusive(startToken, reader.Peek());
-                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<IDiagnostic>());
+                    return new SkippedTriviaSyntax(span, tokensOrSyntax);
                 }
 
                 return null;
@@ -913,7 +918,7 @@ namespace Bicep.Core.Parsing
 
             if (stringValue is null)
             {
-                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<IDiagnostic>());
+                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable());
             }
 
             return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
@@ -1164,11 +1169,12 @@ namespace Bicep.Core.Parsing
             return new SkippedTriviaSyntax(span, syntaxArray, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
         }
 
-        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax)
+        private static SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax)
         {
             var syntaxArray = syntax.ToImmutableArray();
             var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());
-            return new SkippedTriviaSyntax(span, syntaxArray, Enumerable.Empty<Diagnostic>());
+
+            return new SkippedTriviaSyntax(span, syntaxArray);
         }
 
         protected SkippedTriviaSyntax SkipEmpty()
@@ -1180,8 +1186,8 @@ namespace Bicep.Core.Parsing
         private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)
         {
             var span = new TextSpan(position, 0);
-            var diagnostics = errorFunc is null ? Enumerable.Empty<IDiagnostic>() : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
-            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, diagnostics);
+            var errors = errorFunc is null ? Enumerable.Empty<ErrorDiagnostic>() : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
+            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errors);
         }
 
         private void Synchronize(bool consumeTerminator, params TokenType[] expectedTypes)
@@ -1521,6 +1527,21 @@ namespace Bicep.Core.Parsing
             {
                 return SynchronizeAndReturnTrivia(startReaderPosition, flags, _ => exception.Error, terminatingTypes);
             }
+        }
+
+        private bool HasSyntaxError(SyntaxBase syntax)
+        {
+            if (this.LexingErrorLookup.Contains(syntax))
+            {
+                return true;
+            }
+
+            var diagnosticWriter = new SimpleDiagnosticWriter();
+            var parsingErrorVisitor = new ParseDiagnosticsVisitor(diagnosticWriter);
+
+            parsingErrorVisitor.Visit(syntax);
+
+            return diagnosticWriter.HasDiagnostics();
         }
     }
 }

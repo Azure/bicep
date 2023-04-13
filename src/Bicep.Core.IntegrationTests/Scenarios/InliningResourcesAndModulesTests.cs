@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
@@ -16,6 +17,8 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class InliningResourcesAndModulesTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         [TestMethod]
         public void AssigningResourceToVariable_ShouldNotGenerateVariables()
         {
@@ -258,7 +261,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod'), '2020-10-01').outputs.test.value]",
+                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod'), '2022-09-01').outputs.test.value]",
                     "Module access should be in-lined correctly");
             }
         }
@@ -300,7 +303,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod'), '2020-10-01').outputs.test.value]",
+                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod'), '2022-09-01').outputs.test.value]",
                     "Module access should be in-lined correctly");
             }
         }
@@ -349,7 +352,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1'), '2020-10-01'), reference(resourceId('Microsoft.Resources/deployments', 'testmod2'), '2020-10-01')).outputs.test.value]",
+                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1'), '2022-09-01'), reference(resourceId('Microsoft.Resources/deployments', 'testmod2'), '2022-09-01')).outputs.test.value]",
                     "Module access should be in-lined correctly");
             }
         }
@@ -401,7 +404,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1'), '2020-10-01'), reference(resourceId('Microsoft.Resources/deployments', 'testmod2'), '2020-10-01')).outputs.test.value]",
+                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1'), '2022-09-01'), reference(resourceId('Microsoft.Resources/deployments', 'testmod2'), '2022-09-01')).outputs.test.value]",
                     "Module access should be in-lined correctly");
             }
         }
@@ -512,7 +515,28 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
                     "Object should be in-lined");
             }
         }
-
+        [TestMethod]
+        public void VariablesParameterResourceReference_ShouldBeInlined()
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), 
+            ("main.bicep", @"
+param resourceParameter resource 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'
+var clientId = resourceParameter.properties.clientId
+var resourceId = resourceParameter.id
+output clientId string = clientId
+output resourceId string = resourceId
+"));
+            
+            using (new AssertionScope())
+            {
+                result.Template.Should().HaveValueAtPath("$.outputs.clientId", 
+                  new JObject {["value"] = "[reference(parameters('resourceParameter'), '2018-11-30').clientId]", ["type"] = "string"},
+                   "Parameter should have been inlined");
+                result.Template.Should().HaveValueAtPath("$.outputs.resourceId", 
+                  new JObject {["value"] = "[variables('resourceId')]", ["type"] = "string"},
+                   "Top level properties should not be inlined");
+            }
+        }
 
         [TestMethod]
         public void VariableThatLooksLikeModule_ShouldGenerateVariables()

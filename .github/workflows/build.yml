@@ -152,11 +152,6 @@ jobs:
         run: npm ci
         working-directory: ./src/vscode-bicep
 
-      # we don't run this step on official builds
-      - name: Enable params
-        run: npm run params
-        working-directory: ./src/vscode-bicep
-
       - name: Run lint
         run: npm run lint
         working-directory: ./src/vscode-bicep
@@ -211,7 +206,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Show extension logs of E2E tests
-        run: cat ./bicep.log
+        run: cat ./bicep-e2e.log
         if: always()
         working-directory: ./src/vscode-bicep
 

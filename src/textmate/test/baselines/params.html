@@ -1,0 +1,52 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/textmate/test/baselines/params.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment">This is a</span>
+<span class="hljs-comment">multiline comment!</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-comment">// This is a single line comment</span>
+
+<span class="hljs-comment">// using keyword for specifying a Bicep file</span>
+<span class="hljs-keyword">using</span> <span class="hljs-string">&#39;</span><span class="hljs-string">./params_main.bicep</span><span class="hljs-string">&#39;</span>
+
+<span class="hljs-comment">// parameter assignment to literals</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">myString</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">hello world!!</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">myInt</span> = <span class="hljs-number">42</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">myBool</span> = <span class="hljs-literal">true</span>
+
+<span class="hljs-comment">// parameter assignment to objects</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">password</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">strongPassword</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">secretObject</span> = {
+  <span class="hljs-property">name</span> : <span class="hljs-string">&#39;</span><span class="hljs-string">vm2</span><span class="hljs-string">&#39;</span>
+  <span class="hljs-property">location</span> : <span class="hljs-string">&#39;</span><span class="hljs-string">westus</span><span class="hljs-string">&#39;</span>
+}
+<span class="hljs-keyword">param</span> <span class="hljs-variable">storageSku</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">Standard_LRS</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">storageName</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">myStorage</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">someArray</span> = [
+  <span class="hljs-string">&#39;</span><span class="hljs-string">a</span><span class="hljs-string">&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">b</span><span class="hljs-string">&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">c</span><span class="hljs-string">&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">d</span><span class="hljs-string">&#39;</span>
+]
+<span class="hljs-keyword">param</span> <span class="hljs-variable">emptyMetadata</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">empty!</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">description</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">descriptive description</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">description2</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">also descriptive</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">additionalMetadata</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">more metadata</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">someParameter</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">three</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">stringLiteral</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">abc</span><span class="hljs-string">&#39;</span>
+<span class="hljs-keyword">param</span> <span class="hljs-variable">decoratedString</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">Apple</span><span class="hljs-string">&#39;</span>
+
+
+    </pre>
+  </body>
+</html>

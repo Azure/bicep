@@ -116,27 +116,29 @@ param accountName string = 'testAccount'
             var bicepBuildCommandHandler = CreateHandler(bicepCompilationManager);
             string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
 
-            expected.Should().BeEquivalentToIgnoringNewlines(@"Bicep build failed. Please fix below errors:
-/input.bicep(1,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(1,12) : Error BCP018: Expected the ""="" character at this location.
-/input.bicep(1,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
-/input.bicep(3,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
-/input.bicep(3,2) : Error BCP001: The following token is not recognized: ""#"".
-/input.bicep(4,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(4,12) : Error BCP018: Expected the ""="" character at this location.
-/input.bicep(4,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
-/input.bicep(6,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
-/input.bicep(6,2) : Error BCP001: The following token is not recognized: ""#"".
-/input.bicep(7,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(7,14) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
-/input.bicep(10,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(10,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""'asdfds'"".
-/input.bicep(12,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(12,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""object"".
-/input.bicep(14,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(14,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""True"".
-/input.bicep(15,7) : Warning no-unused-params: Parameter ""accountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]
-");
+            expected.Should().BeEquivalentToIgnoringNewlines("""
+                Bicep build failed. Please fix below errors:
+                /input.bicep(1,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
+                /input.bicep(1,12) : Error BCP018: Expected the "=" character at this location.
+                /input.bicep(1,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+                /input.bicep(3,2) : Error BCP001: The following token is not recognized: "#".
+                /input.bicep(3,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
+                /input.bicep(4,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
+                /input.bicep(4,12) : Error BCP018: Expected the "=" character at this location.
+                /input.bicep(4,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+                /input.bicep(6,2) : Error BCP001: The following token is not recognized: "#".
+                /input.bicep(6,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
+                /input.bicep(7,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
+                /input.bicep(7,14) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+                /input.bicep(10,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
+                /input.bicep(10,15) : Error BCP033: Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "'asdfds'".
+                /input.bicep(12,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
+                /input.bicep(12,15) : Error BCP033: Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "object".
+                /input.bicep(14,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
+                /input.bicep(14,15) : Error BCP033: Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "true".
+                /input.bicep(15,7) : Warning no-unused-params: Parameter "accountName" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]
+
+                """);
         }
 
         [TestMethod]

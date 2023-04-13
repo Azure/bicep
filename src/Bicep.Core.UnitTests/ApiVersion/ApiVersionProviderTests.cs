@@ -83,6 +83,6 @@ namespace Bicep.Core.UnitTests.ApiVersions
         }
 
         private ApiVersionProvider CreateDefaultApiVersionProvider()
-            => new ApiVersionProvider(new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration()), new DefaultNamespaceProvider(new AzResourceTypeLoader()));
+            => new ApiVersionProvider(new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration()), BicepTestConstants.AzResourceTypeLoader);
     }
 }

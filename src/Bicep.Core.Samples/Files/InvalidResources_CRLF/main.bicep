@@ -283,12 +283,6 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
   name: runtimeValidRes2['${magicString1}']
 }
 
-// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-var magicString2 = 'name'
-resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: runtimeValidRes2['${magicString2}']
-}
-
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
 }
@@ -364,6 +358,10 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+var magicString2 = 'name'
+resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString2}']
+}
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
   name: 'test'

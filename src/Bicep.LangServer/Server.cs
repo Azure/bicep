@@ -1,28 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
-using Bicep.Core.Emit;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Tracing;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
-using Bicep.Decompiler;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.ParamsHandlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Snippets;
@@ -34,7 +21,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using System;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
@@ -68,9 +54,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepGetRecommendedConfigLocationHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
-
-                    .WithHandler<BicepParamsDefinitionHandler>()
-
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
@@ -139,7 +122,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
-                .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCache: true));
         }
 
         public void Dispose()

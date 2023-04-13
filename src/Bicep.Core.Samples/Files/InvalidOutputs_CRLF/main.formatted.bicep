@@ -59,26 +59,21 @@ output foo string =
 // wrong string output values
 output str string = true
 output str string = false
-output str string = [
-]
-output str string = {
-}
+output str string = []
+output str string = {}
 output str string = 52
 
 // wrong int output values
 output i int = true
 output i int = false
-output i int = [
-]
+output i int = []
 output i int = }
 }
 output i int = 'test'
 
 // wrong bool output values
-output b bool = [
-]
-output b bool = {
-}
+output b bool = []
+output b bool = {}
 output b bool = 32
 output b bool = 'str'
 
@@ -86,16 +81,14 @@ output b bool = 'str'
 output arr array = 32
 output arr array = true
 output arr array = false
-output arr array = {
-}
+output arr array = {}
 output arr array = 'str'
 
 // wrong object output values
 output o object = 32
 output o object = true
 output o object = false
-output o object = [
-]
+output o object = []
 output o object = 'str'
 
 // a few expression cases

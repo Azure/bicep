@@ -53,6 +53,10 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--force":
+                        Force = true;
+                        break;
+
                     default:
                         if (args[i].StartsWith("--"))
                         {
@@ -87,5 +91,7 @@ namespace Bicep.Cli.Arguments
         public string TargetModuleReference { get; }
 
         public bool NoRestore { get; }
+
+        public bool Force { get; }
     }
 }

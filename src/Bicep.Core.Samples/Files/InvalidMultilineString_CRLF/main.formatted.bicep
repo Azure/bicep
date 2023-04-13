@@ -1,2 +1,2 @@
-var unterminatedMultilineString =   '''
+var unterminatedMultilineString = '''
 hello!''

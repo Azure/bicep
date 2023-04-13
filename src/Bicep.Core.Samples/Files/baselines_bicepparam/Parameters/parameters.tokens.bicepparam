@@ -49,16 +49,16 @@ param secretObject = {
 //@[19:20) Assignment |=|
 //@[21:22) LeftBrace |{|
 //@[22:23) NewLine |\n|
-    name : 'vm2'
-//@[04:08) Identifier |name|
-//@[09:10) Colon |:|
-//@[11:16) StringComplete |'vm2'|
-//@[16:17) NewLine |\n|
-    location : 'westus'
-//@[04:12) Identifier |location|
-//@[13:14) Colon |:|
-//@[15:23) StringComplete |'westus'|
-//@[23:24) NewLine |\n|
+  name : 'vm2'
+//@[02:06) Identifier |name|
+//@[07:08) Colon |:|
+//@[09:14) StringComplete |'vm2'|
+//@[14:15) NewLine |\n|
+  location : 'westus'
+//@[02:10) Identifier |location|
+//@[11:12) Colon |:|
+//@[13:21) StringComplete |'westus'|
+//@[21:22) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
 //@[01:02) NewLine |\n|
@@ -80,18 +80,18 @@ param someArray = [
 //@[16:17) Assignment |=|
 //@[18:19) LeftSquare |[|
 //@[19:20) NewLine |\n|
-    'a'
-//@[04:07) StringComplete |'a'|
-//@[07:08) NewLine |\n|
-    'b'
-//@[04:07) StringComplete |'b'|
-//@[07:08) NewLine |\n|
-    'c'
-//@[04:07) StringComplete |'c'|
-//@[07:08) NewLine |\n|
-    'd'
-//@[04:07) StringComplete |'d'|
-//@[07:08) NewLine |\n|
+  'a'
+//@[02:05) StringComplete |'a'|
+//@[05:06) NewLine |\n|
+  'b'
+//@[02:05) StringComplete |'b'|
+//@[05:06) NewLine |\n|
+  'c'
+//@[02:05) StringComplete |'c'|
+//@[05:06) NewLine |\n|
+  'd'
+//@[02:05) StringComplete |'d'|
+//@[05:06) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
 //@[01:02) NewLine |\n|

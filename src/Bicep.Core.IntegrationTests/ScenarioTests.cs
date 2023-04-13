@@ -143,8 +143,8 @@ output vnetstate string = vnet.properties.provisioningState
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
-            result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-10-01').outputs.vnetId.value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-10-01').outputs.vnetstate.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2022-09-01').outputs.vnetId.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2022-09-01').outputs.vnetstate.value]");
         }
 
         [TestMethod]
@@ -922,7 +922,7 @@ output test string = 'hello'
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['fooName'].value", "[format('{0}-test', parameters('someParam'))]");
-            result.Template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2020-10-01').outputs.test.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2022-09-01').outputs.test.value]");
         }
 
         [TestMethod]
@@ -3688,7 +3688,7 @@ var providersTest = providers('Microsoft.Resources').namespace
 var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
 ").ExcludingLinterDiagnostics();
 
-            result.Should().HaveDiagnostics(new [] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
                 ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
             });
@@ -3910,7 +3910,7 @@ var value = (useFirst ? test1 : test2).tata
 ").ExcludingLinterDiagnostics();
 
             result.Should().NotHaveAnyDiagnostics();
-       }
+        }
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/6863
@@ -4295,7 +4295,9 @@ output firstCertEnabled bool = Certificate[0].properties.attributes.enabled
         [TestMethod]
         public void Test_Issue9467()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param CertificateSubjects = [{
   subject: 'blah'
   secretName: 'blah'
@@ -4306,9 +4308,9 @@ param CertificateSubjects = [{
     resourceGroupName: 'myRg'
   }
 }]
-");
+";
 
-            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
+            var bicepTemplateText = @"
 @description('Used to identify a Key Vault and where it\'s deployed to')
 type keyVaultIdentifier = {
   @description('The name of the Key Vault')
@@ -4341,12 +4343,57 @@ resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 }
 
 output vaultId string = CertificateVault.id
-");
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true, ParamsFilesEnabled: true)), ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), bicepTemplateText);
 
             result.Should().GenerateATemplate();
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
             evaluated.Should().HaveValueAtPath("$.outputs['vaultId'].value", "/subscriptions/mySub/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myKv");
+        }
+
+        // https://github.com/Azure/bicep/issues/9024
+        [TestMethod]
+        public void Test_Issue9024()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'foo'
+  location: resourceGroup().location
+
+  resource ext 'extensions' = {
+    name: 'ZipDeploy'
+  }
+}
+");
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().ContainDiagnostic("BCP088", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'MSDeploy' | 'onedeploy'\" but the provided value is of type \"'ZipDeploy'\". Did you mean \"'MSDeploy'\"?");
+        }
+
+        // https://github.com/Azure/bicep/issues/10235
+        [TestMethod]
+        public void Test_Issue10235()
+        {
+            var result = CompilationHelper.Compile(@"
+resource site 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'mySite'
+  location: resourceGroup().location
+}
+
+resource config 'Microsoft.Web/sites/config@2022-03-01' = {
+  parent: site
+  name: 'virtualNetwork'
+  properties: {
+    subnetResourceId: 'subnetId'
+    swiftSupported: true
+  }
+}
+");
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().ContainDiagnostic("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"'appsettings' | 'authsettings' | 'authsettingsV2' | 'azurestorageaccounts' | 'backup' | 'connectionstrings' | 'logs' | 'metadata' | 'pushsettings' | 'slotConfigNames' | 'web'\" but the provided value is of type \"'virtualNetwork'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.");
         }
 
         // https://github.com/Azure/bicep/issues/9978
@@ -4367,6 +4414,167 @@ resource asdf 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"foo\" is not valid."),
             });
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' = {
+  scope: workspace
+  name: 'new2'
+  kind: 'Fusion'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  parent: alertRule
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_negative()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' = {
+  scope: workspace
+  name: 'new2'
+  kind: 'Fusion'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().ContainDiagnostic("BCP135", DiagnosticLevel.Error, "Scope \"resourceGroup\" is not valid for this resource type. Permitted scopes: \"resource\".");
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_existing()
+        {
+            var result = CompilationHelper.Compile(@"
+resource workspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' existing = {
+  name: 'acu1brwaoat5LogAnalytics'
+}
+
+resource logicApp 'Microsoft.Logic/workflows@2019-05-01' existing = {
+  name: 'logic01'
+}
+
+resource alertRule 'Microsoft.SecurityInsights/alertRules@2021-09-01-preview' existing = {
+  scope: workspace
+  name: 'new2'
+}
+
+resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-preview' = {
+  parent: alertRule
+  name: 'action1'
+  properties: {
+    logicAppResourceId: logicApp.id
+    triggerUri: logicApp.listCallbackUrl().value
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/6010
+        [TestMethod]
+        public void Test_Issue6010_nested()
+        {
+            var result = CompilationHelper.Compile(@"
+param watchlistItems array
+param watchlistName string
+param workspaceName string
+
+resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' existing = {
+  name: workspaceName
+}
+
+var firstColumnName = !empty(watchlistItems) ? watchlistItems[0][0] : ''
+
+resource watchlist 'Microsoft.SecurityInsights/watchlists@2023-02-01-preview' = {
+  scope: workspace
+  name: watchlistName
+  properties: {
+    provider: 'Microsoft'
+    displayName: watchlistName
+    itemsSearchKey: firstColumnName
+  }
+
+  resource watchlistItemsDeployment 'watchlistItems@2023-02-01-preview' = [for item in watchlistItems: {
+    name: guid(item)
+    properties: {
+      itemsKeyValue: item
+    }
+  }]
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        // https://github.com/Azure/bicep/issues/10321
+        [TestMethod]
+        public void Test_Issue10321()
+        {
+            var result = CompilationHelper.Compile(
+("main.bicep", @"
+module mod 'mod.json' = {
+  name: 'mod'
+  params: {
+    secret: kv.getSecret('secret')
+  }
+}
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'kv'
+}
+"),
+("mod.json", @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""secret"": {
+      ""type"": ""secureString""
+    }
+  },
+  ""resources"": []
+}"));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }

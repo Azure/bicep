@@ -30,7 +30,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, credential, repository, options);
         }
 
-        public ContainerRegistryBlobClient CreateAnonymouosBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
+        public ContainerRegistryBlobClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();

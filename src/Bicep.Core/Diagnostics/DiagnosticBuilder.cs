@@ -50,6 +50,11 @@ namespace Bicep.Core.Diagnostics
                 ? $" You are referencing a variable which cannot be calculated at the start (\"{string.Join("\" -> \"", variableDependencyChain)}\")."
                 : string.Empty;
 
+            private static string BuildNonDeployTimeConstantPropertyClause(string? accessedSymbolName, string? propertyName) =>
+                accessedSymbolName is not null && propertyName is not null
+                    ? $" The property \"{propertyName}\" of {accessedSymbolName} cannot be calculated at the start."
+                    : string.Empty;
+
             private static string BuildAccessiblePropertiesClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames) => accessedSymbolName is not null && accessiblePropertyNames is not null
                 ? $" Properties of {accessedSymbolName} which can be calculated at the start include {ToQuotedString(accessiblePropertyNames.OrderBy(s => s))}."
                 : string.Empty;
@@ -228,7 +233,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax objectSyntax, ICollection<string> properties, string blockName, bool showTypeInaccuracy)
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax objectSyntax, ICollection<string> properties, string blockName, bool showTypeInaccuracy, IDiagnosticLookup parsingErrorLookup)
             {
                 var sourceDeclarationClause = sourceDeclaration is not null
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
@@ -236,8 +241,8 @@ namespace Bicep.Core.Diagnostics
 
                 var newSyntax = SyntaxModifier.TryAddProperties(
                     objectSyntax,
-                    properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia))
-                );
+                    properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia)),
+                    parsingErrorLookup);
 
                 if (newSyntax is null)
                 {
@@ -1090,15 +1095,16 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in an argument of the function \"{functionName}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain, string? violatingPropertyName)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var violatingPropertyNameClause = BuildNonDeployTimeConstantPropertyClause(accessedSymbolName, violatingPropertyName);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP182",
-                    $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+                    $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
             public ErrorDiagnostic ModuleParametersPropertyRequiresObjectLiteral() => new(
@@ -1465,31 +1471,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP250",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic ParameterTernaryOperationNotSupported() => new(
-                TextSpan,
-                "BCP251",
-                $"Ternary operator is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterBinaryOperationNotSupported() => new(
-                TextSpan,
-                "BCP252",
-                $"Binary operator is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterUnaryOperationNotSupported() => new(
-                TextSpan,
-                "BCP253",
-                $"Unary operator is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterLambdaFunctionNotSupported() => new(
-                TextSpan,
-                "BCP254",
-                $"Lambda function is not allowed in Bicep parameter file.");
-
-            public ErrorDiagnostic ParameterFunctionCallNotSupported() => new(
-                TextSpan,
-                "BCP255",
-                $"Function call is not allowed in Bicep parameter file.");
-
             public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP256",
@@ -1515,11 +1496,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP260",
                 $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic UsingDeclarationNotSpecified() => new(
+            public ErrorDiagnostic UsingDeclarationNotSpecified() => new(
                 TextSpan,
-                DiagnosticLevel.Warning,
                 "BCP261",
-                "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
+                "A using declaration must be present in this parameters file.");
 
             public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
                 TextSpan,
@@ -1914,6 +1894,27 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP335",
                 $"The provided value {(sourceMaxLength.HasValue ? $"may have a length as large as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
+
+            public ErrorDiagnostic ParametersFileUnsupported() => new(
+                TextSpan,
+                "BCP336",
+                $@"Using a Bicep Parameters file requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}"".",
+                new Uri("https://aka.ms/bicep/config"));
+
+            public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
+                TextSpan,
+                "BCP337",
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
+
+            public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
+                TextSpan,
+                "BCP338",
+                $"Failed to evaluate parameter \"{parameterName}\": {message}");
+                
+            public ErrorDiagnostic ArrayIndexOutOfBounds(long indexSought) => new(
+                TextSpan, 
+                "BCP339",
+                $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

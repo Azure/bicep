@@ -19,7 +19,7 @@ namespace Bicep.Cli.IntegrationTests
 {
 
     [TestClass]
-    public class BuildParamsComa : TestBase
+    public class BuildParamsCommandTests : TestBase
     {
         
         [NotNull]
@@ -34,11 +34,11 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain($"The specified input \"{bicepparamsPath}\" could not be compiled. Compilation of files with extension .bicepparam is only supported if experimental feature \"{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}\" is enabled.");
+            error.Should().Contain($"{bicepparamsPath}(1,1) : Error BCP336: Using a Bicep Parameters file requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ParamsFiles)}\". [https://aka.ms/bicep/config]");
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--outfile", outputFilePath);
 
             File.Exists(outputFilePath).Should().BeTrue();
             result.Should().Be(0);
@@ -70,27 +70,11 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().Contain($"{bicepPath} is not a bicep file");
-        }
-
-        [TestMethod]
-        public async Task Build_Params_With_Same_Params_And_Bicep_Output_Path_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", "", Path.GetDirectoryName(bicepparamsPath));
-
-            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
-
-            File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile-params", outputFilePath, "--outfile-bicep", outputFilePath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().Contain($"The path for --outfile-params and --outfile-bicep can not be the same");
         }
 
         [TestMethod]
@@ -105,11 +89,38 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile-params", outputFilePath);
+            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().Contain($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the using declaration in the parameters file");
+        }
+
+        [TestMethod]
+        public async Task Build_Params_Bicep_File_Reference_Mismatch_And_Other_Diagnostics_ShouldFail_WithAllExpectedErrorMessages()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", 
+            @"
+            using './main.bicep'
+
+            param foo = 'bar'
+            ");
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", "param foo object", Path.GetDirectoryName(bicepparamsPath));
+
+            var otherBicepPath = FileHelper.SaveResultFile(TestContext, "otherMain.bicep", "", Path.GetDirectoryName(bicepparamsPath));
+
+            var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            var(output, error, result) = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
+
+            var diagnostics = await GetAllParamDiagnostics(bicepparamsPath);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the using declaration in the parameters file");
+            error.Should().ContainAll(diagnostics);
+            File.Exists(outputFilePath).Should().BeFalse();
         }
 
         [DataTestMethod]
@@ -118,10 +129,8 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-
             var features = new FeatureProviderOverrides(TestContext, ParamsFilesEnabled: true);
             var settings = new InvocationSettings(features, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-
             var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
 
             using (new AssertionScope())
@@ -153,15 +162,9 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            var parametersStdout = JsonSerializer.Deserialize<ParametersStdout>(output);
-
-            string compiledFilePath = data.Compiled!.OutputFilePath;
-            File.Exists(compiledFilePath);
-
-            // overwrite the output file
-            File.WriteAllText(compiledFilePath, parametersStdout!.parametersJson);
-
-            data.Compiled!.ShouldHaveExpectedJsonValue();
+            var parametersStdout = JsonSerializer.Deserialize<ParametersStdout>(output)!;
+            data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
+            data.Compiled.ShouldHaveExpectedJsonValue();
         }
 
         [DataTestMethod]
@@ -172,7 +175,7 @@ namespace Bicep.Cli.IntegrationTests
             var data = baselineData.GetData(TestContext);
 
             var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-            var diagnostics = await GetAllParamDiagnostics(data.Parameters.OutputFilePath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllParamDiagnostics(data.Parameters.OutputFilePath);
 
             var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
 

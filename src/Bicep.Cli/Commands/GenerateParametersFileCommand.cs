@@ -7,6 +7,7 @@ using Bicep.Cli.Services;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -41,7 +42,7 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
-            var emitterSettings = new EmitterSettings(features);
+            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.BicepFile);
 
             if (emitterSettings.EnableSymbolicNames)
             {
@@ -55,7 +56,7 @@ namespace Bicep.Cli.Commands
 
             if (!IsBicepFile(inputPath))
             {
-                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+                logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
                 return 1;
             }
 

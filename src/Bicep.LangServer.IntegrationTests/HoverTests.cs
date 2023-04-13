@@ -642,6 +642,66 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             hovers.Should().SatisfyRespectively(h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent));
         }
 
+        [TestMethod]
+        public async Task ParamHovers_are_displayed_on_param_symbols_params_file()
+        {
+            var bicepText = @"
+@allowed(
+  [ 'value1'
+    'value2'
+  ]
+)
+@description('this is a string value')
+param foo string                       
+
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param bar int
+
+@description('this is a bool value')
+param foobar bool
+";
+
+            var bicepparamTextWithCursor = @"
+using 'main.bicep'
+
+param f|oo = 'value1'
+
+param ba|r = 1
+
+param foo|bar = true
+";
+
+            var (bicepparamText, cursors) = ParserHelper.GetFileWithCursors(bicepparamTextWithCursor,'|');
+
+        
+            var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri("file:///path/to/params.bicepparam"), bicepparamText);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), bicepText);
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsFile.FileUri] = bicepparamText,
+                [bicepFile.FileUri] = bicepText
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, paramsFile.FileUri, services => services.WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
+            var client = helper.Client;
+
+            var hovers = await RequestHovers(client, paramsFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foo: 'value1' | 'value2'\n```\nthis is a string value\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam bar: 0 | 1\n```\nthis is an int value\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foobar: bool\n```\nthis is a bool value\n")
+            );
+        }
+
+
         private string GetManifestFileContents(string? documentationUri)
         {
             if (documentationUri is null)
@@ -875,13 +935,23 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
         private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
         {
+            return await RequestHovers(client, bicepFile.FileUri, bicepFile.LineStarts, cursors);
+        }
+
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepParamFile paramFile, IEnumerable<int> cursors)
+        {
+            return await RequestHovers(client, paramFile.FileUri, paramFile.LineStarts, cursors);
+        }
+
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, Uri fileUri, IReadOnlyList<int> lineStarts, IEnumerable<int> cursors)
+        {
             var hovers = new List<Hover?>();
             foreach (var cursor in cursors)
             {
                 var hover = await client.RequestHover(new HoverParams
                 {
-                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
+                    TextDocument = new TextDocumentIdentifier(fileUri),
+                    Position = TextCoordinateConverter.GetPosition(lineStarts, cursor),
                 });
 
                 hovers.Add(hover);

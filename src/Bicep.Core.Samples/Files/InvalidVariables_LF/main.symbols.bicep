@@ -93,7 +93,7 @@ var test3 = {
 
 // duplicate properties
 var testDupe = {
-//@[04:12) Variable testDupe. Type: object. Declaration start char: 0, length: 56
+//@[04:12) Variable testDupe. Type: error. Declaration start char: 0, length: 56
   'duplicate': true
   duplicate: true
 }

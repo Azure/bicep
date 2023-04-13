@@ -120,6 +120,14 @@ resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: 'foo'
 }
 
-var blah = listKe|ys(resourceId('Microsoft.Storage/storageAccounts', 'bar'), stg.apiVersion).keys
+var blah = listKeys(resourceId('Microsoft.Storage/storageAccounts', 'bar'), stg.apiVersion).keys
+");
+
+    [TestMethod]
+    public void Rule_ignores_resource_without_names() => AssertNoDiagnostics(@"
+resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+}
+
+var blah = reference(resourceId('Microsoft.Storage/storageAccounts', 'stg${123}Name'), '2022-09-01').accessTier
 ");
 }

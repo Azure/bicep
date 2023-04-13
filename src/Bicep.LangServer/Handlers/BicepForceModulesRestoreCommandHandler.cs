@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             var modulesToRestore = sourceFileGrouping.UriResultByModule
                 .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
-            // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging
+            // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
             var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);

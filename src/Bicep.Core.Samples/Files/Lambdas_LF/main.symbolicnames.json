@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4809667844323283520"
+      "templateHash": "7333326022903475769"
     }
   },
   "variables": {
@@ -61,7 +61,7 @@
     },
     "myMod": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "asdfsadf",
       "properties": {
         "expressionEvaluationOptions": {

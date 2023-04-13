@@ -13,6 +13,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -56,7 +57,7 @@ namespace Bicep.Core.Semantics
             SymbolContext = symbolContext;
 
             Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, symbolContext);
-            TypeManager = new TypeManager(features, Binder, fileResolver, this.SourceFile.FileKind);
+            TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
             // name binding is done
             // allow type queries now
@@ -78,8 +79,8 @@ namespace Bicep.Core.Semantics
             this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
             this.declaredResourcesLazy = new Lazy<ImmutableArray<DeclaredResourceMetadata>>(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
 
-            this.assignmentsByDeclaration = new Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>>(() => InitializeDeclarationToAssignmentDictionary());
-            this.declarationsByAssignment = new Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>>(() => InitializeAssignmentToDeclarationDictionary());
+            this.assignmentsByDeclaration = new Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>>(InitializeDeclarationToAssignmentDictionary);
+            this.declarationsByAssignment = new Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>>(InitializeAssignmentToDeclarationDictionary);
 
             // lazy load single use diagnostic set
             this.allDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => AssembleDiagnostics());
@@ -152,6 +153,10 @@ namespace Bicep.Core.Semantics
 
         public IFileResolver FileResolver { get; }
 
+        public IDiagnosticLookup LexingErrorLookup => this.SourceFile.LexingErrorLookup;
+
+        public IDiagnosticLookup ParsingErrorLookup => this.SourceFile.ParsingErrorLookup;
+
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
@@ -186,11 +191,6 @@ namespace Bicep.Core.Semantics
                 yield return builderFunc(DiagnosticBuilder.ForDocumentStart());
             }
         }
-
-        /// <summary>
-        /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
-        /// </summary>
-        private IEnumerable<IDiagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
@@ -238,7 +238,8 @@ namespace Bicep.Core.Semantics
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
             var diagnostics = GetConfigDiagnostics()
-                .Concat(GetParseDiagnostics())
+                .Concat(this.LexingErrorLookup)
+                .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
                 .Concat(GetAnalyzerDiagnostics())
                 // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
@@ -275,6 +276,8 @@ namespace Bicep.Core.Semantics
         /// <returns>True if analysis finds errors</returns>
         public bool HasErrors()
             => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
+
+        public bool HasParsingError(SyntaxBase syntax) => this.ParsingErrorLookup.Contains(syntax);
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.TypeManager.GetTypeInfo(syntax);
 
@@ -423,6 +426,13 @@ namespace Bicep.Core.Semantics
             {
                 // not a param file - no additional diagnostics
                 return Enumerable.Empty<IDiagnostic>();
+            }
+
+            if (!this.Features.ParamsFilesEnabled)
+            {
+                // prompt the user to enable the experimental feature before showing any other diagnostics
+                var paramsFileUnsupportedDiag = DiagnosticBuilder.ForDocumentStart().ParametersFileUnsupported();
+                return paramsFileUnsupportedDiag.AsEnumerable();
             }
 
             // try to get the bicep file's semantic model

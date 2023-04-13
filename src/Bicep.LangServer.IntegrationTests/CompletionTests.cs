@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
@@ -24,6 +25,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
@@ -78,10 +80,11 @@ namespace Bicep.LangServer.IntegrationTests
         {
             ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
+            var settingsProvider = StrictMock.Of<ISettingsProvider>();
             ServerWithNamespaceAndTestResolver.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    services => services.AddSingleton<ISettingsProvider>(GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled())));
+                    services => services.AddSingleton<ISettingsProvider>(settingsProvider.Object)));
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
@@ -303,6 +306,126 @@ output baz object = {|
         }
 
         [TestMethod]
+        public async Task Documentation_should_be_shown_for_bicep_symbol_completions()
+        {
+            var bicepTextWithCursor = @"
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param myInt int
+
+@allowed(
+    [
+        'value1'
+        'value2'
+    ]
+)
+@description('this is a string value')
+param myStr string
+
+@description('this is a bool value')
+param myBool bool
+
+param myArray array 
+
+@description('this is a variable')
+var myVar = 'foobar'
+
+@description('this is a storage account resource')
+resource storageAct 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foorbar'
+  location: 'westus2'
+  sku: {
+    name: 'standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+
+@description('this is a bicep module')
+module myMod './myMod.bicep' = {
+  name: 'myModule'
+}
+
+resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
+  name: 'default'
+  parent:  |
+}
+";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(bicepTextWithCursor, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///myMod.bicep")] = "",
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursor);
+
+            var symbolCompletions = completions.Items.Where(x => x.Kind == CompletionItemKind.Field ||
+                                                                 x.Kind == CompletionItemKind.Variable ||
+                                                                 x.Kind == CompletionItemKind.Interface ||
+                                                                 x.Kind == CompletionItemKind.Module);
+
+            symbolCompletions.Should().SatisfyRespectively(
+              x =>
+              {
+                  x.Label.Should().Be("myInt");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myStr");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myBool");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myArray");
+                  x.Kind.Should().Be(CompletionItemKind.Field);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: array");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myVar");
+                  x.Kind.Should().Be(CompletionItemKind.Variable);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a variable");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("storageAct");
+                  x.Kind.Should().Be(CompletionItemKind.Interface);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a storage account resource");
+              },
+              x =>
+              {
+                  x.Label.Should().Be("myMod");
+                  x.Kind.Should().Be(CompletionItemKind.Module);
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a bicep module");
+              }
+            ); 
+        }
+
+        [TestMethod]
         public async Task Completions_are_not_offered_inside_comments()
         {
             var fileWithCursors = @"
@@ -512,6 +635,75 @@ var test2 = /|* block c|omment *|/
         }
 
         [TestMethod]
+        public async Task VerifyNullablePropertiesAreNotLabeledRequired()
+        {
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    foo: {
+      |
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = @"param foo {
+  requiredProperty: string
+  optionalProperty: string?
+}",
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+            completions.Count().Should().Be(1);
+            completions.Single().OrderBy(c => c.SortText).Should().SatisfyRespectively(
+              x => x.Detail.Should().Be("requiredProperty (Required)"),
+              x => x.Detail.Should().Be("optionalProperty"));
+        }
+
+        [TestMethod]
+        public async Task VerifyNullablePropertiesAreNotIncludedInRequiredPropertiesCompletion()
+        {
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: |
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = @"param foo {
+  requiredProperty: string
+  optionalProperty: string?
+}",
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+            completions.Count().Should().Be(1);
+
+            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").ProgramSyntax.ToTextPreserveFormatting();
+            withRequiredProps.Should().Contain("requiredProperty");
+            withRequiredProps.Should().NotContain("optionalProperty");
+        }
+
+        [TestMethod]
         public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
         {
             string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
@@ -687,6 +879,61 @@ var quux = foos[?0].bar.baz.ǂ
                         d => d.Single().Label.Should().Be("baz"),
                         d => d.Single().Label.Should().Be("quux")),
                 'ǂ');
+        }
+
+        [TestMethod]
+        public async Task Completions_are_offered_within_values_with_a_nullable_declared_type()
+        {
+            var module = @"
+type myObject = {
+  requiredProperty: string
+  optionalProperty: string?
+}
+
+param nullableArray myObject[]?
+
+param arrayOfNullables (myObject?)[]
+
+param nullableObject myObject?
+
+param withNullableObjectProperty {
+  nullableProperty: myObject?
+}
+";
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    nullableArray: [
+      |
+    ]
+    arrayOfNullables: [
+      |
+    ]
+    nullableObject: |
+    withNullableObjectProperty: {
+      nullableProperty: |
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            // despite being in a location with a nullable type or nested within a nullable type, each cursor should be recognized as accepting a typed object and therefore offer the "required-properties" snippet as a completion
+            completions.Should().AllSatisfy(y => y.Any(x => x.Label == "required-properties").Should().BeTrue());
         }
 
         [TestMethod]
@@ -1012,14 +1259,12 @@ var obj6 = { |
         public async Task RequestCompletionsInArrays_AtPositionsWhereNodeShouldNotBeInserted_ReturnsEmptyCompletions()
         {
             var fileWithCursors = @"
-var arr1 = [|]
-var arr2 = [| ]
-var arr3 = [ |]|
-var arr4 = |[ | ]
-var arr5 = [|
+var arr1 = []|
+var arr2 = |[]
+var arr3 = [|
   | null |
 |]
-var arr6 = [ |
+var arr4 = [ |
   12345
   |  true
 | ]
@@ -1563,11 +1808,15 @@ module a '|' = {
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursor);
 
-            completions.Should().SatisfyRespectively(
-                x => x.Label.Should().Be("percentage%file.bicep"),
+            completions.OrderBy(x => x.SortText).Should().SatisfyRespectively(
                 x => x.Label.Should().Be("already%20escaped.bicep"),
+                x => x.Label.Should().Be("percentage%file.bicep"),
+                x => x.Label.Should().Be("../"),
                 x => x.Label.Should().Be("folder with space/"),
-                x => x.Label.Should().Be("../"));
+                x => x.Label.Should().Be("br/"),
+                x => x.Label.Should().Be("br:"),
+                x => x.Label.Should().Be("ts:")
+            );
         }
 
         [TestMethod]
@@ -2410,6 +2659,336 @@ Returns the unique identifier of a resource. You use this function when the reso
                 '|');
         }
 
+        [TestMethod]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            string mainContent = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+param paramObj object = {
+  name: 'test'
+}
+var notAResource = 'I\'m a string!'
+module aModule 'mod.bicep' = {
+  name: 'someModule'
+}
+resource storageArr 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
+  name: 'storage${i}'
+  kind: 'StorageV2'
+}]
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  dependsOn: [
+    |
+  ]
+}";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursors[0]);
+
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().Contain(c => c.Label == "aModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aModule");
+            completions.Should().Contain(c => c.Label == "storageArr" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_storageArr");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
+            completions.Should().Contain(c => c.Label == "paramObj" && c.SortText == $"{(int)CompletionPriority.Medium}_paramObj");
+            completions.Should().NotContain(c => c.Label == "foo");
+            completions.Should().NotContain(c => c.Label == "[]");
+            completions.Should().NotContain(c => c.Preselect);
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_NestedResources()
+        {
+            string mainContent = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+param paramArr array = []
+var notAResource = 'I\'m a string!'
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  dependsOn: [
+    |
+  ]
+
+  resource fooChild1 'fileServices' = {
+    name: 'fooChild1'
+    dependsOn: [
+      |
+    ]
+
+    resource fooChild1Child1 'shares' = {
+      name: 'fooChild1Child1'
+      dependsOn: [|]
+    }
+  }
+
+  resource fooChild2 'fileServices' = {
+    name: 'fooChild2'
+    dependsOn: [
+      |
+    ]
+
+    resource fooChild2Child1 'shares' = {
+      name: 'fooChild2Child1'
+      dependsOn: [|]
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(5);
+
+            foreach (var completions in allCompletions)
+            {
+                completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            }
+
+            var fooDependsOnCompletions = allCompletions[0];
+            fooDependsOnCompletions.Should().NotContain(c => c.Label.StartsWith("foo"));
+
+            var fooChild1DependsOnCompletions = allCompletions[1];
+            fooChild1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild2");
+            fooChild1DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
+            fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1");
+            fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
+            fooChild1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
+
+            var fooChild1Child1DependsOnCompletions = allCompletions[2];
+            fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild2");
+            fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.Medium}_fooChild1");
+            fooChild1Child1DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
+            fooChild1Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
+
+            var fooChild2DependsOnCompletions = allCompletions[3];
+            fooChild2DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild1");
+            fooChild2DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
+            fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2");
+            fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild1Child1");
+            fooChild2DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
+
+            var fooChild2Child1DependsOnCompletions = allCompletions[4];
+            fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild1" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_fooChild1");
+            fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "fooChild2" && c.SortText == $"{(int)CompletionPriority.Medium}_fooChild2");
+            fooChild2Child1DependsOnCompletions.Should().Contain(c => c.Label == "foo" && c.SortText == $"{(int)CompletionPriority.Medium}_foo");
+            fooChild2Child1DependsOnCompletions.Should().NotContain(c => c.Label == "fooChild2Child1");
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_TernaryAndParentheses()
+        {
+            string fileWithCursors = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+var notAResource = 'I\'m a string!'
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  dependsOn: [
+    (|)
+    ((|))
+    notAResource == 'test' ? |
+    notAResource == 'test' ? aResource : |
+    notAResource == 'test' ? (|
+    notAResource == 'test' ? (true ? aResource : |) : aResource
+  ]
+}";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
+
+            var allCompletions = await file.RequestCompletions(cursors);
+            allCompletions.Should().HaveCount(6);
+            foreach (var completions in allCompletions)
+            {
+                completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+                completions.Should().NotContain(c => c.Label == "foo");
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("[(|)]")]
+        [DataRow("[(|]")]
+        [DataRow("[((|))]")]
+        [DataRow("[(( | ))]")]
+        [DataRow("[a, (|)]")]
+        [DataRow("[tmp ? |]")]
+        [DataRow("[tmp ? a : |]")]
+        [DataRow("[a, tmp ? |]")]
+        [DataRow("[a, tmp ? | ]")]
+        [DataRow("[a, tmp ? a : |]")]
+        [DataRow("[(a), tmp ? a : b, |]")]
+        [DataRow("[tmp ? (tmp ? |)]")]
+        [DataRow("[, (|)]")]
+        [DataRow("[, ( | )]")]
+        [DataRow("[, (tmp ? (tmp ? |))]")]
+        [DataRow("[, (tmp ? (tmp ? |]")]
+        public async Task VerifyCompletionRequestResourceDependsOn_ResourceSymbolsVeryHighPriority_TernaryAndParentheses_SingleLineArray(string arrayText)
+        {
+            string fileWithCursors = @$"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {{
+  name: 'bar'
+}}
+var tmp = true
+var notAResource = 'I\'m a string!'
+resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {{
+  name: 'foo'
+  dependsOn: {arrayText}
+}}
+";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().NotContain(c => c.Label == "foo");
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestModuleDependsOn_ResourceSymbolsVeryHighPriority()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            var mainContent = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+module bModule 'mod2.bicep' = {
+  name: 'someModule'
+}
+var notAResource = 'I\'m a string!'
+module aModule 'mod.bicep' = {
+  name: 'someModule'
+  dependsOn: [
+    |
+  ]
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [new Uri("file:///mod2.bicep")] = moduleContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletion(cursors[0]);
+
+            completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+            completions.Should().Contain(c => c.Label == "bModule" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_bModule");
+            completions.Should().Contain(c => c.Label == "notAResource" && c.SortText == $"{(int)CompletionPriority.Medium}_notAResource");
+            completions.Should().NotContain(c => c.Label == "aModule");
+            completions.Should().NotContain(c => c.Label == "[]");
+            completions.Should().NotContain(c => c.Preselect);
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestModuleDependsOn_ResourceSymbolsVeryHighPriority_TernaryAndParentheses()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplied by 3')
+output inputTimesThree int = input * 3
+";
+
+            var mainContentWithCursors = @"
+resource aResource 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'bar'
+}
+module aModule 'mod.bicep' = {
+  name: 'someModule'
+}
+var notAResource = 'I\'m a string!'
+module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+  dependsOn: [
+    (|)
+    ((|))
+    notAResource == 'test' ? |
+    notAResource == 'test' ? aResource : |
+    notAResource == 'test' ? (|
+    notAResource == 'test' ? (true ? aResource : |) : aResource
+  ]
+}";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContentWithCursors, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [new Uri("file:///mod2.bicep")] = moduleContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
+            );
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(6);
+            foreach (var completions in allCompletions)
+            {
+                completions.Should().Contain(c => c.Label == "aResource" && c.SortText == $"{(int)CompletionPriority.VeryHigh}_aResource");
+                completions.Should().NotContain(c => c.Label == "foo");
+                completions.Should().NotContain(c => c.Label == "[]");
+                completions.Should().NotContain(c => c.Preselect);
+            }
+        }
+
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
         {
             foreach (var completionList in completionLists)
@@ -2806,7 +3385,6 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -2836,7 +3414,6 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "bar.bicep", string.Empty, Path.Combine(testOutputPath, Path.Combine(testOutputPath, "br", "foo")));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -2869,7 +3446,6 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
@@ -2904,7 +3480,6 @@ var file = " + functionName + @"(templ|)
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
@@ -2925,12 +3500,65 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet);
         }
 
-        private static ISettingsProvider GetSettingsProviderWithModuleRegistryReferenceCompletionEnabled()
+        [DataTestMethod]
+        [DataRow("var arr1 = [|]")]
+        [DataRow("param arr array = [|]")]
+        [DataRow("var arr2 = [a, |]")]
+        [DataRow("var arr3 = [a,|]")]
+        [DataRow("var arr4 = [a|]")]
+        [DataRow("var arr5 = [|, b]")]
+        [DataRow("var arr6 = [a, |, b]")]
+        public async Task GenericArray_SingleLine_HasCompletions(string text)
         {
-            var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.EnableModuleRegistryReferenceCompletionsSetting)).Returns(true);
+            var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(fileText);
 
-            return settingsProvider.Object;
+            var completions = await file.RequestCompletion(cursor);
+            // test completions that are unlikely to change over time
+            completions.Should().Contain(c => c.Label == "sys");
+            completions.Should().Contain(c => c.Label == "if-else");
+        }
+
+        [TestMethod]
+        public async Task GenericArray_Multiline_HasCompletions()
+        {
+            const string text = @"
+var arr1 = [
+  |
+]
+param arr2 array = [
+  |
+]
+var arr3 = [
+  a|
+]
+var arr4 = [
+  a
+  |
+]
+param arr5 array = [
+  a
+  |
+  b
+]
+var arr6 = [
+
+  |
+
+]";
+
+            var (fileText, cursors) = ParserHelper.GetFileWithCursors(text, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(fileText);
+
+            var allCompletions = await file.RequestCompletions(cursors);
+
+            allCompletions.Should().HaveCount(6);
+            foreach (var completions in allCompletions)
+            {
+                // test completions that are unlikely to change over time
+                completions.Should().Contain(c => c.Label == "sys");
+                completions.Should().Contain(c => c.Label == "if-else");
+            }
         }
     }
 }

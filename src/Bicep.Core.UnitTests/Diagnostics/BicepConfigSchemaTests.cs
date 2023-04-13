@@ -42,8 +42,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
             return (ruleSet.ToArray(), configSchema);
         }
 
+        private IEnumerable<JProperty> GetRuleCustomConfigurationProperties(JObject ruleConfigSchema)
+        {
+            var properties = ruleConfigSchema.SelectToken("allOf[0].properties")?.OfType<JProperty>();
+            return properties ?? Enumerable.Empty<JProperty>();
+        }
+
         [TestMethod]
-        public void Config_ShouldIncludeCurrentCoreRules()
+        public void Config_ShouldIncludeCurrentAllCoreRules()
         {
             var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, object>>();
@@ -104,6 +110,26 @@ namespace Bicep.Core.UnitTests.Diagnostics
             {
                 key.Should().MatchRegex("^[a-z][a-z-]*[a-z]$", "all rule keys should be lower-cased with hyphens, and not start or end with hyphen");
                 key.Should().HaveLengthLessThanOrEqualTo(36, "rule ids should have a reasonable length");
+            }
+        }
+
+        [TestMethod]
+        public void RuleConfigs_RuleCustomConfigurationPropertiesShouldBeConsistent()
+        {
+            var (rules, schema) = GetRulesAndSchema();
+            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
+            Assert.IsNotNull(ruleConfigs);
+            foreach (var (key, rule) in ruleConfigs)
+            {
+                var rulePropertyConfigs = GetRuleCustomConfigurationProperties(rule);
+                foreach (JProperty rulePropertyConfig in rulePropertyConfigs)
+                {
+                    string rulePropertyName = rulePropertyConfig.Name;
+                    string rulePlusPropertyName = $"{key} -> {rulePropertyConfig.Name}";
+
+                    rulePropertyConfig.Name.Should().MatchRegex("^[a-z][a-zA-Z]*$", $"all rule custom configuration property names should be mixed case with no hyphens ({rulePlusPropertyName})");
+                    rulePropertyConfig.Name.Should().HaveLengthLessThanOrEqualTo(25, $"all rule custom configuration property names should have a reasonable length {rulePlusPropertyName})");
+                }
             }
         }
 

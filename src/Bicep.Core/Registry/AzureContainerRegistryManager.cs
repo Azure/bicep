@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Containers.ContainerRegistry;
 using Azure.Containers.ContainerRegistry.Specialized;
 using Azure.Identity;
 using Bicep.Core.Configuration;
@@ -119,7 +122,7 @@ namespace Bicep.Core.Registry
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
 
         private ContainerRegistryBlobClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymouosBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
+            ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
 
         private static async Task<(OciManifest, Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryBlobClient client)
@@ -172,7 +175,7 @@ namespace Bicep.Core.Registry
             // so we must allow null here
             if(manifest.ArtifactType is not null && !string.Equals(manifest.ArtifactType, BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.");
+                throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.", InvalidModuleExceptionKind.WrongArtifactType);
             }
 
             ProcessConfig(manifest.Config);
@@ -209,7 +212,7 @@ namespace Bicep.Core.Registry
         {
             if (!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".");
+                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
 
             Response<DownloadBlobResult> blobResult;
@@ -250,18 +253,6 @@ namespace Bicep.Core.Registry
             catch (Exception exception)
             {
                 throw new InvalidModuleException("Unable to deserialize the module manifest.", exception);
-            }
-        }
-
-        private class InvalidModuleException : OciModuleRegistryException
-        {
-            public InvalidModuleException(string innerMessage) : base($"The OCI artifact is not a valid Bicep module. {innerMessage}")
-            {
-            }
-
-            public InvalidModuleException(string innerMessage, Exception innerException)
-                : base($"The OCI artifact is not a valid Bicep module. {innerMessage}", innerException)
-            {
             }
         }
     }

@@ -138,6 +138,9 @@ namespace Bicep.Core.Emit
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
 
+                case ParametersAssignmentReferenceExpression exp:
+                    return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
+
                 case LambdaExpression exp:
                     var variableNames = exp.Parameters.Select(x => new JTokenExpression(x));
                     var body = ConvertExpression(exp.Body);

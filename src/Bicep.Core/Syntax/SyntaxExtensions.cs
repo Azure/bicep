@@ -11,17 +11,42 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static IReadOnlyList<IDiagnostic> GetParseDiagnostics(this SyntaxBase syntax)
+        public static bool IsSingleLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.SingleLineComment;
+
+        public static bool IsMultiLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.MultiLineComment;
+
+        public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
+
+        public static CommentStickiness GetCommentStickiness(this Token token) => token.Type.GetCommentStickiness();
+
+        public static CommentStickiness GetCommentStickiness(this TokenType type) => type switch
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var parseErrorVisitor = new ParseDiagnosticsVisitor(diagnosticWriter);
-            parseErrorVisitor.Visit(syntax);
+            // Minus is included because negative numbers can have leading comments.
+            TokenType.Minus or
+            TokenType.EndOfFile or
+            TokenType.LeftParen or
+            TokenType.LeftSquare or
+            TokenType.LeftBrace or
+            TokenType.StringLeftPiece => CommentStickiness.Leading,
 
-            return diagnosticWriter.GetDiagnostics();
-        }
+            TokenType.RightParen or
+            TokenType.RightSquare or
+            TokenType.RightBrace or
+            TokenType.StringRightPiece => CommentStickiness.Trailing,
 
-        public static bool HasParseErrors(this SyntaxBase syntax)
-            => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
+            TokenType.NewLine or
+            TokenType.Exclamation or
+            TokenType.FalseKeyword or
+            TokenType.TrueKeyword or
+            TokenType.NullKeyword or
+            TokenType.StringComplete or
+            TokenType.Integer or
+            TokenType.Identifier => CommentStickiness.Bidirectional,
+
+            _ => CommentStickiness.None,
+        };
+
+        public static bool IsOf(this Token token, TokenType type) => token.Type == type;
 
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);

@@ -20,7 +20,11 @@ namespace Bicep.Core.TypeSystem
         private delegate void TypeMismatchDiagnosticWriter(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression);
 
         private readonly ITypeManager typeManager;
+
         private readonly IBinder binder;
+
+        private readonly IDiagnosticLookup parsingErrorLookup;
+
         private readonly IDiagnosticWriter diagnosticWriter;
 
         private class TypeValidatorConfig
@@ -48,10 +52,11 @@ namespace Bicep.Core.TypeSystem
             public bool IsResourceDeclaration { get; }
         }
 
-        private TypeValidator(ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+        private TypeValidator(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {
             this.typeManager = typeManager;
             this.binder = binder;
+            this.parsingErrorLookup = parsingErrorLookup;
             this.diagnosticWriter = diagnosticWriter;
         }
 
@@ -199,7 +204,7 @@ namespace Bicep.Core.TypeSystem
         public static bool ShouldWarn(TypeSymbol targetType)
             => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnTypeMismatch);
 
-        public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false)
+        public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false)
         {
             var config = new TypeValidatorConfig(
                 skipTypeErrors: false,
@@ -209,7 +214,7 @@ namespace Bicep.Core.TypeSystem
                 onTypeMismatch: null,
                 isResourceDeclaration: isResourceDeclaration);
 
-            var validator = new TypeValidator(typeManager, binder, diagnosticWriter);
+            var validator = new TypeValidator(typeManager, binder, parsingErrorLookup, diagnosticWriter);
 
             return validator.NarrowType(config, expression, targetType);
         }
@@ -661,7 +666,7 @@ namespace Bicep.Core.TypeSystem
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
-            if (expression.HasParseErrors())
+            if (this.parsingErrorLookup.Contains(expression))
             {
                 return targetType;
             }
@@ -771,7 +776,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var candidateDiagnostics = ToListDiagnosticWriter.Create();
-                var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
+                var candidateCollector = new TypeValidator(typeManager, binder, parsingErrorLookup, candidateDiagnostics);
                 var narrowed = candidateCollector.NarrowUnionType(config, expression, candidateExpressionType.Type, targetType);
                 candidacyEvaluations.Add(new(candidateExpressionType, narrowed, candidateDiagnostics.GetDiagnostics()));
             }
@@ -811,7 +816,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var candidateDiagnostics = ToListDiagnosticWriter.Create();
-                var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
+                var candidateCollector = new TypeValidator(typeManager, binder, parsingErrorLookup, candidateDiagnostics);
                 var narrowed = candidateCollector.NarrowType(config, expression, expressionType, candidateTargetType.Type);
                 candidacyEvaluations.Add(new(candidateTargetType, narrowed, candidateDiagnostics.GetDiagnostics()));
             }
@@ -899,7 +904,7 @@ namespace Bicep.Core.TypeSystem
         {
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
-            if (expression.HasParseErrors())
+            if (this.parsingErrorLookup.Contains(expression))
             {
                 return LanguageConstants.Any;
             }
@@ -930,9 +935,7 @@ namespace Bicep.Core.TypeSystem
             // At some point in the future we may want to relax the expectation of a string literal key, and allow a generic string.
             // In this case, the best we can do is validate against the union of all the settable properties.
             // Let's not do this just yet, and see if a use-case arises.
-
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
             switch (discriminatorType)
             {
                 case AnyType:
@@ -944,6 +947,9 @@ namespace Bicep.Core.TypeSystem
                         // no matches
                         var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
 
+                        // Treat as a warning, regardless of whether a property is a 'SystemProperty'.
+                        // We don't want to block compilation if the RP has an incomplete discriminator on the 'name' field.
+                        var shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
 
                         diagnosticWriter.Write(
                             config.OriginSyntax ?? discriminatorProperty.Value,
@@ -957,7 +963,7 @@ namespace Bicep.Core.TypeSystem
                                     return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
                                 }
 
-                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty));
+                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration);
                             });
 
                         return LanguageConstants.Any;
@@ -980,10 +986,13 @@ namespace Bicep.Core.TypeSystem
                     return LanguageConstants.Any;
 
                 default:
+                {
+                    var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
                     diagnosticWriter.Write(
                         config.OriginSyntax ?? discriminatorProperty.Value,
                         x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
                     return LanguageConstants.Any;
+                }
             }
         }
 
@@ -1006,7 +1015,7 @@ namespace Bicep.Core.TypeSystem
             // TODO: Consider doing the schema check even if there are parse errors
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
-            if (expression.HasParseErrors())
+            if (this.parsingErrorLookup.Contains(expression))
             {
                 return targetType;
             }
@@ -1029,7 +1038,7 @@ namespace Bicep.Core.TypeSystem
 
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? positionable,
-                    x => x.MissingRequiredProperties(shouldWarn, TryGetSourceDeclaration(config), expression, missingRequiredPropertiesNames, blockName, showTypeInaccuracy));
+                    x => x.MissingRequiredProperties(shouldWarn, TryGetSourceDeclaration(config), expression, missingRequiredPropertiesNames, blockName, showTypeInaccuracy, this.parsingErrorLookup));
             }
 
             var narrowedProperties = new List<TypeProperty>();

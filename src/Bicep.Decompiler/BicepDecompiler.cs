@@ -19,6 +19,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Decompiler;
 
@@ -130,7 +131,7 @@ public class BicepDecompiler
                 continue;
             }
 
-            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, GetPrettyPrintOptions());
+            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, GetPrettyPrintOptions(), bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
         }
 
         return filesToSave.ToImmutableDictionary();
@@ -138,7 +139,7 @@ public class BicepDecompiler
 
     private static string PrintSyntax(SyntaxBase syntax)
     {
-        return PrettyPrinter.PrintSyntax(syntax, GetPrettyPrintOptions());
+        return PrettyPrinter.PrintValidSyntax(syntax, GetPrettyPrintOptions());
     }
 
     private static PrettyPrintOptions GetPrettyPrintOptions() => new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
@@ -150,17 +151,14 @@ public class BicepDecompiler
 
         // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
         var sourceFiles = compilation.SourceFileGrouping.SourceFiles.ToImmutableArray();
-        foreach (var sourceFile in sourceFiles)
+        foreach (var bicepFile in sourceFiles.OfType<BicepFile>())
         {
-            var bicepFile = sourceFile as BicepFile ??
-                throw new InvalidOperationException($"Failed to find a bicep source file for URI {sourceFile.FileUri}.");
-
             var newProgramSyntax = rewriteVisitorBuilder(compilation.GetSemanticModel(bicepFile)).Rewrite(bicepFile.ProgramSyntax);
 
             if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
             {
                 hasChanges = true;
-                var newFile = SourceFileFactory.CreateBicepFile(sourceFile.FileUri, newProgramSyntax.ToText());
+                var newFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToText());
                 workspace.UpsertSourceFile(newFile);
 
                 compilation = await bicepCompiler.CreateCompilation(entryUri, skipRestore: true, workspace);

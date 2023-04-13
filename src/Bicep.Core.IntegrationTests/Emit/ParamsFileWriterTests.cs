@@ -17,6 +17,8 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         [DataTestMethod]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = 'test value'", @"
 {
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
@@ -26,8 +28,12 @@ param myParam = 'test value'", @"
       ""value"": ""test value""
     }
   }
-}")]
+}", @"
+param myParam string
+")]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = 1", @"
 {
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
@@ -37,8 +43,12 @@ param myParam = 1", @"
       ""value"": 1
     }
   }
-}")]
+}", @"
+param myParam int
+")]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = true", @"
 {
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
@@ -48,8 +58,12 @@ param myParam = true", @"
       ""value"": true
     }
   }
-}")]
+}", @"
+param myParam bool
+")]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = [
   1
   2
@@ -65,8 +79,12 @@ param myParam = [
         ]
     }
   }
-}")]
+}", @"
+param myParam array
+")]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = {
   property1 : 'value1'
   property2 : 'value2'
@@ -82,8 +100,12 @@ param myParam = {
       }
     }
   }
-}")]
+}", @"
+param myParam object
+")]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = {
   property1 : null
 }", @"
@@ -97,8 +119,12 @@ param myParam = {
       }
     }
   }
-}")]
+}", @"
+param myParam object
+")]
         [DataRow(@"
+using 'main.bicep'
+
 param myParam = {
   // basic case
   'foo': 'val1'
@@ -116,8 +142,12 @@ param myParam = {
       }
     }
   }
-}")]
+}", @"
+param myParam object
+")]
         [DataRow(@"
+using 'main.bicep'
+
 // involves all syntax
 param myParam = {
   arr: [
@@ -166,9 +196,13 @@ param myParam = {
       }
     }
   }
-}")]
+}", @"
+param myParam object
+")]
 
         [DataRow(@"
+using 'main.bicep'
+
 //multiple parameters
 param myStr = 'foo'
 param myBool = false
@@ -187,30 +221,18 @@ param myInt = 1", @"
       ""value"": 1
     }
   }
-}")]
-        public void Params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
+}", @"
+param myStr string
+param myBool bool
+param myInt int
+")]
+        public void Params_file_with_no_errors_should_compile_correctly(string paramsText, string paramsJsonText, string bicepText)
         {
-            var result = CompilationHelper.CompileParams(paramsText);
+            var result = CompilationHelper.CompileParams(("parameters.bicepparam", paramsText), ("main.bicep", bicepText));
 
             // Exclude the "No using declaration is present in this parameters file" diagnostic
             result.ExcludingLinterDiagnostics().WithFilteredDiagnostics(x => x.Code != "BCP261").Should().NotHaveAnyDiagnostics();
-            result.Parameters.Should().DeepEqual(JToken.Parse(jsonText));
-        }
-
-        [TestMethod]
-        public void Params_file_with_not_implemented_syntax_should_log_diagnostic()
-        {
-            var result = CompilationHelper.CompileParams("param foo = 1 + 2");
-
-            using(new AssertionScope())
-            {
-                result.Parameters.Should().BeNull();
-                result.Diagnostics.Should().HaveDiagnostics(new[]
-                {
-                    ("BCP261", DiagnosticLevel.Warning, "No using declaration is present in this parameters file. Parameter validation/completions will not be available"),
-                    ("BCP252", DiagnosticLevel.Error, "Binary operator is not allowed in Bicep parameter file.")
-                });
-            }
+            result.Parameters.Should().DeepEqual(JToken.Parse(paramsJsonText));
         }
     }
 }

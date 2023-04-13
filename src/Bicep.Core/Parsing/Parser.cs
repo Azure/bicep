@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -38,7 +39,12 @@ namespace Bicep.Core.Parsing
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(declarationsOrTokens, endOfFile, this.lexerDiagnostics);
+            var programSyntax = new ProgramSyntax(declarationsOrTokens, endOfFile, this.LexingErrorLookup, this.ParsingErrorLookup);
+
+            var parsingErrorVisitor = new ParseDiagnosticsVisitor(this.ParsingErrorTree);
+            parsingErrorVisitor.Visit(programSyntax);
+
+            return programSyntax;
         }
 
         protected override SyntaxBase Declaration() =>

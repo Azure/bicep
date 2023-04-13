@@ -221,8 +221,7 @@ output myOutput string = 'myOutput'
 @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
 resource myName 'My.Rp/myTypes@2020-01-01' = {
   name: 'myName'
-  properties: {
-  }
+  properties: {}
 }");
         }
 
