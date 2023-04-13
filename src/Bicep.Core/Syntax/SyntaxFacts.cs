@@ -12,6 +12,20 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxFacts
     {
+        public static bool IsFreeform(TokenType type) => type switch
+        {
+            TokenType.NewLine or
+            TokenType.Identifier or
+            TokenType.Integer or
+            TokenType.StringLeftPiece or
+            TokenType.StringMiddlePiece or
+            TokenType.StringRightPiece or
+            TokenType.StringComplete or
+            TokenType.MultilineString or
+            TokenType.Unrecognized => true,
+            _ => false,
+        };
+
         public static string? GetText(TokenType type) => type switch
         {
             TokenType.At => "@",
