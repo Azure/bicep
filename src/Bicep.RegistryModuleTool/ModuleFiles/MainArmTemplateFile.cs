@@ -124,10 +124,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             string name = parameters[parameterProperty.Name].Name;
             string type = GetPrimitiveTypeName(parameters[parameterProperty.Name].TypeReference);
-            bool isRequired = parameters[parameterProperty.Name].IsRequired;
+            bool required = parameters[parameterProperty.Name].IsRequired;
             string? description = parameters[parameterProperty.Name].Description;
 
-            return new(name, type, isRequired, description);
+            return new(name, type, required, description);
         }
 
         private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
