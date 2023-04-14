@@ -1166,7 +1166,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 // Instead of catching and returning the YML parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
-                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType()));
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).UnparseableYamlType()));
             }
 
             if (tokenSelectorPath is not null)
