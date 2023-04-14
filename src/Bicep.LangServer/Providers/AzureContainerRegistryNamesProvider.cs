@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.LanguageServer.Providers
 {
     /// <summary>
-    /// This provider helps fetch all the Azure Container Registries(ACR) names that the user has access to.
+    /// This provider fetches all the Azure Container Registries (ACR) names that the user has access to via Azure
     /// </summary>
     public class AzureContainerRegistryNamesProvider : IAzureContainerRegistryNamesProvider
     {
