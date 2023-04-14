@@ -160,7 +160,7 @@ var attemptToReferenceAnOutput = myOutput
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
-//@[07:30) Output notAttachableDecorators. Type: 32. Declaration start char: 0, length: 73
+//@[07:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 73
 
 // nested loops inside output loops are not supported
 output noNestedLoops array = [for thing in things: {

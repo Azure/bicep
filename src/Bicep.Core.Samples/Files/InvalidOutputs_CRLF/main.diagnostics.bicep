@@ -197,6 +197,7 @@ var attemptToReferenceAnOutput = myOutput
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
+//@[37:39) [BCP327 (Error)] The provided value (which will always be greater than or equal to 32) is too large to assign to a target for which the maximum allowable value is 20. (CodeDescription: none) |32|
 
 // nested loops inside output loops are not supported
 output noNestedLoops array = [for thing in things: {
