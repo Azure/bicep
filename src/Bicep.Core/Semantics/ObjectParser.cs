@@ -13,28 +13,20 @@ namespace Bicep.Core.Semantics
 
         public JToken ExtractTokenFromObjectByPath(JToken token, string tokenSelectorPath)
         {
-            try
+            var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
+            switch (selectTokens.Count)
             {
-                var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
-                switch (selectTokens.Count)
-                {
-                    case 0:
-                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                    case 1:
-                        return selectTokens.First();
-                    default:
-                        var arrayToken = new JArray();
-                        foreach (var selectToken in selectTokens)
-                        {
-                            arrayToken.Add(selectToken);
-                        }
-                        return arrayToken;
-                }
-            }
-            catch (JsonException)
-            {
-                //path is invalid or user hasn't finished typing it yet
-                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                case 0:
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                case 1:
+                    return selectTokens.First();
+                default:
+                    var arrayToken = new JArray();
+                    foreach (var selectToken in selectTokens)
+                    {
+                        arrayToken.Add(selectToken);
+                    }
+                    return arrayToken;
             }
         }
     }

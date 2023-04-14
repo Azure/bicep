@@ -1110,7 +1110,15 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (tokenSelectorPath is not null)
             {
-                token = JsonObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
+                try
+                {
+                    token = JsonObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
+                }
+                catch (JsonException)
+                {
+                    //path is invalid or user hasn't finished typing it yet
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                }
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
@@ -1147,7 +1155,15 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (tokenSelectorPath is not null)
             {
-                token = YamlObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
+                try
+                {
+                    token = YamlObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
+                }
+                catch (JsonException)
+                {
+                    //path is invalid or user hasn't finished typing it yet
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                }
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
