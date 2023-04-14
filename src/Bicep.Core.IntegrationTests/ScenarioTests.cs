@@ -4638,7 +4638,7 @@ module mod2 'module2.bicep' = {
 param name string
 ";
 
-            var result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"output name string = uniqueString(resourceGroup().name)"));
+            var result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"output name string = resourceGroup().name"));
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
@@ -4650,7 +4650,7 @@ param name string
             result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"
 @minLength(3)
 @maxLength(24)
-output name string = uniqueString(resourceGroup().name)
+output name string = resourceGroup().name
 "));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
