@@ -1,9 +1,11 @@
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
 using SharpYaml.Serialization;
 
 namespace Bicep.Core.Semantics
 {
-    public static class JsonObjectParser : ObjectParser
+    public class JsonObjectParser : ObjectParser
     {
-        public static JToken ExtractTokenFromObject(string fileContent) => JsonObjectParser.ExtractTokenFromObject(fileContent);
+        override public JToken ExtractTokenFromObject(string fileContent) => fileContent.TryFromJson<JToken>();
     }
 }

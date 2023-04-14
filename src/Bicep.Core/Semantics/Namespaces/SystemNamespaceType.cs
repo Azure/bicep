@@ -17,8 +17,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.Core.Semantics.JsonObjectParser;
-using Bicep.Core.Semantics.YamlObjectParser;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -1101,7 +1100,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(errorDiagnostic));
             }
 
-            if (JsonObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
+            if (new JsonObjectParser().ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1112,7 +1111,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 try
                 {
-                    token = JsonObjectParser.ExtractTokenFromObjectByPath(token, tokenSelectorPath);
+                    token = new YamlObjectParser().ExtractTokenFromObjectByPath(token, tokenSelectorPath);
                 }
                 catch (JsonException)
                 {
@@ -1146,7 +1145,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(errorDiagnostic));
             }
 
-            if (YamlObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
+            if (new YamlObjectParser().ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the YML parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1157,7 +1156,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 try
                 {
-                    token = YamlObjectParser.ExtractTokenFromObjectByPath(token, tokenSelectorPath);
+                    token = new YamlObjectParser().ExtractTokenFromObjectByPath(token, tokenSelectorPath);
                 }
                 catch (JsonException)
                 {
