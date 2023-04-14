@@ -74,7 +74,8 @@ namespace Bicep.Core.Syntax
             }
 
             var syntaxType = syntax.GetType();
-            if (expectedTypes.Any(expectedType => syntaxType == expectedType) == false)
+
+            if (expectedTypes.Any(syntaxType.IsAssignableTo) == false)
             {
                 throw new ArgumentException($"{parameterName} is of an unexpected type {syntaxType.Name}. Expected types: {expectedTypes.Select(t => t.Name).ConcatString(", ")}");
             }

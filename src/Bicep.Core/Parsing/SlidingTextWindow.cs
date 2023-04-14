@@ -59,8 +59,8 @@ namespace Bicep.Core.Parsing
         /// </summary>
         public int GetAbsolutePosition() => position + offset;
 
-        public string GetText()
-            => text.Substring(position, offset);
+        public ReadOnlySpan<char> GetText()
+            => text.AsSpan(position, offset);
 
         private int position;
 

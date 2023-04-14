@@ -31,6 +31,8 @@ namespace Bicep.Core.Semantics
             }
         }
 
+        public bool IsCollection => this.Type is ArrayType;
+
         public ResourceType? TryGetResourceType() => ResourceType.TryUnwrap(this.Type);
 
         public ResourceTypeReference? TryGetResourceTypeReference() => this.TryGetResourceType()?.TypeReference;

@@ -389,7 +389,7 @@ namespace Bicep.LanguageServer.Completions
                     {
                         // An unterminated string will result in skipped trivia containing an unterminated token.
                         // Compensate here by building the expected token before lexing it.
-                        token = SyntaxFactory.CreateToken(token.Type, $"{token.Text}'");
+                        token = SyntaxFactory.CreateFreeformToken(token.Type, $"{token.Text}'");
                     }
 
                     return Lexer.TryGetStringValue(token);

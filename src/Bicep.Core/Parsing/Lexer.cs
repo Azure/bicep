@@ -348,7 +348,7 @@ namespace Bicep.Core.Parsing
             int start = span.Position;
             int end = span.GetEndPosition();
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(textWindow.GetText());
 
             textWindow.Reset();
@@ -460,9 +460,9 @@ namespace Bicep.Core.Parsing
         {
             var text = textWindow.GetText();
 
-            if (!string.IsNullOrWhiteSpace(text))
+            if (text.Length > 0)
             {
-                return new Token(TokenType.StringComplete, textWindow.GetSpan(), textWindow.GetText(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), text.ToString(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
             }
 
             return null;
@@ -482,13 +482,15 @@ namespace Bicep.Core.Parsing
 
             if (tokenType == TokenType.Unrecognized)
             {
-                if (tokenText == "\"")
+                var text = tokenText.ToString();
+
+                if (text == "\"")
                 {
-                    AddDiagnostic(b => b.DoubleQuoteToken(tokenText));
+                    AddDiagnostic(b => b.DoubleQuoteToken(text));
                 }
                 else
                 {
-                    AddDiagnostic(b => b.UnrecognizedToken(tokenText));
+                    AddDiagnostic(b => b.UnrecognizedToken(text));
                 }
             }
 
@@ -498,7 +500,10 @@ namespace Bicep.Core.Parsing
             var includeComments = tokenType.GetCommentStickiness() >= CommentStickiness.Trailing;
             var trailingTrivia = ScanTrailingTrivia(includeComments).ToImmutableArray();
 
-            var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
+            var token = SyntaxFacts.IsFreeform(tokenType)
+                ? new FreeformToken(tokenType, tokenSpan, tokenText.ToString(), leadingTrivia, trailingTrivia)
+                : new Token(tokenType, tokenSpan, leadingTrivia, trailingTrivia);
+
             this.tokens.Add(token);
         }
 
@@ -520,7 +525,7 @@ namespace Bicep.Core.Parsing
                 break;
             }
 
-            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText());
+            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText().ToString());
         }
 
         private SyntaxTrivia ScanSingleLineComment()
@@ -541,7 +546,7 @@ namespace Bicep.Core.Parsing
                 textWindow.Advance();
             }
 
-            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText());
+            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText().ToString());
         }
 
         private SyntaxTrivia ScanMultiLineComment()
@@ -580,7 +585,7 @@ namespace Bicep.Core.Parsing
                 }
             }
 
-            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText());
+            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText().ToString());
         }
 
         private void ScanNewLine()
@@ -809,7 +814,7 @@ namespace Bicep.Core.Parsing
 
         private TokenType GetIdentifierTokenType()
         {
-            var identifier = textWindow.GetText();
+            var identifier = textWindow.GetText().ToString();
 
             if (LanguageConstants.Keywords.TryGetValue(identifier, out var tokenType))
             {
