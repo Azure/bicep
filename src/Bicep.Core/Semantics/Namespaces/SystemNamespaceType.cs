@@ -1179,10 +1179,11 @@ namespace Bicep.Core.Semantics.Namespaces
                             token = selectTokens.First();
                             break;
                         default:
-                            token = new JArray();
+                            var arrayToken = new JArray();
+                            token = arrayToken;
                             foreach (var selectToken in selectTokens)
                             {
-                                ((JArray)token).Add(selectToken);
+                                arrayToken.Add(selectToken);
                             }
                             break;
                     }
