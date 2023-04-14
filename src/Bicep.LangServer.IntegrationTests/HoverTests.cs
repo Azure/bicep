@@ -21,6 +21,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -69,15 +70,13 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
-            if (dataSet.HasExternalModules)
-            {
-                Assert.Inconclusive("Opening this data set in the language server will result in all modules having a type of 'error'. This makes hovers unreliable.");
-            }
-
-            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
+            FeatureProviderOverrides features = new(TestContext, RegistryEnabled: dataSet.HasExternalModules);
+            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext, features);
             var uri = DocumentUri.From(fileUri);
 
-            var helper = await ServerWithTestNamespaceProvider.GetAsync();
+            await using SharedLanguageHelperManager server = new();
+            server.Initialize(() => MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(features)));
+            var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
