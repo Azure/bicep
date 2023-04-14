@@ -8,11 +8,10 @@ namespace Bicep.Core.Semantics
 {
     public class YamlObjectParser : ObjectParser
     {
-        override public JToken ExtractTokenFromObject(string fileContent) => JToken.FromObject(new Serializer().Deserialize(fileContent)!);
+        override public JToken ExtractTokenFromObject(string fileContent)
+            => JToken.FromObject(new Serializer().Deserialize(fileContent)!);
 
-        override public ErrorType GetParsingError(IPositionable positionable)
-        {
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(positionable).UnparseableYamlType());
-        }
+        override public ErrorType GetExtractTokenError(IPositionable positionable)
+            => ErrorType.Create(DiagnosticBuilder.ForPosition(positionable).UnparseableYamlType());
     }
 }

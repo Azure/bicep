@@ -1110,7 +1110,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 // Instead of catching and returning the YML parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
-                return new(objectParser.GetParsingError(arguments[0]));
+                return new(objectParser.GetExtractTokenError(arguments[0]));
             }
 
             if (tokenSelectorPath is not null)
@@ -1122,7 +1122,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 catch (JsonException)
                 {
                     //path is invalid or user hasn't finished typing it yet
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                    return new(objectParser.GetExtractTokenFromPathError(arguments[1]));
                 }
             }
 

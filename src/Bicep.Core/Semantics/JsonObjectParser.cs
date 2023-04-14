@@ -8,10 +8,9 @@ namespace Bicep.Core.Semantics
 {
     public class JsonObjectParser : ObjectParser
     {
-        override public JToken ExtractTokenFromObject(string fileContent) => fileContent.TryFromJson<JToken>();
-        override public ErrorType GetParsingError(IPositionable positionable)
-        {
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(positionable).UnparseableJsonType());
-        }
+        override public JToken ExtractTokenFromObject(string fileContent)
+            => fileContent.TryFromJson<JToken>();
+        override public ErrorType GetExtractTokenError(IPositionable positionable)
+            => ErrorType.Create(DiagnosticBuilder.ForPosition(positionable).UnparseableJsonType());
     }
 }
