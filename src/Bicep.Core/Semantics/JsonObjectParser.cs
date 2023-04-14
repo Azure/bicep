@@ -1,11 +1,17 @@
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
+using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
-using SharpYaml.Serialization;
 
 namespace Bicep.Core.Semantics
 {
     public class JsonObjectParser : ObjectParser
     {
         override public JToken ExtractTokenFromObject(string fileContent) => fileContent.TryFromJson<JToken>();
+        override public ErrorType GetError(IPositionable positionable)
+        {
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(positionable).UnparseableJsonType());
+        }
     }
 }
