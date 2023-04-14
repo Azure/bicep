@@ -17,6 +17,8 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Semantics.JsonObjectParser;
+using Bicep.Core.Semantics.YamlObjectParser;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -1099,7 +1101,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(errorDiagnostic));
             }
 
-            if (fileContent.TryFromJson<JToken>() is not { } token)
+            var jsonObjectParser = new JsonObjectParser();
+            if (jsonObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1108,30 +1111,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (tokenSelectorPath is not null)
             {
-                try
-                {
-                    var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
-                    switch (selectTokens.Count)
-                    {
-                        case 0:
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                        case 1:
-                            token = selectTokens.First();
-                            break;
-                        default:
-                            token = new JArray();
-                            foreach (var selectToken in selectTokens)
-                            {
-                                ((JArray)token).Add(selectToken);
-                            }
-                            break;
-                    }
-                }
-                catch (JsonException)
-                {
-                    //path is invalid or user hasn't finished typing it yet
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                }
+                token = jsonObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
@@ -1159,7 +1139,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(errorDiagnostic));
             }
 
-            if (ExtractTokenFromObject(fileContent) is not { } token)
+            var yamlObjectParser = new YamlObjectParser();
+            if (yamlObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the YML parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1168,31 +1149,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (tokenSelectorPath is not null)
             {
-                try
-                {
-                    var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
-                    switch (selectTokens.Count)
-                    {
-                        case 0:
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                        case 1:
-                            token = selectTokens.First();
-                            break;
-                        default:
-                            var arrayToken = new JArray();
-                            token = arrayToken;
-                            foreach (var selectToken in selectTokens)
-                            {
-                                arrayToken.Add(selectToken);
-                            }
-                            break;
-                    }
-                }
-                catch (JsonException)
-                {
-                    //path is invalid or user hasn't finished typing it yet
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                }
+                token = yamlObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
