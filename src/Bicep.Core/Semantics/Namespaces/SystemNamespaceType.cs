@@ -1101,8 +1101,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(errorDiagnostic));
             }
 
-            var jsonObjectParser = new JsonObjectParser();
-            if (jsonObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
+            if (JsonObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1111,7 +1110,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (tokenSelectorPath is not null)
             {
-                token = jsonObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
+                token = JsonObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
@@ -1139,8 +1138,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(ErrorType.Create(errorDiagnostic));
             }
 
-            var yamlObjectParser = new YamlObjectParser();
-            if (yamlObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
+            if (YamlObjectParser.ExtractTokenFromObject(fileContent) is not { } token)
             {
                 // Instead of catching and returning the YML parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
@@ -1149,7 +1147,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (tokenSelectorPath is not null)
             {
-                token = yamlObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
+                token = YamlObjectParser.ExtractTokenFromObject(token, tokenSelectorPath);
             }
 
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
@@ -1205,17 +1203,17 @@ namespace Bicep.Core.Semantics.Namespaces
 
         }*/
 
-        public static JToken ExtractTokenFromObject(string fileContent)
-        {
-            // Replace // with # unless in quotes
-            // fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
-            // Manually fix multi-line comment with regex by appending # and manually fix first line
-            // fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
-            /*JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
-            /*CastPrimiteTypes(jToken);*/
-            /*return jToken;*/
-            return JToken.FromObject(new Serializer().Deserialize(fileContent)!);
-        }
+        // public static JToken ExtractTokenFromObject(string fileContent)
+        // {
+        //     // Replace // with # unless in quotes
+        //     // fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
+        //     // Manually fix multi-line comment with regex by appending # and manually fix first line
+        //     // fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
+        //     /*JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
+        //     /*CastPrimiteTypes(jToken);*/
+        //     /*return jToken;*/
+        //     return JToken.FromObject(new Serializer().Deserialize(fileContent)!);
+        // }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
         {

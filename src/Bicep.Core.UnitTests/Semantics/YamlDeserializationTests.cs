@@ -105,7 +105,7 @@ namespace Bicep.Core.UnitTests.Semantics
 
         private static void CompareSimpleJSON(string json)
         {
-            var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
+            var jToken = YamlObjectParser.ExtractTokenFromObject(json);
             var correctList = new List<int> { 1, 2 };
             var correctObject = new Dictionary<string, int> { { "nestedInt", 1 }, };
 
