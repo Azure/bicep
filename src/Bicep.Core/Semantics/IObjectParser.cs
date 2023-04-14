@@ -9,7 +9,7 @@ namespace Bicep.Core.Semantics
     public interface IObjectParser
     {
         public abstract JToken ExtractTokenFromObject(string fileContent);
-        public abstract ErrorType GetError(IPositionable positionable);
+        public abstract ErrorType GetParsingError(IPositionable positionable);
         public abstract JToken ExtractTokenFromObjectByPath(JToken token, string tokenSelectorPath);
     }
 }
