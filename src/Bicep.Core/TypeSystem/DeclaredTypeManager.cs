@@ -678,16 +678,14 @@ namespace Bicep.Core.TypeSystem
                 return baseExpressionType;
             }
 
-            var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
-            foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
+            var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, baseExpressionType);
 
-            if (evaluated is {} result && TypeHelper.IsLiteralType(result) && !foldDiags.OfType<ErrorDiagnostic>().Any())
+            if (evaluated is {} result && TypeHelper.IsLiteralType(result))
             {
                 return result;
             }
 
-            return ErrorType.Create(foldDiags.OfType<ErrorDiagnostic>()
-                .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
         }
 
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch

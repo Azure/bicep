@@ -61,7 +61,7 @@ param myInt = sys.int(myBool ? 123 : 456)
 //@[6:11) ParameterAssignment myInt. Type: int. Declaration start char: 0, length: 41
 
 param myArray = [
-//@[6:13) ParameterAssignment myArray. Type: ['a' | 'b', false, 579, 333, 6, 20, true, false, false, true]. Declaration start char: 0, length: 123
+//@[6:13) ParameterAssignment myArray. Type: ['a' | 'b', false, 579, 333, 6, 5, true, false, false, true]. Declaration start char: 0, length: 123
   (true ? 'a' : 'b')
   !true
   123 + 456
