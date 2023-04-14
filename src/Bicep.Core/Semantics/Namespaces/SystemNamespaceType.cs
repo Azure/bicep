@@ -1077,9 +1077,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 : new(ErrorType.Create(errorDiagnostic));
         }
 
-        /*private static IDeserializer Deserializer = new DeserializerBuilder().Build();*/
-        private static Serializer Serializer = new Serializer();
-
         private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
@@ -1200,11 +1197,11 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
         }
 
-        [Obsolete("This method has been replaced by ExtractTokenFromObject which supports both YAML and JSON")]
-        public static JToken OldExtractTokenFromObject(string fileContent)
-        {
-            return fileContent.TryFromJson<JToken>();
-        }
+        // [Obsolete("This method has been replaced by ExtractTokenFromObject which supports both YAML and JSON")]
+        // public static JToken OldExtractTokenFromObject(string fileContent)
+        // {
+        //     return fileContent.TryFromJson<JToken>();
+        // }
 
         /*private static void CastPrimiteTypes(JToken jtoken)
         {
@@ -1253,13 +1250,13 @@ namespace Bicep.Core.Semantics.Namespaces
         public static JToken ExtractTokenFromObject(string fileContent)
         {
             // Replace // with # unless in quotes
-            fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
+            // fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
             // Manually fix multi-line comment with regex by appending # and manually fix first line
-            fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
+            // fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
             /*JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
             /*CastPrimiteTypes(jToken);*/
             /*return jToken;*/
-            return JToken.FromObject(Serializer.Deserialize(fileContent)!);
+            return JToken.FromObject(new Serializer().Deserialize(fileContent)!);
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)

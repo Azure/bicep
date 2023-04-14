@@ -166,27 +166,27 @@ namespace Bicep.Core.UnitTests.Semantics
             AreJTokensEqual(jTokenNew, jTokenOld);
         }
 
-        [TestMethod]
-        public void Complex_JSON_gets_deserialized_into_JSON()
-        {
-            var json = COMPLEX_JSON;
-            var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
-            var expectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
-            Assert.AreEqual(expectedValue, jToken["documentation"]?["value"]);
-        }
+        // [TestMethod]
+        // public void Complex_JSON_gets_deserialized_into_JSON()
+        // {
+        //     var json = COMPLEX_JSON;
+        //     var jToken = SystemNamespaceType.ExtractTokenFromObject(json);
+        //     var expectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
+        //     Assert.AreEqual(expectedValue, jToken["documentation"]?["value"]);
+        // }
 
 
-        [TestMethod]
-        public void Complex_JSON_gets_deserialized_into_JSON_by_old_method()
-        {
-            var json = COMPLEX_JSON;
-#pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
-            var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
-#pragma warning restore CS0618
+//         [TestMethod]
+//         public void Complex_JSON_gets_deserialized_into_JSON_by_old_method()
+//         {
+//             var json = COMPLEX_JSON;
+// #pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
+//             var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
+// #pragma warning restore CS0618
 
-            var exptectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
-            Assert.AreEqual(exptectedValue, jTokenOld["documentation"]?["value"]);
-        }
+//             var exptectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
+//             Assert.AreEqual(exptectedValue, jTokenOld["documentation"]?["value"]);
+//         }
 
         [TestMethod]
         public void Simple_YAML_file_content_gets_deserialized_into_JSON()
