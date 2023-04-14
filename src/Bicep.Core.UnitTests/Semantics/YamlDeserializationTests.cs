@@ -6,6 +6,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Semantics.YamlObjectParser;
 
 namespace Bicep.Core.UnitTests.Semantics
 {
