@@ -4,18 +4,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Text.RegularExpressions;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.UnitTests.Assertions;
-using System.Dynamic;
 
 namespace Bicep.Core.UnitTests.Semantics
 {
@@ -23,9 +13,12 @@ namespace Bicep.Core.UnitTests.Semantics
     [TestClass]
     public class YamlDeserializationTests
     {
+
+        //TODO string1 should be a string, not an int
         private const string SIMPLE_JSON = """
             {
               "string": "someVal",
+              "string1": "10",
               "int": 123,
               /*
               this is a
@@ -205,14 +198,21 @@ namespace Bicep.Core.UnitTests.Semantics
                  addresses:
                    home:
                      street:
-                        house_number: 400
+                        house_number: '400'
                         street_name: Mockingbird Lane
                      city: Louaryland
                      state: Hawidaho
                      zip: 99970";
 
             var jToken = SystemNamespaceType.ExtractTokenFromObject(yml);
+
+            //This works with SharpYaml
+           /* var serializer = new Serializer();
+            var text = serializer.Deserialize(new StringReader(yml));
+            JToken jTokenSharpYaml = JToken.FromObject(text!);*/
+
             Assert.AreEqual("George Washington", jToken["name"]);
+            Assert.AreEqual("400", jToken["addresses"]!["home"]!["street"]!["house_number"]);
             Assert.AreEqual(89, jToken["age"]);
             Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
         }

@@ -94,12 +94,6 @@
           "TestableIO.System.IO.Abstractions.TestingHelpers": "19.2.11"
         }
       },
-      "YamlDotNet": {
-        "type": "Direct",
-        "requested": "[13.0.2, )",
-        "resolved": "13.0.2",
-        "contentHash": "hRPqCt2bxTvHN6iT2JNG2KznDPFgD5B6j0bQ7woSpfGctmjgAYdKQ+LYHUaj/7q8sN1AbIcTNbaO75g8IFmTjw=="
-      },
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.3.99",
@@ -1998,6 +1992,11 @@
           "Newtonsoft.Json": "10.0.2"
         }
       },
+      "YamlDotNet": {
+        "type": "Transitive",
+        "resolved": "13.0.2",
+        "contentHash": "hRPqCt2bxTvHN6iT2JNG2KznDPFgD5B6j0bQ7woSpfGctmjgAYdKQ+LYHUaj/7q8sN1AbIcTNbaO75g8IFmTjw=="
+      },
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
@@ -2016,6 +2015,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[7.0.3, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
+          "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",
           "System.IO.Abstractions": "[19.2.4, )",
           "System.Text.Json": "[8.0.0-preview.2.23128.3, )",

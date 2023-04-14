@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
@@ -23,9 +22,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using YamlDotNet.Core.Tokens;
-using YamlDotNet.Serialization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using SharpYaml.Serialization;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -1080,7 +1077,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 : new(ErrorType.Create(errorDiagnostic));
         }
 
-        private static IDeserializer Deserializer = new DeserializerBuilder().Build();
+        /*private static IDeserializer Deserializer = new DeserializerBuilder().Build();*/
+        private static Serializer Serializer = new Serializer();
 
         private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
@@ -1208,7 +1206,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return fileContent.TryFromJson<JToken>();
         }
 
-        private static void CastPrimiteTypes(JToken jtoken)
+        /*private static void CastPrimiteTypes(JToken jtoken)
         {
             switch (jtoken)
             {
@@ -1225,10 +1223,10 @@ namespace Bicep.Core.Semantics.Namespaces
                         {
                             token.Replace(boolean);
                         }
-                        else if (long.TryParse((string?)token, out long num))
+             *//*           else if (long.TryParse((string?)token, out long num))
                         {
                             token.Replace(num);
-                        }
+                        }*//*
                         break;
                     }
             }
@@ -1250,7 +1248,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 CastPrimiteTypes(item.Value!);
             }
 
-        }
+        }*/
 
         public static JToken ExtractTokenFromObject(string fileContent)
         {
@@ -1258,9 +1256,10 @@ namespace Bicep.Core.Semantics.Namespaces
             fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
             // Manually fix multi-line comment with regex by appending # and manually fix first line
             fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
-            JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));
-            CastPrimiteTypes(jToken);
-            return jToken;
+            /*JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
+            /*CastPrimiteTypes(jToken);*/
+            /*return jToken;*/
+            return JToken.FromObject(Serializer.Deserialize(fileContent)!);
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)

@@ -2006,6 +2006,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[7.0.3, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
+          "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",
           "System.IO.Abstractions": "[19.2.4, )",
           "System.Text.Json": "[8.0.0-preview.2.23128.3, )",
@@ -2050,8 +2051,7 @@
           "MSTest.TestFramework": "[3.0.2, )",
           "Microsoft.NET.Test.Sdk": "[17.5.0, )",
           "Moq": "[4.18.4, )",
-          "System.IO.Abstractions.TestingHelpers": "[19.1.18, )",
-          "YamlDotNet": "[13.0.2, )"
+          "System.IO.Abstractions.TestingHelpers": "[19.1.18, )"
         }
       },
       "bicep.langserver": {
