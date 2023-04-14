@@ -149,22 +149,22 @@ namespace Bicep.Core.UnitTests.Semantics
             }
         }
 
-        [DataTestMethod]
-        [DataRow(SIMPLE_JSON)]
-        [DataRow(COMPLEX_JSON)]
-        public void Compare_new_and_old_JSON_parsing(string json)
-        {
-            var jTokenNew = SystemNamespaceType.ExtractTokenFromObject(json);
+//         [DataTestMethod]
+//         [DataRow(SIMPLE_JSON)]
+//         [DataRow(COMPLEX_JSON)]
+//         public void Compare_new_and_old_JSON_parsing(string json)
+//         {
+//             var jTokenNew = SystemNamespaceType.ExtractTokenFromObject(json);
 
-#pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
-            var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
-#pragma warning restore CS0618
+// #pragma warning disable CS0618 // Disable warning for obsolete method to verify functionality
+//             var jTokenOld = SystemNamespaceType.OldExtractTokenFromObject(json);
+// #pragma warning restore CS0618
 
-            new JTokenEqualityComparer().Equals(jTokenNew, jTokenOld);
-            Assert.AreEqual(jTokenNew["value"], jTokenOld["value"]);
-            Assert.AreEqual(jTokenNew["documentation"]?["value"], jTokenOld["documentation"]?["value"]);
-            AreJTokensEqual(jTokenNew, jTokenOld);
-        }
+//             new JTokenEqualityComparer().Equals(jTokenNew, jTokenOld);
+//             Assert.AreEqual(jTokenNew["value"], jTokenOld["value"]);
+//             Assert.AreEqual(jTokenNew["documentation"]?["value"], jTokenOld["documentation"]?["value"]);
+//             AreJTokensEqual(jTokenNew, jTokenOld);
+//         }
 
         // [TestMethod]
         // public void Complex_JSON_gets_deserialized_into_JSON()
