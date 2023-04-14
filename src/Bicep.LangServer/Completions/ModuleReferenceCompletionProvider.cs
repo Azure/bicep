@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
@@ -26,7 +27,7 @@ namespace Bicep.LanguageServer.Completions
     /// </summary>
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
-        private readonly IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider;
+        private readonly IAzureContainerRegistriesProvider azureContainerRegistryNamesProvider;
         private readonly IConfigurationManager configurationManager;
         private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
@@ -63,7 +64,7 @@ namespace Bicep.LanguageServer.Completions
         private const string MCRRegistry = "mcr.microsoft.com";
 
         public ModuleReferenceCompletionProvider(
-            IAzureContainerRegistryNamesProvider azureContainerRegistryNamesProvider,
+            IAzureContainerRegistriesProvider azureContainerRegistryNamesProvider,
             IConfigurationManager configurationManager,
             IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             ISettingsProvider settingsProvider,
@@ -76,7 +77,7 @@ namespace Bicep.LanguageServer.Completions
             this.telemetryProvider = telemetryProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context, CancellationToken cancellationToken)
         {
             var replacementText = string.Empty;
 
@@ -88,7 +89,7 @@ namespace Bicep.LanguageServer.Completions
             return GetBicepRegistryAndTemplateSpecShemaCompletions(context, replacementText, sourceFileUri)
                 .Concat(await GetOciModulePathCompletions(context, replacementText, sourceFileUri))
                 .Concat(await GetMCRModuleRegistryVersionCompletions(context, replacementText, sourceFileUri))
-                .Concat(await GetAllRegistryNameAndAliasCompletions(context, replacementText, sourceFileUri));
+                .Concat(await GetAllRegistryNameAndAliasCompletions(context, replacementText, sourceFileUri, cancellationToken));
         }
 
         // Handles bicep registry and template spec top-level schema completions.
@@ -488,7 +489,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles top-level completions of registry names/aliases after br: and br/
-        private async Task<IEnumerable<CompletionItem>> GetAllRegistryNameAndAliasCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
+        private async Task<IEnumerable<CompletionItem>> GetAllRegistryNameAndAliasCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri, CancellationToken cancellationToken)
         {
             var completions = new List<CompletionItem>();
 
@@ -525,7 +526,7 @@ namespace Bicep.LanguageServer.Completions
 
                 completions.Add(mcrCompletionItem);
 
-                IEnumerable<CompletionItem> acrCompletions = await GetACRModuleRegistriesCompletions(replacementText, context, sourceFileUri);
+                IEnumerable<CompletionItem> acrCompletions = await GetACRModuleRegistriesCompletions(replacementText, context, sourceFileUri, cancellationToken);
                 completions.AddRange(acrCompletions);
             }
 
@@ -533,11 +534,11 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles registry name completions for private modules possibly available in ACR registries
-        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletions(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
+        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletions(string replacementText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
         {
             if (settingsProvider.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting))
             {
-                return await GetACRModuleRegistriesCompletionsFromGraphClient(replacementText, context, sourceFileUri);
+                return await GetACRModuleRegistriesCompletionsFromGraphClient(replacementText, context, sourceFileUri, cancellationToken);
             }
             else
             {
@@ -548,11 +549,11 @@ namespace Bicep.LanguageServer.Completions
         // Handles private registry name completions for modules available in ACR registries using ResourceGraphClient query.
         // This returns all registries that the user has access to via Azure (whether or not they contain bicep modules, and whether
         //   or not they're registered in the bicepconfig.json file)
-        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri sourceFileUri)
+        private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            var registryNames = await azureContainerRegistryNamesProvider.GetRegistryNames(sourceFileUri);
+            var registryNames = await azureContainerRegistryNamesProvider.GetRegistryUris(sourceFileUri, cancellationToken);
 
             foreach (string registryName in registryNames)
             {

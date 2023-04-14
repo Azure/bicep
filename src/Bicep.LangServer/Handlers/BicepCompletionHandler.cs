@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                completions = await this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
+                completions = await this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext, cancellationToken);
             }
             catch (Exception e)
             {
