@@ -1096,14 +1096,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
-            if (TryLoadTextContentFromFile(binder, fileResolver, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, out var fileContent, out var errorDiagnostic, LanguageConstants.MaxJsonFileCharacterLimit)
-                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, arguments[1], out errorDiagnostic, out var token))
-            {
-                return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
-            }
-            return new(ErrorType.Create(errorDiagnostic));
-        }
 
+            return TryLoadTextContentFromFile(binder, fileResolver, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, out var fileContent, out var errorDiagnostic, LanguageConstants.MaxJsonFileCharacterLimit)
+                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, arguments[1], out errorDiagnostic, out var token)
+                ? new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token))
+                : new(ErrorType.Create(errorDiagnostic));
+        }
         // [Obsolete("This method has been replaced by ExtractTokenFromObject which supports both YAML and JSON")]
         // public static JToken OldExtractTokenFromObject(string fileContent)
         // {
