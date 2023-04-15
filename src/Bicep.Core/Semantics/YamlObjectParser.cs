@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
@@ -11,7 +12,8 @@ namespace Bicep.Core.Semantics
         override public JToken ExtractTokenFromObject(string fileContent)
             => JToken.FromObject(new Serializer().Deserialize(fileContent)!);
 
-        override public ErrorType GetExtractTokenError(IPositionable positionable)
-            => ErrorType.Create(DiagnosticBuilder.ForPosition(positionable).UnparseableYamlType());
+        override public ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
+            => DiagnosticBuilder.ForPosition(positionable).UnparseableYamlType();
+
     }
 }
