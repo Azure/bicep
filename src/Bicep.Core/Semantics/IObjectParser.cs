@@ -10,9 +10,9 @@ namespace Bicep.Core.Semantics
 {
     public interface IObjectParser
     {
+        abstract bool TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken);
         abstract JToken ExtractTokenFromObject(string fileContent);
         abstract ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable);
-        abstract bool TryExtractFromTokenByPath(JToken token, string? tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken);
-        abstract bool TryExtractFromObject(string fileContent, IPositionable positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken);
+        abstract bool TryExtractFromTokenByPath(JToken token, string tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken);
     }
 }
