@@ -4635,4 +4635,27 @@ param foo = 'foo'
             ("BCP028", DiagnosticLevel.Error, "Identifier \"foo\" is declared multiple times. Remove or rename the duplicates."),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/9973
+    [TestMethod]
+    public void Test_Issue9973()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", @"
+var seq = range(0, 2)
+module modules 'module.bicep' = [for i in seq: {
+  name: 'module${i}'
+}]
+
+var items = [for (item, index) in seq: {
+  key: string(item)
+  value: modules[index].outputs.out
+}]
+
+output obj object = toObject(items, item => item.key, item => item.value)
+"),
+            ("module.bicep", @"output out string = ''"));
+
+        result.Should().OnlyContainDiagnostic("BCP182", DiagnosticLevel.Error, "This expression is being used in the for-body of the variable \"items\", which requires values that can be calculated at the start of the deployment. The property \"outputs\" of modules cannot be calculated at the start. Properties of modules which can be calculated at the start include \"name\".");
+    }
 }
