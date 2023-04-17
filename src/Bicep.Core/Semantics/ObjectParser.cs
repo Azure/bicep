@@ -17,18 +17,20 @@ namespace Bicep.Core.Semantics
 {
     public abstract class ObjectParser : IObjectParser
     {
-        public bool TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken){
+        public bool TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable[] positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken)
+        {
             errorDiagnostic = null;
             newToken = this.ExtractTokenFromObject(fileContent);
             if (newToken is not { })
             {
                 // Instead of catching and returning the YML parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
-                errorDiagnostic = this.GetExtractTokenErrorType(positionable);
+                errorDiagnostic = this.GetExtractTokenErrorType(positionable[0]);
                 return false;
             }
-            if (tokenSelectorPath is not null){
-                return this.TryExtractFromTokenByPath(newToken, tokenSelectorPath, positionable, out errorDiagnostic, out newToken);
+            if (tokenSelectorPath is not null)
+            {
+                return this.TryExtractFromTokenByPath(newToken, tokenSelectorPath, positionable[1], out errorDiagnostic, out newToken);
             }
             return true;
         }
@@ -38,28 +40,43 @@ namespace Bicep.Core.Semantics
         {
             newToken = token;
             errorDiagnostic = null;
-            if (tokenSelectorPath is null){
+            if (tokenSelectorPath is null)
+            {
                 return true;
             }
 
-            var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
-
-            switch (selectTokens.Count)
+            try
             {
-                case 0: {
-                    errorDiagnostic = DiagnosticBuilder.ForPosition(positionable).NoJsonTokenOnPathOrPathInvalid();
-                    return false;
+                var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
+
+                switch (selectTokens.Count)
+                {
+                    case 0:
+                        {
+                            errorDiagnostic = DiagnosticBuilder.ForPosition(positionable).NoJsonTokenOnPathOrPathInvalid();
+                            return false;
+                        }
+                    case 1:
+                        {
+                            newToken = selectTokens.First();
+                            break;
+                        }
+                    default:
+                        {
+                            newToken = new JArray(selectTokens);
+                            break;
+                        }
                 }
-                case 1: {
-                    newToken = selectTokens.First();
-                    break;
-                }
-                default: {
-                    newToken = new JArray(selectTokens);
-                    break;
-                }
+                return true;
             }
-            return true;
+            catch (JsonException)
+            {
+                //path is invalid or user hasn't finished typing it yet
+                errorDiagnostic = DiagnosticBuilder.ForPosition(positionable).NoJsonTokenOnPathOrPathInvalid();
+                return false;
+            }
+
+
         }
 
     }

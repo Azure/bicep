@@ -1098,7 +1098,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             if (TryLoadTextContentFromFile(binder, fileResolver, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, out var fileContent, out var errorDiagnostic, LanguageConstants.MaxJsonFileCharacterLimit)
-                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, arguments[1], out errorDiagnostic, out var token))
+                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, arguments.Length > 1 ? new IPositionable[] { arguments[0], arguments[1]} : new IPositionable[] { arguments[0]}, out errorDiagnostic, out var token))
             {
                 return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }

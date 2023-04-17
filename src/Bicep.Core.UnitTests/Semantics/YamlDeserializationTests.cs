@@ -98,7 +98,7 @@ namespace Bicep.Core.UnitTests.Semantics
         private static void CompareSimpleJSON(string json)
         {
             var arguments = new FunctionArgumentSyntax[4];
-            new YamlObjectParser().TryExtractFromObject(json, null, arguments[0], out var errorDiagnostic, out JToken jToken);
+            new YamlObjectParser().TryExtractFromObject(json, null, new IPositionable[] { arguments[0] }, out var errorDiagnostic, out JToken jToken);
             var correctList = new List<int> { 1, 2 };
             var correctObject = new Dictionary<string, int> { { "nestedInt", 1 }, };
 
@@ -164,7 +164,7 @@ namespace Bicep.Core.UnitTests.Semantics
         {
             var json = COMPLEX_JSON;
             var arguments = new FunctionArgumentSyntax[4];
-            new YamlObjectParser().TryExtractFromObject(json, null, arguments[0], out var errorDiagnostic, out JToken jToken);
+            new YamlObjectParser().TryExtractFromObject(json, null, new IPositionable[] { arguments[0] }, out var errorDiagnostic, out JToken jToken);
             var expectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
             Assert.AreEqual(expectedValue, jToken["documentation"]?["value"]);
         }
@@ -199,7 +199,7 @@ namespace Bicep.Core.UnitTests.Semantics
                      zip: 99970";
 
             var arguments = new FunctionArgumentSyntax[4];
-            new YamlObjectParser().TryExtractFromObject(yml, null, arguments[0], out var errorDiagnostic, out JToken jToken);
+            new YamlObjectParser().TryExtractFromObject(yml, null, new IPositionable[] { arguments[0] }, out var errorDiagnostic, out JToken jToken);
 
             Assert.AreEqual("George Washington", jToken["name"]);
             Assert.AreEqual("400", jToken["addresses"]!["home"]!["street"]!["house_number"]);
