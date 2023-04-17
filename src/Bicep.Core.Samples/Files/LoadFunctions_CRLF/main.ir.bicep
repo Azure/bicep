@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[00:3790) ProgramExpression
+//@[00:5162) ProgramExpression
 //@[00:0000) | └─ObjectExpression [UNPARENTED]
 //@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
 //@[00:0000) |   | ├─StringLiteralExpression { Value = string } [UNPARENTED]
@@ -29,6 +29,43 @@ var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
 //@[00:0000) | └─ArrayExpression [UNPARENTED]
 //@[00:0000) |   ├─StringLiteralExpression { Value = pizza } [UNPARENTED]
 //@[00:0000) |   └─StringLiteralExpression { Value = salad } [UNPARENTED]
+//@[00:0000) | └─ObjectExpression [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = string } [UNPARENTED]
+//@[00:0000) |   | └─StringLiteralExpression { Value = someVal } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = int } [UNPARENTED]
+//@[00:0000) |   | └─IntegerLiteralExpression { Value = 123 } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = bool } [UNPARENTED]
+//@[00:0000) |   | └─BooleanLiteralExpression { Value = True } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = arrayInt } [UNPARENTED]
+//@[00:0000) |   | └─ArrayExpression [UNPARENTED]
+//@[00:0000) |   |   ├─IntegerLiteralExpression { Value = 1 } [UNPARENTED]
+//@[00:0000) |   |   └─IntegerLiteralExpression { Value = 2 } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = arrayString } [UNPARENTED]
+//@[00:0000) |   | └─ArrayExpression [UNPARENTED]
+//@[00:0000) |   |   ├─StringLiteralExpression { Value = someVal } [UNPARENTED]
+//@[00:0000) |   |   └─StringLiteralExpression { Value = someVal2 } [UNPARENTED]
+//@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |   | ├─StringLiteralExpression { Value = arrayBool } [UNPARENTED]
+//@[00:0000) |   | └─ArrayExpression [UNPARENTED]
+//@[00:0000) |   |   └─BooleanLiteralExpression { Value = True } [UNPARENTED]
+//@[00:0000) |   |   └─BooleanLiteralExpression { Value = True } [UNPARENTED]
+//@[00:0000) |   └─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |     ├─StringLiteralExpression { Value = object } [UNPARENTED]
+//@[00:0000) |     └─ObjectExpression [UNPARENTED]
+//@[00:0000) |       ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |       | ├─StringLiteralExpression { Value = nestedString } [UNPARENTED]
+//@[00:0000) |       | └─StringLiteralExpression { Value = someVal } [UNPARENTED]
+//@[00:0000) |       ├─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |       | ├─StringLiteralExpression { Value = nestedInt } [UNPARENTED]
+//@[00:0000) |       | └─IntegerLiteralExpression { Value = 123 } [UNPARENTED]
+//@[00:0000) |       └─ObjectPropertyExpression [UNPARENTED]
+//@[00:0000) |         ├─StringLiteralExpression { Value = nestedBool } [UNPARENTED]
+//@[00:0000) |         └─BooleanLiteralExpression { Value = True } [UNPARENTED]
 //@[00:0061) ├─DeclaredVariableExpression { Name = loadedText1 }
 //@[18:0061) | └─StringLiteralExpression { Value = Lorem ipsum dolor sit amet, consectetur adipiscing elit.\r\n\tProin varius in nunc et laoreet.\r\n  Nam pulvinar ipsum sed lectus porttitor, at porttitor ipsum faucibus.\r\n  \tAliquam euismod, odio tincidunt convallis pulvinar, felis sem porttitor turpis, a condimentum dui erat nec tellus.\r\n  Duis elementum cursus est, congue efficitur risus.\r\n\tMauris sit amet.\r\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\r\n }
 var loadedText2 = sys.loadTextContent('Assets/TextFile.LF.txt')
@@ -182,20 +219,20 @@ module module1 'modulea.bicep' = {
 }
 
 module module2 'modulea.bicep' = {
-//@[00:0119) └─DeclaredModuleExpression
-//@[33:0119)   ├─ObjectExpression
+//@[00:0119) ├─DeclaredModuleExpression
+//@[33:0119) | ├─ObjectExpression
   name: 'module2'
-//@[02:0017)   | └─ObjectPropertyExpression
-//@[02:0006)   |   ├─StringLiteralExpression { Value = name }
-//@[08:0017)   |   └─StringLiteralExpression { Value = module2 }
+//@[02:0017) | | └─ObjectPropertyExpression
+//@[02:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[08:0017) | |   └─StringLiteralExpression { Value = module2 }
   params: {
-//@[10:0061)   └─ObjectExpression
+//@[10:0061) | └─ObjectExpression
     text: loadFileAsBase64('Assets/binary')
 //@[10:0043) ├─DeclaredVariableExpression { Name = $fxv#14 }
 //@[10:0043) | └─StringLiteralExpression { Value = g8fCjQHuFUfnHlTUHxe3qmjeM3HlYSToV7qTGrcJ6vgFNjvgpmxnexFbzjJV/Ejx8jXKa8L32YUn1f/HUnPY6u5c1SaGaP8OiVyRK4ef52hOtc3Yd29c9ubDsLohwLlmuiQDCvVduNMejR6eZy50ti3eYaLu3e04IKC7kTFO0Ph/vSIhlfkS6lUB9e7EJuHAa+3yJFn0uIVFs/BF67fNV9zwx92XyhFL8tmv3IZNd1+0cAby99+zif6iBPXcJ5XTUUz4UHaPmZLPT75hd4iGZzOk/I+FAsUTxRDra76D+sSXay7qBv5TyVLlhs7kqSVAecki6vQG0Siku64tl3PKKEy9JV1lHItgg/IFDYNd8/DKMUpEi90wunW/CfTpQcctzHzZFjl5euswaXgTDvVt2KRHPpi3likE8b1GuyKFVfKNT47VFGSabuUZlhDzbzx7qECnIpA1M7kH+TUHhGTe3ezmmPq+EO6jybYNMpMs+7gcfYAEtzE4gfpubKHLQI8ZYFKFxPCo0ypOwh4Z1nStJkcrNX2UlSDFfPb+LlCaGRxRKPN9md+2sr4x6qm0TptmI9o8wJF7FvqJUS2obFz2KhnfdKg7seuknpisasENchzEO2hoMtpCf5Lt3ZwsLCnFrllFaNmV2BWfA0k74f5MykjIioppM8ajdzORDtjTv/WcNyxdVlTV6nr2Oe43WFKZT0DFMDGHVgTZRBxVH5JtfT1akurR+IyvTegR6kSMHXSWlE1iEoPK8gdNpFLHdAJ8VwPnMGRC8CoCGzDeAakmwiHuecPOzcg9cOQe2Rlo68kJSr6q2hEcTmm9kPj7vfAeocqlosDd2Ci7xcBAJNb/rC4IVllhZPyqt2C8L1VbN5wZfBNgwpA73oOX0kxIKoCqH+Ni167WvC1ZwTqlVAWeAa1RiSplisinKBwDXahu2qDhVJyOt/RwV8Y+W3ynFGXYOW9BDwXVwKUm2zrKl6j0Y1AUTH5HArfCwwThXW2ZFslbr/fM9nJPAbbxpDY2FQBAlt8ST3PyLrFBfXlsV0JqVhidnw94NAbTiPqck15pTGbncg8VunYUAMw/JAOLf2SIJ8cA75IdJMp0UJXoMcOfVKkVdgMbGi7BHtJ3ZFwIajbNdWoNQV0k/LlwwmqGYGkh71wBX4WEdW6MqvvT8Mt/xyA6xzflqnMzgvQPIe6v29FETR9wxSKG52oCOY/DtPXEo+DgZvQwQn3F4BwX+GZawHbbMjWCIDxoSmph5TfZMzF0EkhEi47Uk93FPgiBQPjKSYMxnJ9Lo9UwZjsxdtk7ONKe1GIxfHdx3no4uuRp8WKqjpz017VBOWubdXPxO8Q8QOv6nT9faVVCMUQApehFlg== }
-//@[04:0043)     └─ObjectPropertyExpression
-//@[04:0008)       ├─StringLiteralExpression { Value = text }
-//@[10:0043)       └─SynthesizedVariableReferenceExpression { Name = $fxv#14 }
+//@[04:0043) |   └─ObjectPropertyExpression
+//@[04:0008) |     ├─StringLiteralExpression { Value = text }
+//@[10:0043) |     └─SynthesizedVariableReferenceExpression { Name = $fxv#14 }
   }
 }
 
@@ -313,4 +350,113 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[28:0104) ├─DeclaredVariableExpression { Name = $fxv#22 }
 //@[00:0104) ├─DeclaredVariableExpression { Name = testJsonTokensAsArray }
 //@[28:0104) | └─SynthesizedVariableReferenceExpression { Name = $fxv#22 }
+
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@[15:0056) ├─DeclaredVariableExpression { Name = $fxv#23 }
+//@[00:0056) ├─DeclaredVariableExpression { Name = testYaml }
+//@[15:0056) | └─SynthesizedVariableReferenceExpression { Name = $fxv#23 }
+var testYamlString = testYaml.string
+//@[00:0036) ├─DeclaredVariableExpression { Name = testYamlString }
+//@[21:0036) | └─PropertyAccessExpression { PropertyName = string }
+//@[21:0029) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlInt = testYaml.int
+//@[00:0030) ├─DeclaredVariableExpression { Name = testYamlInt }
+//@[18:0030) | └─PropertyAccessExpression { PropertyName = int }
+//@[18:0026) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlBool = testYaml.bool
+//@[00:0032) ├─DeclaredVariableExpression { Name = testYamlBool }
+//@[19:0032) | └─PropertyAccessExpression { PropertyName = bool }
+//@[19:0027) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlArrayInt = testYaml.arrayInt
+//@[00:0040) ├─DeclaredVariableExpression { Name = testYamlArrayInt }
+//@[23:0040) | └─PropertyAccessExpression { PropertyName = arrayInt }
+//@[23:0031) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlArrayIntVal = testYaml.arrayInt[0]
+//@[00:0046) ├─DeclaredVariableExpression { Name = testYamlArrayIntVal }
+//@[26:0046) | └─AccessChainExpression
+//@[26:0043) |   ├─PropertyAccessExpression { PropertyName = arrayInt }
+//@[26:0034) |   | └─VariableReferenceExpression { Variable = testYaml }
+//@[44:0045) |   └─IntegerLiteralExpression { Value = 0 }
+var testYamlArrayString = testYaml.arrayString
+//@[00:0046) ├─DeclaredVariableExpression { Name = testYamlArrayString }
+//@[26:0046) | └─PropertyAccessExpression { PropertyName = arrayString }
+//@[26:0034) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlArrayStringVal = testYaml.arrayString[0]
+//@[00:0052) ├─DeclaredVariableExpression { Name = testYamlArrayStringVal }
+//@[29:0052) | └─AccessChainExpression
+//@[29:0049) |   ├─PropertyAccessExpression { PropertyName = arrayString }
+//@[29:0037) |   | └─VariableReferenceExpression { Variable = testYaml }
+//@[50:0051) |   └─IntegerLiteralExpression { Value = 0 }
+var testYamlArrayBool = testYaml.arrayBool
+//@[00:0042) ├─DeclaredVariableExpression { Name = testYamlArrayBool }
+//@[24:0042) | └─PropertyAccessExpression { PropertyName = arrayBool }
+//@[24:0032) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlArrayBoolVal = testYaml.arrayBool[0]
+//@[00:0048) ├─DeclaredVariableExpression { Name = testYamlArrayBoolVal }
+//@[27:0048) | └─AccessChainExpression
+//@[27:0045) |   ├─PropertyAccessExpression { PropertyName = arrayBool }
+//@[27:0035) |   | └─VariableReferenceExpression { Variable = testYaml }
+//@[46:0047) |   └─IntegerLiteralExpression { Value = 0 }
+var testYamlObject = testYaml.object
+//@[00:0036) ├─DeclaredVariableExpression { Name = testYamlObject }
+//@[21:0036) | └─PropertyAccessExpression { PropertyName = object }
+//@[21:0029) |   └─VariableReferenceExpression { Variable = testYaml }
+var testYamlObjectNestedString = testYaml.object.nestedString
+//@[00:0061) ├─DeclaredVariableExpression { Name = testYamlObjectNestedString }
+//@[33:0061) | └─AccessChainExpression
+//@[33:0048) |   ├─PropertyAccessExpression { PropertyName = object }
+//@[33:0041) |   | └─VariableReferenceExpression { Variable = testYaml }
+//@[49:0061) |   └─StringLiteralExpression { Value = nestedString }
+var testYamlObjectNestedInt = testYaml.object.nestedInt
+//@[00:0055) ├─DeclaredVariableExpression { Name = testYamlObjectNestedInt }
+//@[30:0055) | └─AccessChainExpression
+//@[30:0045) |   ├─PropertyAccessExpression { PropertyName = object }
+//@[30:0038) |   | └─VariableReferenceExpression { Variable = testYaml }
+//@[46:0055) |   └─StringLiteralExpression { Value = nestedInt }
+var testYamlObjectNestedBool = testYaml.object.nestedBool
+//@[00:0057) ├─DeclaredVariableExpression { Name = testYamlObjectNestedBool }
+//@[31:0057) | └─AccessChainExpression
+//@[31:0046) |   ├─PropertyAccessExpression { PropertyName = object }
+//@[31:0039) |   | └─VariableReferenceExpression { Variable = testYaml }
+//@[47:0057) |   └─StringLiteralExpression { Value = nestedBool }
+
+output testYamlString string = testYamlString
+//@[00:0045) ├─DeclaredOutputExpression { Name = testYamlString }
+//@[31:0045) | └─VariableReferenceExpression { Variable = testYamlString }
+output testYamlInt int = testYamlInt
+//@[00:0036) ├─DeclaredOutputExpression { Name = testYamlInt }
+//@[25:0036) | └─VariableReferenceExpression { Variable = testYamlInt }
+output testYamlBool bool = testYamlBool
+//@[00:0039) ├─DeclaredOutputExpression { Name = testYamlBool }
+//@[27:0039) | └─VariableReferenceExpression { Variable = testYamlBool }
+output testYamlArrayInt array = testYamlArrayInt
+//@[00:0048) ├─DeclaredOutputExpression { Name = testYamlArrayInt }
+//@[32:0048) | └─VariableReferenceExpression { Variable = testYamlArrayInt }
+output testYamlArrayIntVal int = testYamlArrayIntVal
+//@[00:0052) ├─DeclaredOutputExpression { Name = testYamlArrayIntVal }
+//@[33:0052) | └─VariableReferenceExpression { Variable = testYamlArrayIntVal }
+output testYamlArrayString array = testYamlArrayString
+//@[00:0054) ├─DeclaredOutputExpression { Name = testYamlArrayString }
+//@[35:0054) | └─VariableReferenceExpression { Variable = testYamlArrayString }
+output testYamlArrayStringVal string = testYamlArrayStringVal
+//@[00:0061) ├─DeclaredOutputExpression { Name = testYamlArrayStringVal }
+//@[39:0061) | └─VariableReferenceExpression { Variable = testYamlArrayStringVal }
+output testYamlArrayBool array = testYamlArrayBool
+//@[00:0050) ├─DeclaredOutputExpression { Name = testYamlArrayBool }
+//@[33:0050) | └─VariableReferenceExpression { Variable = testYamlArrayBool }
+output testYamlArrayBoolVal bool = testYamlArrayBoolVal
+//@[00:0055) ├─DeclaredOutputExpression { Name = testYamlArrayBoolVal }
+//@[35:0055) | └─VariableReferenceExpression { Variable = testYamlArrayBoolVal }
+output testYamlObject object = testYamlObject
+//@[00:0045) ├─DeclaredOutputExpression { Name = testYamlObject }
+//@[31:0045) | └─VariableReferenceExpression { Variable = testYamlObject }
+output testYamlObjectNestedString string = testYamlObjectNestedString
+//@[00:0069) ├─DeclaredOutputExpression { Name = testYamlObjectNestedString }
+//@[43:0069) | └─VariableReferenceExpression { Variable = testYamlObjectNestedString }
+output testYamlObjectNestedInt int = testYamlObjectNestedInt
+//@[00:0060) ├─DeclaredOutputExpression { Name = testYamlObjectNestedInt }
+//@[37:0060) | └─VariableReferenceExpression { Variable = testYamlObjectNestedInt }
+output testYamlObjectNestedBool bool = testYamlObjectNestedBool
+//@[00:0063) └─DeclaredOutputExpression { Name = testYamlObjectNestedBool }
+//@[39:0063)   └─VariableReferenceExpression { Variable = testYamlObjectNestedBool }
 

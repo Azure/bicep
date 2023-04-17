@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -16,10 +17,13 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SharpYaml.Serialization;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -97,11 +101,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         minLength switch
                         {
                             var zero when zero <= 0 => null,
-                            _ => (long) BigInteger.Min(minLength, long.MaxValue),
+                            _ => (long)BigInteger.Min(minLength, long.MaxValue),
                         },
                         maxLength switch
                         {
-                            BigInteger bi => (long) BigInteger.Min(bi, long.MaxValue),
+                            BigInteger bi => (long)BigInteger.Min(bi, long.MaxValue),
                             _ => null,
                         },
                         TypeSymbolValidationFlags.Default));
@@ -210,7 +214,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     DiscriminatedObjectType discriminatedObject => TypeFactory.CreateIntegerType(
                         minValue: discriminatedObject.UnionMembersByKey.Values.Min(MinLength),
                         maxValue: discriminatedObject.UnionMembersByKey.Values
-                            .Aggregate((long?) 0, (acc, memberObject) => acc.HasValue && MaxLength(memberObject) is int maxLength
+                            .Aggregate((long?)0, (acc, memberObject) => acc.HasValue && MaxLength(memberObject) is int maxLength
                                 ? Math.Max(acc.Value, maxLength) : null)),
                     _ => LanguageConstants.Int,
                 })), LanguageConstants.Int)
@@ -220,7 +224,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(
-                    (_, _, _, _, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
+                    (_, _, _, _, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch
+                    {
                         TupleType tupleType => new(TypeFactory.CreateIntegerLiteralType(tupleType.Items.Length)),
                         ArrayType arrayType => new(TypeFactory.CreateIntegerType(arrayType.MinLength ?? 0, arrayType.MaxLength)),
                         _ => new(LanguageConstants.Int),
@@ -413,7 +418,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         TupleType tupleType when minToTake == maxToTake && minToTake >= tupleType.Items.Length => tupleType,
                         TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType(ImmutableArray<ITypeReference>.Empty, tupleType.ValidationFlags),
-                        TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int) minToTake).ToImmutableArray(), tupleType.ValidationFlags),
+                        TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int)minToTake).ToImmutableArray(), tupleType.ValidationFlags),
                         ArrayType array => TypeFactory.CreateArrayType(array.Item,
                             !array.MinLength.HasValue ? null : minToTake switch
                             {
@@ -480,7 +485,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(argumentTypes[0] switch
                     {
                         TypeSymbol original when maxToSkip <= 0 => original,
-                        TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType(tupleType.Items.Skip((int) minToSkip).ToImmutableArray(), tupleType.ValidationFlags),
+                        TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType(tupleType.Items.Skip((int)minToSkip).ToImmutableArray(), tupleType.ValidationFlags),
                         ArrayType array => TypeFactory.CreateArrayType(array.Item,
                             ((array.MinLength ?? 0) - maxToSkip) switch
                             {
@@ -600,7 +605,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                .WithReturnResultBuilder((_, _, _, _, argumentTypes) =>  new(argumentTypes[0] switch
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => new(argumentTypes[0] switch
                 {
                     TupleType tupleType => tupleType.Items.FirstOrDefault()?.Type ?? LanguageConstants.Null,
                     ArrayType arrayType when arrayType.MinLength.HasValue && arrayType.MinLength.Value > 0 => arrayType.Item.Type,
@@ -886,6 +891,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                 .Build();
 
+            yield return new FunctionOverloadBuilder("loadYamlContent")
+               .WithGenericDescription($"Loads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.")
+               .WithRequiredParameter("filePath", LanguageConstants.StringYamlFilePath, "The path to the file that will be loaded.")
+               .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
+               .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
+               .WithReturnResultBuilder(LoadYamlContentResultBuilder, LanguageConstants.Any)
+               .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+               .Build();
+
             yield return new FunctionOverloadBuilder("items")
                 .WithGenericDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
@@ -961,12 +975,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
                     calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                 .WithReturnType(LanguageConstants.Any)
-                .WithReturnResultBuilder((_, _, _, _, argumentTypes) => {
-                    if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType) {
+                .WithReturnResultBuilder((_, _, _, _, argumentTypes) =>
+                {
+                    if (argumentTypes.Length == 2 && argumentTypes[0] is ArrayType arrayArgType)
+                    {
                         return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, arrayArgType.Item));
                     }
 
-                    if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType) {
+                    if (argumentTypes.Length == 3 && argumentTypes[2] is LambdaType valueLambdaType)
+                    {
                         return new(new ObjectType("object", TypeSymbolValidationFlags.Default, ImmutableArray<TypeProperty>.Empty, valueLambdaType.ReturnType));
                     }
 
@@ -1062,9 +1079,16 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+            => LoadContentResultBuilder(new JsonObjectParser(), binder, fileResolver, diagnostics, functionCall, argumentTypes);
+
+        private static FunctionResult LoadYamlContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+            => LoadContentResultBuilder(new YamlObjectParser(), binder, fileResolver, diagnostics, functionCall, argumentTypes);
+
+        private static FunctionResult LoadContentResultBuilder(ObjectParser objectParser, IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
             string? tokenSelectorPath = null;
+            IPositionable[] positionables = arguments.Length > 1 ? new IPositionable[] { arguments[0], arguments[1] } : new IPositionable[] { arguments[0] };
             if (arguments.Length > 1)
             {
                 if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
@@ -1073,54 +1097,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
-            if (!TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
-                    (arguments[0], argumentTypes[0]),
-                    arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null,
-                    out var fileContent,
-                    out var errorDiagnostic,
-                    LanguageConstants.MaxJsonFileCharacterLimit))
-            {
-                return new(ErrorType.Create(errorDiagnostic));
-            }
 
-            if (fileContent.TryFromJson<JToken>() is not { } token)
+            if (TryLoadTextContentFromFile(binder, fileResolver, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, out var fileContent, out var errorDiagnostic, LanguageConstants.MaxJsonFileCharacterLimit)
+                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
             {
-                // Instead of catching and returning the JSON parse exception, we simply return a generic error.
-                // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
-                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType()));
+                return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }
-
-            if (tokenSelectorPath is not null)
-            {
-                try
-                {
-                    var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
-                    switch (selectTokens.Count)
-                    {
-                        case 0:
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                        case 1:
-                            token = selectTokens.First();
-                            break;
-                        default:
-                            token = new JArray();
-                            foreach (var selectToken in selectTokens)
-                            {
-                                ((JArray)token).Add(selectToken);
-                            }
-                            break;
-                    }
-                }
-                catch (JsonException)
-                {
-                    //path is invalid or user hasn't finished typing it yet
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
-                }
-            }
-
-            return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
+            return new(ErrorType.Create(errorDiagnostic));
         }
-
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
         {
             fileContent = null;
@@ -1190,7 +1174,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
         private static Expression ConvertJsonToExpression(JToken token)
-            => token switch {
+            => token switch
+            {
                 JObject @object => new ObjectExpression(null, @object.Properties()
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type))
                     .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))

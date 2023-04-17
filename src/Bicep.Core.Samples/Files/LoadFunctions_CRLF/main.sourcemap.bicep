@@ -235,5 +235,100 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 //@    "testJsonNestedString2_2": "[variables('$fxv#21')]",
 
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
-//@    "testJsonTokensAsArray": "[variables('$fxv#22')]"
+//@    "testJsonTokensAsArray": "[variables('$fxv#22')]",
+
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@    "testYaml": "[variables('$fxv#23')]",
+var testYamlString = testYaml.string
+//@    "testYamlString": "[variables('testYaml').string]",
+var testYamlInt = testYaml.int
+//@    "testYamlInt": "[variables('testYaml').int]",
+var testYamlBool = testYaml.bool
+//@    "testYamlBool": "[variables('testYaml').bool]",
+var testYamlArrayInt = testYaml.arrayInt
+//@    "testYamlArrayInt": "[variables('testYaml').arrayInt]",
+var testYamlArrayIntVal = testYaml.arrayInt[0]
+//@    "testYamlArrayIntVal": "[variables('testYaml').arrayInt[0]]",
+var testYamlArrayString = testYaml.arrayString
+//@    "testYamlArrayString": "[variables('testYaml').arrayString]",
+var testYamlArrayStringVal = testYaml.arrayString[0]
+//@    "testYamlArrayStringVal": "[variables('testYaml').arrayString[0]]",
+var testYamlArrayBool = testYaml.arrayBool
+//@    "testYamlArrayBool": "[variables('testYaml').arrayBool]",
+var testYamlArrayBoolVal = testYaml.arrayBool[0]
+//@    "testYamlArrayBoolVal": "[variables('testYaml').arrayBool[0]]",
+var testYamlObject = testYaml.object
+//@    "testYamlObject": "[variables('testYaml').object]",
+var testYamlObjectNestedString = testYaml.object.nestedString
+//@    "testYamlObjectNestedString": "[variables('testYaml').object.nestedString]",
+var testYamlObjectNestedInt = testYaml.object.nestedInt
+//@    "testYamlObjectNestedInt": "[variables('testYaml').object.nestedInt]",
+var testYamlObjectNestedBool = testYaml.object.nestedBool
+//@    "testYamlObjectNestedBool": "[variables('testYaml').object.nestedBool]"
+
+output testYamlString string = testYamlString
+//@    "testYamlString": {
+//@      "type": "string",
+//@      "value": "[variables('testYamlString')]"
+//@    },
+output testYamlInt int = testYamlInt
+//@    "testYamlInt": {
+//@      "type": "int",
+//@      "value": "[variables('testYamlInt')]"
+//@    },
+output testYamlBool bool = testYamlBool
+//@    "testYamlBool": {
+//@      "type": "bool",
+//@      "value": "[variables('testYamlBool')]"
+//@    },
+output testYamlArrayInt array = testYamlArrayInt
+//@    "testYamlArrayInt": {
+//@      "type": "array",
+//@      "value": "[variables('testYamlArrayInt')]"
+//@    },
+output testYamlArrayIntVal int = testYamlArrayIntVal
+//@    "testYamlArrayIntVal": {
+//@      "type": "int",
+//@      "value": "[variables('testYamlArrayIntVal')]"
+//@    },
+output testYamlArrayString array = testYamlArrayString
+//@    "testYamlArrayString": {
+//@      "type": "array",
+//@      "value": "[variables('testYamlArrayString')]"
+//@    },
+output testYamlArrayStringVal string = testYamlArrayStringVal
+//@    "testYamlArrayStringVal": {
+//@      "type": "string",
+//@      "value": "[variables('testYamlArrayStringVal')]"
+//@    },
+output testYamlArrayBool array = testYamlArrayBool
+//@    "testYamlArrayBool": {
+//@      "type": "array",
+//@      "value": "[variables('testYamlArrayBool')]"
+//@    },
+output testYamlArrayBoolVal bool = testYamlArrayBoolVal
+//@    "testYamlArrayBoolVal": {
+//@      "type": "bool",
+//@      "value": "[variables('testYamlArrayBoolVal')]"
+//@    },
+output testYamlObject object = testYamlObject
+//@    "testYamlObject": {
+//@      "type": "object",
+//@      "value": "[variables('testYamlObject')]"
+//@    },
+output testYamlObjectNestedString string = testYamlObjectNestedString
+//@    "testYamlObjectNestedString": {
+//@      "type": "string",
+//@      "value": "[variables('testYamlObjectNestedString')]"
+//@    },
+output testYamlObjectNestedInt int = testYamlObjectNestedInt
+//@    "testYamlObjectNestedInt": {
+//@      "type": "int",
+//@      "value": "[variables('testYamlObjectNestedInt')]"
+//@    },
+output testYamlObjectNestedBool bool = testYamlObjectNestedBool
+//@    "testYamlObjectNestedBool": {
+//@      "type": "bool",
+//@      "value": "[variables('testYamlObjectNestedBool')]"
+//@    }
 
