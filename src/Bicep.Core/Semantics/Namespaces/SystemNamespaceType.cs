@@ -1088,6 +1088,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
             string? tokenSelectorPath = null;
+            IPositionable[] positionables = arguments.Length > 1 ? new IPositionable[] { arguments[0], arguments[1] } : new IPositionable[] { arguments[0] };
             if (arguments.Length > 1)
             {
                 if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
@@ -1095,78 +1096,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
                 }
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
-                //TODO add ipositionable[] here
             }
 
             if (TryLoadTextContentFromFile(binder, fileResolver, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, out var fileContent, out var errorDiagnostic, LanguageConstants.MaxJsonFileCharacterLimit)
-                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, arguments.Length > 1 ? new IPositionable[] { arguments[0], arguments[1]} : new IPositionable[] { arguments[0]}, out errorDiagnostic, out var token))
+                && objectParser.TryExtractFromObject(fileContent, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
             {
                 return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }
             return new(ErrorType.Create(errorDiagnostic));
         }
-        // [Obsolete("This method has been replaced by ExtractTokenFromObject which supports both YAML and JSON")]
-        // public static JToken OldExtractTokenFromObject(string fileContent)
-        // {
-        //     return fileContent.TryFromJson<JToken>();
-        // }
-
-        /*private static void CastPrimiteTypes(JToken jtoken)
-        {
-            switch (jtoken)
-            {
-                case JArray jArray:
-                    CastArray(jArray);
-                    break;
-                case JObject jObject:
-                    CastObject(jObject);
-                    break;
-                default:
-                    {
-                        var token = jtoken as JValue;
-                        if (bool.TryParse((string?)token, out bool boolean))
-                        {
-                            token.Replace(boolean);
-                        }
-             *//*           else if (long.TryParse((string?)token, out long num))
-                        {
-                            token.Replace(num);
-                        }*//*
-                        break;
-                    }
-            }
-        }
-
-        private static void CastArray(JArray jArray)
-        {
-            for (int i = 0; i < jArray.Count; i++)
-            {
-                CastPrimiteTypes(jArray[i]);
-            }
-
-        }
-
-        private static void CastObject(JObject jObject)
-        {
-            foreach (var item in jObject)
-            {
-                CastPrimiteTypes(item.Value!);
-            }
-
-        }*/
-
-        // public static JToken ExtractTokenFromObject(string fileContent)
-        // {
-        //     // Replace // with # unless in quotes
-        //     // fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
-        //     // Manually fix multi-line comment with regex by appending # and manually fix first line
-        //     // fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
-        //     /*JToken jToken = JToken.FromObject(Deserializer.Deserialize<Dictionary<string, object>>(fileContent));*/
-        //     /*CastPrimiteTypes(jToken);*/
-        //     /*return jToken;*/
-        //     return JToken.FromObject(new Serializer().Deserialize(fileContent)!);
-        // }
-
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
         {
             fileContent = null;

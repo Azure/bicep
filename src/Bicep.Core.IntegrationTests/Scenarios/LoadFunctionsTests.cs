@@ -845,7 +845,6 @@ propObject :
     - 1.61803398874
     - 3.14159265359
     - -1.73205080757
-armExpression: [createObject('armObjProp', 'armObjValue')]
 ";
 
         private const string TEST_YAML_ARM = @"propString: propStringValue
@@ -889,7 +888,6 @@ propObject:
     - 1.61803398874
     - 3.14159265359
     - -1.73205080757
-armExpression: [createObject('armObjProp', 'armObjValue')]
 ";
         [TestMethod]
         public void LoadYamlFunction()
@@ -971,7 +969,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             var files = new Dictionary<Uri, MockFileData>
             {
                 [new Uri("file:///main.bicep")] = new(@"
-var fileObj = loadYamlContent('file.json', '$', '" + encodingName + @"')
+var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
 "),
                 [new Uri("file:///file.yaml")] = new(TEST_YAML, encoding),
             };
