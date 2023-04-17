@@ -1142,11 +1142,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.4",
-        "contentHash": "C+56GpvZlWAlBQidoGLKetnPJjLNhp2iHXvtxUSPcDveYqVl7OSFiXZe+98xDtc8XMmPwi5ZivHZyKogfbBaJw==",
+        "resolved": "19.2.11",
+        "contentHash": "q4hSqxyeh5281hv3TZEatX5HtYqzm0Wy0VUUa4jgdBZh4lSfBvWBVTCZRhtbLXBo+mbndW/yyAgsxY06z5B2yA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.4",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.4"
+          "TestableIO.System.IO.Abstractions": "19.2.11",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.11"
         }
       },
       "System.IO.Compression": {
@@ -2011,7 +2011,7 @@
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "System.Collections.Immutable": "[7.0.0, )",
-          "System.IO.Abstractions": "[19.2.4, )",
+          "System.IO.Abstractions": "[19.2.11, )",
           "System.Text.Json": "[8.0.0-preview.2.23128.3, )"
         }
       },

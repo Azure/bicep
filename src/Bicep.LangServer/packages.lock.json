@@ -1046,11 +1046,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.4",
-        "contentHash": "C+56GpvZlWAlBQidoGLKetnPJjLNhp2iHXvtxUSPcDveYqVl7OSFiXZe+98xDtc8XMmPwi5ZivHZyKogfbBaJw==",
+        "resolved": "19.2.11",
+        "contentHash": "q4hSqxyeh5281hv3TZEatX5HtYqzm0Wy0VUUa4jgdBZh4lSfBvWBVTCZRhtbLXBo+mbndW/yyAgsxY06z5B2yA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.4",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.4"
+          "TestableIO.System.IO.Abstractions": "19.2.11",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.11"
         }
       },
       "System.IO.Compression": {
@@ -1862,15 +1862,15 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.4",
-        "contentHash": "VS97RgZwZswoBHwCNUurFr6OWa/oSmRWj9bYIe1JLpPo4EB8uX+jLNowNfx34MP3AooPFbnTVXUzM5vNBtVORA=="
+        "resolved": "19.2.11",
+        "contentHash": "xxrLhkHNrGBaan/l82mSw446L4VKjmtdiZv4z7CXHsm0ka3xEwXZVxsjxhzOrK3aj703EoCfPMVCz+SiALrkbA=="
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "19.2.4",
-        "contentHash": "n4GbToLpyV2YB9UBryMu7Mzdc3dA5CYpYR3D2SuV6CtR8D4PszG5jA4XEXxWzThRFr7RNOfI3+eVUtuXzlwjDg==",
+        "resolved": "19.2.11",
+        "contentHash": "Ck3YdnuympYCu2Qox8vsQXyU0xuGVpgONXWx2sjt/8LvmlO7qp8ctTByQMURaQTmd9s99HFv6XY6M2w1TcovLA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.4"
+          "TestableIO.System.IO.Abstractions": "19.2.11"
         }
       },
       "WindowsAzure.Storage": {
@@ -1901,7 +1901,7 @@
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "System.Collections.Immutable": "[7.0.0, )",
-          "System.IO.Abstractions": "[19.2.4, )",
+          "System.IO.Abstractions": "[19.2.11, )",
           "System.Text.Json": "[8.0.0-preview.2.23128.3, )"
         }
       },
