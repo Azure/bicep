@@ -32,7 +32,9 @@ type MinDiskSizeGB = int
 
 type DiskSizeGB = MinDiskSizeGB
 
+// Create a nested custom type to make sure nested types are properly determined
 param osDiskSizeGB DiskSizeGB
+
 
 @description('The agent count')
 @minValue(1)
