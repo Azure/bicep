@@ -132,7 +132,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private MainArmTemplateOutput ToOutput(JsonProperty outputProperty)
         {
-            var outputs = this.armTemplate.Outputs.ToImmutableDictionaryExcludingNullValues(x => x.Name, StringComparer.Ordinal);
+            var outputs = this.armTemplate.Outputs.Where(x => StringComparer.Ordinal.Equals(x.Name, outputProperty.Name)).First();
 
             string name = outputs[outputProperty.Name].Name;
             string type = GetPrimitiveTypeName(outputs[outputProperty.Name].TypeReference);
