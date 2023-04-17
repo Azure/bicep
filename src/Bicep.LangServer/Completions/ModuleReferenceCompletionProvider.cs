@@ -257,7 +257,7 @@ namespace Bicep.LanguageServer.Completions
             return rootConfiguration.ModuleAliases.GetOciArtifactModuleAliases();
         }
 
-        // Handles remote (OCR) path completions, e.g. br: and br/
+        // Handles remote (OCI) path completions, e.g. br: and br/
         private async Task<IEnumerable<CompletionItem>> GetOciModulePathCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             if (!IsOciModuleRegistryReference(replacementText))
