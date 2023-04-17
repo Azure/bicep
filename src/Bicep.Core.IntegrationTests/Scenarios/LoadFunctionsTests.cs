@@ -805,7 +805,7 @@ var fileObj = loadJsonContent('file.json')
 
         /**** loadYamlContent ****/
         private const string TEST_YAML = @"propString: propStringValue
-popBoolTrue: true
+propBoolTrue: true
 propBoolFalse: false
 propNull: null
 propInt: 1073741824
@@ -847,48 +847,56 @@ propObject :
     - -1.73205080757
 ";
 
-        private const string TEST_YAML_ARM = @"propString: propStringValue
-popBoolTrue: true
-propBoolFalse: false
-propNull: null
-propInt: 1073741824
-propIntNegative: -1073741824
-propBigInt: 4611686018427387904
-propBigIntNegative: -4611686018427387904
-propFloat: 1.618033988749894
-propFloatNegative: -1.618033988749894
-propArrayString:
-- stringArray1
-- stringArray2
-- stringArray3
-propArrayInt:
-- 153584335
-- -5889645
-- 4611686018427387904
-propArrayFloat:
-- 1.61803398874
-- 3.14159265359
-- -1.73205080757
-propObject:
-    subObjectPropString: subObjectPropStringValue
-    subObjectPropBoolTrue: true
-    subObjectPropBoolFalse: false
-    subObjectPropNull: null
-    subObjectPropInt: 1234542113245
-    subObjectPropFloat: 1.618033988749894
-    subObjectPropArrayString:
-    - subObjectStringArray1
-    - subObjectStringArray2
-    - subObjectStringArray3
-    subObjectPropArrayInt:
-    - 153584335
-    - -5889645
-    - 4611686018427387904
-    subObjectPropArrayFloat:
-    - 1.61803398874
-    - 3.14159265359
-    - -1.73205080757
-";
+        private const string TEST_YAML_ARM = @"{
+  ""propString"": ""propStringValue"",
+  ""propBoolTrue"": true,
+  ""propBoolFalse"": false,
+  ""propNull"": null,
+  ""propInt"": 1073741824,
+  ""propIntNegative"": -1073741824,
+  ""propBigInt"": 4611686018427387904,
+  ""propBigIntNegative"": -4611686018427387904,
+  ""propFloat"": ""[json('1.618033988749894')]"",
+  ""propFloatNegative"": ""[json('-1.618033988749894')]"",
+  ""propArrayString"": [
+    ""stringArray1"",
+    ""stringArray2"",
+    ""stringArray3""
+  ],
+  ""propArrayInt"": [
+    153584335,
+    -5889645,
+    4611686018427387904
+  ],
+  ""propArrayFloat"": [
+    ""[json('1.61803398874')]"",
+    ""[json('3.14159265359')]"",
+    ""[json('-1.73205080757')]""
+  ],
+  ""propObject"": {
+    ""subObjectPropString"": ""subObjectPropStringValue"",
+    ""subObjectPropBoolTrue"": true,
+    ""subObjectPropBoolFalse"": false,
+    ""subObjectPropNull"": null,
+    ""subObjectPropInt"": 1234542113245,
+    ""subObjectPropFloat"": ""[json('1.618033988749894')]"",
+    ""subObjectPropArrayString"": [
+      ""subObjectStringArray1"",
+      ""subObjectStringArray2"",
+      ""subObjectStringArray3""
+    ],
+    ""subObjectPropArrayInt"": [
+      153584335,
+      -5889645,
+      4611686018427387904
+    ],
+    ""subObjectPropArrayFloat"": [
+      ""[json('1.61803398874')]"",
+      ""[json('3.14159265359')]"",
+      ""[json('-1.73205080757')]""
+    ]
+  }
+}";
         [TestMethod]
         public void LoadYamlFunction()
         {
@@ -934,7 +942,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             using (new AssertionScope())
             {
                 template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
-                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(3.14159265359);
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_YAML_ARM).SelectToken(path)!);
             }
         }
 
@@ -958,7 +966,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             using (new AssertionScope())
             {
                 template!.Should().BeNull();
-                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP235", DiagnosticLevel.Error, "Specified JSONPath does not exist in the given file or is invalid.") });
             }
         }
 
@@ -995,7 +1003,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             using (new AssertionScope())
             {
                 template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
-                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(3.14159265359);
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_YAML_ARM));
             }
         }
 
