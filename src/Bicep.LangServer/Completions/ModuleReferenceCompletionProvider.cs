@@ -135,7 +135,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         /// <summary>
-        /// True if is an OCR module reference (starts with br: or br/)
+        /// True if is an OCI module reference (starts with br: or br/)
         /// </summary>
         private bool IsOciModuleRegistryReference(string replacementText)
         {
