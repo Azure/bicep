@@ -38,6 +38,8 @@ namespace Bicep.LanguageServer.Providers
 
         public async Task<IEnumerable<string>> GetRegistryUris(Uri templateUri, CancellationToken cancellationToken)
         {
+            List<string> registryNames = new();
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var armClient = GetArmClient(templateUri);
@@ -56,8 +58,6 @@ namespace Bicep.LanguageServer.Providers
                 {
                     JArray jArray = JArray.Parse(data.ToString());
 
-                    List<string> registryNames = new();
-
                     foreach (JObject item in jArray)
                     {
                         if (item is not null &&
@@ -68,12 +68,10 @@ namespace Bicep.LanguageServer.Providers
                             registryNames.Add(loginServer);
                         }
                     }
-
-                    return registryNames;
                 }
             }
 
-            return Enumerable.Empty<string>();
+            return registryNames;
         }
 
         private ArmClient GetArmClient(Uri templateUri)
