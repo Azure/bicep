@@ -64,7 +64,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             BooleanType or BooleanLiteralType => "bool",
             UnionType unionOfBools when unionOfBools.Members.All(m => m.Type is BooleanLiteralType || m.Type is BooleanType)
                 => "bool",
-            ObjectType => typeRef.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? "secureObject" : "object",
+            ObjectType => "object",
             ArrayType => "array",
             TypeSymbol otherwise => throw new InvalidOperationException($"Unable to determine primitive type of {otherwise.Name}"),
         };
