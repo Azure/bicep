@@ -1983,11 +1983,6 @@
           "Newtonsoft.Json": "10.0.2"
         }
       },
-      "YamlDotNet": {
-        "type": "Transitive",
-        "resolved": "13.0.2",
-        "contentHash": "hRPqCt2bxTvHN6iT2JNG2KznDPFgD5B6j0bQ7woSpfGctmjgAYdKQ+LYHUaj/7q8sN1AbIcTNbaO75g8IFmTjw=="
-      },
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
@@ -2006,11 +2001,9 @@
           "Microsoft.Extensions.Configuration.Binder": "[7.0.3, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
-          "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",
-          "System.IO.Abstractions": "[19.2.4, )",
-          "System.Text.Json": "[8.0.0-preview.2.23128.3, )",
-          "YamlDotNet": "[13.0.2, )"
+          "System.IO.Abstractions": "[19.2.11, )",
+          "System.Text.Json": "[8.0.0-preview.2.23128.3, )"
         }
       },
       "Azure.Bicep.Decompiler": {
@@ -2051,7 +2044,7 @@
           "MSTest.TestFramework": "[3.0.2, )",
           "Microsoft.NET.Test.Sdk": "[17.5.0, )",
           "Moq": "[4.18.4, )",
-          "System.IO.Abstractions.TestingHelpers": "[19.1.18, )"
+          "System.IO.Abstractions.TestingHelpers": "[19.2.11, )"
         }
       },
       "bicep.langserver": {
