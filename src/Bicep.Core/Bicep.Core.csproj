@@ -44,6 +44,7 @@
     <PackageReference Include="System.IO.Abstractions" Version="19.2.11" />
     <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.31" PrivateAssets="all" />
+    <PackageReference Include="YamlDotNet" Version="13.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

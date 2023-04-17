@@ -889,6 +889,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                 .Build();
 
+            yield return new FunctionOverloadBuilder("loadYamlContent")
+               .WithGenericDescription($"Loads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.")
+               .WithRequiredParameter("filePath", LanguageConstants.StringYamlFilePath, "The path to the file that will be loaded.")
+               .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
+               .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
+               .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)
+               .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+               .Build();
+
             yield return new FunctionOverloadBuilder("items")
                 .WithGenericDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
@@ -1135,8 +1144,7 @@ namespace Bicep.Core.Semantics.Namespaces
         public static JToken ExtractTokenFromObject(string fileContent)
         {
             // Replace // with # unless in quotes
-            fileContent = fileContent.Replace("//", "#");
-            //fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
+            fileContent = Regex.Replace(fileContent, @"//+(?=([^""\\]*(\\.|""([^""\\]*\\.)*[^""\\]*""))*[^""]*$)", "#", RegexOptions.Singleline);
             // Manually fix multi-line comment with regex by appending # and manually fix first line
             fileContent = Regex.Replace(fileContent, @"(/\*.+?\*/)", m => m.Value.Replace("\n", "\n#"), RegexOptions.Singleline).Replace("/*", "# /*");
 

@@ -1,0 +1,20 @@
+{
+    "string": "someVal",
+    "int": 123,
+    "array": [
+        1,
+        //comment
+        2
+/* multi
+    line
+    comment
+*/
+    ],
+/* multi
+    line
+    comment
+*/
+    "object": {
+        "nestedString": "someVal" //comment
+    }
+}
