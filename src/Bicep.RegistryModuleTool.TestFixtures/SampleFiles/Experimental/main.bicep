@@ -42,7 +42,6 @@ param agentCount int = 1
 @description('The agent VM size')
 @allowed(['Standard_DS2_v2', 'Standard_DS4_v2'])
 param agentVMSize string = 'Standard_DS2_v2'
-// osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
   name: clusterName
