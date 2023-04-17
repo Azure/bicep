@@ -35,7 +35,9 @@ namespace Bicep.Core.Semantics
             return true;
         }
         public abstract JToken ExtractTokenFromObject(string fileContent);
+
         public abstract ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable);
+
         public bool TryExtractFromTokenByPath(JToken token, string tokenSelectorPath, IPositionable positionable, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, out JToken newToken)
         {
             newToken = token;

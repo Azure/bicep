@@ -1095,6 +1095,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
                 }
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
+                //TODO add ipositionable[] here
             }
 
             if (TryLoadTextContentFromFile(binder, fileResolver, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, out var fileContent, out var errorDiagnostic, LanguageConstants.MaxJsonFileCharacterLimit)

@@ -206,6 +206,63 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual(89, jToken["age"]);
             Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
         }
+
+        [TestMethod]
+        public void TEST_YAML_ARM_gets_deserialized_into_JSON()
+        {
+
+            const string TEST_YAML_ARM = @"
+        propString: propStringValue
+        popBoolTrue: true
+        propBoolFalse: false
+        propNull: null
+        propInt: 1073741824
+        propIntNegative: -1073741824
+        propBigInt: 4611686018427387904
+        propBigIntNegative: -4611686018427387904
+        propFloat: 1.618033988749894
+        propFloatNegative: -1.618033988749894
+        propArrayString:
+        - stringArray1
+        - stringArray2
+        - stringArray3
+        propArrayInt:
+        - 153584335
+        - -5889645
+        - 4611686018427387904
+        propArrayFloat:
+        - 1.61803398874
+        - 3.14159265359
+        - -1.73205080757
+        propObject:
+            subObjectPropString: subObjectPropStringValue
+            subObjectPropBoolTrue: true
+            subObjectPropBoolFalse: false
+            subObjectPropNull: null
+            subObjectPropInt: 1234542113245
+            subObjectPropFloat: 1.618033988749894
+            subObjectPropArrayString:
+            - subObjectStringArray1
+            - subObjectStringArray2
+            - subObjectStringArray3
+            subObjectPropArrayInt:
+            - 153584335
+            - -5889645
+            - 4611686018427387904
+            subObjectPropArrayFloat:
+            - 1.61803398874
+            - 3.14159265359
+            - -1.73205080757
+            #TODO
+            #armExpression: '[createObject(\'armObjProp\', \'armObjValue\')]' 
+        ";
+
+            var arguments = new FunctionArgumentSyntax[4];
+            new YamlObjectParser().TryExtractFromObject(TEST_YAML_ARM, null, new IPositionable[] { arguments[0] }, out var errorDiagnostic, out JToken jToken);
+
+            Assert.AreEqual(true, jToken["popBoolTrue"]);
+            Assert.AreEqual(1.61803398874, jToken["propObject"]!["subObjectPropArrayFloat"]![0]);
+        }
     }
 
 }
