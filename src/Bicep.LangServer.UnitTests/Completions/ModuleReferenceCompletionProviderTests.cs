@@ -300,7 +300,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
 
             var settingsProviderMock = StrictMock.Of<ISettingsProvider>();
-            settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
                 azureContainerRegistryNamesProvider,
@@ -370,7 +370,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
 
             var settingsProviderMock = StrictMock.Of<ISettingsProvider>();
-            settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(true);
+            settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistryNamesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
             azureContainerRegistryNamesProvider.Setup(x => x.GetRegistryUris(documentUri.ToUri(), CancellationToken.None)).ReturnsAsync(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" });
@@ -422,7 +422,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var completionContext = GetBicepCompletionContext(inputWithCursors, null, out DocumentUri documentUri);
 
             var settingsProviderMock = StrictMock.Of<ISettingsProvider>();
-            settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(true);
+            settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistryNamesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
             azureContainerRegistryNamesProvider.Setup(x => x.GetRegistryUris(documentUri.ToUri(), CancellationToken.None)).ReturnsAsync(new List<string>());

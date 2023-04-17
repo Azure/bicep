@@ -3385,7 +3385,7 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3414,7 +3414,7 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "bar.bicep", string.Empty, Path.Combine(testOutputPath, Path.Combine(testOutputPath, "br", "foo")));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3446,7 +3446,7 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-containerapp", "app/dapr-containerapp-env" });
@@ -3480,7 +3480,7 @@ var file = " + functionName + @"(templ|)
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.2", "1.0.1" });
