@@ -537,7 +537,7 @@ namespace Bicep.LanguageServer.Completions
         // Handles registry name completions for private modules possibly available in ACR registries
         private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletions(string replacementText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
         {
-            if (settingsProvider.GetSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting))
+            if (settingsProvider.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting))
             {
                 return await GetACRModuleRegistriesCompletionsFromGraphClient(replacementText, context, sourceFileUri, cancellationToken);
             }

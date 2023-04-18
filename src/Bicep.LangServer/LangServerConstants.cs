@@ -22,6 +22,6 @@ namespace Bicep.LanguageServer
         public const string EditLinterRuleCommandName = "bicep.EditLinterRule";
 
         // This is under "bicep.completions" in configuration
-        public const string UseAllAzureContainerRegistriesForCompletionsSetting = "useAllAccessibleAzureContainerRegistries";
+        public const string GetAllAzureContainerRegistriesForCompletionsSetting = "getAllAccessibleAzureContainerRegistries";
     }
 }

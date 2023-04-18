@@ -37,9 +37,9 @@ namespace Bicep.LanguageServer.Settings
                 settingsObject["bicep"] is JObject bicepObject &&
                 bicepObject["completions"] is JObject completionsObject)
             {
-                if (completionsObject[LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting] is JToken useAllAccessibleAzureContainerRegistriesToken)
+                if (completionsObject[LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting] is JToken getAllAccessibleAzureContainerRegistriesToken)
                 {
-                    settingsProvider.AddOrUpdateSetting(LangServerConstants.UseAllAzureContainerRegistriesForCompletionsSetting, useAllAccessibleAzureContainerRegistriesToken.Value<bool>());
+                    settingsProvider.AddOrUpdateSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting, getAllAccessibleAzureContainerRegistriesToken.Value<bool>());
                 }
             }
 
