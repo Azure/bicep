@@ -28,8 +28,8 @@
     <PackageReference Include="JetBrains.Annotations" Version="2022.3.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="JsonPatch.Net" Version="2.0.4" />
-    <PackageReference Include="JsonPath.Net" Version="0.2.1" />
+    <PackageReference Include="JsonPatch.Net" Version="2.0.6" />
+    <PackageReference Include="JsonPath.Net" Version="0.5.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
@@ -41,7 +41,7 @@
     <PackageReference Include="Azure.Bicep.Types" Version="0.3.99" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.407" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
-    <PackageReference Include="System.IO.Abstractions" Version="19.2.4" />
+    <PackageReference Include="System.IO.Abstractions" Version="19.2.11" />
     <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.31" PrivateAssets="all" />
   </ItemGroup>

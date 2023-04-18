@@ -15,6 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class NoHardcodedEnvironmentUrlsRule : LinterRuleBase
     {
         public new const string Code = "no-hardcoded-env-urls";
+
         public readonly string DisallowedHostsKey = "disallowedHosts";
         public readonly string ExcludedHostsKey = "excludedHosts";
 

@@ -9,10 +9,10 @@ import { BicepEditor } from './bicepEditor';
 import { copyShareLinkToClipboard, handleShareLink } from './utils';
 import { quickstartsPaths, getQuickstartsLink } from './examples';
 import { decompile } from './lspInterop';
-import { IAppInsights } from '@microsoft/applicationinsights-common';
+import { IApplicationInsights } from '@microsoft/applicationinsights-web';
 
 interface Props {
-  insights: IAppInsights,
+  insights: IApplicationInsights,
 }
 
 export const Playground : React.FC<Props> = (props) => {

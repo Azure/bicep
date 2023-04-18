@@ -136,7 +136,7 @@ namespace Bicep.Decompiler.BicepHelpers
         {
             var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/* {trailingComment} */");
 
-            return SyntaxFactory.CreateToken(tokenType, "?", SyntaxFactory.EmptyTrivia, trailingTrivia.AsEnumerable());
+            return SyntaxFactory.CreateFreeformToken(tokenType, "?", SyntaxFactory.EmptyTrivia, trailingTrivia.AsEnumerable());
         }
     }
 }

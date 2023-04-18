@@ -50,6 +50,11 @@ namespace Bicep.Core.Diagnostics
                 ? $" You are referencing a variable which cannot be calculated at the start (\"{string.Join("\" -> \"", variableDependencyChain)}\")."
                 : string.Empty;
 
+            private static string BuildNonDeployTimeConstantPropertyClause(string? accessedSymbolName, string? propertyName) =>
+                accessedSymbolName is not null && propertyName is not null
+                    ? $" The property \"{propertyName}\" of {accessedSymbolName} cannot be calculated at the start."
+                    : string.Empty;
+
             private static string BuildAccessiblePropertiesClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames) => accessedSymbolName is not null && accessiblePropertyNames is not null
                 ? $" Properties of {accessedSymbolName} which can be calculated at the start include {ToQuotedString(accessiblePropertyNames.OrderBy(s => s))}."
                 : string.Empty;
@@ -1090,15 +1095,16 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in an argument of the function \"{functionName}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public ErrorDiagnostic RuntimeValueNotAllowedInVariableForBody(string variableName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain, string? violatingPropertyName)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var violatingPropertyNameClause = BuildNonDeployTimeConstantPropertyClause(accessedSymbolName, violatingPropertyName);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
                 return new ErrorDiagnostic(
                     TextSpan,
                     "BCP182",
-                    $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+                    $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
             public ErrorDiagnostic ModuleParametersPropertyRequiresObjectLiteral() => new(

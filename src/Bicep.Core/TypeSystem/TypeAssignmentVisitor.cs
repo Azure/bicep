@@ -1105,7 +1105,7 @@ namespace Bicep.Core.TypeSystem
 
                 // we do not have a match
                 // operand types didn't match available operators
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2, additionalInfo: additionalInfo));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(syntax.OperatorToken.Text, operandType1, operandType2, additionalInfo: additionalInfo));
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)

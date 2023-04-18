@@ -954,6 +954,48 @@
     ]
   },
   {
+    "label": "cidrHost",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```\nCalculates the IP address of the specified host on a network.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrHost",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrHost($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "cidrSubnet",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrSubnet(network: string, cidr: int, subnetIndex: int): string\n\n```\nReturns the specified subnet of a CIDR network.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrSubnet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrSubnet($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "comp1",
     "kind": "interface",
     "detail": "comp1",
@@ -4977,6 +5019,27 @@
     }
   },
   {
+    "label": "parseCidr",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseCidr(network: string): parseCidr\n\n```\nParses an IP address into individual components and other useful information.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseCidr",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseCidr($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "pickZones",
     "kind": "function",
     "documentation": {
@@ -5604,23 +5667,6 @@
     ]
   },
   {
-    "label": "runtimeInvalidRes9",
-    "kind": "interface",
-    "detail": "runtimeInvalidRes9",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_runtimeInvalidRes9",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "runtimeInvalidRes9"
-    },
-    "commitCharacters": [
-      ":"
-    ]
-  },
-  {
     "label": "runtimeValid",
     "kind": "variable",
     "detail": "runtimeValid",
@@ -5646,6 +5692,23 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "runtimeValidRes10",
+    "kind": "interface",
+    "detail": "runtimeValidRes10",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes10",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes10"
     },
     "commitCharacters": [
       ":"

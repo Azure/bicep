@@ -1,18 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter.Rules;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
-using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -58,10 +53,19 @@ namespace Bicep.Core.TypeSystem
             return (null, null);
         }
 
-        public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax) =>
-            resourceOrModuleAccessSyntax is ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax, BaseExpression: var baseAccessSyntax }
-                ? TryResolveResourceOrModuleSymbolAndBodyType(baseAccessSyntax, true)
-                : TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
+        public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax)
+        {
+            if (resourceOrModuleAccessSyntax is not ArrayAccessSyntax { BaseExpression: var baseAccessSyntax, IndexExpression: var indexExpression })
+            {
+                return TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
+            }
+
+            var indexExprTypeInfo = this.semanticModel.GetTypeInfo(indexExpression);
+            var isCollection = indexExprTypeInfo.TypeKind != TypeKind.StringLiteral;
+
+            var syntaxToResolve = isCollection ? baseAccessSyntax : resourceOrModuleAccessSyntax;
+            return TryResolveResourceOrModuleSymbolAndBodyType(syntaxToResolve, isCollection);
+        }
 
         private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => this.semanticModel.GetSymbolInfo(syntax) switch
         {
@@ -69,6 +73,8 @@ namespace Bicep.Core.TypeSystem
                 (resourceSymbol, this.existingResourceBodyTypeOverrides.GetValueOrDefault(resourceSymbol) ?? resourceSymbol.TryGetBodyObjectType()),
             ModuleSymbol moduleSymbol when moduleSymbol.IsCollection == isCollection =>
                 (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
+            ParameterSymbol parameterSymbol when parameterSymbol.IsCollection == isCollection =>
+                    (parameterSymbol, parameterSymbol.TryGetBodyObjectType()),
             _ => (null, null),
         };
 
