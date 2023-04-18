@@ -9,9 +9,12 @@ namespace Bicep.Core.Semantics
 {
     public class JsonObjectParser : ObjectParser
     {
-        override public JToken ExtractTokenFromObject(string fileContent)
+        /// <summary>
+        /// TryFromJson returns null if the fileContent is not a valid JSON object
+        /// </summary>
+        override protected JToken ExtractTokenFromObject(string fileContent)
             => fileContent.TryFromJson<JToken>();
-        override public ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
+        override protected ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
             => DiagnosticBuilder.ForPosition(positionable).UnparseableJsonType();
     }
 }

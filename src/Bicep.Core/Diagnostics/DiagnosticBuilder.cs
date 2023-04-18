@@ -1919,7 +1919,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnparseableYamlType() => new(
                TextSpan,
                "BCP340",
-               $"Unable to parse literal YAML value. Please ensure that it is well-formed. Comments in YAML must use #, and do not support // or /**/.");
+               $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

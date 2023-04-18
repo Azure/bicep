@@ -3300,7 +3300,6 @@ var file = " + functionName + @"('|')
             }
         }
 
-        //TODO
         [DataTestMethod]
         [DataRow("loadTextContent")]
         [DataRow("loadFileAsBase64")]

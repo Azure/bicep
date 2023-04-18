@@ -12,10 +12,22 @@ namespace Bicep.Core.Semantics
 {
     public class YamlObjectParser : ObjectParser
     {
-        override public JToken ExtractTokenFromObject(string fileContent)
-            => JToken.FromObject(new Serializer().Deserialize(fileContent)!);
+        /// <summary>
+        /// Deserialize raises an exception if the fileContent is not a valid YAML object
+        /// </summary>
+        override protected JToken? ExtractTokenFromObject(string fileContent)
+        {
+            try
+            {
+                return new Serializer().Deserialize(fileContent) is { } deserialized ? JToken.FromObject(deserialized) : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-        override public ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
+        override protected ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
             => DiagnosticBuilder.ForPosition(positionable).UnparseableYamlType();
 
     }
