@@ -1,5 +1,5 @@
 func buildUrl = (bool https, string hostname, string path) => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:198) ProgramSyntax
+//@[000:317) ProgramSyntax
 //@[000:137) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:013) | ├─IdentifierSyntax
@@ -95,6 +95,74 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[049:057) |   | └─StringSyntax
 //@[049:057) |   |   └─Token(StringComplete) |'search'|
 //@[057:058) |   └─Token(RightParen) |)|
-//@[058:059) ├─Token(NewLine) |\n|
+//@[058:060) ├─Token(NewLine) |\n\n|
+
+func sayHello = (string name) => 'Hi ${name}!'
+//@[000:046) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:013) | ├─IdentifierSyntax
+//@[005:013) | | └─Token(Identifier) |sayHello|
+//@[014:015) | ├─Token(Assignment) |=|
+//@[016:046) | └─TypedLambdaSyntax
+//@[016:029) |   ├─TypedVariableBlockSyntax
+//@[016:017) |   | ├─Token(LeftParen) |(|
+//@[017:028) |   | ├─TypedLocalVariableSyntax
+//@[024:028) |   | | ├─IdentifierSyntax
+//@[024:028) |   | | | └─Token(Identifier) |name|
+//@[017:023) |   | | └─VariableAccessSyntax
+//@[017:023) |   | |   └─IdentifierSyntax
+//@[017:023) |   | |     └─Token(Identifier) |string|
+//@[028:029) |   | └─Token(RightParen) |)|
+//@[030:032) |   ├─Token(Arrow) |=>|
+//@[033:046) |   └─StringSyntax
+//@[033:039) |     ├─Token(StringLeftPiece) |'Hi ${|
+//@[039:043) |     ├─VariableAccessSyntax
+//@[039:043) |     | └─IdentifierSyntax
+//@[039:043) |     |   └─Token(Identifier) |name|
+//@[043:046) |     └─Token(StringRightPiece) |}!'|
+//@[046:048) ├─Token(NewLine) |\n\n|
+
+output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
+//@[000:069) ├─OutputDeclarationSyntax
+//@[000:006) | ├─Token(Identifier) |output|
+//@[007:013) | ├─IdentifierSyntax
+//@[007:013) | | └─Token(Identifier) |hellos|
+//@[014:019) | ├─VariableAccessSyntax
+//@[014:019) | | └─IdentifierSyntax
+//@[014:019) | |   └─Token(Identifier) |array|
+//@[020:021) | ├─Token(Assignment) |=|
+//@[022:069) | └─FunctionCallSyntax
+//@[022:025) |   ├─IdentifierSyntax
+//@[022:025) |   | └─Token(Identifier) |map|
+//@[025:026) |   ├─Token(LeftParen) |(|
+//@[026:044) |   ├─FunctionArgumentSyntax
+//@[026:044) |   | └─ArraySyntax
+//@[026:027) |   |   ├─Token(LeftSquare) |[|
+//@[027:033) |   |   ├─ArrayItemSyntax
+//@[027:033) |   |   | └─StringSyntax
+//@[027:033) |   |   |   └─Token(StringComplete) |'Evie'|
+//@[033:034) |   |   ├─Token(Comma) |,|
+//@[035:043) |   |   ├─ArrayItemSyntax
+//@[035:043) |   |   | └─StringSyntax
+//@[035:043) |   |   |   └─Token(StringComplete) |'Casper'|
+//@[043:044) |   |   └─Token(RightSquare) |]|
+//@[044:045) |   ├─Token(Comma) |,|
+//@[046:068) |   ├─FunctionArgumentSyntax
+//@[046:068) |   | └─LambdaSyntax
+//@[046:050) |   |   ├─LocalVariableSyntax
+//@[046:050) |   |   | └─IdentifierSyntax
+//@[046:050) |   |   |   └─Token(Identifier) |name|
+//@[051:053) |   |   ├─Token(Arrow) |=>|
+//@[054:068) |   |   └─FunctionCallSyntax
+//@[054:062) |   |     ├─IdentifierSyntax
+//@[054:062) |   |     | └─Token(Identifier) |sayHello|
+//@[062:063) |   |     ├─Token(LeftParen) |(|
+//@[063:067) |   |     ├─FunctionArgumentSyntax
+//@[063:067) |   |     | └─VariableAccessSyntax
+//@[063:067) |   |     |   └─IdentifierSyntax
+//@[063:067) |   |     |     └─Token(Identifier) |name|
+//@[067:068) |   |     └─Token(RightParen) |)|
+//@[068:069) |   └─Token(RightParen) |)|
+//@[069:070) ├─Token(NewLine) |\n|
 
 //@[000:000) └─Token(EndOfFile) ||

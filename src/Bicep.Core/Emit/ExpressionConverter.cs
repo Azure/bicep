@@ -96,9 +96,8 @@ namespace Bicep.Core.Emit
                         function.Parameters.Select(p => ConvertExpression(p)));
 
                 case UserDefinedFunctionCallExpression function:
-                    // TODO(functions) pick namespace, use constant for it
                     return CreateFunction(
-                        $"_bicep.{function.Name}",
+                        $"{EmitConstants.UserDefinedFunctionsNamespace}.{function.Name}",
                         function.Parameters.Select(p => ConvertExpression(p)));
 
                 case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix): {

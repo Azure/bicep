@@ -48,6 +48,42 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[047:048) Comma |,|
 //@[049:057) StringComplete |'search'|
 //@[057:058) RightParen |)|
-//@[058:059) NewLine |\n|
+//@[058:060) NewLine |\n\n|
+
+func sayHello = (string name) => 'Hi ${name}!'
+//@[000:004) Identifier |func|
+//@[005:013) Identifier |sayHello|
+//@[014:015) Assignment |=|
+//@[016:017) LeftParen |(|
+//@[017:023) Identifier |string|
+//@[024:028) Identifier |name|
+//@[028:029) RightParen |)|
+//@[030:032) Arrow |=>|
+//@[033:039) StringLeftPiece |'Hi ${|
+//@[039:043) Identifier |name|
+//@[043:046) StringRightPiece |}!'|
+//@[046:048) NewLine |\n\n|
+
+output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
+//@[000:006) Identifier |output|
+//@[007:013) Identifier |hellos|
+//@[014:019) Identifier |array|
+//@[020:021) Assignment |=|
+//@[022:025) Identifier |map|
+//@[025:026) LeftParen |(|
+//@[026:027) LeftSquare |[|
+//@[027:033) StringComplete |'Evie'|
+//@[033:034) Comma |,|
+//@[035:043) StringComplete |'Casper'|
+//@[043:044) RightSquare |]|
+//@[044:045) Comma |,|
+//@[046:050) Identifier |name|
+//@[051:053) Arrow |=>|
+//@[054:062) Identifier |sayHello|
+//@[062:063) LeftParen |(|
+//@[063:067) Identifier |name|
+//@[067:068) RightParen |)|
+//@[068:069) RightParen |)|
+//@[069:070) NewLine |\n|
 
 //@[000:000) EndOfFile ||

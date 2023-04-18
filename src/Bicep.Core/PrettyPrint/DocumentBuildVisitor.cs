@@ -130,7 +130,17 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Modifier);
             });
 
-        // TODO(functions) add implementation for new syntax
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Lambda);
+            });
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
@@ -247,8 +257,33 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.CloseParen);
             });
 
+        public override void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.OpenParen);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseParen);
+            });
+
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);            
+        }
+
         public override void VisitLambdaSyntax(LambdaSyntax syntax) =>
             this.Build(() => base.VisitLambdaSyntax(syntax), children =>
+             {
+                 Debug.Assert(children.Length == 3);
+
+                 ILinkedDocument token = children[0];
+                 ILinkedDocument arrow = children[1];
+                 ILinkedDocument body = children[2];
+
+                 return Spread(token, arrow, body);
+             });
+
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
+            this.Build(() => base.VisitTypedLambdaSyntax(syntax), children =>
              {
                  Debug.Assert(children.Length == 3);
 

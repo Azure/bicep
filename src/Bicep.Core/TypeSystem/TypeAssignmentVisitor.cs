@@ -216,7 +216,6 @@ namespace Bicep.Core.TypeSystem
             {
                 if (typeManager.GetDeclaredType(syntax) is not {} declaredType)
                 {
-                    // TODO(functions) needs an error?
                     return ErrorType.Empty();
                 }
 
@@ -1457,7 +1456,7 @@ namespace Bicep.Core.TypeSystem
                         return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
                     case DeclaredFunctionSymbol declaredFunction:
-                        return GetDeclaredFunctionSymbolReturnType(declaredFunction, syntax, errors, diagnostics);
+                        return GetFunctionSymbolType(declaredFunction, syntax, errors, diagnostics);
 
                     case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is {} knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
@@ -1483,16 +1482,28 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (typeManager.GetDeclaredType(syntax) is not LambdaType declaredType)
+                var declaredType = typeManager.GetDeclaredType(syntax);
+                if (declaredType is not LambdaType declaredLambdaType)
                 {
-                    // TODO(functions) needs an error?
-                    return ErrorType.Empty();
+                    return declaredType ?? ErrorType.Empty();
                 }
 
-                var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
-                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredType.ReturnType.Type);
+                var errors = new List<ErrorDiagnostic>();
+                var argumentTypes = new List<TypeSymbol>();
+                foreach (var argumentType in declaredLambdaType.ArgumentTypes)
+                {
+                    CollectErrors(errors, argumentType.Type);
+                }
 
-                return new LambdaType(declaredType.ArgumentTypes, returnType);
+                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredLambdaType.ReturnType.Type);
+                CollectErrors(errors, returnType);
+
+                if (PropagateErrorType(errors, argumentTypes))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                return new LambdaType(declaredLambdaType.ArgumentTypes, returnType);
             });
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)
@@ -1739,7 +1750,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol GetFunctionSymbolType(
-            FunctionSymbol function,
+            IFunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             IList<ErrorDiagnostic> errors,
             IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
@@ -1750,7 +1761,7 @@ namespace Bicep.Core.TypeSystem
                 diagnosticWriter);
 
         private TypeSymbol GetFunctionSymbolType(
-            FunctionSymbol function,
+            IFunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             ImmutableArray<TypeSymbol> argumentTypes,
             IList<ErrorDiagnostic> errors,
@@ -1810,7 +1821,7 @@ namespace Bicep.Core.TypeSystem
                         errors.Add(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(argumentIndex)).ArgumentTypeMismatch(argumentType, parameterType));
                     }
                 }
-                else
+                else if (countMismatches.Any())
                 {
                     // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
                     var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
@@ -1846,40 +1857,6 @@ namespace Bicep.Core.TypeSystem
             // and we also don't want users to have to use the converter functions to work around it
             // instead, we will return the "any" type to short circuit the type checking for those cases
             return LanguageConstants.Any;
-        }
-
-        private TypeSymbol GetDeclaredFunctionSymbolReturnType(
-            DeclaredFunctionSymbol function,
-            FunctionCallSyntaxBase syntax,
-            IList<ErrorDiagnostic> errors,
-            IDiagnosticWriter diagnostics)
-        {
-            if (typeManager.GetDeclaredType(function.DeclaringFunction.Lambda) is not LambdaType lambdaType)
-            {
-                // TODO(functions) errors here?
-                return ErrorType.Empty();
-            }
-
-            if (syntax.Arguments.Length != lambdaType.ArgumentTypes.Length)
-            {
-                // TODO(functions) argument legnth mismatch error
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ArgumentCountMismatch(syntax.Arguments.Length, lambdaType.ArgumentTypes.Length, lambdaType.ArgumentTypes.Length));
-            }
-
-            var resolvedArgumentTypes = new List<TypeSymbol>();
-            for (var i = 0; i < syntax.Arguments.Length; i++)
-            {
-                var resolvedType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Arguments[i], lambdaType.ArgumentTypes[i].Type);
-                resolvedArgumentTypes.Add(resolvedType);
-            }
-
-            if (resolvedArgumentTypes.Any(x => x is ErrorType))
-            {
-                return ErrorType.Empty();
-            }
-
-            // TODO(functions) can do better here by using the actual types of the arguments, rather than returning the generic returntype
-            return lambdaType.ReturnType.Type;
         }
 
         /// <summary>

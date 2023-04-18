@@ -514,6 +514,8 @@ namespace Bicep.Core.Emit
 
         private static void FunctionDeclarationsMustBePure(SemanticModel model, IDiagnosticWriter diagnostics)
         {
+            // TODO(functions) implement scoping properly (such that parent scope lookup just fails)
+            // TODO(functions) block non-DTC functions properly
             foreach (var func in model.Root.FunctionDeclarations)
             {
                 CallbackVisitor.Visit(func.DeclaringFunction.Lambda, (syntax) => {

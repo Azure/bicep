@@ -1213,7 +1213,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument)
                 || context.FunctionArgument is not { } functionArgument
-                || model.GetSymbolInfo(functionArgument.Function) is not FunctionSymbol functionSymbol)
+                || model.GetSymbolInfo(functionArgument.Function) is not IFunctionSymbol functionSymbol)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -1719,7 +1719,7 @@ namespace Bicep.LanguageServer.Completions
                 completion.WithCommitCharacters(ResourceSymbolCommitChars);
             }
 
-            if (symbol is FunctionSymbol function)
+            if (symbol is IFunctionSymbol function)
             {
                 // for functions without any parameters on all the overloads, we should be placing the cursor after the parentheses
                 // for all other functions, the cursor should land between the parentheses so the user can specify the arguments

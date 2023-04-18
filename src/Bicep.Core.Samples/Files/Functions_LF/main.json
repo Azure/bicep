@@ -5,12 +5,12 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3237142808919707671"
+      "templateHash": "14416497827282305816"
     }
   },
   "functions": [
     {
-      "namespace": "_bicep",
+      "namespace": "__bicep",
       "members": {
         "buildUrl": {
           "parameters": [
@@ -31,6 +31,18 @@
             "type": "string",
             "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
           }
+        },
+        "sayHello": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('Hi {0}!', parameters('name'))]"
+          }
         }
       }
     }
@@ -39,7 +51,11 @@
   "outputs": {
     "foo": {
       "type": "string",
-      "value": "[_bicep.buildUrl(true(), 'google.com', 'search')]"
+      "value": "[__bicep.buildUrl(true(), 'google.com', 'search')]"
+    },
+    "hellos": {
+      "type": "array",
+      "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
     }
   }
 }

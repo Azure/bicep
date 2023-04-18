@@ -168,8 +168,7 @@ namespace Bicep.Core.Emit
 
             emitter.EmitArrayProperty("functions", () => {
                 emitter.EmitObject(() => {
-                    // TODO(functions) pick namespace, use constant for it
-                    emitter.EmitProperty("namespace", "_bicep");
+                    emitter.EmitProperty("namespace", EmitConstants.UserDefinedFunctionsNamespace);
 
                     emitter.EmitObjectProperty("members", () => {
                         foreach (var function in functions)
@@ -256,7 +255,6 @@ namespace Bicep.Core.Emit
                 emitter.EmitArrayProperty("parameters", () => {
                     for (var i = 0; i < lambda.Parameters.Length; i++)
                     {
-                        // TODO(functions) make this less hacky
                         var parameterObject = TypePropertiesForTypeExpression(lambda.ParameterTypes[i]!);
                         parameterObject = parameterObject.MergeProperty("name", new StringLiteralExpression(null, lambda.Parameters[i]));
 
@@ -267,7 +265,7 @@ namespace Bicep.Core.Emit
                 });
 
                 emitter.EmitObjectProperty("output", () => {
-                    // TODO(functions) needs a proper implementation
+                    // TODO(functions) lambda needs a declared return type to use here
                     emitter.EmitProperty("type", "string");
                     emitter.EmitProperty("value", lambda.Body);
                 });

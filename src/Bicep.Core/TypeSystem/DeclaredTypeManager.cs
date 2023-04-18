@@ -166,21 +166,20 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetTypedLocalVariableType(TypedLocalVariableSyntax syntax)
         {
-            if (TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) is {} declaredType)
-            {
-                return new(declaredType, syntax);
-            }
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
-            return new(LanguageConstants.Any, syntax);
+            return new(declaredType, syntax);
         }
 
         private DeclaredTypeAssignment GetTypedLambdaType(TypedLambdaSyntax syntax)
         {
             var argumentTypes = syntax.GetLocalVariables()
-                .Select(x => GetDeclaredTypeAssignment(x)?.Reference ?? ErrorType.Empty())
+                .Select(x => GetTypedLocalVariableType(x).Reference)
                 .ToImmutableArray();
 
-            var type = new LambdaType(argumentTypes, LanguageConstants.Any);
+            // TODO(functions) lambda needs a declared return type to use here
+            var type = new LambdaType(argumentTypes, LanguageConstants.String);
             return new(type, syntax);
         }
 
