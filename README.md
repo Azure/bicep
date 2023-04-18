@@ -63,7 +63,7 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 **What unique benefits do you get with Bicep?**
 
-1. Day 0 resource provider support. Any Azure resource — whether in private or public preview or GA — can be provisioned using Bicep.
+1. Day 0 resource provider support. Any ARM resource — whether in private or public preview or GA — can be provisioned using Bicep. It should be noted that several Azure resources, such as Azure Databricks, Azure DevOps, and App registrations, do not fall under the category of ARM resources and are therefore outside the scope of this discussion.
 2. Much simpler syntax [compared to equivalent ARM Template JSON](https://docs.microsoft.com/azure/azure-resource-manager/bicep/compare-template-syntax)
 3. No state or state files to manage. All state is stored in Azure, so makes it easy to collaborate and make changes to resources confidently.
 4. Tooling is the cornerstone to any great experience with a programming language. Our VS Code extension for Bicep makes it extremely easy to author and get started with advanced type validation based on all Azure resource type [API definitions](https://github.com/Azure/azure-rest-api-specs/tree/master/specification).
