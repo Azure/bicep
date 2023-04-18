@@ -82,6 +82,15 @@
           "OmniSharp.Extensions.LanguageServer.Shared": "0.19.7"
         }
       },
+      "System.Linq.Async": {
+        "type": "Direct",
+        "requested": "[6.0.1, )",
+        "resolved": "6.0.1",
+        "contentHash": "0YhHcaroWpQ9UCot3Pizah7ryAzQhNvobLMSxeDIGmnXfkQn8u5owvpOH0K6EVB+z9L7u6Cc4W17Br/+jyttEQ==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "6.0.0"
+        }
+      },
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.3.99",

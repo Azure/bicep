@@ -27,7 +27,8 @@ namespace Bicep.LanguageServer.Completions
     /// </summary>
     public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
-        private readonly IAzureContainerRegistriesProvider azureContainerRegistryNamesProvider;
+        private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
+
         private readonly IConfigurationManager configurationManager;
         private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
         private readonly ISettingsProvider settingsProvider;
@@ -64,13 +65,13 @@ namespace Bicep.LanguageServer.Completions
         private const string MCRRegistry = "mcr.microsoft.com";
 
         public ModuleReferenceCompletionProvider(
-            IAzureContainerRegistriesProvider azureContainerRegistryNamesProvider,
+            IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IConfigurationManager configurationManager,
             IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
-            this.azureContainerRegistryNamesProvider = azureContainerRegistryNamesProvider;
+            this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.configurationManager = configurationManager;
             this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
             this.settingsProvider = settingsProvider;
@@ -553,9 +554,8 @@ namespace Bicep.LanguageServer.Completions
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            var registryNames = await azureContainerRegistryNamesProvider.GetRegistryUris(sourceFileUri, cancellationToken);
-
-            foreach (string registryName in registryNames)
+            await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUris(sourceFileUri, cancellationToken)
+                .WithCancellation(cancellationToken))
             {
                 var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
                 var insertText = $"'{replacementTextWithTrimmedEnd}{registryName}/$0'";

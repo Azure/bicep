@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -36,10 +37,8 @@ namespace Bicep.LanguageServer.Providers
             this.tokenCredentialFactory = tokenCredentialFactory;
         }
 
-        public async Task<IEnumerable<string>> GetRegistryUris(Uri templateUri, CancellationToken cancellationToken)
+        public async IAsyncEnumerable<string> GetRegistryUris(Uri templateUri, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            List<string> registryNames = new();
-
             cancellationToken.ThrowIfCancellationRequested();
 
             var armClient = GetArmClient(templateUri);
@@ -65,13 +64,11 @@ namespace Bicep.LanguageServer.Providers
                             jToken is not null &&
                             jToken.Value<string>() is string loginServer)
                         {
-                            registryNames.Add(loginServer);
+                            yield return loginServer;
                         }
                     }
                 }
             }
-
-            return registryNames;
         }
 
         private ArmClient GetArmClient(Uri templateUri)
