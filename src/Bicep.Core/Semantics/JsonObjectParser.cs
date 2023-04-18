@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 

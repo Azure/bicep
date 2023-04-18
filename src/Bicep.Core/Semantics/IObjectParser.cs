@@ -3,7 +3,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics
