@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -60,5 +61,46 @@ output outputFoo string = returnFoo()
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
 
         evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "foo");
+    }
+
+    [TestMethod]
+    public void User_defined_functions_cannot_reference_each_other()
+    {
+        var result = CompilationHelper.Compile(@"
+func getAbc = () => 'abc'
+func getAbcDef = () => '${getAbc()}def'
+");
+    
+        result.Should().HaveDiagnostics(new [] {
+            ("BCP340", DiagnosticLevel.Error, "Symbol \"getAbc\" cannot be used here. Function bodies must only refer to symbols defined as function arguments."),
+        });
+    }
+
+    [TestMethod]
+    public void User_defined_functions_unsupported_custom_types()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true));
+
+        var result = CompilationHelper.Compile(services, @"
+func getAOrB = (('a' | 'b') aOrB) => aOrB
+");
+    
+        // TODO(functions) this should raise a diagnostic - we can only emit simple types
+        result.Should().HaveDiagnostics(new [] {
+            ("TODO", DiagnosticLevel.Error, "This should be blocked!"),
+        });
+    }
+
+    [TestMethod]
+    public void User_defined_functions_unsupported_runtime_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+func useRuntimeFunction = () => reference('foo').bar
+");
+    
+        // TODO(functions) this should raise a diagnostic
+        result.Should().HaveDiagnostics(new [] {
+            ("TODO", DiagnosticLevel.Error, "This should be blocked!"),
+        });
     }
 }
