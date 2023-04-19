@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     ".NETFramework,Version=v4.7.2": {
+      "Azure.Deployments.Internal.GenerateNotice": {
+        "type": "Direct",
+        "requested": "[0.1.31, )",
+        "resolved": "0.1.31",
+        "contentHash": "j/l71hjQxU3v5CqLpvw+ZkfcsQchWVOqWBjH9/LcyPvuiqNVmNNYOoQ17UjAVZA8AeYV1dFVPyR+c/wVaDIFXA=="
+      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.4, )",
@@ -56,7 +62,7 @@
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
         "resolved": "17.2.32",
-        "contentHash": "Sn73HwB0stbzlgug3Z61MHsBwWyUygUQd7s5fq3r1OOYgFJ+5EudhV3K4sO+v8UeBjKwSU7WqJTkoRmoVXFGFQ==",
+        "contentHash": "E0JlXhLA2VGMHkvih+4L9XQPTJuoIYc3PG1Ss/rjHjtVrx8Q1CJ32QB4rvXY/Ktm2ooTy7n3mPUIOi/VBaTqwA==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "Microsoft.VisualStudio.Threading.Analyzers": "17.2.32",
@@ -68,7 +74,7 @@
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Transitive",
         "resolved": "17.2.32",
-        "contentHash": "izJIEScEIBe8m96gMkox9vZE6r/Unk6giifbfRroqYJR3yESJqTkaQ707pE+jkJMqxHNT/lqBensuex90vPfPw=="
+        "contentHash": "IKtqQ1flLsIlsmzzU2C3/Rpokuv09qa1XnvKm3iy69sLza8eCbmgCogiuq0Li5NXKT0G335Rp7erR/RwBLW/Nw=="
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",

@@ -612,7 +612,7 @@
       "Microsoft.VisualStudio.LanguageServer.Protocol": {
         "type": "Transitive",
         "resolved": "17.2.8",
-        "contentHash": "60JcfitC8pve5pHAaRDlO1H8IBXR/tXGqYoK8fgNWZEG8MQl3EEND+IRVv6sjJmMhyYLYzXZrU7U8/KXsPQe0Q==",
+        "contentHash": "ySXr1hOG1KP27q8IWJ5Kb27/p0PEG5xlitbTSCaUefINs4uSvgWh1E5absi2ly/ukFr4bwKHbQoVjLmouBMECg==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1"
         }
@@ -921,7 +921,7 @@
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
         "resolved": "17.2.32",
-        "contentHash": "Sn73HwB0stbzlgug3Z61MHsBwWyUygUQd7s5fq3r1OOYgFJ+5EudhV3K4sO+v8UeBjKwSU7WqJTkoRmoVXFGFQ==",
+        "contentHash": "E0JlXhLA2VGMHkvih+4L9XQPTJuoIYc3PG1Ss/rjHjtVrx8Q1CJ32QB4rvXY/Ktm2ooTy7n3mPUIOi/VBaTqwA==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "Microsoft.VisualStudio.Threading.Analyzers": "17.2.32",
@@ -933,7 +933,7 @@
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Transitive",
         "resolved": "17.2.32",
-        "contentHash": "izJIEScEIBe8m96gMkox9vZE6r/Unk6giifbfRroqYJR3yESJqTkaQ707pE+jkJMqxHNT/lqBensuex90vPfPw=="
+        "contentHash": "IKtqQ1flLsIlsmzzU2C3/Rpokuv09qa1XnvKm3iy69sLza8eCbmgCogiuq0Li5NXKT0G335Rp7erR/RwBLW/Nw=="
       },
       "Microsoft.VisualStudio.Utilities": {
         "type": "Transitive",
@@ -1065,15 +1065,15 @@
       },
       "OmniSharp.Extensions.JsonRpc": {
         "type": "Transitive",
-        "resolved": "0.19.6",
-        "contentHash": "x289QLi2KSKL8H8XQ0D9b5IqXXj5AyFDWF4odBf/JG8a5228ycVWaSCVjxt14GS8CVsNt4JuiyzEz1pN52JJXA==",
+        "resolved": "0.19.7",
+        "contentHash": "TbT1Oq+WFlMNXbU/3l0YmiXYmnWErY159hpsp9W2/7C+VmjMISzuOQty0ew0UUTNmTYrHh0B3z63M2Zhgi/edg==",
         "dependencies": {
           "MediatR": "8.1.0",
           "Microsoft.Extensions.DependencyInjection": "6.0.0",
           "Microsoft.Extensions.Logging": "6.0.0",
           "Nerdbank.Streams": "2.8.57",
           "Newtonsoft.Json": "11.0.2",
-          "OmniSharp.Extensions.JsonRpc.Generators": "0.19.6",
+          "OmniSharp.Extensions.JsonRpc.Generators": "0.19.7",
           "System.Collections.Immutable": "5.0.0",
           "System.Reactive": "5.0.0",
           "System.Threading.Channels": "6.0.0"
@@ -1081,38 +1081,38 @@
       },
       "OmniSharp.Extensions.JsonRpc.Generators": {
         "type": "Transitive",
-        "resolved": "0.19.6",
-        "contentHash": "9Cv4XnpN1qvu+X8o3Uk0K/eHoQo/bozturZbvjNhovL549Q0aLKOZa3trGjVNYDuu5HzSIEIyx74lWD2SNXNRw=="
+        "resolved": "0.19.7",
+        "contentHash": "z3qCnbC00O+B/y8RfNxQWm7IC9+0UcOACGO9Ni1d6xO1diNq4k3Qm+01K/G5hMv8l/Awd6w2seJnSDKIvEiJbw=="
       },
       "OmniSharp.Extensions.LanguageProtocol": {
         "type": "Transitive",
-        "resolved": "0.19.6",
-        "contentHash": "DWqOxG6TzgZ03JtaDqRhKEArWbfdjCUGWHBTAm//y6lBEJKYfiphrF+V2fIl2PtakBleHbDc4HdosA8pp5Mu1w==",
+        "resolved": "0.19.7",
+        "contentHash": "wlEaNOKeKq5vrzkN/6q47G64SCAxi8xHmLgB08LNOM2D6Lfz6+C5woysBsSHjgZjU1j7pzYJraP88XlgSH0Kaw==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "6.0.0",
           "Microsoft.Extensions.Configuration.Binder": "6.0.0",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "6.0.0",
-          "OmniSharp.Extensions.JsonRpc": "0.19.6",
-          "OmniSharp.Extensions.JsonRpc.Generators": "0.19.6"
+          "OmniSharp.Extensions.JsonRpc": "0.19.7",
+          "OmniSharp.Extensions.JsonRpc.Generators": "0.19.7"
         }
       },
       "OmniSharp.Extensions.LanguageServer": {
         "type": "Transitive",
-        "resolved": "0.19.6",
-        "contentHash": "alSzJlH6yuj4GlMTcs0vFA5jVm/Rz6kmtWfAX+MsNEMIOPh15RU8v1pU7g92w5i8w7Qobf1OydEprjjVNxiMqw==",
+        "resolved": "0.19.7",
+        "contentHash": "ktdklzQkaxaa5nsq4l/gwAeYf58JVfEMneuMnWJwpWUAQXaX30hyeefaiML3hnMrZE1wHis5PrRqx43/oQtq1g==",
         "dependencies": {
           "Microsoft.Extensions.Configuration": "6.0.0",
-          "OmniSharp.Extensions.JsonRpc": "0.19.6",
-          "OmniSharp.Extensions.LanguageProtocol": "0.19.6",
-          "OmniSharp.Extensions.LanguageServer.Shared": "0.19.6"
+          "OmniSharp.Extensions.JsonRpc": "0.19.7",
+          "OmniSharp.Extensions.LanguageProtocol": "0.19.7",
+          "OmniSharp.Extensions.LanguageServer.Shared": "0.19.7"
         }
       },
       "OmniSharp.Extensions.LanguageServer.Shared": {
         "type": "Transitive",
-        "resolved": "0.19.6",
-        "contentHash": "rzGj+5Gb0rK5P12Rka9hgcz8865lB6lKUof4GBXU4mb/Hct42CmuPWmhsDSMta09IrYCKTSmGESQqnoYP4xxnw==",
+        "resolved": "0.19.7",
+        "contentHash": "rCXuvtNzCLg4GPQFrxIhWKzoUn1UCQ0FFu70GgHqf3i1+3IDfnKS+vbHh3SV2gPJ5+AWerYJ7qQTfWHpkDutBg==",
         "dependencies": {
-          "OmniSharp.Extensions.LanguageProtocol": "0.19.6"
+          "OmniSharp.Extensions.LanguageProtocol": "0.19.7"
         }
       },
       "stdole": {
@@ -1464,7 +1464,7 @@
           "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
-          "OmniSharp.Extensions.LanguageServer": "[0.19.6, )"
+          "OmniSharp.Extensions.LanguageServer": "[0.19.7, )"
         }
       },
       "bicep.vslanguageserverclient.itemtemplate": {
