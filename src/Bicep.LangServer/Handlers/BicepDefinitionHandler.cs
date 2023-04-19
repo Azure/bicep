@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
-                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, sourceFile.FileUri, out var moduleReference, out _))
+                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
