@@ -94,13 +94,13 @@ namespace Bicep.VSLanguageServerClient
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e) =>
-            SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Changed, e.FullPath);
+            _ = SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Changed, e.FullPath); // Don't wait
 
         private void OnCreated(object sender, FileSystemEventArgs e) =>
-            SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Created, e.FullPath);
+            _ = SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Created, e.FullPath); // Don't wait
 
         private void OnDeleted(object sender, FileSystemEventArgs e) =>
-            SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Deleted, e.FullPath);
+            _ = SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Deleted, e.FullPath); // Don't wait
 
         private Task SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType fileChangeType, string fullPath)
         {
