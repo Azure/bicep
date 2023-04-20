@@ -104,9 +104,9 @@
           "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
           "default": true
         },
-        "bicep.experimental.includeAllAccessibleAzureContainerRegistriesForCompletions": {
+        "bicep.completions.getAllAccessibleAzureContainerRegistries": {
           "type": "boolean",
-          "description": "(Experimental) List all Azure Container Registries when module registry reference completion is invoked. (If this option is off, only registry login server names configured under moduleAliases in bicepconfig.json will be listed.)",
+          "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",
           "default": false
         },
         "bicep.trace.server": {

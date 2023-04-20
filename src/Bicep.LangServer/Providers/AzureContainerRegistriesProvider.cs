@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.ResourceManager;
@@ -18,9 +20,9 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.LanguageServer.Providers
 {
     /// <summary>
-    /// This provider helps fetch all the Azure Container Registries(ACR) names that the user has access to.
+    /// This provider fetches all the Azure Container Registries (ACR) names that the user has access to via Azure
     /// </summary>
-    public class AzureContainerRegistryNamesProvider : IAzureContainerRegistryNamesProvider
+    public class AzureContainerRegistriesProvider : IAzureContainerRegistriesProvider
     {
         private readonly IConfigurationManager configurationManager;
         private readonly ITokenCredentialFactory tokenCredentialFactory;
@@ -29,19 +31,23 @@ namespace Bicep.LanguageServer.Providers
 | where type == ""microsoft.containerregistry/registries""
 | project properties[""loginServer""]";
 
-        public AzureContainerRegistryNamesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
+        public AzureContainerRegistriesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
         {
             this.configurationManager = configurationManager;
             this.tokenCredentialFactory = tokenCredentialFactory;
         }
 
-        public async Task<IEnumerable<string>> GetRegistryNames(Uri templateUri)
+        public async IAsyncEnumerable<string> GetRegistryUris(Uri templateUri, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var armClient = GetArmClient(templateUri);
             TenantCollection tenants = armClient.GetTenants();
 
             await foreach (TenantResource tenant in tenants)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var queryContent = new ResourceQueryContent(queryToGetRegistryNames);
                 Response<ResourceQueryResult> queryResponse = await tenant.GetResourcesAsync(queryContent);
 
@@ -51,8 +57,6 @@ namespace Bicep.LanguageServer.Providers
                 {
                     JArray jArray = JArray.Parse(data.ToString());
 
-                    List<string> registryNames = new();
-
                     foreach (JObject item in jArray)
                     {
                         if (item is not null &&
@@ -60,15 +64,11 @@ namespace Bicep.LanguageServer.Providers
                             jToken is not null &&
                             jToken.Value<string>() is string loginServer)
                         {
-                            registryNames.Add(loginServer);
+                            yield return loginServer;
                         }
                     }
-
-                    return registryNames;
                 }
             }
-
-            return Enumerable.Empty<string>();
         }
 
         private ArmClient GetArmClient(Uri templateUri)
