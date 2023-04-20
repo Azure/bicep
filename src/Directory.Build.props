@@ -27,7 +27,7 @@
 
   <PropertyGroup>
     <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
-    <GenerateNoticePackageVersion>0.1.31</GenerateNoticePackageVersion>
+    <GenerateNoticePackageVersion>0.1.32</GenerateNoticePackageVersion>
     
     <!-- settings of the GenerateNotice tool -->
     <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>
