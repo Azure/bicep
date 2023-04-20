@@ -41,7 +41,7 @@
         "type": "Direct",
         "requested": "[17.2.8, )",
         "resolved": "17.2.8",
-        "contentHash": "ySXr1hOG1KP27q8IWJ5Kb27/p0PEG5xlitbTSCaUefINs4uSvgWh1E5absi2ly/ukFr4bwKHbQoVjLmouBMECg==",
+        "contentHash": "60JcfitC8pve5pHAaRDlO1H8IBXR/tXGqYoK8fgNWZEG8MQl3EEND+IRVv6sjJmMhyYLYzXZrU7U8/KXsPQe0Q==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1"
         }
@@ -78,7 +78,7 @@
         "type": "Direct",
         "requested": "[17.2.32, )",
         "resolved": "17.2.32",
-        "contentHash": "E0JlXhLA2VGMHkvih+4L9XQPTJuoIYc3PG1Ss/rjHjtVrx8Q1CJ32QB4rvXY/Ktm2ooTy7n3mPUIOi/VBaTqwA==",
+        "contentHash": "Sn73HwB0stbzlgug3Z61MHsBwWyUygUQd7s5fq3r1OOYgFJ+5EudhV3K4sO+v8UeBjKwSU7WqJTkoRmoVXFGFQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "Microsoft.VisualStudio.Threading.Analyzers": "17.2.32",
@@ -497,7 +497,7 @@
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Transitive",
         "resolved": "17.2.32",
-        "contentHash": "IKtqQ1flLsIlsmzzU2C3/Rpokuv09qa1XnvKm3iy69sLza8eCbmgCogiuq0Li5NXKT0G335Rp7erR/RwBLW/Nw=="
+        "contentHash": "izJIEScEIBe8m96gMkox9vZE6r/Unk6giifbfRroqYJR3yESJqTkaQ707pE+jkJMqxHNT/lqBensuex90vPfPw=="
       },
       "Microsoft.VisualStudio.Utilities.Internal": {
         "type": "Transitive",
