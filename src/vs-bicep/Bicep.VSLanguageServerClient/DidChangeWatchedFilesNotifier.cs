@@ -93,6 +93,7 @@ namespace Bicep.VSLanguageServerClient
             }
         }
 
+#pragma warning disable VSTHRD110 // Observe result of async calls
         private void OnChanged(object sender, FileSystemEventArgs e) =>
             SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Changed, e.FullPath);
 
@@ -101,6 +102,7 @@ namespace Bicep.VSLanguageServerClient
 
         private void OnDeleted(object sender, FileSystemEventArgs e) =>
             SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType.Deleted, e.FullPath);
+#pragma warning restore VSTHRD110 // Observe result of async calls
 
         private Task SendWorkspaceDidChangeConfigurationNotificationAsync(FileChangeType fileChangeType, string fullPath)
         {
