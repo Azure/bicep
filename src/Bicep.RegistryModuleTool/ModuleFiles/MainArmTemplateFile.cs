@@ -55,7 +55,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch {
             StringType or StringLiteralType
-                => typeRef.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? "secureString" : "string",
+                => typeRef.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? "securestring" : "string",
             UnionType unionOfStrings when unionOfStrings.Members.All(m => m.Type is StringLiteralType || m.Type is StringType)
                 => "string",
             IntegerType or IntegerLiteralType => "int",
