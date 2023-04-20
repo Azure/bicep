@@ -29,9 +29,11 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 
             Task task = updateFormatSettingsMiddleLayer.UpdateFormatOptionsAsync(jtoken);
 
+#pragma warning disable VSTHRD110 // Observe result of async calls
             Action action = () => ThreadHelper.JoinableTaskFactory.RunAsync(async delegate {
                 await updateFormatSettingsMiddleLayer.UpdateFormatOptionsAsync(jtoken);
             });
+#pragma warning restore VSTHRD110 // Observe result of async calls
 
             action.Should().Throw<Exception>();
         }
