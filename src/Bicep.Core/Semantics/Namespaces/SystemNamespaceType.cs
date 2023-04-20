@@ -894,7 +894,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("loadYamlContent")
                .WithGenericDescription($"Loads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.")
                .WithRequiredParameter("filePath", LanguageConstants.StringYamlFilePath, "The path to the file that will be loaded.")
-               .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
+               .WithOptionalParameter("pathFilter", LanguageConstants.String, "The path filter is a JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
                .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                .WithReturnResultBuilder(LoadYamlContentResultBuilder, LanguageConstants.Any)
                .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)

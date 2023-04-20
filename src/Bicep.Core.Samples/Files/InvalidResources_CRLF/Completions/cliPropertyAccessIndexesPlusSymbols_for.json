@@ -3414,7 +3414,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nloadYamlContent(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```\nLoads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.\n"
+      "value": "```bicep\nloadYamlContent(filePath: string, [pathFilter: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```\nLoads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.\n"
     },
     "deprecated": false,
     "preselect": false,

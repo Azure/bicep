@@ -949,8 +949,8 @@
         "required": true
       },
       {
-        "name": "jsonPath",
-        "description": "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used",
+        "name": "pathFilter",
+        "description": "The path filter is a JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used",
         "type": "string",
         "required": false
       },
@@ -964,10 +964,10 @@
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 3,
     "flags": "generateIntermediateVariableAlways",
-    "typeSignature": "(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
+    "typeSignature": "(filePath: string, [pathFilter: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
     "parameterTypeSignatures": [
       "filePath: string",
-      "[jsonPath: string]",
+      "[pathFilter: string]",
       "[encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']"
     ]
   },
