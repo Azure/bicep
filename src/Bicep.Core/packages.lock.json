@@ -153,9 +153,9 @@
       },
       "Microsoft.Extensions.Configuration.Binder": {
         "type": "Direct",
-        "requested": "[7.0.3, )",
-        "resolved": "7.0.3",
-        "contentHash": "1eRFwJBrkkncTpvh6mivB8zg4uBVm6+Y6stEJERrVEqZZc8Hvf+N1iIgj2ySYDUQko4J1Gw1rLf1M8bG83F0eA==",
+        "requested": "[7.0.4, )",
+        "resolved": "7.0.4",
+        "contentHash": "8+XPvJnHZsYgHOQlcMuQe7QNF5KdVKHH1F/wW3nd8/u81Gk/XFAYMDP0Lpz18h7/AM95M662vvqMorcYxCBB4w==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Abstractions": "7.0.0"
         }
