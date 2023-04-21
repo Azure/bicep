@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Parsing;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
@@ -39,6 +40,12 @@ namespace Bicep.LanguageServer.Handlers
             if (result.Symbol is PropertySymbol)
             {
                 // TODO: Implement for PropertySymbol
+                return Task.FromResult<WorkspaceEdit?>(null);
+            }
+
+            if (!Lexer.IsValidIdentifier(request.NewName))
+            {
+                // if the value that the user wants to rename to is invalid (contains characters, etc.), the rename will fail.
                 return Task.FromResult<WorkspaceEdit?>(null);
             }
 
