@@ -33,15 +33,13 @@ namespace Bicep.LanguageServer.Settings
         {
             var jObject = JObject.FromObject(request);
 
-            // We currently only require IncludeAllAccessibleAzureContainerRegistriesForCompletions settings information for module registry
-            // reference completion scenarios
             if (jObject["settings"] is JObject settingsObject &&
                 settingsObject["bicep"] is JObject bicepObject &&
-                bicepObject["experimental"] is JObject experimentalObject)
+                bicepObject["completions"] is JObject completionsObject)
             {
-                if (experimentalObject[LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting] is JToken includeAllAccessibleAzureContainerRegistriesForCompletionsSettingToken)
+                if (completionsObject[LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting] is JToken getAllAccessibleAzureContainerRegistriesToken)
                 {
-                    settingsProvider.AddOrUpdateSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting, includeAllAccessibleAzureContainerRegistriesForCompletionsSettingToken.Value<bool>());
+                    settingsProvider.AddOrUpdateSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting, getAllAccessibleAzureContainerRegistriesToken.Value<bool>());
                 }
             }
 
