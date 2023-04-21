@@ -939,6 +939,39 @@
     ]
   },
   {
+    "name": "loadYamlContent",
+    "description": "Loads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.",
+    "fixedParameters": [
+      {
+        "name": "filePath",
+        "description": "The path to the file that will be loaded.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "pathFilter",
+        "description": "The path filter is a JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "encoding",
+        "description": "File encoding. If not provided, UTF-8 will be used.",
+        "type": "'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8'",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 3,
+    "flags": "generateIntermediateVariableAlways",
+    "typeSignature": "(filePath: string, [pathFilter: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
+    "parameterTypeSignatures": [
+      "filePath: string",
+      "[pathFilter: string]",
+      "[encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']"
+    ]
+  },
+  {
     "name": "map",
     "description": "Applies a custom mapping function to each element of an array and returns the result array.",
     "fixedParameters": [

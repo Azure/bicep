@@ -1910,11 +1910,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP338",
                 $"Failed to evaluate parameter \"{parameterName}\": {message}");
-                
+
             public ErrorDiagnostic ArrayIndexOutOfBounds(long indexSought) => new(
-                TextSpan, 
+                TextSpan,
                 "BCP339",
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
+
+            public ErrorDiagnostic UnparseableYamlType() => new(
+               TextSpan,
+               "BCP340",
+               $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

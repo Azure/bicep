@@ -44,5 +44,10 @@ namespace Bicep.Core.TypeSystem
         /// Indicates that this type will be a String file path to a JSON file and we should offer completions for it where files wih .json extension are prioritised
         /// </summary>
         IsStringJsonFilePath = 1 << 5,
+
+        /// <summary>
+        /// Indicates that this type will be a String file path to a YAML file and we should offer completions for it where files wih .yaml and .yml extension are prioritised
+        /// </summary>
+        IsStringYamlFilePath = 1 << 6,
     }
 }
