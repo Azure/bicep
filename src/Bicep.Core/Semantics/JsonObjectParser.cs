@@ -12,7 +12,7 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// TryFromJson returns null if the fileContent is not a valid JSON object
         /// </summary>
-        override protected JToken? ExtractTokenFromObject(string fileContent)
+        override protected JToken ExtractTokenFromObject(string fileContent)
             => fileContent.TryFromJson<JToken>();
         override protected ErrorDiagnostic GetExtractTokenErrorType(IPositionable positionable)
             => DiagnosticBuilder.ForPosition(positionable).UnparseableJsonType();
