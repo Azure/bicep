@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics
             newToken = this.ExtractTokenFromObject(fileContent);
             if (newToken is not { })
             {
-                // Instead of catching and returning the YML parse exception, we simply return a generic error.
+                // Instead of catching and returning the parsing exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
                 errorDiagnostic = this.GetExtractTokenErrorType(positionable[0]);
                 return false;
