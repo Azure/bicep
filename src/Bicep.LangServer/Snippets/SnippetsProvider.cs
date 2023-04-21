@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
@@ -123,7 +124,7 @@ public class SnippetsProvider : ISnippetsProvider
         foreach (var kvp in discriminatedObjectType.UnionMembersByKey.OrderBy(x => x.Key))
         {
             string disciminatedObjectKey = kvp.Key;
-            string label = "required-properties-" + disciminatedObjectKey.Trim(new char[] { '\'' });
+            string label = "{RequiredPropertiesLabel}-" + disciminatedObjectKey.Trim(new char[] { '\'' });
             Snippet? snippet = GetRequiredPropertiesSnippet(kvp.Value, label, disciminatedObjectKey);
 
             if (snippet is not null)
@@ -168,7 +169,7 @@ public class SnippetsProvider : ISnippetsProvider
         return null;
     }
 
-    private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index, string? discrimatedObjectKey = null)
+    private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index, string? discriminatedObjectKey = null)
     {
         if (TypeHelper.IsRequired(typeProperty))
         {
@@ -197,11 +198,11 @@ public class SnippetsProvider : ISnippetsProvider
                 string value = ": $" + (index).ToString();
                 bool shouldIncrementIndent = true;
 
-                if (discrimatedObjectKey is not null &&
+                if (discriminatedObjectKey is not null &&
                     typeProperty.TypeReference.Type is TypeSymbol typeSymbol &&
-                    typeSymbol.Name == discrimatedObjectKey)
+                    typeSymbol.Name == discriminatedObjectKey)
                 {
-                    value = ": " + discrimatedObjectKey;
+                    value = ": " + discriminatedObjectKey;
                     shouldIncrementIndent = false;
                 }
 
@@ -231,7 +232,7 @@ public class SnippetsProvider : ISnippetsProvider
         return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
     }
 
-    public IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol)
+    public IEnumerable<Snippet> GetModuleBodyCompletionSnippets(ModuleDeclarationSyntax moduleDeclarationSyntax, TypeSymbol typeSymbol)
     {
         yield return GetEmptySnippet();
 
@@ -243,6 +244,9 @@ public class SnippetsProvider : ISnippetsProvider
             {
                 yield return snippet;
             }
+        } else
+        {
+            yield return new Snippet("{\n\tname: $1\n\tparams: {\n\t\t// Module had not yet been restored. There may be required parameters.\n\t}\n}$0", CompletionPriority.Medium, RequiredPropertiesLabel, RequiredPropertiesDescription);
         }
     }
 

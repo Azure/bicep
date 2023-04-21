@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Resources;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace Bicep.LanguageServer.Snippets
 
         IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
 
-        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol);
+        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(ModuleDeclarationSyntax moduleDeclarationSyntax, TypeSymbol typeSymbol);
 
         IEnumerable<Snippet> GetObjectBodyCompletionSnippets(TypeSymbol typeSymbol);
 
