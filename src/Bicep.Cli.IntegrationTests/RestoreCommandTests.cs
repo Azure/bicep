@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Containers.ContainerRegistry.Specialized;
+using Azure.Containers.ContainerRegistry;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
@@ -93,7 +93,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             // create client that mocks missing az or PS login
-            var clientWithCredentialUnavailable = StrictMock.Of<ContainerRegistryBlobClient>();
+            var clientWithCredentialUnavailable = StrictMock.Of<ContainerRegistryContentClient>();
             clientWithCredentialUnavailable
                 .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new CredentialUnavailableException("Mock credential unavailable exception"));
@@ -287,7 +287,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
             File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
 
-            var client = StrictMock.Of<ContainerRegistryBlobClient>();
+            var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
                 .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
@@ -319,7 +319,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
             File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
 
-            var client = StrictMock.Of<ContainerRegistryBlobClient>();
+            var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
                 .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
