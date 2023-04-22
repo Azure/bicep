@@ -69,9 +69,9 @@
       },
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
-        "requested": "[0.1.31, )",
-        "resolved": "0.1.31",
-        "contentHash": "j/l71hjQxU3v5CqLpvw+ZkfcsQchWVOqWBjH9/LcyPvuiqNVmNNYOoQ17UjAVZA8AeYV1dFVPyR+c/wVaDIFXA=="
+        "requested": "[0.1.32, )",
+        "resolved": "0.1.32",
+        "contentHash": "vogk6semxm58Ws/vzyhvK5O5nSZH6EHNIfisxPnO+l9fKP/2WH2nPyAbHVqL8ZOp9ImgJ/AotOpMLvxF5Z/7JA=="
       },
       "Azure.Deployments.Templates": {
         "type": "Direct",
