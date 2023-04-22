@@ -95,7 +95,7 @@ namespace Bicep.Cli.IntegrationTests
             // create client that mocks missing az or PS login
             var clientWithCredentialUnavailable = StrictMock.Of<ContainerRegistryContentClient>();
             clientWithCredentialUnavailable
-                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new CredentialUnavailableException("Mock credential unavailable exception"));
 
             // authenticated client creation will produce a client that will fail due to missing login
@@ -289,7 +289,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
-                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
@@ -321,7 +321,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
-                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
