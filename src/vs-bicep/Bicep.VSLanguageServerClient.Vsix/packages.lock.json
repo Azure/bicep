@@ -4,9 +4,9 @@
     ".NETFramework,Version=v4.7.2": {
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
-        "requested": "[0.1.31, )",
-        "resolved": "0.1.31",
-        "contentHash": "j/l71hjQxU3v5CqLpvw+ZkfcsQchWVOqWBjH9/LcyPvuiqNVmNNYOoQ17UjAVZA8AeYV1dFVPyR+c/wVaDIFXA=="
+        "requested": "[0.1.32, )",
+        "resolved": "0.1.32",
+        "contentHash": "vogk6semxm58Ws/vzyhvK5O5nSZH6EHNIfisxPnO+l9fKP/2WH2nPyAbHVqL8ZOp9ImgJ/AotOpMLvxF5Z/7JA=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
@@ -1456,15 +1456,15 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.VisualStudio.LanguageServer.Client": "17.2.2105",
-          "Microsoft.VisualStudio.LanguageServer.Protocol": "17.2.8",
-          "Microsoft.VisualStudio.Setup.Configuration.Interop": "3.3.2180",
-          "Microsoft.VisualStudio.Shell.Interop": "17.2.32505.113",
-          "Microsoft.VisualStudio.Threading": "17.5.22",
-          "Microsoft.VisualStudio.Utilities": "17.2.32505.113",
-          "Microsoft.VisualStudio.Workspace.VSIntegration": "17.1.11-preview-0002",
-          "Microsoft.Visualstudio.Telemetry": "16.5.6",
-          "OmniSharp.Extensions.LanguageServer": "0.19.7"
+          "Microsoft.VisualStudio.LanguageServer.Client": "[17.2.2105, )",
+          "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
+          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.3.2180, )",
+          "Microsoft.VisualStudio.Shell.Interop": "[17.2.32505.113, )",
+          "Microsoft.VisualStudio.Threading": "[17.5.22, )",
+          "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
+          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
+          "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
+          "OmniSharp.Extensions.LanguageServer": "[0.19.7, )"
         }
       }
     },
