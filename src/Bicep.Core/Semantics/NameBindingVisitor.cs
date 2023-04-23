@@ -18,8 +18,6 @@ namespace Bicep.Core.Semantics
     {
         private FunctionFlags allowedFlags;
 
-        private readonly IReadOnlyDictionary<string, DeclaredSymbol> declarations;
-
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
         private readonly NamespaceResolver namespaceResolver;
@@ -29,12 +27,10 @@ namespace Bicep.Core.Semantics
         private readonly Stack<LocalScope> activeScopes;
 
         private NameBindingVisitor(
-            IReadOnlyDictionary<string, DeclaredSymbol> declarations,
             IDictionary<SyntaxBase, Symbol> bindings,
             NamespaceResolver namespaceResolver,
             ImmutableDictionary<SyntaxBase, LocalScope> allLocalScopes)
         {
-            this.declarations = declarations;
             this.bindings = bindings;
             this.namespaceResolver = namespaceResolver;
             this.allLocalScopes = allLocalScopes;
@@ -43,14 +39,13 @@ namespace Bicep.Core.Semantics
 
         public static ImmutableDictionary<SyntaxBase, Symbol> GetBindings(
             ProgramSyntax programSyntax,
-            IReadOnlyDictionary<string, DeclaredSymbol> outermostDeclarations,
             NamespaceResolver namespaceResolver,
-            ImmutableArray<LocalScope> childScopes)
+            LocalScope fileScope)
         {
             // bind identifiers to declarations
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var allLocalScopes = ScopeCollectorVisitor.Build(childScopes);
-            var binder = new NameBindingVisitor(outermostDeclarations, bindings, namespaceResolver, allLocalScopes);
+            var allLocalScopes = ScopeCollectorVisitor.Build(ImmutableArray.Create(fileScope));
+            var binder = new NameBindingVisitor(bindings, namespaceResolver, allLocalScopes);
             binder.Visit(programSyntax);
 
             return bindings.ToImmutableDictionary();
@@ -59,15 +54,7 @@ namespace Bicep.Core.Semantics
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             base.VisitProgramSyntax(syntax);
-
-            // create bindings for all of the declarations to their corresponding symbol
-            // this is needed to make find all references work correctly
-            // (doing this here to avoid side-effects in the constructor)
-            foreach (DeclaredSymbol declaredSymbol in this.declarations.Values)
-            {
-                this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
-            }
-
+            
             // include all the locals in the symbol table as well
             // since we only allow lookups by object and not by name,
             // a flat symbol table should be sufficient
@@ -326,12 +313,6 @@ namespace Bicep.Core.Semantics
 
         private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
         {
-            if (isFunctionCall)
-            {
-                // functions can't be local symbols
-                return null;
-            }
-
             // iterating over a stack gives you the items in the same
             // order as if you popped each one but without modifying the stack
             foreach (var scope in activeScopes)
@@ -343,6 +324,12 @@ namespace Bicep.Core.Semantics
                 {
                     // found a symbol - return it
                     return symbol;
+                }
+
+                if (scope.ScopeResolution == ScopeResolution.GlobalsOnly)
+                {
+                    // don't inherit outer scope variables
+                    break;
                 }
             }
 
@@ -368,11 +355,6 @@ namespace Bicep.Core.Semantics
             // There might be instances where a variable declaration for example uses the same name as one of the imported
             // functions, in this case to differentiate a variable declaration vs a function access we check the namespace value,
             // the former case must have an empty namespace value whereas the latter will have a namespace value.
-            if (this.declarations.TryGetValue(identifierSyntax.IdentifierName, out var globalSymbol))
-            {
-                // we found the symbol in the global namespace
-                return globalSymbol;
-            }
 
             // attempt to find name in the built in namespaces. imported namespaces will be present in the declarations list as they create declared symbols.
             if (this.namespaceResolver.BuiltIns.TryGetValue(identifierSyntax.IdentifierName) is { } namespaceSymbol)
@@ -391,7 +373,7 @@ namespace Bicep.Core.Semantics
 
                 // if no types were found, fall back to checking against imported functions to show a more relevant error message if a function name is used as an uninvoked symbol
                 var foundType = foundTypes.FirstOrDefault() ?? FindFunctionMatchesInAllNamespaces(identifierSyntax).FirstOrDefault();
-                return SymbolValidator.ResolveUnqualifiedSymbol(foundType, identifierSyntax, namespaceResolver, declarations.Keys);
+                return SymbolValidator.ResolveUnqualifiedSymbol(foundType, identifierSyntax, namespaceResolver);
             }
 
             // attempt to find function in all imported namespaces

@@ -2266,6 +2266,26 @@ var foo = sort([123], (foo, bar) => |)
         }
 
         [TestMethod]
+        public async Task Func_definition_lambda_completions_do_not_suggest_outer_variables()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+var outerVar = 'asdf'
+
+func foo = (string innerVar) => '${|}'
+");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            var updatedFile = file.ApplyCompletion(completions, "innerVar");
+            updatedFile.Should().HaveSourceText(@"
+var outerVar = 'asdf'
+
+func foo = (string innerVar) => '${innerVar|}'
+");
+        }
+
+        [TestMethod]
         public async Task VerifyCompletionrequestAfterPoundSignWithinComment_ShouldDoNothing()
         {
             var fileWithCursors = @"// This is a comment #|";

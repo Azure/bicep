@@ -910,6 +910,10 @@ param foo|bar = true
                         }
                         break;
 
+                    case DeclaredFunctionSymbol declaredFunction:
+                        tooltip.Should().Contain($"function {declaredFunction.Name}(");
+                        break;
+
                     case LocalVariableSymbol local:
                         tooltip.Should().Contain($"{local.Name}: {local.Type}");
                         break;

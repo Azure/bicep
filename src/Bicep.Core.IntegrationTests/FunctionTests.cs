@@ -40,10 +40,10 @@ func getBaz = () => 'baz'
 func testFunc = (string baz) => '${foo}-${bar}-${baz}-${getBaz()}'
 ");
 
-        result.Should().HaveDiagnostics(new [] {
-            ("BCP340", DiagnosticLevel.Error, """Symbol "foo" cannot be used here. Function bodies must only refer to symbols defined as function arguments."""),
-            ("BCP340", DiagnosticLevel.Error, """Symbol "bar" cannot be used here. Function bodies must only refer to symbols defined as function arguments."""),
-            ("BCP340", DiagnosticLevel.Error, """Symbol "getBaz" cannot be used here. Function bodies must only refer to symbols defined as function arguments."""),
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+            ("BCP057", DiagnosticLevel.Error, """The name "foo" does not exist in the current context."""),
+            ("BCP057", DiagnosticLevel.Error, """The name "bar" does not exist in the current context."""),
+            ("BCP057", DiagnosticLevel.Error, """The name "getBaz" does not exist in the current context."""),
         });
     }
 
@@ -72,7 +72,7 @@ func getAbcDef = () => '${getAbc()}def'
 ");
     
         result.Should().HaveDiagnostics(new [] {
-            ("BCP340", DiagnosticLevel.Error, "Symbol \"getAbc\" cannot be used here. Function bodies must only refer to symbols defined as function arguments."),
+            ("BCP057", DiagnosticLevel.Error, "The name \"getAbc\" does not exist in the current context."),
         });
     }
 

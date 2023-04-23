@@ -66,11 +66,11 @@ func invalidType = (string input) => input
 //@[019:033) |   ├─TypedVariableBlockSyntax
 //@[019:020) |   | ├─Token(LeftParen) |(|
 //@[020:032) |   | ├─TypedLocalVariableSyntax
-//@[027:032) |   | | ├─IdentifierSyntax
-//@[027:032) |   | | | └─Token(Identifier) |input|
-//@[020:026) |   | | └─VariableAccessSyntax
-//@[020:026) |   | |   └─IdentifierSyntax
-//@[020:026) |   | |     └─Token(Identifier) |string|
+//@[020:026) |   | | ├─VariableAccessSyntax
+//@[020:026) |   | | | └─IdentifierSyntax
+//@[020:026) |   | | |   └─Token(Identifier) |string|
+//@[027:032) |   | | └─IdentifierSyntax
+//@[027:032) |   | |   └─Token(Identifier) |input|
 //@[032:033) |   | └─Token(RightParen) |)|
 //@[034:036) |   ├─Token(Arrow) |=>|
 //@[037:042) |   └─VariableAccessSyntax
@@ -107,18 +107,18 @@ func madeUpTypeArgs = (notAType a, alsoNotAType b) => '${a}-${b}'
 //@[022:050) |   ├─TypedVariableBlockSyntax
 //@[022:023) |   | ├─Token(LeftParen) |(|
 //@[023:033) |   | ├─TypedLocalVariableSyntax
-//@[032:033) |   | | ├─IdentifierSyntax
-//@[032:033) |   | | | └─Token(Identifier) |a|
-//@[023:031) |   | | └─VariableAccessSyntax
-//@[023:031) |   | |   └─IdentifierSyntax
-//@[023:031) |   | |     └─Token(Identifier) |notAType|
+//@[023:031) |   | | ├─VariableAccessSyntax
+//@[023:031) |   | | | └─IdentifierSyntax
+//@[023:031) |   | | |   └─Token(Identifier) |notAType|
+//@[032:033) |   | | └─IdentifierSyntax
+//@[032:033) |   | |   └─Token(Identifier) |a|
 //@[033:034) |   | ├─Token(Comma) |,|
 //@[035:049) |   | ├─TypedLocalVariableSyntax
-//@[048:049) |   | | ├─IdentifierSyntax
-//@[048:049) |   | | | └─Token(Identifier) |b|
-//@[035:047) |   | | └─VariableAccessSyntax
-//@[035:047) |   | |   └─IdentifierSyntax
-//@[035:047) |   | |     └─Token(Identifier) |alsoNotAType|
+//@[035:047) |   | | ├─VariableAccessSyntax
+//@[035:047) |   | | | └─IdentifierSyntax
+//@[035:047) |   | | |   └─Token(Identifier) |alsoNotAType|
+//@[048:049) |   | | └─IdentifierSyntax
+//@[048:049) |   | |   └─Token(Identifier) |b|
 //@[049:050) |   | └─Token(RightParen) |)|
 //@[051:053) |   ├─Token(Arrow) |=>|
 //@[054:065) |   └─StringSyntax
@@ -143,10 +143,10 @@ func noLambda = ('foo') => ''
 //@[016:023) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:022) |   | ├─TypedLocalVariableSyntax
-//@[022:022) |   | | ├─IdentifierSyntax
-//@[022:022) |   | | | └─SkippedTriviaSyntax
-//@[017:022) |   | | └─StringSyntax
-//@[017:022) |   | |   └─Token(StringComplete) |'foo'|
+//@[017:022) |   | | ├─StringSyntax
+//@[017:022) |   | | | └─Token(StringComplete) |'foo'|
+//@[022:022) |   | | └─IdentifierSyntax
+//@[022:022) |   | |   └─SkippedTriviaSyntax
 //@[022:023) |   | └─Token(RightParen) |)|
 //@[024:026) |   ├─Token(Arrow) |=>|
 //@[027:029) |   └─StringSyntax
@@ -163,10 +163,10 @@ func noLambda2 = ('foo' sdf) => ''
 //@[017:028) |   ├─TypedVariableBlockSyntax
 //@[017:018) |   | ├─Token(LeftParen) |(|
 //@[018:027) |   | ├─TypedLocalVariableSyntax
-//@[024:027) |   | | ├─IdentifierSyntax
-//@[024:027) |   | | | └─Token(Identifier) |sdf|
-//@[018:023) |   | | └─StringSyntax
-//@[018:023) |   | |   └─Token(StringComplete) |'foo'|
+//@[018:023) |   | | ├─StringSyntax
+//@[018:023) |   | | | └─Token(StringComplete) |'foo'|
+//@[024:027) |   | | └─IdentifierSyntax
+//@[024:027) |   | |   └─Token(Identifier) |sdf|
 //@[027:028) |   | └─Token(RightParen) |)|
 //@[029:031) |   ├─Token(Arrow) |=>|
 //@[032:034) |   └─StringSyntax
@@ -193,25 +193,25 @@ func argLengthMismatch = (string a, string b, string c) => [a, b, c]
 //@[025:055) |   ├─TypedVariableBlockSyntax
 //@[025:026) |   | ├─Token(LeftParen) |(|
 //@[026:034) |   | ├─TypedLocalVariableSyntax
-//@[033:034) |   | | ├─IdentifierSyntax
-//@[033:034) |   | | | └─Token(Identifier) |a|
-//@[026:032) |   | | └─VariableAccessSyntax
-//@[026:032) |   | |   └─IdentifierSyntax
-//@[026:032) |   | |     └─Token(Identifier) |string|
+//@[026:032) |   | | ├─VariableAccessSyntax
+//@[026:032) |   | | | └─IdentifierSyntax
+//@[026:032) |   | | |   └─Token(Identifier) |string|
+//@[033:034) |   | | └─IdentifierSyntax
+//@[033:034) |   | |   └─Token(Identifier) |a|
 //@[034:035) |   | ├─Token(Comma) |,|
 //@[036:044) |   | ├─TypedLocalVariableSyntax
-//@[043:044) |   | | ├─IdentifierSyntax
-//@[043:044) |   | | | └─Token(Identifier) |b|
-//@[036:042) |   | | └─VariableAccessSyntax
-//@[036:042) |   | |   └─IdentifierSyntax
-//@[036:042) |   | |     └─Token(Identifier) |string|
+//@[036:042) |   | | ├─VariableAccessSyntax
+//@[036:042) |   | | | └─IdentifierSyntax
+//@[036:042) |   | | |   └─Token(Identifier) |string|
+//@[043:044) |   | | └─IdentifierSyntax
+//@[043:044) |   | |   └─Token(Identifier) |b|
 //@[044:045) |   | ├─Token(Comma) |,|
 //@[046:054) |   | ├─TypedLocalVariableSyntax
-//@[053:054) |   | | ├─IdentifierSyntax
-//@[053:054) |   | | | └─Token(Identifier) |c|
-//@[046:052) |   | | └─VariableAccessSyntax
-//@[046:052) |   | |   └─IdentifierSyntax
-//@[046:052) |   | |     └─Token(Identifier) |string|
+//@[046:052) |   | | ├─VariableAccessSyntax
+//@[046:052) |   | | | └─IdentifierSyntax
+//@[046:052) |   | | |   └─Token(Identifier) |string|
+//@[053:054) |   | | └─IdentifierSyntax
+//@[053:054) |   | |   └─Token(Identifier) |c|
 //@[054:055) |   | └─Token(RightParen) |)|
 //@[056:058) |   ├─Token(Arrow) |=>|
 //@[059:068) |   └─ArraySyntax
@@ -274,25 +274,25 @@ func buildUrl = (bool https, string hostname, string path) => '${https ? 'https'
 //@[016:058) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:027) |   | ├─TypedLocalVariableSyntax
-//@[022:027) |   | | ├─IdentifierSyntax
-//@[022:027) |   | | | └─Token(Identifier) |https|
-//@[017:021) |   | | └─VariableAccessSyntax
-//@[017:021) |   | |   └─IdentifierSyntax
-//@[017:021) |   | |     └─Token(Identifier) |bool|
+//@[017:021) |   | | ├─VariableAccessSyntax
+//@[017:021) |   | | | └─IdentifierSyntax
+//@[017:021) |   | | |   └─Token(Identifier) |bool|
+//@[022:027) |   | | └─IdentifierSyntax
+//@[022:027) |   | |   └─Token(Identifier) |https|
 //@[027:028) |   | ├─Token(Comma) |,|
 //@[029:044) |   | ├─TypedLocalVariableSyntax
-//@[036:044) |   | | ├─IdentifierSyntax
-//@[036:044) |   | | | └─Token(Identifier) |hostname|
-//@[029:035) |   | | └─VariableAccessSyntax
-//@[029:035) |   | |   └─IdentifierSyntax
-//@[029:035) |   | |     └─Token(Identifier) |string|
+//@[029:035) |   | | ├─VariableAccessSyntax
+//@[029:035) |   | | | └─IdentifierSyntax
+//@[029:035) |   | | |   └─Token(Identifier) |string|
+//@[036:044) |   | | └─IdentifierSyntax
+//@[036:044) |   | |   └─Token(Identifier) |hostname|
 //@[044:045) |   | ├─Token(Comma) |,|
 //@[046:057) |   | ├─TypedLocalVariableSyntax
-//@[053:057) |   | | ├─IdentifierSyntax
-//@[053:057) |   | | | └─Token(Identifier) |path|
-//@[046:052) |   | | └─VariableAccessSyntax
-//@[046:052) |   | |   └─IdentifierSyntax
-//@[046:052) |   | |     └─Token(Identifier) |string|
+//@[046:052) |   | | ├─VariableAccessSyntax
+//@[046:052) |   | | | └─IdentifierSyntax
+//@[046:052) |   | | |   └─Token(Identifier) |string|
+//@[053:057) |   | | └─IdentifierSyntax
+//@[053:057) |   | |   └─Token(Identifier) |path|
 //@[057:058) |   | └─Token(RightParen) |)|
 //@[059:061) |   ├─Token(Arrow) |=>|
 //@[062:137) |   └─StringSyntax
@@ -372,11 +372,11 @@ func sayHello = (string name) => 'Hi ${name}!'
 //@[016:029) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:028) |   | ├─TypedLocalVariableSyntax
-//@[024:028) |   | | ├─IdentifierSyntax
-//@[024:028) |   | | | └─Token(Identifier) |name|
-//@[017:023) |   | | └─VariableAccessSyntax
-//@[017:023) |   | |   └─IdentifierSyntax
-//@[017:023) |   | |     └─Token(Identifier) |string|
+//@[017:023) |   | | ├─VariableAccessSyntax
+//@[017:023) |   | | | └─IdentifierSyntax
+//@[017:023) |   | | |   └─Token(Identifier) |string|
+//@[024:028) |   | | └─IdentifierSyntax
+//@[024:028) |   | |   └─Token(Identifier) |name|
 //@[028:029) |   | └─Token(RightParen) |)|
 //@[030:032) |   ├─Token(Arrow) |=>|
 //@[033:046) |   └─StringSyntax

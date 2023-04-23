@@ -9,25 +9,25 @@ func buildUrl = (bool https, string hostname, string path) => '${https ? 'https'
 //@[016:058) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:027) |   | ├─TypedLocalVariableSyntax
-//@[022:027) |   | | ├─IdentifierSyntax
-//@[022:027) |   | | | └─Token(Identifier) |https|
-//@[017:021) |   | | └─VariableAccessSyntax
-//@[017:021) |   | |   └─IdentifierSyntax
-//@[017:021) |   | |     └─Token(Identifier) |bool|
+//@[017:021) |   | | ├─VariableAccessSyntax
+//@[017:021) |   | | | └─IdentifierSyntax
+//@[017:021) |   | | |   └─Token(Identifier) |bool|
+//@[022:027) |   | | └─IdentifierSyntax
+//@[022:027) |   | |   └─Token(Identifier) |https|
 //@[027:028) |   | ├─Token(Comma) |,|
 //@[029:044) |   | ├─TypedLocalVariableSyntax
-//@[036:044) |   | | ├─IdentifierSyntax
-//@[036:044) |   | | | └─Token(Identifier) |hostname|
-//@[029:035) |   | | └─VariableAccessSyntax
-//@[029:035) |   | |   └─IdentifierSyntax
-//@[029:035) |   | |     └─Token(Identifier) |string|
+//@[029:035) |   | | ├─VariableAccessSyntax
+//@[029:035) |   | | | └─IdentifierSyntax
+//@[029:035) |   | | |   └─Token(Identifier) |string|
+//@[036:044) |   | | └─IdentifierSyntax
+//@[036:044) |   | |   └─Token(Identifier) |hostname|
 //@[044:045) |   | ├─Token(Comma) |,|
 //@[046:057) |   | ├─TypedLocalVariableSyntax
-//@[053:057) |   | | ├─IdentifierSyntax
-//@[053:057) |   | | | └─Token(Identifier) |path|
-//@[046:052) |   | | └─VariableAccessSyntax
-//@[046:052) |   | |   └─IdentifierSyntax
-//@[046:052) |   | |     └─Token(Identifier) |string|
+//@[046:052) |   | | ├─VariableAccessSyntax
+//@[046:052) |   | | | └─IdentifierSyntax
+//@[046:052) |   | | |   └─Token(Identifier) |string|
+//@[053:057) |   | | └─IdentifierSyntax
+//@[053:057) |   | |   └─Token(Identifier) |path|
 //@[057:058) |   | └─Token(RightParen) |)|
 //@[059:061) |   ├─Token(Arrow) |=>|
 //@[062:137) |   └─StringSyntax
@@ -107,11 +107,11 @@ func sayHello = (string name) => 'Hi ${name}!'
 //@[016:029) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:028) |   | ├─TypedLocalVariableSyntax
-//@[024:028) |   | | ├─IdentifierSyntax
-//@[024:028) |   | | | └─Token(Identifier) |name|
-//@[017:023) |   | | └─VariableAccessSyntax
-//@[017:023) |   | |   └─IdentifierSyntax
-//@[017:023) |   | |     └─Token(Identifier) |string|
+//@[017:023) |   | | ├─VariableAccessSyntax
+//@[017:023) |   | | | └─IdentifierSyntax
+//@[017:023) |   | | |   └─Token(Identifier) |string|
+//@[024:028) |   | | └─IdentifierSyntax
+//@[024:028) |   | |   └─Token(Identifier) |name|
 //@[028:029) |   | └─Token(RightParen) |)|
 //@[030:032) |   ├─Token(Arrow) |=>|
 //@[033:046) |   └─StringSyntax

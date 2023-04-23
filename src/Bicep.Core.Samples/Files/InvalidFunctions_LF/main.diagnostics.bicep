@@ -2,7 +2,7 @@ func useRuntimeFunction = () => reference('foo').bar
 
 func constFunc = () => 'A'
 func funcWithOtherFuncRef = () => constFunc()
-//@[34:45) [BCP340 (Error)] Symbol "constFunc" cannot be used here. Function bodies must only refer to symbols defined as function arguments. (CodeDescription: none) |constFunc()|
+//@[34:43) [BCP057 (Error)] The name "constFunc" does not exist in the current context. (CodeDescription: none) |constFunc|
 
 func invalidType = (string input) => input
 

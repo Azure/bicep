@@ -48,7 +48,6 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
-            FunctionDeclarationsMustBePure(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -510,23 +509,6 @@ namespace Bicep.Core.Emit
             }
 
             return generated.ToImmutableDictionary();
-        }
-
-        private static void FunctionDeclarationsMustBePure(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            // TODO(functions) implement scoping properly (such that parent scope lookup just fails)
-            // TODO(functions) block non-DTC functions properly
-            foreach (var func in model.Root.FunctionDeclarations)
-            {
-                CallbackVisitor.Visit(func.DeclaringFunction.Lambda, (syntax) => {
-                    if (model.Binder.GetSymbolInfo(syntax) is {} symbol &&
-                        symbol is DeclaredSymbol &&
-                        symbol is not LocalVariableSymbol)
-                    {
-                        diagnostics.Write(syntax, x => x.FunctionBodiesCannotReferenceOuterDeclaredSymbols(symbol.Name));
-                    }
-                });
-            }
         }
     }
 }

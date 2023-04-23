@@ -1,7 +1,7 @@
-func buildUrl = (httpsbool, hostnamestring, pathstring) => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl = (boolhttps, stringhostname, stringpath) => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
 output foo string = buildUrl(true, 'google.com', 'search')
 
-func sayHello = (namestring) => 'Hi ${name}!'
+func sayHello = (stringname) => 'Hi ${name}!'
 
 output hellos array = map([ 'Evie', 'Casper' ], name => sayHello(name))

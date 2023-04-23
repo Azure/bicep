@@ -72,7 +72,7 @@ namespace Bicep.Core.Semantics
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ResolveUnqualifiedSymbol(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceResolver namespaceResolver, IEnumerable<string> declarations)
+        public static Symbol ResolveUnqualifiedSymbol(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceResolver namespaceResolver)
             => ResolveSymbolInternal(
                 FunctionFlags.Default,
                 foundSymbol,

@@ -104,9 +104,6 @@ namespace Bicep.LanguageServer.Handlers
                 case VariableSymbol variable:
                     return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 
-                case DeclaredFunctionSymbol func:
-                    return WithMarkdown(CodeBlockWithDescription($"func {func.Name}: {func.Type}", TryGetDescriptionMarkdown(result, func)));
-
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
                     var description = TryGetDescriptionMarkdown(result, resource);
@@ -151,10 +148,13 @@ namespace Bicep.LanguageServer.Handlers
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
 
-                case FunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
+                case IFunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
                     // but this simplifies the checks
                     return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetEntrypointSemanticModel());
+
+                case DeclaredFunctionSymbol func:
+                    return WithMarkdown(CodeBlockWithDescription($"func {func.Name}: {func.Type}", TryGetDescriptionMarkdown(result, func)));
 
                 case PropertySymbol property:
                     return WithMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
@@ -258,7 +258,7 @@ namespace Bicep.LanguageServer.Handlers
         // Markdown needs two leading whitespaces before newline to insert a line break
         private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
 
-        private static MarkedStringsOrMarkupContent GetFunctionMarkdown(FunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
+        private static MarkedStringsOrMarkupContent GetFunctionMarkdown(IFunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
         {
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
             {
