@@ -25,7 +25,7 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitDeclaredFunctionSymbol(this);
 
-    public override SymbolKind Kind => SymbolKind.Variable;
+    public override SymbolKind Kind => SymbolKind.Function;
 
     public override IEnumerable<Symbol> Descendants => Type.AsEnumerable();
 

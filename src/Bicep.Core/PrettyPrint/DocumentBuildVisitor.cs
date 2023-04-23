@@ -264,11 +264,8 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.CloseParen);
             });
 
-        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
-        {
-            this.Visit(syntax.Type);
-            this.Visit(syntax.Name);
-        }
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
+            this.BuildWithSpread(() => base.VisitTypedLocalVariableSyntax(syntax));
 
         public override void VisitLambdaSyntax(LambdaSyntax syntax) =>
             this.Build(() => base.VisitLambdaSyntax(syntax), children =>
