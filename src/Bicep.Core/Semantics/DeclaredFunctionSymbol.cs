@@ -14,7 +14,7 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
     public DeclaredFunctionSymbol(ISymbolContext context, string name, FunctionDeclarationSyntax declaringSyntax)
         : base(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        this.overloadsLazy = new(() => TryGetFunctionOverload() is {} overload ? 
+        this.overloadsLazy = new(() => GetFunctionOverload() is {} overload ? 
             ImmutableArray.Create(overload) : 
             ImmutableArray<FunctionOverload>.Empty);
     }
@@ -33,15 +33,21 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
 
     public FunctionFlags FunctionFlags => FunctionFlags.Default;
 
-    private FunctionOverload? TryGetFunctionOverload()
+    private FunctionOverload GetFunctionOverload()
     {
+        var builder = new FunctionOverloadBuilder(this.Name);
+        if (SemanticModelHelper.TryGetDescription(Context.Binder, Context.TypeManager, DeclaringFunction) is {} description)
+        {
+            builder.WithDescription(description);
+        }
+
         if (this.DeclaringFunction.Lambda is not TypedLambdaSyntax lambdaSyntax ||
             this.Context.TypeManager.GetDeclaredType(this.DeclaringFunction.Lambda) is not LambdaType lambdaType)
         {
-            return null;
-        }
+            builder.WithReturnType(ErrorType.Empty());
 
-        var builder = new FunctionOverloadBuilder(this.Name);
+            return builder.Build();
+        }
 
         var localVariables = lambdaSyntax.GetLocalVariables().ToImmutableArray();
         for (var i = 0; i < localVariables.Length; i++)

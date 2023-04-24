@@ -127,14 +127,14 @@ namespace Bicep.LangServer.IntegrationTests
                         continue;
                     }
 
-                    switch (symbol!.Kind)
+                    switch (symbol)
                     {
-                        case SymbolKind.Function when symbolReference is VariableAccessSyntax:
+                        case FunctionSymbol when symbolReference is VariableAccessSyntax:
                             // variable got bound to a function
                             hover.Should().BeNull();
                             break;
 
-                        case SymbolKind.Error:
+                        case ErrorSymbol:
                             // error symbol
                             hover.Should().BeNull();
                             break;

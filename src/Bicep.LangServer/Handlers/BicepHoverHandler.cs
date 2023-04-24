@@ -153,9 +153,9 @@ namespace Bicep.LanguageServer.Handlers
                     // but this simplifies the checks
                     return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetEntrypointSemanticModel());
 
-                case DeclaredFunctionSymbol func:
-                    return WithMarkdown(CodeBlockWithDescription($"func {func.Name}: {func.Type}", TryGetDescriptionMarkdown(result, func)));
-
+                case DeclaredFunctionSymbol function:
+                    // A declared function can only have a single overload!
+                    return WithMarkdown(GetFunctionOverloadMarkdown(function.Overloads.Single()));
                 case PropertySymbol property:
                     return WithMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
 
@@ -262,7 +262,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
             {
-                return WithMarkdown(GetFunctionOverloadMarkdown(matchedOverload, function.Overloads.Length - 1));
+                return WithMarkdown(GetFunctionOverloadMarkdown(matchedOverload));
             }
 
             var potentialMatches =
@@ -279,7 +279,7 @@ namespace Bicep.LanguageServer.Handlers
             return WithMarkdown(toShow.Select(GetFunctionOverloadMarkdown));
         }
 
-        private static string GetFunctionOverloadMarkdown(FunctionOverload overload, int functionOverloadCount)
+        private static string GetFunctionOverloadMarkdown(FunctionOverload overload)
             => CodeBlockWithDescription($"function {overload.Name}{overload.TypeSignature}", overload.Description);
 
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
