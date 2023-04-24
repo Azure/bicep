@@ -336,7 +336,8 @@ public record LambdaExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> Parameters,
     ImmutableArray<SyntaxBase?> ParameterTypes,
-    Expression Body
+    Expression Body,
+    SyntaxBase? OutputType
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)

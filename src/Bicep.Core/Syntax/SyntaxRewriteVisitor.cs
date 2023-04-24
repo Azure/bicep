@@ -981,13 +981,14 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
             hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
+            hasChanges |= TryRewrite(syntax.Type, out var type);
             hasChanges |= TryRewrite(syntax.Body, out var body);
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new TypedLambdaSyntax(variableSection, arrow, body);
+            return new TypedLambdaSyntax(variableSection, arrow, type, body);
         }
         void ISyntaxVisitor.VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLambdaSyntax);
 

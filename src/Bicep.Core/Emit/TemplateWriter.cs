@@ -265,9 +265,10 @@ namespace Bicep.Core.Emit
                 });
 
                 emitter.EmitObjectProperty("output", () => {
-                    // TODO(functions) lambda needs a declared return type to use here
-                    emitter.EmitProperty("type", "string");
-                    emitter.EmitProperty("value", lambda.Body);
+                    var outputObject = TypePropertiesForTypeExpression(lambda.OutputType!);
+                    outputObject = outputObject.MergeProperty("value", lambda.Body);
+
+                    EmitProperties(emitter, outputObject);
                 });
             }, function.SourceSyntax);
         }

@@ -268,28 +268,10 @@ namespace Bicep.Core.PrettyPrint
             this.BuildWithSpread(() => base.VisitTypedLocalVariableSyntax(syntax));
 
         public override void VisitLambdaSyntax(LambdaSyntax syntax) =>
-            this.Build(() => base.VisitLambdaSyntax(syntax), children =>
-             {
-                 Debug.Assert(children.Length == 3);
-
-                 ILinkedDocument token = children[0];
-                 ILinkedDocument arrow = children[1];
-                 ILinkedDocument body = children[2];
-
-                 return Spread(token, arrow, body);
-             });
+            this.BuildWithSpread(() => base.VisitLambdaSyntax(syntax));
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
-            this.Build(() => base.VisitTypedLambdaSyntax(syntax), children =>
-             {
-                 Debug.Assert(children.Length == 3);
-
-                 ILinkedDocument token = children[0];
-                 ILinkedDocument arrow = children[1];
-                 ILinkedDocument body = children[2];
-
-                 return Spread(token, arrow, body);
-             });
+            this.BuildWithSpread(() => base.VisitTypedLambdaSyntax(syntax));
 
         private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)
         {

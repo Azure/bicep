@@ -1,19 +1,19 @@
-func buildUrl = (bool https, string hostname, string path) => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:317) ProgramExpression
-//@[000:137) ├─DeclaredFunctionExpression { Name = buildUrl }
-//@[016:137) | └─LambdaExpression
-//@[062:137) |   └─InterpolatedStringExpression
-//@[065:089) |     ├─TernaryExpression
-//@[065:070) |     | ├─LambdaVariableReferenceExpression { Variable = https }
-//@[073:080) |     | ├─StringLiteralExpression { Value = https }
-//@[083:089) |     | └─StringLiteralExpression { Value = http }
-//@[095:103) |     ├─LambdaVariableReferenceExpression { Variable = hostname }
-//@[106:135) |     └─TernaryExpression
-//@[106:117) |       ├─FunctionCallExpression { Name = empty }
-//@[112:116) |       | └─LambdaVariableReferenceExpression { Variable = path }
-//@[120:122) |       ├─StringLiteralExpression { Value =  }
-//@[125:135) |       └─InterpolatedStringExpression
-//@[129:133) |         └─LambdaVariableReferenceExpression { Variable = path }
+func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+//@[000:464) ProgramExpression
+//@[000:144) ├─DeclaredFunctionExpression { Name = buildUrl }
+//@[016:144) | └─LambdaExpression
+//@[069:144) |   └─InterpolatedStringExpression
+//@[072:096) |     ├─TernaryExpression
+//@[072:077) |     | ├─LambdaVariableReferenceExpression { Variable = https }
+//@[080:087) |     | ├─StringLiteralExpression { Value = https }
+//@[090:096) |     | └─StringLiteralExpression { Value = http }
+//@[102:110) |     ├─LambdaVariableReferenceExpression { Variable = hostname }
+//@[113:142) |     └─TernaryExpression
+//@[113:124) |       ├─FunctionCallExpression { Name = empty }
+//@[119:123) |       | └─LambdaVariableReferenceExpression { Variable = path }
+//@[127:129) |       ├─StringLiteralExpression { Value =  }
+//@[132:142) |       └─InterpolatedStringExpression
+//@[136:140) |         └─LambdaVariableReferenceExpression { Variable = path }
 
 output foo string = buildUrl(true, 'google.com', 'search')
 //@[000:058) ├─DeclaredOutputExpression { Name = foo }
@@ -22,11 +22,11 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[035:047) |   ├─StringLiteralExpression { Value = google.com }
 //@[049:057) |   └─StringLiteralExpression { Value = search }
 
-func sayHello = (string name) => 'Hi ${name}!'
-//@[000:046) ├─DeclaredFunctionExpression { Name = sayHello }
-//@[016:046) | └─LambdaExpression
-//@[033:046) |   └─InterpolatedStringExpression
-//@[039:043) |     └─LambdaVariableReferenceExpression { Variable = name }
+func sayHello = (string name) => string 'Hi ${name}!'
+//@[000:053) ├─DeclaredFunctionExpression { Name = sayHello }
+//@[016:053) | └─LambdaExpression
+//@[040:053) |   └─InterpolatedStringExpression
+//@[046:050) |     └─LambdaVariableReferenceExpression { Variable = name }
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[000:069) └─DeclaredOutputExpression { Name = hellos }
@@ -37,4 +37,23 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[046:068)     └─LambdaExpression
 //@[054:068)       └─UserDefinedFunctionCallExpression { Name = sayHello }
 //@[063:067)         └─LambdaVariableReferenceExpression { Variable = name }
+
+func objReturnType = (string name) => object {
+//@[000:071) ├─DeclaredFunctionExpression { Name = objReturnType }
+//@[021:071) | └─LambdaExpression
+//@[045:071) |   └─ObjectExpression
+  hello: 'Hi ${name}!'
+//@[002:022) |     └─ObjectPropertyExpression
+//@[002:007) |       ├─StringLiteralExpression { Value = hello }
+//@[009:022) |       └─InterpolatedStringExpression
+//@[015:019) |         └─LambdaVariableReferenceExpression { Variable = name }
+}
+
+func arrayReturnType = (string name) => array ([
+//@[000:058) ├─DeclaredFunctionExpression { Name = arrayReturnType }
+//@[023:058) | └─LambdaExpression
+//@[047:057) |   └─ArrayExpression
+  name
+//@[002:006) |     └─LambdaVariableReferenceExpression { Variable = name }
+])
 

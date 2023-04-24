@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14416497827282305816"
+      "templateHash": "14103033690010627568"
     }
   },
   "functions": [
@@ -42,6 +42,34 @@
           "output": {
             "type": "string",
             "value": "[format('Hi {0}!', parameters('name'))]"
+          }
+        },
+        "objReturnType": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "object",
+            "value": {
+              "hello": "[format('Hi {0}!', parameters('name'))]"
+            }
+          }
+        },
+        "arrayReturnType": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "[parameters('name')]"
+            ]
           }
         }
       }

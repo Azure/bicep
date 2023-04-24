@@ -1,4 +1,4 @@
-func buildUrl = (bool https, string hostname, string path) => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@        "buildUrl": {
 //@          "parameters": [
 //@            {
@@ -26,7 +26,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@      "value": "[__bicep.buildUrl(true(), 'google.com', 'search')]"
 //@    },
 
-func sayHello = (string name) => 'Hi ${name}!'
+func sayHello = (string name) => string 'Hi ${name}!'
 //@        "sayHello": {
 //@          "parameters": [
 //@            {
@@ -38,11 +38,47 @@ func sayHello = (string name) => 'Hi ${name}!'
 //@            "type": "string",
 //@            "value": "[format('Hi {0}!', parameters('name'))]"
 //@          }
-//@        }
+//@        },
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@    "hellos": {
 //@      "type": "array",
 //@      "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
 //@    }
+
+func objReturnType = (string name) => object {
+//@        "objReturnType": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "name"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "object",
+//@            "value": {
+//@            }
+//@          }
+//@        },
+  hello: 'Hi ${name}!'
+//@              "hello": "[format('Hi {0}!', parameters('name'))]"
+}
+
+func arrayReturnType = (string name) => array ([
+//@        "arrayReturnType": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "name"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "array",
+//@            "value": [
+//@            ]
+//@          }
+//@        }
+  name
+//@              "[parameters('name')]"
+])
 

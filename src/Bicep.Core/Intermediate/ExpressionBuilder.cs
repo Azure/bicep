@@ -133,7 +133,8 @@ public class ExpressionBuilder
                     lambda,
                     variables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
                     variables.Select<LocalVariableSyntax, SyntaxBase?>(x => null).ToImmutableArray(),
-                    ConvertWithoutLowering(lambda.Body));
+                    ConvertWithoutLowering(lambda.Body),
+                    null);
             case TypedLambdaSyntax lambda:
                 var typedVariables = lambda.GetLocalVariables();
 
@@ -141,7 +142,8 @@ public class ExpressionBuilder
                     lambda,
                     typedVariables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
                     typedVariables.Select<TypedLocalVariableSyntax, SyntaxBase?>(x => x.Type).ToImmutableArray(),
-                    ConvertWithoutLowering(lambda.Body));
+                    ConvertWithoutLowering(lambda.Body),
+                    lambda.Type);
 
             case ForSyntax forSyntax:
                 return new ForLoopExpression(

@@ -206,10 +206,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP029",
                 "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
-            public ErrorDiagnostic InvalidOutputType() => new(
+            public ErrorDiagnostic InvalidOutputType(IEnumerable<string> validTypes) => new(
                 TextSpan,
                 "BCP030",
-                $"The output type is not valid. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
+                $"The output type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
             public ErrorDiagnostic InvalidParameterType(IEnumerable<string> validTypes) => new(
                 TextSpan,
@@ -1915,6 +1915,17 @@ namespace Bicep.Core.Diagnostics
                 TextSpan, 
                 "BCP339",
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
+
+            public ErrorDiagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP340",
+                    $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

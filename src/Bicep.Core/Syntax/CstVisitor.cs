@@ -448,6 +448,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.VariableSection);
             this.Visit(syntax.Arrow);
+            this.Visit(syntax.Type);
             this.Visit(syntax.Body);
         }
 

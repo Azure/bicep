@@ -1097,10 +1097,11 @@ namespace Bicep.Core.Parsing
             var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable());
 
             var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
+            var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
 
-            return new TypedLambdaSyntax(variableBlock, arrow, expression);
+            return new TypedLambdaSyntax(variableBlock, arrow, type, expression);
         }
 
         private SyntaxBase PrimaryExpression(ExpressionFlags expressionFlags)

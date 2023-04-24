@@ -18,7 +18,7 @@ public class FunctionTests
     public void User_defined_functions_basic_case()
     {
         var result = CompilationHelper.Compile(@"
-func buildUrl = (bool https, string hostname, string path) => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
 output foo string = buildUrl(true, 'google.com', 'search')
 ");
@@ -35,7 +35,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
         var result = CompilationHelper.Compile(@"
 param foo string
 var bar = 'abc'
-func getBaz = () => 'baz'
+func getBaz = () => string 'baz'
 
 func testFunc = (string baz) => '${foo}-${bar}-${baz}-${getBaz()}'
 ");
@@ -52,7 +52,7 @@ func testFunc = (string baz) => '${foo}-${bar}-${baz}-${getBaz()}'
     {
         var result = CompilationHelper.Compile(@"
 @description('Returns foo')
-func returnFoo = () => 'foo'
+func returnFoo = () => string 'foo'
 
 output outputFoo string = returnFoo()
 ");
@@ -67,8 +67,8 @@ output outputFoo string = returnFoo()
     public void User_defined_functions_cannot_reference_each_other()
     {
         var result = CompilationHelper.Compile(@"
-func getAbc = () => 'abc'
-func getAbcDef = () => '${getAbc()}def'
+func getAbc = () => string 'abc'
+func getAbcDef = () => string '${getAbc()}def'
 ");
     
         result.Should().HaveDiagnostics(new [] {
@@ -82,7 +82,16 @@ func getAbcDef = () => '${getAbc()}def'
         var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
-func getAOrB = (('a' | 'b') aOrB) => aOrB
+func getAOrB = (('a' | 'b') aOrB) => bool (aOrB == 'a')
+");
+    
+        // TODO(functions) this should raise a diagnostic - we can only emit simple types
+        result.Should().HaveDiagnostics(new [] {
+            ("TODO", DiagnosticLevel.Error, "This should be blocked!"),
+        });
+
+        result = CompilationHelper.Compile(services, @"
+func getAOrB = (bool aOrB) => ('a' | 'b') aOrB ? 'a' : 'b'
 ");
     
         // TODO(functions) this should raise a diagnostic - we can only emit simple types
@@ -95,12 +104,24 @@ func getAOrB = (('a' | 'b') aOrB) => aOrB
     public void User_defined_functions_unsupported_runtime_functions()
     {
         var result = CompilationHelper.Compile(@"
-func useRuntimeFunction = () => reference('foo').bar
+func useRuntimeFunction = () => string reference('foo').bar
 ");
     
-        // TODO(functions) this should raise a diagnostic
         result.Should().HaveDiagnostics(new [] {
-            ("TODO", DiagnosticLevel.Error, "This should be blocked!"),
+            ("BCP340", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
         });
+    }
+
+    [TestMethod]
+    public void Current_syntax_is_ambiguous()
+    {
+        var result = CompilationHelper.Compile(@"
+func sayBlah2 = (string name) => array [
+  true
+]
+");
+
+        // TODO(functions) this shouldn't emit any diagnostics
+        result.Should().NotHaveAnyDiagnostics();
     }
 }

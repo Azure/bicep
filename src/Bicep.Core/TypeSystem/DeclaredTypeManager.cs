@@ -178,8 +178,10 @@ namespace Bicep.Core.TypeSystem
                 .Select(x => GetTypedLocalVariableType(x).Reference)
                 .ToImmutableArray();
 
-            // TODO(functions) lambda needs a declared return type to use here
-            var type = new LambdaType(argumentTypes, LanguageConstants.String);
+            var outputType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType(GetValidTypeNames()));
+
+            var type = new LambdaType(argumentTypes, outputType);
             return new(type, syntax);
         }
 
@@ -430,7 +432,7 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
-                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType(GetValidTypeNames()));
 
             return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax), syntax);
         }
