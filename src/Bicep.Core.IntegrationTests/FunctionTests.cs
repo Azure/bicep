@@ -86,7 +86,7 @@ func getAOrB = (('a' | 'b') aOrB) => bool (aOrB == 'a')
 ");
     
         result.Should().HaveDiagnostics(new [] {
-            ("BCP341", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
+            ("BCP342", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
         });
 
         result = CompilationHelper.Compile(services, @"
@@ -94,7 +94,7 @@ func getAOrB = (bool aOrB) => ('a' | 'b') aOrB ? 'a' : 'b'
 ");
     
         result.Should().HaveDiagnostics(new [] {
-            ("BCP341", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
+            ("BCP342", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
         });
     }
 
@@ -106,7 +106,7 @@ func useRuntimeFunction = () => string reference('foo').bar
 ");
     
         result.Should().HaveDiagnostics(new [] {
-            ("BCP340", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
+            ("BCP341", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
         });
     }
 

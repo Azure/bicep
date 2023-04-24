@@ -422,7 +422,7 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
                   x.Kind.Should().Be(CompletionItemKind.Module);
                   x.Documentation!.MarkupContent!.Value.Should().Be("this is a bicep module");
               }
-            ); 
+            );
         }
 
         [TestMethod]
@@ -2460,7 +2460,7 @@ var vmProperties = {
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'vm'
   location: 'West US'
-#disable-next-line "/* <- preserve trailing space */+@"
+#disable-next-line "/* <- preserve trailing space */+ @"
   properties: vmProperties
 }");
 
@@ -2469,7 +2469,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             completions.Should().Contain(x => x.Label == "BCP037");
 
             updatedFile = file.ApplyCompletion(completions, "BCP036");
-            updatedFile.Should().HaveSourceText(@"#disable-next-line "/* <- preserve trailing space */+@"
+            updatedFile.Should().HaveSourceText(@"#disable-next-line "/* <- preserve trailing space */+ @"
 param storageAccount string = 'testAccount'
 var vmProperties = {
   diagnosticsProfile: {
@@ -2489,7 +2489,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }");
 
             updatedFile = file.ApplyCompletion(completions, "BCP037");
-            updatedFile.Should().HaveSourceText(@"#disable-next-line "/* <- preserve trailing space */+@"
+            updatedFile.Should().HaveSourceText(@"#disable-next-line "/* <- preserve trailing space */+ @"
 param storageAccount string = 'testAccount'
 var vmProperties = {
   diagnosticsProfile: {
@@ -3207,12 +3207,12 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             DataSet
         }
 
-
         [DataTestMethod]
         [DataRow("loadTextContent")]
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
-        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false)
+        [DataRow("loadYamlContent", false, true)]
+        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false, bool ymalOnTop = false)
         {
             var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
 
@@ -3231,8 +3231,14 @@ var file = " + functionName + @"('|')
                 [InMemoryFileResolver.GetFileUri("/path/to/template3.jsonc")] = @"{}",
                 [InMemoryFileResolver.GetFileUri("/path/to/template4.json")] = new string('x', 2000 - schema.Length) + schema,
                 [InMemoryFileResolver.GetFileUri("/path/to/template5.json")] = new string('x', 2002 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template6.yaml")] = @$"{{ ""schema"": ""{schema}"" }}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template7.yml")] = @"",
+                [InMemoryFileResolver.GetFileUri("/path/to/template8.yaml")] = new string('x', 2000 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template9.yaml")] = new string('x', 2002 - schema.Length) + schema,
                 [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
                 [InMemoryFileResolver.GetFileUri("/path/to/json2.json")] = @"[{ ""name"": ""value"" }]",
+                [InMemoryFileResolver.GetFileUri("/path/to/yaml1.yaml")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/yaml2.yaml")] = @"[{ ""name"": ""value"" }]",
                 [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
                 [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
@@ -3261,7 +3267,34 @@ var file = " + functionName + @"('|')
                     x => x.Label.Should().Be("module1.txt"),
                     x => x.Label.Should().Be("module2.bicep"),
                     x => x.Label.Should().Be("module3.bicep"),
-                    x => x.Label.Should().Be("template1.arm")
+                    x => x.Label.Should().Be("template1.arm"),
+                    x => x.Label.Should().Be("template6.yaml"),
+                    x => x.Label.Should().Be("template7.yml"),
+                    x => x.Label.Should().Be("template8.yaml"),
+                    x => x.Label.Should().Be("template9.yaml"),
+                    x => x.Label.Should().Be("yaml1.yaml"),
+                    x => x.Label.Should().Be("yaml2.yaml")
+                );
+            }
+            else if (ymalOnTop)
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("template6.yaml"),
+                    x => x.Label.Should().Be("template7.yml"),
+                    x => x.Label.Should().Be("template8.yaml"),
+                    x => x.Label.Should().Be("template9.yaml"),
+                    x => x.Label.Should().Be("yaml1.yaml"),
+                    x => x.Label.Should().Be("yaml2.yaml"),
+                    x => x.Label.Should().Be("json1.json"),
+                    x => x.Label.Should().Be("json2.json"),
+                    x => x.Label.Should().Be("module1.txt"),
+                    x => x.Label.Should().Be("module2.bicep"),
+                    x => x.Label.Should().Be("module3.bicep"),
+                    x => x.Label.Should().Be("template1.arm"),
+                    x => x.Label.Should().Be("template2.json"),
+                    x => x.Label.Should().Be("template3.jsonc"),
+                    x => x.Label.Should().Be("template4.json"),
+                    x => x.Label.Should().Be("template5.json")
                 );
             }
             else
@@ -3276,7 +3309,13 @@ var file = " + functionName + @"('|')
                     x => x.Label.Should().Be("template2.json"),
                     x => x.Label.Should().Be("template3.jsonc"),
                     x => x.Label.Should().Be("template4.json"),
-                    x => x.Label.Should().Be("template5.json")
+                    x => x.Label.Should().Be("template5.json"),
+                     x => x.Label.Should().Be("template6.yaml"),
+                    x => x.Label.Should().Be("template7.yml"),
+                    x => x.Label.Should().Be("template8.yaml"),
+                    x => x.Label.Should().Be("template9.yaml"),
+                    x => x.Label.Should().Be("yaml1.yaml"),
+                    x => x.Label.Should().Be("yaml2.yaml")
                     );
             }
         }
@@ -3285,7 +3324,8 @@ var file = " + functionName + @"('|')
         [DataRow("loadTextContent")]
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
-        public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false)
+        [DataRow("loadYamlContent", false, true)]
+        public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false, bool ymalOnTop = false)
         {
             var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
 
@@ -3305,8 +3345,14 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path/to/template3.jsonc")] = @"{}",
                 [InMemoryFileResolver.GetFileUri("/path/to/template4.json")] = new string('x', 2000 - schema.Length) + schema,
                 [InMemoryFileResolver.GetFileUri("/path/to/template5.json")] = new string('x', 2002 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template6.yaml")] = @$"{{ ""schema"": ""{schema}"" }}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template7.yml")] = @"",
+                [InMemoryFileResolver.GetFileUri("/path/to/template8.yaml")] = new string('x', 2000 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template9.yaml")] = new string('x', 2002 - schema.Length) + schema,
                 [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
                 [InMemoryFileResolver.GetFileUri("/path/to/json2.json")] = @"[{ ""name"": ""value"" }]",
+                [InMemoryFileResolver.GetFileUri("/path/to/yaml1.yaml")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/yaml2.yaml")] = @"[{ ""name"": ""value"" }]",
                 [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
                 [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
@@ -3330,7 +3376,27 @@ var file = " + functionName + @"(templ|)
                     x => x.Label.Should().Be("template4.json"),
                     x => x.Label.Should().Be("template5.json"),
                     x => x.Label.Should().Be("template"),
-                    x => x.Label.Should().Be("template1.arm")
+                    x => x.Label.Should().Be("template1.arm"),
+                    x => x.Label.Should().Be("template6.yaml"),
+                    x => x.Label.Should().Be("template7.yml"),
+                    x => x.Label.Should().Be("template8.yaml"),
+                    x => x.Label.Should().Be("template9.yaml")
+                );
+            }
+            else if (ymalOnTop)
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("template6.yaml"),
+                    x => x.Label.Should().Be("template7.yml"),
+                    x => x.Label.Should().Be("template8.yaml"),
+                    x => x.Label.Should().Be("template9.yaml"),
+                    x => x.Label.Should().Be("template"),
+                    x => x.Label.Should().Be("template1.arm"),
+                    x => x.Label.Should().Be("template2.json"),
+                    x => x.Label.Should().Be("template3.jsonc"),
+                    x => x.Label.Should().Be("template4.json"),
+                    x => x.Label.Should().Be("template5.json")
+                    
                 );
             }
             else
@@ -3341,6 +3407,10 @@ var file = " + functionName + @"(templ|)
                     x => x.Label.Should().Be("template3.jsonc"),
                     x => x.Label.Should().Be("template4.json"),
                     x => x.Label.Should().Be("template5.json"),
+                    x => x.Label.Should().Be("template6.yaml"),
+                    x => x.Label.Should().Be("template7.yml"),
+                    x => x.Label.Should().Be("template8.yaml"),
+                    x => x.Label.Should().Be("template9.yaml"),
                     x => x.Label.Should().Be("template")
                 );
             }
@@ -3366,7 +3436,8 @@ var file = " + functionName + @"(templ|)
         public async Task Module_path_completions_are_offered(string fileWithCursors, string expectedLabel, string expectedResult)
         {
             var fileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> {
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
                 [InMemoryFileResolver.GetFileUri("/path/to/other.bicep")] = "",
                 [InMemoryFileResolver.GetFileUri("/path/to2/main.bicep")] = "",
                 [InMemoryFileResolver.GetFileUri("/path2/to/main.bicep")] = "",
@@ -3405,7 +3476,7 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3434,7 +3505,7 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "bar.bicep", string.Empty, Path.Combine(testOutputPath, Path.Combine(testOutputPath, "br", "foo")));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3466,7 +3537,7 @@ var file = " + functionName + @"(templ|)
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-containerapp", "app/dapr-containerapp-env" });
@@ -3500,7 +3571,7 @@ var file = " + functionName + @"(templ|)
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
-            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting)).Returns(false);
+            settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
             publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.2", "1.0.1" });

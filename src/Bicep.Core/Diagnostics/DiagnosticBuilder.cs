@@ -1910,11 +1910,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP338",
                 $"Failed to evaluate parameter \"{parameterName}\": {message}");
-                
+
             public ErrorDiagnostic ArrayIndexOutOfBounds(long indexSought) => new(
-                TextSpan, 
+                TextSpan,
                 "BCP339",
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
+
+            public ErrorDiagnostic UnparseableYamlType() => new(
+               TextSpan,
+               "BCP340",
+               $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
 
             public ErrorDiagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
@@ -1923,13 +1928,13 @@ namespace Bicep.Core.Diagnostics
 
                 return new ErrorDiagnostic(
                     TextSpan,
-                    "BCP340",
+                    "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
                 
             public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
                 TextSpan, 
-                "BCP341",
+                "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
         }
 

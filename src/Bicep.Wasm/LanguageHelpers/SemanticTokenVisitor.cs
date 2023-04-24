@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Wasm.LanguageHelpers
 {
-    public class SemanticTokenVisitor : AstVisitor
+    public class SemanticTokenVisitor : CstVisitor
     {
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();
         private readonly SemanticModel model;
@@ -225,6 +225,9 @@ namespace Bicep.Wasm.LanguageHelpers
                 case TokenType.StringRightPiece:
                 case TokenType.MultilineString:
                     AddStringToken(token);
+                    break;
+                case TokenType.Comma:
+                    AddTokenType(token, SemanticTokenType.Operator);
                     break;
                 default:
                     break;

@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer
 {
-    public class SemanticTokenVisitor : AstVisitor
+    public class SemanticTokenVisitor : CstVisitor
     {
         private readonly SemanticModel model;
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();
@@ -251,6 +251,9 @@ namespace Bicep.LanguageServer
                 case TokenType.MultilineString:
                     AddStringToken(token);
                     break;
+                case TokenType.Comma:
+                    AddTokenType(token, SemanticTokenType.Operator);
+                    break;
                 default:
                     break;
             }
@@ -328,7 +331,7 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.Config);
         }
-        
+
         public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

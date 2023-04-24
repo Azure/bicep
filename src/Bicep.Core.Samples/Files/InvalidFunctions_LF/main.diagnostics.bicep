@@ -1,5 +1,5 @@
 func useRuntimeFunction = () => string reference('foo').bar
-//@[39:55) [BCP340 (Error)] This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. (CodeDescription: none) |reference('foo')|
+//@[39:55) [BCP341 (Error)] This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. (CodeDescription: none) |reference('foo')|
 
 func constFunc = () => string 'A'
 func funcWithOtherFuncRef = () => string constFunc()
@@ -12,20 +12,20 @@ output invalidType string = invalidType(true)
 
 func madeUpTypeArgs = (notAType a, alsoNotAType b) => string '${a}-${b}'
 //@[23:31) [BCP302 (Error)] The name "notAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |notAType|
-//@[23:33) [BCP341 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |notAType a|
+//@[23:33) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |notAType a|
 //@[35:47) [BCP302 (Error)] The name "alsoNotAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |alsoNotAType|
-//@[35:49) [BCP341 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |alsoNotAType b|
+//@[35:49) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |alsoNotAType b|
 //@[64:65) [BCP062 (Error)] The referenced declaration with name "a" is not valid. (CodeDescription: none) |a|
 //@[69:70) [BCP062 (Error)] The referenced declaration with name "b" is not valid. (CodeDescription: none) |b|
 
 func noLambda = ('foo') => string ''
-//@[17:22) [BCP341 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |'foo'|
+//@[17:22) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |'foo'|
 //@[17:22) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |'foo'|
 //@[22:22) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
 
 func noLambda2 = ('foo' sdf) => string ''
 //@[18:23) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |'foo'|
-//@[18:27) [BCP341 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |'foo' sdf|
+//@[18:27) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |'foo' sdf|
 
 func noLambda3 = string 'asdf'
 //@[17:23) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) |string|
