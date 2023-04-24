@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "@types/html-escaper": "^3.0.0",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.1",
     "@types/node": "^18.16.0",
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
