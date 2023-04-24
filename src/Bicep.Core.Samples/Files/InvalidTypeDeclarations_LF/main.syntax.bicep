@@ -1,5 +1,5 @@
 type 44
-//@[00:1285) ProgramSyntax
+//@[00:1413) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -493,6 +493,56 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[38:0064) | └─VariableAccessSyntax
 //@[38:0064) |   └─IdentifierSyntax
 //@[38:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
-//@[64:0065) ├─Token(NewLine) |\n|
+//@[64:0066) ├─Token(NewLine) |\n\n|
+
+func invalidArgs = (validStringLiteralUnion a, string b) => string a
+//@[00:0068) ├─FunctionDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |func|
+//@[05:0016) | ├─IdentifierSyntax
+//@[05:0016) | | └─Token(Identifier) |invalidArgs|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0068) | └─TypedLambdaSyntax
+//@[19:0056) |   ├─TypedVariableBlockSyntax
+//@[19:0020) |   | ├─Token(LeftParen) |(|
+//@[20:0045) |   | ├─TypedLocalVariableSyntax
+//@[20:0043) |   | | ├─VariableAccessSyntax
+//@[20:0043) |   | | | └─IdentifierSyntax
+//@[20:0043) |   | | |   └─Token(Identifier) |validStringLiteralUnion|
+//@[44:0045) |   | | └─IdentifierSyntax
+//@[44:0045) |   | |   └─Token(Identifier) |a|
+//@[45:0046) |   | ├─Token(Comma) |,|
+//@[47:0055) |   | ├─TypedLocalVariableSyntax
+//@[47:0053) |   | | ├─VariableAccessSyntax
+//@[47:0053) |   | | | └─IdentifierSyntax
+//@[47:0053) |   | | |   └─Token(Identifier) |string|
+//@[54:0055) |   | | └─IdentifierSyntax
+//@[54:0055) |   | |   └─Token(Identifier) |b|
+//@[55:0056) |   | └─Token(RightParen) |)|
+//@[57:0059) |   ├─Token(Arrow) |=>|
+//@[60:0066) |   ├─VariableAccessSyntax
+//@[60:0066) |   | └─IdentifierSyntax
+//@[60:0066) |   |   └─Token(Identifier) |string|
+//@[67:0068) |   └─VariableAccessSyntax
+//@[67:0068) |     └─IdentifierSyntax
+//@[67:0068) |       └─Token(Identifier) |a|
+//@[68:0070) ├─Token(NewLine) |\n\n|
+
+func invalidOutput = () => validStringLiteralUnion 'foo'
+//@[00:0056) ├─FunctionDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |func|
+//@[05:0018) | ├─IdentifierSyntax
+//@[05:0018) | | └─Token(Identifier) |invalidOutput|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0056) | └─TypedLambdaSyntax
+//@[21:0023) |   ├─TypedVariableBlockSyntax
+//@[21:0022) |   | ├─Token(LeftParen) |(|
+//@[22:0023) |   | └─Token(RightParen) |)|
+//@[24:0026) |   ├─Token(Arrow) |=>|
+//@[27:0050) |   ├─VariableAccessSyntax
+//@[27:0050) |   | └─IdentifierSyntax
+//@[27:0050) |   |   └─Token(Identifier) |validStringLiteralUnion|
+//@[51:0056) |   └─StringSyntax
+//@[51:0056) |     └─Token(StringComplete) |'foo'|
+//@[56:0057) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

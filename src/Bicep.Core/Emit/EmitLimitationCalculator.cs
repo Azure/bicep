@@ -48,6 +48,7 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
+            BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -509,6 +510,32 @@ namespace Bicep.Core.Emit
             }
 
             return generated.ToImmutableDictionary();
+        }
+
+        private static void BlockUserDefinedTypesWithUserDefinedFunctions(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var function in model.Root.FunctionDeclarations)
+            {
+                if (function.DeclaringFunction.Lambda is not TypedLambdaSyntax lambda)
+                {
+                    continue;
+                }
+
+                foreach (var localVariable in lambda.GetLocalVariables())
+                {
+                    var argTypeSymbol = model.GetSymbolInfo(localVariable.Type);
+                    if (argTypeSymbol is not AmbientTypeSymbol)
+                    {
+                        diagnostics.Write(localVariable, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                    }
+                }
+
+                var outputTypeSymbol = model.GetSymbolInfo(lambda.Type);
+                if (outputTypeSymbol is not AmbientTypeSymbol)
+                {
+                    diagnostics.Write(lambda.Type, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                }
+            }
         }
     }
 }

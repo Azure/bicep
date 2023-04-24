@@ -106,3 +106,9 @@ param disallowedUnionParam 'foo'|-99
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[06:37) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectWithInvalidRecursionParam|
 
+func invalidArgs = (validStringLiteralUnion a, string b) => string a
+//@[20:45) [BCP341 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |validStringLiteralUnion a|
+
+func invalidOutput = () => validStringLiteralUnion 'foo'
+//@[27:50) [BCP341 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |validStringLiteralUnion|
+

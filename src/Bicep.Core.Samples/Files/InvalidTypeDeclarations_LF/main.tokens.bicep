@@ -298,6 +298,33 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[00:05) Identifier |param|
 //@[06:37) Identifier |objectWithInvalidRecursionParam|
 //@[38:64) Identifier |objectWithInvalidRecursion|
-//@[64:65) NewLine |\n|
+//@[64:66) NewLine |\n\n|
+
+func invalidArgs = (validStringLiteralUnion a, string b) => string a
+//@[00:04) Identifier |func|
+//@[05:16) Identifier |invalidArgs|
+//@[17:18) Assignment |=|
+//@[19:20) LeftParen |(|
+//@[20:43) Identifier |validStringLiteralUnion|
+//@[44:45) Identifier |a|
+//@[45:46) Comma |,|
+//@[47:53) Identifier |string|
+//@[54:55) Identifier |b|
+//@[55:56) RightParen |)|
+//@[57:59) Arrow |=>|
+//@[60:66) Identifier |string|
+//@[67:68) Identifier |a|
+//@[68:70) NewLine |\n\n|
+
+func invalidOutput = () => validStringLiteralUnion 'foo'
+//@[00:04) Identifier |func|
+//@[05:18) Identifier |invalidOutput|
+//@[19:20) Assignment |=|
+//@[21:22) LeftParen |(|
+//@[22:23) RightParen |)|
+//@[24:26) Arrow |=>|
+//@[27:50) Identifier |validStringLiteralUnion|
+//@[51:56) StringComplete |'foo'|
+//@[56:57) NewLine |\n|
 
 //@[00:00) EndOfFile ||

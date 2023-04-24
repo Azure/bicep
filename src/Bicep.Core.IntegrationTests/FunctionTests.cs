@@ -85,18 +85,16 @@ func getAbcDef = () => string '${getAbc()}def'
 func getAOrB = (('a' | 'b') aOrB) => bool (aOrB == 'a')
 ");
     
-        // TODO(functions) this should raise a diagnostic - we can only emit simple types
         result.Should().HaveDiagnostics(new [] {
-            ("TODO", DiagnosticLevel.Error, "This should be blocked!"),
+            ("BCP341", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
         });
 
         result = CompilationHelper.Compile(services, @"
 func getAOrB = (bool aOrB) => ('a' | 'b') aOrB ? 'a' : 'b'
 ");
     
-        // TODO(functions) this should raise a diagnostic - we can only emit simple types
         result.Should().HaveDiagnostics(new [] {
-            ("TODO", DiagnosticLevel.Error, "This should be blocked!"),
+            ("BCP341", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
         });
     }
 
@@ -122,6 +120,6 @@ func sayBlah2 = (string name) => array [
 ");
 
         // TODO(functions) this shouldn't emit any diagnostics
-        result.Should().NotHaveAnyDiagnostics();
+        result.Should().NotGenerateATemplate();
     }
 }

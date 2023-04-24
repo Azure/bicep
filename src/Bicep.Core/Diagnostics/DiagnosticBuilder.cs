@@ -1926,6 +1926,11 @@ namespace Bicep.Core.Diagnostics
                     "BCP340",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
+                
+            public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
+                TextSpan, 
+                "BCP341",
+                $"""User-defined types are not supported in user-defined function parameters or outputs.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
