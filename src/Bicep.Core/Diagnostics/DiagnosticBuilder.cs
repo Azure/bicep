@@ -1854,17 +1854,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP328",
                 $"The provided value (which will always be less than or equal to {sourceMax}) is too small to assign to a target for which the minimum allowable value is {targetMin}.");
 
-            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(long? sourceMin, long targetMin) => new(
+            public Diagnostic SourceIntDomainExtendsBelowTargetIntDomain(long sourceMin, long targetMin) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP329",
-                $"The provided value {(sourceMin.HasValue ? $"may be as small as {sourceMin.Value}" : "has no configured minimum")} and may be too small to assign to a target with a configured minimum of {targetMin}.");
+                $"The provided value can be as small as {sourceMin} and may be too small to assign to a target with a configured minimum of {targetMin}.");
 
-            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(long? sourceMax, long targetMax) => new(
+            public Diagnostic SourceIntDomainExtendsAboveTargetIntDomain(long sourceMax, long targetMax) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP330",
-                $"The provided value {(sourceMax.HasValue ? $"may be as large as {sourceMax.Value}" : "has no configured maximum")} and may be too large to assign to a target with a configured maximum of {targetMax}.");
+                $"The provided value can be as large as {sourceMax} and may be too large to assign to a target with a configured maximum of {targetMax}.");
 
             public ErrorDiagnostic MinMayNotExceedMax(string minDecoratorName, long minValue, string maxDecoratorName, long maxValue) => new(
                 TextSpan,
@@ -1883,17 +1883,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP333",
                 $"The provided value (whose length will always be less than or equal to {sourceMaxLength}) is too short to assign to a target for which the minimum allowable length is {targetMinLength}.");
 
-            public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(long? sourceMinLength, long targetMinLength) => new(
+            public Diagnostic SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(long sourceMinLength, long targetMinLength) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP334",
-                $"The provided value {(sourceMinLength.HasValue ? $"may have a length as small as {sourceMinLength.Value}" : "has no configured minimum length")} and may be too short to assign to a target with a configured minimum length of {targetMinLength}.");
+                $"The provided value can have a length as small as {sourceMinLength} and may be too short to assign to a target with a configured minimum length of {targetMinLength}.");
 
-            public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(long? sourceMaxLength, long targetMaxLength) => new(
+            public Diagnostic SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(long sourceMaxLength, long targetMaxLength) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP335",
-                $"The provided value {(sourceMaxLength.HasValue ? $"may have a length as large as {sourceMaxLength.Value}" : "has no configured maximum length")} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
+                $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
             public ErrorDiagnostic ParametersFileUnsupported() => new(
                 TextSpan,

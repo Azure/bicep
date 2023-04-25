@@ -4577,47 +4577,6 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
-    // https://github.com/Azure/bicep/issues/10398
-    [TestMethod]
-    public void Test_Issue10398()
-    {
-        var main = @"
-module mod1 'module1.bicep' = {
-  name: 'example-mod1'
-}
-
-module mod2 'module2.bicep' = {
-  name: 'example-mod2'
-  params: {
-    name: mod1.outputs.name
-  }
-}
-";
-
-        var mod2 = @"
-@minLength(3)
-@maxLength(24)
-param name string
-";
-
-        var result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"output name string = uniqueString(resourceGroup().name)"));
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP334", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 3."),
-            ("BCP335", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 24."),
-        });
-
-        // if the output of module1 has length restrictions added, the above warnings should be cleared
-        result = CompilationHelper.Compile(("main.bicep", main), ("module2.bicep", mod2), ("module1.bicep", @"
-@minLength(3)
-@maxLength(24)
-output name string = uniqueString(resourceGroup().name)
-"));
-
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-    }
-
     // https://github.com/Azure/bicep/issues/10403
     [TestMethod]
     public void Test_Issue10403()
@@ -4657,5 +4616,22 @@ output obj object = toObject(items, item => item.key, item => item.value)
             ("module.bicep", @"output out string = ''"));
 
         result.Should().OnlyContainDiagnostic("BCP182", DiagnosticLevel.Error, "This expression is being used in the for-body of the variable \"items\", which requires values that can be calculated at the start of the deployment. The property \"outputs\" of modules cannot be calculated at the start. Properties of modules which can be calculated at the start include \"name\".");
+    }
+
+    // https://github.com/Azure/bicep/issues/10489
+    [TestMethod]
+    public void Test_Issue10489()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+@minLength(1)
+@maxLength(50)
+param apim_name string = replace(resourceGroup().name, '-rg-', '-apim-')
+
+@minValue(1)
+param rg_tag_count int = int(take(resourceGroup().name, 3))
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

@@ -264,20 +264,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateStringType(1, 10),
                     TypeFactory.CreateStringType(2, 11),
                     TypeFactory.CreateStringType(2, 10),
-                    ("BCP334", DiagnosticLevel.Warning, "The provided value may have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
 
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateStringType(3, 11),
                     TypeFactory.CreateStringType(2, 10),
                     TypeFactory.CreateStringType(3, 10),
-                    ("BCP335", DiagnosticLevel.Warning, "The provided value may have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value can have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
 
-                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and not warn
                 Row(TypeFactory.CreateStringType(),
                     TypeFactory.CreateStringType(5, 10),
-                    TypeFactory.CreateStringType(5, 10),
-                    ("BCP334", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 5."),
-                    ("BCP335", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 10.")),
+                    TypeFactory.CreateStringType(5, 10)),
 
                 // A source type whose domain is disjoint from the domain of the target should error and not narrow
                 Row(TypeFactory.CreateStringType(minLength: 10),
@@ -356,20 +354,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateIntegerType(-1, 10),
                     TypeFactory.CreateIntegerType(0, 11),
                     TypeFactory.CreateIntegerType(0, 10),
-                    ("BCP329", DiagnosticLevel.Warning, "The provided value may be as small as -1 and may be too small to assign to a target with a configured minimum of 0.")),
+                    ("BCP329", DiagnosticLevel.Warning, "The provided value can be as small as -1 and may be too small to assign to a target with a configured minimum of 0.")),
 
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateIntegerType(0, 11),
                     TypeFactory.CreateIntegerType(-5, 10),
                     TypeFactory.CreateIntegerType(0, 10),
-                    ("BCP330", DiagnosticLevel.Warning, "The provided value may be as large as 11 and may be too large to assign to a target with a configured maximum of 10.")),
+                    ("BCP330", DiagnosticLevel.Warning, "The provided value can be as large as 11 and may be too large to assign to a target with a configured maximum of 10.")),
 
-                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and not warn
                 Row(TypeFactory.CreateIntegerType(),
                     TypeFactory.CreateIntegerType(-5, 10),
-                    TypeFactory.CreateIntegerType(-5, 10),
-                    ("BCP329", DiagnosticLevel.Warning, "The provided value has no configured minimum and may be too small to assign to a target with a configured minimum of -5."),
-                    ("BCP330", DiagnosticLevel.Warning, "The provided value has no configured maximum and may be too large to assign to a target with a configured maximum of 10.")),
+                    TypeFactory.CreateIntegerType(-5, 10)),
 
                 // A source type whose domain is disjoint from the domain of the target should error and not narrow
                 Row(TypeFactory.CreateIntegerType(minValue: 10),
@@ -560,20 +556,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Row(TypeFactory.CreateArrayType(1, 10),
                     TypeFactory.CreateArrayType(2, 11),
                     TypeFactory.CreateArrayType(2, 10),
-                    ("BCP334", DiagnosticLevel.Warning, "The provided value may have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
 
                 // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
                 Row(TypeFactory.CreateArrayType(3, 11),
                     TypeFactory.CreateArrayType(2, 10),
                     TypeFactory.CreateArrayType(3, 10),
-                    ("BCP335", DiagnosticLevel.Warning, "The provided value may have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value can have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
 
-                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and warn
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and not warn
                 Row(TypeFactory.CreateArrayType(),
                     TypeFactory.CreateArrayType(5, 10),
-                    TypeFactory.CreateArrayType(5, 10),
-                    ("BCP334", DiagnosticLevel.Warning, "The provided value has no configured minimum length and may be too short to assign to a target with a configured minimum length of 5."),
-                    ("BCP335", DiagnosticLevel.Warning, "The provided value has no configured maximum length and may be too long to assign to a target with a configured maximum length of 10.")),
+                    TypeFactory.CreateArrayType(5, 10)),
 
                 // A source type whose domain is disjoint from the domain of the target should error and not narrow
                 Row(TypeFactory.CreateArrayType(minLength: 10),
