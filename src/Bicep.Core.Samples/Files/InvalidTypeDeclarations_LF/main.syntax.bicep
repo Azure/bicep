@@ -495,7 +495,7 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[38:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
 //@[64:0066) ├─Token(NewLine) |\n\n|
 
-func invalidArgs = (validStringLiteralUnion a, string b) => string a
+func invalidArgs = (a validStringLiteralUnion, b string) string => a
 //@[00:0068) ├─FunctionDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |func|
 //@[05:0016) | ├─IdentifierSyntax
@@ -505,29 +505,29 @@ func invalidArgs = (validStringLiteralUnion a, string b) => string a
 //@[19:0056) |   ├─TypedVariableBlockSyntax
 //@[19:0020) |   | ├─Token(LeftParen) |(|
 //@[20:0045) |   | ├─TypedLocalVariableSyntax
-//@[20:0043) |   | | ├─VariableAccessSyntax
-//@[20:0043) |   | | | └─IdentifierSyntax
-//@[20:0043) |   | | |   └─Token(Identifier) |validStringLiteralUnion|
-//@[44:0045) |   | | └─IdentifierSyntax
-//@[44:0045) |   | |   └─Token(Identifier) |a|
+//@[20:0021) |   | | ├─IdentifierSyntax
+//@[20:0021) |   | | | └─Token(Identifier) |a|
+//@[22:0045) |   | | └─VariableAccessSyntax
+//@[22:0045) |   | |   └─IdentifierSyntax
+//@[22:0045) |   | |     └─Token(Identifier) |validStringLiteralUnion|
 //@[45:0046) |   | ├─Token(Comma) |,|
 //@[47:0055) |   | ├─TypedLocalVariableSyntax
-//@[47:0053) |   | | ├─VariableAccessSyntax
-//@[47:0053) |   | | | └─IdentifierSyntax
-//@[47:0053) |   | | |   └─Token(Identifier) |string|
-//@[54:0055) |   | | └─IdentifierSyntax
-//@[54:0055) |   | |   └─Token(Identifier) |b|
+//@[47:0048) |   | | ├─IdentifierSyntax
+//@[47:0048) |   | | | └─Token(Identifier) |b|
+//@[49:0055) |   | | └─VariableAccessSyntax
+//@[49:0055) |   | |   └─IdentifierSyntax
+//@[49:0055) |   | |     └─Token(Identifier) |string|
 //@[55:0056) |   | └─Token(RightParen) |)|
-//@[57:0059) |   ├─Token(Arrow) |=>|
-//@[60:0066) |   ├─VariableAccessSyntax
-//@[60:0066) |   | └─IdentifierSyntax
-//@[60:0066) |   |   └─Token(Identifier) |string|
+//@[57:0063) |   ├─VariableAccessSyntax
+//@[57:0063) |   | └─IdentifierSyntax
+//@[57:0063) |   |   └─Token(Identifier) |string|
+//@[64:0066) |   ├─Token(Arrow) |=>|
 //@[67:0068) |   └─VariableAccessSyntax
 //@[67:0068) |     └─IdentifierSyntax
 //@[67:0068) |       └─Token(Identifier) |a|
 //@[68:0070) ├─Token(NewLine) |\n\n|
 
-func invalidOutput = () => validStringLiteralUnion 'foo'
+func invalidOutput = () validStringLiteralUnion => 'foo'
 //@[00:0056) ├─FunctionDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |func|
 //@[05:0018) | ├─IdentifierSyntax
@@ -537,10 +537,10 @@ func invalidOutput = () => validStringLiteralUnion 'foo'
 //@[21:0023) |   ├─TypedVariableBlockSyntax
 //@[21:0022) |   | ├─Token(LeftParen) |(|
 //@[22:0023) |   | └─Token(RightParen) |)|
-//@[24:0026) |   ├─Token(Arrow) |=>|
-//@[27:0050) |   ├─VariableAccessSyntax
-//@[27:0050) |   | └─IdentifierSyntax
-//@[27:0050) |   |   └─Token(Identifier) |validStringLiteralUnion|
+//@[24:0047) |   ├─VariableAccessSyntax
+//@[24:0047) |   | └─IdentifierSyntax
+//@[24:0047) |   |   └─Token(Identifier) |validStringLiteralUnion|
+//@[48:0050) |   ├─Token(Arrow) |=>|
 //@[51:0056) |   └─StringSyntax
 //@[51:0056) |     └─Token(StringComplete) |'foo'|
 //@[56:0057) ├─Token(NewLine) |\n|

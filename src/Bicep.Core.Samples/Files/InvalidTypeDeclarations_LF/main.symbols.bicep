@@ -100,11 +100,11 @@ param disallowedUnionParam 'foo'|-99
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[06:37) Parameter objectWithInvalidRecursionParam. Type: { requiredAndRecursiveProp: objectWithInvalidRecursion }. Declaration start char: 0, length: 64
 
-func invalidArgs = (validStringLiteralUnion a, string b) => string a
-//@[44:45) Local a. Type: 'bar' | 'baz' | 'foo'. Declaration start char: 20, length: 25
-//@[54:55) Local b. Type: string. Declaration start char: 47, length: 8
+func invalidArgs = (a validStringLiteralUnion, b string) string => a
+//@[20:21) Local a. Type: 'bar' | 'baz' | 'foo'. Declaration start char: 20, length: 25
+//@[47:48) Local b. Type: string. Declaration start char: 47, length: 8
 //@[05:16) Function invalidArgs. Type: (('bar' | 'baz' | 'foo'), string) => ('bar' | 'baz' | 'foo'). Declaration start char: 0, length: 68
 
-func invalidOutput = () => validStringLiteralUnion 'foo'
+func invalidOutput = () validStringLiteralUnion => 'foo'
 //@[05:18) Function invalidOutput. Type: () => 'foo'. Declaration start char: 0, length: 56
 

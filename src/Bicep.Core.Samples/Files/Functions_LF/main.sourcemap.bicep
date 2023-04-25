@@ -1,4 +1,4 @@
-func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@        "buildUrl": {
 //@          "parameters": [
 //@            {
@@ -26,7 +26,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@      "value": "[__bicep.buildUrl(true(), 'google.com', 'search')]"
 //@    },
 
-func sayHello = (string name) => string 'Hi ${name}!'
+func sayHello = (name string) string => 'Hi ${name}!'
 //@        "sayHello": {
 //@          "parameters": [
 //@            {
@@ -46,7 +46,7 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@      "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
 //@    }
 
-func objReturnType = (string name) => object {
+func objReturnType = (name string) object => {
 //@        "objReturnType": {
 //@          "parameters": [
 //@            {
@@ -64,7 +64,7 @@ func objReturnType = (string name) => object {
 //@              "hello": "[format('Hi {0}!', parameters('name'))]"
 }
 
-func arrayReturnType = (string name) => array ([
+func arrayReturnType = (name string) array => [
 //@        "arrayReturnType": {
 //@          "parameters": [
 //@            {
@@ -80,5 +80,5 @@ func arrayReturnType = (string name) => array ([
 //@        }
   name
 //@              "[parameters('name')]"
-])
+]
 

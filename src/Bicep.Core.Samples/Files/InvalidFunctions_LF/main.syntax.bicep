@@ -1,4 +1,4 @@
-func useRuntimeFunction = () => string reference('foo').bar
+func useRuntimeFunction = () string => reference('foo').bar
 //@[000:816) ProgramSyntax
 //@[000:059) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
@@ -9,10 +9,10 @@ func useRuntimeFunction = () => string reference('foo').bar
 //@[026:028) |   ├─TypedVariableBlockSyntax
 //@[026:027) |   | ├─Token(LeftParen) |(|
 //@[027:028) |   | └─Token(RightParen) |)|
-//@[029:031) |   ├─Token(Arrow) |=>|
-//@[032:038) |   ├─VariableAccessSyntax
-//@[032:038) |   | └─IdentifierSyntax
-//@[032:038) |   |   └─Token(Identifier) |string|
+//@[029:035) |   ├─VariableAccessSyntax
+//@[029:035) |   | └─IdentifierSyntax
+//@[029:035) |   |   └─Token(Identifier) |string|
+//@[036:038) |   ├─Token(Arrow) |=>|
 //@[039:059) |   └─PropertyAccessSyntax
 //@[039:055) |     ├─FunctionCallSyntax
 //@[039:048) |     | ├─IdentifierSyntax
@@ -27,7 +27,7 @@ func useRuntimeFunction = () => string reference('foo').bar
 //@[056:059) |       └─Token(Identifier) |bar|
 //@[059:061) ├─Token(NewLine) |\n\n|
 
-func constFunc = () => string 'A'
+func constFunc = () string => 'A'
 //@[000:033) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:014) | ├─IdentifierSyntax
@@ -37,14 +37,14 @@ func constFunc = () => string 'A'
 //@[017:019) |   ├─TypedVariableBlockSyntax
 //@[017:018) |   | ├─Token(LeftParen) |(|
 //@[018:019) |   | └─Token(RightParen) |)|
-//@[020:022) |   ├─Token(Arrow) |=>|
-//@[023:029) |   ├─VariableAccessSyntax
-//@[023:029) |   | └─IdentifierSyntax
-//@[023:029) |   |   └─Token(Identifier) |string|
+//@[020:026) |   ├─VariableAccessSyntax
+//@[020:026) |   | └─IdentifierSyntax
+//@[020:026) |   |   └─Token(Identifier) |string|
+//@[027:029) |   ├─Token(Arrow) |=>|
 //@[030:033) |   └─StringSyntax
 //@[030:033) |     └─Token(StringComplete) |'A'|
 //@[033:034) ├─Token(NewLine) |\n|
-func funcWithOtherFuncRef = () => string constFunc()
+func funcWithOtherFuncRef = () string => constFunc()
 //@[000:052) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:025) | ├─IdentifierSyntax
@@ -54,10 +54,10 @@ func funcWithOtherFuncRef = () => string constFunc()
 //@[028:030) |   ├─TypedVariableBlockSyntax
 //@[028:029) |   | ├─Token(LeftParen) |(|
 //@[029:030) |   | └─Token(RightParen) |)|
-//@[031:033) |   ├─Token(Arrow) |=>|
-//@[034:040) |   ├─VariableAccessSyntax
-//@[034:040) |   | └─IdentifierSyntax
-//@[034:040) |   |   └─Token(Identifier) |string|
+//@[031:037) |   ├─VariableAccessSyntax
+//@[031:037) |   | └─IdentifierSyntax
+//@[031:037) |   |   └─Token(Identifier) |string|
+//@[038:040) |   ├─Token(Arrow) |=>|
 //@[041:052) |   └─FunctionCallSyntax
 //@[041:050) |     ├─IdentifierSyntax
 //@[041:050) |     | └─Token(Identifier) |constFunc|
@@ -65,7 +65,7 @@ func funcWithOtherFuncRef = () => string constFunc()
 //@[051:052) |     └─Token(RightParen) |)|
 //@[052:054) ├─Token(NewLine) |\n\n|
 
-func invalidType = (string input) => string input
+func invalidType = (input string) string => input
 //@[000:049) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:016) | ├─IdentifierSyntax
@@ -75,16 +75,16 @@ func invalidType = (string input) => string input
 //@[019:033) |   ├─TypedVariableBlockSyntax
 //@[019:020) |   | ├─Token(LeftParen) |(|
 //@[020:032) |   | ├─TypedLocalVariableSyntax
-//@[020:026) |   | | ├─VariableAccessSyntax
-//@[020:026) |   | | | └─IdentifierSyntax
-//@[020:026) |   | | |   └─Token(Identifier) |string|
-//@[027:032) |   | | └─IdentifierSyntax
-//@[027:032) |   | |   └─Token(Identifier) |input|
+//@[020:025) |   | | ├─IdentifierSyntax
+//@[020:025) |   | | | └─Token(Identifier) |input|
+//@[026:032) |   | | └─VariableAccessSyntax
+//@[026:032) |   | |   └─IdentifierSyntax
+//@[026:032) |   | |     └─Token(Identifier) |string|
 //@[032:033) |   | └─Token(RightParen) |)|
-//@[034:036) |   ├─Token(Arrow) |=>|
-//@[037:043) |   ├─VariableAccessSyntax
-//@[037:043) |   | └─IdentifierSyntax
-//@[037:043) |   |   └─Token(Identifier) |string|
+//@[034:040) |   ├─VariableAccessSyntax
+//@[034:040) |   | └─IdentifierSyntax
+//@[034:040) |   |   └─Token(Identifier) |string|
+//@[041:043) |   ├─Token(Arrow) |=>|
 //@[044:049) |   └─VariableAccessSyntax
 //@[044:049) |     └─IdentifierSyntax
 //@[044:049) |       └─Token(Identifier) |input|
@@ -109,7 +109,7 @@ output invalidType string = invalidType(true)
 //@[044:045) |   └─Token(RightParen) |)|
 //@[045:047) ├─Token(NewLine) |\n\n|
 
-func madeUpTypeArgs = (notAType a, alsoNotAType b) => string '${a}-${b}'
+func madeUpTypeArgs = (a notAType, b alsoNotAType) string => '${a}-${b}'
 //@[000:072) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:019) | ├─IdentifierSyntax
@@ -119,23 +119,23 @@ func madeUpTypeArgs = (notAType a, alsoNotAType b) => string '${a}-${b}'
 //@[022:050) |   ├─TypedVariableBlockSyntax
 //@[022:023) |   | ├─Token(LeftParen) |(|
 //@[023:033) |   | ├─TypedLocalVariableSyntax
-//@[023:031) |   | | ├─VariableAccessSyntax
-//@[023:031) |   | | | └─IdentifierSyntax
-//@[023:031) |   | | |   └─Token(Identifier) |notAType|
-//@[032:033) |   | | └─IdentifierSyntax
-//@[032:033) |   | |   └─Token(Identifier) |a|
+//@[023:024) |   | | ├─IdentifierSyntax
+//@[023:024) |   | | | └─Token(Identifier) |a|
+//@[025:033) |   | | └─VariableAccessSyntax
+//@[025:033) |   | |   └─IdentifierSyntax
+//@[025:033) |   | |     └─Token(Identifier) |notAType|
 //@[033:034) |   | ├─Token(Comma) |,|
 //@[035:049) |   | ├─TypedLocalVariableSyntax
-//@[035:047) |   | | ├─VariableAccessSyntax
-//@[035:047) |   | | | └─IdentifierSyntax
-//@[035:047) |   | | |   └─Token(Identifier) |alsoNotAType|
-//@[048:049) |   | | └─IdentifierSyntax
-//@[048:049) |   | |   └─Token(Identifier) |b|
+//@[035:036) |   | | ├─IdentifierSyntax
+//@[035:036) |   | | | └─Token(Identifier) |b|
+//@[037:049) |   | | └─VariableAccessSyntax
+//@[037:049) |   | |   └─IdentifierSyntax
+//@[037:049) |   | |     └─Token(Identifier) |alsoNotAType|
 //@[049:050) |   | └─Token(RightParen) |)|
-//@[051:053) |   ├─Token(Arrow) |=>|
-//@[054:060) |   ├─VariableAccessSyntax
-//@[054:060) |   | └─IdentifierSyntax
-//@[054:060) |   |   └─Token(Identifier) |string|
+//@[051:057) |   ├─VariableAccessSyntax
+//@[051:057) |   | └─IdentifierSyntax
+//@[051:057) |   |   └─Token(Identifier) |string|
+//@[058:060) |   ├─Token(Arrow) |=>|
 //@[061:072) |   └─StringSyntax
 //@[061:064) |     ├─Token(StringLeftPiece) |'${|
 //@[064:065) |     ├─VariableAccessSyntax
@@ -148,7 +148,7 @@ func madeUpTypeArgs = (notAType a, alsoNotAType b) => string '${a}-${b}'
 //@[070:072) |     └─Token(StringRightPiece) |}'|
 //@[072:074) ├─Token(NewLine) |\n\n|
 
-func noLambda = ('foo') => string ''
+func noLambda = ('foo') string => ''
 //@[000:036) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:013) | ├─IdentifierSyntax
@@ -158,20 +158,20 @@ func noLambda = ('foo') => string ''
 //@[016:023) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:022) |   | ├─TypedLocalVariableSyntax
-//@[017:022) |   | | ├─StringSyntax
-//@[017:022) |   | | | └─Token(StringComplete) |'foo'|
-//@[022:022) |   | | └─IdentifierSyntax
-//@[022:022) |   | |   └─SkippedTriviaSyntax
+//@[017:017) |   | | ├─IdentifierSyntax
+//@[017:017) |   | | | └─SkippedTriviaSyntax
+//@[017:022) |   | | └─StringSyntax
+//@[017:022) |   | |   └─Token(StringComplete) |'foo'|
 //@[022:023) |   | └─Token(RightParen) |)|
-//@[024:026) |   ├─Token(Arrow) |=>|
-//@[027:033) |   ├─VariableAccessSyntax
-//@[027:033) |   | └─IdentifierSyntax
-//@[027:033) |   |   └─Token(Identifier) |string|
+//@[024:030) |   ├─VariableAccessSyntax
+//@[024:030) |   | └─IdentifierSyntax
+//@[024:030) |   |   └─Token(Identifier) |string|
+//@[031:033) |   ├─Token(Arrow) |=>|
 //@[034:036) |   └─StringSyntax
 //@[034:036) |     └─Token(StringComplete) |''|
 //@[036:038) ├─Token(NewLine) |\n\n|
 
-func noLambda2 = ('foo' sdf) => string ''
+func noLambda2 = (sdf 'foo') string => ''
 //@[000:041) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:014) | ├─IdentifierSyntax
@@ -181,15 +181,15 @@ func noLambda2 = ('foo' sdf) => string ''
 //@[017:028) |   ├─TypedVariableBlockSyntax
 //@[017:018) |   | ├─Token(LeftParen) |(|
 //@[018:027) |   | ├─TypedLocalVariableSyntax
-//@[018:023) |   | | ├─StringSyntax
-//@[018:023) |   | | | └─Token(StringComplete) |'foo'|
-//@[024:027) |   | | └─IdentifierSyntax
-//@[024:027) |   | |   └─Token(Identifier) |sdf|
+//@[018:021) |   | | ├─IdentifierSyntax
+//@[018:021) |   | | | └─Token(Identifier) |sdf|
+//@[022:027) |   | | └─StringSyntax
+//@[022:027) |   | |   └─Token(StringComplete) |'foo'|
 //@[027:028) |   | └─Token(RightParen) |)|
-//@[029:031) |   ├─Token(Arrow) |=>|
-//@[032:038) |   ├─VariableAccessSyntax
-//@[032:038) |   | └─IdentifierSyntax
-//@[032:038) |   |   └─Token(Identifier) |string|
+//@[029:035) |   ├─VariableAccessSyntax
+//@[029:035) |   | └─IdentifierSyntax
+//@[029:035) |   |   └─Token(Identifier) |string|
+//@[036:038) |   ├─Token(Arrow) |=>|
 //@[039:041) |   └─StringSyntax
 //@[039:041) |     └─Token(StringComplete) |''|
 //@[041:043) ├─Token(NewLine) |\n\n|
@@ -205,7 +205,7 @@ func noLambda3 = string 'asdf'
 //@[024:030) |   └─Token(StringComplete) |'asdf'|
 //@[030:032) ├─Token(NewLine) |\n\n|
 
-func argLengthMismatch = (string a, string b, string c) => array ([a, b, c])
+func argLengthMismatch = (a string, b string, c string) array => ([a, b, c])
 //@[000:076) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:022) | ├─IdentifierSyntax
@@ -215,30 +215,30 @@ func argLengthMismatch = (string a, string b, string c) => array ([a, b, c])
 //@[025:055) |   ├─TypedVariableBlockSyntax
 //@[025:026) |   | ├─Token(LeftParen) |(|
 //@[026:034) |   | ├─TypedLocalVariableSyntax
-//@[026:032) |   | | ├─VariableAccessSyntax
-//@[026:032) |   | | | └─IdentifierSyntax
-//@[026:032) |   | | |   └─Token(Identifier) |string|
-//@[033:034) |   | | └─IdentifierSyntax
-//@[033:034) |   | |   └─Token(Identifier) |a|
+//@[026:027) |   | | ├─IdentifierSyntax
+//@[026:027) |   | | | └─Token(Identifier) |a|
+//@[028:034) |   | | └─VariableAccessSyntax
+//@[028:034) |   | |   └─IdentifierSyntax
+//@[028:034) |   | |     └─Token(Identifier) |string|
 //@[034:035) |   | ├─Token(Comma) |,|
 //@[036:044) |   | ├─TypedLocalVariableSyntax
-//@[036:042) |   | | ├─VariableAccessSyntax
-//@[036:042) |   | | | └─IdentifierSyntax
-//@[036:042) |   | | |   └─Token(Identifier) |string|
-//@[043:044) |   | | └─IdentifierSyntax
-//@[043:044) |   | |   └─Token(Identifier) |b|
+//@[036:037) |   | | ├─IdentifierSyntax
+//@[036:037) |   | | | └─Token(Identifier) |b|
+//@[038:044) |   | | └─VariableAccessSyntax
+//@[038:044) |   | |   └─IdentifierSyntax
+//@[038:044) |   | |     └─Token(Identifier) |string|
 //@[044:045) |   | ├─Token(Comma) |,|
 //@[046:054) |   | ├─TypedLocalVariableSyntax
-//@[046:052) |   | | ├─VariableAccessSyntax
-//@[046:052) |   | | | └─IdentifierSyntax
-//@[046:052) |   | | |   └─Token(Identifier) |string|
-//@[053:054) |   | | └─IdentifierSyntax
-//@[053:054) |   | |   └─Token(Identifier) |c|
+//@[046:047) |   | | ├─IdentifierSyntax
+//@[046:047) |   | | | └─Token(Identifier) |c|
+//@[048:054) |   | | └─VariableAccessSyntax
+//@[048:054) |   | |   └─IdentifierSyntax
+//@[048:054) |   | |     └─Token(Identifier) |string|
 //@[054:055) |   | └─Token(RightParen) |)|
-//@[056:058) |   ├─Token(Arrow) |=>|
-//@[059:064) |   ├─VariableAccessSyntax
-//@[059:064) |   | └─IdentifierSyntax
-//@[059:064) |   |   └─Token(Identifier) |array|
+//@[056:061) |   ├─VariableAccessSyntax
+//@[056:061) |   | └─IdentifierSyntax
+//@[056:061) |   |   └─Token(Identifier) |array|
+//@[062:064) |   ├─Token(Arrow) |=>|
 //@[065:076) |   └─ParenthesizedExpressionSyntax
 //@[065:066) |     ├─Token(LeftParen) |(|
 //@[066:075) |     ├─ArraySyntax
@@ -292,7 +292,7 @@ var asdfwdf = noLambda('asd')
 //@[028:029) |   └─Token(RightParen) |)|
 //@[029:031) ├─Token(NewLine) |\n\n|
 
-func sayHello = (string name) => string 'Hi ${name}!'
+func sayHello = (name string) string => 'Hi ${name}!'
 //@[000:053) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:013) | ├─IdentifierSyntax
@@ -302,16 +302,16 @@ func sayHello = (string name) => string 'Hi ${name}!'
 //@[016:029) |   ├─TypedVariableBlockSyntax
 //@[016:017) |   | ├─Token(LeftParen) |(|
 //@[017:028) |   | ├─TypedLocalVariableSyntax
-//@[017:023) |   | | ├─VariableAccessSyntax
-//@[017:023) |   | | | └─IdentifierSyntax
-//@[017:023) |   | | |   └─Token(Identifier) |string|
-//@[024:028) |   | | └─IdentifierSyntax
-//@[024:028) |   | |   └─Token(Identifier) |name|
+//@[017:021) |   | | ├─IdentifierSyntax
+//@[017:021) |   | | | └─Token(Identifier) |name|
+//@[022:028) |   | | └─VariableAccessSyntax
+//@[022:028) |   | |   └─IdentifierSyntax
+//@[022:028) |   | |     └─Token(Identifier) |string|
 //@[028:029) |   | └─Token(RightParen) |)|
-//@[030:032) |   ├─Token(Arrow) |=>|
-//@[033:039) |   ├─VariableAccessSyntax
-//@[033:039) |   | └─IdentifierSyntax
-//@[033:039) |   |   └─Token(Identifier) |string|
+//@[030:036) |   ├─VariableAccessSyntax
+//@[030:036) |   | └─IdentifierSyntax
+//@[030:036) |   |   └─Token(Identifier) |string|
+//@[037:039) |   ├─Token(Arrow) |=>|
 //@[040:053) |   └─StringSyntax
 //@[040:046) |     ├─Token(StringLeftPiece) |'Hi ${|
 //@[046:050) |     ├─VariableAccessSyntax
@@ -357,16 +357,22 @@ func sayHelloBadNewlines = (
 //@[005:024) | ├─IdentifierSyntax
 //@[005:024) | | └─Token(Identifier) |sayHelloBadNewlines|
 //@[025:026) | ├─Token(Assignment) |=|
-//@[027:028) | └─SkippedTriviaSyntax
-//@[027:028) |   └─Token(LeftParen) |(|
+//@[027:028) | └─TypedLambdaSyntax
+//@[027:028) |   ├─TypedVariableBlockSyntax
+//@[027:028) |   | ├─Token(LeftParen) |(|
+//@[028:028) |   | ├─SkippedTriviaSyntax
+//@[028:028) |   | └─SkippedTriviaSyntax
+//@[028:028) |   ├─SkippedTriviaSyntax
+//@[028:028) |   ├─SkippedTriviaSyntax
+//@[028:028) |   └─SkippedTriviaSyntax
 //@[028:029) ├─Token(NewLine) |\n|
-  string name) => string 'Hi ${name}!'
+  name string) string => 'Hi ${name}!'
 //@[002:038) ├─SkippedTriviaSyntax
-//@[002:008) | ├─Token(Identifier) |string|
-//@[009:013) | ├─Token(Identifier) |name|
+//@[002:006) | ├─Token(Identifier) |name|
+//@[007:013) | ├─Token(Identifier) |string|
 //@[013:014) | ├─Token(RightParen) |)|
-//@[015:017) | ├─Token(Arrow) |=>|
-//@[018:024) | ├─Token(Identifier) |string|
+//@[015:021) | ├─Token(Identifier) |string|
+//@[022:024) | ├─Token(Arrow) |=>|
 //@[025:031) | ├─Token(StringLeftPiece) |'Hi ${|
 //@[031:035) | ├─Token(Identifier) |name|
 //@[035:038) | └─Token(StringRightPiece) |}!'|

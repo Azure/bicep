@@ -1086,22 +1086,22 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase TypedLocalVariable()
         {
-            var type = Type(allowOptionalResourceType: false);
             var name = IdentifierOrSkip(b => b.ExpectedVariableIdentifier());
+            var type = Type(allowOptionalResourceType: false);
 
-            return new TypedLocalVariableSyntax(type, name);
+            return new TypedLocalVariableSyntax(name, type);
         }
 
         protected SyntaxBase TypedLambda()
         {
             var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable());
 
-            var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
             var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
 
-            return new TypedLambdaSyntax(variableBlock, arrow, type, expression);
+            return new TypedLambdaSyntax(variableBlock, type, arrow, expression);
         }
 
         private SyntaxBase PrimaryExpression(ExpressionFlags expressionFlags)

@@ -8,21 +8,19 @@ namespace Bicep.Core.Syntax;
 
 public class TypedLambdaSyntax : ExpressionSyntax
 {
-    public TypedLambdaSyntax(SyntaxBase variableSection, Token arrow, SyntaxBase type, SyntaxBase body)
+    public TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase type, SyntaxBase arrow, SyntaxBase body)
     {
-        AssertTokenType(arrow, nameof(arrow), TokenType.Arrow);
-
         this.VariableSection = variableSection;
-        this.Arrow = arrow;
         this.Type = type;
+        this.Arrow = arrow;
         this.Body = body;
     }
 
     public SyntaxBase VariableSection { get; }
 
-    public Token Arrow { get; }
-
     public SyntaxBase Type { get; }
+
+    public SyntaxBase Arrow { get; }
 
     public SyntaxBase Body { get; }
 

@@ -1,16 +1,16 @@
-func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
 output foo string = buildUrl(true, 'google.com', 'search')
 
-func sayHello = (string name) => string 'Hi ${name}!'
+func sayHello = (name string) string => 'Hi ${name}!'
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 
-func objReturnType = (string name) => object {
+func objReturnType = (name string) object => {
   hello: 'Hi ${name}!'
 }
 
-func arrayReturnType = (string name) => array ([
+func arrayReturnType = (name string) array => [
   name
-])
+]
 

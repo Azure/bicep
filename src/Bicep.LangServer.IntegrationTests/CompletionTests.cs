@@ -2271,7 +2271,7 @@ var foo = sort([123], (foo, bar) => |)
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var outerVar = 'asdf'
 
-func foo = (string innerVar) => '${|}'
+func foo = (innerVar string) string => '${|}'
 ");
 
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
@@ -2281,7 +2281,7 @@ func foo = (string innerVar) => '${|}'
             updatedFile.Should().HaveSourceText(@"
 var outerVar = 'asdf'
 
-func foo = (string innerVar) => '${innerVar|}'
+func foo = (innerVar string) string => '${innerVar|}'
 ");
         }
 

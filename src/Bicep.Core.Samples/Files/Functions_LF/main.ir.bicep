@@ -1,5 +1,5 @@
-func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:464) ProgramExpression
+func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+//@[000:462) ProgramExpression
 //@[000:144) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[016:144) | └─LambdaExpression
 //@[069:144) |   └─InterpolatedStringExpression
@@ -22,7 +22,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[035:047) |   ├─StringLiteralExpression { Value = google.com }
 //@[049:057) |   └─StringLiteralExpression { Value = search }
 
-func sayHello = (string name) => string 'Hi ${name}!'
+func sayHello = (name string) string => 'Hi ${name}!'
 //@[000:053) ├─DeclaredFunctionExpression { Name = sayHello }
 //@[016:053) | └─LambdaExpression
 //@[040:053) |   └─InterpolatedStringExpression
@@ -38,7 +38,7 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[054:068)       └─UserDefinedFunctionCallExpression { Name = sayHello }
 //@[063:067)         └─LambdaVariableReferenceExpression { Variable = name }
 
-func objReturnType = (string name) => object {
+func objReturnType = (name string) object => {
 //@[000:071) ├─DeclaredFunctionExpression { Name = objReturnType }
 //@[021:071) | └─LambdaExpression
 //@[045:071) |   └─ObjectExpression
@@ -49,11 +49,11 @@ func objReturnType = (string name) => object {
 //@[015:019) |         └─LambdaVariableReferenceExpression { Variable = name }
 }
 
-func arrayReturnType = (string name) => array ([
-//@[000:058) ├─DeclaredFunctionExpression { Name = arrayReturnType }
-//@[023:058) | └─LambdaExpression
-//@[047:057) |   └─ArrayExpression
+func arrayReturnType = (name string) array => [
+//@[000:056) ├─DeclaredFunctionExpression { Name = arrayReturnType }
+//@[023:056) | └─LambdaExpression
+//@[046:056) |   └─ArrayExpression
   name
 //@[002:006) |     └─LambdaVariableReferenceExpression { Variable = name }
-])
+]
 

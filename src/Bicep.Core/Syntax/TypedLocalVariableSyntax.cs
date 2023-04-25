@@ -8,17 +8,17 @@ namespace Bicep.Core.Syntax;
 
 public class TypedLocalVariableSyntax : SyntaxBase, INamedDeclarationSyntax
 {
-    public TypedLocalVariableSyntax(SyntaxBase type, IdentifierSyntax name)
+    public TypedLocalVariableSyntax(IdentifierSyntax name, SyntaxBase type)
     {
-        this.Type = type;
         this.Name = name;
+        this.Type = type;
     }
-
-    public SyntaxBase Type { get; }
 
     public IdentifierSyntax Name { get; }
 
+    public SyntaxBase Type { get; }
+
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTypedLocalVariableSyntax(this);
 
-    public override TextSpan Span => TextSpan.Between(this.Type, this.Name);
+    public override TextSpan Span => TextSpan.Between(this.Name, this.Type);
 }

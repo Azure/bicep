@@ -524,14 +524,14 @@ namespace Bicep.Core.Emit
                 foreach (var localVariable in lambda.GetLocalVariables())
                 {
                     var argTypeSymbol = model.GetSymbolInfo(localVariable.Type);
-                    if (argTypeSymbol is not AmbientTypeSymbol)
+                    if (argTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
                     {
                         diagnostics.Write(localVariable, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
                     }
                 }
 
                 var outputTypeSymbol = model.GetSymbolInfo(lambda.Type);
-                if (outputTypeSymbol is not AmbientTypeSymbol)
+                if (outputTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
                 {
                     diagnostics.Write(lambda.Type, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
                 }

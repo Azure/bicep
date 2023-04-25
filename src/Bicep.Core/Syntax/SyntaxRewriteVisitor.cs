@@ -966,29 +966,29 @@ namespace Bicep.Core.Syntax
 
         protected virtual SyntaxBase ReplaceTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
         {
-            var hasChanges = TryRewriteStrict(syntax.Type, out var type);
-            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            var hasChanges = TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewriteStrict(syntax.Type, out var type);
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new TypedLocalVariableSyntax(type, name);
+            return new TypedLocalVariableSyntax(name, type);
         }
         void ISyntaxVisitor.VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLocalVariableSyntax);
 
         protected virtual SyntaxBase ReplaceTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
-            hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
             hasChanges |= TryRewrite(syntax.Type, out var type);
+            hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
             hasChanges |= TryRewrite(syntax.Body, out var body);
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new TypedLambdaSyntax(variableSection, arrow, type, body);
+            return new TypedLambdaSyntax(variableSection, type, arrow, body);
         }
         void ISyntaxVisitor.VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLambdaSyntax);
 

@@ -440,15 +440,15 @@ namespace Bicep.Core.Syntax
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
         {
-            this.Visit(syntax.Type);
             this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
         }
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             this.Visit(syntax.VariableSection);
-            this.Visit(syntax.Arrow);
             this.Visit(syntax.Type);
+            this.Visit(syntax.Arrow);
             this.Visit(syntax.Body);
         }
 

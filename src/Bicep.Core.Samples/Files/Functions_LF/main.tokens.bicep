@@ -1,19 +1,19 @@
-func buildUrl = (bool https, string hostname, string path) => string '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@[000:004) Identifier |func|
 //@[005:013) Identifier |buildUrl|
 //@[014:015) Assignment |=|
 //@[016:017) LeftParen |(|
-//@[017:021) Identifier |bool|
-//@[022:027) Identifier |https|
+//@[017:022) Identifier |https|
+//@[023:027) Identifier |bool|
 //@[027:028) Comma |,|
-//@[029:035) Identifier |string|
-//@[036:044) Identifier |hostname|
+//@[029:037) Identifier |hostname|
+//@[038:044) Identifier |string|
 //@[044:045) Comma |,|
-//@[046:052) Identifier |string|
-//@[053:057) Identifier |path|
+//@[046:050) Identifier |path|
+//@[051:057) Identifier |string|
 //@[057:058) RightParen |)|
-//@[059:061) Arrow |=>|
-//@[062:068) Identifier |string|
+//@[059:065) Identifier |string|
+//@[066:068) Arrow |=>|
 //@[069:072) StringLeftPiece |'${|
 //@[072:077) Identifier |https|
 //@[078:079) Question |?|
@@ -51,16 +51,16 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[057:058) RightParen |)|
 //@[058:060) NewLine |\n\n|
 
-func sayHello = (string name) => string 'Hi ${name}!'
+func sayHello = (name string) string => 'Hi ${name}!'
 //@[000:004) Identifier |func|
 //@[005:013) Identifier |sayHello|
 //@[014:015) Assignment |=|
 //@[016:017) LeftParen |(|
-//@[017:023) Identifier |string|
-//@[024:028) Identifier |name|
+//@[017:021) Identifier |name|
+//@[022:028) Identifier |string|
 //@[028:029) RightParen |)|
-//@[030:032) Arrow |=>|
-//@[033:039) Identifier |string|
+//@[030:036) Identifier |string|
+//@[037:039) Arrow |=>|
 //@[040:046) StringLeftPiece |'Hi ${|
 //@[046:050) Identifier |name|
 //@[050:053) StringRightPiece |}!'|
@@ -88,16 +88,16 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[068:069) RightParen |)|
 //@[069:071) NewLine |\n\n|
 
-func objReturnType = (string name) => object {
+func objReturnType = (name string) object => {
 //@[000:004) Identifier |func|
 //@[005:018) Identifier |objReturnType|
 //@[019:020) Assignment |=|
 //@[021:022) LeftParen |(|
-//@[022:028) Identifier |string|
-//@[029:033) Identifier |name|
+//@[022:026) Identifier |name|
+//@[027:033) Identifier |string|
 //@[033:034) RightParen |)|
-//@[035:037) Arrow |=>|
-//@[038:044) Identifier |object|
+//@[035:041) Identifier |object|
+//@[042:044) Arrow |=>|
 //@[045:046) LeftBrace |{|
 //@[046:047) NewLine |\n|
   hello: 'Hi ${name}!'
@@ -111,25 +111,23 @@ func objReturnType = (string name) => object {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-func arrayReturnType = (string name) => array ([
+func arrayReturnType = (name string) array => [
 //@[000:004) Identifier |func|
 //@[005:020) Identifier |arrayReturnType|
 //@[021:022) Assignment |=|
 //@[023:024) LeftParen |(|
-//@[024:030) Identifier |string|
-//@[031:035) Identifier |name|
+//@[024:028) Identifier |name|
+//@[029:035) Identifier |string|
 //@[035:036) RightParen |)|
-//@[037:039) Arrow |=>|
-//@[040:045) Identifier |array|
-//@[046:047) LeftParen |(|
-//@[047:048) LeftSquare |[|
-//@[048:049) NewLine |\n|
+//@[037:042) Identifier |array|
+//@[043:045) Arrow |=>|
+//@[046:047) LeftSquare |[|
+//@[047:048) NewLine |\n|
   name
 //@[002:006) Identifier |name|
 //@[006:007) NewLine |\n|
-])
+]
 //@[000:001) RightSquare |]|
-//@[001:002) RightParen |)|
-//@[002:003) NewLine |\n|
+//@[001:002) NewLine |\n|
 
 //@[000:000) EndOfFile ||
