@@ -12,6 +12,7 @@ statement ->
   resourceDecl |
   moduleDecl |
   outputDecl |
+  functionDecl |
   NL
 
 targetScopeDecl -> "targetScope" "=" expression
@@ -41,6 +42,8 @@ outputDecl ->
   decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
   decorator* "output" IDENTIFIER(name) "resource" interpString(type) "=" expression NL
 NL -> ("\n" | "\r")+
+
+functionDecl -> decorator* "func" IDENTIFIER(name) "=" typedLambdaExpression NL
 
 decorator -> "@" decoratorExpression NL
 
@@ -106,13 +109,18 @@ primaryExpression ->
 
 decoratorExpression -> functionCall | memberExpression "." functionCall
 
-functionCall -> IDENTIFIER "(" argumentList? ")"
-
 argumentList -> expression ("," expression)*
+functionCall -> IDENTIFIER "(" argumentList? ")"
 
 parenthesizedExpression -> "(" expression ")"
 
-lambdaExpression -> ( "(" argumentList? ")" | IDENTIFIER ) "=>" expression
+localVariable -> IDENTIFIER
+variableBlock -> "(" ( localVariable ("," localVariable)* )? ")"
+lambdaExpression -> ( variableBlock | localVariable ) "=>" expression
+
+typedLocalVariable -> IDENTIFIER primaryTypeExpression
+typedVariableBlock -> "(" ( typedLocalVariable ("," typedLocalVariable)* )? ")"
+typedLambdaExpression -> typedVariableBlock primaryTypeExpression "=>" expression
 
 ifCondition -> "if" parenthesizedExpression object
 
