@@ -1,4 +1,4 @@
-func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@        "buildUrl": {
 //@          "parameters": [
 //@            {
@@ -26,7 +26,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@      "value": "[__bicep.buildUrl(true(), 'google.com', 'search')]"
 //@    },
 
-func sayHello = (name string) string => 'Hi ${name}!'
+func sayHello(name string) string => 'Hi ${name}!'
 //@        "sayHello": {
 //@          "parameters": [
 //@            {
@@ -46,7 +46,7 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@      "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
 //@    }
 
-func objReturnType = (name string) object => {
+func objReturnType(name string) object => {
 //@        "objReturnType": {
 //@          "parameters": [
 //@            {
@@ -64,7 +64,7 @@ func objReturnType = (name string) object => {
 //@              "hello": "[format('Hi {0}!', parameters('name'))]"
 }
 
-func arrayReturnType = (name string) array => [
+func arrayReturnType(name string) array => [
 //@        "arrayReturnType": {
 //@          "parameters": [
 //@            {
@@ -77,7 +77,27 @@ func arrayReturnType = (name string) array => [
 //@            "value": [
 //@            ]
 //@          }
+//@        },
+  name
+//@              "[parameters('name')]"
+]
+
+func asdf(name string) array => [
+//@        "asdf": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "name"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "array",
+//@            "value": [
+//@            ]
+//@          }
 //@        }
+  'asdf'
+//@              "asdf",
   name
 //@              "[parameters('name')]"
 ]

@@ -9,25 +9,20 @@ namespace Bicep.Core.Syntax;
 
 public class FunctionDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
 {
-    public FunctionDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase lambda)
+    public FunctionDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase lambda)
         : base(leadingNodes)
     {
         AssertKeyword(keyword, nameof(keyword), LanguageConstants.FunctionKeyword);
         AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
-        AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
-        AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
         this.Keyword = keyword;
         this.Name = name;
-        this.Assignment = assignment;
         this.Lambda = lambda;
     }
 
     public Token Keyword { get; }
 
     public IdentifierSyntax Name { get; }
-
-    public SyntaxBase Assignment { get; }
 
     public SyntaxBase Lambda { get; }
 

@@ -1,78 +1,72 @@
-func useRuntimeFunction = () string => reference('foo').bar
+func useRuntimeFunction() string => reference('foo').bar
 //@[000:004) Identifier |func|
 //@[005:023) Identifier |useRuntimeFunction|
-//@[024:025) Assignment |=|
-//@[026:027) LeftParen |(|
-//@[027:028) RightParen |)|
-//@[029:035) Identifier |string|
-//@[036:038) Arrow |=>|
-//@[039:048) Identifier |reference|
-//@[048:049) LeftParen |(|
-//@[049:054) StringComplete |'foo'|
-//@[054:055) RightParen |)|
-//@[055:056) Dot |.|
-//@[056:059) Identifier |bar|
-//@[059:061) NewLine |\n\n|
+//@[023:024) LeftParen |(|
+//@[024:025) RightParen |)|
+//@[026:032) Identifier |string|
+//@[033:035) Arrow |=>|
+//@[036:045) Identifier |reference|
+//@[045:046) LeftParen |(|
+//@[046:051) StringComplete |'foo'|
+//@[051:052) RightParen |)|
+//@[052:053) Dot |.|
+//@[053:056) Identifier |bar|
+//@[056:058) NewLine |\n\n|
 
-func constFunc = () string => 'A'
+func constFunc() string => 'A'
 //@[000:004) Identifier |func|
 //@[005:014) Identifier |constFunc|
-//@[015:016) Assignment |=|
-//@[017:018) LeftParen |(|
-//@[018:019) RightParen |)|
-//@[020:026) Identifier |string|
-//@[027:029) Arrow |=>|
-//@[030:033) StringComplete |'A'|
-//@[033:034) NewLine |\n|
-func funcWithOtherFuncRef = () string => constFunc()
+//@[014:015) LeftParen |(|
+//@[015:016) RightParen |)|
+//@[017:023) Identifier |string|
+//@[024:026) Arrow |=>|
+//@[027:030) StringComplete |'A'|
+//@[030:031) NewLine |\n|
+func funcWithOtherFuncRef() string => constFunc()
 //@[000:004) Identifier |func|
 //@[005:025) Identifier |funcWithOtherFuncRef|
-//@[026:027) Assignment |=|
-//@[028:029) LeftParen |(|
-//@[029:030) RightParen |)|
-//@[031:037) Identifier |string|
-//@[038:040) Arrow |=>|
-//@[041:050) Identifier |constFunc|
-//@[050:051) LeftParen |(|
-//@[051:052) RightParen |)|
-//@[052:054) NewLine |\n\n|
+//@[025:026) LeftParen |(|
+//@[026:027) RightParen |)|
+//@[028:034) Identifier |string|
+//@[035:037) Arrow |=>|
+//@[038:047) Identifier |constFunc|
+//@[047:048) LeftParen |(|
+//@[048:049) RightParen |)|
+//@[049:051) NewLine |\n\n|
 
-func missingArgType = (input) string => input
+func missingArgType(input) string => input
 //@[000:004) Identifier |func|
 //@[005:019) Identifier |missingArgType|
-//@[020:021) Assignment |=|
+//@[019:020) LeftParen |(|
+//@[020:025) Identifier |input|
+//@[025:026) RightParen |)|
+//@[027:033) Identifier |string|
+//@[034:036) Arrow |=>|
+//@[037:042) Identifier |input|
+//@[042:044) NewLine |\n\n|
+
+func missingOutputType(input string) => input
+//@[000:004) Identifier |func|
+//@[005:022) Identifier |missingOutputType|
 //@[022:023) LeftParen |(|
 //@[023:028) Identifier |input|
-//@[028:029) RightParen |)|
-//@[030:036) Identifier |string|
+//@[029:035) Identifier |string|
+//@[035:036) RightParen |)|
 //@[037:039) Arrow |=>|
 //@[040:045) Identifier |input|
 //@[045:047) NewLine |\n\n|
 
-func missingOutputType = (input string) => input
-//@[000:004) Identifier |func|
-//@[005:022) Identifier |missingOutputType|
-//@[023:024) Assignment |=|
-//@[025:026) LeftParen |(|
-//@[026:031) Identifier |input|
-//@[032:038) Identifier |string|
-//@[038:039) RightParen |)|
-//@[040:042) Arrow |=>|
-//@[043:048) Identifier |input|
-//@[048:050) NewLine |\n\n|
-
-func invalidType = (input string) string => input
+func invalidType(input string) string => input
 //@[000:004) Identifier |func|
 //@[005:016) Identifier |invalidType|
-//@[017:018) Assignment |=|
-//@[019:020) LeftParen |(|
-//@[020:025) Identifier |input|
-//@[026:032) Identifier |string|
-//@[032:033) RightParen |)|
-//@[034:040) Identifier |string|
-//@[041:043) Arrow |=>|
-//@[044:049) Identifier |input|
-//@[049:051) NewLine |\n\n|
+//@[016:017) LeftParen |(|
+//@[017:022) Identifier |input|
+//@[023:029) Identifier |string|
+//@[029:030) RightParen |)|
+//@[031:037) Identifier |string|
+//@[038:040) Arrow |=>|
+//@[041:046) Identifier |input|
+//@[046:048) NewLine |\n\n|
 
 output invalidType string = invalidType(true)
 //@[000:006) Identifier |output|
@@ -85,37 +79,35 @@ output invalidType string = invalidType(true)
 //@[044:045) RightParen |)|
 //@[045:047) NewLine |\n\n|
 
-func madeUpTypeArgs = (a notAType, b alsoNotAType) string => '${a}-${b}'
+func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
 //@[000:004) Identifier |func|
 //@[005:019) Identifier |madeUpTypeArgs|
-//@[020:021) Assignment |=|
-//@[022:023) LeftParen |(|
-//@[023:024) Identifier |a|
-//@[025:033) Identifier |notAType|
-//@[033:034) Comma |,|
-//@[035:036) Identifier |b|
-//@[037:049) Identifier |alsoNotAType|
-//@[049:050) RightParen |)|
-//@[051:057) Identifier |string|
-//@[058:060) Arrow |=>|
-//@[061:064) StringLeftPiece |'${|
-//@[064:065) Identifier |a|
-//@[065:069) StringMiddlePiece |}-${|
-//@[069:070) Identifier |b|
-//@[070:072) StringRightPiece |}'|
-//@[072:074) NewLine |\n\n|
+//@[019:020) LeftParen |(|
+//@[020:021) Identifier |a|
+//@[022:030) Identifier |notAType|
+//@[030:031) Comma |,|
+//@[032:033) Identifier |b|
+//@[034:046) Identifier |alsoNotAType|
+//@[046:047) RightParen |)|
+//@[048:054) Identifier |string|
+//@[055:057) Arrow |=>|
+//@[058:061) StringLeftPiece |'${|
+//@[061:062) Identifier |a|
+//@[062:066) StringMiddlePiece |}-${|
+//@[066:067) Identifier |b|
+//@[067:069) StringRightPiece |}'|
+//@[069:071) NewLine |\n\n|
 
-func noLambda = ('foo') string => ''
+func noLambda('foo') string => ''
 //@[000:004) Identifier |func|
 //@[005:013) Identifier |noLambda|
-//@[014:015) Assignment |=|
-//@[016:017) LeftParen |(|
-//@[017:022) StringComplete |'foo'|
-//@[022:023) RightParen |)|
-//@[024:030) Identifier |string|
-//@[031:033) Arrow |=>|
-//@[034:036) StringComplete |''|
-//@[036:038) NewLine |\n\n|
+//@[013:014) LeftParen |(|
+//@[014:019) StringComplete |'foo'|
+//@[019:020) RightParen |)|
+//@[021:027) Identifier |string|
+//@[028:030) Arrow |=>|
+//@[031:033) StringComplete |''|
+//@[033:035) NewLine |\n\n|
 
 func noLambda2 = (sdf 'foo') string => ''
 //@[000:004) Identifier |func|
@@ -138,32 +130,31 @@ func noLambda3 = string 'asdf'
 //@[024:030) StringComplete |'asdf'|
 //@[030:032) NewLine |\n\n|
 
-func argLengthMismatch = (a string, b string, c string) array => ([a, b, c])
+func argLengthMismatch(a string, b string, c string) array => ([a, b, c])
 //@[000:004) Identifier |func|
 //@[005:022) Identifier |argLengthMismatch|
-//@[023:024) Assignment |=|
-//@[025:026) LeftParen |(|
-//@[026:027) Identifier |a|
-//@[028:034) Identifier |string|
-//@[034:035) Comma |,|
-//@[036:037) Identifier |b|
-//@[038:044) Identifier |string|
-//@[044:045) Comma |,|
-//@[046:047) Identifier |c|
-//@[048:054) Identifier |string|
-//@[054:055) RightParen |)|
-//@[056:061) Identifier |array|
-//@[062:064) Arrow |=>|
-//@[065:066) LeftParen |(|
-//@[066:067) LeftSquare |[|
-//@[067:068) Identifier |a|
+//@[022:023) LeftParen |(|
+//@[023:024) Identifier |a|
+//@[025:031) Identifier |string|
+//@[031:032) Comma |,|
+//@[033:034) Identifier |b|
+//@[035:041) Identifier |string|
+//@[041:042) Comma |,|
+//@[043:044) Identifier |c|
+//@[045:051) Identifier |string|
+//@[051:052) RightParen |)|
+//@[053:058) Identifier |array|
+//@[059:061) Arrow |=>|
+//@[062:063) LeftParen |(|
+//@[063:064) LeftSquare |[|
+//@[064:065) Identifier |a|
+//@[065:066) Comma |,|
+//@[067:068) Identifier |b|
 //@[068:069) Comma |,|
-//@[070:071) Identifier |b|
-//@[071:072) Comma |,|
-//@[073:074) Identifier |c|
-//@[074:075) RightSquare |]|
-//@[075:076) RightParen |)|
-//@[076:077) NewLine |\n|
+//@[070:071) Identifier |c|
+//@[071:072) RightSquare |]|
+//@[072:073) RightParen |)|
+//@[073:074) NewLine |\n|
 var sdf = argLengthMismatch('asdf')
 //@[000:003) Identifier |var|
 //@[004:007) Identifier |sdf|
@@ -184,20 +175,19 @@ var asdfwdf = noLambda('asd')
 //@[028:029) RightParen |)|
 //@[029:031) NewLine |\n\n|
 
-func sayHello = (name string) string => 'Hi ${name}!'
+func sayHello(name string) string => 'Hi ${name}!'
 //@[000:004) Identifier |func|
 //@[005:013) Identifier |sayHello|
-//@[014:015) Assignment |=|
-//@[016:017) LeftParen |(|
-//@[017:021) Identifier |name|
-//@[022:028) Identifier |string|
-//@[028:029) RightParen |)|
-//@[030:036) Identifier |string|
-//@[037:039) Arrow |=>|
-//@[040:046) StringLeftPiece |'Hi ${|
-//@[046:050) Identifier |name|
-//@[050:053) StringRightPiece |}!'|
-//@[053:054) NewLine |\n|
+//@[013:014) LeftParen |(|
+//@[014:018) Identifier |name|
+//@[019:025) Identifier |string|
+//@[025:026) RightParen |)|
+//@[027:033) Identifier |string|
+//@[034:036) Arrow |=>|
+//@[037:043) StringLeftPiece |'Hi ${|
+//@[043:047) Identifier |name|
+//@[047:050) StringRightPiece |}!'|
+//@[050:051) NewLine |\n|
 output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not supported currently, but should it be?
 //@[000:006) Identifier |output|
 //@[007:013) Identifier |hellos|
@@ -215,12 +205,11 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[054:055) RightParen |)|
 //@[113:115) NewLine |\n\n|
 
-func sayHelloBadNewlines = (
+func sayHelloBadNewlines(
 //@[000:004) Identifier |func|
 //@[005:024) Identifier |sayHelloBadNewlines|
-//@[025:026) Assignment |=|
-//@[027:028) LeftParen |(|
-//@[028:029) NewLine |\n|
+//@[024:025) LeftParen |(|
+//@[025:026) NewLine |\n|
   name string) string => 'Hi ${name}!'
 //@[002:006) Identifier |name|
 //@[007:013) Identifier |string|

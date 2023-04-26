@@ -330,7 +330,7 @@ param myStr string
 @description('this is a bool value')
 param myBool bool
 
-param myArray array 
+param myArray array
 
 @description('this is a variable')
 var myVar = 'foobar'
@@ -2271,7 +2271,7 @@ var foo = sort([123], (foo, bar) => |)
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 var outerVar = 'asdf'
 
-func foo = (innerVar string) string => '${|}'
+func foo(innerVar string) string => '${|}'
 """);
 
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
@@ -2281,7 +2281,7 @@ func foo = (innerVar string) string => '${|}'
             updatedFile.Should().HaveSourceText("""
 var outerVar = 'asdf'
 
-func foo = (innerVar string) string => '${innerVar|}'
+func foo(innerVar string) string => '${innerVar|}'
 """);
         }
 
@@ -2297,33 +2297,17 @@ f|
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "func", "foo", "string");
             updatedFile.Should().HaveSourceText(@"
-func foo = () string => |
-");
-        }
-
-        [TestMethod]
-        public async Task Func_declaration_equals_completion_provides_snippet()
-        {
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
-func foo = |
-");
-
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
-
-            var completions = await file.RequestCompletion(cursor);
-            var updatedFile = file.ApplyCompletion(completions, "Typed lambda", "string");
-            updatedFile.Should().HaveSourceText(@"
-func foo = () string => |
+func foo() string => |
 ");
         }
 
         [DataTestMethod]
-        [DataRow("func foo = () | => 'blah'", "func foo = () string| => 'blah'")]
-        [DataRow("func foo = () a| => 'blah'", "func foo = () string| => 'blah'")]
-        [DataRow("func foo = () |a => 'blah'", "func foo = () string| => 'blah'")]
-        [DataRow("func foo = () |", "func foo = () string|")]
-        [DataRow("func foo = () a|", "func foo = () string|")]
-        [DataRow("func foo = () |a", "func foo = () string|")]
+        [DataRow("func foo() | => 'blah'", "func foo() string| => 'blah'")]
+        [DataRow("func foo() a| => 'blah'", "func foo() string| => 'blah'")]
+        [DataRow("func foo() |a => 'blah'", "func foo() string| => 'blah'")]
+        [DataRow("func foo() |", "func foo() string|")]
+        [DataRow("func foo() a|", "func foo() string|")]
+        [DataRow("func foo() |a", "func foo() string|")]
         public async Task Func_lambda_output_type_completions_only_suggest_types(string before, string after)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor($"""
@@ -2340,9 +2324,9 @@ func foo = () string => |
         }
 
         [DataTestMethod]
-        [DataRow("func foo = (bar |) string => 'blah'", "func foo = (bar string|) string => 'blah'")]
-        [DataRow("func foo = (bar a|) string => 'blah'", "func foo = (bar string|) string => 'blah'")]
-        [DataRow("func foo = (bar |a) string => 'blah'", "func foo = (bar string|) string => 'blah'")]
+        [DataRow("func foo(bar |) string => 'blah'", "func foo(bar string|) string => 'blah'")]
+        [DataRow("func foo(bar a|) string => 'blah'", "func foo(bar string|) string => 'blah'")]
+        [DataRow("func foo(bar |a) string => 'blah'", "func foo(bar string|) string => 'blah'")]
         public async Task Func_lambda_argument_type_completions_only_suggest_types(string before, string after)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor($"""
@@ -2359,10 +2343,10 @@ func foo = () string => |
         }
 
         [DataTestMethod]
-        [DataRow("func foo = (|) string => 'blah'")]
-        [DataRow("func foo = ( | ) string => 'blah'")]
-        [DataRow("func foo = (a|) string => 'blah'")]
-        [DataRow("func foo = (|a) string => 'blah'")]
+        [DataRow("func foo(|) string => 'blah'")]
+        [DataRow("func foo( | ) string => 'blah'")]
+        [DataRow("func foo(a|) string => 'blah'")]
+        [DataRow("func foo(|a) string => 'blah'")]
         public async Task Func_lambda_argument_name_offers_no_completions(string before)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor($"""
@@ -2380,7 +2364,7 @@ func foo = () string => |
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 @description('Checks whether the input is true in a roundabout way')
-func isTrue = (input bool) bool => !(input == false)
+func isTrue(input bool) bool => !(input == false)
 
 var test = is|
 """);
@@ -2392,7 +2376,7 @@ var test = is|
             var updatedFile = file.ApplyCompletion(completions, "isTrue");
             updatedFile.Should().HaveSourceText($"""
 @description('Checks whether the input is true in a roundabout way')
-func isTrue = (input bool) bool => !(input == false)
+func isTrue(input bool) bool => !(input == false)
 
 var test = isTrue(|)
 """);
@@ -3512,7 +3496,7 @@ var file = " + functionName + @"(templ|)
                     x => x.Label.Should().Be("template3.jsonc"),
                     x => x.Label.Should().Be("template4.json"),
                     x => x.Label.Should().Be("template5.json")
-                    
+
                 );
             }
             else

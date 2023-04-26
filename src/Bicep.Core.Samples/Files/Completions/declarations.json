@@ -5,7 +5,7 @@
     "detail": "Function declaration",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nfunc name = () outputType => \n```"
+      "value": "```bicep\nfunc name() outputType => \n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -14,7 +14,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "func ${1:name} = () ${2:outputType} => $0"
+      "newText": "func ${1:name}() ${2:outputType} => $0"
     }
   },
   {

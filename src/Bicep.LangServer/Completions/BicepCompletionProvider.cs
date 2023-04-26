@@ -88,7 +88,6 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
-                .Concat(GetFunctionDeclarationEqualsFollowerCompletions(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
@@ -178,7 +177,7 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateContextualSnippetCompletion(
                             LanguageConstants.FunctionKeyword,
                             "Function declaration",
-                            "func ${1:name} = () ${2:outputType} => $0",
+                            "func ${1:name}() ${2:outputType} => $0",
                             context.ReplacementRange);
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
@@ -1435,18 +1434,6 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> GetFunctionDeclarationEqualsFollowerCompletions(SemanticModel model, BicepCompletionContext context)
-        {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.FunctionDeclarationEqualsFollower))
-            {
-                yield return CreateContextualSnippetCompletion(
-                    "Typed lambda",
-                    "() outputType => body",
-                    "() ${1:outputType} => $0",
-                    context.ReplacementRange);
-            }
-        }
-
         private IEnumerable<IDiagnostic> GetDiagnosticCodes(Range range, SemanticModel model)
         {
             var lineStarts = model.SourceFile.LineStarts;
@@ -1928,13 +1915,13 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private static string? TryGetSymbolDocumentationMarkdown(Symbol symbol, SemanticModel model)
-        {   
+        {
             if(symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
                 var documentation = SemanticModelHelper.TryGetDescription(model, decorableSyntax);
                 if(declaredSymbol is ParameterSymbol)
                 {
-                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}"); 
+                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}");
                 }
                 return documentation;
             }

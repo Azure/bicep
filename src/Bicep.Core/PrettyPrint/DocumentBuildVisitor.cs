@@ -135,10 +135,17 @@ namespace Bicep.Core.PrettyPrint
             {
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Keyword);
-                this.documentStack.Push(Nil);
                 this.Visit(syntax.Name);
-                this.Visit(syntax.Assignment);
                 this.Visit(syntax.Lambda);
+            }, children => {
+                var leadingNodes = children[0..^3];
+                var keyword = children[^3];
+                var name = children[^2];
+                var lambda = children[^1];
+
+                return Spread(
+                    Concat(leadingNodes.Concat(keyword)),
+                    Concat(name, lambda));
             });
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
@@ -657,7 +664,7 @@ namespace Bicep.Core.PrettyPrint
 
         private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
 
-        private void BuildStatement(SyntaxBase syntax, Action visitAction)
+        private void BuildStatement(SyntaxBase syntax, Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
         {
             if (this.HasSyntaxError(syntax))
             {
@@ -669,7 +676,11 @@ namespace Bicep.Core.PrettyPrint
                 return;
             }
 
-            this.Build(visitAction, children =>
+            this.Build(visitAction, buildFunc);
+        }
+
+        private void BuildStatement(SyntaxBase syntax, Action visitAction)
+            => BuildStatement(syntax, visitAction, children =>
             {
                 var splitIndex = Array.IndexOf(children, Nil);
 
@@ -679,7 +690,6 @@ namespace Bicep.Core.PrettyPrint
 
                 return Spread(head.AsEnumerable().Concat(tail));
             });
-        }
 
         private void Build(Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
         {

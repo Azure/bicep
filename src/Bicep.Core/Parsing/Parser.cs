@@ -163,10 +163,9 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.FunctionKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var lambda = this.WithRecovery(() => this.TypedLambda(), GetSuppressionFlag(assignment), TokenType.NewLine);
+            var lambda = this.WithRecovery(() => this.TypedLambda(), GetSuppressionFlag(name), TokenType.NewLine);
 
-            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, assignment, lambda);
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
         }
 
         private SyntaxBase OutputDeclaration(IEnumerable<SyntaxBase> leadingNodes)

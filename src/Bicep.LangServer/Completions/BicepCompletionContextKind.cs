@@ -215,10 +215,5 @@ namespace Bicep.LanguageServer.Completions
         /// Cursor is on a typed lambda output type.
         /// </summary>
         TypedLambdaOutputType = 1UL << 39,
-
-        /// <summary>
-        /// Cursor is immediately after a '=' in a func statement.
-        /// </summary>
-        FunctionDeclarationEqualsFollower = 1UL << 40
     }
 }

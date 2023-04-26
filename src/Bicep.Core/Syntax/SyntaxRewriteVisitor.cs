@@ -997,7 +997,6 @@ namespace Bicep.Core.Syntax
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
-            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
             hasChanges |= TryRewrite(syntax.Lambda, out var lambda);
 
             if (!hasChanges)
@@ -1005,7 +1004,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, assignment, lambda);
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
         }
         void ISyntaxVisitor.VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionDeclarationSyntax);
     }

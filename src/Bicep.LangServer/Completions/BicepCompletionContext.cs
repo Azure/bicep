@@ -197,8 +197,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsObjectTypePropertyValueContext(matchingNodes, offset), BicepCompletionContextKind.ObjectTypePropertyValue) |
                        ConvertFlag(IsUnionTypeMemberContext(matchingNodes, offset), BicepCompletionContextKind.UnionTypeMember) |
                        ConvertFlag(IsTypedLocalVariableTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLocalVariableType) |
-                       ConvertFlag(IsTypedLambdaOutputTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLambdaOutputType) |
-                       ConvertFlag(IsFunctionDeclarationEqualsFollowerContext(matchingNodes, offset), BicepCompletionContextKind.FunctionDeclarationEqualsFollower);
+                       ConvertFlag(IsTypedLambdaOutputTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLambdaOutputType);
 
             if (featureProvider.ExtensibilityEnabled)
             {
@@ -1002,11 +1001,11 @@ namespace Bicep.LanguageServer.Completions
                 // var test = map([], (|) => 'asdf')
                 SyntaxMatcher.IsTailMatch<VariableBlockSyntax, Token>(matchingNodes) ||
 
-                // func foo = ( | ) string => 'asdf'
+                // func foo( | ) string => 'asdf'
                 SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax>(matchingNodes) ||
-                // func foo = (a|) string => 'asdf'
+                // func foo(a|) string => 'asdf'
                 SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, TypedLocalVariableSyntax, IdentifierSyntax, Token>(matchingNodes) ||
-                // func foo = (|) string => 'asdf'
+                // func foo(|) string => 'asdf'
                 SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, Token>(matchingNodes) ||
 
                 // var foo = ! | bar
@@ -1091,20 +1090,16 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete);
 
         private static bool IsTypedLambdaOutputTypeContext(List<SyntaxBase> matchingNodes, int offset) =>
-            // func foo = () | => bar
+            // func foo() | => bar
             SyntaxMatcher.IsTailMatch<TypedLambdaSyntax>(matchingNodes, (lambda) => offset > lambda.VariableSection.GetEndPosition() && (lambda.Arrow.IsSkipped || offset < lambda.Arrow.GetPosition())) ||
-            // func foo = () a| => bar
+            // func foo() a| => bar
             SyntaxMatcher.IsTailMatch<TypedLambdaSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (lambda, variable, _, _) => lambda.Type == variable);
 
         private static bool IsTypedLocalVariableTypeContext(List<SyntaxBase> matchingNodes, int offset) =>
-            // func foo = (a |) string => bar
+            // func foo(a |) string => bar
             SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, TypedLocalVariableSyntax>(matchingNodes, (_, variable) => offset > variable.Name.GetEndPosition()) ||
-            // func foo = (a b|) string => bar
+            // func foo(a b|) string => bar
             SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, TypedLocalVariableSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, variable, type, _, _) => variable.Type == type);
-
-        private static bool IsFunctionDeclarationEqualsFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
-            // func foo = |
-            SyntaxMatcher.IsTailMatch<FunctionDeclarationSyntax>(matchingNodes, (func) => offset > func.Assignment.GetEndPosition() && func.Lambda.IsSkipped);
 
         private static bool IsResourceDependsOnArrayItemContext(BicepCompletionContextKind kind, string? propertyName, SyntaxBase? topLevelDeclarationInfo)
         {

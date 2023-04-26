@@ -54,7 +54,7 @@ namespace Bicep.Core.Semantics
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             base.VisitProgramSyntax(syntax);
-            
+
             // include all the locals in the symbol table as well
             // since we only allow lookups by object and not by name,
             // a flat symbol table should be sufficient
@@ -195,7 +195,6 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
-            this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Lambda);
             allowedFlags = FunctionFlags.Default;

@@ -43,7 +43,7 @@ outputDecl ->
   decorator* "output" IDENTIFIER(name) "resource" interpString(type) "=" expression NL
 NL -> ("\n" | "\r")+
 
-functionDecl -> decorator* "func" IDENTIFIER(name) "=" typedLambdaExpression NL
+functionDecl -> decorator* "func" IDENTIFIER(name) typedLambdaExpression NL
 
 decorator -> "@" decoratorExpression NL
 

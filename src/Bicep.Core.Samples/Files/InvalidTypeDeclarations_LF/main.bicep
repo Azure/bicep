@@ -72,6 +72,6 @@ param disallowedUnionParam 'foo'|-99
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 
-func invalidArgs = (a validStringLiteralUnion, b string) string => a
+func invalidArgs(a validStringLiteralUnion, b string) string => a
 
-func invalidOutput = () validStringLiteralUnion => 'foo'
+func invalidOutput() validStringLiteralUnion => 'foo'

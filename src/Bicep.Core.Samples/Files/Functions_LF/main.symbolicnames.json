@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15758866216186301813"
+      "templateHash": "834592582032208770"
     }
   },
   "functions": [
@@ -70,6 +70,21 @@
           "output": {
             "type": "array",
             "value": [
+              "[parameters('name')]"
+            ]
+          }
+        },
+        "asdf": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "asdf",
               "[parameters('name')]"
             ]
           }

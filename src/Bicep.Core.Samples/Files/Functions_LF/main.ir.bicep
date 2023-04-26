@@ -1,19 +1,19 @@
-func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:462) ProgramExpression
-//@[000:144) ├─DeclaredFunctionExpression { Name = buildUrl }
-//@[016:144) | └─LambdaExpression
-//@[069:144) |   └─InterpolatedStringExpression
-//@[072:096) |     ├─TernaryExpression
-//@[072:077) |     | ├─LambdaVariableReferenceExpression { Variable = https }
-//@[080:087) |     | ├─StringLiteralExpression { Value = https }
-//@[090:096) |     | └─StringLiteralExpression { Value = http }
-//@[102:110) |     ├─LambdaVariableReferenceExpression { Variable = hostname }
-//@[113:142) |     └─TernaryExpression
-//@[113:124) |       ├─FunctionCallExpression { Name = empty }
-//@[119:123) |       | └─LambdaVariableReferenceExpression { Variable = path }
-//@[127:129) |       ├─StringLiteralExpression { Value =  }
-//@[132:142) |       └─InterpolatedStringExpression
-//@[136:140) |         └─LambdaVariableReferenceExpression { Variable = path }
+func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+//@[000:503) ProgramExpression
+//@[000:141) ├─DeclaredFunctionExpression { Name = buildUrl }
+//@[013:141) | └─LambdaExpression
+//@[066:141) |   └─InterpolatedStringExpression
+//@[069:093) |     ├─TernaryExpression
+//@[069:074) |     | ├─LambdaVariableReferenceExpression { Variable = https }
+//@[077:084) |     | ├─StringLiteralExpression { Value = https }
+//@[087:093) |     | └─StringLiteralExpression { Value = http }
+//@[099:107) |     ├─LambdaVariableReferenceExpression { Variable = hostname }
+//@[110:139) |     └─TernaryExpression
+//@[110:121) |       ├─FunctionCallExpression { Name = empty }
+//@[116:120) |       | └─LambdaVariableReferenceExpression { Variable = path }
+//@[124:126) |       ├─StringLiteralExpression { Value =  }
+//@[129:139) |       └─InterpolatedStringExpression
+//@[133:137) |         └─LambdaVariableReferenceExpression { Variable = path }
 
 output foo string = buildUrl(true, 'google.com', 'search')
 //@[000:058) ├─DeclaredOutputExpression { Name = foo }
@@ -22,11 +22,11 @@ output foo string = buildUrl(true, 'google.com', 'search')
 //@[035:047) |   ├─StringLiteralExpression { Value = google.com }
 //@[049:057) |   └─StringLiteralExpression { Value = search }
 
-func sayHello = (name string) string => 'Hi ${name}!'
-//@[000:053) ├─DeclaredFunctionExpression { Name = sayHello }
-//@[016:053) | └─LambdaExpression
-//@[040:053) |   └─InterpolatedStringExpression
-//@[046:050) |     └─LambdaVariableReferenceExpression { Variable = name }
+func sayHello(name string) string => 'Hi ${name}!'
+//@[000:050) ├─DeclaredFunctionExpression { Name = sayHello }
+//@[013:050) | └─LambdaExpression
+//@[037:050) |   └─InterpolatedStringExpression
+//@[043:047) |     └─LambdaVariableReferenceExpression { Variable = name }
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[000:069) └─DeclaredOutputExpression { Name = hellos }
@@ -38,10 +38,10 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@[054:068)       └─UserDefinedFunctionCallExpression { Name = sayHello }
 //@[063:067)         └─LambdaVariableReferenceExpression { Variable = name }
 
-func objReturnType = (name string) object => {
-//@[000:071) ├─DeclaredFunctionExpression { Name = objReturnType }
-//@[021:071) | └─LambdaExpression
-//@[045:071) |   └─ObjectExpression
+func objReturnType(name string) object => {
+//@[000:068) ├─DeclaredFunctionExpression { Name = objReturnType }
+//@[018:068) | └─LambdaExpression
+//@[042:068) |   └─ObjectExpression
   hello: 'Hi ${name}!'
 //@[002:022) |     └─ObjectPropertyExpression
 //@[002:007) |       ├─StringLiteralExpression { Value = hello }
@@ -49,10 +49,20 @@ func objReturnType = (name string) object => {
 //@[015:019) |         └─LambdaVariableReferenceExpression { Variable = name }
 }
 
-func arrayReturnType = (name string) array => [
-//@[000:056) ├─DeclaredFunctionExpression { Name = arrayReturnType }
-//@[023:056) | └─LambdaExpression
-//@[046:056) |   └─ArrayExpression
+func arrayReturnType(name string) array => [
+//@[000:053) ├─DeclaredFunctionExpression { Name = arrayReturnType }
+//@[020:053) | └─LambdaExpression
+//@[043:053) |   └─ArrayExpression
+  name
+//@[002:006) |     └─LambdaVariableReferenceExpression { Variable = name }
+]
+
+func asdf(name string) array => [
+//@[000:051) ├─DeclaredFunctionExpression { Name = asdf }
+//@[009:051) | └─LambdaExpression
+//@[032:051) |   └─ArrayExpression
+  'asdf'
+//@[002:008) |     ├─StringLiteralExpression { Value = asdf }
   name
 //@[002:006) |     └─LambdaVariableReferenceExpression { Variable = name }
 ]

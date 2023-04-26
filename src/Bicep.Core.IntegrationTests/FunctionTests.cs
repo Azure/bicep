@@ -18,7 +18,7 @@ public class FunctionTests
     public void User_defined_functions_basic_case()
     {
         var result = CompilationHelper.Compile(@"
-func buildUrl = (https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
 output foo string = buildUrl(true, 'google.com', 'search')
 ");
@@ -35,9 +35,9 @@ output foo string = buildUrl(true, 'google.com', 'search')
         var result = CompilationHelper.Compile(@"
 param foo string
 var bar = 'abc'
-func getBaz = () string => 'baz'
+func getBaz() string => 'baz'
 
-func testFunc = (baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
+func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
 ");
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
@@ -52,7 +52,7 @@ func testFunc = (baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
     {
         var result = CompilationHelper.Compile(@"
 @description('Returns foo')
-func returnFoo = () string => 'foo'
+func returnFoo() string => 'foo'
 
 output outputFoo string = returnFoo()
 ");
@@ -67,10 +67,10 @@ output outputFoo string = returnFoo()
     public void User_defined_functions_cannot_reference_each_other()
     {
         var result = CompilationHelper.Compile(@"
-func getAbc = () string => 'abc'
-func getAbcDef = () string => '${getAbc()}def'
+func getAbc() string => 'abc'
+func getAbcDef() string => '${getAbc()}def'
 ");
-    
+
         result.Should().HaveDiagnostics(new [] {
             ("BCP057", DiagnosticLevel.Error, "The name \"getAbc\" does not exist in the current context."),
         });
@@ -82,17 +82,17 @@ func getAbcDef = () string => '${getAbc()}def'
         var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
-func getAOrB = (aOrB ('a' | 'b')) bool => (aOrB == 'a')
+func getAOrB(aOrB ('a' | 'b')) bool => (aOrB == 'a')
 ");
-    
+
         result.Should().HaveDiagnostics(new [] {
             ("BCP342", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
         });
 
         result = CompilationHelper.Compile(services, @"
-func getAOrB = (aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
+func getAOrB(aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
 ");
-    
+
         result.Should().HaveDiagnostics(new [] {
             ("BCP342", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
         });
@@ -102,9 +102,9 @@ func getAOrB = (aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
     public void User_defined_functions_unsupported_runtime_functions()
     {
         var result = CompilationHelper.Compile(@"
-func useRuntimeFunction = () string => reference('foo').bar
+func useRuntimeFunction() string => reference('foo').bar
 ");
-    
+
         result.Should().HaveDiagnostics(new [] {
             ("BCP341", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
         });

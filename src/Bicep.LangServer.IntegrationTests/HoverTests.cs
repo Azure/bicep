@@ -558,7 +558,7 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 @description('Checks whether the input is true in a roundabout way')
-func isTrue = (input bool) bool => !(input == false)
+func isTrue(input bool) bool => !(input == false)
 
 var test = is|True(false)
 """);
@@ -579,7 +579,7 @@ function isTrue(input: bool): bool
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 @description('Checks whether the input is true in a roundabout way')
-func isT|rue = (input bool) bool => !(input == false)
+func isT|rue(input bool) bool => !(input == false)
 """);
 
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
@@ -692,7 +692,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
   ]
 )
 @description('this is a string value')
-param foo string                       
+param foo string
 
 @allowed(
     [
@@ -719,7 +719,7 @@ param foo|bar = true
 
             var (bicepparamText, cursors) = ParserHelper.GetFileWithCursors(bicepparamTextWithCursor,'|');
 
-        
+
             var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri("file:///path/to/params.bicepparam"), bicepparamText);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), bicepText);
 
