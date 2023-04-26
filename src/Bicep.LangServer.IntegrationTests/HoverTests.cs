@@ -554,6 +554,46 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
         }
 
         [TestMethod]
+        public async Task Func_usage_hovers_display_information()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+@description('Checks whether the input is true in a roundabout way')
+func isTrue = (input bool) bool => !(input == false)
+
+var test = is|True(false)
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents.MarkupContent!.Value.Should().Contain("""
+```bicep
+function isTrue(input: bool): bool
+```
+""");
+            hover!.Contents.MarkupContent!.Value.Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
+        public async Task Func_declaration_hovers_display_information()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+@description('Checks whether the input is true in a roundabout way')
+func isT|rue = (input bool) bool => !(input == false)
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents.MarkupContent!.Value.Should().Contain("""
+```bicep
+function isTrue(input: bool): bool
+```
+""");
+            hover!.Contents.MarkupContent!.Value.Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"

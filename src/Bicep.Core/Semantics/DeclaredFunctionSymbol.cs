@@ -38,7 +38,7 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
         var builder = new FunctionOverloadBuilder(this.Name);
         if (SemanticModelHelper.TryGetDescription(Context.Binder, Context.TypeManager, DeclaringFunction) is {} description)
         {
-            builder.WithDescription(description);
+            builder.WithGenericDescription(description);
         }
 
         if (this.DeclaringFunction.Lambda is not TypedLambdaSyntax lambdaSyntax ||

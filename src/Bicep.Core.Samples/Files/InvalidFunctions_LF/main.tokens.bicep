@@ -37,6 +37,30 @@ func funcWithOtherFuncRef = () string => constFunc()
 //@[051:052) RightParen |)|
 //@[052:054) NewLine |\n\n|
 
+func missingArgType = (input) string => input
+//@[000:004) Identifier |func|
+//@[005:019) Identifier |missingArgType|
+//@[020:021) Assignment |=|
+//@[022:023) LeftParen |(|
+//@[023:028) Identifier |input|
+//@[028:029) RightParen |)|
+//@[030:036) Identifier |string|
+//@[037:039) Arrow |=>|
+//@[040:045) Identifier |input|
+//@[045:047) NewLine |\n\n|
+
+func missingOutputType = (input string) => input
+//@[000:004) Identifier |func|
+//@[005:022) Identifier |missingOutputType|
+//@[023:024) Assignment |=|
+//@[025:026) LeftParen |(|
+//@[026:031) Identifier |input|
+//@[032:038) Identifier |string|
+//@[038:039) RightParen |)|
+//@[040:042) Arrow |=>|
+//@[043:048) Identifier |input|
+//@[048:050) NewLine |\n\n|
+
 func invalidType = (input string) string => input
 //@[000:004) Identifier |func|
 //@[005:016) Identifier |invalidType|

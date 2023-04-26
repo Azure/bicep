@@ -1084,17 +1084,17 @@ namespace Bicep.Core.Parsing
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
         }
 
-        private SyntaxBase TypedLocalVariable()
+        private SyntaxBase TypedLocalVariable(params TokenType[] terminatingTypes)
         {
             var name = IdentifierOrSkip(b => b.ExpectedVariableIdentifier());
-            var type = Type(allowOptionalResourceType: false);
+            var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, terminatingTypes);
 
             return new TypedLocalVariableSyntax(name, type);
         }
 
         protected SyntaxBase TypedLambda()
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable());
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen));
 
             var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);

@@ -99,6 +99,15 @@ namespace Bicep.LangServer.IntegrationTests
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
         }
 
+        public async Task<Hover?> RequestHover(int cursor)
+        {
+            return await client.RequestHover(new HoverParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+            });
+        }
+
         public async Task<LocationLink> GotoDefinition(int cursor)
         {
             var response = await client.RequestDefinition(new DefinitionParams

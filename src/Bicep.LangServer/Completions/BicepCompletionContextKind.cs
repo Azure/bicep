@@ -204,6 +204,21 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location can accept a symbolic reference to a resource.
         /// </summary>
-        ExpectsResourceSymbolicReference = 1UL << 37
+        ExpectsResourceSymbolicReference = 1UL << 37,
+
+        /// <summary>
+        /// Cursor is on a typed lambda argument type.
+        /// </summary>
+        TypedLocalVariableType = 1UL << 38,
+
+        /// <summary>
+        /// Cursor is on a typed lambda output type.
+        /// </summary>
+        TypedLambdaOutputType = 1UL << 39,
+
+        /// <summary>
+        /// Cursor is immediately after a '=' in a func statement.
+        /// </summary>
+        FunctionDeclarationEqualsFollower = 1UL << 40
     }
 }

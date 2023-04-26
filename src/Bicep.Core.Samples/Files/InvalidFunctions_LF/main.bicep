@@ -3,6 +3,10 @@ func useRuntimeFunction = () string => reference('foo').bar
 func constFunc = () string => 'A'
 func funcWithOtherFuncRef = () string => constFunc()
 
+func missingArgType = (input) string => input
+
+func missingOutputType = (input string) => input
+
 func invalidType = (input string) string => input
 
 output invalidType string = invalidType(true)

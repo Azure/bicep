@@ -1,5 +1,5 @@
 func useRuntimeFunction = () string => reference('foo').bar
-//@[000:816) ProgramSyntax
+//@[000:913) ProgramSyntax
 //@[000:059) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:023) | ├─IdentifierSyntax
@@ -64,6 +64,52 @@ func funcWithOtherFuncRef = () string => constFunc()
 //@[050:051) |     ├─Token(LeftParen) |(|
 //@[051:052) |     └─Token(RightParen) |)|
 //@[052:054) ├─Token(NewLine) |\n\n|
+
+func missingArgType = (input) string => input
+//@[000:045) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:019) | ├─IdentifierSyntax
+//@[005:019) | | └─Token(Identifier) |missingArgType|
+//@[020:021) | ├─Token(Assignment) |=|
+//@[022:045) | └─TypedLambdaSyntax
+//@[022:029) |   ├─TypedVariableBlockSyntax
+//@[022:023) |   | ├─Token(LeftParen) |(|
+//@[023:028) |   | ├─TypedLocalVariableSyntax
+//@[023:028) |   | | ├─IdentifierSyntax
+//@[023:028) |   | | | └─Token(Identifier) |input|
+//@[028:028) |   | | └─SkippedTriviaSyntax
+//@[028:029) |   | └─Token(RightParen) |)|
+//@[030:036) |   ├─VariableAccessSyntax
+//@[030:036) |   | └─IdentifierSyntax
+//@[030:036) |   |   └─Token(Identifier) |string|
+//@[037:039) |   ├─Token(Arrow) |=>|
+//@[040:045) |   └─VariableAccessSyntax
+//@[040:045) |     └─IdentifierSyntax
+//@[040:045) |       └─Token(Identifier) |input|
+//@[045:047) ├─Token(NewLine) |\n\n|
+
+func missingOutputType = (input string) => input
+//@[000:048) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:022) | ├─IdentifierSyntax
+//@[005:022) | | └─Token(Identifier) |missingOutputType|
+//@[023:024) | ├─Token(Assignment) |=|
+//@[025:048) | └─TypedLambdaSyntax
+//@[025:039) |   ├─TypedVariableBlockSyntax
+//@[025:026) |   | ├─Token(LeftParen) |(|
+//@[026:038) |   | ├─TypedLocalVariableSyntax
+//@[026:031) |   | | ├─IdentifierSyntax
+//@[026:031) |   | | | └─Token(Identifier) |input|
+//@[032:038) |   | | └─VariableAccessSyntax
+//@[032:038) |   | |   └─IdentifierSyntax
+//@[032:038) |   | |     └─Token(Identifier) |string|
+//@[038:039) |   | └─Token(RightParen) |)|
+//@[040:048) |   ├─SkippedTriviaSyntax
+//@[040:042) |   | ├─Token(Arrow) |=>|
+//@[043:048) |   | └─Token(Identifier) |input|
+//@[048:048) |   ├─SkippedTriviaSyntax
+//@[048:048) |   └─SkippedTriviaSyntax
+//@[048:050) ├─Token(NewLine) |\n\n|
 
 func invalidType = (input string) string => input
 //@[000:049) ├─FunctionDeclarationSyntax
@@ -360,7 +406,10 @@ func sayHelloBadNewlines = (
 //@[027:028) | └─TypedLambdaSyntax
 //@[027:028) |   ├─TypedVariableBlockSyntax
 //@[027:028) |   | ├─Token(LeftParen) |(|
-//@[028:028) |   | ├─SkippedTriviaSyntax
+//@[028:028) |   | ├─TypedLocalVariableSyntax
+//@[028:028) |   | | ├─IdentifierSyntax
+//@[028:028) |   | | | └─SkippedTriviaSyntax
+//@[028:028) |   | | └─SkippedTriviaSyntax
 //@[028:028) |   | └─SkippedTriviaSyntax
 //@[028:028) |   ├─SkippedTriviaSyntax
 //@[028:028) |   ├─SkippedTriviaSyntax

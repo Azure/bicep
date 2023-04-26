@@ -6,6 +6,14 @@ func constFunc = () string => 'A'
 func funcWithOtherFuncRef = () string => constFunc()
 //@[05:25) Function funcWithOtherFuncRef. Type: () => string. Declaration start char: 0, length: 52
 
+func missingArgType = (input) string => input
+//@[23:28) Local input. Type: any. Declaration start char: 23, length: 5
+//@[05:19) Function missingArgType. Type: any => any. Declaration start char: 0, length: 45
+
+func missingOutputType = (input string) => input
+//@[26:31) Local input. Type: string. Declaration start char: 26, length: 12
+//@[05:22) Function missingOutputType. Type: string => any. Declaration start char: 0, length: 48
+
 func invalidType = (input string) string => input
 //@[20:25) Local input. Type: string. Declaration start char: 20, length: 12
 //@[05:16) Function invalidType. Type: string => string. Declaration start char: 0, length: 49
@@ -47,6 +55,7 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[07:13) Output hellos. Type: array. Declaration start char: 0, length: 55
 
 func sayHelloBadNewlines = (
-//@[05:24) Function sayHelloBadNewlines. Type: () => any. Declaration start char: 0, length: 28
+//@[28:28) Local <missing>. Type: any. Declaration start char: 28, length: 0
+//@[05:24) Function sayHelloBadNewlines. Type: any => any. Declaration start char: 0, length: 28
   name string) string => 'Hi ${name}!'
 

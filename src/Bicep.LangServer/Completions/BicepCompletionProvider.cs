@@ -88,6 +88,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
+                .Concat(GetFunctionDeclarationEqualsFollowerCompletions(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
@@ -173,6 +174,12 @@ namespace Bicep.LanguageServer.Completions
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
+
+                        yield return CreateContextualSnippetCompletion(
+                            LanguageConstants.FunctionKeyword,
+                            "Function declaration",
+                            "func ${1:name} = () ${2:outputType} => $0",
+                            context.ReplacementRange);
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                         {
@@ -311,6 +318,13 @@ namespace Bicep.LanguageServer.Completions
                 // union types must be composed of literals, so don't include primitive types or non-literal user defined types
                 var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
                 return GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType) && IsTypeLiteralSyntax(declared.DeclaringType.Value));
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.TypedLocalVariableType) ||
+                context.Kind.HasFlag(BicepCompletionContextKind.TypedLambdaOutputType))
+            {
+                // user-defined functions don't yet support user-defined types
+                return GetAmbientTypeCompletions(model, context);
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
@@ -1418,6 +1432,18 @@ namespace Bicep.LanguageServer.Completions
                 {
                     yield return CreateKeywordCompletion(diagnostic.Code, diagnostic.Message, context.ReplacementRange);
                 }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetFunctionDeclarationEqualsFollowerCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.FunctionDeclarationEqualsFollower))
+            {
+                yield return CreateContextualSnippetCompletion(
+                    "Typed lambda",
+                    "() outputType => body",
+                    "() ${1:outputType} => $0",
+                    context.ReplacementRange);
             }
         }
 
