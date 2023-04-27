@@ -1,0 +1,16 @@
+string: someVal 
+int: 123
+bool: true
+arrayInt:
+- 1
+- 2
+arrayString:
+- someVal
+- someVal2
+arrayBool:
+- true
+- true
+object:
+  nestedString: someVal
+  nestedInt: 123
+  nestedBool : true
