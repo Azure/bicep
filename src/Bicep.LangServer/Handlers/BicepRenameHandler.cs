@@ -46,6 +46,8 @@ namespace Bicep.LanguageServer.Handlers
             if (!Lexer.IsValidIdentifier(request.NewName))
             {
                 // if the value that the user wants to rename to is invalid (contains characters, etc.), the rename will fail.
+                // despite there being a way for errors to be represented in LSP (https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_rename),
+                // we are failing here as Omnisharp doesn't handle returning error messages.
                 return Task.FromResult<WorkspaceEdit?>(null);
             }
 
