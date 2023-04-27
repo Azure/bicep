@@ -34,6 +34,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.VariableDeclarations
+                .Where(sym => model.HasParsingError(sym.DeclaringSyntax))
                 .Where(sym => sym.NameSource.IsValid)
                 .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
 
