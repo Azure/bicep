@@ -71,7 +71,3 @@ param sealedStringParam string
 param disallowedUnionParam 'foo'|-99
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
-
-func invalidArgs(a validStringLiteralUnion, b string) string => a
-
-func invalidOutput() validStringLiteralUnion => 'foo'

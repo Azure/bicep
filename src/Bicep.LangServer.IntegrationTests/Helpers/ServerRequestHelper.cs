@@ -54,6 +54,18 @@ namespace Bicep.LangServer.IntegrationTests
             });
         }
 
+        public async Task<SignatureHelp?> RequestSignatureHelp(int cursor, SignatureHelpContext? context = null) =>
+            await client.RequestSignatureHelp(new SignatureHelpParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
+                Context = context ?? new SignatureHelpContext
+                {
+                    TriggerKind = SignatureHelpTriggerKind.Invoked,
+                    IsRetrigger = false
+                }
+            });
+
         public BicepFile ApplyCompletion(CompletionList completions, string label, params string[] tabStops)
         {
             // Should().Contain is superfluous here, but it gives a better assertion message when it fails

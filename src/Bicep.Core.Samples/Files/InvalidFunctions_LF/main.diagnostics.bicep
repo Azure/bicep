@@ -21,15 +21,14 @@ output invalidType string = invalidType(true)
 //@[40:44) [BCP070 (Error)] Argument of type "true" is not assignable to parameter of type "string". (CodeDescription: none) |true|
 
 func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
-//@[22:30) [BCP302 (Error)] The name "notAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |notAType|
-//@[34:46) [BCP302 (Error)] The name "alsoNotAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |alsoNotAType|
+//@[22:30) [BCP302 (Error)] The name "notAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string", "validStringLiteralUnion". (CodeDescription: none) |notAType|
+//@[34:46) [BCP302 (Error)] The name "alsoNotAType" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string", "validStringLiteralUnion". (CodeDescription: none) |alsoNotAType|
 //@[61:62) [BCP062 (Error)] The referenced declaration with name "a" is not valid. (CodeDescription: none) |a|
 //@[66:67) [BCP062 (Error)] The referenced declaration with name "b" is not valid. (CodeDescription: none) |b|
 
 func noLambda('foo') string => ''
 //@[14:14) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
 //@[14:19) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |'foo'|
-//@[14:19) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |'foo'|
 
 func noLambda2 = (sdf 'foo') string => ''
 //@[15:16) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) |=|
@@ -44,7 +43,7 @@ var sdf = argLengthMismatch('asdf')
 
 var asdfwdf = noLambda('asd')
 //@[04:11) [no-unused-vars (Warning)] Variable "asdfwdf" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |asdfwdf|
-//@[23:28) [BCP070 (Error)] Argument of type "'asd'" is not assignable to parameter of type "error". (CodeDescription: none) |'asd'|
+//@[23:28) [BCP070 (Error)] Argument of type "'asd'" is not assignable to parameter of type "'foo'". (CodeDescription: none) |'asd'|
 
 func sayHello(name string) string => 'Hi ${name}!'
 output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not supported currently, but should it be?
@@ -61,4 +60,10 @@ func sayHelloBadNewlines(
 //@[25:25) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) ||
   name string) string => 'Hi ${name}!'
 //@[02:06) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |name|
+
+type validStringLiteralUnion = 'foo'|'bar'|'baz'
+func invalidArgs(a validStringLiteralUnion, b string) string => a
+//@[17:42) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |a validStringLiteralUnion|
+func invalidOutput() validStringLiteralUnion => 'foo'
+//@[21:44) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |validStringLiteralUnion|
 

@@ -27,8 +27,8 @@ func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
 //@[05:19) Function madeUpTypeArgs. Type: error. Declaration start char: 0, length: 69
 
 func noLambda('foo') string => ''
-//@[14:14) Local <missing>. Type: error. Declaration start char: 14, length: 5
-//@[05:13) Function noLambda. Type: error. Declaration start char: 0, length: 33
+//@[14:14) Local <missing>. Type: 'foo'. Declaration start char: 14, length: 5
+//@[05:13) Function noLambda. Type: 'foo' => ''. Declaration start char: 0, length: 33
 
 func noLambda2 = (sdf 'foo') string => ''
 //@[05:14) Function noLambda2. Type: error. Declaration start char: 0, length: 41
@@ -57,4 +57,13 @@ func sayHelloBadNewlines(
 //@[25:25) Local <missing>. Type: any. Declaration start char: 25, length: 0
 //@[05:24) Function sayHelloBadNewlines. Type: any => any. Declaration start char: 0, length: 25
   name string) string => 'Hi ${name}!'
+
+type validStringLiteralUnion = 'foo'|'bar'|'baz'
+//@[05:28) TypeAlias validStringLiteralUnion. Type: Type<'bar' | 'baz' | 'foo'>. Declaration start char: 0, length: 48
+func invalidArgs(a validStringLiteralUnion, b string) string => a
+//@[17:18) Local a. Type: 'bar' | 'baz' | 'foo'. Declaration start char: 17, length: 25
+//@[44:45) Local b. Type: string. Declaration start char: 44, length: 8
+//@[05:16) Function invalidArgs. Type: (('bar' | 'baz' | 'foo'), string) => ('bar' | 'baz' | 'foo'). Declaration start char: 0, length: 65
+func invalidOutput() validStringLiteralUnion => 'foo'
+//@[05:18) Function invalidOutput. Type: () => 'foo'. Declaration start char: 0, length: 53
 

@@ -1,23 +1,5 @@
 [
   {
-    "label": "func",
-    "kind": "snippet",
-    "detail": "Function declaration",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nfunc name() outputType => \n```"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_func",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "func ${1:name}() ${2:outputType} => $0"
-    }
-  },
-  {
     "label": "metadata",
     "kind": "keyword",
     "detail": "Metadata keyword",

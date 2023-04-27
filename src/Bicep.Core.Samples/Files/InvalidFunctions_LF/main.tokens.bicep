@@ -219,6 +219,40 @@ func sayHelloBadNewlines(
 //@[025:031) StringLeftPiece |'Hi ${|
 //@[031:035) Identifier |name|
 //@[035:038) StringRightPiece |}!'|
-//@[038:039) NewLine |\n|
+//@[038:040) NewLine |\n\n|
+
+type validStringLiteralUnion = 'foo'|'bar'|'baz'
+//@[000:004) Identifier |type|
+//@[005:028) Identifier |validStringLiteralUnion|
+//@[029:030) Assignment |=|
+//@[031:036) StringComplete |'foo'|
+//@[036:037) Pipe |||
+//@[037:042) StringComplete |'bar'|
+//@[042:043) Pipe |||
+//@[043:048) StringComplete |'baz'|
+//@[048:049) NewLine |\n|
+func invalidArgs(a validStringLiteralUnion, b string) string => a
+//@[000:004) Identifier |func|
+//@[005:016) Identifier |invalidArgs|
+//@[016:017) LeftParen |(|
+//@[017:018) Identifier |a|
+//@[019:042) Identifier |validStringLiteralUnion|
+//@[042:043) Comma |,|
+//@[044:045) Identifier |b|
+//@[046:052) Identifier |string|
+//@[052:053) RightParen |)|
+//@[054:060) Identifier |string|
+//@[061:063) Arrow |=>|
+//@[064:065) Identifier |a|
+//@[065:066) NewLine |\n|
+func invalidOutput() validStringLiteralUnion => 'foo'
+//@[000:004) Identifier |func|
+//@[005:018) Identifier |invalidOutput|
+//@[018:019) LeftParen |(|
+//@[019:020) RightParen |)|
+//@[021:044) Identifier |validStringLiteralUnion|
+//@[045:047) Arrow |=>|
+//@[048:053) StringComplete |'foo'|
+//@[053:054) NewLine |\n|
 
 //@[000:000) EndOfFile ||

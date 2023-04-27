@@ -29,3 +29,7 @@ output hellos array = map([ 'Evie', 'Casper' ], sayHello) // this syntax not sup
 
 func sayHelloBadNewlines(
 name string) string => 'Hi ${name}!'
+
+type validStringLiteralUnion = 'foo' | 'bar' | 'baz'
+func invalidArgs(a validStringLiteralUnion, b string) string => a
+func invalidOutput() validStringLiteralUnion => 'foo'

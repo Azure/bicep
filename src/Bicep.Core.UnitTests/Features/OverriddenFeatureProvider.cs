@@ -33,4 +33,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ParamsFilesEnabled => overrides.ParamsFilesEnabled ?? features.ParamsFilesEnabled;
 
     public bool UserDefinedTypesEnabled => overrides.UserDefinedTypesEnabled ?? features.UserDefinedTypesEnabled;
+
+    public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
 }

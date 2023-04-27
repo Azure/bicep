@@ -10,14 +10,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests;
 
 [TestClass]
-public class FunctionTests
+public class UserDefinedFunctionTests
 {
+    private ServiceBuilder Services => new ServiceBuilder()
+        .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true));
+
     [NotNull] public TestContext? TestContext { get; set; }
 
     [TestMethod]
     public void User_defined_functions_basic_case()
     {
-        var result = CompilationHelper.Compile(@"
+        var result = CompilationHelper.Compile(Services, @"
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
 output foo string = buildUrl(true, 'google.com', 'search')
@@ -32,7 +35,7 @@ output foo string = buildUrl(true, 'google.com', 'search')
     [TestMethod]
     public void Outer_scope_symbolic_references_are_blocked()
     {
-        var result = CompilationHelper.Compile(@"
+        var result = CompilationHelper.Compile(Services, @"
 param foo string
 var bar = 'abc'
 func getBaz() string => 'baz'
@@ -50,7 +53,7 @@ func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
     [TestMethod]
     public void Functions_can_have_descriptions_applied()
     {
-        var result = CompilationHelper.Compile(@"
+        var result = CompilationHelper.Compile(Services, @"
 @description('Returns foo')
 func returnFoo() string => 'foo'
 
@@ -66,7 +69,7 @@ output outputFoo string = returnFoo()
     [TestMethod]
     public void User_defined_functions_cannot_reference_each_other()
     {
-        var result = CompilationHelper.Compile(@"
+        var result = CompilationHelper.Compile(Services, @"
 func getAbc() string => 'abc'
 func getAbcDef() string => '${getAbc()}def'
 ");
@@ -79,7 +82,7 @@ func getAbcDef() string => '${getAbc()}def'
     [TestMethod]
     public void User_defined_functions_unsupported_custom_types()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
 func getAOrB(aOrB ('a' | 'b')) bool => (aOrB == 'a')
@@ -101,12 +104,26 @@ func getAOrB(aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
     [TestMethod]
     public void User_defined_functions_unsupported_runtime_functions()
     {
-        var result = CompilationHelper.Compile(@"
+        var result = CompilationHelper.Compile(Services, @"
 func useRuntimeFunction() string => reference('foo').bar
 ");
 
         result.Should().HaveDiagnostics(new [] {
             ("BCP341", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
+        });
+    }
+
+    [TestMethod]
+    public void User_defined_functions_requires_experimental_feature_enabled()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new());
+
+        var result = CompilationHelper.Compile(services, @"
+func useRuntimeFunction() string => 'test'
+");
+
+        result.Should().HaveDiagnostics(new [] {
+            ("BCP343", DiagnosticLevel.Error, "Using a func declaration statement requires enabling EXPERIMENTAL feature \"UserDefinedFunctions\"."),
         });
     }
 }

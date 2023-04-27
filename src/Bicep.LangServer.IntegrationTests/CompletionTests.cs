@@ -62,6 +62,8 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
 
+        private static readonly SharedLanguageHelperManager ServerWithUDFsEnabled = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -97,6 +99,11 @@ namespace Bicep.LangServer.IntegrationTests
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, UserDefinedTypesEnabled: true))));
+
+            ServerWithUDFsEnabled.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    testContext,
+                    services => services.WithFeatureOverrides(new(testContext, UserDefinedFunctionsEnabled: true))));
 
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -2274,7 +2281,7 @@ var outerVar = 'asdf'
 func foo(innerVar string) string => '${|}'
 """);
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "innerVar");
@@ -2286,13 +2293,26 @@ func foo(innerVar string) string => '${innerVar|}'
         }
 
         [TestMethod]
+        public async Task Func_keyword_completion_is_not_offered_if_experimental_feature_not_enabeld()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+f|
+");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(x => x.Label == "func");
+        }
+
+        [TestMethod]
         public async Task Func_keyword_completion_provides_snippet()
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 f|
 ");
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "func", "foo", "string");
@@ -2314,7 +2334,7 @@ func foo() string => |
 {before}
 """);
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "string");
@@ -2333,7 +2353,7 @@ func foo() string => |
 {before}
 """);
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "string");
@@ -2353,7 +2373,7 @@ func foo() string => |
 {before}
 """);
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().BeEmpty();
@@ -2369,7 +2389,7 @@ func isTrue(input bool) bool => !(input == false)
 var test = is|
 """);
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
 

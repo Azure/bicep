@@ -174,11 +174,14 @@ namespace Bicep.LanguageServer.Completions
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
 
-                        yield return CreateContextualSnippetCompletion(
-                            LanguageConstants.FunctionKeyword,
-                            "Function declaration",
-                            "func ${1:name}() ${2:outputType} => $0",
-                            context.ReplacementRange);
+                        if (model.Features.UserDefinedFunctionsEnabled)
+                        {
+                            yield return CreateContextualSnippetCompletion(
+                                LanguageConstants.FunctionKeyword,
+                                "Function declaration",
+                                "func ${1:name}() ${2:outputType} => $0",
+                                context.ReplacementRange);
+                        }
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                         {

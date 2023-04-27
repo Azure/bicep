@@ -13,7 +13,8 @@ public record ExperimentalFeaturesEnabled(
     bool? ResourceTypedParamsAndOutputs,
     bool? SourceMapping,
     bool? ParamsFiles,
-    bool? UserDefinedTypes)
+    bool? UserDefinedTypes,
+    bool? UserDefinedFunctions)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element, string? configurationPath)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
