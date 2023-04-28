@@ -48,7 +48,7 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
-            BlockUserDefinedTypesWithoutExperimentalFeaure(model, diagnostics);
+            BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
             BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
@@ -513,7 +513,7 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static void BlockUserDefinedTypesWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static void BlockUserDefinedFunctionsWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             foreach (var function in model.Root.FunctionDeclarations)
             {
@@ -542,10 +542,10 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                var outputTypeSymbol = model.GetSymbolInfo(lambda.Type);
+                var outputTypeSymbol = model.GetSymbolInfo(lambda.ReturnType);
                 if (outputTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
                 {
-                    diagnostics.Write(lambda.Type, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                    diagnostics.Write(lambda.ReturnType, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
                 }
             }
         }

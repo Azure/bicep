@@ -143,7 +143,7 @@ public class ExpressionBuilder
                     typedVariables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
                     typedVariables.Select<TypedLocalVariableSyntax, SyntaxBase?>(x => x.Type).ToImmutableArray(),
                     ConvertWithoutLowering(lambda.Body),
-                    lambda.Type);
+                    lambda.ReturnType);
 
             case ForSyntax forSyntax:
                 return new ForLoopExpression(

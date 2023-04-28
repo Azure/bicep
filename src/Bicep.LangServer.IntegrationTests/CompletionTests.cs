@@ -2284,6 +2284,7 @@ func foo(innerVar string) string => '${|}'
             var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(x => x.Label == "outerVar");
             var updatedFile = file.ApplyCompletion(completions, "innerVar");
             updatedFile.Should().HaveSourceText("""
 var outerVar = 'asdf'

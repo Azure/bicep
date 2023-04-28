@@ -178,10 +178,10 @@ namespace Bicep.Core.TypeSystem
                 .Select(x => GetTypedLocalVariableType(x).Reference)
                 .ToImmutableArray();
 
-            var outputType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
-                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType(GetValidTypeNames()));
+            var returnType = TryGetTypeFromTypeSyntax(syntax.ReturnType, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ReturnType).InvalidOutputType(GetValidTypeNames()));
 
-            var type = new LambdaType(argumentTypes, outputType);
+            var type = new LambdaType(argumentTypes, returnType);
             return new(type, syntax);
         }
 

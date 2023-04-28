@@ -447,7 +447,7 @@ namespace Bicep.Core.Syntax
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             this.Visit(syntax.VariableSection);
-            this.Visit(syntax.Type);
+            this.Visit(syntax.ReturnType);
             this.Visit(syntax.Arrow);
             this.Visit(syntax.Body);
         }

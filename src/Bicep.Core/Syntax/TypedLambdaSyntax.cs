@@ -8,17 +8,17 @@ namespace Bicep.Core.Syntax;
 
 public class TypedLambdaSyntax : ExpressionSyntax
 {
-    public TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase type, SyntaxBase arrow, SyntaxBase body)
+    public TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase returnType, SyntaxBase arrow, SyntaxBase body)
     {
         this.VariableSection = variableSection;
-        this.Type = type;
+        this.ReturnType = returnType;
         this.Arrow = arrow;
         this.Body = body;
     }
 
     public SyntaxBase VariableSection { get; }
 
-    public SyntaxBase Type { get; }
+    public SyntaxBase ReturnType { get; }
 
     public SyntaxBase Arrow { get; }
 

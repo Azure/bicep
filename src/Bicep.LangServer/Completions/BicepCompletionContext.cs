@@ -1093,7 +1093,7 @@ namespace Bicep.LanguageServer.Completions
             // func foo() | => bar
             SyntaxMatcher.IsTailMatch<TypedLambdaSyntax>(matchingNodes, (lambda) => offset > lambda.VariableSection.GetEndPosition() && (lambda.Arrow.IsSkipped || offset < lambda.Arrow.GetPosition())) ||
             // func foo() a| => bar
-            SyntaxMatcher.IsTailMatch<TypedLambdaSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (lambda, variable, _, _) => lambda.Type == variable);
+            SyntaxMatcher.IsTailMatch<TypedLambdaSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (lambda, variable, _, _) => lambda.ReturnType == variable);
 
         private static bool IsTypedLocalVariableTypeContext(List<SyntaxBase> matchingNodes, int offset) =>
             // func foo(a |) string => bar

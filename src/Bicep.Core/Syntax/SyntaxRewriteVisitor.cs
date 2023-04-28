@@ -980,7 +980,7 @@ namespace Bicep.Core.Syntax
         protected virtual SyntaxBase ReplaceTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
-            hasChanges |= TryRewrite(syntax.Type, out var type);
+            hasChanges |= TryRewrite(syntax.ReturnType, out var returnType);
             hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
             hasChanges |= TryRewrite(syntax.Body, out var body);
             if (!hasChanges)
@@ -988,7 +988,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new TypedLambdaSyntax(variableSection, type, arrow, body);
+            return new TypedLambdaSyntax(variableSection, returnType, arrow, body);
         }
         void ISyntaxVisitor.VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLambdaSyntax);
 
