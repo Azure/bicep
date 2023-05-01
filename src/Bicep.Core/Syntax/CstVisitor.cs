@@ -430,5 +430,34 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.AssertionOperator);
         }
+
+        public override void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax)
+        {
+            this.Visit(syntax.OpenParen);
+            this.VisitNodes(syntax.Children);
+            this.Visit(syntax.CloseParen);
+        }
+
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+        }
+
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
+        {
+            this.Visit(syntax.VariableSection);
+            this.Visit(syntax.ReturnType);
+            this.Visit(syntax.Arrow);
+            this.Visit(syntax.Body);
+        }
+
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Lambda);
+        }
     }
 }

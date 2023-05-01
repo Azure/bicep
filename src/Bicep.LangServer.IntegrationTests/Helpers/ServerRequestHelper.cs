@@ -54,6 +54,18 @@ namespace Bicep.LangServer.IntegrationTests
             });
         }
 
+        public async Task<SignatureHelp?> RequestSignatureHelp(int cursor, SignatureHelpContext? context = null) =>
+            await client.RequestSignatureHelp(new SignatureHelpParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
+                Context = context ?? new SignatureHelpContext
+                {
+                    TriggerKind = SignatureHelpTriggerKind.Invoked,
+                    IsRetrigger = false
+                }
+            });
+
         public BicepFile ApplyCompletion(CompletionList completions, string label, params string[] tabStops)
         {
             // Should().Contain is superfluous here, but it gives a better assertion message when it fails
@@ -97,6 +109,15 @@ namespace Bicep.LangServer.IntegrationTests
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
+        }
+
+        public async Task<Hover?> RequestHover(int cursor)
+        {
+            return await client.RequestHover(new HoverParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+            });
         }
 
         public async Task<LocationLink> GotoDefinition(int cursor)

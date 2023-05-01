@@ -127,12 +127,23 @@ public class ExpressionBuilder
             case ResourceAccessSyntax resourceAccess:
                 return ConvertResourceAccess(resourceAccess);
             case LambdaSyntax lambda:
-                var variableNames = lambda.GetLocalVariables().Select(x => x.Name.IdentifierName);
+                var variables = lambda.GetLocalVariables();
 
                 return new LambdaExpression(
                     lambda,
-                    variableNames.ToImmutableArray(),
-                    ConvertWithoutLowering(lambda.Body));
+                    variables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
+                    variables.Select<LocalVariableSyntax, SyntaxBase?>(x => null).ToImmutableArray(),
+                    ConvertWithoutLowering(lambda.Body),
+                    null);
+            case TypedLambdaSyntax lambda:
+                var typedVariables = lambda.GetLocalVariables();
+
+                return new LambdaExpression(
+                    lambda,
+                    typedVariables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
+                    typedVariables.Select<TypedLocalVariableSyntax, SyntaxBase?>(x => x.Type).ToImmutableArray(),
+                    ConvertWithoutLowering(lambda.Body),
+                    lambda.ReturnType);
 
             case ForSyntax forSyntax:
                 return new ForLoopExpression(
@@ -174,6 +185,12 @@ public class ExpressionBuilder
                     variable,
                     variable.Name.IdentifierName,
                     ConvertWithoutLowering(variable.Value));
+
+            case FunctionDeclarationSyntax function:
+                return new DeclaredFunctionExpression(
+                    function,
+                    function.Name.IdentifierName,
+                    ConvertWithoutLowering(function.Lambda));
 
             case OutputDeclarationSyntax output:
                 return new DeclaredOutputExpression(
@@ -262,12 +279,18 @@ public class ExpressionBuilder
             .OfType<DeclaredOutputExpression>()
             .ToImmutableArray();
 
+        var functions = Context.SemanticModel.Root.FunctionDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredFunctionExpression>()
+            .ToImmutableArray();
+
         return new ProgramExpression(
             syntax,
             metadataArray,
             imports,
             parameters,
             functionVariables.AddRange(variables),
+            functions,
             resources,
             modules,
             outputs);
@@ -501,6 +524,14 @@ public class ExpressionBuilder
             return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
         }
 
+        if (Context.SemanticModel.GetSymbolInfo(functionCall) is DeclaredFunctionSymbol declaredFunction)
+        {
+            return new UserDefinedFunctionCallExpression(
+                functionCall,
+                functionCall.Name.IdentifierName,
+                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+        }
+
         if (Context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is {} functionValue)
         {
             return functionValue;
@@ -712,8 +743,10 @@ public class ExpressionBuilder
         {
             case ForSyntax @for:
                 return GetLoopVariable(localVariableSymbol, @for, new CopyIndexExpression(sourceSyntax, GetCopyIndexName(@for)));
-            case LambdaSyntax lambda:
-                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol);
+            case LambdaSyntax:
+                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol, IsFunctionLambda: false);
+            case TypedLambdaSyntax:
+                return new LambdaVariableReferenceExpression(sourceSyntax, localVariableSymbol, IsFunctionLambda: true);
         }
 
         throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{enclosingSyntax?.GetType().Name}'.");

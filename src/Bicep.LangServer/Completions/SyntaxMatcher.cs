@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Completions
             return GetTailMatch(nodes, predicate) is {};
         }
 
-        public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool> predicate, Action<T1, T2, T3, T4>? actionOnMatch = null)
+        public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool>? predicate = null, Action<T1, T2, T3, T4>? actionOnMatch = null)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
             where T3 : SyntaxBase
@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Completions
                    nodes[^3] is T2 two &&
                    nodes[^2] is T3 three &&
                    nodes[^1] is T4 four &&
-                   predicate(one, two, three, four))
+                   (predicate is null || predicate(one, two, three, four)))
             {
                 actionOnMatch?.Invoke(one, two, three, four);
                 return true;

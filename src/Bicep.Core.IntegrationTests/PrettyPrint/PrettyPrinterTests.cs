@@ -74,7 +74,6 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var newSyntaxErrorMessages = newSyntaxErrors.Select(d => d.Message);
 
             // Diagnostic messages should remain the same after formatting.
-            syntaxErrors.Should().HaveSameCount(newSyntaxErrorMessages);
             newSyntaxErrorMessages.Should().BeEquivalentTo(syntaxErrroMessages);
 
             // Normalize formatting

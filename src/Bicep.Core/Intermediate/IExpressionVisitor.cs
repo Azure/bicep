@@ -78,4 +78,8 @@ public interface IExpressionVisitor
     void VisitProgramExpression(ProgramExpression expression);
 
     void VisitAccessChainExpression(AccessChainExpression expression);
+
+    void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression);
+
+    void VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression);
 }

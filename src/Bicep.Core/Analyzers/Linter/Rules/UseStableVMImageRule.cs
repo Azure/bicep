@@ -48,7 +48,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                     else if (imageReferenceValue is VariableAccessSyntax &&
                              model.GetSymbolInfo(imageReferenceValue) is VariableSymbol variableSymbol &&
-                             variableSymbol.Value is ObjectSyntax variableValueSyntax)
+                             variableSymbol.DeclaringVariable.Value is ObjectSyntax variableValueSyntax)
                     {
                         AddDiagnosticsIfImageReferencePropertiesContainPreview(diagnosticLevel, variableValueSyntax, diagnostics);
                     }
