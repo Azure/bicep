@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
@@ -56,7 +57,7 @@ namespace Bicep.LanguageServer.Completions
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
         {
             var model = compilation.GetEntrypointSemanticModel();
 
@@ -87,7 +88,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
-                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context));
+                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -389,7 +390,7 @@ namespace Bicep.LanguageServer.Completions
                     {
                         // An unterminated string will result in skipped trivia containing an unterminated token.
                         // Compensate here by building the expected token before lexing it.
-                        token = SyntaxFactory.CreateToken(token.Type, $"{token.Text}'");
+                        token = SyntaxFactory.CreateFreeformToken(token.Type, $"{token.Text}'");
                     }
 
                     return Lexer.TryGetStringValue(token);
@@ -1245,6 +1246,13 @@ namespace Bicep.LanguageServer.Completions
                 var jsonItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
                 var nonJsonItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
                 fileItems = jsonItems.Concat(nonJsonItems);
+            }
+            else if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringYamlFilePath))
+            {
+                // Prioritize .yaml or .yml files higher than other files.
+                var yamlItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "yaml") || PathHelper.HasExtension(file, "yml"), CompletionPriority.High);
+                var nonYamlItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "yaml") && !PathHelper.HasExtension(file, "yml"), CompletionPriority.Medium);
+                fileItems = yamlItems.Concat(nonYamlItems);
             }
             else
             {

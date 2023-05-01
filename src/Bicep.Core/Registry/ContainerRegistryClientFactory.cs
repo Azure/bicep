@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Azure.Containers.ContainerRegistry;
-using Azure.Containers.ContainerRegistry.Specialized;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
@@ -19,7 +18,7 @@ namespace Bicep.Core.Registry
             this.credentialFactory = credentialFactory;
         }
 
-        public ContainerRegistryBlobClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
@@ -27,10 +26,10 @@ namespace Bicep.Core.Registry
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
-            return new(registryUri, credential, repository, options);
+            return new(registryUri, repository, credential, options);
         }
 
-        public ContainerRegistryBlobClient CreateAnonymouosBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();

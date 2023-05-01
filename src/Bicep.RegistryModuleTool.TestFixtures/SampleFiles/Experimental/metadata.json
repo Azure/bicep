@@ -1,0 +1,6 @@
+{
+  "$schema": "https://aka.ms/bicep-registry-module-metadata-file-schema-v2#",
+  "name": "Sample module",
+  "summary": "Sample summary",
+  "owner": "test"
+}

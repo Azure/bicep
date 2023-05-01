@@ -144,9 +144,11 @@ Usage:
 
     Options:
       --documentationUri  Module documentation uri
+      --force             Overwrite existing published module or file
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --force
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md
 
@@ -170,11 +172,10 @@ Usage:
       <file>        The input Bicepparam file
 
     Options:
-      --bicep-file <file> Verifies if the bicep file reference in the params file using declaration matches the specified file path.
-      --outfile-params <file>  Saves the param output as the specified file path.
-      --outfile-bicep <file>  Saves the bicep output as the specified file path.
-      --stdout          Prints the output to stdout.
-      --no-restore      Builds the bicep file without restoring external modules.
+      --bicep-file <file> Verifies if the specified bicep file path matches the one provided in the params file using declaration
+      --outfile <file>  Saves the param output json as the specified file path.
+      --stdout          Prints the param and bicep json output to stdout.
+      --no-restore      Builds the bicep file (referenced in using declaration) without restoring external modules.
 
     Examples:
       bicep build-params params.bicepparam

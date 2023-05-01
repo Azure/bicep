@@ -12,8 +12,6 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Bicep.VSLanguageServerClient.TestServices
 {
-    // ILanguageServiceBroker2.ActiveLanguageClients is marked obsolete. We will replace it when an alternate option is available.
-#pragma warning disable CS0618 // Type or member is obsolete
     [Export(typeof(LanguageServerActivationService))]
     public class LanguageServerActivationService : VisualStudioTestService
     {
@@ -26,35 +24,36 @@ namespace Bicep.VSLanguageServerClient.TestServices
                 var serviceForComponentModel = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel).GUID);
                 if (serviceForComponentModel is IComponentModel componentModel)
                 {
-                    var languageServiceBrokerExports = componentModel.DefaultExportProvider.GetExports<ILanguageServiceBroker2>();
+                    // Instead of using this obsolete interface, either look for semantic tokens in our output log or see if there's
+                    //   another way to tell lif a language server is active.
+                    // Tracked here: https://github.com/Azure/bicep/issues/8078
 
-                    if (languageServiceBrokerExports is null || !languageServiceBrokerExports.Any())
-                    {
-                        throw new Exception("Did not find any exports for ILanguageServiceBroker2");
-                    }
-
-                    var languageServiceBroker = languageServiceBrokerExports.First().Value;
+                    //var languageServiceBrokerExports = componentModel.DefaultExportProvider.GetExports<ILanguageServiceBroker2>();
+                    //if (languageServiceBrokerExports is null || !languageServiceBrokerExports.Any())
+                    //{
+                    //    throw new Exception("Did not find any exports for ILanguageServiceBroker2");
+                    //}
+                    //var languageServiceBroker = languageServiceBrokerExports.First().Value;
 
                     WaitForExtensions.IsTrue(
-                        () => IsBicepLanguageServerActivated(languageServiceBroker) == true,
-                        TimeSpan.FromSeconds(45),
-                        conditionDescription: "Bicep language server activation failed.");
+                        () => IsBicepLanguageServerActivated(/*languageServiceBroker*/) == true,
+                        TimeSpan.FromSeconds(120), //TimeSpan.FromSeconds(45),
+                        conditionDescription: "Bicep language server activation failed or took too long.");
                 }
             });
         }
 
-        private bool IsBicepLanguageServerActivated(ILanguageServiceBroker2 languageServiceBroker)
+        private bool IsBicepLanguageServerActivated(/*ILanguageServiceBroker2 languageServiceBroker*/)
         {
-            foreach (ILanguageClientInstance languageClientInstance in languageServiceBroker.ActiveLanguageClients)
-            {
-                if (languageClientInstance.Client.Name.Equals(BicepLanguageServerClientConstants.BicepLanguageServerName))
-                {
-                    return true;
-                }
-            }
+            //foreach (ILanguageClientInstance languageClientInstance in languageServiceBroker.ActiveLanguageClients)
+            //{
+            //    if (languageClientInstance.Client.Name.Equals(BicepLanguageServerClientConstants.BicepLanguageServerName))
+            //    {
+            //        return true;
+            //    }
+            //}
 
             return false;
         }
     }
-#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -142,7 +142,7 @@ internal static class OperationReturnTypeEvaluator
 
     private class NotEqualsEvaluator : BinaryEvaluator
     {
-        internal NotEqualsEvaluator() : base(BinaryOperator.NotEquals, LanguageConstants.Any, LanguageConstants.Any, Operators.BinaryOperatorToText[BinaryOperator.NotEquals], LanguageConstants.Bool) {}
+        internal NotEqualsEvaluator() : base(BinaryOperator.NotEquals, LanguageConstants.Any, LanguageConstants.Any, "", LanguageConstants.Bool) {}
 
         internal override TypeSymbol Evaluate(SyntaxBase expressionSyntax, out IEnumerable<IDiagnostic> evaluationDiagnostics, params TypeSymbol[] operandTypes)
         {
@@ -162,7 +162,7 @@ internal static class OperationReturnTypeEvaluator
     {
         private readonly bool negated;
 
-        internal InsensitiveEqualityEvaluator(BinaryOperator op, bool negated = false) : base(op, LanguageConstants.String, LanguageConstants.String, Operators.BinaryOperatorToText[op], LanguageConstants.Bool)
+        internal InsensitiveEqualityEvaluator(BinaryOperator op, bool negated = false) : base(op, LanguageConstants.String, LanguageConstants.String, "", LanguageConstants.Bool)
         {
             this.negated = negated;
         }

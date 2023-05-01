@@ -1285,35 +1285,6 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-//@[132:134) NewLine |\r\n|
-var magicString2 = 'name'
-//@[000:003) Identifier |var|
-//@[004:016) Identifier |magicString2|
-//@[017:018) Assignment |=|
-//@[019:025) StringComplete |'name'|
-//@[025:027) NewLine |\r\n|
-resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:008) Identifier |resource|
-//@[009:027) Identifier |runtimeInvalidRes9|
-//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[088:089) Assignment |=|
-//@[090:091) LeftBrace |{|
-//@[091:093) NewLine |\r\n|
-  name: runtimeValidRes2['${magicString2}']
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:024) Identifier |runtimeValidRes2|
-//@[024:025) LeftSquare |[|
-//@[025:028) StringLeftPiece |'${|
-//@[028:040) Identifier |magicString2|
-//@[040:042) StringRightPiece |}'|
-//@[042:043) RightSquare |]|
-//@[043:045) NewLine |\r\n|
-}
-//@[000:001) RightBrace |}|
-//@[001:005) NewLine |\r\n\r\n|
-
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[000:008) Identifier |resource|
 //@[009:028) Identifier |runtimeInvalidRes10|
@@ -1732,8 +1703,34 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[025:027) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:007) NewLine |\r\n\r\n\r\n|
+//@[001:005) NewLine |\r\n\r\n|
 
+var magicString2 = 'name'
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |magicString2|
+//@[017:018) Assignment |=|
+//@[019:025) StringComplete |'name'|
+//@[025:027) NewLine |\r\n|
+resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Identifier |resource|
+//@[009:026) Identifier |runtimeValidRes10|
+//@[027:086) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[087:088) Assignment |=|
+//@[089:090) LeftBrace |{|
+//@[090:092) NewLine |\r\n|
+  name: runtimeValidRes2['${magicString2}']
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes2|
+//@[024:025) LeftSquare |[|
+//@[025:028) StringLeftPiece |'${|
+//@[028:040) Identifier |magicString2|
+//@[040:042) StringRightPiece |}'|
+//@[042:043) RightSquare |]|
+//@[043:045) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[000:008) Identifier |resource|

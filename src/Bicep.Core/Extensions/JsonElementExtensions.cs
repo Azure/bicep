@@ -87,19 +87,6 @@ namespace Bicep.Core.Extensions
             return patched;
         }
 
-        public static IEnumerable<JsonElement> Select(this JsonElement element, string jsonPathQuery)
-        {
-            var jsonPath = JsonPath.Parse(jsonPathQuery);
-            var result = jsonPath.Evaluate(element);
-
-            if (result.Error is string error)
-            {
-                throw new InvalidOperationException(error);
-            }
-
-            return result.Matches?.Select(match => match.Value) ?? Enumerable.Empty<JsonElement>();
-        }
-
         [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
         public static string ToFormattedString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
         {

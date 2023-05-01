@@ -29,7 +29,7 @@ public class PrettyPrint
         var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
 
         var dataSets = DataSets.AllDataSets
-            .Where(x => !x.IsValid)
+            .Where(x => x.IsValid)
             .ToImmutableArray();
 
         var bicepService = new ServiceBuilder()

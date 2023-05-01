@@ -23,6 +23,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     {
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetExperimentalData), DynamicDataSourceType.Method)]
         public void Invoke_OnSuccess_ReturnsZero(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
             var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
@@ -95,6 +96,16 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             {
                 MockFileSystemFactory.CreateFileSystemWithModifiedFiles(),
                 MockFileSystemFactory.CreateFileSystemWithValidFiles(),
+            };
+        }
+
+        private static IEnumerable<object[]> GetExperimentalData()
+        {
+
+            yield return new object[]
+            {
+                MockFileSystemFactory.CreateFileSystemWithModifiedFiles(),
+                MockFileSystemFactory.CreateFileSystemWithExperimentalFiles(),
             };
         }
 

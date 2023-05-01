@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Containers.ContainerRegistry.Specialized;
+using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
@@ -100,7 +100,7 @@ namespace Bicep.Core.Samples
                 });
 
             clientFactory
-                .Setup(m => m.CreateAnonymouosBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))

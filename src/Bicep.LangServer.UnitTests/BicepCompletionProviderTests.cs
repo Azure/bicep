@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
@@ -36,7 +37,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
-                .AddSingleton<IAzureContainerRegistryNamesProvider, AzureContainerRegistryNamesProvider>()
+                .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
@@ -56,7 +57,7 @@ namespace Bicep.LangServer.UnitTests
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, 0));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, 0), CancellationToken.None);
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -144,7 +145,7 @@ output o int = 42
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             var completionProvider = CreateProvider();
-            var completions = (await completionProvider.GetFilteredCompletions(compilation, context)).ToList();
+            var completions = (await completionProvider.GetFilteredCompletions(compilation, context, CancellationToken.None)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
@@ -183,7 +184,8 @@ output o int = 42
             var completionProvider = CreateProvider();
             var completions = (await completionProvider.GetFilteredCompletions(
                 compilation,
-                BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset))).ToList();
+                BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset),
+                CancellationToken.None)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
 
@@ -214,7 +216,7 @@ output length int =
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             var completionProvider = CreateProvider();
-            var completions = (await completionProvider.GetFilteredCompletions(compilation, context)).ToList();
+            var completions = (await completionProvider.GetFilteredCompletions(compilation, context, CancellationToken.None)).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] { "sys.concat", "az.resourceGroup", "sys.base64" });
 
@@ -257,7 +259,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -273,7 +275,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -319,7 +321,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -376,7 +378,7 @@ output length int =
             var offset = codeFragment.IndexOf('|');
 
             var completionProvider = CreateProvider();
-            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
 
             completions.Should().BeEmpty();
         }
