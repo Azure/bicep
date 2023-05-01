@@ -22,7 +22,7 @@ namespace Bicep.Cli.Services
             this.io = io;
         }
 
-        public EmitResult ToFile(Compilation compilation, string outputPath)
+        public EmitResult ToFile(Compilation compilation, string outputPath, string outputFormat, string includeParams)
         {
             var existingContent = string.Empty;
             if (File.Exists(outputPath))
@@ -31,13 +31,13 @@ namespace Bicep.Cli.Services
             }
             using var fileStream = CreateFileStream(outputPath);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(fileStream, existingContent);
+            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(fileStream, existingContent, outputFormat, includeParams);
         }
 
-        public EmitResult ToStdout(Compilation compilation)
+        public EmitResult ToStdout(Compilation compilation, string outputFormat, string includeParams)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(io.Output, string.Empty);
+            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(io.Output, string.Empty, outputFormat, includeParams);
         }
 
         private static FileStream CreateFileStream(string path)

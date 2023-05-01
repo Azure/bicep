@@ -42,7 +42,7 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
-            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.BicepFile);
+            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.ParamsFile);
 
             if (emitterSettings.EnableSymbolicNames)
             {
@@ -66,7 +66,7 @@ namespace Bicep.Cli.Commands
             {
                 if (args.OutputToStdOut)
                 {
-                    writer.ToStdout(compilation);
+                    writer.ToStdout(compilation, args.OutputFormat, args.IncludeParams);
                 }
                 else
                 {
@@ -84,9 +84,9 @@ namespace Bicep.Cli.Commands
                         outputPath = inputPath;
                     }
 
-                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath);
+                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat);
 
-                    writer.ToFile(compilation, outputPath);
+                    writer.ToFile(compilation, outputPath, args.OutputFormat, args.IncludeParams);
                 }
             }
 

@@ -12,12 +12,15 @@ namespace Bicep.Core.Emit
 {
     public class PlaceholderParametersJsonWriter
     {
-        public PlaceholderParametersJsonWriter(SemanticModel semanticModel)
+        public PlaceholderParametersJsonWriter(SemanticModel semanticModel, string includeParams)
         {
             this.Context = new EmitterContext(semanticModel);
+            this.IncludeParams = includeParams;
         }
 
         private EmitterContext Context { get; }
+
+        private string IncludeParams { get; }
 
         public void Write(JsonTextWriter writer, string existingContent)
         {

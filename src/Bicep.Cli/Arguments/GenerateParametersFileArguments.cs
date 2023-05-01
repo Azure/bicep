@@ -35,6 +35,32 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--output-format":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --output-format parameter expects an argument");
+                        }
+                        if (OutputFormat is not null)
+                        {
+                            throw new CommandLineException($"The --output-format parameter cannot be specified twice");
+                        }
+                        OutputFormat = args[i + 1];
+                        i++;
+                        break;
+
+                    case "--include-params":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --include-params parameter expects an argument");
+                        }
+                        if (IncludeParams is not null)
+                        {
+                            throw new CommandLineException($"The --include-params parameter cannot be specified twice");
+                        }
+                        IncludeParams = args[i + 1];
+                        i++;
+                        break;
+
                     case "--outfile":
                         if (args.Length == i + 1)
                         {
@@ -82,6 +108,16 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
 
+            if (OutputFormat is null)
+            {
+                OutputFormat = "json";
+            }
+
+            if (IncludeParams is null)
+            {
+                IncludeParams = "required";
+            }
+
             if (OutputDir is not null)
             {
                 var outputDir = PathHelper.ResolvePath(OutputDir);
@@ -100,6 +136,10 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+
+        public string OutputFormat { get; }
+
+        public string IncludeParams { get; }
 
         public bool NoRestore { get; }
     }

@@ -67,7 +67,7 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public static string ResolveParametersFileOutputPath(string path)
+        public static string ResolveParametersFileOutputPath(string path, string outputFormat)
         {
             var folder = ResolvePath(path);
 
@@ -80,7 +80,9 @@ namespace Bicep.Core.FileSystem
                 fileNameWithoutExtension = "output";
             }
 
-            var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}.parameters.json";
+            var extension = outputFormat == "json" ? "parameters.json" : "bicepparam";
+
+            var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}.{extension}";
 
             return outputPath;
         }
@@ -137,7 +139,7 @@ namespace Bicep.Core.FileSystem
 
             return uriBuilder.Uri;
         }
-        
+
         public static Uri ChangeExtension(Uri uri, string? newExtension)
         {
             var uriString = uri.ToString();

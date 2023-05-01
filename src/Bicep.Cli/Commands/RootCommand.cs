@@ -135,7 +135,6 @@ Usage:
       bicep generate-params file.bicep --outdir dir1
       bicep generate-params file.bicep --outfile file.parameters.json
 
-
   {exeName} publish <file> --target <ref>
     Publishes the .bicep file to the module registry.
 
@@ -157,19 +156,18 @@ Usage:
     Arguments:
       <file>        The input file
 
- {exeName} [options]
+  {exeName} [options]
     Options:
       --version              -v   Shows bicep version information
       --help                 -h   Shows this usage information
       --license                   Prints license information
       --third-party-notices       Prints third-party notices
-      
-  
-  {exeName} build-params <file> 
+
+  {exeName} build-params <file>
     Builds .bicepparam file.
 
     Arguments:
-      <file>        The input Bicepparam file 
+      <file>        The input Bicepparam file
 
     Options:
       --bicep-file <file> Verifies if the bicep file reference in the params file using declaration matches the specified file path.
@@ -181,9 +179,8 @@ Usage:
     Examples:
       bicep build-params params.bicepparam
       bicep build-params params.bicepparam --stdout
-      bicep build-params params.bicepparam --outfile-params otherParams.json --outfile-bicep otherMain.json 
+      bicep build-params params.bicepparam --outfile-params otherParams.json --outfile-bicep otherMain.json
       bicep build-params params.bicepparam --no-restore
-
 
 "; // this newline is intentional
 
