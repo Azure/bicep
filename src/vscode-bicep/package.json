@@ -657,7 +657,7 @@
     "fork-ts-checker-webpack-plugin": "^8.0.0",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.1.1",
-    "json-merger": "^1.1.9",
+    "json-merger": "^1.1.10",
     "moment": "^2.29.4",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.5.119",
