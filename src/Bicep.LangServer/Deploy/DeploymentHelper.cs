@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure;
@@ -47,12 +48,13 @@ namespace Bicep.LanguageServer.Deploy
             string scope,
             string location,
             string deploymentId,
-            string parametersFileName,
+            string? parametersFileName,
             ParametersFileUpdateOption parametersFileUpdateOption,
             List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters,
             string portalUrl,
             string deploymentName,
-            IDeploymentOperationsCache deploymentOperationsCache)
+            IDeploymentOperationsCache deploymentOperationsCache,
+            string? bicepparamJsonOutput)
         {
             if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
@@ -79,8 +81,20 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    var updatedParametersFileContents = DeploymentParametersHelper.GetUpdatedParametersFileContents(documentPath, parametersFileName, parametersFilePath, parametersFileUpdateOption, updatedDeploymentParameters);
-                    parameters = JsonElementFactory.CreateElement(updatedParametersFileContents);
+                    if(parametersFilePath.EndsWith(".bicepparam") && bicepparamJsonOutput is {})
+                    {
+                        parameters = JsonElementFactory.CreateElement(bicepparamJsonOutput);
+                    }
+                    else if(parametersFilePath.EndsWith(".json") && parametersFileName is {})
+                    {
+                        var updatedParametersFileContents = DeploymentParametersHelper.GetUpdatedParametersFileContents(documentPath, parametersFileName, parametersFilePath, parametersFileUpdateOption, updatedDeploymentParameters);
+                        parameters = JsonElementFactory.CreateElement(updatedParametersFileContents);
+                    }
+                    else
+                    {
+                        return new BicepDeploymentStartResponse(false, $"Parameter file with file extension {Path.GetExtension(parametersFilePath)} is not allowed", null);
+                    }
+
                 }
                 catch (Exception e)
                 {
