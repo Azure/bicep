@@ -27,7 +27,7 @@
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.2.1",
     "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.5.0",
+    "html-webpack-plugin": "^5.5.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "nerdbank-gitversioning": "^3.6.128",
     "style-loader": "^3.3.2",
