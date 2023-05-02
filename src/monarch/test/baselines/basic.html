@@ -75,8 +75,8 @@
 <span class="hljs-string">      hello!</span>
 <span class="hljs-string">&#39;&#39;&#39;</span>
 
-<span class="hljs-keyword">var</span> <span class="hljs-variable">func</span> = <span class="hljs-variable">resourceGroup</span>().<span class="hljs-variable">location</span>
-<span class="hljs-keyword">var</span> <span class="hljs-variable">func2</span> = <span class="hljs-variable">reference</span>(<span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets&#39;</span>, <span class="hljs-variable">func</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-keyword">func</span> = <span class="hljs-variable">resourceGroup</span>().<span class="hljs-variable">location</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">func2</span> = <span class="hljs-variable">reference</span>(<span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.KeyVault/vaults/secrets&#39;</span>, <span class="hljs-keyword">func</span>)
 <span class="hljs-keyword">var</span> <span class="hljs-variable">func3</span> = <span class="hljs-variable">union</span>({
   <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>: <span class="hljs-variable">resourceGroup</span>().<span class="hljs-variable">id</span>
 }, {

@@ -42,12 +42,12 @@ namespace Bicep.Core.Semantics
         }
 
         public static string? TryGetDescription(SemanticModel semanticModel, DecorableSyntax decorable)
-            => TryGetDescription(semanticModel.Binder, semanticModel.TypeManager.GetDeclaredType, decorable);
+            => TryGetDescription(semanticModel.Binder, semanticModel.TypeManager, decorable);
 
-        public static string? TryGetDescription(IBinder binder, Func<SyntaxBase, TypeSymbol?> getDeclaredTypeFunc, DecorableSyntax decorable)
+        public static string? TryGetDescription(IBinder binder, ITypeManager typeManager, DecorableSyntax decorable)
         {
             var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder,
-                getDeclaredTypeFunc,
+                typeManager.GetDeclaredType,
                 decorable,
                 SystemNamespaceType.BuiltInName,
                 LanguageConstants.MetadataDescriptionPropertyName);

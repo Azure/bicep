@@ -195,7 +195,9 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsParameterIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ParamIdentifier) |
                        ConvertFlag(IsParameterValueContext(matchingNodes, offset), BicepCompletionContextKind.ParamValue) |
                        ConvertFlag(IsObjectTypePropertyValueContext(matchingNodes, offset), BicepCompletionContextKind.ObjectTypePropertyValue) |
-                       ConvertFlag(IsUnionTypeMemberContext(matchingNodes, offset), BicepCompletionContextKind.UnionTypeMember);
+                       ConvertFlag(IsUnionTypeMemberContext(matchingNodes, offset), BicepCompletionContextKind.UnionTypeMember) |
+                       ConvertFlag(IsTypedLocalVariableTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLocalVariableType) |
+                       ConvertFlag(IsTypedLambdaOutputTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLambdaOutputType);
 
             if (featureProvider.ExtensibilityEnabled)
             {
@@ -992,6 +994,20 @@ namespace Bicep.LanguageServer.Completions
                     matchingNodes,
                     (arraySyntax, token) => token.Type != TokenType.NewLine || !CanInsertChildNodeAtOffset(arraySyntax, offset)) ||
 
+                // var test = map([], ( | ) => 'asdf')
+                SyntaxMatcher.IsTailMatch<VariableBlockSyntax>(matchingNodes) ||
+                // var test = map([], (a|) => 'asdf')
+                SyntaxMatcher.IsTailMatch<VariableBlockSyntax, LocalVariableSyntax, IdentifierSyntax, Token>(matchingNodes) ||
+                // var test = map([], (|) => 'asdf')
+                SyntaxMatcher.IsTailMatch<VariableBlockSyntax, Token>(matchingNodes) ||
+
+                // func foo( | ) string => 'asdf'
+                SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax>(matchingNodes) ||
+                // func foo(a|) string => 'asdf'
+                SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, TypedLocalVariableSyntax, IdentifierSyntax, Token>(matchingNodes) ||
+                // func foo(|) string => 'asdf'
+                SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, Token>(matchingNodes) ||
+
                 // var foo = ! | bar
                 SyntaxMatcher.IsTailMatch<UnaryOperationSyntax>(
                     matchingNodes,
@@ -1072,6 +1088,18 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
             // param foo = 'o|'
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete);
+
+        private static bool IsTypedLambdaOutputTypeContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // func foo() | => bar
+            SyntaxMatcher.IsTailMatch<TypedLambdaSyntax>(matchingNodes, (lambda) => offset > lambda.VariableSection.GetEndPosition() && (lambda.Arrow.IsSkipped || offset < lambda.Arrow.GetPosition())) ||
+            // func foo() a| => bar
+            SyntaxMatcher.IsTailMatch<TypedLambdaSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (lambda, variable, _, _) => lambda.ReturnType == variable);
+
+        private static bool IsTypedLocalVariableTypeContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // func foo(a |) string => bar
+            SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, TypedLocalVariableSyntax>(matchingNodes, (_, variable) => offset > variable.Name.GetEndPosition()) ||
+            // func foo(a b|) string => bar
+            SyntaxMatcher.IsTailMatch<TypedVariableBlockSyntax, TypedLocalVariableSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, variable, type, _, _) => variable.Type == type);
 
         private static bool IsResourceDependsOnArrayItemContext(BicepCompletionContextKind kind, string? propertyName, SyntaxBase? topLevelDeclarationInfo)
         {

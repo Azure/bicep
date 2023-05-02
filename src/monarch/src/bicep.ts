@@ -27,6 +27,7 @@ const keywords = [
   'type',
   'with',
   'using',
+  'func',
 ];
 
 const namedLiterals = [

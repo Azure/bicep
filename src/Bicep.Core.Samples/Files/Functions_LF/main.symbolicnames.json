@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "834592582032208770"
+    }
+  },
+  "functions": [
+    {
+      "namespace": "__bicep",
+      "members": {
+        "buildUrl": {
+          "parameters": [
+            {
+              "type": "bool",
+              "name": "https"
+            },
+            {
+              "type": "string",
+              "name": "hostname"
+            },
+            {
+              "type": "string",
+              "name": "path"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
+          }
+        },
+        "sayHello": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('Hi {0}!', parameters('name'))]"
+          }
+        },
+        "objReturnType": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "object",
+            "value": {
+              "hello": "[format('Hi {0}!', parameters('name'))]"
+            }
+          }
+        },
+        "arrayReturnType": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "[parameters('name')]"
+            ]
+          }
+        },
+        "asdf": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "asdf",
+              "[parameters('name')]"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "resources": {},
+  "outputs": {
+    "foo": {
+      "type": "string",
+      "value": "[__bicep.buildUrl(true(), 'google.com', 'search')]"
+    },
+    "hellos": {
+      "type": "array",
+      "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
+    }
+  }
+}

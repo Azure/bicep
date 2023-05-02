@@ -64,6 +64,7 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
                             LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
@@ -156,6 +157,15 @@ namespace Bicep.Core.Parsing
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+
+        private SyntaxBase FunctionDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.FunctionKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var lambda = this.WithRecovery(() => this.TypedLambda(), GetSuppressionFlag(name), TokenType.NewLine);
+
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
         }
 
         private SyntaxBase OutputDeclaration(IEnumerable<SyntaxBase> leadingNodes)

@@ -20,11 +20,15 @@ namespace Bicep.Core.Samples
 
         public static DataSet Empty => CreateDataSet();
 
+        public static DataSet Functions_LF => CreateDataSet();
+
         public static DataSet InvalidCycles_CRLF => CreateDataSet();
 
         public static DataSet InvalidDisableNextLineDiagnosticsDirective_CRLF => CreateDataSet();
 
         public static DataSet InvalidExpressions_LF => CreateDataSet();
+
+        public static DataSet InvalidFunctions_LF => CreateDataSet();
 
         public static DataSet InvalidMetadata_CRLF => CreateDataSet();
 

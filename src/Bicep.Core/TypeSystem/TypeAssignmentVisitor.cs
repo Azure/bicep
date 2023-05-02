@@ -211,6 +211,17 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
+            => AssignType(syntax, () => 
+            {
+                if (typeManager.GetDeclaredType(syntax) is not {} declaredType)
+                {
+                    return ErrorType.Empty();
+                }
+
+                return declaredType;
+            });
+
         public override void VisitForSyntax(ForSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -798,6 +809,24 @@ namespace Bicep.Core.TypeSystem
                 this.ValidateDecorators(syntax.Decorators, valueType, diagnostics);
 
                 return valueType;
+            });
+
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var errors = new List<ErrorDiagnostic>();
+
+                var lambdaType = typeManager.GetTypeInfo(syntax.Lambda);
+                CollectErrors(errors, lambdaType);
+
+                if (PropagateErrorType(errors, lambdaType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                this.ValidateDecorators(syntax.Decorators, lambdaType, diagnostics);
+
+                return lambdaType;
             });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -1426,6 +1455,9 @@ namespace Bicep.Core.TypeSystem
                     case FunctionSymbol function:
                         return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
+                    case DeclaredFunctionSymbol declaredFunction:
+                        return GetFunctionSymbolType(declaredFunction, syntax, errors, diagnostics);
+
                     case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is {} knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
                         return ErrorType.Create(
@@ -1445,6 +1477,33 @@ namespace Bicep.Core.TypeSystem
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, LanguageConstants.Any);
 
                 return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
+            });
+
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+                if (declaredType is not LambdaType declaredLambdaType)
+                {
+                    return declaredType ?? ErrorType.Empty();
+                }
+
+                var errors = new List<ErrorDiagnostic>();
+                var argumentTypes = new List<TypeSymbol>();
+                foreach (var argumentType in declaredLambdaType.ArgumentTypes)
+                {
+                    CollectErrors(errors, argumentType.Type);
+                }
+
+                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredLambdaType.ReturnType.Type);
+                CollectErrors(errors, returnType);
+
+                if (PropagateErrorType(errors, argumentTypes))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                return new LambdaType(declaredLambdaType.ArgumentTypes, returnType);
             });
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)
@@ -1691,7 +1750,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol GetFunctionSymbolType(
-            FunctionSymbol function,
+            IFunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             IList<ErrorDiagnostic> errors,
             IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
@@ -1702,7 +1761,7 @@ namespace Bicep.Core.TypeSystem
                 diagnosticWriter);
 
         private TypeSymbol GetFunctionSymbolType(
-            FunctionSymbol function,
+            IFunctionSymbol function,
             FunctionCallSyntaxBase syntax,
             ImmutableArray<TypeSymbol> argumentTypes,
             IList<ErrorDiagnostic> errors,
@@ -1762,7 +1821,7 @@ namespace Bicep.Core.TypeSystem
                         errors.Add(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(argumentIndex)).ArgumentTypeMismatch(argumentType, parameterType));
                     }
                 }
-                else
+                else if (countMismatches.Any())
                 {
                     // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
                     var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);

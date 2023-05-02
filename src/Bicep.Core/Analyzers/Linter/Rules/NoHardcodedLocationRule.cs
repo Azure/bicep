@@ -107,7 +107,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     CodeFixKind.QuickFix,
                     new CodeReplacement(
                         definingVariable.DeclaringSyntax.Span,
-                        $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
+                        $"param {definingVariable.Name} string = {definingVariable.DeclaringVariable.Value.ToTextPreserveFormatting()}"));
                 diagnostics.Add(this.CreateFixableDiagnosticForSpan(diagnosticLevel, errorSpan, fix, msg));
             }
             else

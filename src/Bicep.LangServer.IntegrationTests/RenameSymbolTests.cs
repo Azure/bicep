@@ -110,7 +110,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var validFunctionCallPairs = symbolTable
-                .Where(pair => pair.Value.Kind == SymbolKind.Function)
+                .Where(pair => pair.Value is FunctionSymbol)
                 .Select(pair => pair.Key);
 
             foreach (var syntax in validFunctionCallPairs)

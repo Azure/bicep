@@ -75,6 +75,12 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
+        public override void VisitDeclaredFunctionSymbol(DeclaredFunctionSymbol symbol)
+        {
+            base.VisitDeclaredFunctionSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
         public override void VisitResourceSymbol(ResourceSymbol symbol)
         {
             base.VisitResourceSymbol(symbol);

@@ -130,6 +130,24 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Modifier);
             });
 
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Lambda);
+            }, children => {
+                var leadingNodes = children[0..^3];
+                var keyword = children[^3];
+                var name = children[^2];
+                var lambda = children[^1];
+
+                return Spread(
+                    Concat(leadingNodes.Concat(keyword)),
+                    Concat(name, lambda));
+            });
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
@@ -246,17 +264,21 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.CloseParen);
             });
 
+        public override void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.OpenParen);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseParen);
+            });
+
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
+            this.BuildWithSpread(() => base.VisitTypedLocalVariableSyntax(syntax));
+
         public override void VisitLambdaSyntax(LambdaSyntax syntax) =>
-            this.Build(() => base.VisitLambdaSyntax(syntax), children =>
-             {
-                 Debug.Assert(children.Length == 3);
+            this.BuildWithSpread(() => base.VisitLambdaSyntax(syntax));
 
-                 ILinkedDocument token = children[0];
-                 ILinkedDocument arrow = children[1];
-                 ILinkedDocument body = children[2];
-
-                 return Spread(token, arrow, body);
-             });
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
+            this.BuildWithSpread(() => base.VisitTypedLambdaSyntax(syntax));
 
         private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)
         {
@@ -642,7 +664,7 @@ namespace Bicep.Core.PrettyPrint
 
         private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
 
-        private void BuildStatement(SyntaxBase syntax, Action visitAction)
+        private void BuildStatement(SyntaxBase syntax, Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
         {
             if (this.HasSyntaxError(syntax))
             {
@@ -654,7 +676,11 @@ namespace Bicep.Core.PrettyPrint
                 return;
             }
 
-            this.Build(visitAction, children =>
+            this.Build(visitAction, buildFunc);
+        }
+
+        private void BuildStatement(SyntaxBase syntax, Action visitAction)
+            => BuildStatement(syntax, visitAction, children =>
             {
                 var splitIndex = Array.IndexOf(children, Nil);
 
@@ -664,7 +690,6 @@ namespace Bicep.Core.PrettyPrint
 
                 return Spread(head.AsEnumerable().Concat(tail));
             });
-        }
 
         private void Build(Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
         {

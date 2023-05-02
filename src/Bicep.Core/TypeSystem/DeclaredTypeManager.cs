@@ -153,9 +153,36 @@ namespace Bicep.Core.TypeSystem
 
                 case NonNullAssertionSyntax nonNullAssertion:
                     return GetNonNullType(nonNullAssertion);
+
+                case TypedLocalVariableSyntax typedLocalVariable:
+                    return GetTypedLocalVariableType(typedLocalVariable);
+
+                case TypedLambdaSyntax typedLambda:
+                    return GetTypedLambdaType(typedLambda);
             }
 
             return null;
+        }
+
+        private DeclaredTypeAssignment GetTypedLocalVariableType(TypedLocalVariableSyntax syntax)
+        {
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
+
+            return new(declaredType, syntax);
+        }
+
+        private DeclaredTypeAssignment GetTypedLambdaType(TypedLambdaSyntax syntax)
+        {
+            var argumentTypes = syntax.GetLocalVariables()
+                .Select(x => GetTypedLocalVariableType(x).Reference)
+                .ToImmutableArray();
+
+            var returnType = TryGetTypeFromTypeSyntax(syntax.ReturnType, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ReturnType).InvalidOutputType(GetValidTypeNames()));
+
+            var type = new LambdaType(argumentTypes, returnType);
+            return new(type, syntax);
         }
 
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)
@@ -405,7 +432,7 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
-                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType(GetValidTypeNames()));
 
             return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax), syntax);
         }
@@ -533,7 +560,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
-                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
+                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, SemanticModelHelper.TryGetDescription(binder, typeManager, prop)));
                     nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 } else
                 {
