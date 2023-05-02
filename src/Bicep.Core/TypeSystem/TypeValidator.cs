@@ -390,62 +390,57 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol NarrowIntegerAssignmentType(SyntaxBase expression, TypeSymbol expressionType, IntegerType targetType)
         {
-            var targetMin = targetType.MinValue ?? long.MinValue;
-            var targetMax = targetType.MaxValue ?? long.MaxValue;
             switch (expressionType)
             {
                 case IntegerType expressionInteger:
-                    var expressionMin = expressionInteger.MinValue ?? long.MinValue;
-                    var expressionMax = expressionInteger.MaxValue ?? long.MaxValue;
-
-                    if (expressionMin > targetMax)
+                    if (expressionInteger.MinValue.HasValue && targetType.MaxValue.HasValue && expressionInteger.MinValue.Value > targetType.MaxValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionMin, targetMax));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionInteger.MinValue.Value, targetType.MaxValue.Value));
                         break;
                     }
 
-                    if (expressionMax < targetMin)
+                    if (expressionInteger.MaxValue.HasValue && targetType.MinValue.HasValue && expressionInteger.MaxValue.Value < targetType.MinValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionMax, targetMin));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionInteger.MaxValue.Value, targetType.MinValue.Value));
                         break;
                     }
 
-                    if (expressionMin < targetMin)
+                    if (expressionInteger.MinValue.HasValue && targetType.MinValue.HasValue && expressionInteger.MinValue.Value < targetType.MinValue.Value)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsBelowTargetIntDomain(expressionInteger.MinValue, targetMin));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsBelowTargetIntDomain(expressionInteger.MinValue.Value, targetType.MinValue.Value));
                     }
 
-                    if (expressionMax > targetMax)
+                    if (expressionInteger.MaxValue.HasValue && targetType.MaxValue.HasValue && expressionInteger.MaxValue.Value > targetType.MaxValue.Value)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsAboveTargetIntDomain(expressionInteger.MaxValue, targetMax));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceIntDomainExtendsAboveTargetIntDomain(expressionInteger.MaxValue.Value, targetType.MaxValue.Value));
                     }
 
                     return TypeFactory.CreateIntegerType(
-                        minValue: Math.Max(expressionMin, targetMin) switch
+                        minValue: Math.Max(expressionInteger.MinValue ?? long.MinValue, targetType.MinValue ?? long.MinValue) switch
                         {
                             long.MinValue => null,
                             long otherwise => otherwise,
                         },
-                        maxValue: Math.Min(expressionMax, targetMax) switch
+                        maxValue: Math.Min(expressionInteger.MaxValue ?? long.MaxValue, targetType.MaxValue ?? long.MaxValue) switch
                         {
                             long.MaxValue => null,
                             long otherwise => otherwise,
                         },
                         targetType.ValidationFlags);
                 case IntegerLiteralType expressionIntegerLiteral:
-                    if (expressionIntegerLiteral.Value > targetMax)
+                    if (targetType.MaxValue.HasValue && expressionIntegerLiteral.Value > targetType.MaxValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetMax));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetType.MaxValue.Value));
                         break;
                     }
 
-                    if (expressionIntegerLiteral.Value < targetMin)
+                    if (targetType.MinValue.HasValue && expressionIntegerLiteral.Value < targetType.MinValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetMin));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetType.MinValue.Value));
                         break;
                     }
 
@@ -487,59 +482,56 @@ namespace Bicep.Core.TypeSystem
             switch (expressionType)
             {
                 case StringType expressionString:
-                    var expressionMinLength = expressionString.MinLength ?? 0;
-                    var expressionMaxLength = expressionString.MaxLength ?? long.MaxValue;
-
-                    if (expressionMinLength > targetMaxLength)
+                    if (expressionString.MinLength.HasValue && targetType.MaxLength.HasValue && expressionString.MinLength.Value > targetType.MaxLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionMinLength, targetMaxLength));
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionString.MinLength.Value, targetType.MaxLength.Value));
                         break;
                     }
 
-                    if (expressionMaxLength < targetMinLength)
+                    if (expressionString.MaxLength.HasValue && targetType.MinLength.HasValue && expressionString.MaxLength.Value < targetType.MinLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionMaxLength, targetMinLength));
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionString.MaxLength.Value, targetType.MinLength.Value));
                         break;
                     }
 
-                    if (expressionMinLength < targetMinLength)
+                    if (expressionString.MinLength.HasValue && targetType.MinLength.HasValue && expressionString.MinLength.Value < targetType.MinLength.Value)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionString.MinLength, targetMinLength));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionString.MinLength.Value, targetType.MinLength.Value));
                     }
 
-                    if (expressionMaxLength > targetMaxLength)
+                    if (expressionString.MaxLength.HasValue && targetType.MaxLength.HasValue && expressionString.MaxLength.Value > targetType.MaxLength.Value)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionString.MaxLength, targetMaxLength));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionString.MaxLength.Value, targetType.MaxLength.Value));
                     }
 
                     return TypeFactory.CreateStringType(
-                        minLength: Math.Max(expressionMinLength, targetMinLength) switch
+                        minLength: Math.Max(expressionString.MinLength ?? 0, targetType.MinLength ?? 0) switch
                         {
-                            0 => null,
+                            <= 0 => null,
                             long otherwise => otherwise,
                         },
-                        maxLength: Math.Min(expressionMaxLength, targetMaxLength) switch
+                        maxLength: Math.Min(expressionString.MaxLength ?? long.MaxValue, targetType.MaxLength ?? long.MaxValue) switch
                         {
                             long.MaxValue => null,
                             long otherwise => otherwise,
                         },
                         validationFlags: targetType.ValidationFlags);
                 case StringLiteralType expressionStringLiteral:
-                    if (expressionStringLiteral.RawStringValue.Length > targetMaxLength)
+                    if (targetType.MaxLength.HasValue && expressionStringLiteral.RawStringValue.Length > targetType.MaxLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
                             ShouldWarn(targetType),
                             expressionStringLiteral.RawStringValue.Length,
-                            targetMaxLength));
+                            targetType.MaxLength.Value));
                     }
-                    else if (expressionStringLiteral.RawStringValue.Length < targetMinLength)
+                    else if (targetType.MinLength.HasValue && expressionStringLiteral.RawStringValue.Length < targetType.MinLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
                             ShouldWarn(targetType),
                             expressionStringLiteral.RawStringValue.Length,
-                            targetMinLength));
+                            targetType.MinLength.Value));
                     }
 
                     // if a literal was assignable to a string-typed target, the literal will always be the most narrow type
@@ -612,47 +604,42 @@ namespace Bicep.Core.TypeSystem
 
             if (expressionType is ArrayType expressionArrayType)
             {
-                var expressionMinLength = expressionArrayType.MinLength ?? 0;
-                var targetMinLength = targetType.MinLength ?? 0;
-                var expressionMaxLength = expressionArrayType.MaxLength ?? long.MaxValue;
-                var targetMaxLength = targetType.MaxLength ?? long.MaxValue;
-
-                if (expressionMinLength > targetMaxLength)
+                if (expressionArrayType.MinLength.HasValue && targetType.MaxLength.HasValue && expressionArrayType.MinLength.Value > targetType.MaxLength.Value)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
                         ShouldWarn(targetType),
-                        expressionMinLength,
-                        targetMaxLength));
+                        expressionArrayType.MinLength.Value,
+                        targetType.MaxLength.Value));
                     return expressionType;
                 }
 
-                if (expressionMaxLength < targetMinLength)
+                if (expressionArrayType.MaxLength.HasValue && targetType.MinLength.HasValue && expressionArrayType.MaxLength.Value < targetType.MinLength.Value)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
                         ShouldWarn(targetType),
-                        expressionMaxLength,
-                        targetMinLength));
+                        expressionArrayType.MaxLength.Value,
+                        targetType.MinLength.Value));
                     return expressionType;
                 }
 
-                if (expressionMinLength < targetMinLength)
+                if (expressionArrayType.MinLength.HasValue && targetType.MinLength.HasValue && expressionArrayType.MinLength.Value < targetType.MinLength.Value)
                 {
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.MinLength, targetMinLength));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsBelowTargetValueLengthDomain(expressionArrayType.MinLength.Value, targetType.MinLength.Value));
                 }
 
-                if (expressionMaxLength > targetMaxLength)
+                if (expressionArrayType.MaxLength.HasValue && targetType.MaxLength.HasValue && expressionArrayType.MaxLength.Value > targetType.MaxLength.Value)
                 {
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionArrayType.MaxLength, targetMaxLength));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainExtendsAboveTargetValueLengthDomain(expressionArrayType.MaxLength.Value, targetType.MaxLength.Value));
                 }
 
                 return new TypedArrayType(NarrowType(config, expression, expressionArrayType.Item.Type, targetType.Item.Type),
                     targetType.ValidationFlags,
-                    minLength: Math.Max(expressionMinLength, targetMinLength) switch
+                    minLength: Math.Max(expressionArrayType.MinLength ?? 0, targetType.MinLength ?? 0) switch
                     {
-                        0 => null,
+                        <= 0 => null,
                         long otherwise => otherwise,
                     },
-                    maxLength: Math.Min(expressionMaxLength, targetMaxLength) switch
+                    maxLength: Math.Min(expressionArrayType.MaxLength ?? long.MaxValue, targetType.MaxLength ?? long.MaxValue) switch
                     {
                         long.MaxValue => null,
                         long otherwise => otherwise,

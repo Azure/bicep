@@ -26,7 +26,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class UseRecentApiVersionRule : LinterRuleBase
     {
         public new const string Code = "use-recent-api-versions";
-        public const int MaxAllowedAgeInDays = 365 * 2;
+
+        private const string MaxAgeInDaysKey = "maxAgeInDays";
+        public const int DefaultMaxAgeInDays = 365 * 2;
+        private const int MinimumValidMaxAgeInDays = 0; // Zero means all apiVersions must be the most recent possible
 
         private static readonly Regex resourceTypeRegex = new(
             "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
@@ -66,6 +69,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
+            int maxAgeInDays = GetConfigurationValue(model.Configuration.Analyzers, MaxAgeInDaysKey, DefaultMaxAgeInDays);
+            if (maxAgeInDays < MinimumValidMaxAgeInDays)
+            {
+                yield return CreateDiagnosticForSpan(
+                    diagnosticLevel,
+                    new TextSpan(),
+                    $"{UseRecentApiVersionRule.Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
+                    new ApiVersion[] { });
+
+                maxAgeInDays = DefaultMaxAgeInDays;
+            }
+
             var today = DateTime.Today;
             // Today's date can be changed to enable testing/debug scenarios
             if (GetConfigurationValue<string?>(model.Configuration.Analyzers, "test-today", null) is string testToday)
@@ -77,7 +92,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
-                if (AnalyzeResource(model, today, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
+                if (AnalyzeResource(model, today, maxAgeInDays, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -90,7 +105,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var callInfo in GetFunctionCallInfos(model))
             {
-                if (AnalyzeFunctionCall(model, today, callInfo) is Failure failure)
+                if (AnalyzeFunctionCall(model, today, maxAgeInDays, callInfo) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -102,13 +117,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateTime today, FunctionCallInfo functionCallInfo)
+        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateTime today, int maxAgeInDays, FunctionCallInfo functionCallInfo)
         {
             if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
             {
                 return AnalyzeApiVersion(
                     model.ApiVersionProvider,
                     today,
+                    maxAgeInDays,
                     errorSpan: functionCallInfo.FunctionCallSyntax.Span,
                     replacementSpan: TextSpan.Nil,
                     model.TargetScope,
@@ -300,7 +316,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return mostRecentValid;
         }
 
-        private static Failure? AnalyzeResource(SemanticModel model, DateTime today, ResourceSymbol resourceSymbol, bool warnIfNotFound)
+        private static Failure? AnalyzeResource(SemanticModel model, DateTime today, int maxAgeInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
         {
             if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
                 resourceTypeReference.ApiVersion is string apiVersionString &&
@@ -313,6 +329,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return AnalyzeApiVersion(
                         model.ApiVersionProvider,
                         today,
+                        maxAgeInDays,
                         replacementSpan,
                         replacementSpan,
                         model.TargetScope,
@@ -325,9 +342,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
+        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
-            var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, MaxAllowedAgeInDays, scope, fullyQualifiedResourceType);
+            var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
             {
                 // Resource type not recognized
@@ -373,7 +390,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             string? failureReason = null;
 
             // Is it because the version is recent but in preview, and there's a newer stable version available?
-            if (actualApiVersion.IsPreview && IsRecent(actualApiVersion, today, MaxAllowedAgeInDays))
+            if (actualApiVersion.IsPreview && IsRecent(actualApiVersion, today, maxAgeInDays))
             {
                 var mostRecentStableVersion = GetNewestDateOrNull(FilterStable(allApiVersions));
                 if (mostRecentStableVersion is not null)
@@ -394,7 +411,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (failureReason is null)
             {
                 int ageInDays = today.Subtract(actualApiVersion.Date).Days;
-                failureReason = string.Format(CoreResources.UseRecentApiVersionRule_TooOld, actualApiVersion.Formatted, ageInDays, MaxAllowedAgeInDays);
+                failureReason = string.Format(CoreResources.UseRecentApiVersionRule_TooOld, actualApiVersion.Formatted, ageInDays, maxAgeInDays);
             }
 
             Debug.Assert(failureReason is not null);
@@ -406,7 +423,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 acceptableApiVersions);
         }
 
-        public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAllowedAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
+        public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
         {
             var allVersions = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
             if (!allVersions.Any())
@@ -418,8 +435,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var stableVersionsSorted = FilterStable(allVersions).OrderBy(v => v.Date).ToArray();
             var previewVersionsSorted = FilterPreview(allVersions).OrderBy(v => v.Date).ToArray();
 
-            var recentStableVersionsSorted = FilterRecent(stableVersionsSorted, today, maxAllowedAgeInDays).ToArray();
-            var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAllowedAgeInDays).ToArray();
+            var recentStableVersionsSorted = FilterRecent(stableVersionsSorted, today, maxAgeInDays).ToArray();
+            var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAgeInDays).ToArray();
 
             // Start with all recent stable versions
             List<ApiVersion> acceptableVersions = recentStableVersionsSorted.ToList();
@@ -525,16 +542,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return apiVersions.Where(v => v.Date == date);
         }
 
-        // Recent meaning < maxAllowedAgeInDays old
-        private static bool IsRecent(ApiVersion apiVersion, DateTime today, int maxAllowedAgeInDays)
+        // Recent meaning < maxAgeInDays old
+        private static bool IsRecent(ApiVersion apiVersion, DateTime today, int maxAgeInDays)
         {
-            return apiVersion.Date >= today.AddDays(-maxAllowedAgeInDays);
+            return apiVersion.Date >= today.AddDays(-maxAgeInDays);
         }
 
-        // Recent meaning < maxAllowedAgeInDays old
-        private static IEnumerable<ApiVersion> FilterRecent(IEnumerable<ApiVersion> apiVersions, DateTime today, int maxAllowedAgeInDays)
+        // Recent meaning < maxAgeInDays old
+        private static IEnumerable<ApiVersion> FilterRecent(IEnumerable<ApiVersion> apiVersions, DateTime today, int maxAgeInDays)
         {
-            return apiVersions.Where(v => IsRecent(v, today, maxAllowedAgeInDays));
+            return apiVersions.Where(v => IsRecent(v, today, maxAgeInDays));
         }
 
         private static IEnumerable<ApiVersion> FilterPreview(IEnumerable<ApiVersion> apiVersions)

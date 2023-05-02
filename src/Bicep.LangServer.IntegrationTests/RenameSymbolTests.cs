@@ -169,6 +169,36 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task RenamingIdentifierWithInvalidNameShouldProduceEmptyEdit(DataSet dataSet)
+        {
+            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
+            var uri = DocumentUri.From(fileUri);
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
+            var symbolTable = compilation.ReconstructSymbolTable();
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+
+            var validFunctionCallPairs = symbolTable
+                .Where(pair => pair.Value.Kind == SymbolKind.Parameter)
+                .Select(pair => pair.Key);
+
+            foreach (var syntax in validFunctionCallPairs)
+            {
+                var edit = await helper.Client.RequestRename(new RenameParams
+                {
+                    NewName = "NewIdentifier;",
+                    TextDocument = new TextDocumentIdentifier(uri),
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
+                });
+
+                edit.Should().BeNull();
+            }
+        }
+
         private static TextEdit CreateExpectedTextEdit(ImmutableArray<int> lineStarts, string newText, SyntaxBase syntax) =>
             new TextEdit
             {
