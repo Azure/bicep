@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Core.Extensions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.PrettyPrintV2.Options;
 using Bicep.Core.Syntax;
@@ -32,10 +33,10 @@ namespace Bicep.Core.PrettyPrintV2
         }
 
 
-        public static void Print(SyntaxBase syntax, PrettyPrintOptions options, TextWriter writer)
+        public static void Print(SyntaxBase syntax, PrettyPrintOptions options, TextWriter writer, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             var lineBreakingGroups = new HashSet<GroupDocument>();
-            var layouts = new SyntaxLayouts(lineBreakingGroups);
+            var layouts = new SyntaxLayouts(lineBreakingGroups, lexingErrorLookup, parsingErrorLookup);
             var documents = layouts.Layout(syntax);
             var printer = new PrettyPrinter(options, writer, lineBreakingGroups);
 

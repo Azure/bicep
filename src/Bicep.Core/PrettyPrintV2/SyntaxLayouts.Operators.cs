@@ -16,6 +16,8 @@ namespace Bicep.Core.PrettyPrintV2
 {
     public partial class SyntaxLayouts
     {
+        private void ForceBreak() => this.lineBreakerTracker.AddOne();
+
         private ConcatDocument Concat(SyntaxBase first, SyntaxBase second, params SyntaxBase[] tail) =>
             this.Concat(tail.Prepend(second).Prepend(first));
 
@@ -34,18 +36,18 @@ namespace Bicep.Core.PrettyPrintV2
         private ConcatDocument SeparateWithSpace(object first, object second, params object[] tail) =>
             DocumentOperators.SeparateWithSpace(tail.Prepend(second).Prepend(first).Select(this.ConvertToDocument));
 
-        private Document Bracket(Token openToken, IEnumerable<SyntaxBase> syntaxes, Document seperator, Document padding, Token closeToken)
+        private Document Bracket(Token openToken, IEnumerable<SyntaxBase> syntaxes, Document separator, Document padding, Token closeToken)
         {
             var openBracket = this.LayoutSingle(openToken);
             var items = this.LayoutMany(syntaxes);
             var closeParts = this.Layout(closeToken).ToArray();
-            var danglingComments = closeParts[..^1];
+            var danglingComments = closeParts[..^1]; // Can be empty.
             var closeBracket = closeParts[^1];
 
             items = items
                 .Concat(danglingComments)
-                .SeparatedBy(seperator)
-                .ConsecutiveDistinct(x => x == LiteralLine)
+                .SeparatedBy(separator)
+                .Collapse(x => x == LiteralLine)
                 .Trim(x => x == LiteralLine)
                 .ToList();
 

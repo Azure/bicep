@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -22,11 +23,17 @@ namespace Bicep.Core.PrettyPrintV2
     {
         private readonly LineBreakerTracker lineBreakerTracker;
 
+        private readonly IDiagnosticLookup lexingErrorLookup;
+
+        private readonly IDiagnosticLookup parsingErrorLookup;
+
         private IEnumerable<Document> current = Enumerable.Empty<Document>();
 
-        public SyntaxLayouts(HashSet<GroupDocument> lineBreakingGroups)
+        public SyntaxLayouts(HashSet<GroupDocument> lineBreakingGroups, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             this.lineBreakerTracker = new(lineBreakingGroups);
+            this.lexingErrorLookup = lexingErrorLookup;
+            this.parsingErrorLookup = parsingErrorLookup;
         }
 
         public void VisitArrayAccessSyntax(ArrayAccessSyntax syntax) => this.Layout(syntax, this.LayoutArrayAccessSyntax);
@@ -159,10 +166,15 @@ namespace Bicep.Core.PrettyPrintV2
         {
             this.current = syntax switch
             {
-                ITopLevelDeclarationSyntax when syntax.HasParseErrors() => TextDocument.Create(syntax.ToTextPreserveFormatting()),
+                ITopLevelDeclarationSyntax when this.HasParsingError(syntax) => TextDocument.Create(syntax.ToTextPreserveFormatting()),
                 _ => this.lineBreakerTracker.Track(layoutSpecifier).Invoke(syntax),
             };
         }
+
+        private bool HasParsingError<TSyntax>(TSyntax syntax)
+            where TSyntax : SyntaxBase =>
+                this.lexingErrorLookup.Contains(syntax) ||
+                this.parsingErrorLookup.Contains(syntax);
 
         private class LineBreakerTracker
         {
@@ -175,12 +187,7 @@ namespace Bicep.Core.PrettyPrintV2
                 this.lineBreakingGroups = lineBreakingGroups;
             }
 
-            public ImmutableHashSet<GroupDocument> LineBreakingGroups => this.lineBreakingGroups.ToImmutableHashSet();
-
-            public void AddOne()
-            {
-                this.lineBreakersCount++;
-            }
+            public void AddOne() => this.lineBreakersCount++;
 
             public void AddGroup(GroupDocument group)
             {

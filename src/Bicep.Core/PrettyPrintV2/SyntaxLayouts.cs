@@ -30,7 +30,7 @@ namespace Bicep.Core.PrettyPrintV2
             this.Bracket(
                 syntax.OpenBracket,
                 syntax.Children,
-                seperator: LineOrCommaSpace,
+                separator: LineOrCommaSpace,
                 padding: LineOrSpace,
                 syntax.CloseBracket);
 
@@ -68,7 +68,7 @@ namespace Bicep.Core.PrettyPrintV2
                 this.Bracket(
                     syntax.OpenParen,
                     syntax.Children,
-                    seperator: CommaLineOrCommaSpace,
+                    separator: CommaLineOrCommaSpace,
                     padding: LineOrEmpty,
                     syntax.CloseParen));
 
@@ -104,7 +104,7 @@ namespace Bicep.Core.PrettyPrintV2
                 this.Bracket(
                     syntax.OpenParen,
                     syntax.Children,
-                    seperator: CommaLineOrCommaSpace,
+                    separator: CommaLineOrCommaSpace,
                     padding: LineOrEmpty,
                     syntax.CloseParen));
 
@@ -147,19 +147,19 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax)
         {
+            // Special case for objects: if the object contains a newline before
+            // the first property, always break the group.
             if (syntax.Children.First() is Token token &&
                 token.IsOf(TokenType.NewLine) &&
                 syntax.HasProperties())
             {
-                // Special case for objects: if the object contains a newline before
-                // the first property, always break the group.
-                this.lineBreakerTracker.AddOne();
+                this.ForceBreak();
             }
 
             return this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
-                seperator: LineOrCommaSpace,
+                separator: LineOrCommaSpace,
                 padding: LineOrSpace,
                 syntax.CloseBrace);
         }
@@ -180,7 +180,7 @@ namespace Bicep.Core.PrettyPrintV2
             this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
-                seperator: LineOrCommaSpace,
+                separator: LineOrCommaSpace,
                 padding: LineOrSpace,
                 syntax.CloseBrace);
 
@@ -219,7 +219,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutProgramSyntax(ProgramSyntax syntax) =>
             this.LayoutMany(syntax.Children)
-                .ConsecutiveDistinct(x => x == LiteralLine)
+                .Collapse(x => x == LiteralLine)
                 .Trim(x => x == LiteralLine)
                 .SeparatedBy(LiteralLine);
 
@@ -280,7 +280,7 @@ namespace Bicep.Core.PrettyPrintV2
             this.Bracket(
                 syntax.OpenBracket,
                 syntax.Children,
-                seperator: LineOrCommaSpace,
+                separator: LineOrCommaSpace,
                 padding: LineOrSpace,
                 syntax.CloseBracket);
 
@@ -333,7 +333,7 @@ namespace Bicep.Core.PrettyPrintV2
 
                     if (leadingComments.Any())
                     {
-                        this.lineBreakerTracker.AddOne();
+                        this.ForceBreak();
                     }
 
                     return token.IsMultiLineNewLine() ? leadingComments.Append(LiteralLine) : leadingComments;
@@ -346,7 +346,7 @@ namespace Bicep.Core.PrettyPrintV2
                 case CommentStickiness.Trailing:
                     if (leadingComments.Any())
                     {
-                        this.lineBreakerTracker.AddOne();
+                        this.ForceBreak();
                     }
 
                     return leadingComments.Concat(DocumentOperators.SeparateWithSpace(trailingComments.Prepend(token.Text)));
@@ -364,7 +364,7 @@ namespace Bicep.Core.PrettyPrintV2
             {
                 if (comment.IsSingleLineComment())
                 {
-                    this.lineBreakerTracker.AddOne();
+                    this.ForceBreak();
                 }
 
                 yield return comment.Text;

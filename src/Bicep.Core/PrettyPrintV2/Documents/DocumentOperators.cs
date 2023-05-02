@@ -68,7 +68,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             }
         }
 
-        public static IEnumerable<Document> ConsecutiveDistinct(this IEnumerable<Document> documents, Predicate<Document> predicate)
+        public static IEnumerable<Document> Collapse(this IEnumerable<Document> documents, Predicate<Document> predicate)
         {
             var documentList = new List<Document>();
 
