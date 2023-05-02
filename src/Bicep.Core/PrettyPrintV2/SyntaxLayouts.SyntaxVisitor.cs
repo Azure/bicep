@@ -150,6 +150,14 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) => this.Layout(syntax, this.LayoutVariableDeclarationSyntax);
 
+        public void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) => this.Layout(syntax, this.LayoutTypedVariableBlockSyntax);
+
+        public void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) => this.Layout(syntax, this.LayoutTypedLocalVariableSyntax);
+
+        public void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => this.Layout(syntax, this.LayoutTypedLambdaSyntax);
+
+        public void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => this.Layout(syntax, this.LayoutFunctionDeclarationSyntax);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

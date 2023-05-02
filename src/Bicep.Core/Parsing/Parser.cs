@@ -39,7 +39,7 @@ namespace Bicep.Core.Parsing
 
             var endOfFile = reader.Read();
 
-            var programSyntax = new ProgramSyntax(declarationsOrTokens, endOfFile, this.LexingErrorLookup, this.ParsingErrorLookup);
+            var programSyntax = new ProgramSyntax(declarationsOrTokens, endOfFile);
 
             var parsingErrorVisitor = new ParseDiagnosticsVisitor(this.ParsingErrorTree);
             parsingErrorVisitor.Visit(programSyntax);

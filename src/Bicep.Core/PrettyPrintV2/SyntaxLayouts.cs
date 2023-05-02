@@ -318,6 +318,35 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Name,
                     syntax.Assignment,
                     syntax.Value));
+        
+        private IEnumerable<Document> LayoutTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
+            this.Bracket(
+                syntax.OpenParen,
+                syntax.Children,
+                separator: CommaLineOrCommaSpace,
+                padding: LineOrEmpty,
+                syntax.CloseParen);
+
+        public IEnumerable<Document> LayoutTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
+            this.Concat(
+                syntax.Name,
+                syntax.Type);
+
+        public IEnumerable<Document> LayoutTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
+            this.SeparateWithSpace(
+                syntax.VariableSection,
+                syntax.ReturnType,
+                syntax.Arrow,
+                syntax.Body);
+
+        public IEnumerable<Document> LayoutFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.SeparateWithSpace(
+                    syntax.Keyword,
+                    this.Concat(
+                        syntax.Name,
+                        syntax.Lambda)));
+
 
         private IEnumerable<Document> LayoutToken(Token token)
         {

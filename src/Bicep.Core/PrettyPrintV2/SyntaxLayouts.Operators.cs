@@ -6,6 +6,7 @@ using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,11 +37,11 @@ namespace Bicep.Core.PrettyPrintV2
         private ConcatDocument SeparateWithSpace(object first, object second, params object[] tail) =>
             DocumentOperators.SeparateWithSpace(tail.Prepend(second).Prepend(first).Select(this.ConvertToDocument));
 
-        private Document Bracket(Token openToken, IEnumerable<SyntaxBase> syntaxes, Document separator, Document padding, Token closeToken)
+        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, Document separator, Document padding, SyntaxBase closeSyntax)
         {
-            var openBracket = this.LayoutSingle(openToken);
+            var openBracket = this.LayoutSingle(openSyntax);
             var items = this.LayoutMany(syntaxes);
-            var closeParts = this.Layout(closeToken).ToArray();
+            var closeParts = this.Layout(closeSyntax).ToArray();
             var danglingComments = closeParts[..^1]; // Can be empty.
             var closeBracket = closeParts[^1];
 
