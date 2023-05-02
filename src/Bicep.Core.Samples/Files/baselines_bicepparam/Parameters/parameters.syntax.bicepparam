@@ -1,5 +1,5 @@
 /*
-//@[00:737) ProgramSyntax
+//@[00:760) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -46,6 +46,16 @@ param myBool = true
 //@[15:019) | └─BooleanLiteralSyntax
 //@[15:019) |   └─Token(TrueKeyword) |true|
 //@[19:021) ├─Token(NewLine) |\n\n|
+
+param numberOfVMs = 1
+//@[00:021) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:017) | ├─IdentifierSyntax
+//@[06:017) | | └─Token(Identifier) |numberOfVMs|
+//@[18:019) | ├─Token(Assignment) |=|
+//@[20:021) | └─IntegerLiteralSyntax
+//@[20:021) |   └─Token(Integer) |1|
+//@[21:023) ├─Token(NewLine) |\n\n|
 
 // parameter assignment to objects
 //@[34:035) ├─Token(NewLine) |\n|

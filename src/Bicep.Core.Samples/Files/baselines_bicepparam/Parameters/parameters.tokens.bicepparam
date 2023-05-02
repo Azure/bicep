@@ -35,6 +35,13 @@ param myBool = true
 //@[15:19) TrueKeyword |true|
 //@[19:21) NewLine |\n\n|
 
+param numberOfVMs = 1
+//@[00:05) Identifier |param|
+//@[06:17) Identifier |numberOfVMs|
+//@[18:19) Assignment |=|
+//@[20:21) Integer |1|
+//@[21:23) NewLine |\n\n|
+
 // parameter assignment to objects
 //@[34:35) NewLine |\n|
 param password = 'strongPassword'

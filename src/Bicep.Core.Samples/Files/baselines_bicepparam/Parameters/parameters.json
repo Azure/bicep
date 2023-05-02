@@ -11,6 +11,9 @@
     "myBool": {
       "value": true
     },
+    "numberOfVMs": {
+      "value": 1
+    },
     "password": {
       "value": "strongPassword"
     },

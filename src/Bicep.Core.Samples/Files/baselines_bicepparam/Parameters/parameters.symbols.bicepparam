@@ -16,6 +16,9 @@ param myInt = 42
 param myBool = true
 //@[6:12) ParameterAssignment myBool. Type: true. Declaration start char: 0, length: 19
 
+param numberOfVMs = 1
+//@[6:17) ParameterAssignment numberOfVMs. Type: 1. Declaration start char: 0, length: 21
+
 // parameter assignment to objects
 param password = 'strongPassword'
 //@[6:14) ParameterAssignment password. Type: 'strongPassword'. Declaration start char: 0, length: 33

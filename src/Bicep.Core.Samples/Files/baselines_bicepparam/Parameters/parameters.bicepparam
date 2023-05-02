@@ -13,6 +13,8 @@ param myString = 'hello world!!'
 param myInt = 42
 param myBool = true
 
+param numberOfVMs = 1
+
 // parameter assignment to objects
 param password = 'strongPassword'
 param secretObject = {

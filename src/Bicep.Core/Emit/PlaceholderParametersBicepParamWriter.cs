@@ -41,12 +41,12 @@ namespace Bicep.Core.Emit
 
             var processedSyntaxList = new List<SyntaxBase>()
             {
-                new UsingDeclarationSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "using"), SyntaxFactory.CreateStringLiteral($"./{bicepFileName}")),
+                new UsingDeclarationSyntax(SyntaxFactory.CreateIdentifierToken("using"), SyntaxFactory.CreateStringLiteral($"./{bicepFileName}")),
                 SyntaxFactory.NewlineToken,
                 SyntaxFactory.NewlineToken
             }.Concat(result);
 
-            var program = new ProgramSyntax(processedSyntaxList, SyntaxFactory.CreateToken(TokenType.EndOfFile, ""), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var program = new ProgramSyntax(processedSyntaxList, SyntaxFactory.CreateFreeformToken(TokenType.EndOfFile, ""), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 
             var output = PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 
