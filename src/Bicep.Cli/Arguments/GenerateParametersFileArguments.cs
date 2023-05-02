@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Emit.Options;
 using Bicep.Core.FileSystem;
+using System;
 using System.IO;
 
 namespace Bicep.Cli.Arguments
@@ -44,7 +46,11 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --output-format parameter cannot be specified twice");
                         }
-                        OutputFormat = args[i + 1];
+                        if (!Enum.TryParse<OutputFormatOption>(args[i + 1], true, out var outputFormat) || !Enum.IsDefined<OutputFormatOption>(outputFormat))
+                        {
+                            throw new CommandLineException($"The --output-format parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(OutputFormatOption)))}");
+                        }
+                        OutputFormat = outputFormat;
                         i++;
                         break;
 
@@ -57,7 +63,11 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --include-params parameter cannot be specified twice");
                         }
-                        IncludeParams = args[i + 1];
+                        if (!Enum.TryParse<IncludeParamsOption>(args[i + 1], true, out var includeParams) || !Enum.IsDefined<IncludeParamsOption>(includeParams))
+                        {
+                            throw new CommandLineException($"The --include-params parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IncludeParamsOption)))}");
+                        }
+                        IncludeParams = includeParams;
                         i++;
                         break;
 
@@ -108,15 +118,9 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
 
-            if (OutputFormat is null)
-            {
-                OutputFormat = "json";
-            }
+            OutputFormat ??= OutputFormatOption.Json;
 
-            if (IncludeParams is null)
-            {
-                IncludeParams = "required";
-            }
+            IncludeParams ??= IncludeParamsOption.RequiredOnly;
 
             if (OutputDir is not null)
             {
@@ -137,9 +141,9 @@ namespace Bicep.Cli.Arguments
 
         public string? OutputFile { get; }
 
-        public string OutputFormat { get; }
+        public OutputFormatOption? OutputFormat { get; }
 
-        public string IncludeParams { get; }
+        public IncludeParamsOption? IncludeParams { get; }
 
         public bool NoRestore { get; }
     }

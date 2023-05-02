@@ -5,6 +5,7 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
@@ -66,7 +67,7 @@ namespace Bicep.Cli.Commands
             {
                 if (args.OutputToStdOut)
                 {
-                    writer.ToStdout(compilation, args.OutputFormat, args.IncludeParams);
+                    writer.ToStdout(compilation, args.OutputFormat ?? OutputFormatOption.Json, args.IncludeParams ?? IncludeParamsOption.RequiredOnly);
                 }
                 else
                 {
@@ -84,9 +85,9 @@ namespace Bicep.Cli.Commands
                         outputPath = inputPath;
                     }
 
-                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat);
+                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat ?? OutputFormatOption.Json);
 
-                    writer.ToFile(compilation, outputPath, args.OutputFormat, args.IncludeParams);
+                    writer.ToFile(compilation, outputPath, args.OutputFormat ?? OutputFormatOption.Json, args.IncludeParams ?? IncludeParamsOption.RequiredOnly);
                 }
             }
 

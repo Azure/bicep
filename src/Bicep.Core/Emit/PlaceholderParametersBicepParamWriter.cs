@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
@@ -15,7 +16,7 @@ namespace Bicep.Core.Emit
 {
     public class PlaceholderParametersBicepParamWriter
     {
-        public PlaceholderParametersBicepParamWriter(SemanticModel semanticModel, string includeParams)
+        public PlaceholderParametersBicepParamWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
         {
             this.Context = new EmitterContext(semanticModel);
             this.IncludeParams = includeParams;
@@ -23,7 +24,7 @@ namespace Bicep.Core.Emit
 
         private EmitterContext Context { get; }
 
-        private string IncludeParams { get; }
+        private IncludeParamsOption IncludeParams { get; }
 
         public void Write(TextWriter writer, string existingContent)
         {
@@ -31,7 +32,7 @@ namespace Bicep.Core.Emit
 
             var allParameterDeclarations = this.Context.SemanticModel.Root.ParameterDeclarations;
 
-            var filteredParameterDeclarations = this.IncludeParams == "all" ? allParameterDeclarations.Select(e => e.DeclaringParameter) : allParameterDeclarations.Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax).Select(e => e.DeclaringParameter);
+            var filteredParameterDeclarations = this.IncludeParams == IncludeParamsOption.All ? allParameterDeclarations.Select(e => e.DeclaringParameter) : allParameterDeclarations.Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax).Select(e => e.DeclaringParameter);
 
             var result = filteredParameterDeclarations
                             .OfType<ParameterDeclarationSyntax>()
@@ -85,28 +86,17 @@ namespace Bicep.Core.Emit
 
             if (syntax.Type is VariableAccessSyntax variableAccessSyntax)
             {
-                SyntaxBase? allowedDecoratorFirstItem = null;
-
                 var allowedDecorator = syntax.Decorators.Where(e => e.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.IdentifierName == "allowed").Select(e => e.Arguments).FirstOrDefault();
 
-                if (allowedDecorator != null)
-                {
-                    allowedDecoratorFirstItem = (allowedDecorator.First().Expression as ArraySyntax)?.Items.First().Value;
-                }
+                var allowedDecoratorFirstItem = (allowedDecorator?.First().Expression as ArraySyntax)?.Items.First().Value;
 
                 switch (variableAccessSyntax.Name.IdentifierName)
                 {
                     case "string":
                     default:
-                        {
-                            var value = (allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? "";
-                            return SyntaxFactory.CreateStringLiteral(value);
-                        }
+                        return SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? "");
                     case "int":
-                        {
-                            var value = (allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0;
-                            return SyntaxFactory.CreateIntegerLiteral(value);
-                        }
+                        return SyntaxFactory.CreateIntegerLiteral((allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0);
                     case "bool":
                         return SyntaxFactory.CreateBooleanLiteral(false);
                     case "array":
@@ -123,17 +113,17 @@ namespace Bicep.Core.Emit
         {
             var value = objectSyntax.Properties.Select(e =>
             {
-                if (e.Value is FunctionCallSyntax valueAsFunctionCall)
+                if (e.Value is FunctionCallSyntax valueAsFunctionCallSyntax)
                 {
-                    return SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName));
+                    return SyntaxFactory.CreateObjectProperty((e.Key as IdentifierSyntax)?.IdentifierName ?? "", CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCallSyntax.Name.IdentifierName));
                 }
-                else if (e.Value is ArraySyntax valueAsFunctionArray)
+                else if (e.Value is ArraySyntax valueAsFunctionArraySyntax)
                 {
-                    var value = valueAsFunctionArray.Items.Select(f =>
+                    var value = valueAsFunctionArraySyntax.Items.Select(f =>
                     {
-                        if (f.Value is FunctionCallSyntax valueAsFunctionCall)
+                        if (f.Value is FunctionCallSyntax valueAsFunctionCallSyntax)
                         {
-                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName));
+                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCallSyntax.Name.IdentifierName));
                         }
 
                         return f;

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
+using Bicep.Core.Emit.Options;
 
 namespace Bicep.Core.FileSystem
 {
@@ -67,7 +68,7 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public static string ResolveParametersFileOutputPath(string path, string outputFormat)
+        public static string ResolveParametersFileOutputPath(string path, OutputFormatOption outputFormat)
         {
             var folder = ResolvePath(path);
 
@@ -80,7 +81,7 @@ namespace Bicep.Core.FileSystem
                 fileNameWithoutExtension = "output";
             }
 
-            var extension = outputFormat == "json" ? "parameters.json" : "bicepparam";
+            var extension = outputFormat == OutputFormatOption.Json ? "parameters.json" : "bicepparam";
 
             var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}.{extension}";
 

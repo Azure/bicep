@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -32,7 +33,9 @@ public class TemplateEmitter
     /// </summary>
     /// <param name="stream">The stream to write the template</param>
     /// <param name="existingContent">Existing content of the parameters file</param>
-    public EmitResult EmitEmptyParametersFile(Stream stream, string existingContent, string outputFormat, string includeParams)
+    /// <param name="outputFormat">Output file format (json or bicepparam)</param>
+    /// <param name="includeParams">Include parameters (requiredonly or all)</param>
+    public EmitResult EmitEmptyParametersFile(Stream stream, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
     {
         using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 
@@ -45,19 +48,19 @@ public class TemplateEmitter
     /// <param name="textWriter">The text writer to write the template</param>
     /// <param name="existingContent">Existing content of the parameters file</param>
     /// <param name="outputFormat">Output file format (json or bicepparam)</param>
-    /// <param name="includeParams">Include parameters (required or all)</param>
-    public EmitResult EmitEmptyParametersFile(TextWriter textWriter, string existingContent, string outputFormat, string includeParams) => this.EmitOrFail(() =>
+    /// <param name="includeParams">Include parameters (requiredonly or all)</param>
+    public EmitResult EmitEmptyParametersFile(TextWriter textWriter, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams) => this.EmitOrFail(() =>
     {
         switch (outputFormat)
         {
-            case "bicepparam":
+            case OutputFormatOption.BicepParam:
             {
                 var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(this.model, includeParams);
                 bicepParamEmitter.Write(textWriter, existingContent);
 
                 break;
             }
-            case "json":
+            case OutputFormatOption.Json:
             default:
             {
                 using var writer = new JsonTextWriter(textWriter)

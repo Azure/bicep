@@ -1,18 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using System.Linq;
 
 namespace Bicep.Core.Emit
 {
     public class PlaceholderParametersJsonWriter
     {
-        public PlaceholderParametersJsonWriter(SemanticModel semanticModel, string includeParams)
+        public PlaceholderParametersJsonWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
         {
             this.Context = new EmitterContext(semanticModel);
             this.IncludeParams = includeParams;
@@ -20,7 +22,7 @@ namespace Bicep.Core.Emit
 
         private EmitterContext Context { get; }
 
-        private string IncludeParams { get; }
+        private IncludeParamsOption IncludeParams { get; }
 
         public void Write(JsonTextWriter writer, string existingContent)
         {
@@ -79,12 +81,16 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("contentVersion", contentVersion);
 
-            if (this.Context.SemanticModel.Root.ParameterDeclarations.Length > 0)
+            var allParameterDeclarations = this.Context.SemanticModel.Root.ParameterDeclarations;
+
+            var filteredParameterDeclarations = this.IncludeParams == IncludeParamsOption.All ? allParameterDeclarations : allParameterDeclarations.Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax);
+
+            if (filteredParameterDeclarations.Count() > 0)
             {
                 jsonWriter.WritePropertyName("parameters");
                 jsonWriter.WriteStartObject();
 
-                foreach (var parameterSymbol in this.Context.SemanticModel.Root.ParameterDeclarations)
+                foreach (var parameterSymbol in filteredParameterDeclarations)
                 {
                     if (parameterSymbol.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)
                     {

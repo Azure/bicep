@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace Bicep.Cli.Services
             this.io = io;
         }
 
-        public EmitResult ToFile(Compilation compilation, string outputPath, string outputFormat, string includeParams)
+        public EmitResult ToFile(Compilation compilation, string outputPath, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
         {
             var existingContent = string.Empty;
             if (File.Exists(outputPath))
@@ -34,7 +35,7 @@ namespace Bicep.Cli.Services
             return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(fileStream, existingContent, outputFormat, includeParams);
         }
 
-        public EmitResult ToStdout(Compilation compilation, string outputFormat, string includeParams)
+        public EmitResult ToStdout(Compilation compilation, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
             return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(io.Output, string.Empty, outputFormat, includeParams);

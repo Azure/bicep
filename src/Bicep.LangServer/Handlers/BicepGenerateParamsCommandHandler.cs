@@ -12,6 +12,7 @@ using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -31,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to generate compiled parameters.json file for given a bicep file path.
     // It returns generate-params succeeded/failed message, which can be displayed approriately in IDE output window
-    public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
+    public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<(string BicepFilePath, OutputFormatOption OutputFormat, IncludeParamsOption IncludeParams), string>
     {
         private readonly ICompilationManager compilationManager;
         private readonly BicepCompiler bicepCompiler;
@@ -43,22 +44,22 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepCompiler = bicepCompiler;
         }
 
-        public override async Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
+        public override async Task<string> Handle((string BicepFilePath, OutputFormatOption OutputFormat, IncludeParamsOption IncludeParams) handleParams, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(bicepFilePath))
+            if (string.IsNullOrWhiteSpace(handleParams.BicepFilePath))
             {
                 throw new ArgumentException("Invalid input file path");
             }
 
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(bicepFilePath, documentUri);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(handleParams.BicepFilePath);
+            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(handleParams.BicepFilePath, handleParams.OutputFormat, handleParams.IncludeParams, documentUri);
 
             return output;
         }
 
-        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepFilePath, OutputFormatOption outputFormat, IncludeParamsOption includeParams, DocumentUri documentUri)
         {
-            string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepFilePath);
+            string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepFilePath, outputFormat);
             string compiledFile = Path.GetFileName(compiledFilePath);
 
             // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.
@@ -84,7 +85,7 @@ namespace Bicep.LanguageServer.Handlers
             var model = compilation.GetEntrypointSemanticModel();
             var emitter = new TemplateEmitter(model);
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.Write);
-            var result = emitter.EmitEmptyParametersFile(fileStream, existingContent);
+            var result = emitter.EmitEmptyParametersFile(fileStream, existingContent, outputFormat, includeParams);
 
             return "Generating parameters file succeeded. Processed file " + compiledFile;
         }
