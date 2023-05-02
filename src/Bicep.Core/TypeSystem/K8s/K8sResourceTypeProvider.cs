@@ -172,7 +172,28 @@ namespace Bicep.Core.TypeSystem.K8s
         }
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
-            => null;
+        {
+            var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
+            {
+                var resourceType = new ResourceTypeComponents(
+                    typeReference,
+                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                    ResourceScope.None,
+                    ResourceFlags.None,
+                    new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any));
+
+                return SetBicepResourceProperties(resourceType, flags);
+            });
+
+            return new(
+                declaringNamespace,
+                resourceType.TypeReference,
+                resourceType.ValidParentScopes,
+                resourceType.ReadOnlyScopes,
+                resourceType.Flags,
+                resourceType.Body,
+                UniqueIdentifierProperties);
+        }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
             => availableResourceTypes.Contains(typeReference);

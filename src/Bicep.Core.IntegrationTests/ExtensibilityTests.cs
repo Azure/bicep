@@ -339,6 +339,26 @@ resource secret 'core/Secret@v1' = {
             result.Should().NotHaveAnyDiagnostics();
         }
 
+        [TestMethod]
+        public void Kubernetes_CustomResourceType_EmitWarning()
+        {
+            var result = CompilationHelper.Compile(Services, """
+                import 'kubernetes@1.0.0' with {
+                  namespace: 'default'
+                  kubeConfig: ''
+                }
+                resource crd 'custom/Foo@v1' = {
+                  metadata: {
+                    name: 'existing-service'
+                  }
+                }
+                """);
+
+            result.Should().GenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""custom/Foo@v1"" does not have types available."),
+            });
+        }
 
         [TestMethod]
         public void Storage_import_basic_test_with_qualified_type()
