@@ -21,6 +21,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 
         public static MockFileSystem CreateFileSystemWithInvalidFiles() => CreateFileSystem(SampleFiles.Invalid);
 
+        public static MockFileSystem CreateFileSystemWithExperimentalFiles() => CreateFileSystem(SampleFiles.Experimental);
+
         private static MockFileSystem CreateFileSystem(IEnumerable<(string, string)> sampleFiles)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -49,8 +51,10 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
             public static IEnumerable<(string, string)> Modified { get; } = LoadSampleFiles();
 
             public static IEnumerable<(string, string)> Valid { get; } = LoadSampleFiles();
-            
+
             public static IEnumerable<(string, string)> Invalid { get; } = LoadSampleFiles();
+
+            public static IEnumerable<(string, string)> Experimental { get; } = LoadSampleFiles();
 
             private static IEnumerable<(string, string)> LoadSampleFiles([CallerMemberName] string? category = null)
             {

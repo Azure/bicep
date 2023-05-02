@@ -625,6 +625,9 @@
         },
         "userDefinedTypes": {
           "type": "boolean"
+        },
+        "userDefinedFunctions": {
+          "type": "boolean"
         }
       }
     }

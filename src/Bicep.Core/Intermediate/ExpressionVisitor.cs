@@ -188,12 +188,23 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Reference);
     }
 
+    public void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression)
+    {
+        Visit(expression.Lambda);
+    }
+
+    public void VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+    {
+        Visit(expression.Parameters);
+    }
+
     public void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);
         Visit(expression.Imports);
         Visit(expression.Parameters);
         Visit(expression.Variables);
+        Visit(expression.Functions);
         Visit(expression.Resources);
         Visit(expression.Modules);
         Visit(expression.Outputs);

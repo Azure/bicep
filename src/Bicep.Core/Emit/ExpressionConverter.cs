@@ -95,6 +95,11 @@ namespace Bicep.Core.Emit
                         function.Name,
                         function.Parameters.Select(p => ConvertExpression(p)));
 
+                case UserDefinedFunctionCallExpression function:
+                    return CreateFunction(
+                        $"{EmitConstants.UserDefinedFunctionsNamespace}.{function.Name}",
+                        function.Parameters.Select(p => ConvertExpression(p)));
+
                 case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix): {
                     var resource = listFunction.Resource.Metadata;
                     var resourceIdExpression = new PropertyAccessExpression(
@@ -150,6 +155,10 @@ namespace Bicep.Core.Emit
                         variableNames.Concat(body));
 
                 case LambdaVariableReferenceExpression exp:
+                    if (exp.IsFunctionLambda)
+                    {
+                        return CreateFunction("parameters", new JTokenExpression(exp.Variable.Name));
+                    }
                     return CreateFunction("lambdaVariables", new JTokenExpression(exp.Variable.Name));
 
                 case CopyIndexExpression exp:

@@ -1084,6 +1084,26 @@ namespace Bicep.Core.Parsing
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
         }
 
+        private SyntaxBase TypedLocalVariable(params TokenType[] terminatingTypes)
+        {
+            var name = IdentifierOrSkip(b => b.ExpectedVariableIdentifier());
+            var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, terminatingTypes);
+
+            return new TypedLocalVariableSyntax(name, type);
+        }
+
+        protected SyntaxBase TypedLambda()
+        {
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen));
+
+            var returnType = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
+
+            return new TypedLambdaSyntax(variableBlock, returnType, arrow, expression);
+        }
+
         private SyntaxBase PrimaryExpression(ExpressionFlags expressionFlags)
         {
             Token nextToken = this.reader.Peek();

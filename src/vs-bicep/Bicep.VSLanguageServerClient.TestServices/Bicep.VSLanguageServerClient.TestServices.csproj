@@ -8,10 +8,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.5.0-2.final" PrivateAssets="all" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.1.32510.401" />
+    <PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.6.33619.290" />
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.2.41" />
     <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
-    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client.Implementation" Version="17.2.2105" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />

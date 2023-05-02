@@ -36,6 +36,7 @@ const KEYWORDS = {
     'type',
     'with',
     'using',
+    'func',
   ],
   literal: [
     "true",

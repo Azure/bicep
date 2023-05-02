@@ -86,7 +86,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public static IEnumerable<FunctionOverload> GetMatches(
-            FunctionSymbol function,
+            IFunctionSymbol function,
             IList<TypeSymbol> argumentTypes,
             out IList<ArgumentCountMismatch> argumentCountMismatches,
             out IList<ArgumentTypeMismatch> argumentTypeMismatches)

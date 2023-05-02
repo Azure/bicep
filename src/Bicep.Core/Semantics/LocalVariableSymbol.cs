@@ -11,13 +11,21 @@ namespace Bicep.Core.Semantics
             : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
             this.LocalKind = localKind;
+            this.DeclaredTypeSyntax = null;
         }
 
-        public LocalVariableSyntax DeclaringLocalVariable => (LocalVariableSyntax)this.DeclaringSyntax;
+        public LocalVariableSymbol(ISymbolContext context, string name, TypedLocalVariableSyntax declaringSyntax, LocalKind localKind)
+            : base(context, name, declaringSyntax, declaringSyntax.Name)
+        {
+            this.LocalKind = localKind;
+            this.DeclaredTypeSyntax = declaringSyntax.Type;
+        }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalVariableSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Local;
+
+        public SyntaxBase? DeclaredTypeSyntax;
 
         public LocalKind LocalKind { get; }
     }

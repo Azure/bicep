@@ -3,9 +3,9 @@
 
 using Azure;
 using Azure.Containers.ContainerRegistry;
-using Azure.Containers.ContainerRegistry.Specialized;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.IO;
@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockRegistryBlobClient : ContainerRegistryBlobClient
+    public class MockRegistryBlobClient : ContainerRegistryContentClient
     {
         public MockRegistryBlobClient() : base()
         {
@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Registry
         // maps tag to manifest digest
         public ConcurrentDictionary<string, string> ManifestTags { get; } = new();
 
-        public override async Task<Response<DownloadBlobResult>> DownloadBlobAsync(string digest, CancellationToken cancellationToken = default)
+        public override async Task<Response<DownloadRegistryBlobResult>> DownloadBlobContentAsync(string digest, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
@@ -43,40 +43,22 @@ namespace Bicep.Core.UnitTests.Registry
                 throw new RequestFailedException(404, "Mock blob does not exist.");
             }
 
-            return CreateResult(ContainerRegistryModelFactory.DownloadBlobResult(digest, WriteStream(bytes)));
+            return CreateResult(ContainerRegistryModelFactory.DownloadRegistryBlobResult(digest, BinaryData.FromStream(WriteStream(bytes))));
         }
 
-        public override async Task<Response<DownloadManifestResult>> DownloadManifestAsync(DownloadManifestOptions? options = default, CancellationToken cancellationToken = default)
+        public override async Task<Response<GetManifestResult>> GetManifestAsync(string tagOrDigest, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
-            if (options is null)
+            if (tagOrDigest is null)
             {
-                throw new RequestFailedException("Downloading a manifest requires 'options' to be specified.");
+                throw new RequestFailedException($"Downloading a manifest requires '{nameof(tagOrDigest)}' to be specified.");
             }
 
-            string? digest;
-            switch (options.Digest, options.Tag)
+            if (!this.ManifestTags.TryGetValue(tagOrDigest, out var digest))
             {
-                case (not null, not null):
-                    throw new RequestFailedException("Both digest and tag cannot be specified when downloading a manifest.");
-
-                case (not null, null):
-                    // digest ref
-                    digest = options.Digest;
-                    break;
-
-                case (null, not null):
-                    // tag ref
-                    if (!this.ManifestTags.TryGetValue(options.Tag, out digest))
-                    {
-                        throw new RequestFailedException(404, "Mock manifest tag does not exist.");
-                    }
-
-                    break;
-
-                default:
-                    throw new RequestFailedException("Either a digest or tag must be specified when downloading a manifest.");
+                // no matching tag, the tagOrDigest value may possibly be a digest
+                digest = tagOrDigest;
             }
 
             if (!this.Manifests.TryGetValue(digest, out var bytes))
@@ -84,35 +66,36 @@ namespace Bicep.Core.UnitTests.Registry
                 throw new RequestFailedException(404, "Mock manifest does not exist.");
             }
 
-            return CreateResult(ContainerRegistryModelFactory.DownloadManifestResult(digest: digest, manifestStream: WriteStream(bytes)));
+            return CreateResult(ContainerRegistryModelFactory.GetManifestResult(
+                digest: digest,
+                mediaType: ManifestMediaType.OciImageManifest.ToString(),
+                manifest: BinaryData.FromStream(WriteStream(bytes))));
         }
 
-        public override async Task<Response<UploadBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
+        public override async Task<Response<UploadRegistryBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
             var (copy, digest) = ReadStream(stream);
             Blobs.TryAdd(digest, copy);
 
-            return CreateResult(ContainerRegistryModelFactory.UploadBlobResult());
+            return CreateResult(ContainerRegistryModelFactory.UploadRegistryBlobResult(digest, copy.Length));
         }
 
-        public override async Task<Response<UploadManifestResult>> UploadManifestAsync(Stream stream, UploadManifestOptions? options = default, CancellationToken cancellationToken = default)
+        public override async Task<Response<SetManifestResult>> SetManifestAsync(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
         {
-            options ??= new UploadManifestOptions();
-
             await Task.Yield();
 
-            var (copy, digest) = ReadStream(stream);
+            var (copy, digest) = ReadStream(manifest.ToStream());
             Manifests.TryAdd(digest, copy);
 
-            if (options.Tag is not null)
+            if (tag is not null)
             {
                 // map tag to the digest
-                this.ManifestTags[options.Tag] = digest;
+                this.ManifestTags[tag] = digest;
             }
 
-            return CreateResult(ContainerRegistryModelFactory.UploadManifestResult());
+            return CreateResult(ContainerRegistryModelFactory.SetManifestResult(digest));
         }
 
         public static (ImmutableArray<byte> bytes, string digest) ReadStream(Stream stream)

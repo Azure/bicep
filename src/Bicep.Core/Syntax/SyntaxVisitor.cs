@@ -125,6 +125,14 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax);
 
+        public abstract void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax);
+
+        public abstract void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax);
+
+        public abstract void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax);
+
+        public abstract void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax);
+
         public void Visit(SyntaxBase? node)
         {
             if (node == null)

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
@@ -56,7 +57,7 @@ namespace Bicep.LanguageServer.Completions
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
         {
             var model = compilation.GetEntrypointSemanticModel();
 
@@ -87,7 +88,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
-                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context));
+                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -171,6 +172,15 @@ namespace Bicep.LanguageServer.Completions
                         if (model.Features.ExtensibilityEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
+                        }
+
+                        if (model.Features.UserDefinedFunctionsEnabled)
+                        {
+                            yield return CreateContextualSnippetCompletion(
+                                LanguageConstants.FunctionKeyword,
+                                "Function declaration",
+                                "func ${1:name}() ${2:outputType} => $0",
+                                context.ReplacementRange);
                         }
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
@@ -312,6 +322,13 @@ namespace Bicep.LanguageServer.Completions
                 return GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType) && IsTypeLiteralSyntax(declared.DeclaringType.Value));
             }
 
+            if (context.Kind.HasFlag(BicepCompletionContextKind.TypedLocalVariableType) ||
+                context.Kind.HasFlag(BicepCompletionContextKind.TypedLambdaOutputType))
+            {
+                // user-defined functions don't yet support user-defined types
+                return GetAmbientTypeCompletions(model, context);
+            }
+
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
                 var completions = GetAmbientTypeCompletions(model, context);
@@ -389,7 +406,7 @@ namespace Bicep.LanguageServer.Completions
                     {
                         // An unterminated string will result in skipped trivia containing an unterminated token.
                         // Compensate here by building the expected token before lexing it.
-                        token = SyntaxFactory.CreateToken(token.Type, $"{token.Text}'");
+                        token = SyntaxFactory.CreateFreeformToken(token.Type, $"{token.Text}'");
                     }
 
                     return Lexer.TryGetStringValue(token);
@@ -965,11 +982,16 @@ namespace Bicep.LanguageServer.Completions
 
                 // add accessible symbols from innermost scope and then move to outer scopes
                 // reverse loop iteration
-                for (int depth = context.ActiveScopes.Length - 1; depth >= 0; depth--)
+                foreach (var scope in context.ActiveScopes.Reverse())
                 {
                     // add the non-output declarations with valid identifiers at current scope
-                    var currentScope = context.ActiveScopes[depth];
-                    AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSource.IsValid && !(decl is OutputSymbol)));
+                    AddSymbolCompletions(completions, scope.Declarations.Where(decl => decl.NameSource.IsValid && decl is not OutputSymbol));
+
+                    if (scope.ScopeResolution == ScopeResolution.GlobalsOnly)
+                    {
+                        // don't inherit outer scope variables
+                        break;
+                    }
                 }
             }
             else
@@ -1041,6 +1063,7 @@ namespace Bicep.LanguageServer.Completions
                 ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
                 TypeAliasSymbol declaredTypeSymbol => GetAccessible(knownDecoratorFunctions, declaredTypeSymbol.UnwrapType(), FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
+                DeclaredFunctionSymbol functionSymbol => GetAccessible(knownDecoratorFunctions, functionSymbol.Type, FunctionFlags.FunctionDecorator),
                 ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
                 ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),
                 OutputSymbol outputSymbol => GetAccessible(knownDecoratorFunctions, outputSymbol.Type, FunctionFlags.OutputDecorator),
@@ -1211,7 +1234,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument)
                 || context.FunctionArgument is not { } functionArgument
-                || model.GetSymbolInfo(functionArgument.Function) is not FunctionSymbol functionSymbol)
+                || model.GetSymbolInfo(functionArgument.Function) is not IFunctionSymbol functionSymbol)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -1245,6 +1268,13 @@ namespace Bicep.LanguageServer.Completions
                 var jsonItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
                 var nonJsonItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
                 fileItems = jsonItems.Concat(nonJsonItems);
+            }
+            else if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringYamlFilePath))
+            {
+                // Prioritize .yaml or .yml files higher than other files.
+                var yamlItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "yaml") || PathHelper.HasExtension(file, "yml"), CompletionPriority.High);
+                var nonYamlItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "yaml") && !PathHelper.HasExtension(file, "yml"), CompletionPriority.Medium);
+                fileItems = yamlItems.Concat(nonYamlItems);
             }
             else
             {
@@ -1717,7 +1747,7 @@ namespace Bicep.LanguageServer.Completions
                 completion.WithCommitCharacters(ResourceSymbolCommitChars);
             }
 
-            if (symbol is FunctionSymbol function)
+            if (symbol is IFunctionSymbol function)
             {
                 // for functions without any parameters on all the overloads, we should be placing the cursor after the parentheses
                 // for all other functions, the cursor should land between the parentheses so the user can specify the arguments
@@ -1888,13 +1918,13 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private static string? TryGetSymbolDocumentationMarkdown(Symbol symbol, SemanticModel model)
-        {   
+        {
             if(symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
                 var documentation = SemanticModelHelper.TryGetDescription(model, decorableSyntax);
                 if(declaredSymbol is ParameterSymbol)
                 {
-                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}"); 
+                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}");
                 }
                 return documentation;
             }

@@ -22,5 +22,7 @@ namespace Bicep.Core.Features
         bool ParamsFilesEnabled { get; }
 
         bool UserDefinedTypesEnabled { get; }
+
+        bool UserDefinedFunctionsEnabled { get; }
     }
 }

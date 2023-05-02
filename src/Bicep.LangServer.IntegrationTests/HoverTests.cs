@@ -127,14 +127,14 @@ namespace Bicep.LangServer.IntegrationTests
                         continue;
                     }
 
-                    switch (symbol!.Kind)
+                    switch (symbol)
                     {
-                        case SymbolKind.Function when symbolReference is VariableAccessSyntax:
+                        case FunctionSymbol when symbolReference is VariableAccessSyntax:
                             // variable got bound to a function
                             hover.Should().BeNull();
                             break;
 
-                        case SymbolKind.Error:
+                        case ErrorSymbol:
                             // error symbol
                             hover.Should().BeNull();
                             break;
@@ -554,6 +554,46 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
         }
 
         [TestMethod]
+        public async Task Func_usage_hovers_display_information()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+@description('Checks whether the input is true in a roundabout way')
+func isTrue(input bool) bool => !(input == false)
+
+var test = is|True(false)
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents.MarkupContent!.Value.Should().Contain("""
+```bicep
+function isTrue(input: bool): bool
+```
+""");
+            hover!.Contents.MarkupContent!.Value.Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
+        public async Task Func_declaration_hovers_display_information()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+@description('Checks whether the input is true in a roundabout way')
+func isT|rue(input bool) bool => !(input == false)
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents.MarkupContent!.Value.Should().Contain("""
+```bicep
+function isTrue(input: bool): bool
+```
+""");
+            hover!.Contents.MarkupContent!.Value.Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -652,7 +692,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
   ]
 )
 @description('this is a string value')
-param foo string                       
+param foo string
 
 @allowed(
     [
@@ -679,7 +719,7 @@ param foo|bar = true
 
             var (bicepparamText, cursors) = ParserHelper.GetFileWithCursors(bicepparamTextWithCursor,'|');
 
-        
+
             var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri("file:///path/to/params.bicepparam"), bicepparamText);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), bicepText);
 
@@ -908,6 +948,10 @@ param foo|bar = true
                         {
                             tooltip.Should().Contain($"function {function.Name}(");
                         }
+                        break;
+
+                    case DeclaredFunctionSymbol declaredFunction:
+                        tooltip.Should().Contain($"function {declaredFunction.Name}(");
                         break;
 
                     case LocalVariableSymbol local:

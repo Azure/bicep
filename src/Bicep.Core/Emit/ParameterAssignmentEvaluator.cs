@@ -9,6 +9,7 @@ using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using System.Collections.Concurrent;
 using System;
+using System.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -26,7 +27,8 @@ namespace Bicep.Core.Emit
         {
             this.model = model;
             this.paramsByName = model.Root.ParameterAssignments
-                .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
+                .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
         public Result EvaluateParameter(ParameterAssignmentSymbol parameter)

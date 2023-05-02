@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -11,11 +12,10 @@ namespace Bicep.Core.Parsing
     [DebuggerDisplay("{Type} = {Text}")]
     public class Token : SyntaxBase
     {
-        public Token(TokenType type, TextSpan span, string text, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia)
+        public Token(TokenType type, TextSpan span, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia)
         {
             Type = type;
             Span = span;
-            Text = text;
             LeadingTrivia = leadingTrivia.ToImmutableArray();
             TrailingTrivia = trailingTrivia.ToImmutableArray();
         }
@@ -26,7 +26,7 @@ namespace Bicep.Core.Parsing
 
         public override TextSpan Span { get; }
 
-        public string Text { get; }
+        public virtual string Text => SyntaxFacts.GetText(this.Type) ?? throw new InvalidOperationException($"Unable to get text of token type '{this.Type}'.");
 
         public ImmutableArray<SyntaxTrivia> LeadingTrivia { get; }
 

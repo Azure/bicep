@@ -60,44 +60,53 @@ module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {
 
 module './main.bicep' = {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 
 }
 
 module './main.bicep' = if (1 + 2 == 3) {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 
 }
 
 module './main.bicep' = if
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 //@[026:026) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) ||
 
 module './main.bicep' = if (
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 //@[028:028) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 module './main.bicep' = if (true
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 //@[032:032) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
 
 module './main.bicep' = if (true)
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 //@[033:033) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) ||
 
 module './main.bicep' = if {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 //@[027:028) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) |{|
 
 }
 
 module './main.bicep' = if () {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 //@[028:028) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 }
 
 module './main.bicep' = if ('true') {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
 
 }
 
@@ -127,7 +136,9 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |modANoName|
+//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (CodeDescription: none) |modANoName|
 //@[044:047) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'a'|
+//@[049:050) [BCP057 (Error)] The name "b" does not exist in the current context. (CodeDescription: none) |b|
 
 }
 

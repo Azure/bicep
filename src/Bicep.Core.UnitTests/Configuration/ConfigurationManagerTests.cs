@@ -100,7 +100,8 @@ namespace Bicep.Core.UnitTests.Configuration
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
     ""paramsFiles"": null,
-    ""userDefinedTypes"": null
+    ""userDefinedTypes"": null,
+    ""userDefinedFunctions"": null
   }
 }");
         }
@@ -158,7 +159,8 @@ namespace Bicep.Core.UnitTests.Configuration
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
     ""paramsFiles"": null,
-    ""userDefinedTypes"": null
+    ""userDefinedTypes"": null,
+    ""userDefinedFunctions"": null
   }
 }");
         }
@@ -241,7 +243,8 @@ namespace Bicep.Core.UnitTests.Configuration
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
     ""paramsFiles"": null,
-    ""userDefinedTypes"": null
+    ""userDefinedTypes"": null,
+    ""userDefinedFunctions"": null
   }
 }");
         }
@@ -546,7 +549,8 @@ namespace Bicep.Core.UnitTests.Configuration
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
     ""paramsFiles"": null,
-    ""userDefinedTypes"": null
+    ""userDefinedTypes"": null,
+    ""userDefinedFunctions"": null
   }
 }");
         }

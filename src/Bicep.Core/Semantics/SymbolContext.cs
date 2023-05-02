@@ -16,32 +16,22 @@ namespace Bicep.Core.Semantics
             this.semanticModel = semanticModel;
         }
 
-        public ITypeManager TypeManager
-        {
-            get
-            {
-                this.CheckLock();
-                return this.semanticModel.TypeManager;
-            }
-        }
+        public ITypeManager TypeManager => WithLockCheck(() => this.semanticModel.TypeManager);
 
-        public Compilation Compilation
-        {
-            get
-            {
-                this.CheckLock();
-                return this.compilation;
-            }
-        }
+        public Compilation Compilation => WithLockCheck(() => this.compilation);
+
+        public IBinder Binder => WithLockCheck(() => this.semanticModel.Binder);
 
         public void Unlock() => this.unlocked = true;
 
-        private void CheckLock()
+        private T WithLockCheck<T>(Func<T> getFunc)
         {
-            if (this.unlocked == false)
+            if (!this.unlocked)
             {
                 throw new InvalidOperationException("Properties of the symbol context should not be accessed until name binding is completed.");
             }
+
+            return getFunc();
         }
     }
 }

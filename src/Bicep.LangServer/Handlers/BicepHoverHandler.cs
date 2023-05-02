@@ -148,11 +148,14 @@ namespace Bicep.LanguageServer.Handlers
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
 
-                case FunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
+                case IFunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
                     // but this simplifies the checks
                     return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetEntrypointSemanticModel());
 
+                case DeclaredFunctionSymbol function:
+                    // A declared function can only have a single overload!
+                    return WithMarkdown(GetFunctionOverloadMarkdown(function.Overloads.Single()));
                 case PropertySymbol property:
                     return WithMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
 
@@ -255,11 +258,11 @@ namespace Bicep.LanguageServer.Handlers
         // Markdown needs two leading whitespaces before newline to insert a line break
         private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
 
-        private static MarkedStringsOrMarkupContent GetFunctionMarkdown(FunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
+        private static MarkedStringsOrMarkupContent GetFunctionMarkdown(IFunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
         {
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
             {
-                return WithMarkdown(GetFunctionOverloadMarkdown(matchedOverload, function.Overloads.Length - 1));
+                return WithMarkdown(GetFunctionOverloadMarkdown(matchedOverload));
             }
 
             var potentialMatches =
@@ -276,7 +279,7 @@ namespace Bicep.LanguageServer.Handlers
             return WithMarkdown(toShow.Select(GetFunctionOverloadMarkdown));
         }
 
-        private static string GetFunctionOverloadMarkdown(FunctionOverload overload, int functionOverloadCount)
+        private static string GetFunctionOverloadMarkdown(FunctionOverload overload)
             => CodeBlockWithDescription($"function {overload.Name}{overload.TypeSignature}", overload.Description);
 
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)

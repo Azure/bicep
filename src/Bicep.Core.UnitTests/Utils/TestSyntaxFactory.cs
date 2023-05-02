@@ -38,7 +38,9 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static UnaryOperationSyntax CreateUnaryMinus(SyntaxBase operand) => new(CreateToken(TokenType.Minus), operand);
 
-        public static Token CreateToken(TokenType type, string text = "") => new(type, TextSpan.Nil, text, ImmutableArray.Create<SyntaxTrivia>(), ImmutableArray.Create<SyntaxTrivia>());
+        public static Token CreateToken(TokenType type) => new(type, TextSpan.Nil, ImmutableArray.Create<SyntaxTrivia>(), ImmutableArray.Create<SyntaxTrivia>());
+
+        public static FreeformToken CreateToken(TokenType type, string text) => new(type, TextSpan.Nil, text, ImmutableArray.Create<SyntaxTrivia>(), ImmutableArray.Create<SyntaxTrivia>());
 
         private static IEnumerable<SyntaxBase> CreateChildrenWithNewLines(IEnumerable<SyntaxBase> children)
         {
