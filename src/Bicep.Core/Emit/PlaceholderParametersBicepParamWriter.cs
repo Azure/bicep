@@ -98,7 +98,7 @@ namespace Bicep.Core.Emit
                     case "int":
                         return SyntaxFactory.CreateIntegerLiteral((allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0);
                     case "bool":
-                        return SyntaxFactory.CreateBooleanLiteral(false);
+                        return SyntaxFactory.CreateToken(TokenType.FalseKeyword);
                     case "array":
                         return SyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>());
                     case "object":

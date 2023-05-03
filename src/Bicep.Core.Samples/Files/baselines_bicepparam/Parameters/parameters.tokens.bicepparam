@@ -28,12 +28,12 @@ param myInt = 42
 //@[12:13) Assignment |=|
 //@[14:16) Integer |42|
 //@[16:17) NewLine |\n|
-param myBool = true
+param myBool = false
 //@[00:05) Identifier |param|
 //@[06:12) Identifier |myBool|
 //@[13:14) Assignment |=|
-//@[15:19) TrueKeyword |true|
-//@[19:21) NewLine |\n\n|
+//@[15:20) FalseKeyword |false|
+//@[20:22) NewLine |\n\n|
 
 param numberOfVMs = 1
 //@[00:05) Identifier |param|

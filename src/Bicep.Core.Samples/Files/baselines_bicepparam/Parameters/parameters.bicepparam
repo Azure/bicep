@@ -11,7 +11,7 @@ using './main.bicep'
 // parameter assignment to literals
 param myString = 'hello world!!'
 param myInt = 42
-param myBool = true
+param myBool = false
 
 param numberOfVMs = 1
 

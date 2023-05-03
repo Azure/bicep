@@ -573,5 +573,167 @@ param foo string
 ".ReplaceLineEndings());
             }
         }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneParameterWithDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param name string = 'sampleparameter'";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param name = 'sampleparameter'
+
+".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneStringParameterWithoutDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param name string";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param name = ''
+
+".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneIntegerParameterWithoutDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param count int";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param count = 0
+
+".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneBooleanParameterWithoutDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param enabled bool";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param enabled = false
+
+".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneObjectParameterWithoutDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param enabled object";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param enabled = {}
+
+".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneArrayParameterWithoutDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param enabled array";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param enabled = []
+
+".ReplaceLineEndings());
+            }
+        }
     }
 }

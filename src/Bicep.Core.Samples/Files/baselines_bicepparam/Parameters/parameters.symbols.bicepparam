@@ -13,8 +13,8 @@ param myString = 'hello world!!'
 //@[6:14) ParameterAssignment myString. Type: 'hello world!!'. Declaration start char: 0, length: 32
 param myInt = 42
 //@[6:11) ParameterAssignment myInt. Type: 42. Declaration start char: 0, length: 16
-param myBool = true
-//@[6:12) ParameterAssignment myBool. Type: true. Declaration start char: 0, length: 19
+param myBool = false
+//@[6:12) ParameterAssignment myBool. Type: false. Declaration start char: 0, length: 20
 
 param numberOfVMs = 1
 //@[6:17) ParameterAssignment numberOfVMs. Type: 1. Declaration start char: 0, length: 21

@@ -9,7 +9,7 @@
       "value": 42
     },
     "myBool": {
-      "value": true
+      "value": false
     },
     "numberOfVMs": {
       "value": 1
