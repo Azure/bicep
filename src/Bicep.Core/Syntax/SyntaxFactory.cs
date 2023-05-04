@@ -200,7 +200,7 @@ namespace Bicep.Core.Syntax
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 
-        public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(TrueKeywordToken, value);
+        public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(value ? TrueKeywordToken : FalseKeywordToken, value);
 
         public static NullLiteralSyntax CreateNullLiteral() => new(NullKeywordToken);
 
