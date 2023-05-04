@@ -67,7 +67,7 @@ namespace Bicep.Cli.Commands
             {
                 if (args.OutputToStdOut)
                 {
-                    writer.ToStdout(compilation, args.OutputFormat ?? OutputFormatOption.Json, args.IncludeParams ?? IncludeParamsOption.RequiredOnly);
+                    writer.ToStdout(compilation, args.OutputFormat, args.IncludeParams);
                 }
                 else
                 {
@@ -85,9 +85,9 @@ namespace Bicep.Cli.Commands
                         outputPath = inputPath;
                     }
 
-                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat ?? OutputFormatOption.Json);
+                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat);
 
-                    writer.ToFile(compilation, outputPath, args.OutputFormat ?? OutputFormatOption.Json, args.IncludeParams ?? IncludeParamsOption.RequiredOnly);
+                    writer.ToFile(compilation, outputPath, args.OutputFormat, args.IncludeParams);
                 }
             }
 

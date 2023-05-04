@@ -42,10 +42,6 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --output-format parameter expects an argument");
                         }
-                        if (OutputFormat is not null)
-                        {
-                            throw new CommandLineException($"The --output-format parameter cannot be specified twice");
-                        }
                         if (!Enum.TryParse<OutputFormatOption>(args[i + 1], true, out var outputFormat) || !Enum.IsDefined<OutputFormatOption>(outputFormat))
                         {
                             throw new CommandLineException($"The --output-format parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(OutputFormatOption)))}");
@@ -58,10 +54,6 @@ namespace Bicep.Cli.Arguments
                         if (args.Length == i + 1)
                         {
                             throw new CommandLineException($"The --include-params parameter expects an argument");
-                        }
-                        if (IncludeParams is not null)
-                        {
-                            throw new CommandLineException($"The --include-params parameter cannot be specified twice");
                         }
                         if (!Enum.TryParse<IncludeParamsOption>(args[i + 1], true, out var includeParams) || !Enum.IsDefined<IncludeParamsOption>(includeParams))
                         {
@@ -118,10 +110,6 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
 
-            OutputFormat ??= OutputFormatOption.Json;
-
-            IncludeParams ??= IncludeParamsOption.RequiredOnly;
-
             if (OutputDir is not null)
             {
                 var outputDir = PathHelper.ResolvePath(OutputDir);
@@ -141,9 +129,9 @@ namespace Bicep.Cli.Arguments
 
         public string? OutputFile { get; }
 
-        public OutputFormatOption? OutputFormat { get; }
+        public OutputFormatOption OutputFormat { get; } = OutputFormatOption.Json;
 
-        public IncludeParamsOption? IncludeParams { get; }
+        public IncludeParamsOption IncludeParams { get; } = IncludeParamsOption.RequiredOnly;
 
         public bool NoRestore { get; }
     }
