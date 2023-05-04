@@ -92,9 +92,6 @@ namespace Bicep.Core.Emit
 
                 switch (variableAccessSyntax.Name.IdentifierName)
                 {
-                    case "string":
-                    default:
-                        return SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? "");
                     case "int":
                         return SyntaxFactory.CreateIntegerLiteral((allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0);
                     case "bool":
@@ -103,6 +100,9 @@ namespace Bicep.Core.Emit
                         return SyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>());
                     case "object":
                         return SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
+                    case "string":
+                    default:
+                        return SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? "");
                 }
             }
 
