@@ -32,9 +32,7 @@ export class GenerateParamsCommand implements Command {
       const includeParams = await vscode.window.showQuickPick(['requiredonly', 'all'], { title: "Please select which parameters to include" });
 
       if (outputFormat === undefined || includeParams === undefined) {
-        throw new Error(
-          `Please select the format and which parameters to include`
-        );
+        throw new Error("Please select the format and which parameters to include");
       }
 
       const generateParamsOutput: string = await this.client.sendRequest(
