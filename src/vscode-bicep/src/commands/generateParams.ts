@@ -33,7 +33,7 @@ export class GenerateParamsCommand implements Command {
 
       if (outputFormat === undefined || includeParams === undefined) {
         throw new Error(
-          `Please select the format and which parameters ro include`
+          `Please select the format and which parameters to include`
         );
       }
 
