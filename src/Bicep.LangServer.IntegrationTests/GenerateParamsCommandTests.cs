@@ -16,6 +16,8 @@ using FluentAssertions;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Emit.Options;
+using Bicep.LanguageServer.Handlers;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -47,14 +49,12 @@ namespace Bicep.LangServer.IntegrationTests
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParamsFromFile(bicepFilePath, 1));
             await diagnosticsListener.WaitNext();
 
+            var commandParams = new BicepGenerateParamsCommandParams(bicepFilePath, OutputFormatOption.Json, IncludeParamsOption.RequiredOnly);
+
             await client.Workspace.ExecuteCommand(new Command
             {
                 Name = "generateParams",
-                Arguments = JArray.FromObject(new object[] { new {
-                    BicepFilePath = bicepFilePath,
-                    OutputFormat = OutputFormatOption.Json,
-                    IncludeParams = IncludeParamsOption.RequiredOnly
-                }})
+                Arguments = new JArray(new[] { commandParams.ToJToken() })
             });
 
             var commandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".parameters.json"));
