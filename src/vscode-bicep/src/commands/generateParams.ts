@@ -28,12 +28,12 @@ export class GenerateParamsCommand implements Command {
     try {
       console.log(`Generating parameters file for ${documentUri.fsPath}...`);
 
-      const outputFormat = await vscode.window.showQuickPick(['json', 'bicepparam'], { title: "Please pick the output format" });
-      const includeParams = await vscode.window.showQuickPick(['requiredonly', 'all'], { title: "Please pick what parameters to include" });
+      const outputFormat = await vscode.window.showQuickPick(['json', 'bicepparam'], { title: "Please select the output format" });
+      const includeParams = await vscode.window.showQuickPick(['requiredonly', 'all'], { title: "Please select which parameters to include" });
 
       if (outputFormat === undefined || includeParams === undefined) {
         throw new Error(
-          `Please pick a format and what parameters will be included`
+          `Please select the format and which parameters ro include`
         );
       }
 
