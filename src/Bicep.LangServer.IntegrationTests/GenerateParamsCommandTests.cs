@@ -15,6 +15,7 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.Emit.Options;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -49,9 +50,11 @@ namespace Bicep.LangServer.IntegrationTests
             await client.Workspace.ExecuteCommand(new Command
             {
                 Name = "generateParams",
-                Arguments = new JArray {
-                    bicepFilePath,
-                }
+                Arguments = JArray.FromObject(new object[] { new {
+                    BicepFilePath = bicepFilePath,
+                    OutputFormat = OutputFormatOption.Json,
+                    IncludeParams = IncludeParamsOption.RequiredOnly
+                }})
             });
 
             var commandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".parameters.json"));

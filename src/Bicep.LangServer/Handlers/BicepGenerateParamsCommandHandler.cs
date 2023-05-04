@@ -7,18 +7,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -30,9 +22,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    public record BicepGenerateParamsCommandParams(
+        string BicepFilePath,
+        OutputFormatOption OutputFormat,
+        IncludeParamsOption IncludeParams
+    );
+
     // This handler is used to generate compiled parameters.json file for given a bicep file path.
     // It returns generate-params succeeded/failed message, which can be displayed approriately in IDE output window
-    public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<(string BicepFilePath, OutputFormatOption OutputFormat, IncludeParamsOption IncludeParams), string>
+    public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepGenerateParamsCommandParams, string>
     {
         private readonly ICompilationManager compilationManager;
         private readonly BicepCompiler bicepCompiler;
@@ -44,15 +42,15 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepCompiler = bicepCompiler;
         }
 
-        public override async Task<string> Handle((string BicepFilePath, OutputFormatOption OutputFormat, IncludeParamsOption IncludeParams) handleParams, CancellationToken cancellationToken)
+        public override async Task<string> Handle(BicepGenerateParamsCommandParams parameters, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(handleParams.BicepFilePath))
+            if (string.IsNullOrWhiteSpace(parameters.BicepFilePath))
             {
                 throw new ArgumentException("Invalid input file path");
             }
 
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(handleParams.BicepFilePath);
-            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(handleParams.BicepFilePath, handleParams.OutputFormat, handleParams.IncludeParams, documentUri);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(parameters.BicepFilePath);
+            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(parameters.BicepFilePath, parameters.OutputFormat, parameters.IncludeParams, documentUri);
 
             return output;
         }
