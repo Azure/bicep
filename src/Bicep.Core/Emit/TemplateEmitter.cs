@@ -35,11 +35,11 @@ public class TemplateEmitter
     /// <param name="existingContent">Existing content of the parameters file</param>
     /// <param name="outputFormat">Output file format (json or bicepparam)</param>
     /// <param name="includeParams">Include parameters (requiredonly or all)</param>
-    public EmitResult EmitEmptyParametersFile(Stream stream, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
+    public EmitResult EmitTemplateGeneratedParameterFile(Stream stream, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
     {
         using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 
-        return EmitEmptyParametersFile(sw, existingContent, outputFormat, includeParams);
+        return EmitTemplateGeneratedParameterFile(sw, existingContent, outputFormat, includeParams);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class TemplateEmitter
     /// <param name="existingContent">Existing content of the parameters file</param>
     /// <param name="outputFormat">Output file format (json or bicepparam)</param>
     /// <param name="includeParams">Include parameters (requiredonly or all)</param>
-    public EmitResult EmitEmptyParametersFile(TextWriter textWriter, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams) => this.EmitOrFail(() =>
+    public EmitResult EmitTemplateGeneratedParameterFile(TextWriter textWriter, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams) => this.EmitOrFail(() =>
     {
         switch (outputFormat)
         {

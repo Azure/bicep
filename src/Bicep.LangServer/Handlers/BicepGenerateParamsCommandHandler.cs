@@ -83,7 +83,7 @@ namespace Bicep.LanguageServer.Handlers
             var model = compilation.GetEntrypointSemanticModel();
             var emitter = new TemplateEmitter(model);
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.Write);
-            var result = emitter.EmitEmptyParametersFile(fileStream, existingContent, outputFormat, includeParams);
+            var result = emitter.EmitTemplateGeneratedParameterFile(fileStream, existingContent, outputFormat, includeParams);
 
             return "Generating parameters file succeeded. Processed file " + compiledFile;
         }

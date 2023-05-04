@@ -32,13 +32,13 @@ namespace Bicep.Cli.Services
             }
             using var fileStream = CreateFileStream(outputPath);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(fileStream, existingContent, outputFormat, includeParams);
+            return new TemplateEmitter(semanticModel).EmitTemplateGeneratedParameterFile(fileStream, existingContent, outputFormat, includeParams);
         }
 
         public EmitResult ToStdout(Compilation compilation, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitEmptyParametersFile(io.Output, string.Empty, outputFormat, includeParams);
+            return new TemplateEmitter(semanticModel).EmitTemplateGeneratedParameterFile(io.Output, string.Empty, outputFormat, includeParams);
         }
 
         private static FileStream CreateFileStream(string path)
