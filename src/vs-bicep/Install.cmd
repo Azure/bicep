@@ -1,6 +1,6 @@
 @echo off
 
-taskkill /im devenv.exe /t /f
+taskkill /im devenv.exe /t /f 2>&1 | findstr /v "not found"
 
 set VsWhereExePath=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
 set "ExtensionsRoot=%~dp0"
