@@ -1,7 +1,7 @@
 <Project TreatAsLocalProperty="TaskRuntimeDirectory;TaskAssembly">
   <PropertyGroup>
     <!-- by default run after the Build target -->
-    <BicepCompileAfterTargets Condition=" $(BicepCompileAfterTargets) == '' ">Build</BicepCompileAfterTargets>
+    <BicepCompileAfterTargets Condition=" $(BicepCompileAfterTargets) == '' ">CoreCompile</BicepCompileAfterTargets>
 
     <!-- default to project OutputPath -->
     <BicepOutputPath Condition=" $(BicepOutputPath) == '' ">$(OutputPath)</BicepOutputPath>
@@ -9,9 +9,12 @@
 
   <Target Name="BeforeBicepCompile" Condition=" @(Bicep) != '' " BeforeTargets="BicepCompile">
     <ItemGroup>
-      <_BicepResolved Include="@(Bicep)">
+      <_BicepResolvedIntermediate Include="@(Bicep)">
         <!-- populate missing output file metadata using the default path -->
         <OutputFile Condition=" %(Bicep.OutputFile) == '' ">$(BicepOutputPath)\%(FileName)$(BicepDefaultOutputFileExtension)</OutputFile>
+      </_BicepResolvedIntermediate>
+      <_BicepResolved Include="@(_BicepResolvedIntermediate)">
+        <OutputFile>$([System.IO.Path]::GetFullPath('%(OutputFile)'))</OutputFile>
       </_BicepResolved>
 
       <_BicepOutputFile Include="%(_BicepResolved.OutputFile)" />
@@ -27,6 +30,24 @@
 
     <ItemGroup>
       <FileWrites Include="%(_BicepResolved.OutputFile)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ComputeBicepCompiledFilesToPublish" AfterTargets="PrepareForPublish">
+    <ItemGroup>
+      <_BicepOutputFiles Include="%(_BicepResolved.OutputFile)" />
+    </ItemGroup>
+
+    <!-- find all files compiled by Bicep under the project output dir -->
+    <FindUnderPath Path="$([MSBuild]::NormalizeDirectory($(OutputPath)))" Files="@(_BicepOutputFiles)" UpdateToAbsolutePaths="true">
+      <Output TaskParameter="InPath" ItemName="_PublishableBicepOutputFiles"/>
+    </FindUnderPath>
+
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(_PublishableBicepOutputFiles)">
+        <RelativePath>%(FileName)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
     </ItemGroup>
   </Target>
 </Project>

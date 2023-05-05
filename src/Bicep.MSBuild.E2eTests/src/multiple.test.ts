@@ -4,9 +4,9 @@
 import { Example } from "./example";
 
 describe("msbuild", () => {
-  it("multiple", () => {
+  it("should build a multi-targeting project with customized output paths successfully", () => {
     const example = new Example("multiple");
-    example.clean();
+    example.cleanProjectDir();
 
     const result = example.build();
 
