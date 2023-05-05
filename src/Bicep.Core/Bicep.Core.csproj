@@ -43,7 +43,7 @@
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.441" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
     <PackageReference Include="System.IO.Abstractions" Version="19.2.11" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.2.23128.3" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0-preview.3.23174.8" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.31" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
