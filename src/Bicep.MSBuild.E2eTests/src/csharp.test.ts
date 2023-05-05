@@ -4,13 +4,15 @@
 import { Example } from "./example";
 
 describe("msbuild", () => {
-  it("should build and clean project with single Bicep file", () => {
-    const example = new Example("simple");
+  it("should build and clean a c# project with Bicep files", () => {
+    const example = new Example("csharp", "csharp.csproj");
     example.cleanProjectDir();
 
     const buildResult = example.build();
     expect(buildResult.stderr).toBe("");
-    const templateRelativePath = "bin/Debug/net472/empty.json";
+
+    example.expectFile("bin/Debug/net7.0/csharp.dll");
+    const templateRelativePath = "bin/Debug/net7.0/empty.json";
     example.expectTemplate(templateRelativePath);
 
     const cleanResult = example.clean();
@@ -24,6 +26,6 @@ describe("msbuild", () => {
 
     // both build and publish outputs should be present
     example.expectTemplate(templateRelativePath);
-    example.expectTemplate("bin/Debug/net472/publish/empty.json");
+    example.expectTemplate("bin/Debug/net7.0/publish/empty.json");
   });
 });
