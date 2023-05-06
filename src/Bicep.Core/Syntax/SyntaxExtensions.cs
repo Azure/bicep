@@ -21,8 +21,8 @@ namespace Bicep.Core.Syntax
 
         public static CommentStickiness GetCommentStickiness(this TokenType type) => type switch
         {
-            // Minus is included because negative numbers can have leading comments.
-            TokenType.Minus or
+            TokenType.At or     // Decorator can have leading comments.
+            TokenType.Minus or  // Negative numbers can have leading comments.
             TokenType.EndOfFile or
             TokenType.LeftParen or
             TokenType.LeftSquare or

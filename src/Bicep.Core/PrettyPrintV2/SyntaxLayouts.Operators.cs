@@ -11,70 +11,73 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using static Bicep.Core.PrettyPrintV2.Documents.DocumentOperators;
-
 namespace Bicep.Core.PrettyPrintV2
 {
     public partial class SyntaxLayouts
     {
-        private void ForceBreak() => this.lineBreakerTracker.AddOne();
+        private int lineBreakerCount = 0;
 
-        private ConcatDocument Concat(SyntaxBase first, SyntaxBase second, params SyntaxBase[] tail) =>
-            this.Concat(tail.Prepend(second).Prepend(first));
+        private Document Glue(params SyntaxBase[] syntaxes) => this.Glue(syntaxes.AsEnumerable());
 
-        private ConcatDocument Concat(IEnumerable<SyntaxBase> syntaxes) =>
-            DocumentOperators.Concat(syntaxes.Select(this.LayoutSingle));
+        private Document Glue(IEnumerable<SyntaxBase> syntaxes) => syntaxes.Select(this.LayoutSingle).Glue();
 
-        private ConcatDocument Concat(object first, object second, params object[] tail) =>
-            DocumentOperators.Concat(tail.Prepend(second).Prepend(first).Select(this.ConvertToDocument));
+        private Document Glue(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Glue();
 
-        private ConcatDocument SeparateWithSpace(SyntaxBase first, SyntaxBase second, params SyntaxBase[] tail) =>
-            this.SeparateWithSpace(tail.Prepend(second).Prepend(first));
+        private Document Spread(params SyntaxBase[] syntaxes) => this.Spread(syntaxes.AsEnumerable());
 
-        private ConcatDocument SeparateWithSpace(IEnumerable<SyntaxBase> syntaxes) =>
-            DocumentOperators.SeparateWithSpace(syntaxes.Select(this.LayoutSingle));
+        private Document Spread(IEnumerable<SyntaxBase> syntaxes) => syntaxes.Select(this.LayoutSingle).SeparateBySpace().Glue();
 
-        private ConcatDocument SeparateWithSpace(object first, object second, params object[] tail) =>
-            DocumentOperators.SeparateWithSpace(tail.Prepend(second).Prepend(first).Select(this.ConvertToDocument));
+        private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).SeparateBySpace().Glue();
 
-        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, Document separator, Document padding, SyntaxBase closeSyntax)
+        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding)
         {
             var openBracket = this.LayoutSingle(openSyntax);
-            var items = this.LayoutMany(syntaxes);
-            var closeParts = this.Layout(closeSyntax).ToArray();
-            var danglingComments = closeParts[..^1]; // Can be empty.
-            var closeBracket = closeParts[^1];
+            var closeBracket = this.LayoutSingle(closeSyntax);
 
-            items = items
-                .Concat(danglingComments)
-                .SeparatedBy(separator)
-                .Collapse(x => x == LiteralLine)
-                .Trim(x => x == LiteralLine)
-                .ToList();
+            var lineBreakerCountBefore = this.lineBreakerCount;
+            var items = this.LayoutMany(syntaxes)
+                .TrimNewline()
+                .CollapseNewline()
+                .Select(document =>
+                {
+                    if (document == DocumentOperators.LiteralLine)
+                    {
+                        this.lineBreakerCount++;
+                    }
+
+                    return document;
+                })
+                .SeparateBy(separator);
 
             if (!items.Any())
             {
-                return DocumentOperators.Concat(openBracket, closeBracket);
+                return DocumentOperators.Glue(openBracket, closeBracket);
             }
 
-            if (items.Contains(LiteralLine))
+            var documents = new[]
             {
-                this.lineBreakerTracker.AddOne();
-            }
-
-            return Group(
                 openBracket,
-                Indent(
-                    padding.Concat(items)),
+                padding
+                    .Concat(items)
+                    .Indent(),
                 padding,
-                closeBracket);
+                closeBracket
+            };
+
+            // The GroupDocument degenerates into a GlueDocument if it contains line breakers
+            // that prevent the group from being flattened.
+            return this.lineBreakerCount != lineBreakerCountBefore
+                ? DocumentOperators.Glue(documents)
+                : DocumentOperators.Group(documents);
         }
 
-        private Document ConvertToDocument(object? documentOrSyntax) => documentOrSyntax switch
+        private void BreakEnclosingGroups() => this.lineBreakerCount++;
+
+        private Document ConvertToDocument(object? syntaxOrDocument) => syntaxOrDocument switch
         {
-            Document document => document,
             SyntaxBase syntax => this.LayoutSingle(syntax),
-            _ => throw new ArgumentOutOfRangeException(nameof(documentOrSyntax)),
+            Document document => document,
+            _ => throw new ArgumentOutOfRangeException(nameof(syntaxOrDocument)),
         };
 
     }

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Parsing;
+using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,31 +14,30 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 {
     public sealed class TextDocument : Document
     {
-        private static readonly ImmutableDictionary<string, TextDocument> TextDocumentPool =
-            LanguageConstants.ContextualKeywords
-            .Concat(LanguageConstants.Keywords.Keys)
-            .Concat(new[] { " ", "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
-            .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
-            .ToImmutableDictionary(value => value, value => new TextDocument(value));
+        private static readonly ImmutableDictionary<string, TextDocument> TextDocumentPool = Enum.GetValues<TokenType>()
+            .Select(SyntaxFacts.GetText)
+            .OfType<string>()
+            .Concat(LanguageConstants.DeclarationKeywords)
+            .ToImmutableDictionary(x => x, x => new TextDocument(x));
 
-        private TextDocument(string text)
+        private TextDocument(string value)
         {
-            this.Text = text;
+            this.Value = value;
         }
 
-        public string Text { get; }
+        public string Value { get; }
 
-        public int Width => this.Text.Length;
+        public int Width => this.Value.Length;
 
-        public static TextDocument Create(string content) => TextDocumentPool.TryGetValue(content, out var instance)
+        public static TextDocument From(string value) => TextDocumentPool.TryGetValue(value, out var instance)
             ? instance
-            : new TextDocument(content);
+            : new TextDocument(value);
 
-        public static implicit operator string(TextDocument document) => document.Text;
+        public static implicit operator string(TextDocument document) => document.Value;
 
-        public static implicit operator TextDocument(string content) => Create(content);
+        public static implicit operator TextDocument(string content) => From(content);
 
-        public override string ToString() => this.Text;
+        public override string ToString() => this.Value;
 
         public override IEnumerable<TextDocument> Flatten()
         {

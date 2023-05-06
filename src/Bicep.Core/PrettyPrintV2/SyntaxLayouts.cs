@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
@@ -20,7 +21,7 @@ namespace Bicep.Core.PrettyPrintV2
     public partial class SyntaxLayouts
     {
         private IEnumerable<Document> LayoutArrayAccessSyntax(ArrayAccessSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.BaseExpression,
                 syntax.OpenSquare,
                 syntax.IndexExpression,
@@ -30,93 +31,93 @@ namespace Bicep.Core.PrettyPrintV2
             this.Bracket(
                 syntax.OpenBracket,
                 syntax.Children,
+                syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace,
-                syntax.CloseBracket);
+                padding: LineOrEmpty);
 
         private IEnumerable<Document> LayoutArrayTypeSyntax(ArrayTypeSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.OpenBracket,
                 syntax.Item,
                 syntax.CloseBracket);
 
         private IEnumerable<Document> LayoutBinaryOperationSyntax(BinaryOperationSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.LeftExpression,
                 syntax.OperatorToken,
                 syntax.RightExpression);
 
         private IEnumerable<Document> LayoutDecoratorSyntax(DecoratorSyntax syntax) =>
-            this.Concat(syntax.At, syntax.Expression);
+            this.Glue(syntax.At, syntax.Expression);
 
         private IEnumerable<Document> LayoutForSyntax(ForSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.OpenSquare,
-                this.SeparateWithSpace(
+                this.Spread(
                     syntax.ForKeyword,
                     syntax.VariableSection,
                     syntax.InKeyword,
-                    this.Concat(
+                    this.Glue(
                         syntax.Expression,
                         syntax.Colon),
                     syntax.Body),
                 syntax.CloseSquare);
 
         private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.Name,
                 this.Bracket(
                     syntax.OpenParen,
                     syntax.Children,
+                    syntax.CloseParen,
                     separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty,
-                    syntax.CloseParen));
+                    padding: LineOrEmpty));
 
         private IEnumerable<Document> LayoutIfConditionSyntax(IfConditionSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.ConditionExpression,
                 syntax.Body);
 
         private IEnumerable<Document> LayoutImportAsClauseSyntax(ImportAsClauseSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.Alias);
 
         private IEnumerable<Document> LayoutImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
                     syntax.SpecificationString,
                     syntax.WithClause,
                     syntax.AsClause));
 
         private IEnumerable<Document> LayoutImportWithClauseSyntax(ImportWithClauseSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.Config);
 
         private IEnumerable<Document> LayoutIntanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.BaseExpression,
                 syntax.Name,
                 syntax.Dot,
                 this.Bracket(
                     syntax.OpenParen,
                     syntax.Children,
+                    syntax.CloseParen,
                     separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty,
-                    syntax.CloseParen));
+                    padding: LineOrEmpty));
 
         private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.VariableSection,
                 syntax.Arrow,
                 syntax.Body);
 
         private IEnumerable<Document> LayoutMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Assignment,
@@ -127,7 +128,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Path,
@@ -135,58 +136,58 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Value));
 
         private IEnumerable<Document> LayoutNonNullAssertionSyntax(NonNullAssertionSyntax syntax) =>
-            this.Concat(syntax.BaseExpression, syntax.AssertionOperator);
+            this.Glue(syntax.BaseExpression, syntax.AssertionOperator);
 
         private IEnumerable<Document> LayoutNullableTypeSyntax(NullableTypeSyntax syntax) =>
-            this.Concat(syntax.Base, syntax.NullabilityMarker);
+            this.Glue(syntax.Base, syntax.NullabilityMarker);
 
         private IEnumerable<Document> LayoutObjectPropertySyntax(ObjectPropertySyntax syntax) =>
-            this.SeparateWithSpace(
-                this.Concat(syntax.Key, syntax.Colon),
+            this.Spread(
+                this.Glue(syntax.Key, syntax.Colon),
                 syntax.Value);
 
         private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax)
         {
             // Special case for objects: if the object contains a newline before
-            // the first property, always break the group.
+            // the first property, always break the the object.
             if (syntax.Children.First() is Token token &&
                 token.IsOf(TokenType.NewLine) &&
                 syntax.HasProperties())
             {
-                this.ForceBreak();
+                this.BreakEnclosingGroups();
             }
 
             return this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
+                syntax.CloseBrace,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace,
-                syntax.CloseBrace);
+                padding: LineOrSpace);
         }
 
         private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
-                    this.Concat(syntax.Asterisk, syntax.Colon),
+                .Concat(this.Spread(
+                    this.Glue(syntax.Asterisk, syntax.Colon),
                     syntax.Value));
 
         private IEnumerable<Document> LayoutObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
-                    this.Concat(syntax.Key, syntax.Colon),
+                .Concat(this.Spread(
+                    this.Glue(syntax.Key, syntax.Colon),
                     syntax.Value));
 
         private IEnumerable<Document> LayoutObjectTypeSyntax(ObjectTypeSyntax syntax) =>
             this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
+                syntax.CloseBrace,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace,
-                syntax.CloseBrace);
+                padding: LineOrSpace);
 
         private IEnumerable<Document> LayoutOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Type,
@@ -194,7 +195,7 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Value));
 
         private IEnumerable<Document> LayoutParameterAssignmentSyntax(ParameterAssignmentSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Assignment,
@@ -203,41 +204,41 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(syntax.Modifier is not null
-                    ? this.SeparateWithSpace(syntax.Keyword, syntax.Name, syntax.Type, syntax.Modifier)
-                    : this.SeparateWithSpace( syntax.Keyword, syntax.Name, syntax.Type));
+                    ? this.Spread(syntax.Keyword, syntax.Name, syntax.Type, syntax.Modifier)
+                    : this.Spread(syntax.Keyword, syntax.Name, syntax.Type));
 
         private IEnumerable<Document> LayoutParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.AssignmentToken,
                 syntax.DefaultValue);
 
         private IEnumerable<Document> LayoutParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.OpenParen,
                 syntax.Expression,
                 syntax.CloseParen);
 
         private IEnumerable<Document> LayoutProgramSyntax(ProgramSyntax syntax) =>
             this.LayoutMany(syntax.Children)
-                .Collapse(x => x == LiteralLine)
-                .Trim(x => x == LiteralLine)
-                .SeparatedBy(LiteralLine);
+                .TrimNewline()
+                .CollapseNewline()
+                .SeparatedByNewline();
 
         private IEnumerable<Document> LayoutPropertyAccessSyntax(PropertyAccessSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.BaseExpression,
                 syntax.Dot,
                 syntax.PropertyName);
 
         private IEnumerable<Document> LayoutResourceAccessSyntax(ResourceAccessSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.BaseExpression,
                 syntax.DoubleColon,
                 syntax.ResourceName);
 
         private IEnumerable<Document> LayoutResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Type,
@@ -246,26 +247,28 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutResourceTypeSyntax(ResourceTypeSyntax syntax) =>
             syntax.Type is not null
-                ? this.Concat(syntax.Keyword, syntax.Type)
+                ? this.Glue(syntax.Keyword, syntax.Type)
                 : this.LayoutSingle(syntax.Keyword);
 
         private IEnumerable<Document> LayoutSkippedTriviaSyntax(SkippedTriviaSyntax syntax) =>
-            this.LayoutMany(syntax.Elements);
+            TextDocument.From(syntax
+                .ToTextPreserveFormatting()
+                .ReplaceLineEndings(this.options.Newline));
 
         private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax) =>
-            this.Concat(syntax.StringTokens
+            this.Glue(syntax.StringTokens
                     .Zip(syntax.Expressions, (stringToken, expression) => new SyntaxBase[] { stringToken, expression })
                     .SelectMany(x => x)
                     .Append(syntax.StringTokens[^1]));
 
         private IEnumerable<Document> LayoutTargetScopeSyntax(TargetScopeSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.Assignment,
                 syntax.Value);
 
         private IEnumerable<Document> LayoutTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.ConditionExpression,
                 syntax.Question,
                 syntax.TrueExpression,
@@ -280,60 +283,61 @@ namespace Bicep.Core.PrettyPrintV2
             this.Bracket(
                 syntax.OpenBracket,
                 syntax.Children,
+                syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace,
-                syntax.CloseBracket);
+                padding: LineOrSpace);
 
         private IEnumerable<Document> LayoutTypeDeclarationSyntax(TypeDeclarationSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Assignment,
                 syntax.Value);
 
         private IEnumerable<Document> LayoutUnaryOperationSyntax(UnaryOperationSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.OperatorToken,
                 syntax.Expression);
 
         private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.SeparateWithSpace(syntax.Children);
+            this.Spread(syntax.Children);
 
         private IEnumerable<Document> LayoutUsingDeclarationSyntax(UsingDeclarationSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.Keyword,
                 syntax.Path);
 
         private IEnumerable<Document> LayoutVariableBlockSyntax(VariableBlockSyntax syntax) =>
-            this.Concat(
+            this.Bracket(
                 syntax.OpenParen,
-                this.LayoutMany(syntax.Children)
-                    .SeparatedBy(", "),
-                syntax.CloseParen);
+                syntax.Children,
+                syntax.CloseParen,
+                separator: CommaLineOrCommaSpace,
+                padding: LineOrEmpty);
 
         private IEnumerable<Document> LayoutVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Assignment,
                     syntax.Value));
-        
+
         private IEnumerable<Document> LayoutTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,
                 syntax.Children,
+                syntax.CloseParen,
                 separator: CommaLineOrCommaSpace,
-                padding: LineOrEmpty,
-                syntax.CloseParen);
+                padding: LineOrEmpty);
 
         public IEnumerable<Document> LayoutTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
-            this.Concat(
+            this.Glue(
                 syntax.Name,
                 syntax.Type);
 
         public IEnumerable<Document> LayoutTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
-            this.SeparateWithSpace(
+            this.Spread(
                 syntax.VariableSection,
                 syntax.ReturnType,
                 syntax.Arrow,
@@ -341,12 +345,11 @@ namespace Bicep.Core.PrettyPrintV2
 
         public IEnumerable<Document> LayoutFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.SeparateWithSpace(
+                .Concat(this.Spread(
                     syntax.Keyword,
-                    this.Concat(
+                    this.Glue(
                         syntax.Name,
                         syntax.Lambda)));
-
 
         private IEnumerable<Document> LayoutToken(Token token)
         {
@@ -356,34 +359,44 @@ namespace Bicep.Core.PrettyPrintV2
 
             switch (commentStickiness)
             {
-                case CommentStickiness.None:
-                    Debug.Assert(token.IsOneOf(TokenType.NewLine, TokenType.Comma));
-                    Debug.Assert(!trailingComments.Any());
-
-                    if (leadingComments.Any())
+                case CommentStickiness.Bidirectional:
+                    if (token.IsOf(TokenType.NewLine))
                     {
-                        this.ForceBreak();
+                        if (leadingComments.Any() || trailingComments.Any())
+                        {
+                            this.BreakEnclosingGroups();
+                        }
+
+                        return token.IsMultiLineNewLine()
+                            ? leadingComments.Append(LiteralLine).Concat(trailingComments)
+                            : leadingComments.Concat(trailingComments);
                     }
 
-                    return token.IsMultiLineNewLine() ? leadingComments.Append(LiteralLine) : leadingComments;
+                    var text = token.IsOf(TokenType.MultilineString)
+                        ? token.Text.ReplaceLineEndings(this.options.Newline)
+                        : token.Text;
+
+                    return leadingComments.Any() || trailingComments.Any()
+                        ? leadingComments.Append(text).Concat(trailingComments).SeparateBySpace().Glue()
+                        : text;
 
                 case CommentStickiness.Leading:
-                    Debug.Assert(!trailingComments.Any());
-
-                    return DocumentOperators.SeparateWithSpace(leadingComments.Append(token.Text));
+                    return leadingComments.Any()
+                        ? leadingComments.Append(token.Text).SeparateBySpace().Glue()
+                        : token.Text;
 
                 case CommentStickiness.Trailing:
-                    if (leadingComments.Any())
-                    {
-                        this.ForceBreak();
-                    }
+                    return trailingComments.Any()
+                        ? trailingComments.Prepend(token.Text).SeparateBySpace().Glue()
+                        : token.Text;
 
-                    return leadingComments.Concat(DocumentOperators.SeparateWithSpace(trailingComments.Prepend(token.Text)));
+                case CommentStickiness.None:
+                    return token.IsOf(TokenType.Comma)
+                        ? Enumerable.Empty<Document>()
+                        : TextDocument.From(token.Text);
 
                 default:
-                    Debug.Assert(commentStickiness == CommentStickiness.Bidirectional);
-                    
-                    return DocumentOperators.SeparateWithSpace(leadingComments.Append(token.Text).Concat(trailingComments));
+                    throw new NotImplementedException();
             }
         }
 
@@ -393,7 +406,7 @@ namespace Bicep.Core.PrettyPrintV2
             {
                 if (comment.IsSingleLineComment())
                 {
-                    this.ForceBreak();
+                    this.BreakEnclosingGroups();
                 }
 
                 yield return comment.Text;

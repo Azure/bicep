@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Extensions;
+using Azure.ResourceManager.Resources.Models;
+using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
+using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,77 +18,72 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 {
     public static class DocumentOperators
     {
-        public static readonly Document LiteralLine = new LineDocument(null);
+        /// <summary>
+        /// Prints a whitespace.
+        /// </summary>
+        public static readonly TextDocument Space = TextDocument.From(" ");
 
-        public static readonly Document LineOrEmpty = new LineDocument("");
+        /// <summary>
+        /// Prints a newline that is always included in the output and doesn't indent the next line.
+        /// </summary>
+        public static readonly LineDocument LiteralLine = new(null);
 
-        public static readonly Document LineOrSpace = new LineDocument(" ");
+        /// <summary>
+        /// Prints a newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with an empty string.
+        /// </summary>
+        public static readonly LineDocument LineOrEmpty = new("");
 
-        public static readonly Document LineOrCommaSpace = new LineDocument(", ");
+        /// <summary>
+        /// Prints a newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with a whitespace.
+        /// </summary>
+        public static readonly LineDocument LineOrSpace = new(Space);
 
-        public static readonly Document CommaLineOrCommaSpace = Concat(",", LineOrSpace);
+        /// <summary>
+        /// Prints a newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with a comma followed by a whitespace.
+        /// </summary>
+        public static readonly LineDocument LineOrCommaSpace = new(", ");
 
-        public static IEnumerable<TextDocument> Flatten(this IEnumerable<Document> documents) => documents.SelectMany(x => x.Flatten());
+        /// <summary>
+        /// Prints a comma and newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with a whitespace.
+        /// </summary>
+        public static readonly Document CommaLineOrCommaSpace = Glue(",", LineOrSpace);
 
-        public static ConcatDocument Concat(Document first, Document second, params Document[] tail) => Concat(first.Append(second).Concat(tail));
+        public static Document Glue(params Document[] documents) => Glue(documents.AsEnumerable());
 
-        public static ConcatDocument Concat(IEnumerable<Document> documents) => new(documents);
+        public static Document Glue(this IEnumerable<Document> documents) => documents is Document single ? single : new GlueDocument(documents);
 
-        public static ConcatDocument SpaceSeparated(Document first, Document second, params Document[] tail) => SeparateWithSpace(first.Append(second).Concat(tail));
+        public static IndentDocument Indent(this IEnumerable<Document> documents) => new(documents);
 
-        public static ConcatDocument SeparateWithSpace(IEnumerable<Document> documents) => Concat(documents.SeparatedBy(" "));
+        public static GroupDocument Group(params Document[] documents) => new(documents);
 
-        public static IndentDocument Indent(Document first, Document second, params Document[] tail) => Indent(tail.Prepend(second).Prepend(first));
-
-        public static IndentDocument Indent(IEnumerable<Document> documents) => new(documents);
-
-        public static GroupDocument Group(Document first, Document second, params Document[] tail) => Group(tail.Prepend(second).Prepend(first));
-
-        public static GroupDocument Group(IEnumerable<Document> documents) => new(documents);
-
-        public static IEnumerable<Document> SeparatedBy(this IEnumerable<Document> documents, Document seperator)
+        public static IEnumerable<Document> SeparateBy(this IEnumerable<Document> documents, Document separator)
         {
             using var enumerator = documents.GetEnumerator();
 
-            if (!enumerator.MoveNext())
+            if (enumerator.MoveNext())
             {
-                yield break;
+                yield return enumerator.Current;
             }
 
-            var first = enumerator.Current;
+            var previousIsLiteralLine = enumerator.Current == LiteralLine;
 
-            if (!enumerator.MoveNext())
+            while (enumerator.MoveNext())
             {
-                // Only one document available.
-                yield return first;
-            }
-            else
-            {
-                do
+                if (!previousIsLiteralLine)
                 {
-                    yield return seperator;
-                    yield return enumerator.Current;
+                    yield return separator;
                 }
-                while (enumerator.MoveNext());
+
+                yield return enumerator.Current;
+                previousIsLiteralLine = enumerator.Current == LiteralLine;
             }
         }
 
-        public static IEnumerable<Document> Collapse(this IEnumerable<Document> documents, Predicate<Document> predicate)
-        {
-            var documentList = new List<Document>();
+        public static IEnumerable<Document> SeparateBySpace(this IEnumerable<Document> documents) => documents.SeparateBy(Space);
 
-            foreach (var document in documents)
-            {
-                if (documentList.Count == 0 || !predicate(document) || document != documentList[^1])
-                {
-                    documentList.Add(document);
-                }
-            }
+        public static IEnumerable<Document> SeparatedByNewline(this IEnumerable<Document> documents) => documents.SeparateBy(LiteralLine);
 
-            return documentList;
-        }
-
-        public static IEnumerable<Document> Trim(this IEnumerable<Document> documents, Predicate<Document> predicate)
+        public static IEnumerable<Document> TrimNewline(this IEnumerable<Document> documents)
         {
             if (!documents.Any())
             {
@@ -95,12 +95,12 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             var start = 0;
             var end = documentArray.Length - 1;
 
-            while (predicate(documentArray[start]))
+            while (documentArray[start] == LiteralLine)
             {
                 start++;
             }
 
-            while (predicate(documentArray[end]))
+            while (documentArray[end] == LiteralLine)
             {
                 end--;
             }
@@ -111,6 +111,27 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             }
 
             return documentArray[start..(end + 1)];
+        }
+
+        public static IEnumerable<Document> CollapseNewline(this IEnumerable<Document> documents)
+        {
+            using var enumerator = documents.GetEnumerator();
+
+            if (enumerator.MoveNext())
+            {
+                yield return enumerator.Current;
+            }
+
+            var previous = enumerator.Current;
+
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Current != LiteralLine || enumerator.Current != previous)
+                {
+                    yield return enumerator.Current;
+                    previous = enumerator.Current;
+                }
+            }
         }
     }
 }

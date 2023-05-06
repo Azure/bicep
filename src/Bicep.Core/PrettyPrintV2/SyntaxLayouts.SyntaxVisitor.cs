@@ -6,6 +6,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2.Documents;
+using Bicep.Core.PrettyPrintV2.Options;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,12 @@ using System.Threading.Tasks;
 
 namespace Bicep.Core.PrettyPrintV2
 {
-    public delegate IEnumerable<Document> DocumentLayoutSpecifier<TSyntax>(TSyntax syntax)
-        where TSyntax : SyntaxBase;
-
     public partial class SyntaxLayouts : ISyntaxVisitor
     {
-        private readonly LineBreakerTracker lineBreakerTracker;
+        private delegate IEnumerable<Document> DocumentLayoutSpecifier<TSyntax>(TSyntax syntax)
+            where TSyntax : SyntaxBase;
+
+        private readonly PrettyPrintOptionsV2 options;
 
         private readonly IDiagnosticLookup lexingErrorLookup;
 
@@ -29,9 +30,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> current = Enumerable.Empty<Document>();
 
-        public SyntaxLayouts(HashSet<GroupDocument> lineBreakingGroups, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        public SyntaxLayouts(PrettyPrintOptionsV2 options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
-            this.lineBreakerTracker = new(lineBreakingGroups);
+            this.options = options;
             this.lexingErrorLookup = lexingErrorLookup;
             this.parsingErrorLookup = parsingErrorLookup;
         }
@@ -172,54 +173,14 @@ namespace Bicep.Core.PrettyPrintV2
         private void Layout<TSyntax>(TSyntax syntax, DocumentLayoutSpecifier<TSyntax> layoutSpecifier)
             where TSyntax : SyntaxBase
         {
-            this.current = syntax switch
-            {
-                ITopLevelDeclarationSyntax when this.HasParsingError(syntax) => TextDocument.Create(syntax.ToTextPreserveFormatting()),
-                _ => this.lineBreakerTracker.Track(layoutSpecifier).Invoke(syntax),
-            };
+            this.current = syntax is ITopLevelDeclarationSyntax && this.HasParsingError(syntax)
+                ? TextDocument.From(syntax.ToTextPreserveFormatting().ReplaceLineEndings(this.options.Newline))
+                : layoutSpecifier(syntax);
         }
 
         private bool HasParsingError<TSyntax>(TSyntax syntax)
             where TSyntax : SyntaxBase =>
                 this.lexingErrorLookup.Contains(syntax) ||
                 this.parsingErrorLookup.Contains(syntax);
-
-        private class LineBreakerTracker
-        {
-            private readonly HashSet<GroupDocument> lineBreakingGroups;
-
-            private int lineBreakersCount = 0;
-
-            public LineBreakerTracker(HashSet<GroupDocument> lineBreakingGroups)
-            {
-                this.lineBreakingGroups = lineBreakingGroups;
-            }
-
-            public void AddOne() => this.lineBreakersCount++;
-
-            public void AddGroup(GroupDocument group)
-            {
-                this.lineBreakingGroups.Add(group);
-                this.AddOne();
-            }
-
-            public DocumentLayoutSpecifier<TSyntax> Track<TSyntax>(DocumentLayoutSpecifier<TSyntax> layoutSpecifier)
-                where TSyntax : SyntaxBase
-            {
-                return (syntax) =>
-                {
-                    var countBefore = this.lineBreakersCount;
-                    var document = layoutSpecifier(syntax);
-                    var countAfter = this.lineBreakersCount;
-
-                    if (countBefore < countAfter && document is GroupDocument group)
-                    {
-                        this.AddGroup(group);
-                    }
-
-                    return document;
-                };
-            }
-        }
     }
 }

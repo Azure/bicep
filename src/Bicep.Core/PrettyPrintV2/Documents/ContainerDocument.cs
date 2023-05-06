@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,13 +12,18 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 {
     public abstract class ContainerDocument : Document
     {
-        protected ContainerDocument(IEnumerable<Document> documents)
+        protected ContainerDocument(ImmutableArray<Document> documents)
         {
+            if (documents.Length == 0)
+            {
+                throw new ArgumentException("Expected non-empty documents.", nameof(documents));
+            }
+
             this.Documents = documents;
         }
 
-        public IEnumerable<Document> Documents { get; }
+        public ImmutableArray<Document> Documents { get; }
 
-        public override IEnumerable<TextDocument> Flatten() => this.Documents.Flatten();
+        public override IEnumerable<TextDocument> Flatten() => this.Documents.SelectMany(x => x.Flatten());
     }
 }

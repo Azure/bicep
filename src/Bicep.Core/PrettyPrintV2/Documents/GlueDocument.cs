@@ -4,16 +4,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
-    public sealed class ConcatDocument : ContainerDocument
+    public sealed class GlueDocument : ContainerDocument
     {
-        public ConcatDocument(IEnumerable<Document> documents)
-            : base(documents)
+        public GlueDocument(IEnumerable<Document> documents)
+            : base(documents.ToImmutableArray())
         {
         }
     }

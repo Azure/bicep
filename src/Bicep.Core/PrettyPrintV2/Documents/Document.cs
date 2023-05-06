@@ -16,7 +16,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
     /// </summary>
     public abstract class Document : IEnumerable<Document>
     {
-        public static implicit operator Document(string content) => TextDocument.Create(content);
+        public static implicit operator Document(string content) => TextDocument.From(content);
 
         public abstract IEnumerable<TextDocument> Flatten();
 
