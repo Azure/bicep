@@ -331,7 +331,7 @@ param paramAccessingResource string = sampleResource
 
 param paramAccessingOutput string = sampleOutput
 //@[06:026) [no-unused-params (Warning)] Parameter "paramAccessingOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramAccessingOutput|
-//@[36:048) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |sampleOutput|
+//@[36:048) [BCP057 (Error)] The name "sampleOutput" does not exist in the current context. (CodeDescription: none) |sampleOutput|
 
 // #completionTest(6) -> empty
 param 

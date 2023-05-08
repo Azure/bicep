@@ -774,7 +774,7 @@ output output2 string = output1
         result.Template.Should().NotHaveValue();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
+            ("BCP057", DiagnosticLevel.Error, "The name \"output1\" does not exist in the current context."),
         });
     }
 
