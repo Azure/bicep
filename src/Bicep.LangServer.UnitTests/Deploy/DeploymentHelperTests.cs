@@ -12,6 +12,7 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
+using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
@@ -49,18 +50,15 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 armClient,
                 documentPath,
                 string.Empty,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 scope,
                 string.Empty,
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache()
+                );
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
@@ -84,18 +82,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 armClient,
                 documentPath,
                 string.Empty,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeSubscription,
                 location,
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
 
@@ -118,18 +112,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 armClient,
                 documentPath,
                 string.Empty,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeManagementGroup,
                 location,
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
 
@@ -153,18 +143,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 armClient,
                 documentPath,
                 string.Empty,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeTenant,
                 string.Empty,
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
@@ -205,18 +191,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 CreateMockArmClient(),
                 documentPath,
                 template,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 scope,
                 location,
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 deployId,
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentStartedMessage, documentPath);
             var expectedDeploymentLink = @"https://portal.azure.com/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2F07268dd7-4c50-434b-b1ff-67b8164edb41%2FresourceGroups%2Fbhavyatest%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep_deployment";
@@ -225,102 +207,6 @@ namespace Bicep.LangServer.UnitTests.Deploy
             bicepDeployStartResponse.isSuccess.Should().BeTrue();
             bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().Be(expectedViewDeploymentInPortalMessage);
-        }
-
-        [TestMethod]
-        public async Task StartDeploymentAsync_WithInvalidParameterFilePath_ReturnsDeploymentFailedMessage()
-        {
-            var template = @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""resources"": [
-    {
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2021-06-01"",
-      ""name"": ""storageaccount"",
-      ""location"": ""[resourceGroup().location]"",
-      ""properties"": {}
-    }
-  ]
-}";
-            var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
-            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
-            deploymentCollectionProvider
-                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
-                .Returns(deploymentCollection);
-            var documentPath = "some_path";
-            var parametersFilePath = @"c:\parameter.json";
-
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
-                deploymentCollectionProvider.Object,
-                CreateMockArmClient(),
-                documentPath,
-                template,
-                parametersFilePath,
-                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
-                LanguageConstants.TargetScopeTypeSubscription,
-                "eastus",
-                string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
-                "https://portal.azure.com",
-                "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
-
-            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, parametersFilePath, @"Could not find file");
-
-            bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
-            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
-        }
-
-        [TestMethod]
-        public async Task StartDeploymentAsync_WithInvalidParameterFileContents_ReturnsDeploymentFailedMessage()
-        {
-            var template = @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""resources"": [
-    {
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2021-06-01"",
-      ""name"": ""storageaccount"",
-      ""location"": ""[resourceGroup().location]"",
-      ""properties"": {}
-    }
-  ]
-}";
-            var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
-            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
-            deploymentCollectionProvider
-                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
-                .Returns(deploymentCollection);
-            string parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
-            var documentPath = "some_path";
-
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
-                deploymentCollectionProvider.Object,
-                CreateMockArmClient(),
-                documentPath,
-                template,
-                parametersFilePath,
-                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
-                LanguageConstants.TargetScopeTypeSubscription,
-                "eastus",
-                string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
-                "https://portal.azure.com",
-                "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
-
-            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, parametersFilePath, @"Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
-
-            bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
-            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -349,18 +235,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 CreateMockArmClient(),
                 documentPath,
                 template,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
 
@@ -396,18 +278,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 CreateMockArmClient(),
                 documentPath,
                 template,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
 
@@ -451,18 +329,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 CreateMockArmClient(),
                 documentPath,
                 template,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
                 string.Empty,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
-                new DeploymentOperationsCache(),
-                null);
+                JsonElementFactory.CreateElement(""),
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
 
@@ -510,18 +384,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 CreateMockArmClient(),
                 "some_path",
                 template,
-                string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
                 deployId,
-                string.Empty,
-                ParametersFileUpdateOption.None,
-                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "deployment_name",
-                deploymentOperationsCache,
-                null);
+                JsonElementFactory.CreateElement(""),
+                deploymentOperationsCache);
 
             deploymentOperationsCache.FindAndRemoveDeploymentOperation(deployId).Should().NotBeNull();
         }
