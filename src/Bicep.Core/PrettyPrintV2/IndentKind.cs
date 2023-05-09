@@ -7,11 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bicep.Core.PrettyPrintV2.Options
+namespace Bicep.Core.PrettyPrintV2
 {
     public enum IndentKind
     {
         Space,
+
         Tab,
     }
 }

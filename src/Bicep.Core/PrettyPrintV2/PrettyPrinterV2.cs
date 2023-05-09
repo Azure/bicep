@@ -5,7 +5,6 @@ using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrintV2.Documents;
-using Bicep.Core.PrettyPrintV2.Options;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
@@ -22,29 +21,36 @@ namespace Bicep.Core.PrettyPrintV2
     {
         private readonly TextWriter writer;
 
-        private readonly PrettyPrintOptionsV2 options;
+        private readonly PrettyPrinterV2Context context;
 
-        private int occupied = 0;
+        private int occupiedWidth = 0;
 
         private int indentLevelToPrint = 0;
 
-        public PrettyPrinterV2(TextWriter writer, PrettyPrintOptionsV2 options)
+        public PrettyPrinterV2(TextWriter writer, PrettyPrinterV2Context context)
         {
             this.writer = writer;
-            this.options = options;
+            this.context = context;
         }
 
-        public void Print(SyntaxBase syntax, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        public static void PrintTo(TextWriter writer, SyntaxBase syntax, PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
-            var layouts = new SyntaxLayouts(this.options, lexingErrorLookup, parsingErrorLookup);
-            var documents = layouts.Layout(syntax).ToImmutableArray();
+            var context = PrettyPrinterV2Context.Create(syntax, options, lexingErrorLookup, parsingErrorLookup);
+            var layouts = new SyntaxLayouts(context);
+            var documents = layouts.Layout(syntax);
+            var printer = new PrettyPrinterV2(writer, context);
 
-            this.Print(0, documents);
+            printer.Print(0, documents);
+
+            if (options.InsertFinalNewline)
+            {
+                writer.Write(context.Newline);
+            }
         }
 
-        private static IEnumerable<(int indentLevel, Document document)> Normalize(int indentLevel, ImmutableArray<Document> documents)
+        private static IEnumerable<(int indentLevel, Document document)> Normalize(int indentLevel, IEnumerable<Document> documents)
         {
-            var enumeratorStack = new Stack<ImmutableArray<Document>.Enumerator>();
+            var enumeratorStack = new Stack<IEnumerator<Document>>();
             var enumerator = documents.GetEnumerator();
 
             while (true)
@@ -57,13 +63,13 @@ namespace Bicep.Core.PrettyPrintV2
                     {
                         case IndentDocument indentDocument:
                             enumeratorStack.Push(enumerator);
-                            enumerator = indentDocument.Documents.GetEnumerator();
+                            enumerator = indentDocument.Documents.AsEnumerable().GetEnumerator();
                             indentLevel++;
                             break;
 
                         case GlueDocument concatDocument:
                             enumeratorStack.Push(enumerator);
-                            enumerator = concatDocument.Documents.GetEnumerator();
+                            enumerator = concatDocument.Documents.AsEnumerable().GetEnumerator();
                             break;
 
                         default:
@@ -77,6 +83,7 @@ namespace Bicep.Core.PrettyPrintV2
                     break;
                 }
 
+                enumerator.Dispose();
                 enumerator = enumeratorStack.Pop();
 
                 if (enumerator.Current is IndentDocument)
@@ -86,7 +93,7 @@ namespace Bicep.Core.PrettyPrintV2
             }
         }
 
-        private void Print(int indentLevel, ImmutableArray<Document> documents)
+        private void Print(int indentLevel, IEnumerable<Document> documents)
         {
             foreach (var (normalizedIndentLevel, document) in Normalize(indentLevel, documents))
             {
@@ -102,36 +109,38 @@ namespace Bicep.Core.PrettyPrintV2
                     this.PrintIndent();
 
                     this.writer.Write(text);
-                    this.occupied += text.Width;
+                    this.occupiedWidth += text.Width;
 
                     return;
 
 
                 case LineDocument:
-                    this.writer.Write(this.options.Newline);
+                    this.writer.Write(this.context.Newline);
 
-                    this.occupied = indentLevel * this.options.Indent.Length;
+                    this.occupiedWidth = 0;
                     this.indentLevelToPrint = indentLevel;
 
                     return;
 
                 case GroupDocument group:
-                    var remaining = this.options.Width - this.occupied;
+                    this.PrintIndent();
 
-                    if (remaining < 0)
+                    var remainingWidth = this.context.Width - this.occupiedWidth;
+
+                    if (remainingWidth < 0)
                     {
                         Print(indentLevel, group.Documents);
 
                         return;
                     }
 
-                    var flattened = ImmutableArray.CreateBuilder<Document>();
+                    var flattened = new List<Document>();
 
                     foreach (var child in group.Flatten())
                     {
-                        remaining -= child.Width;
+                        remainingWidth -= child.Width;
 
-                        if (remaining < 0)
+                        if (remainingWidth < 0)
                         {
                             // Short circuiting to avoid flattening the remaning children.
                             Print(indentLevel, group.Documents);
@@ -142,7 +151,7 @@ namespace Bicep.Core.PrettyPrintV2
                         flattened.Add(child);
                     }
 
-                    Print(indentLevel, flattened.ToImmutable());
+                    Print(indentLevel, flattened);
 
                     return;
 
@@ -161,7 +170,8 @@ namespace Bicep.Core.PrettyPrintV2
 
             for (int i = 0; i < this.indentLevelToPrint; i++)
             {
-                this.writer.Write(this.options.Indent);
+                this.writer.Write(this.context.Indent);
+                this.occupiedWidth += this.context.Indent.Length;
             }
 
             this.indentLevelToPrint = 0;

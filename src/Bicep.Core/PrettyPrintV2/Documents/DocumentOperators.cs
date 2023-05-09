@@ -26,7 +26,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         /// <summary>
         /// Prints a newline that is always included in the output and doesn't indent the next line.
         /// </summary>
-        public static readonly LineDocument LiteralLine = new(null);
+        public static readonly LineDocument HardLine = new(null);
 
         /// <summary>
         /// Prints a newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with an empty string.
@@ -65,7 +65,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
                 yield return enumerator.Current;
             }
 
-            var previousIsLiteralLine = enumerator.Current == LiteralLine;
+            var previousIsLiteralLine = enumerator.Current == HardLine;
 
             while (enumerator.MoveNext())
             {
@@ -75,13 +75,13 @@ namespace Bicep.Core.PrettyPrintV2.Documents
                 }
 
                 yield return enumerator.Current;
-                previousIsLiteralLine = enumerator.Current == LiteralLine;
+                previousIsLiteralLine = enumerator.Current == HardLine;
             }
         }
 
         public static IEnumerable<Document> SeparateBySpace(this IEnumerable<Document> documents) => documents.SeparateBy(Space);
 
-        public static IEnumerable<Document> SeparatedByNewline(this IEnumerable<Document> documents) => documents.SeparateBy(LiteralLine);
+        public static IEnumerable<Document> SeparatedByNewline(this IEnumerable<Document> documents) => documents.SeparateBy(HardLine);
 
         public static IEnumerable<Document> TrimNewline(this IEnumerable<Document> documents)
         {
@@ -95,12 +95,12 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             var start = 0;
             var end = documentArray.Length - 1;
 
-            while (documentArray[start] == LiteralLine)
+            while (documentArray[start] == HardLine)
             {
                 start++;
             }
 
-            while (documentArray[end] == LiteralLine)
+            while (documentArray[end] == HardLine)
             {
                 end--;
             }
@@ -126,11 +126,24 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current != LiteralLine || enumerator.Current != previous)
+                if (enumerator.Current != HardLine || enumerator.Current != previous)
                 {
                     yield return enumerator.Current;
                     previous = enumerator.Current;
                 }
+            }
+        }
+
+        public static IEnumerable<Document> On(this IEnumerable<Document> documents, Document target, Action callback)
+        {
+            foreach (var document in documents)
+            {
+                if (document == target)
+                {
+                    callback();
+                }
+
+                yield return document;
             }
         }
     }

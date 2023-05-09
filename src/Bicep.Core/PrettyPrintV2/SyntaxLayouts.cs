@@ -150,19 +150,17 @@ namespace Bicep.Core.PrettyPrintV2
         {
             // Special case for objects: if the object contains a newline before
             // the first property, always break the the object.
-            if (syntax.Children.First() is Token token &&
+            var forceBreak = syntax.Children.FirstOrDefault() is Token token &&
                 token.IsOf(TokenType.NewLine) &&
-                syntax.HasProperties())
-            {
-                this.BreakEnclosingGroups();
-            }
+                syntax.HasProperties();
 
             return this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
                 syntax.CloseBrace,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace);
+                padding: LineOrSpace,
+                forceBreak: forceBreak);
         }
 
         private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) =>
@@ -253,7 +251,7 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutSkippedTriviaSyntax(SkippedTriviaSyntax syntax) =>
             TextDocument.From(syntax
                 .ToTextPreserveFormatting()
-                .ReplaceLineEndings(this.options.Newline));
+                .ReplaceLineEndings(this.context.Newline));
 
         private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax) =>
             this.Glue(syntax.StringTokens
@@ -351,71 +349,73 @@ namespace Bicep.Core.PrettyPrintV2
                         syntax.Name,
                         syntax.Lambda)));
 
-        private IEnumerable<Document> LayoutToken(Token token)
-        {
-            var leadingComments = this.LayoutComments(token.LeadingComments);
-            var trailingComments = this.LayoutComments(token.TrailingComments);
-            var commentStickiness = token.GetCommentStickiness();
-
-            switch (commentStickiness)
-            {
-                case CommentStickiness.Bidirectional:
-                    if (token.IsOf(TokenType.NewLine))
-                    {
-                        if (leadingComments.Any() || trailingComments.Any())
-                        {
-                            this.BreakEnclosingGroups();
-                        }
-
-                        return token.IsMultiLineNewLine()
-                            ? leadingComments.Append(LiteralLine).Concat(trailingComments)
-                            : leadingComments.Concat(trailingComments);
-                    }
-
-                    var text = token.IsOf(TokenType.MultilineString)
-                        ? token.Text.ReplaceLineEndings(this.options.Newline)
-                        : token.Text;
-
-                    return leadingComments.Any() || trailingComments.Any()
-                        ? leadingComments.Append(text).Concat(trailingComments).SeparateBySpace().Glue()
-                        : text;
-
-                case CommentStickiness.Leading:
-                    return leadingComments.Any()
-                        ? leadingComments.Append(token.Text).SeparateBySpace().Glue()
-                        : token.Text;
-
-                case CommentStickiness.Trailing:
-                    return trailingComments.Any()
-                        ? trailingComments.Prepend(token.Text).SeparateBySpace().Glue()
-                        : token.Text;
-
-                case CommentStickiness.None:
-                    return token.IsOf(TokenType.Comma)
-                        ? Enumerable.Empty<Document>()
-                        : TextDocument.From(token.Text);
-
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private IEnumerable<Document> LayoutComments(IEnumerable<SyntaxTrivia> comments)
-        {
-            foreach (var comment in comments)
-            {
-                if (comment.IsSingleLineComment())
-                {
-                    this.BreakEnclosingGroups();
-                }
-
-                yield return comment.Text;
-            }
-        }
-
-        // Remove empty lines between decorators.
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
-                .Where(x => x != LiteralLine);
+                .Where(x => x != HardLine); // Remove empty lines between decorators.
+
+        private IEnumerable<Document> LayoutToken(Token token)
+        {
+            if (token.IsOf(TokenType.Comma))
+            {
+                return Enumerable.Empty<Document>();
+            }
+
+            var leadingTrivia = this.LayoutTrivia(token.LeadingTrivia);
+            var trailingTrivia = this.LayoutTrivia(token.TrailingTrivia).ToArray();
+
+            if (token.IsOf(TokenType.NewLine))
+            {
+                if (leadingTrivia.Any() || trailingTrivia.Any())
+                {
+                    this.ForceBreak();
+                }
+
+                return token.IsMultiLineNewLine()
+                    ? leadingTrivia.Append(HardLine).Concat(trailingTrivia)
+                    : leadingTrivia.Concat(trailingTrivia);
+            }
+
+            Document text = token.IsOf(TokenType.MultilineString)
+                ? token.Text.ReplaceLineEndings(this.context.Newline)
+                : token.Text;
+
+            Document? suffix = null;
+
+            if (token.TrailingTrivia.SingleOrDefault(x => x.Type == SyntaxTriviaType.SingleLineComment) is { }  trailingSingleLineComment)
+            {
+                // Remove trailing single-line comment from trailingTrivia as it's considered a zero-length suffix.
+                trailingTrivia = trailingTrivia[0..^1];
+                suffix = new SuffixDocument($" {trailingSingleLineComment.Text}");
+            }
+
+            if (leadingTrivia.Any() || trailingTrivia.Any())
+            {
+                text = leadingTrivia
+                    .Append(text)
+                    .Concat(trailingTrivia)
+                    .SeparateBySpace()
+                    .Glue();
+            }
+
+            return suffix is not null
+                ? DocumentOperators.Glue(text, suffix)
+                : text;
+        }
+
+        private IEnumerable<Document> LayoutTrivia(IEnumerable<SyntaxTrivia> trivia)
+        {
+            foreach (var item in trivia)
+            {
+                if (item.IsSingleLineComment())
+                {
+                    this.ForceBreak();
+                }
+
+                if (item.Type != SyntaxTriviaType.Whitespace)
+                {
+                   yield return item.Text;
+                }
+            }
+        }
     }
 }

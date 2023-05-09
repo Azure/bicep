@@ -69,5 +69,9 @@ namespace Bicep.Core.Syntax
             TokenType.AsKeyword => "as",
             _ => null,
         };
+
+        public static bool IsSingleLineComment(SyntaxTrivia trivia) => trivia.Type == SyntaxTriviaType.SingleLineComment;
+
+        public static bool HasTrailingSingleLineComment(this Token token) => token.TrailingTrivia.Any(SyntaxExtensions.IsSingleLineComment);
     }
 }

@@ -29,7 +29,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).SeparateBySpace().Glue();
 
-        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding)
+        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {
             var openBracket = this.LayoutSingle(openSyntax);
             var closeBracket = this.LayoutSingle(closeSyntax);
@@ -38,15 +38,7 @@ namespace Bicep.Core.PrettyPrintV2
             var items = this.LayoutMany(syntaxes)
                 .TrimNewline()
                 .CollapseNewline()
-                .Select(document =>
-                {
-                    if (document == DocumentOperators.LiteralLine)
-                    {
-                        this.lineBreakerCount++;
-                    }
-
-                    return document;
-                })
+                .On(DocumentOperators.HardLine, this.ForceBreak) 
                 .SeparateBy(separator);
 
             if (!items.Any())
@@ -64,14 +56,22 @@ namespace Bicep.Core.PrettyPrintV2
                 closeBracket
             };
 
+            if (forceBreak)
+            {
+                this.lineBreakerCount++;
+            }
+
             // The GroupDocument degenerates into a GlueDocument if it contains line breakers
             // that prevent the group from being flattened.
-            return this.lineBreakerCount != lineBreakerCountBefore
+            return this.lineBreakerCount > lineBreakerCountBefore
                 ? DocumentOperators.Glue(documents)
                 : DocumentOperators.Group(documents);
         }
 
-        private void BreakEnclosingGroups() => this.lineBreakerCount++;
+        /// <summary>
+        /// Breaks the enclosing parent groups.
+        /// </summary>
+        private void ForceBreak() => this.lineBreakerCount++;
 
         private Document ConvertToDocument(object? syntaxOrDocument) => syntaxOrDocument switch
         {
