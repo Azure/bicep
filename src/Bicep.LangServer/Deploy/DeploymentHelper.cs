@@ -26,16 +26,13 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="armClient">arm client</param>
         /// <param name="documentPath">path to bicep file used in deployment</param>
         /// <param name="template">template used in deployment</param>
-        /// <param name="parametersFilePath">path to parameter file used in deployment</param>
         /// <param name="id">id string to create the ResourceIdentifier from</param>
         /// <param name="scope">target scope</param>
         /// <param name="location">location to store the deployment data</param>
         /// <param name="deploymentId">deployment id</param>
-        /// <param name="parametersFileName">parameters file name</param>
-        /// <param name="parametersFileUpdateOption"><see cref="ParametersFileUpdateOption"/>update, create or overwrite parameters file</param>
-        /// <param name="updatedDeploymentParameters">parameters that were updated during deployment flow</param>
         /// <param name="portalUrl">azure management portal URL</param>
         /// <param name="deploymentName">deployment name</param>
+        /// <param name="parametersFileContents">contents of parameter file used in deployment</param>
         /// <param name="deploymentOperationsCache">deployment operations cache that needs to be updated</param>
         /// <returns><see cref="BicepDeploymentStartResponse"/></returns>
         public static async Task<BicepDeploymentStartResponse> StartDeploymentAsync(
@@ -43,18 +40,14 @@ namespace Bicep.LanguageServer.Deploy
             ArmClient armClient,
             string documentPath,
             string template,
-            string parametersFilePath,
             string id,
             string scope,
             string location,
             string deploymentId,
-            string? parametersFileName,
-            ParametersFileUpdateOption parametersFileUpdateOption,
-            List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters,
             string portalUrl,
             string deploymentName,
-            IDeploymentOperationsCache deploymentOperationsCache,
-            string? bicepparamJsonOutput)
+            JsonElement parametersFileContents,
+            IDeploymentOperationsCache deploymentOperationsCache)
         {
             if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
@@ -77,34 +70,10 @@ namespace Bicep.LanguageServer.Deploy
 
             if (deploymentCollection is not null)
             {
-                JsonElement parameters;
-
-                try
-                {
-                    if(parametersFilePath.EndsWith(".bicepparam") && bicepparamJsonOutput is {})
-                    {
-                        parameters = JsonElementFactory.CreateElement(bicepparamJsonOutput);
-                    }
-                    else if(parametersFilePath.EndsWith(".json") && parametersFileName is {})
-                    {
-                        var updatedParametersFileContents = DeploymentParametersHelper.GetUpdatedParametersFileContents(documentPath, parametersFileName, parametersFilePath, parametersFileUpdateOption, updatedDeploymentParameters);
-                        parameters = JsonElementFactory.CreateElement(updatedParametersFileContents);
-                    }
-                    else
-                    {
-                        return new BicepDeploymentStartResponse(false, $"Parameter file with file extension {Path.GetExtension(parametersFilePath)} is not allowed", null);
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    return new BicepDeploymentStartResponse(false, e.Message, null);
-                }
-
                 var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
                 {
                     Template = new BinaryData(JsonDocument.Parse(template).RootElement),
-                    Parameters = new BinaryData(parameters)
+                    Parameters = new BinaryData(parametersFileContents)
                 };
                 var armDeploymentContent = new ArmDeploymentContent(deploymentProperties)
                 {

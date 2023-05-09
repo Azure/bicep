@@ -366,22 +366,21 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      let parametersFileName: string | null
-      let updatedDeploymentParameters: BicepUpdatedDeploymentParameter[]
+      let parametersFileName: string | null;
+      let updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
       let parametersFileUpdateOption = ParametersFileUpdateOption.None;
 
-      if(parametersFilePath.endsWith(".bicepparam")) {
-        parametersFileName = null
-        updatedDeploymentParameters = []        
-      }
-      else  {
+      if (parametersFilePath.endsWith(".bicepparam")) {
+        parametersFileName = null;
+        updatedDeploymentParameters = [];
+      } else {
         [parametersFileName, updatedDeploymentParameters] =
-        await this.handleMissingAndDefaultParams(
-          context,
-          documentPath,
-          parametersFilePath,
-          template
-        );
+          await this.handleMissingAndDefaultParams(
+            context,
+            documentPath,
+            parametersFilePath,
+            template
+          );
 
         // If all the parameters are of type secure, we will not show an option to create or update parameters file
         if (
@@ -427,7 +426,10 @@ export class DeployCommand implements Command {
 
       // If user chose to create/update/overwrite a parameters file at the end of deployment flow, we'll
       // open it in vscode.
-      if (parametersFileUpdateOption !== ParametersFileUpdateOption.None && parametersFileName != null) {
+      if (
+        parametersFileUpdateOption !== ParametersFileUpdateOption.None &&
+        parametersFileName !== null
+      ) {
         if (
           parametersFileUpdateOption === ParametersFileUpdateOption.Create ||
           parametersFileUpdateOption === ParametersFileUpdateOption.Overwrite
@@ -505,7 +507,11 @@ export class DeployCommand implements Command {
             canSelectMany: false,
             defaultUri: sourceUri,
             openLabel: "Select Parameter File",
-            filters: { "All Parameter Files": ["json", "jsonc", "bicepparam"], "JSON Files": ["json", "jsonc"], "Bicepparam Files": ["bicepparam"] },
+            filters: {
+              "All Parameter Files": ["json", "jsonc", "bicepparam"],
+              "JSON Files": ["json", "jsonc"],
+              "Bicepparam Files": ["bicepparam"],
+            },
           });
         if (paramsPaths) {
           assert(paramsPaths.length === 1, "Expected paramsPaths.length === 1");
@@ -519,20 +525,7 @@ export class DeployCommand implements Command {
         parameterFilePath = result.data;
       }
 
-      if (parameterFilePath.endsWith(".bicepparam")) {
-        this.outputChannelManager.appendToOutputChannel(
-          `Bicep Parameter file used in deployment -> ${parameterFilePath}`
-        );
-
-        return parameterFilePath;
-      }
-      else {
-        if (await this.validateIsValidParameterFile(parameterFilePath, true)) {
-          this.outputChannelManager.appendToOutputChannel(
-            `JSON Parameter file used in deployment -> ${parameterFilePath}`
-          );
-      }
-
+      if (await this.validateIsValidParameterFile(parameterFilePath, true)) {
         return parameterFilePath;
       }
     }
@@ -542,6 +535,13 @@ export class DeployCommand implements Command {
     path: string,
     showErrorMessage: boolean
   ): Promise<boolean> {
+    if (path.endsWith(".bicepparam")) {
+      this.outputChannelManager.appendToOutputChannel(
+        `Bicep Parameter file used in deployment -> ${path}`
+      );
+      return true;
+    }
+
     const expectedSchema =
       "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
 
@@ -573,6 +573,9 @@ export class DeployCommand implements Command {
       return false;
     }
 
+    this.outputChannelManager.appendToOutputChannel(
+      `JSON Parameter file used in deployment -> ${path}`
+    );
     return true;
   }
 
