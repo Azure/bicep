@@ -774,7 +774,7 @@ output output2 string = output1
         result.Template.Should().NotHaveValue();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
+            ("BCP057", DiagnosticLevel.Error, "The name \"output1\" does not exist in the current context."),
         });
     }
 
@@ -4633,5 +4633,47 @@ param rg_tag_count int = int(take(resourceGroup().name, 3))
 "));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/10619
+    [TestMethod]
+    public void Test_Issue10619()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+metadata name = 'Some metadata'
+param name string
+
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: name
+  kind: 'StorageV2'
+  sku: {
+    name: 'Premium_LRS'
+  }
+}
+"));
+
+        result.Should().GenerateATemplate();
+    }
+
+    // https://github.com/Azure/bicep/issues/10619
+    [TestMethod]
+    public void Test_Issue10619_outputs()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+output name string = 'blah'
+param name string
+
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: name
+  kind: 'StorageV2'
+  sku: {
+    name: 'Premium_LRS'
+  }
+}
+"));
+
+        result.Should().GenerateATemplate();
     }
 }

@@ -1725,9 +1725,6 @@ namespace Bicep.Core.TypeSystem
                     case BuiltInNamespaceSymbol @namespace:
                         return @namespace.Type;
 
-                    case OutputSymbol _:
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
-
                     case TypeAliasSymbol:
                     case AmbientTypeSymbol:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
@@ -1941,12 +1938,13 @@ namespace Bicep.Core.TypeSystem
                         // Error: already has error info attached, no need to add more
                         // Parameter: references are permitted in other parameters' default values as long as there is not a cycle (BCP080)
                         // Function: we already validate that a function cannot be used as a variable (BCP063)
-                        // Output: we already validate that outputs cannot be referenced in expressions (BCP058)
+                        // Output & Metadata: we already validate that output & metadata cannot be referenced in expressions (BCP057)
                         if (symbol != null &&
                             symbol.Kind != SymbolKind.Error &&
                             symbol.Kind != SymbolKind.Parameter &&
                             symbol.Kind != SymbolKind.Function &&
                             symbol.Kind != SymbolKind.Output &&
+                            symbol.Kind != SymbolKind.Metadata &&
                             symbol.Kind != SymbolKind.Namespace &&
                             symbol.Kind != SymbolKind.ImportedNamespace)
                         {

@@ -341,12 +341,14 @@ namespace Bicep.Core.Semantics
             // loops currently are the only source of local symbols
             // as a result a local scope can contain between 1 to 2 local symbols
             // linear search should be fine, but this should be revisited if the above is no longer holds true
-            scope.Declarations.FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
+            scope.Declarations
+                .Where(decl => decl.CanBeReferenced())
+                .FirstOrDefault(symbol => identifierSyntax.NameEquals(symbol.Name));
 
         private static ResourceSymbol? LookupResourceSymbolByName(ILanguageScope scope, IdentifierSyntax identifierSyntax) =>
             scope.Declarations
                 .OfType<ResourceSymbol>()
-                .FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
+                .FirstOrDefault(symbol => identifierSyntax.NameEquals(symbol.Name));
 
         private Symbol LookupGlobalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
         {
