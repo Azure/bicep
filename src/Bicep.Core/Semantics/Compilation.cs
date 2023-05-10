@@ -40,7 +40,7 @@ namespace Bicep.Core.Semantics
                         BicepFile bicepFile => CreateSemanticModel(bicepFile),
                         BicepParamFile bicepParamFile => CreateSemanticModel(bicepParamFile),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
-                        TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),                        
+                        TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
@@ -77,6 +77,6 @@ namespace Bicep.Core.Semantics
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
             featureProviderFactory.GetFeatureProvider(bicepFile.FileUri),
-            apiVersionProviderFactory.GetApiVersionProvider(bicepFile.FileUri));
+            apiVersionProviderFactory.GetApiVersionProvider(bicepFile));
     }
 }

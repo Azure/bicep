@@ -33,7 +33,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
             // Note: The compiler does not know about these fake types, only the linter.
-            var apiProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
+            var apiProvider = new ApiVersionProvider(
+                    BicepTestConstants.Features,
+                    BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features));
             apiProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
 
             AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
@@ -50,7 +52,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
             // Note: The compiler does not know about these fake types, only the linter.
-            var apiProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
+            var apiProvider = new ApiVersionProvider(
+                    BicepTestConstants.Features,
+                    BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features));
             apiProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
 
             AssertLinterRuleDiagnostics(
@@ -121,7 +125,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays)
             {
-                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
+                var apiVersionProvider = new ApiVersionProvider(
+                    BicepTestConstants.Features,
+                    BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features));
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
                 var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.Formatted).ToArray();
@@ -721,7 +727,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsInvariantsTests
         {
-            private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
+            private static readonly ApiVersionProvider RealApiVersionProvider = new(
+                    BicepTestConstants.Features,
+                    BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features));
             private static readonly bool Exhaustive = false;
 
             public class TestData
@@ -920,7 +928,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string currentVersion = ApiVersionHelper.Format(currentVersionDate) + currentVersionSuffix;
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d)).ToArray();
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d) + "-preview").ToArray();
-                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
+                var apiVersionProvider = new ApiVersionProvider(
+                    BicepTestConstants.Features,
+                    BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features));
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
                 var result = UseRecentApiVersionRule.AnalyzeApiVersion(
                     apiVersionProvider,

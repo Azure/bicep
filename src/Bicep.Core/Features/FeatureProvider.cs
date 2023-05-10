@@ -40,6 +40,8 @@ namespace Bicep.Core.Features
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
 
+        public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoadingEnabled ?? false;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 

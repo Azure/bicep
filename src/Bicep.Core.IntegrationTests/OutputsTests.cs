@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
 
         [TestMethod]
         public void Output_can_have_inferred_resource_type()
@@ -179,7 +179,7 @@ resource resource 'Some.Fake/Type@2019-06-01' = {
 }
 output out resource 'Some.Fake/Type@2019-06-01' = resource
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 // There are two warnings because there are two places in code to correct the missing type.
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
@@ -198,7 +198,7 @@ resource resource 'Some.Fake/Type@2019-06-01' = {
 }
 output out resource = resource
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
             });
@@ -217,7 +217,7 @@ resource container 'stg:container' = {
 }
 output out resource = container
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
             });

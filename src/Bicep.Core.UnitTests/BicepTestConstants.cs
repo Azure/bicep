@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
-using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -34,17 +33,17 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
-        public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
+        public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
 
-        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoader);
+        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
+
+        public static readonly IAzResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(FeatureProviderFactory);
+
+        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoaderFactory);
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
-
-        public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
-
-        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
         // Linter rules added to this list will be automtically disabled for most tests.
         public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
@@ -70,7 +69,7 @@ namespace Bicep.Core.UnitTests
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(Features, AzResourceTypeLoader);
+        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(Features, AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, Features));
         public static readonly IApiVersionProviderFactory ApiVersionProviderFactory = IApiVersionProviderFactory.WithStaticApiVersionProvider(ApiVersionProvider);
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)

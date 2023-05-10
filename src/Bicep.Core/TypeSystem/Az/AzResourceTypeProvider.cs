@@ -70,6 +70,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
+        private readonly string version;
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
@@ -168,7 +169,7 @@ namespace Bicep.Core.TypeSystem.Az
                 TypeFactory.CreateStringLiteralType("Actor"),
                 LanguageConstants.String);
 
-            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new []
+            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("principalId", LanguageConstants.String),
                 new TypeProperty("clientId", LanguageConstants.String)
@@ -185,8 +186,9 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader)
+        public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader, string providerVersion)
         {
+            this.version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
             this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
@@ -471,5 +473,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
+
+        public string GetVersion() => this.version;
     }
 }

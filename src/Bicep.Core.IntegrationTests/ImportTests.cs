@@ -9,6 +9,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -35,9 +36,9 @@ namespace Bicep.Core.IntegrationTests
 
             public static bool AllowImportStatements => true;
 
-            public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
+            public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new[] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features) => providerName switch
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, ImportDeclarationSyntax? ids = null) => providerName switch
             {
                 SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(aliasName, features),
                 { } _ when builderDict.TryGetValue(providerName) is { } builderFunc => builderFunc(aliasName),

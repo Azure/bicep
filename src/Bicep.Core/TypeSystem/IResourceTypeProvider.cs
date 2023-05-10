@@ -26,5 +26,10 @@ namespace Bicep.Core.TypeSystem
         /// Returns the full list of available types defined by this provider.
         /// </summary>
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
+
+        /// <summary>
+        /// Returns the version of the type definitions used by this provider.
+        /// </summary>
+        string GetVersion();
     }
 }

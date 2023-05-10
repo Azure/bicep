@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions;
 
 public interface IApiVersionProviderFactory
 {
-    IApiVersionProvider GetApiVersionProvider(Uri templateUri);
+    IApiVersionProvider GetApiVersionProvider(BicepSourceFile bicepFile);
 
     static IApiVersionProviderFactory WithStaticApiVersionProvider(IApiVersionProvider apiVersionProvider)
         => new ConstantApiVersionProviderFactory(apiVersionProvider);
@@ -19,7 +19,6 @@ public interface IApiVersionProviderFactory
         {
             this.apiVersionProvider = apiVersionProvider;
         }
-
-        public IApiVersionProvider GetApiVersionProvider(Uri templateUri) => apiVersionProvider;
+        public IApiVersionProvider GetApiVersionProvider(BicepSourceFile bicepFile) => apiVersionProvider;
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Navigation;
@@ -29,7 +28,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 // Test with the linter using the fake resource types from FakeResourceTypes (to guard against failures due to Azure changes)
                 // Note: The compiler does not know about these fake types, only the linter.
-                apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
+                apiVersionProvider = new ApiVersionProvider(
+                    BicepTestConstants.Features,
+                    BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features));
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             }
 
