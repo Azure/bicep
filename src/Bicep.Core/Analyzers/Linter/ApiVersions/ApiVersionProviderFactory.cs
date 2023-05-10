@@ -24,7 +24,7 @@ public class ApiVersionProviderFactory : IApiVersionProviderFactory
     {
         var azProviderDeclaration = bicepFile.ProgramSyntax.Children
             .OfType<ImportDeclarationSyntax>()
-            .SingleOrDefault(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
+            .FirstOrDefault(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
         var features = featureProviderFactory.GetFeatureProvider(bicepFile.FileUri);
         return new ApiVersionProvider(features, azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration, features));
     }
