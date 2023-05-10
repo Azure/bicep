@@ -281,8 +281,8 @@ namespace Bicep.Core.TypeSystem
             var validationFlags = declaredType switch
             {
                 BooleanType or IntegerType or StringType when allowLooseAssignment
-                    => TypeSymbolValidationFlags.AllowLooseAssignment,
-                _ => TypeSymbolValidationFlags.Default,
+                    => TypeSymbolValidationFlags.AllowLooseAssignment | declaredType.ValidationFlags,
+                _ => declaredType.ValidationFlags,
             };
 
             if (HasSecureDecorator(syntax))

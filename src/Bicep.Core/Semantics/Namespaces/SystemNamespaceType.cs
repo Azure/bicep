@@ -1004,7 +1004,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
         }
-        
+
         private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
             if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
@@ -1392,7 +1392,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                 .WithDescription("Makes the parameter a secure parameter.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator((_, targetType, targetObject) =>

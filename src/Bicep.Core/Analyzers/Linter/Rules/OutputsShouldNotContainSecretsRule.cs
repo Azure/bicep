@@ -1,14 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -73,10 +76,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private class OutputValueVisitor : AstVisitor
         {
             private readonly List<IDiagnostic> diagnostics;
-
             private readonly OutputsShouldNotContainSecretsRule parent;
             private readonly SemanticModel model;
             private readonly DiagnosticLevel diagnosticLevel;
+            private readonly Stack<AccessExpressionSyntax> accessExpressionStack = new();
 
             public OutputValueVisitor(OutputsShouldNotContainSecretsRule parent, List<IDiagnostic> diagnostics, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
@@ -88,23 +91,108 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
             {
-                // Look for references of secure parameters, e.g.:
+                // Look for references of secure values, e.g.:
                 //
                 //   @secure()
                 //   param secureParam string
                 //   output badResult string = 'this is the value ${secureParam}'
 
-                Symbol? symbol = model.GetSymbolInfo(syntax);
-                if (symbol is ParameterSymbol param)
+                foreach (var pathToSecureComponent in FindPathsToSecureComponents(model.GetTypeInfo(syntax)))
                 {
-                    if (param.IsSecure())
-                    {
-                        string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.Name.IdentifierName);
-                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Name.Span, foundMessage));
-                    }
+                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.Name.IdentifierName + pathToSecureComponent);
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Name.Span, foundMessage));
                 }
 
                 base.VisitVariableAccessSyntax(syntax);
+            }
+
+            public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
+            {
+                foreach (var pathToSecureComponent in FindPathsToSecureComponents(model.GetTypeInfo(syntax)))
+                {
+                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.ToTextPreserveFormatting() + pathToSecureComponent);
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.PropertyName.Span, foundMessage));
+                }
+
+                accessExpressionStack.Push(syntax);
+                base.VisitPropertyAccessSyntax(syntax);
+                accessExpressionStack.Pop();
+            }
+
+            public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+            {
+                foreach (var pathToSecureComponent in FindPathsToSecureComponents(model.GetTypeInfo(syntax)))
+                {
+                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.ToTextPreserveFormatting() + pathToSecureComponent);
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.IndexExpression.Span, foundMessage));
+                }
+
+                accessExpressionStack.Push(syntax);
+                base.VisitArrayAccessSyntax(syntax);
+                accessExpressionStack.Pop();
+            }
+
+            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type)
+                => FindPathsToSecureComponents(type, "", ImmutableHashSet<TypeSymbol>.Empty);
+
+            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type, string path, ImmutableHashSet<TypeSymbol> visited)
+            {
+                // types can be recursive. cut out early if we've already seen this type
+                if (visited.Contains(type))
+                {
+                    yield break;
+                }
+
+                if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                {
+                    yield return path;
+                    // if we encounter a type that has been explicitly flagged as secure, stop visiting its components
+                    yield break;
+                }
+
+                // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
+                // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
+                // if they haven't, then the value dereferenced isn't sensitive
+                if (accessExpressionStack.Count > 0)
+                {
+                    yield break;
+                }
+
+                switch (type)
+                {
+                    case UnionType union:
+                        foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureComponents(m.Type, path, visited.Add(type))))
+                        {
+                            yield return variantPath;
+                        }
+                        break;
+                    case ObjectType obj:
+                        if (obj.AdditionalPropertiesType?.Type is TypeSymbol addlPropsType)
+                        {
+                            foreach (var dictMemberPath in FindPathsToSecureComponents(addlPropsType, $"{path}.*", visited.Add(type)))
+                            {
+                                yield return dictMemberPath;
+                            }
+                        }
+
+                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited.Add(type))))
+                        {
+                            yield return propertyPath;
+                        }
+                        break;
+                    case TupleType tuple:
+                        foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureComponents(typeAtIndex.Type, $"{path}[{index}]", visited.Add(type))))
+                        {
+                            yield return pathFromIndex;
+                        }
+                        break;
+                    case ArrayType array:
+                        foreach (var pathFromElement in FindPathsToSecureComponents(array.Item.Type, $"{path}[*]", visited.Add(type)))
+                        {
+                            yield return pathFromElement;
+                        }
+                        break;
+                }
             }
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
