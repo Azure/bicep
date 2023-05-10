@@ -74,20 +74,20 @@ namespace Bicep.Cli.Commands
 
             var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
 
-            //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis 
+            //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis
             if(paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
             {
                 var bicepFileUsingPathUri = bicepSemanticModel.Root.FileUri;
 
-                if(bicepFileArgPath is {} && !bicepFileUsingPathUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath))) 
-                {                   
+                if(bicepFileArgPath is {} && !bicepFileUsingPathUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath)))
+                {
                     throw new CommandLineException($"Bicep file {bicepFileArgPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the using declaration in the parameters file");
                 }
 
                 if (diagnosticLogger.ErrorCount < 1)
-                { 
+                {
                     if (args.OutputToStdOut)
-                    {   
+                    {
                         writer.ToStdout(bicepSemanticModel, paramsSemanticModel);
                     }
                     else
@@ -100,9 +100,9 @@ namespace Bicep.Cli.Commands
                 }
             }
 
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;          
+            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
-        
+
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
 
         private bool IsBicepparamsFile(string inputPath) => PathHelper.HasBicepparamsExension(PathHelper.FilePathToFileUrl(inputPath));
