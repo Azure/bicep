@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -56,7 +57,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache()
                 );
 
@@ -88,7 +89,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
@@ -118,7 +119,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
@@ -149,7 +150,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
@@ -197,7 +198,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 deployId,
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentStartedMessage, documentPath);
@@ -241,7 +242,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
@@ -284,7 +285,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
@@ -335,7 +336,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "https://portal.azure.com",
                 "bicep_deployment",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
@@ -390,7 +391,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 deployId,
                 "https://portal.azure.com",
                 "deployment_name",
-                JsonElementFactory.CreateElement(""),
+                JsonElementFactory.CreateElement("{}"),
                 deploymentOperationsCache);
 
             deploymentOperationsCache.FindAndRemoveDeploymentOperation(deployId).Should().NotBeNull();

@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
@@ -96,6 +97,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             deploymentStartResponse.isSuccess.Should().BeFalse();
             deploymentStartResponse.outputMessage.Should().Be("Cannot create/overwrite/update parameter files when using a bicep parameters file");
+            deploymentStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -152,5 +154,168 @@ namespace Bicep.LangServer.IntegrationTests
             deploymentStartResponse.isSuccess.Should().BeFalse();
             deploymentStartResponse.outputMessage.Should().Be("Cannot update parameters for bicep parameter file");
         }
-    }
+
+        [TestMethod]
+        public async Task NotProvidingParameterFileName_WithJsonParameterFile_ReturnsError()
+        {   
+            var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+            var paramFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.json");
+
+            var fileTextsByUri = new Dictionary<Uri, string>() 
+            {
+                [bicepFileUri] = "",
+                [paramFileUri] = ""
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext, 
+                fileTextsByUri,
+                bicepFileUri, 
+                services => services
+                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
+                .WithArmClientProvider(new MockArmClientProvider()));
+
+            var client = helper.Client;
+            var bicepDeploymentStartParams = new BicepDeploymentStartParams(
+                bicepFileUri.AbsolutePath, 
+                paramFileUri.AbsolutePath, 
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                "fake-token-123",
+                "123456",
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                true,
+                null, //ParametersFileName
+                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
+                "https://management.azure.com/",
+                "https://management.core.windows.net/");
+
+            var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
+                new Command {
+                    Name = "deploy/start",
+                    Arguments = new JArray(
+                        bicepDeploymentStartParams.ToJToken()
+                    )
+                }
+            );
+
+            deploymentStartResponse.isSuccess.Should().BeFalse();
+            deploymentStartResponse.outputMessage.Should().Be("ParametersFileName must be provided with JSON parameters file");
+        }
+
+        [TestMethod]
+        public async Task StartDeploymentAsync_WithInvalidParameterFilePath_ReturnsDeploymentFailedMessage()
+        {
+            var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+            var invalidParamFilePath = @"c:\parameter.json";
+
+            var fileTextsByUri = new Dictionary<Uri, string>() 
+            {
+                [bicepFileUri] = "",
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext, 
+                fileTextsByUri,
+                bicepFileUri, 
+                services => services
+                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
+                .WithArmClientProvider(new MockArmClientProvider()));
+
+            var client = helper.Client;
+            var bicepDeploymentStartParams = new BicepDeploymentStartParams(
+                bicepFileUri.AbsolutePath, 
+                invalidParamFilePath, 
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                "fake-token-123",
+                "123456",
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                true,
+                string.Empty,
+                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
+                "https://management.azure.com/",
+                "https://management.core.windows.net/");
+
+            var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
+                new Command {
+                    Name = "deploy/start",
+                    Arguments = new JArray(
+                        bicepDeploymentStartParams.ToJToken()
+                    )
+                }
+            );
+
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, bicepFileUri.AbsolutePath, invalidParamFilePath, @"Could not find file");
+
+            deploymentStartResponse.isSuccess.Should().BeFalse();
+            deploymentStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
+            deploymentStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task StartDeploymentAsync_WithInvalidParameterFileContents_ReturnsDeploymentFailedMessage()
+        {
+            var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
+
+            var fileTextsByUri = new Dictionary<Uri, string>() 
+            {
+                [bicepFileUri] = "",
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext, 
+                fileTextsByUri,
+                bicepFileUri, 
+                services => services
+                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
+                .WithArmClientProvider(new MockArmClientProvider()));
+
+            var client = helper.Client;
+            var bicepDeploymentStartParams = new BicepDeploymentStartParams(
+                bicepFileUri.AbsolutePath, 
+                parametersFilePath, 
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                "fake-token-123",
+                "123456",
+                string.Empty,
+                string.Empty,
+                string.Empty,
+                true,
+                string.Empty,
+                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
+                "https://management.azure.com/",
+                "https://management.core.windows.net/");
+
+            var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
+                new Command {
+                    Name = "deploy/start",
+                    Arguments = new JArray(
+                        bicepDeploymentStartParams.ToJToken()
+                    )
+                }
+            );
+
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, bicepFileUri.AbsolutePath, parametersFilePath, @"Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
+
+            deploymentStartResponse.isSuccess.Should().BeFalse();
+            deploymentStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
+            deploymentStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
+        }
+   }
 }
