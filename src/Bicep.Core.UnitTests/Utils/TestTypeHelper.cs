@@ -8,8 +8,11 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.Mock;
+using Moq;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -37,8 +40,18 @@ namespace Bicep.Core.UnitTests.Utils
         public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
 
+        public static IAzResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IAzResourceTypeLoader loader)
+        {
+            var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
+            factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<ImportDeclarationSyntax>(), It.IsAny<IFeatureProvider>())).Returns(loader);
+            return factory.Object;
+        }
+
         public static INamespaceProvider CreateEmptyProvider()
-            => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(Enumerable.Empty<ResourceTypeComponents>()));
+            => new DefaultNamespaceProvider(
+                CreateAzResourceTypeLoaderFactory(
+                    CreateAzResourceTypeLoaderWithTypes(
+                        Enumerable.Empty<ResourceTypeComponents>())));
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, customProperties);
