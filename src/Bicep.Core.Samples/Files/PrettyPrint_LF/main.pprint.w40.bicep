@@ -51,9 +51,7 @@ var w78 = [
 ]
 var w79 = [
   true
-  {
-    /* xxxxx */ foo: 'object width: 38'
-  }
+  { /* xxxx */ foo: 'object width: 38' }
   'xxxxxxxxxxxxxxxxxx'
 ]
 var w80 = [

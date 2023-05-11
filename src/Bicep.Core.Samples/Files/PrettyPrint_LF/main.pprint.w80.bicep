@@ -24,7 +24,7 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx']
-var w79 = [true, { /* xxxxx */ foo: 'object width: 38' }, 'xxxxxxxxxxxxxxxxxx']
+var w79 = [true, { /* xxxx */ foo: 'object width: 38' }, 'xxxxxxxxxxxxxxxxxx']
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxxx']
 var w81 = [
   true
