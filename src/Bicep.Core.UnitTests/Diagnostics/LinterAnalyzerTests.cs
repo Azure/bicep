@@ -29,6 +29,99 @@ namespace Bicep.Core.UnitTests.Diagnostics
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
+
+        /////////////////////////
+
+
+        /*
+
+        
+            - aka link: https://aka.ms/bicep/linter/my-wonderful-rule
+            - doc link: https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter-rule-my-wonderful-rule            
+
+        States:
+
+            Rule under development:
+                aka link: does not exist (or is disabled)
+                help link: does not work
+
+            Rule merged, help under development:
+                aka link: does not exist (or is disabled)
+                help link: does not work
+
+            Rule merged, help merged, aka link not yet created/enabled:
+                aka link: does not exist (or is disabled)
+                help link: works (full URI)
+
+            Rule merged, help merged, aka link created
+                aka link: works
+                help link: works
+
+            Rule merged, help merged, aka link broken or help link broken
+                aka link: may be broken
+                help link: may be broken
+
+         */
+
+
+        [TestMethod]
+        [DynamicData(nameof(GetRules))]
+        public async Task AllLinterHelpLinksAreCorrect(string analyzerName, string ruleCode, Uri? helpUri)
+        {
+            // eg bicep/linter/max-params
+            // eg https://aka.ms/bicep/linter/max-params
+            // eg https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter-rule-max-parameters
+
+            // eg https://aka.ms/bicep/tests/surveytests/active
+            // eg https://aka.ms/bicep/tests/surveytests/inactive
+
+            // eg https://aka.ms/bicep/linter/simplify-json-null
+            // eg https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter-rule-simplify-json-null
+
+#pragma warning disable RS0030 // Do not use banned APIs
+            Console.WriteLine(analyzerName);
+            Console.WriteLine(ruleCode);
+            Console.WriteLine(helpUri?.AbsolutePath ?? "null");
+            if (helpUri is null)
+            {
+                throw new Exception("helpUri should not be null");
+            }
+
+            using HttpClient client = new();
+            client.Timeout = TimeSpan.FromSeconds(5); //asdfg
+            HttpResponseMessage response;
+            try
+            {
+                response = await client.GetAsync(helpUri);
+                Console.WriteLine(response.StatusCode);
+            }
+            catch (TimeoutException)
+            {
+                throw new Exception($"Timed out doing get on {helpUri.AbsoluteUri}");
+            }
+            var helpContents = await response.Content.ReadAsStringAsync();
+            if (!helpContents.Contains("Linter rule"))
+            {
+                throw new Exception("Help documentation link does not appear to be pointed to the correct help page (expected it to contain \"Linter rule\" in the http contents)");
+            }
+
+            //var handler = new HttpClientHandler()
+            //{
+            //    AllowAutoRedirect = false,
+            //    CheckCertificateRevocationList = true,
+            //};
+            //using HttpClient client2 = new HttpClient(handler);
+            //var b = await client2.GetAsync(helpUri);
+            //var c = await b.Content.ReadAsStringAsync();
+            //Console.WriteLine(c);
+
+#pragma warning restore RS0030 // Do not use banned APIs
+        }
+
+
+        /////////////////////////
+
+
         // No need to add new rules here, just checking a few known ones
         [DataTestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
@@ -43,7 +136,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void AllDefinedRulesAreListInLinterRulesProvider()
+        public void AllDefinedRulesAreListedInLinterRulesProvider()
         {
             var linter = new LinterAnalyzer();
             var ruleTypes = linter.GetRuleSet().Select(r => r.GetType()).ToArray();
@@ -99,60 +192,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 var ruleSet = analyzer.GetRuleSet();
                 return ruleSet.Select(r => new object?[] { r.AnalyzerName, r.Code, r.HelpUri });
             }
-        }
-
-        [TestMethod]
-        [DynamicData(nameof(GetRules))]
-        public async Task Asdfg(string analyzerName, string ruleCode, Uri? helpUri)
-        {
-            // eg bicep/linter/max-params
-            // eg https://aka.ms/bicep/linter/max-params
-            // eg https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter-rule-max-parameters
-
-            // eg https://aka.ms/bicep/tests/surveytests/active
-            // eg https://aka.ms/bicep/tests/surveytests/inactive
-
-            // eg https://aka.ms/bicep/linter/simplify-json-null
-            // eg https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter-rule-simplify-json-null
-
-#pragma warning disable RS0030 // Do not use banned APIs
-            Console.WriteLine(analyzerName);
-            Console.WriteLine(ruleCode);
-            Console.WriteLine(helpUri?.AbsolutePath ?? "null");
-            if (helpUri is null)
-            {
-                throw new Exception("helpUri should not be null");
-            }
-
-            using HttpClient client = new();
-            client.Timeout = TimeSpan.FromSeconds(5); //asdfg
-            HttpResponseMessage response;
-            try
-            {
-                response = await client.GetAsync(helpUri);
-                Console.WriteLine(response.StatusCode);
-            }
-            catch (TimeoutException)
-            {
-                throw new Exception($"Timed out doing get on {helpUri.AbsoluteUri}");
-            }
-            var helpContents = await response.Content.ReadAsStringAsync();
-            if (!helpContents.Contains("Linter rule"))
-            {
-                throw new Exception("Help documentation link does not appear to be pointed to the correct help page (expected it to contain \"Linter rule\" in the http contents)");
-            }
-
-            //var handler = new HttpClientHandler()
-            //{
-            //    AllowAutoRedirect = false,
-            //    CheckCertificateRevocationList = true,
-            //};
-            //using HttpClient client2 = new HttpClient(handler);
-            //var b = await client2.GetAsync(helpUri);
-            //var c = await b.Content.ReadAsStringAsync();
-            //Console.WriteLine(c);
-
-#pragma warning restore RS0030 // Do not use banned APIs
         }
 
         public class LinterThrowsTestRule : LinterRuleBase
