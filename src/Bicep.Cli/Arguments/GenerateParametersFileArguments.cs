@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Emit.Options;
 using Bicep.Core.FileSystem;
+using System;
 using System.IO;
 
 namespace Bicep.Cli.Arguments
@@ -32,6 +34,32 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException($"The --outdir parameter cannot be specified twice");
                         }
                         OutputDir = args[i + 1];
+                        i++;
+                        break;
+
+                    case "--output-format":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --output-format parameter expects an argument");
+                        }
+                        if (!Enum.TryParse<OutputFormatOption>(args[i + 1], true, out var outputFormat) || !Enum.IsDefined<OutputFormatOption>(outputFormat))
+                        {
+                            throw new CommandLineException($"The --output-format parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(OutputFormatOption)))}");
+                        }
+                        OutputFormat = outputFormat;
+                        i++;
+                        break;
+
+                    case "--include-params":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --include-params parameter expects an argument");
+                        }
+                        if (!Enum.TryParse<IncludeParamsOption>(args[i + 1], true, out var includeParams) || !Enum.IsDefined<IncludeParamsOption>(includeParams))
+                        {
+                            throw new CommandLineException($"The --include-params parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IncludeParamsOption)))}");
+                        }
+                        IncludeParams = includeParams;
                         i++;
                         break;
 
@@ -100,6 +128,10 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+
+        public OutputFormatOption OutputFormat { get; } = OutputFormatOption.Json;
+
+        public IncludeParamsOption IncludeParams { get; } = IncludeParamsOption.RequiredOnly;
 
         public bool NoRestore { get; }
     }

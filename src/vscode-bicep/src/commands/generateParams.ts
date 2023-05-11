@@ -27,11 +27,33 @@ export class GenerateParamsCommand implements Command {
 
     try {
       console.log(`Generating parameters file for ${documentUri.fsPath}...`);
+
+      const outputFormat = await vscode.window.showQuickPick(
+        ["json", "bicepparam"],
+        { title: "Please select the output format" }
+      );
+      const includeParams = await vscode.window.showQuickPick(
+        ["requiredonly", "all"],
+        { title: "Please select which parameters to include" }
+      );
+
+      if (outputFormat === undefined || includeParams === undefined) {
+        throw new Error(
+          "Please select the output format and which parameters to include"
+        );
+      }
+
       const generateParamsOutput: string = await this.client.sendRequest(
         "workspace/executeCommand",
         {
           command: "generateParams",
-          arguments: [documentUri.fsPath],
+          arguments: [
+            {
+              BicepFilePath: documentUri.fsPath,
+              OutputFormat: outputFormat,
+              IncludeParams: includeParams,
+            },
+          ],
         }
       );
       this.outputChannelManager.appendToOutputChannel(generateParamsOutput);
@@ -39,7 +61,12 @@ export class GenerateParamsCommand implements Command {
       const filePath = path.parse(documentUri.fsPath);
 
       const openPath = Uri.file(
-        path.join(filePath.dir, `${filePath.name}.parameters.json`)
+        path.join(
+          filePath.dir,
+          `${filePath.name}.${
+            outputFormat === "json" ? "parameters.json" : "bicepparam"
+          }`
+        )
       );
       const doc = await vscode.workspace.openTextDocument(openPath);
       await vscode.window.showTextDocument(doc);

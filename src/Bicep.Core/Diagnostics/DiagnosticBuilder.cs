@@ -415,11 +415,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP057",
                 $"The name \"{name}\" does not exist in the current context.");
 
-            public ErrorDiagnostic OutputReferenceNotSupported(string name) => new(
-                TextSpan,
-                "BCP058",
-                $"The name \"{name}\" is an output. Outputs cannot be referenced in expressions.");
-
             public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new(
                 TextSpan,
                 "BCP059",

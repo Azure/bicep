@@ -117,7 +117,7 @@ Usage:
       bicep decompile file.json --outfile file.bicep
 
   {exeName} generate-params [options] <file>
-    Builds .parameters.json file from the given bicep file, updates if there is an existing parameters.json file.
+    Builds parameters file from the given bicep file, updates if there is an existing parameters file.
 
     Arguments:
       <file>        The input file
@@ -127,6 +127,8 @@ Usage:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
+      --output-format   Selects the output format {{json, bicepparam}}
+      --include-params  Selects which parameters to include into output {{requiredonly, all}}
 
     Examples:
       bicep generate-params file.bicep
@@ -134,7 +136,7 @@ Usage:
       bicep generate-params file.bicep --stdout
       bicep generate-params file.bicep --outdir dir1
       bicep generate-params file.bicep --outfile file.parameters.json
-
+      bicep generate-params file.bicep --output-format bicepparam --include-params all
 
   {exeName} publish <file> --target <ref>
     Publishes the .bicep file to the module registry.
@@ -159,19 +161,18 @@ Usage:
     Arguments:
       <file>        The input file
 
- {exeName} [options]
+  {exeName} [options]
     Options:
       --version              -v   Shows bicep version information
       --help                 -h   Shows this usage information
       --license                   Prints license information
       --third-party-notices       Prints third-party notices
-      
-  
-  {exeName} build-params <file> 
+
+  {exeName} build-params <file>
     Builds .bicepparam file.
 
     Arguments:
-      <file>        The input Bicepparam file 
+      <file>        The input Bicepparam file
 
     Options:
       --bicep-file <file> Verifies if the specified bicep file path matches the one provided in the params file using declaration
@@ -184,7 +185,6 @@ Usage:
       bicep build-params params.bicepparam --stdout
       bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
-
 
 "; // this newline is intentional
 

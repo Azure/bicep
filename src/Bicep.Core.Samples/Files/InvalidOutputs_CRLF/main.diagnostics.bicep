@@ -192,7 +192,7 @@ output deeper bool = true ? -true : (14 && 's') + 10
 output myOutput string = 'hello'
 var attemptToReferenceAnOutput = myOutput
 //@[04:30) [no-unused-vars (Warning)] Variable "attemptToReferenceAnOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceAnOutput|
-//@[33:41) [BCP058 (Error)] The name "myOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |myOutput|
+//@[33:41) [BCP057 (Error)] The name "myOutput" does not exist in the current context. (CodeDescription: none) |myOutput|
 
 @sys.maxValue(20)
 @minValue(10)
