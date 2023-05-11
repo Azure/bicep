@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:3351) ProgramExpression
+//@[00:3275) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -120,24 +120,24 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w78 = [
-//@[00:0083) ├─DeclaredVariableExpression { Name = w78 }
-//@[10:0083) | └─ArrayExpression
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxx' ]
+//@[00:0084) ├─DeclaredVariableExpression { Name = w78 }
+//@[10:0084) | └─ArrayExpression
+    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
 //@[10:0047) |   ├─ObjectExpression
 //@[12:0035) |   | └─ObjectPropertyExpression
 //@[12:0015) |   |   ├─StringLiteralExpression { Value = foo }
 //@[17:0035) |   |   └─StringLiteralExpression { Value = object width: 37 }
-//@[49:0069) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
+//@[49:0070) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxx }
 var w79 = [true
-//@[00:0085) ├─DeclaredVariableExpression { Name = w79 }
-//@[10:0085) | └─ArrayExpression
+//@[00:0086) ├─DeclaredVariableExpression { Name = w79 }
+//@[10:0086) | └─ArrayExpression
 //@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
-    { /* xxxx */ foo: 'object width: 38' }
-//@[04:0042) |   ├─ObjectExpression
-//@[17:0040) |   | └─ObjectPropertyExpression
-//@[17:0020) |   |   ├─StringLiteralExpression { Value = foo }
-//@[22:0040) |   |   └─StringLiteralExpression { Value = object width: 38 }
+    { /* xxxxx */ foo: 'object width: 38' }
+//@[04:0043) |   ├─ObjectExpression
+//@[18:0041) |   | └─ObjectPropertyExpression
+//@[18:0021) |   |   ├─StringLiteralExpression { Value = foo }
+//@[23:0041) |   |   └─StringLiteralExpression { Value = object width: 38 }
     'xxxxxxxxxxxxxxxxxx' ]
 //@[04:0024) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
@@ -150,15 +150,15 @@ var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
 //@[24:0054) |   |   └─StringLiteralExpression { Value = object width: 39 xxxxxxxxxxx }
     'xxxxxxxxxxxxxxxxxxx']
 //@[04:0025) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxx }
-var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxx' ]
-//@[00:0081) ├─DeclaredVariableExpression { Name = w81 }
-//@[10:0081) | └─ArrayExpression
+var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxxx' ]
+//@[00:0082) ├─DeclaredVariableExpression { Name = w81 }
+//@[10:0082) | └─ArrayExpression
 //@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
 //@[17:0057) |   ├─ObjectExpression
 //@[19:0055) |   | └─ObjectPropertyExpression
 //@[19:0022) |   |   ├─StringLiteralExpression { Value = foo }
 //@[24:0055) |   |   └─StringLiteralExpression { Value = object width: 40 xxxxxxxxxxxx }
-//@[59:0079) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
+//@[59:0080) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxx }
 var w82 = [  true, concat(/* function width: 41 */123, 456) /* xxxxxxxxxxxxxxxx */ ]
 //@[00:0084) ├─DeclaredVariableExpression { Name = w82 }
 //@[10:0084) | └─ArrayExpression
@@ -178,20 +178,20 @@ var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 //@[38:0075) |     └─ArrayExpression
 //@[39:0052) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
 //@[54:0074) |       └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
-/* should print a newline after this */ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
-//@[40:0108) ├─DeclaredVariableExpression { Name = w79_ }
-//@[51:0108) | └─ObjectExpression
-//@[53:0061) |   ├─ObjectPropertyExpression
-//@[53:0056) |   | ├─StringLiteralExpression { Value = foo }
-//@[58:0061) |   | └─IntegerLiteralExpression { Value = 123 }
-//@[63:0072) |   ├─ObjectPropertyExpression
-//@[63:0066) |   | ├─StringLiteralExpression { Value = bar }
-//@[68:0072) |   | └─BooleanLiteralExpression { Value = True }
-//@[74:0106) |   └─ObjectPropertyExpression
-//@[74:0077) |     ├─StringLiteralExpression { Value = baz }
-//@[79:0106) |     └─ArrayExpression
-//@[80:0093) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
-//@[95:0105) |       └─StringLiteralExpression { Value = xxxxxxxx }
+var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
+//@[00:0068) ├─DeclaredVariableExpression { Name = w79_ }
+//@[11:0068) | └─ObjectExpression
+//@[13:0021) |   ├─ObjectPropertyExpression
+//@[13:0016) |   | ├─StringLiteralExpression { Value = foo }
+//@[18:0021) |   | └─IntegerLiteralExpression { Value = 123 }
+//@[23:0032) |   ├─ObjectPropertyExpression
+//@[23:0026) |   | ├─StringLiteralExpression { Value = bar }
+//@[28:0032) |   | └─BooleanLiteralExpression { Value = True }
+//@[34:0066) |   └─ObjectPropertyExpression
+//@[34:0037) |     ├─StringLiteralExpression { Value = baz }
+//@[39:0066) |     └─ArrayExpression
+//@[40:0053) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
+//@[55:0065) |       └─StringLiteralExpression { Value = xxxxxxxx }
 var w80_ = { foo: 123, bar: true, baz: [
 //@[00:0085) ├─DeclaredVariableExpression { Name = w80_ }
 //@[11:0085) | └─ObjectExpression
@@ -322,9 +322,9 @@ var forceBreak1 = {
 //@[04:0007) |     ├─StringLiteralExpression { Value = foo }
 //@[09:0013) |     └─BooleanLiteralExpression { Value = True }
 }
-/* should print a newline after this */var forceBreak2 = {
-//@[39:0086) ├─DeclaredVariableExpression { Name = forceBreak2 }
-//@[57:0086) | └─ObjectExpression
+var forceBreak2 = {
+//@[00:0047) ├─DeclaredVariableExpression { Name = forceBreak2 }
+//@[18:0047) | └─ObjectExpression
     foo: true, bar: false
 //@[04:0013) |   ├─ObjectPropertyExpression
 //@[04:0007) |   | ├─StringLiteralExpression { Value = foo }

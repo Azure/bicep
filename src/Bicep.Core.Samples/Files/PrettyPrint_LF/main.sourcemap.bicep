@@ -87,17 +87,17 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 var w78 = [
 //@    "w78": [
 //@    ],
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxx' ]
+    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@      true,
 //@      {
 //@        "foo": "object width: 37"
 //@      },
-//@      "xxxxxxxxxxxxxxxxxx"
+//@      "xxxxxxxxxxxxxxxxxxx"
 var w79 = [true
 //@    "w79": [
 //@      true,
 //@    ],
-    { /* xxxx */ foo: 'object width: 38' }
+    { /* xxxxx */ foo: 'object width: 38' }
 //@      {
 //@        "foo": "object width: 38"
 //@      },
@@ -112,13 +112,13 @@ var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
 //@    ],
     'xxxxxxxxxxxxxxxxxxx']
 //@      "xxxxxxxxxxxxxxxxxxx"
-var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxx' ]
+var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@    "w81": [
 //@      true,
 //@      {
 //@        "foo": "object width: 40 xxxxxxxxxxxx"
 //@      },
-//@      "xxxxxxxxxxxxxxxxxx"
+//@      "xxxxxxxxxxxxxxxxxxx"
 //@    ],
 var w82 = [  true, concat(/* function width: 41 */123, 456) /* xxxxxxxxxxxxxxxx */ ]
 //@    "w82": [
@@ -134,7 +134,7 @@ var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 //@        "xxxxxxxxxxxxxxxxxx"
 //@      ]
 //@    },
-/* should print a newline after this */ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
+var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 //@    "w79_": {
 //@      "foo": 123,
 //@      "bar": true,
@@ -196,7 +196,7 @@ var forceBreak1 = {
     foo: true
 //@      "foo": true
 }
-/* should print a newline after this */var forceBreak2 = {
+var forceBreak2 = {
 //@    "forceBreak2": {
 //@    },
     foo: true, bar: false

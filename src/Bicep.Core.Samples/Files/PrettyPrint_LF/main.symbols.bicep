@@ -46,24 +46,24 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w78 = [
-//@[04:07) Variable w78. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 83
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxx' ]
+//@[04:07) Variable w78. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 84
+    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 var w79 = [true
-//@[04:07) Variable w79. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 85
-    { /* xxxx */ foo: 'object width: 38' }
+//@[04:07) Variable w79. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 86
+    { /* xxxxx */ foo: 'object width: 38' }
     'xxxxxxxxxxxxxxxxxx' ]
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
 //@[04:07) Variable w80. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 83
     'xxxxxxxxxxxxxxxxxxx']
-var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxx' ]
-//@[04:07) Variable w81. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 81
+var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxxx' ]
+//@[04:07) Variable w81. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 82
 var w82 = [  true, concat(/* function width: 41 */123, 456) /* xxxxxxxxxxxxxxxx */ ]
 //@[04:07) Variable w82. Type: [true, string]. Declaration start char: 0, length: 84
 
 var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 //@[04:08) Variable w78_. Type: object. Declaration start char: 0, length: 77
-/* should print a newline after this */ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
-//@[44:48) Variable w79_. Type: object. Declaration start char: 40, length: 68
+var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
+//@[04:08) Variable w79_. Type: object. Declaration start char: 0, length: 68
 var w80_ = { foo: 123, bar: true, baz: [
 //@[04:08) Variable w80_. Type: object. Declaration start char: 0, length: 85
     'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
@@ -94,8 +94,8 @@ var forceBreak1 = {
 //@[04:15) Variable forceBreak1. Type: object. Declaration start char: 0, length: 35
     foo: true
 }
-/* should print a newline after this */var forceBreak2 = {
-//@[43:54) Variable forceBreak2. Type: object. Declaration start char: 39, length: 47
+var forceBreak2 = {
+//@[04:15) Variable forceBreak2. Type: object. Declaration start char: 0, length: 47
     foo: true, bar: false
 }
 var forceBreak3 = [1, 2, {

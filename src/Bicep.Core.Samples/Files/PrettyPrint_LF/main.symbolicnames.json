@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8290607558456315906"
+      "templateHash": "12751300808936729014"
     }
   },
   "variables": {
@@ -70,7 +70,7 @@
       {
         "foo": "object width: 37"
       },
-      "xxxxxxxxxxxxxxxxxx"
+      "xxxxxxxxxxxxxxxxxxx"
     ],
     "w79": [
       true,
@@ -91,7 +91,7 @@
       {
         "foo": "object width: 40 xxxxxxxxxxxx"
       },
-      "xxxxxxxxxxxxxxxxxx"
+      "xxxxxxxxxxxxxxxxxxx"
     ],
     "w82": [
       true,

@@ -51,15 +51,15 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 ////////////////////////////////////////////////////////////////////////////////
 var w78 = [
 //@[04:07) [no-unused-vars (Warning)] Variable "w78" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w78|
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxx' ]
+    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 var w79 = [true
 //@[04:07) [no-unused-vars (Warning)] Variable "w79" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w79|
-    { /* xxxx */ foo: 'object width: 38' }
+    { /* xxxxx */ foo: 'object width: 38' }
     'xxxxxxxxxxxxxxxxxx' ]
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
 //@[04:07) [no-unused-vars (Warning)] Variable "w80" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w80|
     'xxxxxxxxxxxxxxxxxxx']
-var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxx' ]
+var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@[04:07) [no-unused-vars (Warning)] Variable "w81" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w81|
 var w82 = [  true, concat(/* function width: 41 */123, 456) /* xxxxxxxxxxxxxxxx */ ]
 //@[04:07) [no-unused-vars (Warning)] Variable "w82" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w82|
@@ -67,8 +67,8 @@ var w82 = [  true, concat(/* function width: 41 */123, 456) /* xxxxxxxxxxxxxxxx 
 
 var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 //@[04:08) [no-unused-vars (Warning)] Variable "w78_" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w78_|
-/* should print a newline after this */ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
-//@[44:48) [no-unused-vars (Warning)] Variable "w79_" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w79_|
+var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
+//@[04:08) [no-unused-vars (Warning)] Variable "w79_" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w79_|
 var w80_ = { foo: 123, bar: true, baz: [
 //@[04:08) [no-unused-vars (Warning)] Variable "w80_" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w80_|
     'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
@@ -99,8 +99,8 @@ var forceBreak1 = {
 //@[04:15) [no-unused-vars (Warning)] Variable "forceBreak1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceBreak1|
     foo: true
 }
-/* should print a newline after this */var forceBreak2 = {
-//@[43:54) [no-unused-vars (Warning)] Variable "forceBreak2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceBreak2|
+var forceBreak2 = {
+//@[04:15) [no-unused-vars (Warning)] Variable "forceBreak2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceBreak2|
     foo: true, bar: false
 }
 var forceBreak3 = [1, 2, {
