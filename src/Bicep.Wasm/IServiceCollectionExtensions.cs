@@ -29,7 +29,6 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IFileSystem, MockFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()

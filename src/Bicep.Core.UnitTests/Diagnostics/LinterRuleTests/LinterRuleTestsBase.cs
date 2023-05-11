@@ -110,7 +110,6 @@ public class LinterRuleTestsBase
         options ??= new Options();
         var services = new ServiceBuilder();
         services = options.ConfigurationPatch is {} ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
-        services = options.ApiVersionProvider is {} ? services.WithApiVersionProvider(options.ApiVersionProvider) : services;
         var result = CompilationHelper.Compile(services, files);
         using (new AssertionScope().WithFullSource(result.BicepFile))
         {

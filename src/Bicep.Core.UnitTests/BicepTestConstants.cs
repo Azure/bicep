@@ -69,8 +69,6 @@ namespace Bicep.Core.UnitTests
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(Features, AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, Features));
-        public static readonly IApiVersionProviderFactory ApiVersionProviderFactory = IApiVersionProviderFactory.WithStaticApiVersionProvider(ApiVersionProvider);
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {

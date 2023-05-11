@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ExpectedFunctionInfo typedExpected = new(expectedFunctionCall, expectedResourceType, expectedApiVerion);
 
                 var result = CompilationHelper.Compile(
-                    new ServiceBuilder().WithApiVersionProvider(apiVersionProvider),
+                    new ServiceBuilder(),
                     bicep);
                 using (new AssertionScope().WithFullSource(result.BicepFile))
                 {

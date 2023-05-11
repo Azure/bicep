@@ -26,6 +26,10 @@ public class DefaultNamespaceProvider : INamespaceProvider
             [AzNamespaceType.BuiltInName] = (alias, scope, features, ids) =>
             {
                 var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(ids, features);
+                if (loader is null)
+                {
+                    return null!;
+                }
                 string providerVersion = "1.0.0"; //builtin version
                 if (features.DynamicTypeLoadingEnabled)
                 {

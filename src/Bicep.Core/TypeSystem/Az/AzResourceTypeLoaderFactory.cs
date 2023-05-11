@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Syntax;
@@ -8,6 +7,7 @@ using System.IO;
 using Bicep.Core.Registry.Oci;
 using Newtonsoft.Json;
 using Bicep.Core.Features;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -19,7 +19,7 @@ namespace Bicep.Core.TypeSystem.Az
             this.featureProviderFactory = featureProviderFactory;
         }
 
-        public IAzResourceTypeLoader GetResourceTypeLoader(ImportDeclarationSyntax? ids, IFeatureProvider features)
+        public IAzResourceTypeLoader? GetResourceTypeLoader(ImportDeclarationSyntax? ids, IFeatureProvider features)
         {
             if (!features.DynamicTypeLoadingEnabled || ids is null)
             {
@@ -30,18 +30,18 @@ namespace Bicep.Core.TypeSystem.Az
             var ociManifestPath = Path.Combine(azProviderDir, "manifest.json");
             if (!File.Exists(ociManifestPath))
             {
-                throw new InvalidOperationException($"Failed to find OCI manifest at {ociManifestPath}");
+                return null;
             }
             var manifestFileContents = File.ReadAllText(ociManifestPath);
             OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
             if (ociManifest is null)
             {
-                throw new InvalidOperationException($"Failed to deserialize OCI manifest from {ociManifestPath}: manifest contents are not following expected schema");
+                return null;
             }
             var typesDefinitionFilename = ociManifest.Layers.SingleOrDefault()?.Annotations["org.opencontainers.image.title"];
             if (typesDefinitionFilename is null)
             {
-                throw new InvalidOperationException($"Failed to find OCI manifest layers from {ociManifestPath}: manifest contents are not following expected schema");
+                return null;
             }
             var typesDefinitionPath = Path.Combine(azProviderDir, typesDefinitionFilename);
             return new AzResourceTypeLoader(new AzTypeLoaderOci(typesDefinitionPath));

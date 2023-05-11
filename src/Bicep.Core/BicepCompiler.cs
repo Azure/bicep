@@ -19,7 +19,6 @@ public class BicepCompiler
     private readonly IFeatureProviderFactory featureProviderFactory;
     private readonly INamespaceProvider namespaceProvider;
     private readonly IConfigurationManager configurationManager;
-    private readonly IApiVersionProviderFactory apiVersionProviderFactory;
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileResolver fileResolver;
     private readonly IModuleDispatcher moduleDispatcher;
@@ -28,7 +27,6 @@ public class BicepCompiler
         IFeatureProviderFactory featureProviderFactory,
         INamespaceProvider namespaceProvider,
         IConfigurationManager configurationManager,
-        IApiVersionProviderFactory apiVersionProviderFactory,
         IBicepAnalyzer bicepAnalyzer,
         IFileResolver fileResolver,
         IModuleDispatcher moduleDispatcher)
@@ -36,7 +34,6 @@ public class BicepCompiler
         this.featureProviderFactory = featureProviderFactory;
         this.namespaceProvider = namespaceProvider;
         this.configurationManager = configurationManager;
-        this.apiVersionProviderFactory = apiVersionProviderFactory;
         this.bicepAnalyzer = bicepAnalyzer;
         this.fileResolver = fileResolver;
         this.moduleDispatcher = moduleDispatcher;
@@ -60,6 +57,6 @@ public class BicepCompiler
             }
         }
 
-        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
+        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer);
     }
 }

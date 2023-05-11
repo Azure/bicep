@@ -41,7 +41,6 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IFileSystem, IOFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
@@ -84,12 +83,6 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
-
-    public static IServiceCollection WithApiVersionProviderFactory(this IServiceCollection services, IApiVersionProviderFactory apiVersionProviderFactory)
-        => Register(services, apiVersionProviderFactory);
-
-    public static IServiceCollection WithApiVersionProvider(this IServiceCollection services, IApiVersionProvider apiVersionProvider)
-        => services.WithApiVersionProviderFactory(IApiVersionProviderFactory.WithStaticApiVersionProvider(apiVersionProvider));
 
     public static IServiceCollection WithBicepAnalyzer(this IServiceCollection services, IBicepAnalyzer bicepAnalyzer)
         => Register(services, bicepAnalyzer);
