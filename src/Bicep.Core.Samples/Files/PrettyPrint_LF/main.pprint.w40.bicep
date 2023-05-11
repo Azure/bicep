@@ -47,11 +47,13 @@ var w42__ = concat(
 var w78 = [
   true
   { foo: 'object width: 37' /* xxx */ }
-  'xxxxxxxxxxxxxxxxxx'
+  'xxxxxxxxxxxxxxxxxxx'
 ]
 var w79 = [
   true
-  { /* xxxx */ foo: 'object width: 38' }
+  {
+    /* xxxxx */ foo: 'object width: 38'
+  }
   'xxxxxxxxxxxxxxxxxx'
 ]
 var w80 = [
@@ -66,7 +68,7 @@ var w81 = [
   {
     foo: 'object width: 40 xxxxxxxxxxxx'
   }
-  'xxxxxxxxxxxxxxxxxx'
+  'xxxxxxxxxxxxxxxxxxx'
 ]
 var w82 = [
   true
@@ -83,7 +85,7 @@ var w78_ = {
     'xxxxxxxxxxxxxxxxxx'
   ]
 }
-/* should print a newline after this */ var w79_ = {
+var w79_ = {
   foo: 123
   bar: true
   baz: ['xxxxxxxxxxx', 'xxxxxxxx']
@@ -145,7 +147,7 @@ var w82__ = union(
 var forceBreak1 = {
   foo: true
 }
-/* should print a newline after this */ var forceBreak2 = {
+var forceBreak2 = {
   foo: true
   bar: false
 }
@@ -164,12 +166,14 @@ var forceBreak4 = {
 }
 var forceBreak5 = {
   foo: true
-/* force break */ }
+  /* force break */
+}
 var forceBreak6 = {
   foo: true
   bar: false
   baz: 123
-/* force break */ }
+  /* force break */
+}
 var forceBreak7 = [
   1
   2 // force break
@@ -177,7 +181,8 @@ var forceBreak7 = [
 var forceBreak8 = [
   1
   2
-/* force break */ ]
+  /* force break */
+]
 var forceBreak9 = [
   1
   2

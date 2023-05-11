@@ -48,27 +48,27 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
                 actualLocation: outputFile);
         }
 
-        //[DataTestMethod]
-        //[DataRow(40)]
-        //[DataRow(80)]
-        //[TestCategory(BaselineHelper.BaselineTestCategory)]
-        //public void Print_FormattedOutput_ProducesTheSameOutput(int width)
-        //{
-        //    var dataSet = DataSets.PrettyPrint_LF;
-        //    var program = ParserHelper.Parse(dataSet.Bicep, out var lexingErrorLookup, out var parsingErrorLookup);
-        //    var options = new PrettyPrinterV2Options(Width: width);
-        //    var writer = new StringWriter();
+        [DataTestMethod]
+        [DataRow(40)]
+        [DataRow(80)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Print_FormattedOutput_ProducesTheSameOutput(int width)
+        {
+            var dataSet = DataSets.PrettyPrint_LF;
+            var program = ParserHelper.Parse(dataSet.Bicep, out var lexingErrorLookup, out var parsingErrorLookup);
+            var options = new PrettyPrinterV2Options(Width: width);
+            var writer = new StringWriter();
 
-        //    PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
-        //    var output = writer.ToString();
+            PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
+            var output = writer.ToString();
 
-        //    program = ParserHelper.Parse(output, out lexingErrorLookup, out parsingErrorLookup);
-        //    writer = new StringWriter();
-        //    PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
+            program = ParserHelper.Parse(output, out lexingErrorLookup, out parsingErrorLookup);
+            writer = new StringWriter();
+            PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
 
-        //    var newOutput = writer.ToString();
+            var newOutput = writer.ToString();
 
-        //    newOutput.Should().Be(output);
-        //}
+            newOutput.Should().Be(output);
+        }
     }
 }

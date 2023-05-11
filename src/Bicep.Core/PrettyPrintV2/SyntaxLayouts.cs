@@ -9,7 +9,9 @@ using Bicep.Core.Syntax;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -218,8 +220,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutProgramSyntax(ProgramSyntax syntax) =>
             this.LayoutMany(syntax.Children)
-                .TrimNewline()
-                .CollapseNewline()
+                .TrimHardLine()
+                .CollapseHardLine()
                 .SeparatedByNewline();
 
         private IEnumerable<Document> LayoutPropertyAccessSyntax(PropertyAccessSyntax syntax) =>
@@ -355,67 +357,101 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutToken(Token token)
         {
-            if (token.IsOf(TokenType.Comma))
+            var commentStickiness = SyntaxFacts.GetCommentStickiness(token.Type);
+
+            if (commentStickiness == CommentStickiness.None)
             {
-                return Enumerable.Empty<Document>();
+                return token.IsOf(TokenType.Comma)
+                    ? Enumerable.Empty<Document>()
+                    : TextDocument.From(token.Text);
             }
 
             var leadingTrivia = this.LayoutTrivia(token.LeadingTrivia);
-            var trailingTrivia = this.LayoutTrivia(token.TrailingTrivia).ToArray();
 
-            if (token.IsOf(TokenType.NewLine))
+            if (commentStickiness == CommentStickiness.Leading)
             {
+                if (token.IsOf(TokenType.NewLine))
+                {
+                    if (leadingTrivia.Any())
+                    {
+                        this.ForceBreak();
+                    }
+
+                    return token.IsMultiLineNewLine()
+                        ? leadingTrivia.Append(HardLine)
+                        : leadingTrivia;
+                }
+
+                return leadingTrivia.Any()
+                    ? leadingTrivia.Append(token.Text).SeparateBySpace().Glue()
+                    : token.Text;
+            }
+
+            var trailingTrivia = LayoutTrailingTrivia(token.TrailingTrivia, out var suffix);
+
+            if (commentStickiness == CommentStickiness.Trailing)
+            {
+                Document text = trailingTrivia.Any()
+                    ? trailingTrivia.Prepend(token.Text).SeparateBySpace().Glue()
+                    : token.Text;
+
+                if (leadingTrivia.Any())
+                {
+                    return leadingTrivia.Append(text.AddSuffixIfNotNull(suffix));
+                }
+
+                return text.AddSuffixIfNotNull(suffix);
+            }
+
+            if (commentStickiness == CommentStickiness.Bidirectional)
+            {
+                Document text = token.IsMultiLineNewLine()
+                    ? token.Text.ReplaceLineEndings(this.context.Newline)
+                    : token.Text;
+
                 if (leadingTrivia.Any() || trailingTrivia.Any())
                 {
-                    this.ForceBreak();
+                    text = leadingTrivia
+                        .Append(text)
+                        .Concat(trailingTrivia)
+                        .SeparateBySpace()
+                        .Glue();
                 }
 
-                return token.IsMultiLineNewLine()
-                    ? leadingTrivia.Append(HardLine).Concat(trailingTrivia)
-                    : leadingTrivia.Concat(trailingTrivia);
+                return text.AddSuffixIfNotNull(suffix);
             }
 
-            Document text = token.IsOf(TokenType.MultilineString)
-                ? token.Text.ReplaceLineEndings(this.context.Newline)
-                : token.Text;
-
-            Document? suffix = null;
-
-            if (token.TrailingTrivia.SingleOrDefault(x => x.Type == SyntaxTriviaType.SingleLineComment) is { }  trailingSingleLineComment)
-            {
-                // Remove trailing single-line comment from trailingTrivia as it's considered a zero-length suffix.
-                trailingTrivia = trailingTrivia[0..^1];
-                suffix = new SuffixDocument($" {trailingSingleLineComment.Text}");
-            }
-
-            if (leadingTrivia.Any() || trailingTrivia.Any())
-            {
-                text = leadingTrivia
-                    .Append(text)
-                    .Concat(trailingTrivia)
-                    .SeparateBySpace()
-                    .Glue();
-            }
-
-            return suffix is not null
-                ? DocumentOperators.Glue(text, suffix)
-                : text;
+            throw new NotImplementedException($"Cannot handle {commentStickiness}");
         }
 
-        private IEnumerable<Document> LayoutTrivia(IEnumerable<SyntaxTrivia> trivia)
+        private IEnumerable<Document> LayoutTrivia(ImmutableArray<SyntaxTrivia> trivia)
         {
-            foreach (var item in trivia)
+            foreach (var triviaItem in trivia)
             {
-                if (item.IsSingleLineComment())
+                if (triviaItem.IsSingleLineComment())
                 {
                     this.ForceBreak();
                 }
 
-                if (item.Type != SyntaxTriviaType.Whitespace)
+                if (!triviaItem.IsWhitespace())
                 {
-                   yield return item.Text;
+                    yield return triviaItem.Text;
                 }
             }
+        }
+
+        private IEnumerable<Document> LayoutTrailingTrivia(ImmutableArray<SyntaxTrivia> trivia, out SuffixDocument? suffix)
+        {
+            var trailingTrivia = this.LayoutTrivia(trivia);
+
+            if (trivia.SingleOrDefault(SyntaxExtensions.IsSingleLineComment) is { Text: var suffixText })
+            {
+                suffix = new SuffixDocument($" {suffixText}");
+                return trailingTrivia.SkipLast(1);
+            }
+
+            suffix = null;
+            return trailingTrivia;
         }
     }
 }

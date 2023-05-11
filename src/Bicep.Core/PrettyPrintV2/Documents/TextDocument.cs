@@ -29,9 +29,8 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public virtual int Width => this.Value.Length;
 
-        public static TextDocument From(string value) => TextDocumentPool.TryGetValue(value, out var instance)
-            ? instance
-            : new TextDocument(value);
+        public static TextDocument From(string value) =>
+            TextDocumentPool.TryGetValue(value, out var instance) ? instance : new TextDocument(value);
 
         public static implicit operator string(TextDocument document) => document.Value;
 

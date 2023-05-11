@@ -32,18 +32,25 @@ namespace Bicep.Core.PrettyPrintV2
         private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {
             var openBracket = this.LayoutSingle(openSyntax);
-            var closeBracket = this.LayoutSingle(closeSyntax);
+            var closeParts = this.Layout(closeSyntax).ToArray();
+            var danglingComments = closeParts[..^1];
+            var closeBracket = closeParts[^1];
 
             var lineBreakerCountBefore = this.lineBreakerCount;
             var items = this.LayoutMany(syntaxes)
-                .TrimNewline()
-                .CollapseNewline()
-                .On(DocumentOperators.HardLine, this.ForceBreak) 
+                .TrimHardLine()
+                .CollapseHardLine(onCollapse: () => this.lineBreakerCount++)
+                .Concat(danglingComments)
                 .SeparateBy(separator);
 
             if (!items.Any())
             {
                 return DocumentOperators.Glue(openBracket, closeBracket);
+            }
+
+            if (forceBreak || danglingComments.Length > 0)
+            {
+                this.ForceBreak();
             }
 
             var documents = new[]
@@ -55,11 +62,6 @@ namespace Bicep.Core.PrettyPrintV2
                 padding,
                 closeBracket
             };
-
-            if (forceBreak)
-            {
-                this.lineBreakerCount++;
-            }
 
             // The GroupDocument degenerates into a GlueDocument if it contains line breakers
             // that prevent the group from being flattened.

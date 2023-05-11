@@ -52,6 +52,8 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static Document Glue(this IEnumerable<Document> documents) => documents is Document single ? single : new GlueDocument(documents);
 
+        public static Document AddSuffixIfNotNull(this Document document, SuffixDocument? suffix) => suffix is not null ? Glue(document, suffix) : document;
+
         public static IndentDocument Indent(this IEnumerable<Document> documents) => new(documents);
 
         public static GroupDocument Group(params Document[] documents) => new(documents);
@@ -83,7 +85,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static IEnumerable<Document> SeparatedByNewline(this IEnumerable<Document> documents) => documents.SeparateBy(HardLine);
 
-        public static IEnumerable<Document> TrimNewline(this IEnumerable<Document> documents)
+        public static IEnumerable<Document> TrimHardLine(this IEnumerable<Document> documents)
         {
             if (!documents.Any())
             {
@@ -113,7 +115,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             return documentArray[start..(end + 1)];
         }
 
-        public static IEnumerable<Document> CollapseNewline(this IEnumerable<Document> documents)
+        public static IEnumerable<Document> CollapseHardLine(this IEnumerable<Document> documents, Action? onCollapse = null)
         {
             using var enumerator = documents.GetEnumerator();
 
@@ -126,24 +128,16 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
             while (enumerator.MoveNext())
             {
+                if (previous == HardLine)
+                {
+                    onCollapse?.Invoke();
+                }
+
                 if (enumerator.Current != HardLine || enumerator.Current != previous)
                 {
                     yield return enumerator.Current;
                     previous = enumerator.Current;
                 }
-            }
-        }
-
-        public static IEnumerable<Document> On(this IEnumerable<Document> documents, Document target, Action callback)
-        {
-            foreach (var document in documents)
-            {
-                if (document == target)
-                {
-                    callback();
-                }
-
-                yield return document;
             }
         }
     }

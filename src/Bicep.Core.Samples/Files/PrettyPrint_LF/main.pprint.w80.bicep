@@ -23,21 +23,21 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxx']
-var w79 = [true, { /* xxxx */ foo: 'object width: 38' }, 'xxxxxxxxxxxxxxxxxx']
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx']
+var w79 = [true, { /* xxxxx */ foo: 'object width: 38' }, 'xxxxxxxxxxxxxxxxxx']
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxxx']
-var w81 = [true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxx']
+var w81 = [
+  true
+  { foo: 'object width: 40 xxxxxxxxxxxx' }
+  'xxxxxxxxxxxxxxxxxxx'
+]
 var w82 = [
   true
   concat(/* function width: 41 */ 123, 456) /* xxxxxxxxxxxxxxxx */
 ]
 
 var w78_ = { foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
-/* should print a newline after this */ var w79_ = {
-  foo: 123
-  bar: true
-  baz: ['xxxxxxxxxxx', 'xxxxxxxx']
-}
+var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
 var w81_ = {
   foo: 123
@@ -72,7 +72,7 @@ var w82__ = union(
 var forceBreak1 = {
   foo: true
 }
-/* should print a newline after this */ var forceBreak2 = {
+var forceBreak2 = {
   foo: true
   bar: false
 }
@@ -89,13 +89,25 @@ var forceBreak4 = {
   foo: true
   bar: false // force break
 }
-var forceBreak5 = { foo: true /* force break */ }
-var forceBreak6 = { foo: true, bar: false, baz: 123 /* force break */ }
+var forceBreak5 = {
+  foo: true
+  /* force break */
+}
+var forceBreak6 = {
+  foo: true
+  bar: false
+  baz: 123
+  /* force break */
+}
 var forceBreak7 = [
   1
   2 // force break
 ]
-var forceBreak8 = [1, 2/* force break */ ]
+var forceBreak8 = [
+  1
+  2
+  /* force break */
+]
 var forceBreak9 = [
   1
   2
