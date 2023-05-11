@@ -504,10 +504,10 @@ namespace Bicep.Core.Parsing
             textWindow.Reset();
 
             // important to force enum evaluation here via .ToImmutableArray()!
-            var includeComments = tokenType.GetCommentStickiness() >= CommentStickiness.Trailing;
+            var includeComments = SyntaxFacts.GetCommentStickiness(tokenType) >= CommentStickiness.Trailing;
             var trailingTrivia = ScanTrailingTrivia(includeComments).ToImmutableArray();
 
-            var token = SyntaxFacts.IsFreeform(tokenType)
+            var token = SyntaxFacts.HasFreeFromText(tokenType)
                 ? new FreeformToken(tokenType, tokenSpan, tokenText.ToString(), leadingTrivia, trailingTrivia)
                 : new Token(tokenType, tokenSpan, leadingTrivia, trailingTrivia);
 

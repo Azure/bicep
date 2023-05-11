@@ -33,11 +33,11 @@ var w42_= { foo: true
 //@[18:44) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('xxxxxx', 'xxxxxx')|
 var w39__ = concat('xxxxxx', 'xxxxxxx'
 //@[04:09) [no-unused-vars (Warning)] Variable "w39__" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w39__|
-//@[12:41) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('xxxxxx', 'xxxxxxx'\r\n)|
+//@[12:40) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('xxxxxx', 'xxxxxxx'\n)|
 ) // suffix
 var w40__ = concat('xxxxxx',
 //@[04:09) [no-unused-vars (Warning)] Variable "w40__" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w40__|
-//@[12:41) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('xxxxxx',\r\n'xxxxxxxx')|
+//@[12:40) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('xxxxxx',\n'xxxxxxxx')|
 'xxxxxxxx') // suffix
 
 var        w41__= concat('xxxxx'/* xxxxxxx */)

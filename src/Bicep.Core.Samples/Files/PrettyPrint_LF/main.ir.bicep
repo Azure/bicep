@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:3439) ProgramExpression
+//@[00:3351) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -9,8 +9,8 @@ var w38 = [true, /* xxxxx */ true, 12]      // suffix
 //@[29:0033) |   ├─BooleanLiteralExpression { Value = True }
 //@[35:0037) |   └─IntegerLiteralExpression { Value = 12 }
 var w39 = [true, true
-//@[00:0043) ├─DeclaredVariableExpression { Name = w39 }
-//@[10:0043) | └─ArrayExpression
+//@[00:0042) ├─DeclaredVariableExpression { Name = w39 }
+//@[10:0042) | └─ArrayExpression
 //@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
 //@[17:0021) |   ├─BooleanLiteralExpression { Value = True }
     true, true, 123]
@@ -18,8 +18,8 @@ var w39 = [true, true
 //@[10:0014) |   ├─BooleanLiteralExpression { Value = True }
 //@[16:0019) |   └─IntegerLiteralExpression { Value = 123 }
 var w40 =[
-//@[00:0044) ├─DeclaredVariableExpression { Name = w40 }
-//@[09:0044) | └─ArrayExpression
+//@[00:0043) ├─DeclaredVariableExpression { Name = w40 }
+//@[09:0043) | └─ArrayExpression
     true, true, 1234/* xxxxx */]  // suffix
 //@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
 //@[10:0014) |   ├─BooleanLiteralExpression { Value = True }
@@ -40,8 +40,8 @@ var w42 =[true, /* xxx */ 12 /* xx */, 1]
 //@[39:0040) |   └─IntegerLiteralExpression { Value = 1 }
 
 var w38_= { foo: true, bar: 1234567
-//@[00:0038) ├─DeclaredVariableExpression { Name = w38_ }
-//@[10:0038) | └─ObjectExpression
+//@[00:0037) ├─DeclaredVariableExpression { Name = w38_ }
+//@[10:0037) | └─ObjectExpression
 //@[12:0021) |   ├─ObjectPropertyExpression
 //@[12:0015) |   | ├─StringLiteralExpression { Value = foo }
 //@[17:0021) |   | └─BooleanLiteralExpression { Value = True }
@@ -50,8 +50,8 @@ var w38_= { foo: true, bar: 1234567
 //@[28:0035) |     └─IntegerLiteralExpression { Value = 1234567 }
 } // suffix
 var        w39_= { foo: true
-//@[00:0047) ├─DeclaredVariableExpression { Name = w39_ }
-//@[17:0047) | └─ObjectExpression
+//@[00:0046) ├─DeclaredVariableExpression { Name = w39_ }
+//@[17:0046) | └─ObjectExpression
 //@[19:0028) |   ├─ObjectPropertyExpression
 //@[19:0022) |   | ├─StringLiteralExpression { Value = foo }
 //@[24:0028) |   | └─BooleanLiteralExpression { Value = True }
@@ -78,8 +78,8 @@ var w41_={ foo: true, bar    : 1234567890 }
 //@[22:0025) |     ├─StringLiteralExpression { Value = bar }
 //@[31:0041) |     └─IntegerLiteralExpression { Value = 1234567890 }
 var w42_= { foo: true
-//@[00:0045) ├─DeclaredVariableExpression { Name = w42_ }
-//@[10:0045) | └─ObjectExpression
+//@[00:0044) ├─DeclaredVariableExpression { Name = w42_ }
+//@[10:0044) | └─ObjectExpression
 //@[12:0021) |   ├─ObjectPropertyExpression
 //@[12:0015) |   | ├─StringLiteralExpression { Value = foo }
 //@[17:0021) |   | └─BooleanLiteralExpression { Value = True }
@@ -94,14 +94,14 @@ var w42_= { foo: true
 //@[25:0033) |   ├─StringLiteralExpression { Value = xxxxxx }
 //@[35:0043) |   └─StringLiteralExpression { Value = xxxxxx }
 var w39__ = concat('xxxxxx', 'xxxxxxx'
-//@[00:0041) ├─DeclaredVariableExpression { Name = w39__ }
-//@[12:0041) | └─FunctionCallExpression { Name = concat }
+//@[00:0040) ├─DeclaredVariableExpression { Name = w39__ }
+//@[12:0040) | └─FunctionCallExpression { Name = concat }
 //@[19:0027) |   ├─StringLiteralExpression { Value = xxxxxx }
 //@[29:0038) |   └─StringLiteralExpression { Value = xxxxxxx }
 ) // suffix
 var w40__ = concat('xxxxxx',
-//@[00:0041) ├─DeclaredVariableExpression { Name = w40__ }
-//@[12:0041) | └─FunctionCallExpression { Name = concat }
+//@[00:0040) ├─DeclaredVariableExpression { Name = w40__ }
+//@[12:0040) | └─FunctionCallExpression { Name = concat }
 //@[19:0027) |   ├─StringLiteralExpression { Value = xxxxxx }
 'xxxxxxxx') // suffix
 //@[00:0010) |   └─StringLiteralExpression { Value = xxxxxxxx }
@@ -120,8 +120,8 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w78 = [
-//@[00:0084) ├─DeclaredVariableExpression { Name = w78 }
-//@[10:0084) | └─ArrayExpression
+//@[00:0083) ├─DeclaredVariableExpression { Name = w78 }
+//@[10:0083) | └─ArrayExpression
     true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxx' ]
 //@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
 //@[10:0047) |   ├─ObjectExpression
@@ -130,8 +130,8 @@ var w78 = [
 //@[17:0035) |   |   └─StringLiteralExpression { Value = object width: 37 }
 //@[49:0069) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
 var w79 = [true
-//@[00:0087) ├─DeclaredVariableExpression { Name = w79 }
-//@[10:0087) | └─ArrayExpression
+//@[00:0085) ├─DeclaredVariableExpression { Name = w79 }
+//@[10:0085) | └─ArrayExpression
 //@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
     { /* xxxx */ foo: 'object width: 38' }
 //@[04:0042) |   ├─ObjectExpression
@@ -141,8 +141,8 @@ var w79 = [true
     'xxxxxxxxxxxxxxxxxx' ]
 //@[04:0024) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
-//@[00:0084) ├─DeclaredVariableExpression { Name = w80 }
-//@[10:0084) | └─ArrayExpression
+//@[00:0083) ├─DeclaredVariableExpression { Name = w80 }
+//@[10:0083) | └─ArrayExpression
 //@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
 //@[17:0056) |   ├─ObjectExpression
 //@[19:0054) |   | └─ObjectPropertyExpression
@@ -193,17 +193,17 @@ var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 //@[80:0093) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
 //@[95:0105) |       └─StringLiteralExpression { Value = xxxxxxxx }
 var w80_ = { foo: 123, bar: true, baz: [
-//@[00:0086) ├─DeclaredVariableExpression { Name = w80_ }
-//@[11:0086) | └─ObjectExpression
+//@[00:0085) ├─DeclaredVariableExpression { Name = w80_ }
+//@[11:0085) | └─ObjectExpression
 //@[13:0021) |   ├─ObjectPropertyExpression
 //@[13:0016) |   | ├─StringLiteralExpression { Value = foo }
 //@[18:0021) |   | └─IntegerLiteralExpression { Value = 123 }
 //@[23:0032) |   ├─ObjectPropertyExpression
 //@[23:0026) |   | ├─StringLiteralExpression { Value = bar }
 //@[28:0032) |   | └─BooleanLiteralExpression { Value = True }
-//@[34:0084) |   └─ObjectPropertyExpression
+//@[34:0083) |   └─ObjectPropertyExpression
 //@[34:0037) |     ├─StringLiteralExpression { Value = baz }
-//@[39:0084) |     └─ArrayExpression
+//@[39:0083) |     └─ArrayExpression
     'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
 //@[04:0017) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
 //@[19:0041) |       └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxxx }
@@ -252,8 +252,8 @@ var w78__ = union({ foo: 'xxxxx' }, { bar: 'xxxxxxxxx' }, { baz: 'xxxxxxxxx'})
 //@[60:0063) |       ├─StringLiteralExpression { Value = baz }
 //@[65:0076) |       └─StringLiteralExpression { Value = xxxxxxxxx }
 var w79__ = union({ foo: 'xxxxx' }, { bar: 'xxxxxxxxx' },
-//@[00:0084) ├─DeclaredVariableExpression { Name = w79__ }
-//@[12:0084) | └─FunctionCallExpression { Name = union }
+//@[00:0083) ├─DeclaredVariableExpression { Name = w79__ }
+//@[12:0083) | └─FunctionCallExpression { Name = union }
 //@[18:0034) |   ├─ObjectExpression
 //@[20:0032) |   | └─ObjectPropertyExpression
 //@[20:0023) |   |   ├─StringLiteralExpression { Value = foo }
@@ -268,8 +268,8 @@ var w79__ = union({ foo: 'xxxxx' }, { bar: 'xxxxxxxxx' },
 //@[06:0009) |       ├─StringLiteralExpression { Value = baz }
 //@[11:0023) |       └─StringLiteralExpression { Value = xxxxxxxxxx }
 var w80__ = union(
-//@[00:0096) ├─DeclaredVariableExpression { Name = w80__ }
-//@[12:0096) | └─FunctionCallExpression { Name = union }
+//@[00:0093) ├─DeclaredVariableExpression { Name = w80__ }
+//@[12:0093) | └─FunctionCallExpression { Name = union }
     { foo: 'xxxxxx' },
 //@[04:0021) |   ├─ObjectExpression
 //@[06:0019) |   | └─ObjectPropertyExpression
@@ -315,16 +315,16 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var forceBreak1 = {
-//@[00:0037) ├─DeclaredVariableExpression { Name = forceBreak1 }
-//@[18:0037) | └─ObjectExpression
+//@[00:0035) ├─DeclaredVariableExpression { Name = forceBreak1 }
+//@[18:0035) | └─ObjectExpression
     foo: true
 //@[04:0013) |   └─ObjectPropertyExpression
 //@[04:0007) |     ├─StringLiteralExpression { Value = foo }
 //@[09:0013) |     └─BooleanLiteralExpression { Value = True }
 }
 /* should print a newline after this */var forceBreak2 = {
-//@[39:0088) ├─DeclaredVariableExpression { Name = forceBreak2 }
-//@[57:0088) | └─ObjectExpression
+//@[39:0086) ├─DeclaredVariableExpression { Name = forceBreak2 }
+//@[57:0086) | └─ObjectExpression
     foo: true, bar: false
 //@[04:0013) |   ├─ObjectPropertyExpression
 //@[04:0007) |   | ├─StringLiteralExpression { Value = foo }
@@ -334,11 +334,11 @@ var forceBreak1 = {
 //@[20:0025) |     └─BooleanLiteralExpression { Value = False }
 }
 var forceBreak3 = [1, 2, {
-//@[00:0050) ├─DeclaredVariableExpression { Name = forceBreak3 }
-//@[18:0050) | └─ArrayExpression
+//@[00:0049) ├─DeclaredVariableExpression { Name = forceBreak3 }
+//@[18:0049) | └─ArrayExpression
 //@[19:0020) |   ├─IntegerLiteralExpression { Value = 1 }
 //@[22:0023) |   ├─IntegerLiteralExpression { Value = 2 }
-//@[25:0043) |   ├─ObjectExpression
+//@[25:0042) |   ├─ObjectExpression
     foo: true }, 3, 4]
 //@[04:0013) |   | └─ObjectPropertyExpression
 //@[04:0007) |   |   ├─StringLiteralExpression { Value = foo }
@@ -346,8 +346,8 @@ var forceBreak3 = [1, 2, {
 //@[17:0018) |   ├─IntegerLiteralExpression { Value = 3 }
 //@[20:0021) |   └─IntegerLiteralExpression { Value = 4 }
 var forceBreak4 = { foo: true, bar: false // force break
-//@[00:0059) ├─DeclaredVariableExpression { Name = forceBreak4 }
-//@[18:0059) | └─ObjectExpression
+//@[00:0058) ├─DeclaredVariableExpression { Name = forceBreak4 }
+//@[18:0058) | └─ObjectExpression
 //@[20:0029) |   ├─ObjectPropertyExpression
 //@[20:0023) |   | ├─StringLiteralExpression { Value = foo }
 //@[25:0029) |   | └─BooleanLiteralExpression { Value = True }
@@ -356,15 +356,15 @@ var forceBreak4 = { foo: true, bar: false // force break
 //@[36:0041) |     └─BooleanLiteralExpression { Value = False }
 }
 var forceBreak5 = { foo: true
-//@[00:0049) ├─DeclaredVariableExpression { Name = forceBreak5 }
-//@[18:0049) | └─ObjectExpression
+//@[00:0048) ├─DeclaredVariableExpression { Name = forceBreak5 }
+//@[18:0048) | └─ObjectExpression
 //@[20:0029) |   └─ObjectPropertyExpression
 //@[20:0023) |     ├─StringLiteralExpression { Value = foo }
 //@[25:0029) |     └─BooleanLiteralExpression { Value = True }
 /* force break */}
 var forceBreak6 = { foo: true
-//@[00:0079) ├─DeclaredVariableExpression { Name = forceBreak6 }
-//@[18:0079) | └─ObjectExpression
+//@[00:0076) ├─DeclaredVariableExpression { Name = forceBreak6 }
+//@[18:0076) | └─ObjectExpression
 //@[20:0029) |   ├─ObjectPropertyExpression
 //@[20:0023) |   | ├─StringLiteralExpression { Value = foo }
 //@[25:0029) |   | └─BooleanLiteralExpression { Value = True }
@@ -378,23 +378,23 @@ var forceBreak6 = { foo: true
 //@[09:0012) |     └─IntegerLiteralExpression { Value = 123 }
 /* force break */}
 var forceBreak7 = [1, 2 // force break
-//@[00:0041) ├─DeclaredVariableExpression { Name = forceBreak7 }
-//@[18:0041) | └─ArrayExpression
+//@[00:0040) ├─DeclaredVariableExpression { Name = forceBreak7 }
+//@[18:0040) | └─ArrayExpression
 //@[19:0020) |   ├─IntegerLiteralExpression { Value = 1 }
 //@[22:0023) |   └─IntegerLiteralExpression { Value = 2 }
 ]
 var forceBreak8 = [1, 2
-//@[00:0048) ├─DeclaredVariableExpression { Name = forceBreak8 }
-//@[18:0048) | └─ArrayExpression
+//@[00:0047) ├─DeclaredVariableExpression { Name = forceBreak8 }
+//@[18:0047) | └─ArrayExpression
 //@[19:0020) |   ├─IntegerLiteralExpression { Value = 1 }
 //@[22:0023) |   └─IntegerLiteralExpression { Value = 2 }
     /* force break */ ]
 var forceBreak9 = [1, 2, {
-//@[00:0061) ├─DeclaredVariableExpression { Name = forceBreak9 }
-//@[18:0061) | └─ArrayExpression
+//@[00:0058) ├─DeclaredVariableExpression { Name = forceBreak9 }
+//@[18:0058) | └─ArrayExpression
 //@[19:0020) |   ├─IntegerLiteralExpression { Value = 1 }
 //@[22:0023) |   ├─IntegerLiteralExpression { Value = 2 }
-//@[25:0060) |   └─ObjectExpression
+//@[25:0057) |   └─ObjectExpression
     foo: true
 //@[04:0013) |     ├─ObjectPropertyExpression
 //@[04:0007) |     | ├─StringLiteralExpression { Value = foo }
@@ -405,11 +405,11 @@ var forceBreak9 = [1, 2, {
 //@[09:0014) |       └─BooleanLiteralExpression { Value = False }
 }]
 var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
-//@[00:0083) └─DeclaredVariableExpression { Name = forceBreak10 }
-//@[19:0083)   └─ArrayExpression
+//@[00:0082) └─DeclaredVariableExpression { Name = forceBreak10 }
+//@[19:0082)   └─ArrayExpression
 //@[20:0021)     ├─IntegerLiteralExpression { Value = 1 }
 //@[23:0024)     ├─IntegerLiteralExpression { Value = 2 }
-//@[26:0082)     └─FunctionCallExpression { Name = intersection }
+//@[26:0081)     └─FunctionCallExpression { Name = intersection }
 //@[39:0064)       ├─ObjectExpression
 //@[41:0050)       | ├─ObjectPropertyExpression
 //@[41:0044)       | | ├─StringLiteralExpression { Value = foo }
@@ -417,7 +417,7 @@ var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[52:0062)       | └─ObjectPropertyExpression
 //@[52:0055)       |   ├─StringLiteralExpression { Value = bar }
 //@[57:0062)       |   └─BooleanLiteralExpression { Value = False }
-//@[66:0081)       └─ObjectExpression
+//@[66:0080)       └─ObjectExpression
   foo: true})]
 //@[02:0011)         └─ObjectPropertyExpression
 //@[02:0005)           ├─StringLiteralExpression { Value = foo }

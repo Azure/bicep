@@ -83,8 +83,7 @@ var w78_ = {
     'xxxxxxxxxxxxxxxxxx'
   ]
 }
-/* should print a newline after this */
-var w79_ = {
+/* should print a newline after this */ var w79_ = {
   foo: 123
   bar: true
   baz: ['xxxxxxxxxxx', 'xxxxxxxx']
@@ -146,8 +145,7 @@ var w82__ = union(
 var forceBreak1 = {
   foo: true
 }
-/* should print a newline after this */
-var forceBreak2 = {
+/* should print a newline after this */ var forceBreak2 = {
   foo: true
   bar: false
 }
@@ -166,14 +164,12 @@ var forceBreak4 = {
 }
 var forceBreak5 = {
   foo: true
-  /* force break */
-}
+/* force break */ }
 var forceBreak6 = {
   foo: true
   bar: false
   baz: 123
-  /* force break */
-}
+/* force break */ }
 var forceBreak7 = [
   1
   2 // force break
@@ -181,8 +177,7 @@ var forceBreak7 = [
 var forceBreak8 = [
   1
   2
-  /* force break */
-]
+/* force break */ ]
 var forceBreak9 = [
   1
   2

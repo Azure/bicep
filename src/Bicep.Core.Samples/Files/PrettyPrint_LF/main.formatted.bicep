@@ -41,7 +41,7 @@ var w81 = [ true, { foo: 'object width: 40 xxxxxxxxxxxx' }, 'xxxxxxxxxxxxxxxxxx'
 var w82 = [ true, concat(/* function width: 41 */ 123, 456) /* xxxxxxxxxxxxxxxx */ ]
 
 var w78_ = { foo: 123, /* xxxx */ baz: [ 'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx' ] }
-/* should print a newline after this */var w79_ = { foo: 123, bar: true, baz: [ 'xxxxxxxxxxx', 'xxxxxxxx' ] }
+/* should print a newline after this */ var w79_ = { foo: 123, bar: true, baz: [ 'xxxxxxxxxxx', 'xxxxxxxx' ] }
 var w80_ = { foo: 123, bar: true, baz: [
     'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx' ] } // suffix
 var w81_ = { foo: 123, bar: true, baz: [ 'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx' ] }
@@ -63,7 +63,7 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 var forceBreak1 = {
   foo: true
 }
-/* should print a newline after this */var forceBreak2 = {
+/* should print a newline after this */ var forceBreak2 = {
   foo: true, bar: false
 }
 var forceBreak3 = [ 1, 2, {
@@ -71,15 +71,15 @@ var forceBreak3 = [ 1, 2, {
 var forceBreak4 = { foo: true, bar: false // force break
 }
 var forceBreak5 = { foo: true
-/* force break */}
+/* force break */ }
 var forceBreak6 = { foo: true
   bar: false
   baz: 123
-/* force break */}
+/* force break */ }
 var forceBreak7 = [ 1, 2 // force break
 ]
 var forceBreak8 = [ 1, 2
-/* force break */]
+/* force break */ ]
 var forceBreak9 = [ 1, 2, {
     foo: true
     bar: false

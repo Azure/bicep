@@ -265,9 +265,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-                       // comment
+                       
                        location:
-                       name:
+                       name:// comment
                  }"
         )]
         [DataRow(@"

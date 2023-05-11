@@ -12,7 +12,7 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxFacts
     {
-        public static bool IsFreeform(TokenType type) => type switch
+        public static bool HasFreeFromText(TokenType type) => type switch
         {
             TokenType.NewLine or
             TokenType.Identifier or
@@ -70,8 +70,31 @@ namespace Bicep.Core.Syntax
             _ => null,
         };
 
-        public static bool IsSingleLineComment(SyntaxTrivia trivia) => trivia.Type == SyntaxTriviaType.SingleLineComment;
+        public static CommentStickiness GetCommentStickiness(TokenType type) => type switch
+        {
+            TokenType.NewLine or
+            TokenType.At or     // Decorator can have leading comments.
+            TokenType.Minus or  // Negative numbers can have leading comments.
+            TokenType.EndOfFile or
+            TokenType.LeftParen or
+            TokenType.LeftSquare or
+            TokenType.LeftBrace or
+            TokenType.StringLeftPiece => CommentStickiness.Leading,
 
-        public static bool HasTrailingSingleLineComment(this Token token) => token.TrailingTrivia.Any(SyntaxExtensions.IsSingleLineComment);
+            TokenType.RightParen or
+            TokenType.RightSquare or
+            TokenType.RightBrace or
+            TokenType.StringRightPiece => CommentStickiness.Trailing,
+
+            TokenType.Exclamation or
+            TokenType.FalseKeyword or
+            TokenType.TrueKeyword or
+            TokenType.NullKeyword or
+            TokenType.StringComplete or
+            TokenType.Integer or
+            TokenType.Identifier => CommentStickiness.Bidirectional,
+
+            _ => CommentStickiness.None,
+        };
     }
 }
