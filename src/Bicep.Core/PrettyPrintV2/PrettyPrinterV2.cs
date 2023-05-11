@@ -27,10 +27,24 @@ namespace Bicep.Core.PrettyPrintV2
 
         private int indentLevelToPrint = 0;
 
-        public PrettyPrinterV2(TextWriter writer, PrettyPrinterV2Context context)
+        private PrettyPrinterV2(TextWriter writer, PrettyPrinterV2Context context)
         {
             this.writer = writer;
             this.context = context;
+        }
+
+        public static void PrintTo(TextWriter writer, PrettyPrinterV2Context context)
+        {
+            var layouts = new SyntaxLayouts(context);
+            var documents = layouts.Layout(context.SyntaxToPrint);
+            var printer = new PrettyPrinterV2(writer, context);
+
+            printer.Print(0, documents);
+
+            if (context.Options.InsertFinalNewline)
+            {
+                writer.Write(context.Newline);
+            }
         }
 
         public static void PrintTo(TextWriter writer, SyntaxBase syntax, PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)

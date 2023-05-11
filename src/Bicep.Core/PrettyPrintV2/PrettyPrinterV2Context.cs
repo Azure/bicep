@@ -18,14 +18,17 @@ namespace Bicep.Core.PrettyPrintV2
 
         private readonly IDiagnosticLookup parsingErrorLookup;
 
-        private PrettyPrinterV2Context(PrettyPrinterV2Options options, string indent, string newline, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        private PrettyPrinterV2Context(SyntaxBase syntaxToPrint, PrettyPrinterV2Options options, string indent, string newline, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
+            this.SyntaxToPrint = syntaxToPrint;
             this.Options = options;
             this.Indent = indent;
             this.Newline = newline;
             this.lexingErrorLookup = lexingErrorLookup;
             this.parsingErrorLookup = parsingErrorLookup;
         }
+
+        public SyntaxBase SyntaxToPrint { get; }
 
         public PrettyPrinterV2Options Options { get; }
 
@@ -37,7 +40,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         public bool InsertFinalNewline => this.Options.InsertFinalNewline;
 
-        public static PrettyPrinterV2Context Create(SyntaxBase syntax, PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        public static PrettyPrinterV2Context Create(SyntaxBase syntaxToPrint, PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             var indent = options.IndentKind == IndentKind.Space ? new string(' ', options.IndentSize) : "\t";
             var newline = options.NewlineKind switch
@@ -45,11 +48,11 @@ namespace Bicep.Core.PrettyPrintV2
                 NewlineKind.CR => "\r",
                 NewlineKind.LF => "\n",
                 NewlineKind.CRLF => "\r\n",
-                NewlineKind.Auto => NewlineFinder.TryFindNewline(syntax) ?? "\r",
+                NewlineKind.Auto => NewlineFinder.TryFindNewline(syntaxToPrint) ?? "\r",
                 _ => throw new NotImplementedException(),
             };
 
-            return new(options, indent, newline, lexingErrorLookup, parsingErrorLookup);
+            return new(syntaxToPrint, options, indent, newline, lexingErrorLookup, parsingErrorLookup);
         }
 
         public bool HasSyntaxError(SyntaxBase syntax) => this.lexingErrorLookup.Contains(syntax) || this.parsingErrorLookup.Contains(syntax);

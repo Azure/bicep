@@ -26,14 +26,15 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [DataRow(40)]
         [DataRow(80)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Print_GivenWidth_ShouldOptimizeOutputAccordingly(int width)
+        public void Print_DifferentWidth_ShouldOptimizeLayoutAccordingly(int width)
         {
             var dataSet = DataSets.PrettyPrint_LF;
             var program = ParserHelper.Parse(dataSet.Bicep, out var lexingErrorLookup, out var parsingErrorLookup);
-            var options = new PrettyPrinterV2Options(Width: width);
-            var writer = new StringWriter();
 
-            PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
+            var writer = new StringWriter();
+            var context = PrettyPrinterV2Context.Create(program, new(Width: width), lexingErrorLookup, parsingErrorLookup);
+
+            PrettyPrinterV2.PrintTo(writer, context);
             var output = writer.ToString();
 
             var outputFileName = $"main.pprint.w{width}.bicep";
@@ -55,16 +56,21 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_FormattedOutput_ProducesTheSameOutput(int width)
         {
             var dataSet = DataSets.PrettyPrint_LF;
-            var program = ParserHelper.Parse(dataSet.Bicep, out var lexingErrorLookup, out var parsingErrorLookup);
             var options = new PrettyPrinterV2Options(Width: width);
-            var writer = new StringWriter();
 
-            PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
+            var program = ParserHelper.Parse(dataSet.Bicep, out var lexingErrorLookup, out var parsingErrorLookup);
+
+            var writer = new StringWriter();
+            var context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
+
+            PrettyPrinterV2.PrintTo(writer, context);
             var output = writer.ToString();
 
-            program = ParserHelper.Parse(output, out lexingErrorLookup, out parsingErrorLookup);
             writer = new StringWriter();
-            PrettyPrinterV2.PrintTo(writer, program, options, lexingErrorLookup, parsingErrorLookup);
+            program = ParserHelper.Parse(output, out lexingErrorLookup, out parsingErrorLookup);
+            context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
+
+            PrettyPrinterV2.PrintTo(writer, context);
 
             var newOutput = writer.ToString();
 
