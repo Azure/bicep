@@ -84,6 +84,6 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             formattedProgramText.Should().Be(programText);
         }
 
-        private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.Where(x => x != DataSets.PrettyPrint_LF).ToDynamicTestData();
+        private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
     }
 }
