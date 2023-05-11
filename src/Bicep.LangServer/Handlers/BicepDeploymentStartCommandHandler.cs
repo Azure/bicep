@@ -174,7 +174,7 @@ namespace Bicep.LanguageServer.Handlers
             telemetryProvider.PostEvent(telemetryEvent);
         }
 
-        private async Task<BicepparamCompilationResult> TryCompileBicepparamFile(string parametersFilePath)
+        public async Task<BicepparamCompilationResult> TryCompileBicepparamFile(string parametersFilePath)
         {
             var documentUri = DocumentUri.FromFileSystemPath(parametersFilePath);
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
