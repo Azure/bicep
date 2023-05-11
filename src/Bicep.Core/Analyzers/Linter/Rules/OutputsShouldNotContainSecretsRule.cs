@@ -150,48 +150,48 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     yield break;
                 }
 
+                if (type is UnionType union)
+                {
+                    foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureComponents(m.Type, path, visited.Add(type))))
+                    {
+                        yield return variantPath;
+                    }
+                }
+
                 // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
                 // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
                 // if they haven't, then the value dereferenced isn't sensitive
-                if (accessExpressionStack.Count > 0)
+                if (accessExpressionStack.Count == 0)
                 {
-                    yield break;
-                }
-
-                switch (type)
-                {
-                    case UnionType union:
-                        foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureComponents(m.Type, path, visited.Add(type))))
-                        {
-                            yield return variantPath;
-                        }
-                        break;
-                    case ObjectType obj:
-                        if (obj.AdditionalPropertiesType?.Type is TypeSymbol addlPropsType)
-                        {
-                            foreach (var dictMemberPath in FindPathsToSecureComponents(addlPropsType, $"{path}.*", visited.Add(type)))
+                    switch (type)
+                    {
+                        case ObjectType obj:
+                            if (obj.AdditionalPropertiesType?.Type is TypeSymbol addlPropsType)
                             {
-                                yield return dictMemberPath;
+                                foreach (var dictMemberPath in FindPathsToSecureComponents(addlPropsType, $"{path}.*", visited.Add(type)))
+                                {
+                                    yield return dictMemberPath;
+                                }
                             }
-                        }
 
-                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited.Add(type))))
-                        {
-                            yield return propertyPath;
-                        }
-                        break;
-                    case TupleType tuple:
-                        foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureComponents(typeAtIndex.Type, $"{path}[{index}]", visited.Add(type))))
-                        {
-                            yield return pathFromIndex;
-                        }
-                        break;
-                    case ArrayType array:
-                        foreach (var pathFromElement in FindPathsToSecureComponents(array.Item.Type, $"{path}[*]", visited.Add(type)))
-                        {
-                            yield return pathFromElement;
-                        }
-                        break;
+                            foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited.Add(type))))
+                            {
+                                yield return propertyPath;
+                            }
+                            break;
+                        case TupleType tuple:
+                            foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureComponents(typeAtIndex.Type, $"{path}[{index}]", visited.Add(type))))
+                            {
+                                yield return pathFromIndex;
+                            }
+                            break;
+                        case ArrayType array:
+                            foreach (var pathFromElement in FindPathsToSecureComponents(array.Item.Type, $"{path}[*]", visited.Add(type)))
+                            {
+                                yield return pathFromElement;
+                            }
+                            break;
+                    }
                 }
             }
 
