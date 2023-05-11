@@ -53,17 +53,16 @@ public static class OperationReturnTypeEvaluator
         // coalesce
         new CoalesceEvaluator());
 
-    public static TypeSymbol? TryFoldUnaryExpression(UnaryOperationSyntax expressionSyntax, TypeSymbol operandType)
+    public static TypeSymbol? TryFoldUnaryExpression(UnaryOperationSyntax expressionSyntax, TypeSymbol operandType, IDiagnosticWriter diagnosticWriter)
         => unaryEvaluators.Where(e => e.IsMatch(expressionSyntax.Operator, operandType)).FirstOrDefault()?.Evaluate(expressionSyntax, operandType);
 
-    public static TypeSymbol? TryFoldBinaryExpression(BinaryOperationSyntax expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, out IEnumerable<IDiagnostic> foldDiagnostics)
+    public static TypeSymbol? TryFoldBinaryExpression(BinaryOperationSyntax expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
     {
         if (binaries.Where(e => e.IsMatch(expressionSyntax.Operator, leftOperandType, rightOperandType)).FirstOrDefault() is {} evaluator)
         {
-            return evaluator.Evaluate(expressionSyntax, leftOperandType, rightOperandType, out foldDiagnostics);
+            return evaluator.Evaluate(expressionSyntax, leftOperandType, rightOperandType, diagnosticWriter);
         }
 
-        foldDiagnostics = Enumerable.Empty<IDiagnostic>();
         return null;
     }
 
@@ -87,7 +86,7 @@ public static class OperationReturnTypeEvaluator
 
         public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol operandType) => operandType switch
         {
-            UnionType union => TypeHelper.CreateTypeUnion(union.Members.Select(t => Evaluate(expressionSyntax, t.Type))), 
+            UnionType union => TypeHelper.CreateTypeUnion(union.Members.Select(t => Evaluate(expressionSyntax, t.Type))),
             BooleanLiteralType booleanLiteral => TypeFactory.CreateBooleanLiteralType(!booleanLiteral.Value, booleanLiteral.ValidationFlags),
             BooleanType @bool => @bool,
             _ => TypeFactory.CreateBooleanType(operandType.ValidationFlags),
@@ -160,7 +159,7 @@ public static class OperationReturnTypeEvaluator
 
         (TypeSymbol Left, TypeSymbol Right) OperandTypes { get; }
 
-        TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, out IEnumerable<IDiagnostic> evaluationDiagnostics);
+        TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter);
 
         bool IsMatch(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType)
             => Operator == @operator &&
@@ -187,10 +186,10 @@ public static class OperationReturnTypeEvaluator
 
         public (TypeSymbol, TypeSymbol) OperandTypes => operandTypes;
 
-        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, out IEnumerable<IDiagnostic> evaluationDiagnostics)
+        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
         {
             var literal = ArmFunctionReturnTypeEvaluator.TryEvaluate(armFunctionName, out var builders, new[] { leftOperandType, rightOperandType });
-            evaluationDiagnostics = builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax)));
+            diagnosticWriter.WriteMultiple(builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
 
             return literal ?? TryDeriveNonLiteralType(expressionSyntax, leftOperandType, rightOperandType) ?? genericReturnType;
         }
@@ -231,8 +230,8 @@ public static class OperationReturnTypeEvaluator
 
         public (TypeSymbol, TypeSymbol) OperandTypes => equalsEvaluator.OperandTypes;
 
-        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, out IEnumerable<IDiagnostic> evaluationDiagnostics)
-            => equalsEvaluator.Evaluate(expressionSyntax, leftOperandType, rightOperandType, out evaluationDiagnostics) switch
+        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
+            => equalsEvaluator.Evaluate(expressionSyntax, leftOperandType, rightOperandType, diagnosticWriter) switch
             {
                 BooleanLiteralType literalReturn => TypeFactory.CreateBooleanLiteralType(!literalReturn.Value),
                 _ => LanguageConstants.Bool,
@@ -254,19 +253,17 @@ public static class OperationReturnTypeEvaluator
 
         public (TypeSymbol, TypeSymbol) OperandTypes => (LanguageConstants.String, LanguageConstants.String);
 
-        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, out IEnumerable<IDiagnostic> evaluationDiagnostics)
+        public TypeSymbol Evaluate(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
         {
-            List<IDiagnostic> diags = new();
-            evaluationDiagnostics = diags;
             var transformedArgTypes = new TypeSymbol[2];
             for (int i = 0; i < 2; i++)
             {
                 transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.TryEvaluate("toLower", out var builderDelegates, new [] { i % 2 == 0 ? leftOperandType : rightOperandType }) ?? LanguageConstants.String;
-                diags.AddRange(builderDelegates.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
+                diagnosticWriter.WriteMultiple(builderDelegates.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
             }
 
             var result = ArmFunctionReturnTypeEvaluator.TryEvaluate("equals", out var builders, transformedArgTypes);
-            diags.AddRange(builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
+            diagnosticWriter.WriteMultiple(builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
 
             if (result is BooleanLiteralType booleanLiteral)
             {

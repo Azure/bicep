@@ -61,18 +61,31 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return Enum.GetValues(typeof(TEnum)).OfType<TEnum>();
         }
 
+        public record DiagnosticMatcherData(DiagnosticLevel Level, string Code, string Message);
+
         [DataTestMethod]
         [DynamicData(nameof(GetUnaryTestCases), DynamicDataSourceType.Method)]
-        public void Unary_operator_resolves_correct_type(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected)
+        public void Unary_operator_resolves_correct_type(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected, IEnumerable<DiagnosticMatcherData> expectedDiagnostics)
         {
-            var actual = OperationReturnTypeEvaluator.TryFoldUnaryExpression(expression, operandType);
+            var diagnosticsWriter = ToListDiagnosticWriter.Create();
+            var actual = OperationReturnTypeEvaluator.TryFoldUnaryExpression(expression, operandType, diagnosticsWriter);
             actual.Should().Be(expected);
+
+            if (diagnosticsWriter.GetDiagnostics().Any() || expectedDiagnostics.Any())
+            {
+                diagnosticsWriter.GetDiagnostics().Should().SatisfyRespectively(expectedDiagnostics.Select<DiagnosticMatcherData, Action<IDiagnostic>>(matcherData => x =>
+                {
+                    x.Level.Should().Be(matcherData.Level);
+                    x.Code.Should().Be(matcherData.Code);
+                    x.Message.Should().Be(matcherData.Message);
+                }));
+            }
         }
 
         private static IEnumerable<object[]> GetUnaryTestCases()
         {
-            static object[] Case(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected)
-                => new object[] { expression, operandType, expected };
+            static object[] Case(UnaryOperationSyntax expression, TypeSymbol operandType, TypeSymbol expected, params DiagnosticMatcherData[] matcherData)
+                => new object[] { expression, operandType, expected, matcherData };
 
 
             var symbolRef = TestSyntaxFactory.CreateVariableAccess("foo");
@@ -94,10 +107,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         [DataTestMethod]
         [DynamicData(nameof(GetBinaryTestCases), DynamicDataSourceType.Method)]
-        public void Binary_operator_resolves_correct_type(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected)
+        public void Binary_operator_resolves_correct_type(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected, IEnumerable<DiagnosticMatcherData> expectedDiagnostics)
         {
-            var actual = OperationReturnTypeEvaluator.TryFoldBinaryExpression(OperationSyntaxFor(@operator), leftOperandType, rightOperandType, out _);
+            var diagnosticsWriter = ToListDiagnosticWriter.Create();
+            var actual = OperationReturnTypeEvaluator.TryFoldBinaryExpression(OperationSyntaxFor(@operator), leftOperandType, rightOperandType, diagnosticsWriter);
             actual.Should().Be(expected);
+
+            if (diagnosticsWriter.GetDiagnostics().Any() || expectedDiagnostics.Any())
+            {
+                diagnosticsWriter.GetDiagnostics().Should().SatisfyRespectively(expectedDiagnostics.Select<DiagnosticMatcherData, Action<IDiagnostic>>(matcherData => x =>
+                {
+                    x.Level.Should().Be(matcherData.Level);
+                    x.Code.Should().Be(matcherData.Code);
+                    x.Message.Should().Be(matcherData.Message);
+                }));
+            }
         }
 
         private static BinaryOperationSyntax OperationSyntaxFor(BinaryOperator @operator) => new(leftExpression: TestSyntaxFactory.CreateVariableAccess("foo"), rightExpression: TestSyntaxFactory.CreateVariableAccess("bar"), operatorToken: @operator switch
@@ -123,8 +147,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetBinaryTestCases()
         {
-            static object[] Case(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected)
-                => new object[] { @operator, leftOperandType, rightOperandType, expected };
+            static object[] Case(BinaryOperator @operator, TypeSymbol leftOperandType, TypeSymbol rightOperandType, TypeSymbol expected, params DiagnosticMatcherData[] matcherData)
+                => new object[] { @operator, leftOperandType, rightOperandType, expected, matcherData };
 
             return new[]
             {
@@ -261,6 +285,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // *
                 Case(BinaryOperator.Multiply, LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
                 Case(BinaryOperator.Multiply, TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateIntegerLiteralType(10), TypeFactory.CreateIntegerLiteralType(100)),
+                Case(BinaryOperator.Multiply, TypeFactory.CreateIntegerLiteralType(long.MaxValue), TypeFactory.CreateIntegerLiteralType(long.MaxValue), LanguageConstants.Int,
+                    new DiagnosticMatcherData(DiagnosticLevel.Warning, "BCP234",
+                        "The ARM function \"mul\" failed when invoked on the value [9223372036854775807, 9223372036854775807]: The template language function 'mul' overflowed with the operants '9223372036854775807' and '9223372036854775807'. Please see https://aka.ms/arm-functions for usage details.")),
 
                 // /
                 Case(BinaryOperator.Divide, LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
@@ -285,4 +312,3 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
     }
 }
-

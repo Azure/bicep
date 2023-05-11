@@ -678,7 +678,12 @@ namespace Bicep.Core.TypeSystem
                 return baseExpressionType;
             }
 
-            var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, baseExpressionType);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, baseExpressionType, diagnosticWriter);
+            if (diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>().Any())
+            {
+                return ErrorType.Create(diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>());
+            }
 
             if (evaluated is {} result && TypeHelper.IsLiteralType(result))
             {
