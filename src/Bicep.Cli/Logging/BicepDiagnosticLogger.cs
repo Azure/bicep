@@ -134,7 +134,7 @@ namespace Bicep.Cli.Logging
 
         private static DiagnosticsFormat ToDiagnosticsFormat(string? format)
         {
-            if(format is null)
+            if(format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))
             {
                 return DiagnosticsFormat.Default;
             }

@@ -307,6 +307,7 @@ output myOutput string = 'hello!'
         }
 
         [DataRow(new string[] {})]
+        [DataRow(new[] { "--diagnosticsformat", "defAULt"})]
         [DataRow(new[] { "--diagnosticsformat", "jsOn"})]
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
@@ -398,8 +399,10 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.\".");
         }
 
-        [TestMethod]
-        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError()
+        [DataRow(new string[] {})]
+        [DataRow(new[] { "--diagnosticsformat", "defAULt"})]
+        [DataTestMethod]
+        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
@@ -420,8 +423,7 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-
-            var (output, error, result) = await Bicep("build", "--outdir", testOutputPath, inputFile);
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile}.Concat(args).ToArray());
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
