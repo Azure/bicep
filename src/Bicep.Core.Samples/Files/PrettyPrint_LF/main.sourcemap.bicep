@@ -97,7 +97,7 @@ var w79 = [true
 //@    "w79": [
 //@      true,
 //@    ],
-    { /* xxxxx */ foo: 'object width: 38' }
+    { /* xxxx */ foo: 'object width: 38' }
 //@      {
 //@        "foo": "object width: 38"
 //@      },

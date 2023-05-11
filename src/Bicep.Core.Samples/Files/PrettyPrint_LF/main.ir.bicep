@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:3275) ProgramExpression
+//@[00:3274) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -130,14 +130,14 @@ var w78 = [
 //@[17:0035) |   |   └─StringLiteralExpression { Value = object width: 37 }
 //@[49:0070) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxx }
 var w79 = [true
-//@[00:0086) ├─DeclaredVariableExpression { Name = w79 }
-//@[10:0086) | └─ArrayExpression
+//@[00:0085) ├─DeclaredVariableExpression { Name = w79 }
+//@[10:0085) | └─ArrayExpression
 //@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
-    { /* xxxxx */ foo: 'object width: 38' }
-//@[04:0043) |   ├─ObjectExpression
-//@[18:0041) |   | └─ObjectPropertyExpression
-//@[18:0021) |   |   ├─StringLiteralExpression { Value = foo }
-//@[23:0041) |   |   └─StringLiteralExpression { Value = object width: 38 }
+    { /* xxxx */ foo: 'object width: 38' }
+//@[04:0042) |   ├─ObjectExpression
+//@[17:0040) |   | └─ObjectPropertyExpression
+//@[17:0020) |   |   ├─StringLiteralExpression { Value = foo }
+//@[22:0040) |   |   └─StringLiteralExpression { Value = object width: 38 }
     'xxxxxxxxxxxxxxxxxx' ]
 //@[04:0024) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxx }
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }

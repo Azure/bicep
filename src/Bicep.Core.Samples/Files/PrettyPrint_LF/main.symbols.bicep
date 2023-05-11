@@ -49,8 +49,8 @@ var w78 = [
 //@[04:07) Variable w78. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 84
     true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 var w79 = [true
-//@[04:07) Variable w79. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 86
-    { /* xxxxx */ foo: 'object width: 38' }
+//@[04:07) Variable w79. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 85
+    { /* xxxx */ foo: 'object width: 38' }
     'xxxxxxxxxxxxxxxxxx' ]
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
 //@[04:07) Variable w80. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 83

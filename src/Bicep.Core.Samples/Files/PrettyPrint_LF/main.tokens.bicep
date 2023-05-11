@@ -241,13 +241,13 @@ var w79 = [true
 //@[10:11) LeftSquare |[|
 //@[11:15) TrueKeyword |true|
 //@[15:16) NewLine |\n|
-    { /* xxxxx */ foo: 'object width: 38' }
+    { /* xxxx */ foo: 'object width: 38' }
 //@[04:05) LeftBrace |{|
-//@[18:21) Identifier |foo|
-//@[21:22) Colon |:|
-//@[23:41) StringComplete |'object width: 38'|
-//@[42:43) RightBrace |}|
-//@[43:44) NewLine |\n|
+//@[17:20) Identifier |foo|
+//@[20:21) Colon |:|
+//@[22:40) StringComplete |'object width: 38'|
+//@[41:42) RightBrace |}|
+//@[42:43) NewLine |\n|
     'xxxxxxxxxxxxxxxxxx' ]
 //@[04:24) StringComplete |'xxxxxxxxxxxxxxxxxx'|
 //@[25:26) RightSquare |]|

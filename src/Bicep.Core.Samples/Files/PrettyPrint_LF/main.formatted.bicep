@@ -33,7 +33,7 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 var w78 = [
   true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 var w79 = [ true
-  { /* xxxxx */ foo: 'object width: 38' }
+  { /* xxxx */ foo: 'object width: 38' }
   'xxxxxxxxxxxxxxxxxx' ]
 var w80 = [ true, { foo: 'object width: 39 xxxxxxxxxxx' }
   'xxxxxxxxxxxxxxxxxxx' ]

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:3275) ProgramSyntax
+//@[00:3274) ProgramSyntax
 //@[80:0081) ├─Token(NewLine) |\n|
 //////////////////////////// Baselines for width 40 ////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
@@ -384,29 +384,29 @@ var w78 = [
 //@[71:0072) |   └─Token(RightSquare) |]|
 //@[72:0073) ├─Token(NewLine) |\n|
 var w79 = [true
-//@[00:0086) ├─VariableDeclarationSyntax
+//@[00:0085) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0007) | ├─IdentifierSyntax
 //@[04:0007) | | └─Token(Identifier) |w79|
 //@[08:0009) | ├─Token(Assignment) |=|
-//@[10:0086) | └─ArraySyntax
+//@[10:0085) | └─ArraySyntax
 //@[10:0011) |   ├─Token(LeftSquare) |[|
 //@[11:0015) |   ├─ArrayItemSyntax
 //@[11:0015) |   | └─BooleanLiteralSyntax
 //@[11:0015) |   |   └─Token(TrueKeyword) |true|
 //@[15:0016) |   ├─Token(NewLine) |\n|
-    { /* xxxxx */ foo: 'object width: 38' }
-//@[04:0043) |   ├─ArrayItemSyntax
-//@[04:0043) |   | └─ObjectSyntax
+    { /* xxxx */ foo: 'object width: 38' }
+//@[04:0042) |   ├─ArrayItemSyntax
+//@[04:0042) |   | └─ObjectSyntax
 //@[04:0005) |   |   ├─Token(LeftBrace) |{|
-//@[18:0041) |   |   ├─ObjectPropertySyntax
-//@[18:0021) |   |   | ├─IdentifierSyntax
-//@[18:0021) |   |   | | └─Token(Identifier) |foo|
-//@[21:0022) |   |   | ├─Token(Colon) |:|
-//@[23:0041) |   |   | └─StringSyntax
-//@[23:0041) |   |   |   └─Token(StringComplete) |'object width: 38'|
-//@[42:0043) |   |   └─Token(RightBrace) |}|
-//@[43:0044) |   ├─Token(NewLine) |\n|
+//@[17:0040) |   |   ├─ObjectPropertySyntax
+//@[17:0020) |   |   | ├─IdentifierSyntax
+//@[17:0020) |   |   | | └─Token(Identifier) |foo|
+//@[20:0021) |   |   | ├─Token(Colon) |:|
+//@[22:0040) |   |   | └─StringSyntax
+//@[22:0040) |   |   |   └─Token(StringComplete) |'object width: 38'|
+//@[41:0042) |   |   └─Token(RightBrace) |}|
+//@[42:0043) |   ├─Token(NewLine) |\n|
     'xxxxxxxxxxxxxxxxxx' ]
 //@[04:0024) |   ├─ArrayItemSyntax
 //@[04:0024) |   | └─StringSyntax

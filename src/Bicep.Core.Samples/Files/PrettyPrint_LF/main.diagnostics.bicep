@@ -54,7 +54,7 @@ var w78 = [
     true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 var w79 = [true
 //@[04:07) [no-unused-vars (Warning)] Variable "w79" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w79|
-    { /* xxxxx */ foo: 'object width: 38' }
+    { /* xxxx */ foo: 'object width: 38' }
     'xxxxxxxxxxxxxxxxxx' ]
 var w80 = [true, { foo: 'object width: 39 xxxxxxxxxxx' }
 //@[04:07) [no-unused-vars (Warning)] Variable "w80" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w80|
