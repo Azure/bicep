@@ -48,6 +48,19 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--diagnosticsformat":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --diagnosticsformat parameter expects an argument");
+                        }
+                        if (DiagnosticsFormat is not null)
+                        {
+                            throw new CommandLineException($"The --diagnosticsformat parameter cannot be specified twice");
+                        }
+                        DiagnosticsFormat = args[i + 1];
+                        i++;
+                        break;
+
                     default:
                         if (args[i].StartsWith("--"))
                         {
@@ -100,6 +113,8 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+
+        public string? DiagnosticsFormat { get; }
 
         public bool NoRestore { get; }
     }
