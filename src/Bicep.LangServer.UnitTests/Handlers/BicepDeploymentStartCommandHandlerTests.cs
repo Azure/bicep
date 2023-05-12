@@ -69,9 +69,9 @@ param bar = 1
             var dir = Path.GetDirectoryName(bicepFilePath);
             string bicepparamFilePath = FileHelper.SaveResultFile(TestContext, "param.bicepparam", bicepparamFileContents, testOutputPath: dir);
 
-            DocumentUri bicepparamUri = DocumentUri.FromFileSystemPath(bicepparamFilePath);
+            var bicepparamUri = DocumentUri.FromFileSystemPath(bicepparamFilePath);
 
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepparamUri, bicepFileContents, upsertCompilation: false);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepparamUri, bicepFileContents, upsertCompilation: false);
 
             var bicepDeploymentStartCommandHandler = CreateHandler(bicepCompilationManager);
 
