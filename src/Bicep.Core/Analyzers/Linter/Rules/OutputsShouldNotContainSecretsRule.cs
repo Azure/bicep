@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
@@ -79,7 +78,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly OutputsShouldNotContainSecretsRule parent;
             private readonly SemanticModel model;
             private readonly DiagnosticLevel diagnosticLevel;
-            private readonly Stack<AccessExpressionSyntax> accessExpressionStack = new();
+            private uint trailingAccessExpressions = 0;
 
             public OutputValueVisitor(OutputsShouldNotContainSecretsRule parent, List<IDiagnostic> diagnostics, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
@@ -114,9 +113,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.PropertyName.Span, foundMessage));
                 }
 
-                accessExpressionStack.Push(syntax);
+                trailingAccessExpressions++;
                 base.VisitPropertyAccessSyntax(syntax);
-                accessExpressionStack.Pop();
+                trailingAccessExpressions--;
             }
 
             public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
@@ -127,15 +126,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.IndexExpression.Span, foundMessage));
                 }
 
-                accessExpressionStack.Push(syntax);
+                trailingAccessExpressions++;
                 base.VisitArrayAccessSyntax(syntax);
-                accessExpressionStack.Pop();
+                trailingAccessExpressions--;
             }
 
-            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type)
-                => FindPathsToSecureComponents(type, "", ImmutableHashSet<TypeSymbol>.Empty);
+            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type) => FindPathsToSecureComponents(type, "", new());
 
-            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type, string path, ImmutableHashSet<TypeSymbol> visited)
+            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type, string path, HashSet<TypeSymbol> visited)
             {
                 // types can be recursive. cut out early if we've already seen this type
                 if (visited.Contains(type))
@@ -143,16 +141,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     yield break;
                 }
 
+                visited.Add(type);
+
                 if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                 {
                     yield return path;
-                    // if we encounter a type that has been explicitly flagged as secure, stop visiting its components
-                    yield break;
                 }
 
                 if (type is UnionType union)
                 {
-                    foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureComponents(m.Type, path, visited.Add(type))))
+                    foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureComponents(m.Type, path, visited)))
                     {
                         yield return variantPath;
                     }
@@ -161,38 +159,40 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
                 // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
                 // if they haven't, then the value dereferenced isn't sensitive
-                if (accessExpressionStack.Count == 0)
+                if (trailingAccessExpressions == 0)
                 {
                     switch (type)
                     {
                         case ObjectType obj:
                             if (obj.AdditionalPropertiesType?.Type is TypeSymbol addlPropsType)
                             {
-                                foreach (var dictMemberPath in FindPathsToSecureComponents(addlPropsType, $"{path}.*", visited.Add(type)))
+                                foreach (var dictMemberPath in FindPathsToSecureComponents(addlPropsType, $"{path}.*", visited))
                                 {
                                     yield return dictMemberPath;
                                 }
                             }
 
-                            foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited.Add(type))))
+                            foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited)))
                             {
                                 yield return propertyPath;
                             }
                             break;
                         case TupleType tuple:
-                            foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureComponents(typeAtIndex.Type, $"{path}[{index}]", visited.Add(type))))
+                            foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureComponents(typeAtIndex.Type, $"{path}[{index}]", visited)))
                             {
                                 yield return pathFromIndex;
                             }
                             break;
                         case ArrayType array:
-                            foreach (var pathFromElement in FindPathsToSecureComponents(array.Item.Type, $"{path}[*]", visited.Add(type)))
+                            foreach (var pathFromElement in FindPathsToSecureComponents(array.Item.Type, $"{path}[*]", visited))
                             {
                                 yield return pathFromElement;
                             }
                             break;
                     }
                 }
+
+                visited.Remove(type);
             }
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)

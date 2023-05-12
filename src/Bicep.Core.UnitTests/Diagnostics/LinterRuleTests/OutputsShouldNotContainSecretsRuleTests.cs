@@ -147,6 +147,45 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: secure value 'arr[1]'"
         )]
+        [DataRow(@"
+            param p {
+              prop: {
+                @secure()
+                nestedSecret: string
+                nestedInnocuousProperty: string
+              }
+            }
+
+            output badResult object = p
+        ",
+            $"{description} Found possible secret: secure value 'p.prop.nestedSecret'"
+        )]
+        [DataRow(@"
+            param p {
+              prop: {
+                @secure()
+                nestedSecret: string
+                nestedInnocuousProperty: string
+              }
+            }
+
+            output badResult object = p.prop
+        ",
+            $"{description} Found possible secret: secure value 'p.prop.nestedSecret'"
+        )]
+        [DataRow(@"
+            param p {
+              prop: {
+                @secure()
+                nestedSecret: string
+                nestedInnocuousProperty: string
+              }
+            }
+
+            output badResult string = p.prop.nestedSecret
+        ",
+            $"{description} Found possible secret: secure value 'p.prop.nestedSecret'"
+        )]
         [DataTestMethod]
         public void If_OutputReferencesParamWithSecureProperty_ShouldFail(string text, params string[] expectedMessages)
         {
@@ -185,6 +224,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             output badResult string = 'this is the value ${arr[0]}'
         ")]
+        [DataRow(@"
+            param p {
+              prop: {
+                @secure()
+                nestedSecret: string
+                nestedInnocuousProperty: string
+              }
+            }
+
+            output badResult string = p.prop.nestedInnocuousProperty
+        "
+        )]
         [DataTestMethod]
         public void If_OutputReferencesNonSecureParamProperty_ShouldPass(string text, params string[] expectedMessages)
         {
