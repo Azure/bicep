@@ -1106,7 +1106,6 @@ resource base64 'Microsoft.Foo/foos@2020-09-01' existing | {}
         [TestMethod]
         public async Task OutputTypeFollowerWithoCompletionsOffersEquals()
         {
-
             var fileWithCursors = @"
 output test string |
 ";
@@ -1131,6 +1130,79 @@ output test string |
                             d => AssertEqualsOperatorCompletion(d)
                         )),
                 '|');
+        }
+
+        [TestMethod]
+        public async Task TypeDrivenCompletionsAreOfferedInParameterAndOutputValues()
+        {
+            var fileWithCursors = @"
+type bigObject = {
+  foo: {
+    bar: {
+      baz: bool
+    }
+  }
+  fizz: {
+    buzz: {
+      pop: 'snap' | 'crackle'
+    }
+  }
+}
+
+param p bigObject = {
+  ǂ
+}
+
+param p2 bigObject = {
+  foo: {
+    ǂ
+  }
+}
+
+param p3 bigObject = {
+  foo: {
+    bar: {
+      ǂ
+    }
+  }
+}
+
+param p4 bigObject = {
+  foo: {
+    bar: {
+      baz: ǂ
+    }
+  }
+}
+
+output o bigObject = {
+  fizz: {
+    buzz: {
+      pop: ǂ
+    }
+  }
+}
+";
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithTypesEnabled,
+                fileWithCursors,
+                completions =>
+                    completions.Should().SatisfyRespectively(
+                        x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                            d => d.Label.Should().Be("fizz"),
+                            d => d.Label.Should().Be("foo")
+                        ),
+                        x => x!.Should().SatisfyRespectively(
+                            d => d.Label.Should().Be("bar")
+                        ),
+                        x => x!.Should().SatisfyRespectively(
+                            d => d.Label.Should().Be("baz")
+                        ),
+                        x => x!.Should().Contain(d => d.Label == "false"),
+                        x => x!.Should().Contain(d => d.Label == "'crackle'")),
+                'ǂ');
         }
 
         [TestMethod]
