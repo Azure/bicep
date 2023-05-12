@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Syntax;
@@ -7,13 +8,17 @@ using System.IO;
 using Bicep.Core.Registry.Oci;
 using Newtonsoft.Json;
 using Bicep.Core.Features;
-using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeLoaderFactory : IAzResourceTypeLoaderFactory
     {
         private readonly IFeatureProviderFactory featureProviderFactory;
+
+        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders = new(){
+            {"builtin", new AzResourceTypeLoader(new AzTypeLoader())},
+        };
+
         public AzResourceTypeLoaderFactory(IFeatureProviderFactory featureProviderFactory)
         {
             this.featureProviderFactory = featureProviderFactory;
@@ -23,7 +28,7 @@ namespace Bicep.Core.TypeSystem.Az
         {
             if (!features.DynamicTypeLoadingEnabled || ids is null)
             {
-                return new AzResourceTypeLoader(new AzTypeLoader());
+                return resourceTypeLoaders["builtin"];
             }
 
             var azProviderDir = Path.Combine(features.CacheRootDirectory, "br", "mcr.microsoft.com", @"bicep$providers$az", ids.Specification.Version);
@@ -32,19 +37,31 @@ namespace Bicep.Core.TypeSystem.Az
             {
                 return null;
             }
+
+            // Read the OCI manifest
             var manifestFileContents = File.ReadAllText(ociManifestPath);
             OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
+
             if (ociManifest is null)
             {
                 return null;
             }
+
+            // Get the filename of the OCI type definitions artifact
             var typesDefinitionFilename = ociManifest.Layers.SingleOrDefault()?.Annotations["org.opencontainers.image.title"];
+
             if (typesDefinitionFilename is null)
             {
                 return null;
             }
+
+            // Read the OCI type definitions
             var typesDefinitionPath = Path.Combine(azProviderDir, typesDefinitionFilename);
-            return new AzResourceTypeLoader(new AzTypeLoaderOci(typesDefinitionPath));
+            if (!resourceTypeLoaders.ContainsKey(typesDefinitionPath))
+            {
+                resourceTypeLoaders[typesDefinitionPath] = new AzResourceTypeLoader(new AzTypeLoaderOci(typesDefinitionPath));
+            }
+            return resourceTypeLoaders[typesDefinitionPath];
         }
     }
 }

@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 using FluentAssertions;
@@ -80,10 +82,10 @@ namespace Bicep.Core.UnitTests.ApiVersions
             tenantTypes.Should().Contain("fake.tenant/whatever");
         }
 
-        private ApiVersionProvider CreateDefaultApiVersionProvider()
+        private ApiVersionProvider CreateDefaultApiVersionProvider(IEnumerable<ResourceTypeReference> resourceTypeReferences = null!)
         {
             var featuresProvider = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
-            return new ApiVersionProvider(featuresProvider, BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, featuresProvider));
+            return new ApiVersionProvider(featuresProvider, resourceTypeReferences);
         }
     }
 }

@@ -88,7 +88,15 @@ namespace Bicep.LanguageServer.Handlers
                 var azProviderDeclaration = model.SourceFile.ProgramSyntax.Children
                     .OfType<ImportDeclarationSyntax>()
                     .FirstOrDefault(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
-                var matchedType = azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration, model.Features).GetAvailableTypes()
+                var resourceTypeLoader = azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration, model.Features);
+                if (resourceTypeLoader is null)
+                {
+                    throw helper.CreateException(
+                        $"Failed to find a Bicep type definitions for provider \"{azProviderDeclaration}\".",
+                        BicepTelemetryEvent.InsertResourceFailure($"UnknownProvider({azProviderDeclaration})"),
+                        Unit.Value);
+                }
+                var matchedType = resourceTypeLoader.GetAvailableTypes()
                     .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
                     .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
                     .FirstOrDefault();

@@ -44,28 +44,22 @@ namespace Bicep.Core.Semantics
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind})");
 
-            Compilation = compilation;
-            SourceFile = sourceFile;
-            Configuration = configuration;
-            Features = features;
-            FileResolver = fileResolver;
+            this.Compilation = compilation;
+            this.SourceFile = sourceFile;
+            this.Configuration = configuration;
+            this.Features = features;
+            this.FileResolver = fileResolver;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(compilation, this);
-            SymbolContext = symbolContext;
-            
-            Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, symbolContext);
-            var fileScope = DeclarationVisitor.GetDeclarations(compilation.NamespaceProvider, features, TargetScope, sourceFile, symbolContext);
-            var namespaceResolver = NamespaceResolver.Create(features, compilation.NamespaceProvider, sourceFile, TargetScope, fileScope);
-            ApiVersionProvider = new ApiVersionProvider(features, namespaceResolver);
+            this.SymbolContext = new SymbolContext(compilation, this);
+            this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
+            this.ApiVersionProvider = new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes());
+            this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
-            TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
-
-            // name binding is done
-            // allow type queries now
-            symbolContext.Unlock();
+            // name binding is done allow type queries now
+            ((SymbolContext)SymbolContext).Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
             this.symbolHierarchyLazy = new Lazy<SymbolHierarchy>(() =>

@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
 using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions
@@ -20,12 +18,11 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         // One cache per target scope type
         private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
         private readonly IFeatureProvider features;
-        private readonly NamespaceResolver namespaceResolver;
-
-        public ApiVersionProvider(IFeatureProvider features, NamespaceResolver nr)
+        private readonly IEnumerable<ResourceTypeReference> resourceTypeReferences;
+        public ApiVersionProvider(IFeatureProvider features, IEnumerable<ResourceTypeReference> resourceTypeReferences)
         {
             this.features = features;
-            this.namespaceResolver = nr;
+            this.resourceTypeReferences = resourceTypeReferences;
         }
 
         // for unit testing
@@ -70,17 +67,12 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             }
             cache.typesCached = true;
 
-            IEnumerable<ResourceTypeReference> resourceTypeReferences;
-            if (cache.injectedTypes is null)
+            IEnumerable<ResourceTypeReference> overriddenResourceTypeReferences = this.resourceTypeReferences;
+            if (cache.injectedTypes is not null)
             {
-                resourceTypeReferences = namespaceResolver.GetAvailableResourceTypes();
+                overriddenResourceTypeReferences = cache.injectedTypes;
             }
-            else
-            {
-                resourceTypeReferences = cache.injectedTypes;
-            }
-
-            cache.CacheApiVersions(resourceTypeReferences);
+            cache.CacheApiVersions(overriddenResourceTypeReferences);
             return cache;
         }
 

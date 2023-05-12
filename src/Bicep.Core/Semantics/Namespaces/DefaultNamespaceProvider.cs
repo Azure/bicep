@@ -43,6 +43,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
     }
 
     public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, ImportDeclarationSyntax? ids = null)
+    //TODO(asilverman): This is the location where we would like to add support for extensibility providers, we want to add a new key and a new loader for the ext. provider
         => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, ids);
 
     public IEnumerable<string> AvailableNamespaces

@@ -271,7 +271,13 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool triggeredByFileOpenEvent = false)
+        // TODO(asilverman): This signture is a bit awkward. We should consider refactoring to make it more clear what the inputs and outputs are.
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(
+            DocumentUri documentUri, 
+            int? version, 
+            IDictionary<ISourceFile, ISemanticModel> modelLookup, 
+            IEnumerable<ISourceFile> removedFiles, 
+            bool triggeredByFileOpenEvent = false)
         {
             static IEnumerable<Diagnostic> CreateFatalDiagnostics(Exception exception) => new Diagnostic
             {
