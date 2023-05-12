@@ -4676,4 +4676,18 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
 
         result.Should().GenerateATemplate();
     }
+
+    // https://github.com/Azure/bicep/issues/10658
+    [TestMethod]
+    public void Test_Issue10658()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+param someObject object
+
+output errorOutput string = take(someObject.someProperty, 5)
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
