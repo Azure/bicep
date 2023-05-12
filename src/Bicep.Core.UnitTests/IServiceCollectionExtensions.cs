@@ -6,24 +6,25 @@ using System.IO.Abstractions;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
-using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests;
@@ -32,7 +33,7 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
@@ -88,10 +89,15 @@ public static class IServiceCollectionExtensions
         => Register(services, bicepAnalyzer);
 
     public static IServiceCollection WithAzResources(this IServiceCollection services, IEnumerable<ResourceTypeComponents> resourceTypes)
-        => services.WithAzResourceTypeLoader(TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes));
+        => services.WithAzResourceTypeLoaderFactory(
+            TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes));
 
-    public static IServiceCollection WithAzResourceTypeLoader(this IServiceCollection services, IAzResourceTypeLoader azResourceTypeLoader)
-        => Register(services, azResourceTypeLoader);
+    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IAzResourceTypeLoader loader)
+    {
+        var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
+        factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<ImportDeclarationSyntax>(), It.IsAny<IFeatureProvider>())).Returns(loader);
+        return Register(services, factory.Object);
+    }
 
     public static IServiceCollection WithAzResourceProvider(this IServiceCollection services, IAzResourceProvider azResourceProvider)
         => Register(services, azResourceProvider);

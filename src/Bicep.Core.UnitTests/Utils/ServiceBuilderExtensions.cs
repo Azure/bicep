@@ -42,7 +42,7 @@ public static class ServiceBuilderExtensions
         => serviceBuilder.WithRegistration(x => x.WithAzResources(resourceTypes));
 
     public static ServiceBuilder WithAzResourceTypeLoader(this ServiceBuilder serviceBuilder, IAzResourceTypeLoader azResourceTypeLoader)
-        => serviceBuilder.WithRegistration(x => x.WithAzResourceTypeLoader(azResourceTypeLoader));
+        => serviceBuilder.WithRegistration(x => x.WithAzResourceTypeLoaderFactory(azResourceTypeLoader));
 
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithEmptyAzResources());

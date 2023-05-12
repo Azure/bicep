@@ -73,7 +73,7 @@ namespace Bicep.LangServer.IntegrationTests
                         return new();
                     })
                     .OnTelemetryEvent(listeners.Telemetry.AddMessage),
-                services => services.WithAzResourceTypeLoader(azResourceTypeLoader).WithAzResourceProvider(azResourceProvider));
+                services => services.WithAzResourceTypeLoaderFactory(azResourceTypeLoader).WithAzResourceProvider(azResourceProvider));
         }
 
         private static async Task<string> ApplyWorkspaceEdit(Listeners listeners, Uri fileUri, string fileContents)
