@@ -1376,12 +1376,28 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
                 case FunctionArgumentSyntax:
+                case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;
                     }
 
                     return TryCreateAssignment(ResolveDiscriminatedObjects(parentAssignment.Reference.Type, syntax), syntax, parentAssignment.Flags);
+                case ParameterDefaultValueSyntax:
+                    // if we're in a parameter default value, get the declared type of the parameter itself
+                    parent = this.binder.GetParent(parent);
+
+                    if (parent is null)
+                    {
+                        throw new InvalidOperationException("Expected ParameterDefaultValueSyntax to have a parent.");
+                    }
+
+                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignment)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignment.Reference.Type, syntax), syntax, parameterAssignment.Flags);
             }
 
             return null;
