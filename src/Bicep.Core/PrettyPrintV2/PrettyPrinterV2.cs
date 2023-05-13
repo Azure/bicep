@@ -39,7 +39,23 @@ namespace Bicep.Core.PrettyPrintV2
             var documents = layouts.Layout(context.SyntaxToPrint);
             var printer = new PrettyPrinterV2(writer, context);
 
-            printer.Print(0, documents);
+            foreach (var document in documents)
+            {
+                switch (document)
+                {
+                    case IndentDocument indentDocument:
+                        printer.Print(1, indentDocument.Documents);
+                        break;
+
+                    case GlueDocument glueDocument:
+                        printer.Print(0, glueDocument.Documents);
+                        break;
+
+                    default:
+                        printer.Print(0, document);
+                        break;
+                }
+            }
 
             if (context.Options.InsertFinalNewline)
             {
@@ -47,24 +63,9 @@ namespace Bicep.Core.PrettyPrintV2
             }
         }
 
-        public static void PrintTo(TextWriter writer, SyntaxBase syntax, PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        private static IEnumerable<(int indentLevel, Document document)> Normalize(int indentLevel, ImmutableArray<Document> documents)
         {
-            var context = PrettyPrinterV2Context.Create(syntax, options, lexingErrorLookup, parsingErrorLookup);
-            var layouts = new SyntaxLayouts(context);
-            var documents = layouts.Layout(syntax);
-            var printer = new PrettyPrinterV2(writer, context);
-
-            printer.Print(0, documents);
-
-            if (options.InsertFinalNewline)
-            {
-                writer.Write(context.Newline);
-            }
-        }
-
-        private static IEnumerable<(int indentLevel, Document document)> Normalize(int indentLevel, IEnumerable<Document> documents)
-        {
-            var enumeratorStack = new Stack<IEnumerator<Document>>();
+            var enumeratorStack = new Stack<ImmutableArray<Document>.Enumerator>();
             var enumerator = documents.GetEnumerator();
 
             while (true)
@@ -77,13 +78,13 @@ namespace Bicep.Core.PrettyPrintV2
                     {
                         case IndentDocument indentDocument:
                             enumeratorStack.Push(enumerator);
-                            enumerator = indentDocument.Documents.AsEnumerable().GetEnumerator();
+                            enumerator = indentDocument.Documents.GetEnumerator();
                             indentLevel++;
                             break;
 
-                        case GlueDocument concatDocument:
+                        case GlueDocument glueDocument:
                             enumeratorStack.Push(enumerator);
-                            enumerator = concatDocument.Documents.AsEnumerable().GetEnumerator();
+                            enumerator = glueDocument.Documents.GetEnumerator();
                             break;
 
                         default:
@@ -97,7 +98,6 @@ namespace Bicep.Core.PrettyPrintV2
                     break;
                 }
 
-                enumerator.Dispose();
                 enumerator = enumeratorStack.Pop();
 
                 if (enumerator.Current is IndentDocument)
@@ -107,7 +107,7 @@ namespace Bicep.Core.PrettyPrintV2
             }
         }
 
-        private void Print(int indentLevel, IEnumerable<Document> documents)
+        private void Print(int indentLevel, ImmutableArray<Document> documents)
         {
             foreach (var (normalizedIndentLevel, document) in Normalize(indentLevel, documents))
             {
@@ -148,7 +148,7 @@ namespace Bicep.Core.PrettyPrintV2
                         return;
                     }
 
-                    var flattened = new List<Document>();
+                    var flattened = ImmutableArray.CreateBuilder<Document>();
 
                     foreach (var child in group.Flatten())
                     {
@@ -165,7 +165,7 @@ namespace Bicep.Core.PrettyPrintV2
                         flattened.Add(child);
                     }
 
-                    Print(indentLevel, flattened);
+                    Print(indentLevel, flattened.ToImmutable());
 
                     return;
 
