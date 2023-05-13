@@ -88,6 +88,7 @@ namespace Bicep.Core.Syntax
         public static Token FalseKeywordToken => CreateToken(TokenType.FalseKeyword);
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword);
         public static Token ArrowToken => CreateToken(TokenType.Arrow);
+        public static Token EndOfFileToken => CreateToken(TokenType.EndOfFile);
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
         {

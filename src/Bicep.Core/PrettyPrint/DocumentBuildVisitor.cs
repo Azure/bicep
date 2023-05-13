@@ -447,13 +447,19 @@ namespace Bicep.Core.PrettyPrint
                     pushDocument(Line);
                 }
             }
+            else if (token.Type == TokenType.EndOfFile)
+            {
+                if (this.LeadingDirectiveOrComments is not null)
+                {
+                    pushDocument(SingleLine);
+                    pushDocument(this.LeadingDirectiveOrComments);
+                }
+            }
             else
             {
                 if (this.LeadingDirectiveOrComments is not null)
                 {
-                    var separator = token.IsOf(TokenType.EndOfFile) ? Nil : Space;
-
-                    pushDocument(Concat(this.LeadingDirectiveOrComments, separator, Text(token.Text)));
+                    pushDocument(Concat(this.LeadingDirectiveOrComments, Space, Text(token.Text)));
                 }
                 else
                 {

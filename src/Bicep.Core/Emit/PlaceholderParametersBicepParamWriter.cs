@@ -46,7 +46,7 @@ namespace Bicep.Core.Emit
                 SyntaxFactory.NewlineToken
             }.Concat(result);
 
-            var program = new ProgramSyntax(processedSyntaxList, SyntaxFactory.CreateFreeformToken(TokenType.EndOfFile, ""), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var program = new ProgramSyntax(processedSyntaxList, SyntaxFactory.EndOfFileToken);
 
             var output = PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 

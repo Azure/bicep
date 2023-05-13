@@ -211,7 +211,7 @@ var foo = {
   key: value
 } blah   blah // skipped trivia
 
-/* comment */      var foo = [
+/* comment */ var foo = [
   1
   2
   3
