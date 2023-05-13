@@ -1135,54 +1135,54 @@ output test string |
         [TestMethod]
         public async Task TypeDrivenCompletionsAreOfferedInParameterAndOutputValues()
         {
-            var fileWithCursors = @"
-type bigObject = {
-  foo: {
-    bar: {
-      baz: bool
-    }
-  }
-  fizz: {
-    buzz: {
-      pop: 'snap' | 'crackle'
-    }
-  }
-}
+            var fileWithCursors = """
+                type bigObject = {
+                  foo: {
+                    bar: {
+                      baz: bool
+                    }
+                  }
+                  fizz: {
+                    buzz: {
+                      pop: 'snap' | 'crackle'
+                    }
+                  }
+                }
 
-param p bigObject = {
-  ǂ
-}
+                param p bigObject = {
+                  ǂ
+                }
 
-param p2 bigObject = {
-  foo: {
-    ǂ
-  }
-}
+                param p2 bigObject = {
+                  foo: {
+                    ǂ
+                  }
+                }
 
-param p3 bigObject = {
-  foo: {
-    bar: {
-      ǂ
-    }
-  }
-}
+                param p3 bigObject = {
+                  foo: {
+                    bar: {
+                      ǂ
+                    }
+                  }
+                }
 
-param p4 bigObject = {
-  foo: {
-    bar: {
-      baz: ǂ
-    }
-  }
-}
+                param p4 bigObject = {
+                  foo: {
+                    bar: {
+                      baz: ǂ
+                    }
+                  }
+                }
 
-output o bigObject = {
-  fizz: {
-    buzz: {
-      pop: ǂ
-    }
-  }
-}
-";
+                output o bigObject = {
+                  fizz: {
+                    buzz: {
+                      pop: ǂ
+                    }
+                  }
+                }
+                """;
 
             await RunCompletionScenarioTest(
                 this.TestContext,
