@@ -1088,10 +1088,8 @@ namespace Bicep.Core.TypeSystem
 
                 // operands don't appear to have errors
                 // let's fold the expression so that an operation with two literal typed operands will have a literal return type
-                if (OperationReturnTypeEvaluator.FoldBinaryExpression(syntax, operandType1, operandType2, out var foldDiags) is {} result)
+                if (OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, operandType1, operandType2, diagnostics) is {} result)
                 {
-                    diagnostics.WriteMultiple(foldDiags);
-
                     return result;
                 }
 
@@ -1123,10 +1121,8 @@ namespace Bicep.Core.TypeSystem
 
                 // operand doesn't appear to have errors
                 // let's fold the expression so that an operation with a literal typed operand will have a literal return type
-                if (OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, operandType, out var foldDiags) is {} result)
+                if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, operandType, diagnostics) is {} result)
                 {
-                    diagnostics.WriteMultiple(foldDiags);
-
                     return result;
                 }
 
