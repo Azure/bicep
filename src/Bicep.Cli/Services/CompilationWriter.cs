@@ -26,13 +26,13 @@ namespace Bicep.Cli.Services
         {
             return ToFile(compilation.GetEntrypointSemanticModel(), outputPath);
         }
-        
+
         public EmitResult ToFile(SemanticModel model, string outputPath)
         {
             var fileStream = CreateFileStream(outputPath);
             using (fileStream)
             {
-                return ToStream(model, fileStream);           
+                return ToStream(model, fileStream);
             }
         }
 
@@ -54,12 +54,12 @@ namespace Bicep.Cli.Services
 
                 default:
                     throw new NotImplementedException($"Unexpected file kind '{fileKind}'");
-            }            
+            }
         }
 
 
         public EmitResult ToStdout(SemanticModel bicepModel, SemanticModel paramsModel)
-        {       
+        {
                 //emit template
                 var templateOutputBuffer = new StringBuilder();
                 using var templateOutputWriter = new StringWriter(templateOutputBuffer);
@@ -81,7 +81,7 @@ namespace Bicep.Cli.Services
                 var paramsOutput = paramsOutputBuffer.ToString();
 
 
-                //emit combined output 
+                //emit combined output
                 using var wrapperWriter = new JsonTextWriter(io.Output)
                 {
                     Formatting = Formatting.Indented
@@ -103,7 +103,7 @@ namespace Bicep.Cli.Services
                 }
 
                 return new EmitResult(EmitStatus.Succeeded, combinedDiagnostics, templateResult.SourceMap);
-        } 
+        }
 
 
         public EmitResult ToStdout(Compilation compilation)
@@ -111,7 +111,7 @@ namespace Bicep.Cli.Services
             var fileKind = compilation.SourceFileGrouping.EntryPoint.FileKind;
             var semanticModel = compilation.GetEntrypointSemanticModel();
             return ToStdout(semanticModel, fileKind);
-        }  
+        }
 
         public EmitResult ToStdout(SemanticModel semanticModel, BicepSourceFileKind fileKind)
         {
@@ -125,7 +125,7 @@ namespace Bicep.Cli.Services
 
                 default:
                     throw new NotImplementedException($"Unexpected file kind '{fileKind}'");
-            }            
+            }
         }
 
         private static FileStream CreateFileStream(string path)

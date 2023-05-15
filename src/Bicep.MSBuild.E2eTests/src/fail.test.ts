@@ -7,7 +7,7 @@ import { Example } from "./example";
 describe("msbuild", () => {
   it("build failures should produce expected diagnostics", () => {
     const example = new Example("fail");
-    example.clean();
+    example.cleanProjectDir();
 
     const result = example.build(false);
 

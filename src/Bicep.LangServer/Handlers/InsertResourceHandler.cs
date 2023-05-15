@@ -205,7 +205,7 @@ namespace Bicep.LanguageServer.Handlers
             var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
             var program = new ProgramSyntax(
                 new[] { resourceDeclaration },
-                SyntaxFactory.CreateToken(TokenType.EndOfFile));
+                SyntaxFactory.EndOfFileToken);
 
             var printed = PrettyPrinter.PrintValidProgram(program, printOptions);
             var bicepFile = RewriterHelper.RewriteMultiple(

@@ -5,7 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit.Options;
+using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -29,11 +33,13 @@ public class TemplateEmitter
     /// </summary>
     /// <param name="stream">The stream to write the template</param>
     /// <param name="existingContent">Existing content of the parameters file</param>
-    public EmitResult EmitEmptyParametersFile(Stream stream, string existingContent)
+    /// <param name="outputFormat">Output file format (json or bicepparam)</param>
+    /// <param name="includeParams">Include parameters (requiredonly or all)</param>
+    public EmitResult EmitTemplateGeneratedParameterFile(Stream stream, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
     {
         using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 
-        return EmitEmptyParametersFile(sw, existingContent);
+        return EmitTemplateGeneratedParameterFile(sw, existingContent, outputFormat, includeParams);
     }
 
     /// <summary>
@@ -41,18 +47,36 @@ public class TemplateEmitter
     /// </summary>
     /// <param name="textWriter">The text writer to write the template</param>
     /// <param name="existingContent">Existing content of the parameters file</param>
-    public EmitResult EmitEmptyParametersFile(TextWriter textWriter, string existingContent) => this.EmitOrFail(() =>
+    /// <param name="outputFormat">Output file format (json or bicepparam)</param>
+    /// <param name="includeParams">Include parameters (requiredonly or all)</param>
+    public EmitResult EmitTemplateGeneratedParameterFile(TextWriter textWriter, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams) => this.EmitOrFail(() =>
     {
-        using var writer = new JsonTextWriter(textWriter)
+        switch (outputFormat)
         {
-            // don't close the textWriter when writer is disposed
-            CloseOutput = false,
-            Formatting = Formatting.Indented
-        };
+            case OutputFormatOption.BicepParam:
+            {
+                var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(this.model, includeParams);
+                bicepParamEmitter.Write(textWriter, existingContent);
 
-        var emitter = new PlaceholderParametersJsonWriter(this.model);
-        emitter.Write(writer, existingContent);
-        writer.Flush();
+                break;
+            }
+            case OutputFormatOption.Json:
+            default:
+            {
+                using var writer = new JsonTextWriter(textWriter)
+                {
+                    // don't close the textWriter when writer is disposed
+                    CloseOutput = false,
+                    Formatting = Formatting.Indented
+                };
+
+                var jsonEmitter = new PlaceholderParametersJsonWriter(this.model, includeParams);
+                jsonEmitter.Write(writer, existingContent);
+                writer.Flush();
+
+                break;
+            }
+        }
 
         return null;
     });

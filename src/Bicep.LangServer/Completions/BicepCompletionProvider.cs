@@ -984,8 +984,8 @@ namespace Bicep.LanguageServer.Completions
                 // reverse loop iteration
                 foreach (var scope in context.ActiveScopes.Reverse())
                 {
-                    // add the non-output declarations with valid identifiers at current scope
-                    AddSymbolCompletions(completions, scope.Declarations.Where(decl => decl.NameSource.IsValid && decl is not OutputSymbol));
+                    // add referencable declarations with valid identifiers at current scope
+                    AddSymbolCompletions(completions, scope.Declarations.Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()));
 
                     if (scope.ScopeResolution == ScopeResolution.GlobalsOnly)
                     {
@@ -1000,8 +1000,8 @@ namespace Bicep.LanguageServer.Completions
                 AddSymbolCompletions(completions, nsTypeDict.Keys.Where(
                     ns => GetAccessibleDecoratorFunctionsWithCache(nsTypeDict[ns]).Any()));
 
-                // Record the names of the non-output declarations which will be used to check name clashes later.
-                declaredNames.UnionWith(model.Root.Declarations.Where(decl => decl.NameSource.IsValid && decl is not OutputSymbol).Select(decl => decl.Name));
+                // Record the names of referencable declarations which will be used to check name clashes later.
+                declaredNames.UnionWith(model.Root.Declarations.Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()).Select(decl => decl.Name));
             }
 
             // get names of functions that always require to be fully qualified due to clashes between namespaces

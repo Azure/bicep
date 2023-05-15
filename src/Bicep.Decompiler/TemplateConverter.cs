@@ -1798,7 +1798,7 @@ namespace Bicep.Decompiler
 
             return new ProgramSyntax(
                 statements.SelectMany(x => new[] { x, SyntaxFactory.NewlineToken }),
-                SyntaxFactory.CreateToken(TokenType.EndOfFile));
+                SyntaxFactory.EndOfFileToken);
         }
 
         private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables)

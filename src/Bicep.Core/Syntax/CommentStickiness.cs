@@ -17,6 +17,6 @@ namespace Bicep.Core.Syntax
 
         Trailing,
 
-        Bidirectional
+        Bidirectional,
     }
 }
