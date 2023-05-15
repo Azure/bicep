@@ -4,12 +4,16 @@
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Navigation;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System.Linq;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
@@ -35,9 +39,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             private static void TestGetFunctionCallInfo(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 ExpectedFunctionInfo typedExpected = new(expectedFunctionCall, expectedResourceType, expectedApiVerion);
+                var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes);
+                var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
+                typesLoader.Setup(m => m.LoadType(It.IsAny<ResourceTypeReference>()))
+                    .Returns<ResourceTypeReference>((tr) => new ResourceTypeComponents(
+                        tr,
+                        ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                        ResourceScope.None,
+                        ResourceFlags.None,
+                        new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any)));
 
+                typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
                 var result = CompilationHelper.Compile(
-                    new ServiceBuilder(),
+                    new ServiceBuilder().WithAzResourceTypeLoader(typesLoader.Object),
                     bicep);
                 using (new AssertionScope().WithFullSource(result.BicepFile))
                 {

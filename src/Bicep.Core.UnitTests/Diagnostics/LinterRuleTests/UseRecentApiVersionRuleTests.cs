@@ -14,6 +14,11 @@ using Bicep.Core.TypeSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.CodeAction;
+using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.UnitTests.Mock;
+using Moq;
+using Bicep.Core.Resources;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
 
@@ -29,13 +34,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string ExpectedSubstringInReplacedBicep
         );
 
+        private static IAzResourceTypeLoader GetAzResourceTypeLoaderWithinjectedTypes(string[] resourceTypes)
+        {
+            var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes);
+            var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
+            typesLoader.Setup(m => m.LoadType(It.IsAny<ResourceTypeReference>()))
+                .Returns<ResourceTypeReference>((tr) => new ResourceTypeComponents(
+                    tr,
+                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                    ResourceScope.None,
+                    ResourceFlags.None,
+                    new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any)));
+
+            typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
+            return typesLoader.Object;
+        }
+
         private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
         {
-            // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
-            // Note: The compiler does not know about these fake types, only the linter.
-            var apiProvider = new ApiVersionProvider(BicepTestConstants.Features, null!);
-            apiProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-
+            
             AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
                 bicep,
                 expectedMessagesForCode,
@@ -43,16 +60,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     OnCompileErrors: onCompileErrors,
                     IncludePosition.LineNumber,
                     ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
-                    ApiVersionProvider: apiProvider));
+                    // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
+                    // Note: The compiler does not know about these fake types, only the linter.
+                    AzResourceTypeLoader: GetAzResourceTypeLoaderWithinjectedTypes(resourceTypes)));
         }
+
+       
 
         private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
         {
-            // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
-            // Note: The compiler does not know about these fake types, only the linter.
-            var apiProvider = new ApiVersionProvider(BicepTestConstants.Features, null!);
-            apiProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-
             AssertLinterRuleDiagnostics(
                 UseRecentApiVersionRule.Code,
                 bicep,
@@ -86,7 +102,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     OnCompileErrors.IncludeErrors,
                     IncludePosition.LineNumber,
                     ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
-                    ApiVersionProvider: apiProvider));
+                    // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
+                    // Note: The compiler does not know about these fake types, only the linter.
+                    AzResourceTypeLoader: GetAzResourceTypeLoaderWithinjectedTypes(resourceTypes)));
         }
 
         private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)
@@ -721,7 +739,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsInvariantsTests
         {
-            private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, null!);
+            private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             private static readonly bool Exhaustive = false;
 
             public class TestData
