@@ -63,7 +63,19 @@ param foo = 'something'
 param bar = 1
             ";
 
-            var expectedParamJson = "{\r\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\",\r\n  \"contentVersion\": \"1.0.0.0\",\r\n  \"parameters\": {\r\n    \"foo\": {\r\n      \"value\": \"something\"\r\n    },\r\n    \"bar\": {\r\n      \"value\": 1\r\n    }\r\n  }\r\n}";
+            var expectedParamJson = 
+@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": ""something""
+    },
+    ""bar"": {
+      ""value"": 1
+    }
+  }
+}";
 
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
             var dir = Path.GetDirectoryName(bicepFilePath);
@@ -78,7 +90,7 @@ param bar = 1
             var result = await bicepDeploymentStartCommandHandler.TryCompileBicepparamFile(bicepparamFilePath);
 
             result.isSuccess.Should().BeTrue();
-            result.compilationResult.Should().Be(expectedParamJson);
+            result.compilationResult.Should().BeEquivalentToIgnoringNewlines(expectedParamJson);
         }
 
 
