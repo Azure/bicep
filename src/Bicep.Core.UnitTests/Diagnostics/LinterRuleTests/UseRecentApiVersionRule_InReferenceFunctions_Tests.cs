@@ -14,6 +14,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Linq;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
@@ -657,9 +658,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ";
                 CompileAndTestWithFakeDateAndTypes(bicep,
                     ResourceScope.ResourceGroup,
-                    FakeResourceTypes.ResourceScopeTypes,
+                    Array.Empty<string>(),
                     "2422-07-04",
-                    new string[] { });
+                    Array.Empty<string>());
             }
 
             [TestMethod]

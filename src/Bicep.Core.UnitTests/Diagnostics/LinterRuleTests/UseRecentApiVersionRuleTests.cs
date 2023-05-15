@@ -15,7 +15,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.CodeAction;
 using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.UnitTests.Mock;
 using Moq;
 using Bicep.Core.Resources;
@@ -34,7 +33,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string ExpectedSubstringInReplacedBicep
         );
 
-        private static IAzResourceTypeLoader GetAzResourceTypeLoaderWithinjectedTypes(string[] resourceTypes)
+        private static IAzResourceTypeLoader GetAzResourceTypeLoaderWithInjectedTypes(string[] resourceTypes)
         {
             var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes);
             var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
@@ -52,7 +51,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
         {
-            
             AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
                 bicep,
                 expectedMessagesForCode,
@@ -62,10 +60,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
-                    AzResourceTypeLoader: GetAzResourceTypeLoaderWithinjectedTypes(resourceTypes)));
+                    AzResourceTypeLoader: resourceTypes.Any() ? GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes) : null));
         }
-
-       
 
         private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
         {
@@ -104,7 +100,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
-                    AzResourceTypeLoader: GetAzResourceTypeLoaderWithinjectedTypes(resourceTypes)));
+                    AzResourceTypeLoader: GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes)));
         }
 
         private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)

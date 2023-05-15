@@ -2,23 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -50,7 +43,7 @@ public class LinterRuleTestsBase
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
         Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
-        IAzResourceTypeLoader AzResourceTypeLoader = null!,
+        IAzResourceTypeLoader? AzResourceTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null
     );
 
