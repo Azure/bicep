@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using MediatR;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -110,7 +111,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
                 else
                 {
-                    parametersFileJson = bicepparamCompilationResult.compilationResult;
+                    parametersFileJson = ExtractParametersObjectValue(bicepparamCompilationResult.compilationResult);
                 }
             }
             else
@@ -196,6 +197,20 @@ namespace Bicep.LanguageServer.Handlers
             await paramsOutputWriter.FlushAsync();
 
             return new BicepparamCompilationResult(true, paramsOutputBuffer.ToString());
+        }
+
+        public string ExtractParametersObjectValue(string JsonParametersContent) 
+        {
+            var jObject = JObject.Parse(JsonParametersContent);
+            var parameters = jObject["parameters"];
+
+            if (parameters is not null)
+            {
+                return parameters.ToString();
+            }    
+            
+            //return original JSON if no "parameters" property found
+            return jObject.ToString();
         }
     }
 }

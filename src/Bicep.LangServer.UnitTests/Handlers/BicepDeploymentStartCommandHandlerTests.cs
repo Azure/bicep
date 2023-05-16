@@ -126,5 +126,37 @@ param bar = '1'
             result.isSuccess.Should().BeFalse();
             result.compilationResult.Should().Contain(expectedError);
         }
+
+
+        [TestMethod]
+        public void ExtractParametersObject_WithValidJsonReturns_ParametersPropertyValue()
+        {
+            var paramJson = 
+@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": ""something""
+    },
+    ""bar"": {
+      ""value"": 1
+    }
+  }
+}";
+            var bicepDeploymentStartCommandHandler = CreateHandler(StrictMock.Of<ICompilationManager>().Object);
+
+            var result = bicepDeploymentStartCommandHandler.ExtractParametersObjectValue(paramJson);
+
+            result.Should().BeEquivalentToIgnoringNewlines(
+@"{
+  ""foo"": {
+    ""value"": ""something""
+  },
+  ""bar"": {
+    ""value"": 1
+  }
+}");
+        }
     }
 }
