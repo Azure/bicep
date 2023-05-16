@@ -17,7 +17,7 @@ public record FeatureProviderOverrides(
     bool? ParamsFilesEnabled = default,
     bool? UserDefinedTypesEnabled = default,
     bool? UserDefinedFunctionsEnabled = default,
-    bool? DynamicTypeLoadingEnabled = default,
+    bool? DynamicTypeLoading = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(TestContext testContext,

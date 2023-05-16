@@ -25,6 +25,6 @@ namespace Bicep.Core.Features
 
         bool UserDefinedFunctionsEnabled { get; }
 
-        bool DynamicTypeLoadingEnabled { get; }
+        bool DynamicTypeLoading { get; }
     }
 }

@@ -26,7 +26,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IAzResourceTypeLoader? GetResourceTypeLoader(ImportDeclarationSyntax? ids, IFeatureProvider features)
         {
-            if (!features.DynamicTypeLoadingEnabled || ids is null)
+            if (!features.DynamicTypeLoading || ids is null)
             {
                 return resourceTypeLoaders["builtin"];
             }
@@ -59,7 +59,7 @@ namespace Bicep.Core.TypeSystem.Az
             var typesDefinitionPath = Path.Combine(azProviderDir, typesDefinitionFilename);
             if (!resourceTypeLoaders.ContainsKey(typesDefinitionPath))
             {
-                resourceTypeLoaders[typesDefinitionPath] = new AzResourceTypeLoader(new OciAzTypeLoader(typesDefinitionPath));
+                resourceTypeLoaders[typesDefinitionPath] = new AzResourceTypeLoader(OciAzTypeLoader.FromTgz(typesDefinitionPath));
             }
             return resourceTypeLoaders[typesDefinitionPath];
         }

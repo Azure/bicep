@@ -5,16 +5,22 @@ using Azure.Bicep.Types;
 using System.Formats.Tar;
 using System.IO.Compression;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Az
 {
     public class OciAzTypeLoader : TypeLoader
     {
-        private readonly Dictionary<string, byte[]> typesCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly ImmutableDictionary<string, byte[]> typesCache;
 
-        public OciAzTypeLoader(string pathToGzip) : base()
+        public OciAzTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
         {
+            this.typesCache = typesCache;
+        }
+
+        public static OciAzTypeLoader FromTgz(string pathToGzip)
+        {
+            var typesCache = ImmutableDictionary.CreateBuilder<string, byte[]>();
             using var fileStream = File.OpenRead(pathToGzip);
             using var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress);
             using var tarReader = new TarReader(gzipStream, leaveOpen: true);
@@ -28,7 +34,9 @@ namespace Bicep.Core.TypeSystem.Az
                 using var ms = new MemoryStream();
                 entry.DataStream.CopyTo(ms);
                 typesCache.Add(entry.Name, ms.ToArray());
+
             }
+            return new(typesCache.ToImmutableDictionary());
         }
 
         protected override Stream GetContentStreamAtPath(string path)

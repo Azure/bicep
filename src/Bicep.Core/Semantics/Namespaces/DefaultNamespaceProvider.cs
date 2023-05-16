@@ -31,7 +31,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
                     return null!;
                 }
                 string providerVersion = "1.0.0"; //builtin version
-                if (features.DynamicTypeLoadingEnabled)
+                if (features.DynamicTypeLoading)
                 {
                     providerVersion = ids?.Specification.Version ?? providerVersion;
                 }
