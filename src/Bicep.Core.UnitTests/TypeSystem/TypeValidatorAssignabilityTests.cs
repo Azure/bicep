@@ -13,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Workspaces;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -937,7 +938,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeProvider = TestTypeHelper.CreateEmptyProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
-            var azNamespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, Core.Workspaces.BicepSourceFileKind.BicepFile)!;
+            var azNamespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
 
             return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }

@@ -6,6 +6,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Features;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {
@@ -23,9 +24,9 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             AadNamespaceType.BuiltInName,
         });
 
-        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider featureProvider)
+        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
-            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider) is { } namespaceType)
+            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider, sourceFileKind) is { } namespaceType)
             {
                 return namespaceType;
             }
