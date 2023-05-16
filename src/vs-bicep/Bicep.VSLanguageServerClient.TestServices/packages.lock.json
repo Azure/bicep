@@ -17,6 +17,12 @@
           "Microsoft.CodeAnalysis.Common": "[4.5.0]"
         }
       },
+      "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
+        "type": "Direct",
+        "requested": "[4.5.0, )",
+        "resolved": "4.5.0",
+        "contentHash": "cJtiKSEuTIKdazIZDepu85+vO7TLtcFqR2HCYUyz8MkqBLfbZ4CqWDrqgLKeh4UlbQJoermhK8ZOML9Am+TSMw=="
+      },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
         "requested": "[4.5.0-2.final, )",

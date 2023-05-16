@@ -23,6 +23,12 @@
           "Microsoft.CodeAnalysis.Common": "[4.5.0]"
         }
       },
+      "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
+        "type": "Direct",
+        "requested": "[4.5.0, )",
+        "resolved": "4.5.0",
+        "contentHash": "cJtiKSEuTIKdazIZDepu85+vO7TLtcFqR2HCYUyz8MkqBLfbZ4CqWDrqgLKeh4UlbQJoermhK8ZOML9Am+TSMw=="
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.1.1, )",
@@ -1504,13 +1510,6 @@
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.7, )"
-        }
-      },
-      "bicep.vslanguageserverclient.itemtemplate": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.CodeAnalysis.CSharp": "[4.5.0, )",
-          "Microsoft.VisualStudio.CoreUtility": "[17.2.3194, )"
         }
       }
     },
