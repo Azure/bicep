@@ -992,7 +992,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 }, LanguageConstants.Object)
                 .Build();
 
-            //if (featureProvider.ParamsFilesEnabled) {
             if(sourceFileKind ==BicepSourceFileKind.ParamsFile){
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")

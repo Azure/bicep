@@ -1,5 +1,5 @@
 /*
-//@[00:737) ProgramSyntax
+//@[00:819) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -199,5 +199,20 @@ param decoratedString = 'Apple'
 //@[24:031) | └─StringSyntax
 //@[24:031) |   └─Token(StringComplete) |'Apple'|
 //@[31:032) ├─Token(NewLine) |\n|
+param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
+//@[00:081) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:036) | ├─IdentifierSyntax
+//@[06:036) | | └─Token(Identifier) |stringfromEnvironmentVariables|
+//@[37:038) | ├─Token(Assignment) |=|
+//@[39:081) | └─FunctionCallSyntax
+//@[39:062) |   ├─IdentifierSyntax
+//@[39:062) |   | └─Token(Identifier) |readEnvironmentVariable|
+//@[62:063) |   ├─Token(LeftParen) |(|
+//@[63:080) |   ├─FunctionArgumentSyntax
+//@[63:080) |   | └─StringSyntax
+//@[63:080) |   |   └─Token(StringComplete) |'envVariableName'|
+//@[80:081) |   └─Token(RightParen) |)|
+//@[81:082) ├─Token(NewLine) |\n|
 
 //@[00:000) └─Token(EndOfFile) ||

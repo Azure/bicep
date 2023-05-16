@@ -34,3 +34,4 @@ param additionalMetadata = 'more metadata'
 param someParameter = 'three'
 param stringLiteral = 'abc'
 param decoratedString = 'Apple'
+param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
