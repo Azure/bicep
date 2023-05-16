@@ -18,7 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="6.7.0" />
-		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.5.0-2.final" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.6.0-1.final" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
 		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.6.33619.290" />
 		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.2.41" />
