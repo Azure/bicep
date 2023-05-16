@@ -535,16 +535,15 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
 
-      - name: Test
-        working-directory: ./src/${{ matrix.test-project }}
-        run: dotnet test --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+      - name: Run Tests ${{ matrix.test-project }} (${{ matrix.runtime.rid }})
+        run: dotnet test ./src/${{ matrix.test-project }} --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Bicep.TestResults.${{ matrix.runtime.rid }}
-          path: ./src/${{ matrix.test-project }}/TestResults/**/*.trx
+          path: ./TestResults/**/*.trx
           if-no-files-found: error
 
       - name: Download Bicep CLI
