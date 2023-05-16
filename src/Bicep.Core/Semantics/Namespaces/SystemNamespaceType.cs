@@ -1120,25 +1120,20 @@ namespace Bicep.Core.Semantics.Namespaces
           private static FunctionResult ReadEnvironmentVariableResultBuilder (IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
          {
             var arguments = functionCall.Arguments.ToImmutableArray();
-            var arg = functionCall.GetArgumentByPosition(0).ToString();
-
-            string? variableName = null;
            
             if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
             {
-                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired())); //InvalidParameterType
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
             }
-            variableName = stringLiteral.RawStringValue;
-
-            string? variableValue = Environment.GetEnvironmentVariable(variableName);
+            var envVariableName = stringLiteral.RawStringValue;
+            var envVariableValue = Environment.GetEnvironmentVariable(envVariableName);
             
-            //shall it  throw error, or return null?
-            // if (variableValue == null)
-            // {
-            //     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(variableName, "Environment variable does not exist")));
-            // }
-            return new(ConvertJsonToBicepType(variableValue), ConvertJsonToExpression(variableValue));
-           
+            //error to fail the build-param with clear message of the missing env var name
+            if (envVariableValue == null)
+            {
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName, "Environment variable does not exist")));
+            }
+            return new(ConvertJsonToBicepType(envVariableValue), ConvertJsonToExpression(envVariableValue));
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
