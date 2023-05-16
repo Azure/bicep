@@ -9,11 +9,11 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzTypeLoaderOci : TypeLoader
+    public class OciAzTypeLoader : TypeLoader
     {
         private readonly Dictionary<string, byte[]> typesCache = new(StringComparer.OrdinalIgnoreCase);
 
-        public AzTypeLoaderOci(string pathToGzip) : base()
+        public OciAzTypeLoader(string pathToGzip) : base()
         {
             using var fileStream = File.OpenRead(pathToGzip);
             using var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress);

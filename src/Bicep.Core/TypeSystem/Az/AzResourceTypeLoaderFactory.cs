@@ -59,7 +59,7 @@ namespace Bicep.Core.TypeSystem.Az
             var typesDefinitionPath = Path.Combine(azProviderDir, typesDefinitionFilename);
             if (!resourceTypeLoaders.ContainsKey(typesDefinitionPath))
             {
-                resourceTypeLoaders[typesDefinitionPath] = new AzResourceTypeLoader(new AzTypeLoaderOci(typesDefinitionPath));
+                resourceTypeLoaders[typesDefinitionPath] = new AzResourceTypeLoader(new OciAzTypeLoader(typesDefinitionPath));
             }
             return resourceTypeLoaders[typesDefinitionPath];
         }

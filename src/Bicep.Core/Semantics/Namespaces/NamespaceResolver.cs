@@ -65,7 +65,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 var foundAzProviderDeclaration = sourceFile.ProgramSyntax.Children
                     .OfType<ImportDeclarationSyntax>()
-                    .Any(x => x.Alias is not null && x.Alias.NameEquals(AzNamespaceType.BuiltInName));
+                    .Any(x => x.Alias is not null && x.Specification.Name.Equals(AzNamespaceType.BuiltInName));
                 if (!foundAzProviderDeclaration) // If no 'az' provider was explicitly declared, load the builtin one
                 {
                     TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
