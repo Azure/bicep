@@ -589,7 +589,7 @@ jobs:
         env:
           SECRET_TO_CHECK: ${{ secrets.SECRET_TO_CHECK }}
         if: env.SECRET_TO_CHECK != ''
-        run: echo '::set-output name=verified::true'
+        run: echo 'verified=true' >> $GITHUB_OUTPUT
 
   test-cli-live:
     name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})

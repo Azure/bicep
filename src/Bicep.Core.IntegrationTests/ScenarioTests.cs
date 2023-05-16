@@ -4690,4 +4690,67 @@ output errorOutput string = take(someObject.someProperty, 5)
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void For_loop_scoped_variables_should_overwrite_globally_scoped_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+var foo = [for resourceGroup in []: {
+  bar: resourceGroup('test')
+}]
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void Variable_declarations_should_overwrite_globally_scoped_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+var resourceGroup = 'blah'
+var foo = [for rg in []: {
+  bar: resourceGroup('test')
+}]
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void Lambda_variable_declarations_should_overwrite_globally_scoped_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+var foo = map([], resourceGroup => resourceGroup('test'))
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void Typed_lambda_variable_declarations_should_overwrite_globally_scoped_functions()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
+
+        var result = CompilationHelper.Compile(services, @"
+func foo(resourceGroup string) string => resourceGroup('test')
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
 }
