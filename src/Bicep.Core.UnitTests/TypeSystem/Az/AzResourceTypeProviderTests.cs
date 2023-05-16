@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var nsProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
-            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile);
+            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
         }
 
         private static IEnumerable<object[]> GetDeserializeTestData()
