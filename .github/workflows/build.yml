@@ -26,7 +26,6 @@ jobs:
     strategy:
       # let us get failures from other jobs even if one fails
       fail-fast: false
-
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
         rid:
@@ -124,10 +123,8 @@ jobs:
     name: Build VSCode Extension
     runs-on: ${{ matrix.os }}
     needs: build-langserver
-
     strategy:
       fail-fast: false
-
       matrix:
         os:
           - windows-latest
@@ -331,13 +328,10 @@ jobs:
     needs:
       - build-cli
       - build-nugets
-
     env:
       RuntimeSuffix: ${{ matrix.rid }}
-
     strategy:
       fail-fast: false
-
       # should be the full list of RIDs that we support in the CLI
       matrix:
         include:
@@ -506,11 +500,9 @@ jobs:
     name: Test ${{matrix.test-project}} (${{ matrix.runtime.rid }})
     runs-on: ${{ matrix.runtime.os }}
     needs: build-cli
-
     strategy:
       # let us get failures from other jobs even if one fails
       fail-fast: false
-
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
         test-project:
@@ -591,6 +583,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       access_verified: ${{ steps.check-access.outputs.verified }}
+      
     steps:
       - id: check-access
         env:
