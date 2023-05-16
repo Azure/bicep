@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<IsPackable>false</IsPackable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
@@ -19,15 +19,15 @@
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.2.22" />
   </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
-		<ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+    <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
-			<Link>bicepconfig.schema.json</Link>
-			<WithCulture>false</WithCulture>
-		</EmbeddedResource>
-	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
+      <Link>bicepconfig.schema.json</Link>
+      <WithCulture>false</WithCulture>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
