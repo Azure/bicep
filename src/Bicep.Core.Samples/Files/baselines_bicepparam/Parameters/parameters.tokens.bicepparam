@@ -137,5 +137,14 @@ param decoratedString = 'Apple'
 //@[22:23) Assignment |=|
 //@[24:31) StringComplete |'Apple'|
 //@[31:32) NewLine |\n|
+param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
+//@[00:05) Identifier |param|
+//@[06:36) Identifier |stringfromEnvironmentVariables|
+//@[37:38) Assignment |=|
+//@[39:62) Identifier |readEnvironmentVariable|
+//@[62:63) LeftParen |(|
+//@[63:80) StringComplete |'envVariableName'|
+//@[80:81) RightParen |)|
+//@[81:82) NewLine |\n|
 
 //@[00:00) EndOfFile ||

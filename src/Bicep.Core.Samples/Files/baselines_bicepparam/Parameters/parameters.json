@@ -54,6 +54,9 @@
     },
     "decoratedString": {
       "value": "Apple"
+    },
+    "stringfromEnvironmentVariables": {
+      "value": "test"
     }
   }
 }
