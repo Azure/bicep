@@ -154,9 +154,10 @@ namespace Bicep.Core.PrettyPrintV2
         {
             // Special case for objects: if the object contains a newline before
             // the first property, always break the the object.
-            var forceBreak = syntax.Children.FirstOrDefault() is Token token &&
+            var forceBreak =
+                syntax.Children.FirstOrDefault() is Token token &&
                 token.IsOf(TokenType.NewLine) &&
-                syntax.HasProperties();
+                syntax.Properties.Any();
 
             return this.Bracket(
                 syntax.OpenBrace,
@@ -257,11 +258,18 @@ namespace Bicep.Core.PrettyPrintV2
                 .ToTextPreserveFormatting()
                 .ReplaceLineEndings(this.context.Newline));
 
-        private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax) =>
-            this.Glue(syntax.StringTokens
-                    .Zip(syntax.Expressions, (stringToken, expression) => new SyntaxBase[] { stringToken, expression })
-                    .SelectMany(x => x)
-                    .Append(syntax.StringTokens[^1]));
+        private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax)
+        {
+            var firstToken = syntax.StringTokens[0];
+            var lastToken = syntax.StringTokens[^1];
+
+            var leadingTrivia = this.LayoutLeadingTrivia(firstToken.LeadingTrivia);
+            var trailingTrivia = this.LayoutTrailingTrivia(lastToken.TrailingTrivia, out var suffix);
+
+            var text = SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim();
+
+            return LayoutWithLeadingAndTrailingTrivia(text, leadingTrivia, trailingTrivia, suffix);
+        }
 
         private IEnumerable<Document> LayoutTargetScopeSyntax(TargetScopeSyntax syntax) =>
             this.Spread(
@@ -334,7 +342,7 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrEmpty);
 
         public IEnumerable<Document> LayoutTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
-            this.Glue(
+            this.Spread(
                 syntax.Name,
                 syntax.Type);
 
@@ -370,25 +378,25 @@ namespace Bicep.Core.PrettyPrintV2
 
             if (commentStickiness == CommentStickiness.Leading)
             {
-                return this.LayoutTokenWithLeadingTrivia(token, leadingTrivia);
+                return this.LayoutWithLeadingTrivia(token, leadingTrivia);
             }
 
             var trailingTrivia = LayoutTrailingTrivia(token.TrailingTrivia, out var suffix);
 
             if (commentStickiness == CommentStickiness.Trailing)
             {
-                return LayoutTokenWithTrailingTrivia(token, leadingTrivia, trailingTrivia, suffix);
+                return LayoutWithTrailingTrivia(token, leadingTrivia, trailingTrivia, suffix);
             }
 
             if (commentStickiness == CommentStickiness.Bidirectional)
             {
-                return this.LayoutTokenWithLeadingAndTrailingTrivia(token, leadingTrivia, trailingTrivia, suffix);
+                return LayoutWithLeadingAndTrailingTrivia(token.Text, leadingTrivia, trailingTrivia, suffix);
             }
 
             throw new NotImplementedException($"Cannot handle {commentStickiness}");
         }
 
-        private IEnumerable<Document> LayoutTokenWithLeadingTrivia(Token token, IEnumerable<Document> leadingTrivia)
+        private IEnumerable<Document> LayoutWithLeadingTrivia(Token token, IEnumerable<Document> leadingTrivia)
         {
             var hasLeadingTrivia = leadingTrivia.Any();
 
@@ -416,7 +424,7 @@ namespace Bicep.Core.PrettyPrintV2
             return hasLeadingTrivia ? leadingTrivia.Append(token.Text).Spread() : token.Text;
         }
 
-        private static IEnumerable<Document> LayoutTokenWithTrailingTrivia(Token token, IEnumerable<Document> danglingLeadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
+        private static IEnumerable<Document> LayoutWithTrailingTrivia(Token token, IEnumerable<Document> danglingLeadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
         {
             var text = trailingTrivia.Any() ? trailingTrivia.Prepend(token.Text).Spread() : token.Text;
 
@@ -429,12 +437,8 @@ namespace Bicep.Core.PrettyPrintV2
             return danglingLeadingTrivia.Any() ? danglingLeadingTrivia.Append(text) : text;
         }
 
-        private IEnumerable<Document> LayoutTokenWithLeadingAndTrailingTrivia(Token token, IEnumerable<Document> leadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
+        private static IEnumerable<Document> LayoutWithLeadingAndTrailingTrivia(Document text, IEnumerable<Document> leadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
         {
-            Document text = token.IsOf(TokenType.MultilineString)
-                ? token.Text.ReplaceLineEndings(this.context.Newline)
-                : token.Text;
-
             if (leadingTrivia.Any() || trailingTrivia.Any())
             {
                 text = leadingTrivia

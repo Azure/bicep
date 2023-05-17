@@ -37,8 +37,7 @@ namespace Bicep.Core.PrettyPrintV2
         {
             WriteTrivia(token.LeadingTrivia);
 
-            if (token.IsOneOf(TokenType.NewLine, TokenType.MultilineString) &&
-                !string.IsNullOrEmpty(this.newlineReplacement))
+            if (token.Type is TokenType.NewLine or TokenType.MultilineString && !string.IsNullOrEmpty(this.newlineReplacement))
             {
                 buffer.Append(token.Text.ReplaceLineEndings(this.newlineReplacement));
             }
