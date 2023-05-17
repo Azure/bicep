@@ -774,7 +774,7 @@ output output2 string = output1
         result.Template.Should().NotHaveValue();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP058", DiagnosticLevel.Error, "The name \"output1\" is an output. Outputs cannot be referenced in expressions."),
+            ("BCP057", DiagnosticLevel.Error, "The name \"output1\" does not exist in the current context."),
         });
     }
 
@@ -4633,5 +4633,124 @@ param rg_tag_count int = int(take(resourceGroup().name, 3))
 "));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/10619
+    [TestMethod]
+    public void Test_Issue10619()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+metadata name = 'Some metadata'
+param name string
+
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: name
+  kind: 'StorageV2'
+  sku: {
+    name: 'Premium_LRS'
+  }
+}
+"));
+
+        result.Should().GenerateATemplate();
+    }
+
+    // https://github.com/Azure/bicep/issues/10619
+    [TestMethod]
+    public void Test_Issue10619_outputs()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+output name string = 'blah'
+param name string
+
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: name
+  kind: 'StorageV2'
+  sku: {
+    name: 'Premium_LRS'
+  }
+}
+"));
+
+        result.Should().GenerateATemplate();
+    }
+
+    // https://github.com/Azure/bicep/issues/10658
+    [TestMethod]
+    public void Test_Issue10658()
+    {
+        var result = CompilationHelper.Compile(
+("main.bicep", @"
+param someObject object
+
+output errorOutput string = take(someObject.someProperty, 5)
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void For_loop_scoped_variables_should_overwrite_globally_scoped_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+var foo = [for resourceGroup in []: {
+  bar: resourceGroup('test')
+}]
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void Variable_declarations_should_overwrite_globally_scoped_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+var resourceGroup = 'blah'
+var foo = [for rg in []: {
+  bar: resourceGroup('test')
+}]
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void Lambda_variable_declarations_should_overwrite_globally_scoped_functions()
+    {
+        var result = CompilationHelper.Compile(@"
+var foo = map([], resourceGroup => resourceGroup('test'))
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10657
+    [TestMethod]
+    public void Typed_lambda_variable_declarations_should_overwrite_globally_scoped_functions()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
+
+        var result = CompilationHelper.Compile(services, @"
+func foo(resourceGroup string) string => resourceGroup('test')
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
+        });
     }
 }

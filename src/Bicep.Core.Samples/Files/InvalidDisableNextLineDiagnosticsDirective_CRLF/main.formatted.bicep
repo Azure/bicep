@@ -4,7 +4,7 @@ param storageAccount1 string = 'testStorageAccount'
 #  disable-next-line  no-unused-params
 param storageAccount2 string = 'testStorageAccount'
 
-/* comment before */ #disable-next-line no-unused-params
+/* comment before */#disable-next-line no-unused-params
 param storageAccount3 string = 'testStorageAccount'
 
 #disable-next-line/* comment between */ no-unused-params
