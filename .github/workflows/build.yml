@@ -497,7 +497,7 @@ jobs:
         working-directory: ./src/monarch
 
   test-bicep:
-    name: Test (${{ matrix.runtime.rid }})
+    name: 'Run: ${{matrix.config.name}} (${{ matrix.runtime.rid }})'
     runs-on: ${{ matrix.runtime.os }}
     needs: build-cli
     strategy:
@@ -505,10 +505,13 @@ jobs:
       fail-fast: false
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
-        test-filter:
-          - FullyQualifiedName~Bicep.Core.IntegrationTests
-          - FullyQualifiedName~Bicep.LangServer.IntegrationTests
-          - FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
+        config:
+          - name: Bicep.Core.IntegrationTests
+            filter: FullyQualifiedName~Bicep.Core.IntegrationTests
+          - name: Bicep.LangServer.IntegrationTests
+            filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
+          - name: All tests except Bicep.Core.IntegrationTests and Bicep.LangServer.IntegrationTests
+            filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
         runtime:
           - os: windows-latest
             rid: win-x64
@@ -528,8 +531,8 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
 
-      - name: Run Tests (${{ matrix.runtime.rid }})
-        run: dotnet test --filter ${{ matrix.test-filter}} --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+      - name: Run Tests
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
