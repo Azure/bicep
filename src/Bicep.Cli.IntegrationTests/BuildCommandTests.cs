@@ -307,8 +307,8 @@ output myOutput string = 'hello!'
         }
 
         [DataRow(new string[] {})]
-        [DataRow(new[] { "--diagnosticsformat", "defAULt"})]
-        [DataRow(new[] { "--diagnosticsformat", "jsOn"})]
+        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
+        [DataRow(new[] { "--diagnostics-format", "sArif"})]
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
@@ -325,7 +325,29 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
-            error.Should().BeEmpty();
+            if (Array.Exists(args, x => x.Equals("sarif", StringComparison.OrdinalIgnoreCase)))
+            {
+                error.Should().Contain(@"{
+  ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
+  ""version"": ""2.1.0"",
+  ""runs"": [
+    {
+      ""tool"": {
+        ""driver"": {
+          ""name"": ""bicep""
+        }
+      },
+      ""results"": [],
+      ""columnKind"": ""utf16CodeUnits""
+    }
+  ]
+}");
+            }
+            else
+            {
+                error.Should().BeEmpty();
+            }
+
             result.Should().Be(0);
         }
 
@@ -400,7 +422,7 @@ output myOutput string = 'hello!'
         }
 
         [DataRow(new string[] {})]
-        [DataRow(new[] { "--diagnosticsformat", "defAULt"})]
+        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
         [DataTestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
@@ -432,7 +454,7 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedErrorInJSONFormat()
+        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedErrorInSarifFormat()
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
@@ -454,7 +476,7 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeFalse();
 
-            var (output, error, result) = await Bicep("build", "--outdir", testOutputPath, inputFile, "--diagnosticsformat", "jsOn");
+            var (output, error, result) = await Bicep("build", "--outdir", testOutputPath, inputFile, "--diagnostics-format", "saRif");
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);

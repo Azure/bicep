@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
+using System;
 using System.IO;
 
 namespace Bicep.Cli.Arguments
@@ -48,16 +49,16 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
-                    case "--diagnosticsformat":
+                    case "--diagnostics-format":
                         if (args.Length == i + 1)
                         {
-                            throw new CommandLineException($"The --diagnosticsformat parameter expects an argument");
+                            throw new CommandLineException($"The --diagnostics-format parameter expects an argument");
                         }
                         if (DiagnosticsFormat is not null)
                         {
-                            throw new CommandLineException($"The --diagnosticsformat parameter cannot be specified twice");
+                            throw new CommandLineException($"The --diagnostics-format parameter cannot be specified twice");
                         }
-                        DiagnosticsFormat = args[i + 1];
+                        DiagnosticsFormat = ToDiagnosticsFormat(args[i + 1]);
                         i++;
                         break;
 
@@ -104,6 +105,25 @@ namespace Bicep.Cli.Arguments
                     throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
                 }
             }
+
+            if(DiagnosticsFormat is null)
+            {
+                DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
+            }
+        }
+
+        private static DiagnosticsFormat ToDiagnosticsFormat(string? format)
+        {
+            if(format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))
+            {
+                return Arguments.DiagnosticsFormat.Default;
+            }
+            else if(format is not null && format.Equals("sarif", StringComparison.OrdinalIgnoreCase))
+            {
+                return Arguments.DiagnosticsFormat.Sarif;
+            }
+
+            throw new ArgumentException($"Unrecognized diagnostics format {format}");
         }
 
         public bool OutputToStdOut { get; }
@@ -114,7 +134,7 @@ namespace Bicep.Cli.Arguments
 
         public string? OutputFile { get; }
 
-        public string? DiagnosticsFormat { get; }
+        public DiagnosticsFormat? DiagnosticsFormat { get; }
 
         public bool NoRestore { get; }
     }

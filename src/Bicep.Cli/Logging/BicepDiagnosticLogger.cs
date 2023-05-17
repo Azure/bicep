@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Cli.Arguments;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Microsoft.CodeAnalysis.Sarif;
@@ -43,7 +44,7 @@ namespace Bicep.Cli.Logging
                 var message = $"{fileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
                 this.logger.Log(ToLogLevel(diagnostic.Level), message);
             }
-            else if (Format == DiagnosticsFormat.Json)
+            else if (Format == DiagnosticsFormat.Sarif)
             {
                 sarifResults.Add(new Result()
                 {
@@ -79,13 +80,6 @@ namespace Bicep.Cli.Logging
             if (diagnostic.Level == DiagnosticLevel.Error) { this.ErrorCount++; }
         }
 
-
-        private enum DiagnosticsFormat
-        {
-            Default,
-            Json
-        }
-
         public int ErrorCount { get; private set; }
 
         private int WarningCount { get; set; }
@@ -97,10 +91,17 @@ namespace Bicep.Cli.Logging
         private List<Result> sarifResults { get; set; }
 
 
-        public void SetupFormat(string? format)
+        public void SetupFormat(DiagnosticsFormat? format)
         {
-            Format = ToDiagnosticsFormat(format);
-            if(Format == DiagnosticsFormat.Json)
+            if(format is null)
+            {
+                throw new ArgumentException($"Diagnostics Format should not be null");
+            }
+            else{
+                Format = format.Value;
+            }
+
+            if(Format == DiagnosticsFormat.Sarif)
             {
                 // setup an empty run on the sarif log to add results to.
                 sarifLog.Runs = new List<Run>();
@@ -116,10 +117,9 @@ namespace Bicep.Cli.Logging
 
         public void FlushLog()
         {
-            if(Format == DiagnosticsFormat.Json && sarifResults.Count > 0)
+            if(Format == DiagnosticsFormat.Sarif)
             {
-                // if there are errors/warnings, add the results from the run to the sarif log, serialize and write to stderr.
-                // if none are present, omit flushing the in memory log to maintain parity with how the default diagnostics are handled.
+                // Add the results from the run to the sarif log, serialize and write to stderr.
                 sarifLog.Runs[0].Results = sarifResults;
                 var settings = new JsonSerializerSettings()
                 {
@@ -130,20 +130,6 @@ namespace Bicep.Cli.Logging
                 io.Error.Write(sarifText);
                 io.Error.Flush();
             }
-        }
-
-        private static DiagnosticsFormat ToDiagnosticsFormat(string? format)
-        {
-            if(format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))
-            {
-                return DiagnosticsFormat.Default;
-            }
-            else if(format is not null && format.Equals("json", StringComparison.OrdinalIgnoreCase))
-            {
-                return DiagnosticsFormat.Json;
-            }
-
-            throw new ArgumentException($"Unrecognized diagnostics format {format}");
         }
 
         private static FailureLevel ToFailureLevel(DiagnosticLevel level)
