@@ -68,7 +68,7 @@ export interface BicepDeploymentStartParams {
   deployId: string;
   deploymentName: string;
   portalUrl: string;
-  parametersFileName: string;
+  parametersFileName: string | null;
   parametersFileUpdateOption: ParametersFileUpdateOption;
   updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
   resourceManagerEndpointUrl: string;

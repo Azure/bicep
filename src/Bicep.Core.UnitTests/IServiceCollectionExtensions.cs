@@ -102,6 +102,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithAzResourceProvider(this IServiceCollection services, IAzResourceProvider azResourceProvider)
         => Register(services, azResourceProvider);
 
+    public static IServiceCollection WithArmClientProvider(this IServiceCollection services, IArmClientProvider armClientProvider)
+        => Register(services, armClientProvider);
+
     public static IServiceCollection WithEmptyAzResources(this IServiceCollection services)
         => services.WithAzResources(Enumerable.Empty<ResourceTypeComponents>());
 
