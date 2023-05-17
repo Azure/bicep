@@ -14,7 +14,11 @@ import * as os from "os";
 import * as fse from "fs-extra";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { TextDocument, Uri, window, workspace } from "vscode";
-import { bicepFileExtension, bicepLanguageId, bicepParamLanguageId } from "../language/constants";
+import {
+  bicepFileExtension,
+  bicepLanguageId,
+  bicepParamLanguageId,
+} from "../language/constants";
 
 type TargetFile =
   | "rightClickOrMenu"

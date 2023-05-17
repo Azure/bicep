@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
@@ -50,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepParamsFilePath, DocumentUri documentUri)
         {
-            string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepParamsFilePath);
+            string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepParamsFilePath, OutputFormatOption.Json);
             string compiledFile = Path.GetFileName(compiledFilePath);
 
             // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.

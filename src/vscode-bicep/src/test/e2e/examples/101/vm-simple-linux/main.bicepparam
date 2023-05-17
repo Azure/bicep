@@ -1,0 +1,13 @@
+using './main.bicep'
+
+param vmName = 'simpleLinuxVM'
+param adminUsername = ''
+param authenticationType = 'password'
+param adminPasswordOrKey = ''
+param dnsLabelPrefix = ''
+param ubuntuOSVersion = '18.04-LTS'
+param location = ''
+param vmSize = 'Standard_B2s'
+param virtualNetworkName = 'vNet'
+param subnetName = 'Subnet'
+param networkSecurityGroupName = 'SecGroupNet'
