@@ -13,7 +13,11 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public class DefaultNamespaceProvider : INamespaceProvider
 {
-    private delegate NamespaceType GetNamespaceDelegate(string aliasName, ResourceScope resourceScope, IFeatureProvider features, ImportDeclarationSyntax? ids = null);
+    private delegate NamespaceType GetNamespaceDelegate(
+        string aliasName,
+        ResourceScope resourceScope,
+        IFeatureProvider features,
+        ImportDeclarationSyntax? importDeclarationSyntax = null);
     private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
     private readonly IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory;
 
@@ -42,9 +46,14 @@ public class DefaultNamespaceProvider : INamespaceProvider
         }.ToImmutableDictionary();
     }
 
-    public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, ImportDeclarationSyntax? ids = null)
+    public NamespaceType? TryGetNamespace(
+        string providerName,
+        string aliasName,
+        ResourceScope resourceScope,
+        IFeatureProvider features,
+        ImportDeclarationSyntax? importDeclarationSyntax = null)
     //TODO(asilverman): This is the location where we would like to add support for extensibility providers, we want to add a new key and a new loader for the ext. provider
-        => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, ids);
+        => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, importDeclarationSyntax);
 
     public IEnumerable<string> AvailableNamespaces
         => providerLookup.Keys;

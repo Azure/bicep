@@ -24,15 +24,16 @@ namespace Bicep.Core.TypeSystem.Az
             this.featureProviderFactory = featureProviderFactory;
         }
 
-        public IAzResourceTypeLoader? GetResourceTypeLoader(ImportDeclarationSyntax? ids, IFeatureProvider features)
+        public IAzResourceTypeLoader? GetResourceTypeLoader(ImportDeclarationSyntax? importDeclarationSyntax, IFeatureProvider features)
         {
-            if (!features.DynamicTypeLoading || ids is null)
+            if (!features.DynamicTypeLoading || importDeclarationSyntax is null)
             {
                 return resourceTypeLoaders["builtin"];
             }
 
-            var azProviderDir = Path.Combine(features.CacheRootDirectory, "br", "mcr.microsoft.com", @"bicep$providers$az", ids.Specification.Version);
-            var ociManifestPath = Path.Combine(azProviderDir, "manifest.json");
+            //TODO(asilverman): The magic strings below are temporary and will be changed to use variables fetched at restore time
+            var azProviderDir = Path.Combine(features.CacheRootDirectory, "br", "mcr.microsoft.com", @"bicep$providers$az", importDeclarationSyntax.Specification.Version);
+            var ociManifestPath = Path.Combine(azProviderDir, "manifest");
             if (!File.Exists(ociManifestPath))
             {
                 return null;
