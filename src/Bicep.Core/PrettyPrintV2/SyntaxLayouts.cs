@@ -14,6 +14,7 @@ using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing.Text;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,8 +42,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutArrayTypeSyntax(ArrayTypeSyntax syntax) =>
             this.Glue(
-                syntax.OpenBracket,
                 syntax.Item,
+                syntax.OpenBracket,
                 syntax.CloseBracket);
 
         private IEnumerable<Document> LayoutBinaryOperationSyntax(BinaryOperationSyntax syntax) =>
@@ -54,18 +55,33 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutDecoratorSyntax(DecoratorSyntax syntax) =>
             this.Glue(syntax.At, syntax.Expression);
 
-        private IEnumerable<Document> LayoutForSyntax(ForSyntax syntax) =>
-            this.Glue(
+        private IEnumerable<Document> LayoutForSyntax(ForSyntax syntax)
+        {
+            var variableSection = syntax.VariableSection switch
+            {
+                LocalVariableSyntax localVariable => this.LayoutSingle(localVariable),
+                VariableBlockSyntax variableBlock => this.LayoutSingle(variableBlock) switch
+                {
+                    // The parser does not support multi-line VariableBlockSyntax, so flattening it.
+                    GroupDocument group => group.Flatten().Glue(),
+                    var document => document,
+                },
+
+                _ => throw new NotImplementedException()
+            };
+
+            return this.Glue(
                 syntax.OpenSquare,
                 this.Spread(
                     syntax.ForKeyword,
-                    syntax.VariableSection,
+                    variableSection,
                     syntax.InKeyword,
                     this.Glue(
                         syntax.Expression,
                         syntax.Colon),
                     syntax.Body),
                 syntax.CloseSquare);
+        }
 
         private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax) =>
             this.Glue(
@@ -150,23 +166,18 @@ namespace Bicep.Core.PrettyPrintV2
                 this.Glue(syntax.Key, syntax.Colon),
                 syntax.Value);
 
-        private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax)
-        {
-            // Special case for objects: if the object contains a newline before
-            // the first property, always break the the object.
-            var forceBreak =
-                syntax.Children.FirstOrDefault() is Token token &&
-                token.IsOf(TokenType.NewLine) &&
-                syntax.Properties.Any();
-
-            return this.Bracket(
+        private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax) =>
+            this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
                 syntax.CloseBrace,
                 separator: LineOrCommaSpace,
                 padding: LineOrSpace,
-                forceBreak: forceBreak);
-        }
+                forceBreak:
+                    // Special case for objects: if the object contains a newline before
+                    // the first property, always break the the object.
+                    StartsWithNewline(syntax.Children) &&
+                    syntax.Properties.Any());
 
         private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -186,7 +197,12 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBrace,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace);
+                padding: LineOrSpace,
+                forceBreak:
+                    // Special case for object types: if it contains a newline before
+                    // the first property, always break the the object.
+                    StartsWithNewline(syntax.Children) &&
+                    syntax.Children.Any(x => x is ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax));
 
         private IEnumerable<Document> LayoutOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -274,15 +290,20 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax)
         {
-            var firstToken = syntax.StringTokens[0];
-            var lastToken = syntax.StringTokens[^1];
+            var leadingTrivia = this.LayoutLeadingTrivia(syntax.StringTokens[0].LeadingTrivia);
+            var trailingTrivia = this.LayoutTrailingTrivia(syntax.StringTokens[^1].TrailingTrivia, out var suffix);
 
-            var leadingTrivia = this.LayoutLeadingTrivia(firstToken.LeadingTrivia);
-            var trailingTrivia = this.LayoutTrailingTrivia(lastToken.TrailingTrivia, out var suffix);
+            var writer = new StringWriter();
 
-            var text = SyntaxStringifier.Stringify(syntax, this.context.Newline, includeTrvia: false).Trim();
+            for (var i = 0; i < syntax.Expressions.Length; i++)
+            {
+                writer.Write(syntax.StringTokens[i].Text);
+                SyntaxStringifier.StringifyTo(writer, syntax.Expressions[i], this.context.Newline);
+            }
 
-            return LayoutWithLeadingAndTrailingTrivia(text, leadingTrivia, trailingTrivia, suffix);
+            writer.Write(syntax.StringTokens[^1].Text);
+
+            return LayoutWithLeadingAndTrailingTrivia(writer.ToString(), leadingTrivia, trailingTrivia, suffix);
         }
 
         private IEnumerable<Document> LayoutTargetScopeSyntax(TargetScopeSyntax syntax) =>
@@ -309,14 +330,15 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace);
+                padding: LineOrEmpty);
 
         private IEnumerable<Document> LayoutTypeDeclarationSyntax(TypeDeclarationSyntax syntax) =>
-            this.Spread(
-                syntax.Keyword,
-                syntax.Name,
-                syntax.Assignment,
-                syntax.Value);
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.Spread(
+                    syntax.Keyword,
+                    syntax.Name,
+                    syntax.Assignment,
+                    syntax.Value));
 
         private IEnumerable<Document> LayoutUnaryOperationSyntax(UnaryOperationSyntax syntax) =>
             this.Glue(
@@ -324,7 +346,8 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Expression);
 
         private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.Spread(syntax.Children);
+            this.LayoutMany(syntax.Children)
+                .Spread();
 
         private IEnumerable<Document> LayoutUsingDeclarationSyntax(UsingDeclarationSyntax syntax) =>
             this.Spread(
@@ -485,7 +508,8 @@ namespace Bicep.Core.PrettyPrintV2
                     continue;
                 }
 
-                yield return triviaItem.Text;
+                // Trim newlines to handle unterminated multi-line comments.
+                yield return triviaItem.Text.TrimEnd('\r', '\n');
             }
         }
 
@@ -521,10 +545,14 @@ namespace Bicep.Core.PrettyPrintV2
                     break;
                 }
 
-                trailingTrivia.Add(triviaItem.Text);
+                // Trim newlines to handle unterminated multi-line comments.
+                trailingTrivia.Add(triviaItem.Text.TrimEnd('\r', '\n'));
             }
 
             return trailingTrivia;
         }
+
+        private static bool StartsWithNewline(IEnumerable<SyntaxBase> syntaxes) =>
+            syntaxes.FirstOrDefault() is Token { Type: TokenType.NewLine };
     }
 }

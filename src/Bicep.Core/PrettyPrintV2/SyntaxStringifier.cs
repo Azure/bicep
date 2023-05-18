@@ -14,56 +14,55 @@ namespace Bicep.Core.PrettyPrintV2
 {
     public class SyntaxStringifier : CstVisitor
     {
-        private readonly StringBuilder buffer;
+        private readonly TextWriter writer;
 
         private readonly string? newlineReplacement;
 
-        private readonly bool includeTrivia;
-
-        private SyntaxStringifier(string? newlineReplacement, bool includeTrivia)
+        private SyntaxStringifier(TextWriter buffer, string? newlineReplacement)
         {
-            this.buffer = new StringBuilder();
+            this.writer = buffer;
             this.newlineReplacement = newlineReplacement;
-            this.includeTrivia = includeTrivia;
         }
 
-        public static string Stringify(SyntaxBase syntax, string? newlineReplacement = null, bool includeTrvia = true)
+        public static string Stringify(SyntaxBase syntax, string? newlineReplacement = null)
         {
-            var stringifier = new SyntaxStringifier(newlineReplacement, includeTrvia);
+            var writer = new StringWriter();
+            var stringifier = new SyntaxStringifier(writer, newlineReplacement);
 
             stringifier.Visit(syntax);
 
-            return stringifier.buffer.ToString();
+            return writer.ToString();
+        }
+
+        public static void StringifyTo(TextWriter writer, SyntaxBase syntax, string? newlineReplacement = null)
+        {
+            var stringifier = new SyntaxStringifier(writer, newlineReplacement);
+
+            stringifier.Visit(syntax);
         }
 
         public override void VisitToken(Token token)
         {
-            if (this.includeTrivia)
-            {
-                WriteTrivia(token.LeadingTrivia);
-            }
+            WriteTrivia(token.LeadingTrivia);
 
             if (token.Type is TokenType.NewLine or TokenType.MultilineString &&
                 !string.IsNullOrEmpty(this.newlineReplacement))
             {
-                buffer.Append(token.Text.ReplaceLineEndings(this.newlineReplacement));
+                writer.Write(token.Text.ReplaceLineEndings(this.newlineReplacement));
             }
             else
             {
-                buffer.Append(token.Text);
+                writer.Write(token.Text);
             }
 
-            if (this.includeTrivia)
-            {
-                WriteTrivia(token.TrailingTrivia);
-            }
+            WriteTrivia(token.TrailingTrivia);
         }
 
         private void WriteTrivia(IEnumerable<SyntaxTrivia> triviaList)
         {
             foreach (var trivia in triviaList)
             {
-                buffer.Append(trivia.Text);
+                writer.Write(trivia.Text);
             }
         }
     }

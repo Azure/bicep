@@ -99,9 +99,14 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             var start = 0;
             var end = documentArray.Length - 1;
 
-            while (documentArray[start] == HardLine)
+            while (start <= end && documentArray[start] == HardLine)
             {
                 start++;
+            }
+
+            if (start > end)
+            {
+                return Empty;
             }
 
             while (documentArray[end] == HardLine)
@@ -111,7 +116,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
             if (start > end)
             {
-                return Enumerable.Empty<Document>();
+                return Empty;
             }
 
             return documentArray[start..(end + 1)];
