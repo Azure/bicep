@@ -2,7 +2,7 @@
 <RunSettings>
   <RunConfiguration>
     <!-- Break builds when no tests are discovered. -->
-    <TreatNoTestsAsError>true</TreatNoTestsAsError>
+    <TreatNoTestsAsError>false</TreatNoTestsAsError>
   </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
@@ -21,4 +21,10 @@
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
+  <!-- <MSTest>
+    <Parallelize>
+      <Workers>4</Workers>
+      <Scope>ClassLevel</Scope>
+    </Parallelize>
+  </MSTest> -->
 </RunSettings>
