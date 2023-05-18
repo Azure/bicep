@@ -104,8 +104,8 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutIntanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
             this.Glue(
                 syntax.BaseExpression,
-                syntax.Name,
                 syntax.Dot,
+                syntax.Name,
                 this.Bracket(
                     syntax.OpenParen,
                     syntax.Children,
