@@ -8,6 +8,12 @@
         "resolved": "3.3.4",
         "contentHash": "0k2Jwpc8eq0hjOtX6TxRkHm9clkJ2PAQ3heEHgqIJZcsfdFosC/iyz18nsgTVDDWpID80rC7aiYK7ripx+Qndg=="
       },
+      "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
+        "type": "Direct",
+        "requested": "[4.5.0, )",
+        "resolved": "4.5.0",
+        "contentHash": "cJtiKSEuTIKdazIZDepu85+vO7TLtcFqR2HCYUyz8MkqBLfbZ4CqWDrqgLKeh4UlbQJoermhK8ZOML9Am+TSMw=="
+      },
       "Microsoft.Net.Compilers.Toolset": {
         "type": "Direct",
         "requested": "[4.5.0-2.final, )",
@@ -124,9 +130,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.5.119, )",
-        "resolved": "3.5.119",
-        "contentHash": "x8k4zV6YKZA5Rr810439lG9NngdbyPtFv0QpIYz32m1Im59kvSbEHO8gKGZoNvsfZSquayjEDUCa8acbut372g=="
+        "requested": "[3.6.128, )",
+        "resolved": "3.6.128",
+        "contentHash": "zeA+Ho3XlPgt6P9MRALlkEvfOOzDQdNseV0xia/nSfC1lSrl0+gizlWyixaHvSYUw2ru7pBIKnK451bYOjPRjA=="
       },
       "MediatR": {
         "type": "Transitive",
@@ -949,15 +955,15 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.VisualStudio.LanguageServer.Client": "17.2.2105",
-          "Microsoft.VisualStudio.LanguageServer.Protocol": "17.2.8",
-          "Microsoft.VisualStudio.Setup.Configuration.Interop": "3.3.2180",
-          "Microsoft.VisualStudio.Shell.Interop": "17.2.32505.113",
-          "Microsoft.VisualStudio.Threading": "17.5.22",
-          "Microsoft.VisualStudio.Utilities": "17.2.32505.113",
-          "Microsoft.VisualStudio.Workspace.VSIntegration": "17.1.11-preview-0002",
-          "Microsoft.Visualstudio.Telemetry": "16.5.6",
-          "OmniSharp.Extensions.LanguageServer": "0.19.7"
+          "Microsoft.VisualStudio.LanguageServer.Client": "[17.2.2105, )",
+          "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
+          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.3.2180, )",
+          "Microsoft.VisualStudio.Shell.Interop": "[17.2.32505.113, )",
+          "Microsoft.VisualStudio.Threading": "[17.5.22, )",
+          "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
+          "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
+          "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
+          "OmniSharp.Extensions.LanguageServer": "[0.19.7, )"
         }
       }
     },

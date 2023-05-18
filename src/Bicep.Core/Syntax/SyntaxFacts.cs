@@ -12,7 +12,7 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxFacts
     {
-        public static bool IsFreeform(TokenType type) => type switch
+        public static bool HasFreeFromText(TokenType type) => type switch
         {
             TokenType.NewLine or
             TokenType.Identifier or
@@ -68,6 +68,53 @@ namespace Bicep.Core.Syntax
             TokenType.WithKeyword => "with",
             TokenType.AsKeyword => "as",
             _ => null,
+        };
+
+        public static CommentStickiness GetCommentStickiness(TokenType type) => type switch
+        {
+            // Any token that can have leading comments attached
+            // to it has leading comment stickiness.
+            // The NewLine token is included because there may
+            // exists dangling comments that are not attached
+            // to a statment or an expression.
+            TokenType.NewLine or
+            TokenType.At or
+            TokenType.Minus or
+            TokenType.EndOfFile or
+            TokenType.LeftParen or
+            TokenType.LeftSquare or
+            TokenType.LeftBrace or
+            TokenType.StringLeftPiece => CommentStickiness.Leading,
+
+            // Tokens like right brackets and StringRightPiece can
+            // only appear at the right of an expression so they
+            // have trailing comment stickiness. Right brackets may
+            // also have dangling leading comments attached, for example:
+            //   var foo = [
+            //     true
+            //     /* dangling comment */ ]
+            TokenType.RightParen or
+            TokenType.RightSquare or
+            TokenType.RightBrace or
+            TokenType.StringRightPiece => CommentStickiness.Trailing,
+
+            // The following tokens may have comments attached
+            // to both sides. Exlamation is included because
+            // it can have leading comments when used as a
+            // not operator before an exapression, and it can
+            // have trailing comments when used as a non-null
+            // assertion operator.
+            TokenType.Exclamation or
+            TokenType.FalseKeyword or
+            TokenType.TrueKeyword or
+            TokenType.NullKeyword or
+            TokenType.StringComplete or
+            TokenType.Integer or
+            TokenType.Identifier => CommentStickiness.Bidirectional,
+
+            // It does not make sense for the rest of the tokens
+            // to have comments attached to them.
+            _ => CommentStickiness.None,
         };
     }
 }

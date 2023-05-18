@@ -212,7 +212,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
-            => AssignType(syntax, () => 
+            => AssignType(syntax, () =>
             {
                 if (typeManager.GetDeclaredType(syntax) is not {} declaredType)
                 {
@@ -1088,10 +1088,8 @@ namespace Bicep.Core.TypeSystem
 
                 // operands don't appear to have errors
                 // let's fold the expression so that an operation with two literal typed operands will have a literal return type
-                if (OperationReturnTypeEvaluator.FoldBinaryExpression(syntax, operandType1, operandType2, out var foldDiags) is {} result)
+                if (OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, operandType1, operandType2, diagnostics) is {} result)
                 {
-                    diagnostics.WriteMultiple(foldDiags);
-
                     return result;
                 }
 
@@ -1123,10 +1121,8 @@ namespace Bicep.Core.TypeSystem
 
                 // operand doesn't appear to have errors
                 // let's fold the expression so that an operation with a literal typed operand will have a literal return type
-                if (OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, operandType, out var foldDiags) is {} result)
+                if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, operandType, diagnostics) is {} result)
                 {
-                    diagnostics.WriteMultiple(foldDiags);
-
                     return result;
                 }
 
@@ -1725,9 +1721,6 @@ namespace Bicep.Core.TypeSystem
                     case BuiltInNamespaceSymbol @namespace:
                         return @namespace.Type;
 
-                    case OutputSymbol _:
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
-
                     case TypeAliasSymbol:
                     case AmbientTypeSymbol:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
@@ -1892,24 +1885,22 @@ namespace Bicep.Core.TypeSystem
             var valueType = typeManager.GetTypeInfo(syntax.Value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
-            var diagnostics = new List<IDiagnostic>();
-            diagnostics.AddRange(valueType.GetDiagnostics());
-
-            // Avoid reporting an additional error if we failed to bind the output type.
-            if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false && valueType is not ErrorType && assignedType is not ErrorType)
+            if (valueType is ErrorType)
             {
-                var builder = DiagnosticBuilder.ForPosition(syntax.Value);
-                if (TypeHelper.WouldBeAssignableIfNonNullable(valueType, assignedType, out var nonNullableValueType))
-                {
-                    diagnostics.Add(builder.PossibleNullReferenceAssignment(assignedType, valueType, syntax.Value));
-                }
-                else
-                {
-                    return builder.OutputTypeMismatch(assignedType, valueType).AsEnumerable();
-                }
+                return valueType.GetDiagnostics();
             }
 
-            return diagnostics;
+            if (assignedType is ErrorType)
+            {
+                // no point in checking that the value is assignable to the declared output type if no valid declared type could be discerned
+                return Enumerable.Empty<IDiagnostic>();
+            }
+
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, syntax.Value, assignedType);
+
+            return diagnosticWriter.GetDiagnostics();
         }
 
         private IEnumerable<IDiagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)
@@ -1941,12 +1932,13 @@ namespace Bicep.Core.TypeSystem
                         // Error: already has error info attached, no need to add more
                         // Parameter: references are permitted in other parameters' default values as long as there is not a cycle (BCP080)
                         // Function: we already validate that a function cannot be used as a variable (BCP063)
-                        // Output: we already validate that outputs cannot be referenced in expressions (BCP058)
+                        // Output & Metadata: we already validate that output & metadata cannot be referenced in expressions (BCP057)
                         if (symbol != null &&
                             symbol.Kind != SymbolKind.Error &&
                             symbol.Kind != SymbolKind.Parameter &&
                             symbol.Kind != SymbolKind.Function &&
                             symbol.Kind != SymbolKind.Output &&
+                            symbol.Kind != SymbolKind.Metadata &&
                             symbol.Kind != SymbolKind.Namespace &&
                             symbol.Kind != SymbolKind.ImportedNamespace)
                         {

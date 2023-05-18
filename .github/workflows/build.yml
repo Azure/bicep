@@ -403,7 +403,7 @@ jobs:
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
 
       - name: Build CLI Package
-        run: dotnet build --configuration release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
+        run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: Upload CLI Package
         uses: actions/upload-artifact@v3
@@ -582,7 +582,7 @@ jobs:
         env:
           SECRET_TO_CHECK: ${{ secrets.SECRET_TO_CHECK }}
         if: env.SECRET_TO_CHECK != ''
-        run: echo '::set-output name=verified::true'
+        run: echo 'verified=true' >> $GITHUB_OUTPUT
 
   test-cli-live:
     name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})

@@ -28,12 +28,19 @@ param myInt = 42
 //@[12:13) Assignment |=|
 //@[14:16) Integer |42|
 //@[16:17) NewLine |\n|
-param myBool = true
+param myBool = false
 //@[00:05) Identifier |param|
 //@[06:12) Identifier |myBool|
 //@[13:14) Assignment |=|
-//@[15:19) TrueKeyword |true|
-//@[19:21) NewLine |\n\n|
+//@[15:20) FalseKeyword |false|
+//@[20:22) NewLine |\n\n|
+
+param numberOfVMs = 1
+//@[00:05) Identifier |param|
+//@[06:17) Identifier |numberOfVMs|
+//@[18:19) Assignment |=|
+//@[20:21) Integer |1|
+//@[21:23) NewLine |\n\n|
 
 // parameter assignment to objects
 //@[34:35) NewLine |\n|
@@ -137,5 +144,14 @@ param decoratedString = 'Apple'
 //@[22:23) Assignment |=|
 //@[24:31) StringComplete |'Apple'|
 //@[31:32) NewLine |\n|
+param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
+//@[00:05) Identifier |param|
+//@[06:36) Identifier |stringfromEnvironmentVariables|
+//@[37:38) Assignment |=|
+//@[39:62) Identifier |readEnvironmentVariable|
+//@[62:63) LeftParen |(|
+//@[63:80) StringComplete |'envVariableName'|
+//@[80:81) RightParen |)|
+//@[81:82) NewLine |\n|
 
 //@[00:00) EndOfFile ||

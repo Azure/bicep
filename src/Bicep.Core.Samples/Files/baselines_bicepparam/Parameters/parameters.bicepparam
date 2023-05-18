@@ -11,7 +11,9 @@ using './main.bicep'
 // parameter assignment to literals
 param myString = 'hello world!!'
 param myInt = 42
-param myBool = true
+param myBool = false
+
+param numberOfVMs = 1
 
 // parameter assignment to objects
 param password = 'strongPassword'
@@ -34,3 +36,4 @@ param additionalMetadata = 'more metadata'
 param someParameter = 'three'
 param stringLiteral = 'abc'
 param decoratedString = 'Apple'
+param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')

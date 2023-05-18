@@ -1,5 +1,5 @@
 /*
-//@[00:737) ProgramSyntax
+//@[00:819) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -37,15 +37,25 @@ param myInt = 42
 //@[14:016) | └─IntegerLiteralSyntax
 //@[14:016) |   └─Token(Integer) |42|
 //@[16:017) ├─Token(NewLine) |\n|
-param myBool = true
-//@[00:019) ├─ParameterAssignmentSyntax
+param myBool = false
+//@[00:020) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:012) | ├─IdentifierSyntax
 //@[06:012) | | └─Token(Identifier) |myBool|
 //@[13:014) | ├─Token(Assignment) |=|
-//@[15:019) | └─BooleanLiteralSyntax
-//@[15:019) |   └─Token(TrueKeyword) |true|
-//@[19:021) ├─Token(NewLine) |\n\n|
+//@[15:020) | └─BooleanLiteralSyntax
+//@[15:020) |   └─Token(FalseKeyword) |false|
+//@[20:022) ├─Token(NewLine) |\n\n|
+
+param numberOfVMs = 1
+//@[00:021) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:017) | ├─IdentifierSyntax
+//@[06:017) | | └─Token(Identifier) |numberOfVMs|
+//@[18:019) | ├─Token(Assignment) |=|
+//@[20:021) | └─IntegerLiteralSyntax
+//@[20:021) |   └─Token(Integer) |1|
+//@[21:023) ├─Token(NewLine) |\n\n|
 
 // parameter assignment to objects
 //@[34:035) ├─Token(NewLine) |\n|
@@ -199,5 +209,20 @@ param decoratedString = 'Apple'
 //@[24:031) | └─StringSyntax
 //@[24:031) |   └─Token(StringComplete) |'Apple'|
 //@[31:032) ├─Token(NewLine) |\n|
+param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
+//@[00:081) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:036) | ├─IdentifierSyntax
+//@[06:036) | | └─Token(Identifier) |stringfromEnvironmentVariables|
+//@[37:038) | ├─Token(Assignment) |=|
+//@[39:081) | └─FunctionCallSyntax
+//@[39:062) |   ├─IdentifierSyntax
+//@[39:062) |   | └─Token(Identifier) |readEnvironmentVariable|
+//@[62:063) |   ├─Token(LeftParen) |(|
+//@[63:080) |   ├─FunctionArgumentSyntax
+//@[63:080) |   | └─StringSyntax
+//@[63:080) |   |   └─Token(StringComplete) |'envVariableName'|
+//@[80:081) |   └─Token(RightParen) |)|
+//@[81:082) ├─Token(NewLine) |\n|
 
 //@[00:000) └─Token(EndOfFile) ||

@@ -256,7 +256,7 @@ param resrefpar string = foo.id
 //@[025:028) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. (CodeDescription: none) |foo|
 
 output resrefout bool = bar.id
-//@[024:030) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "string". (CodeDescription: none) |bar.id|
+//@[024:030) [BCP033 (Error)] Expected a value of type "bool" but the provided value is of type "string". (CodeDescription: none) |bar.id|
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {

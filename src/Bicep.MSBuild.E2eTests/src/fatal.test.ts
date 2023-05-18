@@ -7,7 +7,7 @@ import { Example } from "./example";
 describe("msbuild", () => {
   it("fatal bicep errors should produce an msbuild diagnostic", () => {
     const example = new Example("fatal");
-    example.clean();
+    example.cleanProjectDir();
 
     const result = example.build(false);
 
