@@ -21,13 +21,13 @@ public class DefaultNamespaceProvider : INamespaceProvider
         var azResourceTypeProvider = new AzResourceTypeProvider(azResourceTypeLoader);
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [SystemNamespaceType.BuiltInName] = (alias, scope, features,sourceFileKind) => SystemNamespaceType.Create(alias, features,sourceFileKind),
-            [AzNamespaceType.BuiltInName] = (alias, scope, features,sourceFileKind) => AzNamespaceType.Create(alias, scope, azResourceTypeProvider),
-            [K8sNamespaceType.BuiltInName] = (alias, scope, features,sourceFileKind) => K8sNamespaceType.Create(alias),
+            [SystemNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => SystemNamespaceType.Create(alias, features, sourceFileKind),
+            [AzNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => AzNamespaceType.Create(alias, scope, azResourceTypeProvider, sourceFileKind),
+            [K8sNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => K8sNamespaceType.Create(alias),
         }.ToImmutableDictionary();
     }
 
-    public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features,BicepSourceFileKind sourceFileKind)
+    public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
         => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, sourceFileKind);
 
     public IEnumerable<string> AvailableNamespaces
