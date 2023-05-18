@@ -18,15 +18,18 @@ namespace Bicep.Core.PrettyPrintV2
 
         private readonly string? newlineReplacement;
 
-        private SyntaxStringifier(string? newlineReplacement)
+        private readonly bool includeTrivia;
+
+        private SyntaxStringifier(string? newlineReplacement, bool includeTrivia)
         {
             this.buffer = new StringBuilder();
             this.newlineReplacement = newlineReplacement;
+            this.includeTrivia = includeTrivia;
         }
 
-        public static string Stringify(SyntaxBase syntax, string? newlineReplacement = null)
+        public static string Stringify(SyntaxBase syntax, string? newlineReplacement = null, bool includeTrvia = true)
         {
-            var stringifier = new SyntaxStringifier(newlineReplacement);
+            var stringifier = new SyntaxStringifier(newlineReplacement, includeTrvia);
 
             stringifier.Visit(syntax);
 
@@ -35,9 +38,13 @@ namespace Bicep.Core.PrettyPrintV2
 
         public override void VisitToken(Token token)
         {
-            WriteTrivia(token.LeadingTrivia);
+            if (this.includeTrivia)
+            {
+                WriteTrivia(token.LeadingTrivia);
+            }
 
-            if (token.Type is TokenType.NewLine or TokenType.MultilineString && !string.IsNullOrEmpty(this.newlineReplacement))
+            if (token.Type is TokenType.NewLine or TokenType.MultilineString &&
+                !string.IsNullOrEmpty(this.newlineReplacement))
             {
                 buffer.Append(token.Text.ReplaceLineEndings(this.newlineReplacement));
             }
@@ -46,7 +53,10 @@ namespace Bicep.Core.PrettyPrintV2
                 buffer.Append(token.Text);
             }
 
-            WriteTrivia(token.TrailingTrivia);
+            if (this.includeTrivia)
+            {
+                WriteTrivia(token.TrailingTrivia);
+            }
         }
 
         private void WriteTrivia(IEnumerable<SyntaxTrivia> triviaList)

@@ -253,10 +253,24 @@ namespace Bicep.Core.PrettyPrintV2
                 ? this.Glue(syntax.Keyword, syntax.Type)
                 : this.LayoutSingle(syntax.Keyword);
 
-        private IEnumerable<Document> LayoutSkippedTriviaSyntax(SkippedTriviaSyntax syntax) =>
-            TextDocument.From(syntax
-                .ToTextPreserveFormatting()
-                .ReplaceLineEndings(this.context.Newline));
+        private IEnumerable<Document> LayoutSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
+        {
+            var text = SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim().AsSpan();
+            var trailingNewlineCount = 0;
+
+            while (text.EndsWith(this.context.Newline))
+            {
+                text = text[0..(text.Length - this.context.Newline.Length)];
+                trailingNewlineCount++;
+            }
+
+            yield return text.ToString();
+
+            if (trailingNewlineCount > 1)
+            {
+                yield return HardLine;
+            }
+        }
 
         private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax)
         {
@@ -266,7 +280,7 @@ namespace Bicep.Core.PrettyPrintV2
             var leadingTrivia = this.LayoutLeadingTrivia(firstToken.LeadingTrivia);
             var trailingTrivia = this.LayoutTrailingTrivia(lastToken.TrailingTrivia, out var suffix);
 
-            var text = SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim();
+            var text = SyntaxStringifier.Stringify(syntax, this.context.Newline, includeTrvia: false).Trim();
 
             return LayoutWithLeadingAndTrailingTrivia(text, leadingTrivia, trailingTrivia, suffix);
         }
