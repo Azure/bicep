@@ -79,7 +79,7 @@
             {
               "name": "hasLabel",
               "parameters": {
-                "label": "Needs: Author Feedback"
+                "label": "awaiting response"
               }
             },
             {
@@ -98,7 +98,7 @@
           {
             "name": "removeLabel",
             "parameters": {
-              "label": "Needs: Author Feedback"
+              "label": "awaiting response"
             }
           }
         ],
@@ -261,7 +261,7 @@
           {
             "name": "hasLabel",
             "parameters": {
-              "label": "Needs: Author Feedback"
+              "label": "awaiting response"
             }
           },
           {
@@ -362,7 +362,7 @@
           {
             "name": "hasLabel",
             "parameters": {
-              "label": "Needs: Author Feedback"
+              "label": "awaiting response"
             }
           },
           {
