@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public class DefaultNamespaceProvider : INamespaceProvider
 {
-    private delegate NamespaceType GetNamespaceDelegate(
+    private delegate NamespaceType? GetNamespaceDelegate(
         string aliasName,
         ResourceScope resourceScope,
         IFeatureProvider features,
@@ -27,17 +27,17 @@ public class DefaultNamespaceProvider : INamespaceProvider
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
             [SystemNamespaceType.BuiltInName] = (alias, scope, features, ids) => SystemNamespaceType.Create(alias, features),
-            [AzNamespaceType.BuiltInName] = (alias, scope, features, ids) =>
+            [AzNamespaceType.BuiltInName] = (alias, scope, features, importDeclarationSyntax) =>
             {
-                var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(ids, features);
+                var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(importDeclarationSyntax, features);
                 if (loader is null)
                 {
-                    return null!;
+                    return null;
                 }
                 string providerVersion = "1.0.0"; //builtin version
                 if (features.DynamicTypeLoading)
                 {
-                    providerVersion = ids?.Specification.Version ?? providerVersion;
+                    providerVersion = importDeclarationSyntax?.Specification.Version ?? providerVersion;
                 }
                 return AzNamespaceType.Create(alias, scope, new AzResourceTypeProvider(loader, providerVersion));
 

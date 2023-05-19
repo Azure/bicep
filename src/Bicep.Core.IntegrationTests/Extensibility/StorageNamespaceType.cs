@@ -95,7 +95,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             public IEnumerable<ResourceTypeReference> GetAvailableTypes()
                 => resourceTypes.Keys;
 
-            public string Version { get; private set; } = "1.0.0";
+            public string Version { get; } = "1.0.0";
 
         }
 

@@ -49,7 +49,7 @@ namespace Bicep.Core.TypeSystem.Az
                 return null;
             }
 
-           // Read the OCI type definitions
+            // Read the OCI type definitions
             var typesDefinitionPath = Path.Combine(azProviderDir, typesArtifactFilename);
             if (!resourceTypeLoaders.ContainsKey(typesDefinitionPath))
             {
