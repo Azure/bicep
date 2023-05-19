@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <RunSettings>
   <RunConfiguration>
+    <MaxCpuCount>3</MaxCpuCount>
     <!-- Break builds when no tests are discovered. -->
     <TreatNoTestsAsError>true</TreatNoTestsAsError>
   </RunConfiguration>
@@ -21,4 +22,10 @@
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
+  <MSTest>
+    <Parallelize>
+      <Workers>4</Workers>
+      <Scope>ClassLevel</Scope>
+    </Parallelize>
+  </MSTest>
 </RunSettings>

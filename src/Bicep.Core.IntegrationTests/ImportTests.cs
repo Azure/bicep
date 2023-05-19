@@ -57,8 +57,6 @@ import 'az@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
-                // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
-                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
             });
         }
 

@@ -102,7 +102,7 @@ namespace Bicep.Core.UnitTests.Configuration
     ""paramsFiles"": null,
     ""userDefinedTypes"": null,
     ""userDefinedFunctions"": null,
-    ""dynamicTypeLoading"": null
+    ""dynamicTypeLoadingEnabled"": null
   }
 }");
         }
@@ -162,7 +162,7 @@ namespace Bicep.Core.UnitTests.Configuration
     ""paramsFiles"": null,
     ""userDefinedTypes"": null,
     ""userDefinedFunctions"": null,
-    ""dynamicTypeLoading"": null
+    ""dynamicTypeLoadingEnabled"": null
   }
 }");
         }
@@ -247,7 +247,7 @@ namespace Bicep.Core.UnitTests.Configuration
     ""paramsFiles"": null,
     ""userDefinedTypes"": null,
     ""userDefinedFunctions"": null,
-    ""dynamicTypeLoading"": null
+    ""dynamicTypeLoadingEnabled"": null
   }
 }");
         }
@@ -554,7 +554,7 @@ namespace Bicep.Core.UnitTests.Configuration
     ""paramsFiles"": null,
     ""userDefinedFunctions"": null,
     ""userDefinedTypes"": null,
-    ""dynamicTypeLoading"": null
+    ""dynamicTypeLoadingEnabled"": null
   }
 }");
         }
