@@ -114,7 +114,7 @@
       "subCapability": "IssuesOnlyResponder",
       "version": "1.0",
       "config": {
-        "taskName": "[Closed Issues] Remove 'Status: No Recent Activity' label from issues",
+        "taskName": "[Closed Issues] Remove 'Status: No Recent Activity' label from issues and add Needs: Triage",
         "conditions": {
           "operator": "and",
           "operands": [
@@ -142,6 +142,12 @@
             "name": "removeLabel",
             "parameters": {
               "label": "Status: No Recent Activity"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Triage :mag:"
             }
           }
         ],
