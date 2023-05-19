@@ -20,6 +20,6 @@ namespace Bicep.Core.TypeSystem
         public bool HasDefinedType(ResourceTypeReference typeReference)
             => false;
 
-        public string GetVersion() => "1.0.0";
+        string IResourceTypeProvider.Version { get; } = "1.0.0";
     }
 }

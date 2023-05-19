@@ -67,12 +67,11 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             }
             cache.typesCached = true;
 
-            IEnumerable<ResourceTypeReference> overriddenResourceTypeReferences = this.resourceTypeReferences;
-            if (cache.injectedTypes is not null)
-            {
-                overriddenResourceTypeReferences = cache.injectedTypes;
-            }
-            cache.CacheApiVersions(overriddenResourceTypeReferences);
+             var resourceTypesToCache = cache.injectedTypes is null
+                ? this.resourceTypeReferences
+                : cache.injectedTypes;
+
+            cache.CacheApiVersions(resourceTypesToCache);
             return cache;
         }
 

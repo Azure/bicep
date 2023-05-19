@@ -201,6 +201,6 @@ namespace Bicep.Core.TypeSystem.K8s
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
 
-        public string GetVersion() => "1.0.0";
+        string IResourceTypeProvider.Version { get; } = "1.0.0";
     }
 }

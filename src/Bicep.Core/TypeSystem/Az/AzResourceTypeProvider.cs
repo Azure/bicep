@@ -70,7 +70,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
-        private readonly string version;
+        string IResourceTypeProvider.Version { get; } = "1.0.0";
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
@@ -473,7 +473,5 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
-
-        public string GetVersion() => this.version;
     }
 }

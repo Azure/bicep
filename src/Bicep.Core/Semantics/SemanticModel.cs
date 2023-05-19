@@ -59,7 +59,7 @@ namespace Bicep.Core.Semantics
             this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
             // name binding is done allow type queries now
-            ((SymbolContext)SymbolContext).Unlock();
+            ((SymbolContext)this.SymbolContext).Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
             this.symbolHierarchyLazy = new Lazy<SymbolHierarchy>(() =>

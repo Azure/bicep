@@ -13,6 +13,7 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeLoaderFactory : IAzResourceTypeLoaderFactory
     {
+        private const string typesArtifactFilename = "types.tgz";
         private readonly IFeatureProviderFactory featureProviderFactory;
 
         private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders = new(){
@@ -48,16 +49,8 @@ namespace Bicep.Core.TypeSystem.Az
                 return null;
             }
 
-            // Get the filename of the OCI type definitions artifact
-            var typesDefinitionFilename = ociManifest.Layers.SingleOrDefault()?.Annotations["org.opencontainers.image.title"];
-
-            if (typesDefinitionFilename is null)
-            {
-                return null;
-            }
-
-            // Read the OCI type definitions
-            var typesDefinitionPath = Path.Combine(azProviderDir, typesDefinitionFilename);
+           // Read the OCI type definitions
+            var typesDefinitionPath = Path.Combine(azProviderDir, typesArtifactFilename);
             if (!resourceTypeLoaders.ContainsKey(typesDefinitionPath))
             {
                 resourceTypeLoaders[typesDefinitionPath] = new AzResourceTypeLoader(OciAzTypeLoader.FromTgz(typesDefinitionPath));

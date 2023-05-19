@@ -30,6 +30,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Returns the version of the type definitions used by this provider.
         /// </summary>
-        string GetVersion();
+        string Version { get; }
     }
 }
