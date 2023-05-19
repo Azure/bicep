@@ -451,7 +451,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     BicepProviderName: BuiltInName,
                     ConfigurationType: null,
                     ArmTemplateProviderName: "AzureResourceManager",
-                    ArmTemplateProviderVersion: resourceTypeProvider.GetVersion()),
+                    ArmTemplateProviderVersion: resourceTypeProvider.Version),
                 ImmutableArray<TypeTypeProperty>.Empty,
                 GetAzOverloads(resourceScope),
                 ImmutableArray<BannedFunction>.Empty,

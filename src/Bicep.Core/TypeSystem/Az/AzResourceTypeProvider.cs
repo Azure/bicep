@@ -66,11 +66,12 @@ namespace Bicep.Core.TypeSystem.Az
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
+        public string Version { get; private set; } = "1.0.0";
+
         private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
-        string IResourceTypeProvider.Version { get; } = "1.0.0";
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
@@ -188,7 +189,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader, string providerVersion)
         {
-            this.version = providerVersion;
+            this.Version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
             this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
