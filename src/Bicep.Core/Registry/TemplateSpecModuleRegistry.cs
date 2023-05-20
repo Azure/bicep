@@ -8,9 +8,12 @@ using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
+using Bicep.Core.Semantics;
 using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
@@ -55,7 +58,7 @@ namespace Bicep.Core.Registry
         public override bool IsModuleRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override Task<bool> CheckModuleExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
@@ -125,6 +128,25 @@ namespace Bicep.Core.Registry
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
 
-        public override string? GetDocumentationUri(TemplateSpecModuleReference moduleReference) => null;
+        public override string? TryGetDocumentationUri(TemplateSpecModuleReference moduleReference) => null;
+
+        public override Task<string?> TryGetDescription(TemplateSpecModuleReference moduleReference)
+        {
+            try
+            {
+                string entrypointPath = this.GetModuleEntryPointPath(moduleReference);
+                if (File.Exists(entrypointPath))
+                {
+                    using var stream = File.OpenRead(entrypointPath);
+                    return Task.FromResult(DescriptionHelper.TryGetFromTemplateSpec(stream));
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
+            return Task.FromResult<string?>(null); ;
+        }
     }
 }

@@ -98,6 +98,7 @@ namespace Bicep.Core.FileSystem
 
             return Path.ChangeExtension(path, TemplateOutputExtension);
         }
+
         public static string GetDefaultDecompileOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))
