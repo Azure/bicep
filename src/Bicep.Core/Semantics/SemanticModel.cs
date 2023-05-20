@@ -53,13 +53,14 @@ namespace Bicep.Core.Semantics
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            this.SymbolContext = new SymbolContext(compilation, this);
+            var symbolContext = new SymbolContext(compilation, this);
+            this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
             this.ApiVersionProvider = new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes());
             this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
             // name binding is done allow type queries now
-            ((SymbolContext)this.SymbolContext).Unlock();
+            symbolContext.Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
             this.symbolHierarchyLazy = new Lazy<SymbolHierarchy>(() =>

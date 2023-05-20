@@ -17,7 +17,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         string aliasName,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        ImportDeclarationSyntax? importDeclarationSyntax = null);
+        string? version = null);
     private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
     private readonly IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory;
 
@@ -27,19 +27,19 @@ public class DefaultNamespaceProvider : INamespaceProvider
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
             [SystemNamespaceType.BuiltInName] = (alias, scope, features, ids) => SystemNamespaceType.Create(alias, features),
-            [AzNamespaceType.BuiltInName] = (alias, scope, features, importDeclarationSyntax) =>
+            [AzNamespaceType.BuiltInName] = (alias, scope, features, version) =>
             {
-                var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(importDeclarationSyntax, features);
+                var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(version, features);
                 if (loader is null)
                 {
                     return null;
                 }
-                string providerVersion = "1.0.0"; //builtin version
+                var overriddenProviderVersion = "1.0.0"; //builtin version
                 if (features.DynamicTypeLoading)
                 {
-                    providerVersion = importDeclarationSyntax?.Specification.Version ?? providerVersion;
+                    overriddenProviderVersion = version ?? overriddenProviderVersion;
                 }
-                return AzNamespaceType.Create(alias, scope, new AzResourceTypeProvider(loader, providerVersion));
+                return AzNamespaceType.Create(alias, scope, new AzResourceTypeProvider(loader, overriddenProviderVersion));
 
             },
             [K8sNamespaceType.BuiltInName] = (alias, scope, features, ids) => K8sNamespaceType.Create(alias),
@@ -51,9 +51,9 @@ public class DefaultNamespaceProvider : INamespaceProvider
         string aliasName,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        ImportDeclarationSyntax? importDeclarationSyntax = null)
+        string? version = null)
     //TODO(asilverman): This is the location where we would like to add support for extensibility providers, we want to add a new key and a new loader for the ext. provider
-        => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, importDeclarationSyntax);
+        => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, version);
 
     public IEnumerable<string> AvailableNamespaces
         => providerLookup.Keys;

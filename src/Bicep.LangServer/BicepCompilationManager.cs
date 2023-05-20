@@ -271,7 +271,6 @@ namespace Bicep.LanguageServer
             }
         }
 
-        // TODO(asilverman): This signture is a bit awkward. We should consider refactoring to make it more clear what the inputs and outputs are.
         private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(
             DocumentUri documentUri, 
             int? version, 

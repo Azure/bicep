@@ -33,21 +33,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string ExpectedSubstringInReplacedBicep
         );
 
-        private static IAzResourceTypeLoader GetAzResourceTypeLoaderWithInjectedTypes(string[] resourceTypes)
-        {
-            var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes);
-            var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
-            typesLoader.Setup(m => m.LoadType(It.IsAny<ResourceTypeReference>()))
-                .Returns<ResourceTypeReference>((tr) => new ResourceTypeComponents(
-                    tr,
-                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
-                    ResourceScope.None,
-                    ResourceFlags.None,
-                    new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any)));
 
-            typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
-            return typesLoader.Object;
-        }
 
         private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
         {
@@ -60,7 +46,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
-                    AzResourceTypeLoader: resourceTypes.Any() ? GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes) : null));
+                    AzResourceTypeLoader: resourceTypes.Any() ? FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object : null));
         }
 
         private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
@@ -100,7 +86,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
-                    AzResourceTypeLoader: GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes)));
+                    AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
         private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)

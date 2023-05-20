@@ -16,7 +16,8 @@ namespace Bicep.Core.TypeSystem.Az
         private const string typesArtifactFilename = "types.tgz";
         private readonly IFeatureProviderFactory featureProviderFactory;
 
-        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders = new(){
+        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders = new()
+        {
             {"builtin", new AzResourceTypeLoader(new AzTypeLoader())},
         };
 
@@ -25,15 +26,15 @@ namespace Bicep.Core.TypeSystem.Az
             this.featureProviderFactory = featureProviderFactory;
         }
 
-        public IAzResourceTypeLoader? GetResourceTypeLoader(ImportDeclarationSyntax? importDeclarationSyntax, IFeatureProvider features)
+        public IAzResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features)
         {
-            if (!features.DynamicTypeLoading || importDeclarationSyntax is null)
+            if (!features.DynamicTypeLoading || version is null)
             {
                 return resourceTypeLoaders["builtin"];
             }
 
             //TODO(asilverman): The magic strings below are temporary and will be changed to use variables fetched at restore time
-            var azProviderDir = Path.Combine(features.CacheRootDirectory, "br", "mcr.microsoft.com", @"bicep$providers$az", importDeclarationSyntax.Specification.Version);
+            var azProviderDir = Path.Combine(features.CacheRootDirectory, "br", "mcr.microsoft.com", @"bicep$providers$az", version);
             var ociManifestPath = Path.Combine(azProviderDir, "manifest");
             if (!File.Exists(ociManifestPath))
             {

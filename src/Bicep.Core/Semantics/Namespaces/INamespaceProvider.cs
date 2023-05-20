@@ -15,7 +15,7 @@ public interface INamespaceProvider
         string aliasName,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        ImportDeclarationSyntax? importDeclarationSyntax = null
+        string? providerVersion = null
     );
 
     IEnumerable<string> AvailableNamespaces { get; }

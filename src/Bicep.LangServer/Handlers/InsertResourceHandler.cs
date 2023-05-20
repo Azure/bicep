@@ -88,7 +88,7 @@ namespace Bicep.LanguageServer.Handlers
                 var azProviderDeclaration = model.SourceFile.ProgramSyntax.Children
                     .OfType<ImportDeclarationSyntax>()
                     .FirstOrDefault(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
-                var resourceTypeLoader = azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration, model.Features);
+                var resourceTypeLoader = azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration?.Specification.Version, model.Features);
                 if (resourceTypeLoader is null)
                 {
                     throw helper.CreateException(

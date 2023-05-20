@@ -6,7 +6,6 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -44,19 +43,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             private static void TestGetFunctionCallInfo(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 ExpectedFunctionInfo typedExpected = new(expectedFunctionCall, expectedResourceType, expectedApiVerion);
-                var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes);
-                var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
-                typesLoader.Setup(m => m.LoadType(It.IsAny<ResourceTypeReference>()))
-                    .Returns<ResourceTypeReference>((tr) => new ResourceTypeComponents(
-                        tr,
-                        ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
-                        ResourceScope.None,
-                        ResourceFlags.None,
-                        new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any)));
-
-                typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
+                var mockTypeLoader = FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(FakeResourceTypes.ResourceScopeTypes).Object;
                 var result = CompilationHelper.Compile(
-                    new ServiceBuilder().WithAzResourceTypeLoader(typesLoader.Object),
+                    new ServiceBuilder().WithAzResourceTypeLoader(mockTypeLoader),
                     bicep);
                 using (new AssertionScope().WithFullSource(result.BicepFile))
                 {

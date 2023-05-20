@@ -95,7 +95,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IAzResourceTypeLoader loader)
     {
         var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
-        factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<ImportDeclarationSyntax>(), It.IsAny<IFeatureProvider>())).Returns(loader);
+        factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<string>(), It.IsAny<IFeatureProvider>())).Returns(loader);
         return Register(services, factory.Object);
     }
 

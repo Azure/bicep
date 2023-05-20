@@ -153,9 +153,9 @@ namespace Bicep.Core.Semantics
                     ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
                     : ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, syntax) is not { } namespaceType)
+            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, syntax.Specification?.Version) is not { } namespaceType)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification.Name));
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
             }
             else
             {

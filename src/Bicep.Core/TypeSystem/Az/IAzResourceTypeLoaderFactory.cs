@@ -7,6 +7,6 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public interface IAzResourceTypeLoaderFactory
     {
-        IAzResourceTypeLoader? GetResourceTypeLoader(ImportDeclarationSyntax? importDeclarationSyntax, IFeatureProvider features);
+        IAzResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features);
     }
 }

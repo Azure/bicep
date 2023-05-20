@@ -43,7 +43,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static IAzResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IAzResourceTypeLoader loader)
         {
             var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
-            factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<ImportDeclarationSyntax>(), It.IsAny<IFeatureProvider>())).Returns(loader);
+            factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<string>(), It.IsAny<IFeatureProvider>())).Returns(loader);
             return factory.Object;
         }
 

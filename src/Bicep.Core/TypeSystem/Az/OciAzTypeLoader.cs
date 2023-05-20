@@ -23,18 +23,15 @@ namespace Bicep.Core.TypeSystem.Az
             var typesCache = ImmutableDictionary.CreateBuilder<string, byte[]>();
             using var fileStream = File.OpenRead(pathToGzip);
             using var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress);
-            using var tarReader = new TarReader(gzipStream, leaveOpen: true);
-            while (tarReader.GetNextEntry(copyData: true) is { } entry)
+            using var tarReader = new TarReader(gzipStream);
+            while (tarReader.GetNextEntry() is { } entry)
             {
                 if (entry.DataStream is null)
                 {
                     throw new ArgumentException($"Failed to restore {entry.Name} from OCI provider data", nameof(entry.Name));
-
                 }
-                using var ms = new MemoryStream();
-                entry.DataStream.CopyTo(ms);
-                typesCache.Add(entry.Name, ms.ToArray());
-
+                using var br = new BinaryReader(entry.DataStream);
+                typesCache.Add(entry.Name, br.ReadBytes((int)entry.DataStream.Length));
             }
             return new(typesCache.ToImmutableDictionary());
         }
