@@ -1132,7 +1132,8 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName, "Environment variable does not exist")));
             }
-            return new(ConvertJsonToBicepType(envVariableValue), ConvertJsonToExpression(envVariableValue));
+            return new(TypeFactory.CreateStringLiteralType(envVariableValue),
+                new StringLiteralExpression(null, envVariableValue));
         }
 
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
