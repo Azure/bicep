@@ -1,10 +1,28 @@
 # To get started with Dependabot version updates, you'll need to specify which
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#commit-message
+
+# You can manually trigger a dependabot run in the "Insights -> Dependency Graph -> Dependabot" section of the repository.
+
+# See also:
+# https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates
+# Available commands: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates#managing-dependabot-pull-requests-with-comment-commands
+# Debugging/testing: https://github.com/dependabot/cli
 
 version: 2
 updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+  - package-ecosystem: "nuget"
+    directory: "/src/vs-bicep"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -47,11 +65,6 @@ updates:
       day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/monarch"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "nuget"
-    directory: "/"
     schedule:
       interval: "weekly"
       day: "sunday"
