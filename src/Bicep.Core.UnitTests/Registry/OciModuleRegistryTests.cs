@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -127,7 +128,7 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void GetDocumentationUri_WithAnnotationsInManifestFile_ButEmpty_ShouldReturnNullDocumentationAndDescription()
+        public async Task GetDocumentationUri_WithAnnotationsInManifestFile_ButEmpty_ShouldReturnNullDocumentationAndDescription()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -159,12 +160,12 @@ namespace Bicep.Core.UnitTests.Registry
             var documentation = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
             documentation.Should().BeNull();
 
-            var description = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var description = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
             description.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDocumentationUri_WithAnnotationsInManifestFile_ButOnlyHasOtherProperties_ShouldReturnNullDocumentationAndDescription()
+        public async Task GetDocumentationUri_WithAnnotationsInManifestFile_ButOnlyHasOtherProperties_ShouldReturnNullDocumentationAndDescription()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -198,7 +199,7 @@ namespace Bicep.Core.UnitTests.Registry
             var documentation = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
             documentation.Should().BeNull();
 
-            var description = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var description = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
             description.Should().BeNull();
         }
 
@@ -305,7 +306,7 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void GetDescription_WithNonExistentManifestFile_ShouldReturnNull()
+        public async Task GetDescription_WithNonExistentManifestFile_ShouldReturnNull()
         {
             (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
@@ -315,13 +316,13 @@ namespace Bicep.Core.UnitTests.Registry
                 digest: "sha:12345",
                 cacheRootDirectory: false);
 
-            var result = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDescription_WithManifestFileAndNoAnnotations_ShouldReturnNull()
+        public async Task GetDescription_WithManifestFileAndNoAnnotations_ShouldReturnNull()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -348,13 +349,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDescription_WithManifestFileAndJustDocumentationUri_ShouldReturnNull()
+        public async Task GetDescription_WithManifestFileAndJustDocumentationUri_ShouldReturnNull()
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -383,13 +384,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDescription_WithValidDescriptionInManifestFile_ShouldReturnDescription()
+        public async Task GetDescription_WithValidDescriptionInManifestFile_ShouldReturnDescription()
         {
             var description = @"My description is this: https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
             var manifestFileContents = @"{
@@ -420,7 +421,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(description);
@@ -429,7 +430,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public void GetDescription_WithAnnotationsInManifestFileAndInvalidDescription_ShouldReturnNull(string description)
+        public async Task GetDescription_WithAnnotationsInManifestFileAndInvalidDescription_ShouldReturnNull(string description)
         {
             var manifestFileContents = @"{
   ""schemaVersion"": 2,
@@ -459,13 +460,13 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
 
         [TestMethod]
-        public void GetDescription_WithValidDescriptionAndDocumentationUriInManifestFile_ShouldReturnDescriptionAndDocumentationUri()
+        public async Task GetDescription_WithValidDescriptionAndDocumentationUriInManifestFile_ShouldReturnDescriptionAndDocumentationUri()
         {
             var documentationUri = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
             var description = "This is my \\\"description\\\"";
@@ -503,7 +504,7 @@ namespace Bicep.Core.UnitTests.Registry
             actualDocumentationUri.Should().NotBeNull();
             actualDocumentationUri.Should().BeEquivalentTo(documentationUri);
 
-            var actualDescription = ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            var actualDescription = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
 
             actualDescription.Should().NotBeNull();
             actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json
