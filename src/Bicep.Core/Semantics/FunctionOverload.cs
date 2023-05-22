@@ -125,7 +125,9 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            return FunctionMatchResult.Match;
+            return argumentTypes.OfType<AnyType>().Any()
+                ? FunctionMatchResult.PotentialMatch
+                : FunctionMatchResult.Match;
         }
 
     }

@@ -144,5 +144,4 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 @
 // #completionTest(5) -> decorators
 @sys.
-
 // WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 

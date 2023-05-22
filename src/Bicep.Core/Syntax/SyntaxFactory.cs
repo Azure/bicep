@@ -88,6 +88,7 @@ namespace Bicep.Core.Syntax
         public static Token FalseKeywordToken => CreateToken(TokenType.FalseKeyword);
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword);
         public static Token ArrowToken => CreateToken(TokenType.Arrow);
+        public static Token EndOfFileToken => CreateToken(TokenType.EndOfFile);
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
         {
@@ -200,7 +201,7 @@ namespace Bicep.Core.Syntax
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 
-        public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(TrueKeywordToken, value);
+        public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(value ? TrueKeywordToken : FalseKeywordToken, value);
 
         public static NullLiteralSyntax CreateNullLiteral() => new(NullKeywordToken);
 
@@ -226,12 +227,27 @@ namespace Bicep.Core.Syntax
             return new StringSyntax(stringTokens, expressionsArray, valuesArray);
         }
 
-        public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
+        private static StringSyntax CreateStringSyntaxWithComment(string value, string comment)
         {
             var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/*{comment.Replace("*/", "*\\/")}*/");
-            var stringToken = CreateFreeformToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'", EmptyTrivia, trailingTrivia.AsEnumerable());
+            var stringToken = CreateFreeformToken(TokenType.StringComplete, value, EmptyTrivia, trailingTrivia.AsEnumerable());
 
             return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
+        }
+
+        public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
+        {
+            return CreateStringSyntaxWithComment($"'{EscapeBicepString(value)}'", comment);
+        }
+
+        public static StringSyntax CreateEmptySyntaxWithComment(string comment)
+        {
+            return CreateStringSyntaxWithComment("", comment);
+        }
+
+        public static StringSyntax CreateInvalidSyntaxWithComment(string comment)
+        {
+            return CreateStringSyntaxWithComment("?", comment);
         }
 
         public static Token CreateStringLiteralToken(string value)

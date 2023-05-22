@@ -81,5 +81,11 @@ namespace Bicep.Core.Semantics
 
             return TypeHelper.CreateTypeUnion(argTypes);
         }
+
+        /// <summary>
+        ///   Certain declarations (outputs and metadata) define symbols which can't be referenced by name. This method allows you to filter out non-referencable symbols.
+        /// </summary>
+        public static bool CanBeReferenced(this DeclaredSymbol declaredSymbol)
+            => declaredSymbol is not OutputSymbol and not MetadataSymbol;
     }
 }

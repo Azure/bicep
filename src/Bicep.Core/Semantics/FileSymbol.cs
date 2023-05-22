@@ -208,7 +208,7 @@ namespace Bicep.Core.Semantics
                 var outputDeclarations = scope.Declarations.OfType<OutputSymbol>();
                 var metadataDeclarations = scope.Declarations.OfType<MetadataSymbol>();
                 var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
-                var referenceableDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol and not MetadataSymbol);
+                var referenceableDeclarations = scope.Declarations.Where(decl => decl.CanBeReferenced());
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
                 this.Diagnostics.AddRange(
