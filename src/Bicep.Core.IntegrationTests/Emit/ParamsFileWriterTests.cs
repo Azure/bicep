@@ -34,6 +34,47 @@ param myParam string
         [DataRow(@"
 using 'main.bicep'
 
+param myParam = getSecret('<subscriptionId>', '<resourceGroupName>', '<keyVaultName>', '<secretName>')", @"
+{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""myParam"": {
+      ""reference"": {
+        ""keyVault"": {
+          ""id"": ""/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/<keyVaultName>""
+        },
+        ""secretName"": ""<secretName>""
+      }
+    }
+  }
+}", @"
+param myParam string
+")]
+        [DataRow(@"
+using 'main.bicep'
+
+param myParam = getSecret('<subscriptionId>', '<resourceGroupName>', '<keyVaultName>', '<secretName>', '<secretVersion>')", @"
+{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""myParam"": {
+      ""reference"": {
+        ""keyVault"": {
+          ""id"": ""/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/<keyVaultName>""
+        },
+        ""secretName"": ""<secretName>"",
+        ""secretVersion"": ""<secretVersion>""
+      }
+    }
+  }
+}", @"
+param myParam string
+")]
+        [DataRow(@"
+using 'main.bicep'
+
 param myParam = 1", @"
 {
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
