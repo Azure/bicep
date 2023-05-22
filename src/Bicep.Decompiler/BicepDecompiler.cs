@@ -20,6 +20,7 @@ using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Bicep.Core.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Bicep.Decompiler;
 
@@ -36,7 +37,7 @@ public class BicepDecompiler
         this.fileResolver = fileResolver;
     }
 
-    public async Task<DecompileResult> Decompile(Uri entryJsonUri, Uri entryBicepUri, DecompileOptions? options = null)
+    public async Task<DecompileResult> Decompile(Uri entryJsonUri, Uri entryBicepUri, DecompileOptions? options = null, string? jsonTemplate = null)
     {
         var workspace = new Workspace();
         var decompileQueue = new Queue<(Uri, Uri)>();
@@ -58,9 +59,17 @@ public class BicepDecompiler
                 continue;
             }
 
-            if (!fileResolver.TryRead(jsonUri, out var jsonInput, out _))
+            var jsonInput = jsonTemplate;
+
+            if (jsonTemplate is null)
             {
-                throw new InvalidOperationException($"Failed to read {jsonUri}");
+                if (!fileResolver.TryRead(jsonUri, out jsonInput, out _))
+                {
+                    throw new InvalidOperationException($"Failed to read {jsonUri}");
+                }
+            } else
+            {
+                jsonInput = jsonTemplate;
             }
 
             var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput, options);
