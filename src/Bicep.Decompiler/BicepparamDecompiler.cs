@@ -32,15 +32,13 @@ public class BicepparamDecompiler
     private readonly BicepCompiler bicepCompiler;
     private readonly IFileResolver fileResolver;
 
-    // public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
-
     public BicepparamDecompiler(BicepCompiler bicepCompiler, IFileResolver fileResolver)
     {
         this.bicepCompiler = bicepCompiler;
         this.fileResolver = fileResolver;
     }
 
-    public DecompileResult Decompile(Uri entryJsonUri, Uri entryBicepparamUri, Uri? referencedBicepUri)
+    public DecompileResult Decompile(Uri entryJsonUri, Uri entryBicepparamUri, string? bicepFilePath)
     {
         var workspace = new Workspace();
 
@@ -49,7 +47,7 @@ public class BicepparamDecompiler
             throw new InvalidOperationException($"Failed to read {entryJsonUri}");
         }
 
-        var program = DecompileParamFile(jsonInput, entryBicepparamUri, referencedBicepUri);
+        var program = DecompileParamFile(jsonInput, entryBicepparamUri, bicepFilePath);
 
         var bicepparamFile = SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToText());
 
@@ -58,7 +56,7 @@ public class BicepparamDecompiler
         return new DecompileResult(entryBicepparamUri, PrintFiles(workspace));
     }
 
-    public ProgramSyntax DecompileParamFile(string jsonInput, Uri entryBicepparamUri, Uri? referencedBicepUri)
+    public ProgramSyntax DecompileParamFile(string jsonInput, Uri entryBicepparamUri, string? bicepFilePath)
     {
         var statements = new List<SyntaxBase>();
 
@@ -71,6 +69,8 @@ public class BicepparamDecompiler
 
         statements.Add(new UsingDeclarationSyntax(
             SyntaxFactory.CreateIdentifierToken("using"), 
+            bicepFilePath is { } ?
+            SyntaxFactory.CreateStringLiteral(bicepFilePath): 
             SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));        
 
         statements.Add(SyntaxFactory.NewlineToken);
