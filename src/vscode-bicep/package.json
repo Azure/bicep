@@ -660,7 +660,7 @@
     "json-merger": "^1.1.10",
     "moment": "^2.29.4",
     "ncp": "^2.0.0",
-    "nerdbank-gitversioning": "^3.5.119",
+    "nerdbank-gitversioning": "^3.6.133",
     "prettier": "^2.8.7",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.0",
