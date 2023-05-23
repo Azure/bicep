@@ -146,7 +146,7 @@ namespace Bicep.Core.Registry
                 // ignore
             }
 
-            return Task.FromResult<string?>(null); ;
+            return Task.FromResult<string?>(null);
         }
     }
 }

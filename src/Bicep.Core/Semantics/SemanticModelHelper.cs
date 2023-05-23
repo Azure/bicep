@@ -2,15 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using System.Linq;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using System.Text.Json;
-using Bicep.Core.Workspaces;
-using Bicep.Core.Json;
-using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Semantics
 {
