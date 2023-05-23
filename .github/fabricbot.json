@@ -279,7 +279,7 @@
           {
             "name": "noActivitySince",
             "parameters": {
-              "days": 3
+              "days": 10
             }
           }
         ],
@@ -374,7 +374,7 @@
           {
             "name": "noActivitySince",
             "parameters": {
-              "days": 4
+              "days": 7
             }
           },
           {
@@ -522,7 +522,7 @@
                 {
                   "name": "noActivitySince",
                   "parameters": {
-                    "days": 7
+                    "days": 14
                   }
                 }
               ]
@@ -556,7 +556,7 @@
         "eventNames": [
           "issue_comment"
         ],
-        "taskName": "For issues closed due to inactivity, re-open an issue if issue author posts a reply within 7 days.",
+        "taskName": "For issues closed due to inactivity, re-open an issue if issue author posts a reply within 14 days.",
         "actions": [
           {
             "name": "reopenIssue",
@@ -616,7 +616,7 @@
             {
               "name": "noActivitySince",
               "parameters": {
-                "days": 7
+                "days": 14
               }
             },
             {
@@ -634,7 +634,7 @@
         "eventNames": [
           "issue_comment"
         ],
-        "taskName": "For issues closed with no activity over 7 days, ask non-contributor to consider opening a new issue instead.",
+        "taskName": "For issues closed with no activity over 14 days, ask non-contributor to consider opening a new issue instead.",
         "actions": [
           {
             "name": "addReply",
