@@ -15,8 +15,6 @@ namespace Bicep.Core.Semantics
 {
     public static class DescriptionHelper
     {
-        private const string Description = LanguageConstants.MetadataDescriptionPropertyName;
-
         /// <summary>
         /// Retrieves description for a given syntax from a @description decorator
         /// </summary>
@@ -32,7 +30,7 @@ namespace Bicep.Core.Semantics
                 typeManager.GetDeclaredType,
                 decorable,
                 SystemNamespaceType.BuiltInName,
-                Description);
+                LanguageConstants.MetadataDescriptionPropertyName);
 
             if (decorator is not null &&
                 decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
@@ -59,7 +57,7 @@ namespace Bicep.Core.Semantics
             else if (semanticModel is ArmTemplateSemanticModel armSemanticModel)
             {
                 // JSON - search for top-level "metadata.description" property
-                return armSemanticModel.SourceFile.Template?.Metadata.TryGetValue(Description)?.Value.ToString();
+                return armSemanticModel.SourceFile.Template?.Metadata.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName)?.Value.ToString();
             }
 
             return null;
@@ -87,7 +85,7 @@ namespace Bicep.Core.Semantics
         public static string? TryGetFromArmTemplate(Stream jsonArmTemplateContents)
         {
             var root = JsonElementFactory.CreateElementFromStream(jsonArmTemplateContents);
-            return root.TryGetPropertyByPath($"metadata.{Description}")?.GetString();
+            return root.TryGetPropertyByPath($"metadata.{LanguageConstants.MetadataDescriptionPropertyName}")?.GetString();
         }
 
         /// <summary>
