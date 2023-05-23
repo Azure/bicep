@@ -499,7 +499,7 @@ module moduleB './moduleB.bicep' = {
                 fileResolver,
                 new ModuleDispatcher(
                     new DefaultModuleRegistryProvider(
-                        StrictMock.Of<IServiceProvider>().Object,
+                        BicepTestConstants.EmptyServiceProvider,
                         fileResolver,
                         BicepTestConstants.ClientFactory,
                         BicepTestConstants.TemplateSpecRepositoryFactory,

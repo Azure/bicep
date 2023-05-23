@@ -36,8 +36,8 @@ namespace Bicep.Core.Registry
             var builder = ImmutableArray.CreateBuilder<IModuleRegistry>();
 
             // Using IServiceProvider instead of constructor injection due to a dependency cycle
-            var compiler = this.serviceProvider.GetRequiredService<BicepCompiler>();
-            builder.Add(new LocalModuleRegistry(compiler, this.fileResolver, templateUri));
+            var compiler = this.serviceProvider.GetService<BicepCompiler>();
+            builder.Add(new LocalModuleRegistry(this.fileResolver, templateUri, compiler));
 
             if (features.RegistryEnabled)
             {

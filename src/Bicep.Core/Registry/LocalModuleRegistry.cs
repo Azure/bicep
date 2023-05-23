@@ -23,9 +23,9 @@ namespace Bicep.Core.Registry
     {
         private readonly IFileResolver fileResolver;
         private readonly Uri parentModuleUri;
-        private readonly BicepCompiler bicepCompiler;
+        private readonly BicepCompiler? bicepCompiler;
 
-        public LocalModuleRegistry(BicepCompiler bicepCompiler, IFileResolver fileResolver, Uri parentModuleUri)
+        public LocalModuleRegistry(IFileResolver fileResolver, Uri parentModuleUri, BicepCompiler? bicepCompiler)
         {
             this.fileResolver = fileResolver;
             this.parentModuleUri = parentModuleUri;
@@ -88,7 +88,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                if (this.TryGetLocalModuleEntryPointUri(moduleReference, out Uri? localUri, out _))
+                if (this.TryGetLocalModuleEntryPointUri(moduleReference, out Uri? localUri, out _) && this.bicepCompiler is not null)
                 {
                     var compilation = await this.bicepCompiler.CreateCompilation(localUri, skipRestore: true);
                     if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result)

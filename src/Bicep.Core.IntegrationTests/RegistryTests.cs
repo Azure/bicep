@@ -22,6 +22,7 @@ using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using static Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Core.IntegrationTests
@@ -30,7 +31,7 @@ namespace Bicep.Core.IntegrationTests
     public class RegistryTests
     {
         private static ServiceBuilder Services => new ServiceBuilder();
-        private static IServiceProvider EmptyServiceProvider = StrictMock.Of<IServiceProvider>().Object;
+        private static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         [NotNull]
         public TestContext? TestContext { get; set; }

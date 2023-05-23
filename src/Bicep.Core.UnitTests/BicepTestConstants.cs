@@ -62,9 +62,10 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
 
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(StrictMock.Of<IServiceProvider>().Object, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+        public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
+        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(EmptyServiceProvider, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
-        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
