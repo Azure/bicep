@@ -47,6 +47,9 @@ public static class IDependencyHelperExtensions
 
     public static BicepDecompiler GetDecompiler(this IDependencyHelper helper)
         => helper.Construct<BicepDecompiler>();
+
+    public static BicepparamDecompiler GetBicepparamDecompiler(this IDependencyHelper helper)
+        => helper.Construct<BicepparamDecompiler>();
 }
 
 public class ServiceBuilder
@@ -58,6 +61,7 @@ public class ServiceBuilder
         this.services = new ServiceCollection()
             .AddBicepCore()
             .AddBicepDecompiler()
+            .AddBicepparamDecompiler()
             .WithWorkspace(new Workspace());
     }
 
