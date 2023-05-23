@@ -80,5 +80,17 @@ namespace Bicep.Core.IntegrationTests.Semantics
             data.Symbols.WriteToOutputFolder(sourceTextWithDiags);
             data.Symbols.ShouldHaveExpectedValue();
         }
+
+        [TestInitialize]
+        public void testInit(){
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
+            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
+        }
+
+        [TestCleanup]
+        public void TestCleanup(){
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", null);
+            System.Environment.SetEnvironmentVariable("intEnvVariableName",null);
+        }
     }
 }
