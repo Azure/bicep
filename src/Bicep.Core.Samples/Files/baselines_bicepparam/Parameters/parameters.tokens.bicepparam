@@ -144,14 +144,26 @@ param decoratedString = 'Apple'
 //@[22:23) Assignment |=|
 //@[24:31) StringComplete |'Apple'|
 //@[31:32) NewLine |\n|
-param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
+param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
 //@[00:05) Identifier |param|
 //@[06:36) Identifier |stringfromEnvironmentVariables|
 //@[37:38) Assignment |=|
 //@[39:62) Identifier |readEnvironmentVariable|
 //@[62:63) LeftParen |(|
-//@[63:80) StringComplete |'envVariableName'|
-//@[80:81) RightParen |)|
-//@[81:82) NewLine |\n|
+//@[63:86) StringComplete |'stringEnvVariableName'|
+//@[86:87) RightParen |)|
+//@[87:88) NewLine |\n|
+param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
+//@[00:05) Identifier |param|
+//@[06:33) Identifier |intfromEnvironmentVariables|
+//@[34:35) Assignment |=|
+//@[36:39) Identifier |int|
+//@[39:40) LeftParen |(|
+//@[40:63) Identifier |readEnvironmentVariable|
+//@[63:64) LeftParen |(|
+//@[64:84) StringComplete |'intEnvVariableName'|
+//@[84:85) RightParen |)|
+//@[85:86) RightParen |)|
+//@[86:87) NewLine |\n|
 
 //@[00:00) EndOfFile ||

@@ -60,6 +60,9 @@
     },
     "stringfromEnvironmentVariables": {
       "value": "test"
+    },
+    "intfromEnvironmentVariables": {
+      "value": 100
     }
   }
 }

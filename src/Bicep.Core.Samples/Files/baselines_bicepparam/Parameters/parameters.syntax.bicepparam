@@ -1,5 +1,5 @@
 /*
-//@[00:819) ProgramSyntax
+//@[00:936) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -209,20 +209,41 @@ param decoratedString = 'Apple'
 //@[24:031) | └─StringSyntax
 //@[24:031) |   └─Token(StringComplete) |'Apple'|
 //@[31:032) ├─Token(NewLine) |\n|
-param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
-//@[00:081) ├─ParameterAssignmentSyntax
+param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
+//@[00:087) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:036) | ├─IdentifierSyntax
 //@[06:036) | | └─Token(Identifier) |stringfromEnvironmentVariables|
 //@[37:038) | ├─Token(Assignment) |=|
-//@[39:081) | └─FunctionCallSyntax
+//@[39:087) | └─FunctionCallSyntax
 //@[39:062) |   ├─IdentifierSyntax
 //@[39:062) |   | └─Token(Identifier) |readEnvironmentVariable|
 //@[62:063) |   ├─Token(LeftParen) |(|
-//@[63:080) |   ├─FunctionArgumentSyntax
-//@[63:080) |   | └─StringSyntax
-//@[63:080) |   |   └─Token(StringComplete) |'envVariableName'|
-//@[80:081) |   └─Token(RightParen) |)|
-//@[81:082) ├─Token(NewLine) |\n|
+//@[63:086) |   ├─FunctionArgumentSyntax
+//@[63:086) |   | └─StringSyntax
+//@[63:086) |   |   └─Token(StringComplete) |'stringEnvVariableName'|
+//@[86:087) |   └─Token(RightParen) |)|
+//@[87:088) ├─Token(NewLine) |\n|
+param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
+//@[00:086) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:033) | ├─IdentifierSyntax
+//@[06:033) | | └─Token(Identifier) |intfromEnvironmentVariables|
+//@[34:035) | ├─Token(Assignment) |=|
+//@[36:086) | └─FunctionCallSyntax
+//@[36:039) |   ├─IdentifierSyntax
+//@[36:039) |   | └─Token(Identifier) |int|
+//@[39:040) |   ├─Token(LeftParen) |(|
+//@[40:085) |   ├─FunctionArgumentSyntax
+//@[40:085) |   | └─FunctionCallSyntax
+//@[40:063) |   |   ├─IdentifierSyntax
+//@[40:063) |   |   | └─Token(Identifier) |readEnvironmentVariable|
+//@[63:064) |   |   ├─Token(LeftParen) |(|
+//@[64:084) |   |   ├─FunctionArgumentSyntax
+//@[64:084) |   |   | └─StringSyntax
+//@[64:084) |   |   |   └─Token(StringComplete) |'intEnvVariableName'|
+//@[84:085) |   |   └─Token(RightParen) |)|
+//@[85:086) |   └─Token(RightParen) |)|
+//@[86:087) ├─Token(NewLine) |\n|
 
 //@[00:000) └─Token(EndOfFile) ||

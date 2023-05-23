@@ -52,6 +52,8 @@ param stringLiteral = 'abc'
 //@[6:19) ParameterAssignment stringLiteral. Type: 'abc'. Declaration start char: 0, length: 27
 param decoratedString = 'Apple'
 //@[6:21) ParameterAssignment decoratedString. Type: 'Apple'. Declaration start char: 0, length: 31
-param stringfromEnvironmentVariables = readEnvironmentVariable('envVariableName')
-//@[6:36) ParameterAssignment stringfromEnvironmentVariables. Type: 'test'. Declaration start char: 0, length: 81
+param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
+//@[6:36) ParameterAssignment stringfromEnvironmentVariables. Type: 'test'. Declaration start char: 0, length: 87
+param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
+//@[6:33) ParameterAssignment intfromEnvironmentVariables. Type: int. Declaration start char: 0, length: 86
 
