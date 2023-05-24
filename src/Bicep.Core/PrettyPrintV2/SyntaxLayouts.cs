@@ -535,7 +535,7 @@ namespace Bicep.Core.PrettyPrintV2
                 {
                     this.ForceBreak();
 
-                    // Trailing single-line comment should not be ignored
+                    // Trailing single-line comment should be ignored
                     // when calculating occupied width for the current line,
                     // so making it a zero-length suffix.
                     suffix = new($" {triviaItem.Text}");
