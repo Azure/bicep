@@ -493,7 +493,21 @@ module moduleB './moduleB.bicep' = {
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
             var fileResolver = new InMemoryFileResolver(fileDict);
-            var compilationProvider = new BicepCompilationProvider(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.LinterAnalyzer);
+            var compilationProvider = new BicepCompilationProvider(
+                BicepTestConstants.FeatureProviderFactory,
+                TestTypeHelper.CreateEmptyProvider(),
+                fileResolver,
+                new ModuleDispatcher(
+                    new DefaultModuleRegistryProvider(
+                        BicepTestConstants.EmptyServiceProvider,
+                        fileResolver,
+                        BicepTestConstants.ClientFactory,
+                        BicepTestConstants.TemplateSpecRepositoryFactory,
+                        BicepTestConstants.FeatureProviderFactory,
+                        BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager),
+                BicepTestConstants.ApiVersionProviderFactory,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.LinterAnalyzer);
 
             var compilationManager = new BicepCompilationManager(server.Object, compilationProvider, new Workspace(), BicepCompilationManagerHelper.CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
 
