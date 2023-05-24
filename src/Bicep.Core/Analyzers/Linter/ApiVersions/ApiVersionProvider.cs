@@ -67,11 +67,15 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             }
             cache.typesCached = true;
 
-             var resourceTypesToCache = cache.injectedTypes is null
-                ? this.resourceTypeReferences
-                : cache.injectedTypes;
+            var resourceTypesToCache = cache.injectedTypes is null
+               ? this.resourceTypeReferences
+               : cache.injectedTypes;
 
+            var stopwatch = Stopwatch.StartNew();
             cache.CacheApiVersions(resourceTypesToCache);
+            stopwatch.Stop();
+            Trace.WriteLine($"ApiVersionProvider.CacheApiVersions took {stopwatch.ElapsedMilliseconds}ms");
+
             return cache;
         }
 
