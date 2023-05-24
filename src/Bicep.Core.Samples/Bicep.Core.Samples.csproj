@@ -14,23 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Files\InvalidExpressions_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidFunctions_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidLambdas_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidLoadFunctions_CRLF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidMetadata_CRLF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidModulesManagementGroup_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidModulesSubscription_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidModulesTenant_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidModules_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidMultilineString_CRLF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidNewlineSensitivity_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidOutputs_CRLF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\InvalidTypeDeclarations_LF\main.pprint.bicep" />
-    <EmbeddedResource Include="Files\LargeTemplate_Stress_LF\main.pprint.bicep" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
