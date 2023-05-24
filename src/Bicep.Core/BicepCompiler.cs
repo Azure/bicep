@@ -42,7 +42,7 @@ public class BicepCompiler
         this.moduleDispatcher = moduleDispatcher;
     }
 
-    public async Task<Compilation> CreateCompilation(Uri bicepUri, bool skipRestore = false, bool forceModulesRestore = false, IReadOnlyWorkspace ? workspace = null)
+    public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceModulesRestore = false)
     {
         workspace ??= new Workspace();
         var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepUri, forceModulesRestore);

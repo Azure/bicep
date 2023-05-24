@@ -147,7 +147,7 @@ public class BicepDecompiler
     private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
         var hasChanges = false;
-        var compilation = await bicepCompiler.CreateCompilation(entryUri, skipRestore: true, forceModulesRestore: false, workspace);
+        var compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true, forceModulesRestore: false);
 
         // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
         var sourceFiles = compilation.SourceFileGrouping.SourceFiles.ToImmutableArray();
@@ -161,7 +161,7 @@ public class BicepDecompiler
                 var newFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToText());
                 workspace.UpsertSourceFile(newFile);
 
-                compilation = await bicepCompiler.CreateCompilation(entryUri, skipRestore: true, forceModulesRestore: false, workspace);
+                compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);
             }
         }
 

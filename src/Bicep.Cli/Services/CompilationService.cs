@@ -53,7 +53,7 @@ namespace Bicep.Cli.Services
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
-            var compilation = await bicepCompiler.CreateCompilation(inputUri, skipRestore: true, forceModulesRestore: forceModulesRestore, this.workspace);
+            var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore: true, forceModulesRestore: forceModulesRestore);
             var originalModulesToRestore = compilation.SourceFileGrouping.GetModulesToRestore().ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
@@ -74,7 +74,7 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-            var compilation = await bicepCompiler.CreateCompilation(inputUri, skipRestore, forceModulesRestore: false, this.workspace);
+            var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
 
             LogDiagnostics(compilation);
 
