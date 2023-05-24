@@ -56,4 +56,6 @@ param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariabl
 //@[6:36) ParameterAssignment stringfromEnvironmentVariables. Type: 'test'. Declaration start char: 0, length: 87
 param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
 //@[6:33) ParameterAssignment intfromEnvironmentVariables. Type: int. Declaration start char: 0, length: 86
+param boolfromEnvironmentVariables = bool(readEnvironmentVariable('boolEnvironmentVariable'))
+//@[6:34) ParameterAssignment boolfromEnvironmentVariables. Type: bool. Declaration start char: 0, length: 93
 

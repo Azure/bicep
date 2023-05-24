@@ -165,5 +165,17 @@ param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableN
 //@[84:85) RightParen |)|
 //@[85:86) RightParen |)|
 //@[86:87) NewLine |\n|
+param boolfromEnvironmentVariables = bool(readEnvironmentVariable('boolEnvironmentVariable'))
+//@[00:05) Identifier |param|
+//@[06:34) Identifier |boolfromEnvironmentVariables|
+//@[35:36) Assignment |=|
+//@[37:41) Identifier |bool|
+//@[41:42) LeftParen |(|
+//@[42:65) Identifier |readEnvironmentVariable|
+//@[65:66) LeftParen |(|
+//@[66:91) StringComplete |'boolEnvironmentVariable'|
+//@[91:92) RightParen |)|
+//@[92:93) RightParen |)|
+//@[93:94) NewLine |\n|
 
 //@[00:00) EndOfFile ||

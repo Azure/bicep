@@ -219,3 +219,4 @@ param decoratedArray array = [
 
 param stringfromEnvironmentVariables string
 param intfromEnvironmentVariables int
+param boolfromEnvironmentVariables bool

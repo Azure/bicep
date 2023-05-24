@@ -297,12 +297,14 @@ this
         public void testInit(){
             System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
             System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
         }
 
         [TestCleanup]
         public void TestCleanup(){
             System.Environment.SetEnvironmentVariable("stringEnvVariableName", null);
             System.Environment.SetEnvironmentVariable("intEnvVariableName",null);
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", null);
         }
         
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string filePath)
