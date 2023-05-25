@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 using Bicep.LanguageServer.Settings;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
 namespace Bicep.LanguageServer
 {
@@ -47,6 +48,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepRenameHandler>()
                     .WithHandler<BicepHoverHandler>()
                     .WithHandler<BicepCompletionHandler>()
+                    //.WithHandler<BicepCompletionResolveHandler>()
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepCreateConfigFileHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
