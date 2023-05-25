@@ -76,14 +76,18 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(request);
+            return Task.FromResult(request with
+            {
+                Detail = "my detail",
+                Documentation = "my docs",
+            });
         }
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
-            ResolveProvider = false,
+            ResolveProvider = true,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")
         };
     }
