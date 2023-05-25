@@ -573,6 +573,28 @@ jobs:
         with:
           flags: dotnet
 
+  publish-test-results:
+    name: "Publish Tests Results"
+    needs: test-bicep
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      # only needed unless run with comment_mode: off
+      pull-requests: write
+    if: always()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: "artifacts/**/*.trx"
+  
+
   can-run-live-tests:
     name: Check secret access
     runs-on: ubuntu-latest
