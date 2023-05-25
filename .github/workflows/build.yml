@@ -587,7 +587,26 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          path: artifacts
+          name: Bicep.TestResults.win-x64
+          path: TestResults/win-x64
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.linux-x64
+          path: TestResults/linux-x64
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.linux-musl-x64
+          path: TestResults/linux-musl-x64
+        
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.osx-x64
+          path: TestResults/osx-x64
 
       - name: List downloaded artifacts
         run: ls -R    
@@ -595,7 +614,7 @@ jobs:
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          files: "./TestResults/**/*.trx"
+          files: "TestResults/**/*.trx"
   
 
   can-run-live-tests:
