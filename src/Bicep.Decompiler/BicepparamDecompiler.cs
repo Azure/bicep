@@ -73,16 +73,23 @@ public class BicepparamDecompiler
             SyntaxFactory.CreateStringLiteral(bicepFilePath): 
             SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));        
 
-        statements.Add(SyntaxFactory.NewlineToken);
-        statements.Add(SyntaxFactory.NewlineToken);
+            statements.Add(SyntaxFactory.DoubleNewlineToken);
+
 
         var parameters = (TemplateHelpers.GetProperty(jsonObject, "parameters")?.Value as JObject ?? new JObject()).Properties();        
 
         foreach(var parameter in parameters)
         {
+            var metadata = parameter.Value?["metadata"];
+
+            if(metadata is {})
+            {
+                statements.Add(ParseParameterWithComment(metadata));
+                statements.Add(SyntaxFactory.NewlineToken);
+            }
+
             statements.Add(ParseParam(parameter));
-            statements.Add(SyntaxFactory.NewlineToken);
-            statements.Add(SyntaxFactory.NewlineToken);
+            statements.Add(SyntaxFactory.DoubleNewlineToken);
         }
 
         var program = new ProgramSyntax(statements, SyntaxFactory.CreateToken(Core.Parsing.TokenType.EndOfFile));
@@ -90,8 +97,17 @@ public class BicepparamDecompiler
         return program;
     }
 
-    private ParameterAssignmentSyntax ParseParam(JProperty param)
-    {   
+    private SyntaxBase ParseParam(JProperty param)
+    { 
+        if(param.Value?["reference"] is {})
+        {
+            return new ParameterAssignmentSyntax(
+            SyntaxFactory.CreateIdentifierToken("param"),
+            SyntaxFactory.CreateIdentifier(param.Name),
+            SyntaxFactory.AssignmentToken,
+            SyntaxFactory.CreateInvalidSyntaxWithComment("KeyVault references are not supported in Bicep Parameters files"));
+        }
+
         var value = param.Value?["value"];
 
         if(value is null)
@@ -148,6 +164,20 @@ public class BicepparamDecompiler
         }
 
         return SyntaxFactory.CreateObject(propertySyntaxes);
+    }
+
+    private SyntaxBase ParseParameterWithComment(JToken jToken)
+    {
+        var metadata = jToken.ToString();
+        var commentSyntax = SyntaxFactory.CreateEmptySyntaxWithComment(
+$@"
+Parameter metadata is not supported in Bicep Parameters files
+
+Following metadata was not decompiled:
+{metadata}
+");
+
+        return commentSyntax;
     }
 
     private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
