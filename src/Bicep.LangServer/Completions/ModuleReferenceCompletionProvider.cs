@@ -461,7 +461,7 @@ namespace Bicep.LanguageServer.Completions
 
         // Handles path completions for MCR.
         // I.e., completions after "br/public:" or "br:{MCRRegistry}/bicep/:"
-        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context)
+        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context) //asdfg
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 

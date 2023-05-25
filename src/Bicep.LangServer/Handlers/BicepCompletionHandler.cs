@@ -17,6 +17,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    public class BicepCompletionResolveHandler : CompletionResolveHandlerBase
+    {
+        public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(request with
+            {
+                Documentation = "https://github.com/stephenweatherford",
+                Detail = "my detail",
+            });
+        }
+
+    }
+
     public class BicepCompletionHandler : CompletionHandlerBase
     {
         private readonly ILogger<BicepCompletionHandler> logger;
