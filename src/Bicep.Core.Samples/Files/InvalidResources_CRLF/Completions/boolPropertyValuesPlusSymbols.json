@@ -437,7 +437,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```\nCalculates the IP address of the specified host on a network.\n"
+      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```\nCalculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -458,7 +458,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ncidrSubnet(network: string, cidr: int, subnetIndex: int): string\n\n```\nReturns the specified subnet of a CIDR network.\n"
+      "value": "```bicep\ncidrSubnet(network: string, cidr: int, subnetIndex: int): string\n\n```\nSplits the specified IP address range in CIDR notation into subnets with a new CIDR value and returns the IP address range of the subnet with the specified index.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -4551,7 +4551,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nparseCidr(network: string): parseCidr\n\n```\nParses an IP address into individual components and other useful information.\n"
+      "value": "```bicep\nparseCidr(network: string): parseCidr\n\n```\nParses an IP address range in CIDR notation to get various properties of the address range.\n"
     },
     "deprecated": false,
     "preselect": false,

@@ -21,6 +21,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DataSet = Bicep.Core.Samples.DataSet;
@@ -146,7 +147,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository)).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -204,7 +205,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository)).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -324,6 +325,71 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(1);
                 output.Should().BeEmpty();
                 error.Should().ContainAll(diagnostics);
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            null,
+            "param description string",
+            null,
+            DisplayName = "manifest: neither description nor uri"
+            )]
+        [DataRow(
+            "mydocs.org/abc",
+            "metadata description = 'my description'",
+            "my description",
+            DisplayName = "manifest: description and uri"
+            )]
+        [DataRow(
+            null,
+            "metadata description = 'my description'",
+            "my description",
+            DisplayName = "manifest: just description"
+            )]
+        [DataRow(
+            "mydocs.org/abc",
+            "",
+            null,
+            DisplayName = "manifest: just uri"
+            )]
+        [DataRow(
+            "mydocs.org/abc",
+            "metadata description2 = 'my description'",
+            null,
+            DisplayName = "manifest: just uri 2"
+            )]
+        public async Task Publish_BicepModule_WithDescriptionAndDocUri_ShouldPlaceDescriptionInManifest(string? documentationUri, string bicepModuleContents, string? expectedDescription)
+        {
+            var moduleName = "module1";
+            var registryStr = "example.com";
+            var registryUri = new Uri($"https://{registryStr}");
+            var repository = $"test/{moduleName}".ToLowerInvariant();
+
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
+
+            var blobClient = blobClients[(registryUri, repository)];
+
+            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, documentationUri);
+
+            var manifest = Encoding.Default.GetString(blobClient.Manifests.Single().Value.ToBuilder().ToArray());
+
+            if (expectedDescription is null)
+            {
+                manifest.Should().NotMatchRegex($@"org.opencontainers.image.description");
+            }
+            else
+            {
+                manifest.Should().MatchRegex($@"""org.opencontainers.image.description"": ""{expectedDescription}""");
+            }
+
+            if (documentationUri is null)
+            {
+                manifest.Should().NotMatchRegex($@"org.opencontainers.image.documentation");
+            }
+            else
+            {
+                manifest.Should().MatchRegex($@"""org.opencontainers.image.documentation"": ""{documentationUri}""");
             }
         }
 

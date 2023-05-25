@@ -49,7 +49,7 @@ namespace Bicep.Cli
 
             if (FeatureProvider.TracingEnabled)
             {
-                Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+                Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
             }
 
             // this event listener picks up SDK events and writes them to Trace.WriteLine()
