@@ -116,6 +116,19 @@ Usage:
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
 
+  {exeName} lint [options] <file>
+    Lints a .bicep file. Similar to build command but will return an error exit code on any warnings.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --ignore-warnings  Exit code will only consider errors. Warnings will be ignored.
+
+    Examples:
+      bicep lint file.bicep
+      bicep lint file.bicep --ignore-warnings
+
   {exeName} generate-params [options] <file>
     Builds parameters file from the given bicep file, updates if there is an existing parameters file.
 

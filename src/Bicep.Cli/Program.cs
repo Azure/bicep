@@ -90,6 +90,9 @@ namespace Bicep.Cli
                     case RestoreArguments restoreArguments when restoreArguments.CommandName == Constants.Command.Restore: // bicep restore
                         return await services.GetRequiredService<RestoreCommand>().RunAsync(restoreArguments);
 
+                    case LintArguments lintArguments when lintArguments.CommandName == Constants.Command.Lint: // bicep lint [options]
+                        return await services.GetRequiredService<LintCommand>().RunAsync(lintArguments);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
