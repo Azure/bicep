@@ -26,17 +26,16 @@ jobs:
     strategy:
       # let us get failures from other jobs even if one fails
       fail-fast: false
-
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
-        include:
-          - rid: win-x64
-          - rid: linux-x64
-          - rid: linux-musl-x64
-          - rid: osx-x64
-          - rid: linux-arm64
-          - rid: win-arm64
-          - rid: osx-arm64
+        rid:
+          - win-x64
+          - linux-x64
+          - linux-musl-x64
+          - osx-x64
+          - linux-arm64
+          - win-arm64
+          - osx-arm64
 
     steps:
       - uses: actions/checkout@v3
@@ -59,7 +58,7 @@ jobs:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/release/net7.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
-      
+
       - name: Upload Bicep project assets file
         uses: actions/upload-artifact@v3
         with:
@@ -112,7 +111,7 @@ jobs:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/release/net7.0/publish/*
           if-no-files-found: error
-      
+
       # needed to generate notice file
       - name: Upload Language Server project assets file
         uses: actions/upload-artifact@v3
@@ -124,10 +123,8 @@ jobs:
     name: Build VSCode Extension
     runs-on: ${{ matrix.os }}
     needs: build-langserver
-
     strategy:
       fail-fast: false
-
       matrix:
         os:
           - windows-latest
@@ -169,19 +166,19 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
-      
+
       - name: Download Language Server project assets file
         if: runner.os == 'Linux'
         uses: actions/download-artifact@v3
         with:
           name: Bicep.LangServer.ProjAssets
           path: ./src/vscode-bicep-notice/inputs
-      
+
       - name: npm list -a --json
         if: runner.os == 'Linux'
         run: npm list -a --json > ../vscode-bicep-notice/inputs/npm-list.json
         working-directory: ./src/vscode-bicep
-      
+
       - name: Generate VSIX notice
         if: runner.os == 'Linux'
         run: dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
@@ -269,8 +266,9 @@ jobs:
       - name: Run bicep in visual studio unit tests
         uses: microsoft/vstest-action@v1.0.0
         with:
-          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
+          testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
+          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472
         # Temporary workaround to force a green build - VS tests are flaky
         # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
         continue-on-error: true
@@ -281,8 +279,9 @@ jobs:
       - name: Run bicep in visual studio integration tests
         uses: microsoft/vstest-action@v1.0.0
         with:
-          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          testAssembly: Bicep.VSLanguageServerClient.IntegrationTests.dll
           runInParallel: false
+          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472
         # Temporary workaround to force a green build - VS tests are flaky
         # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
         continue-on-error: true
@@ -306,7 +305,7 @@ jobs:
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
-      
+
       - name: Download Bicep CLI project assets file
         uses: actions/download-artifact@v3
         with:
@@ -329,13 +328,10 @@ jobs:
     needs:
       - build-cli
       - build-nugets
-
     env:
       RuntimeSuffix: ${{ matrix.rid }}
-
     strategy:
       fail-fast: false
-
       # should be the full list of RIDs that we support in the CLI
       matrix:
         include:
@@ -389,7 +385,7 @@ jobs:
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
-      
+
       - name: Download Bicep CLI project assets file
         uses: actions/download-artifact@v3
         with:
@@ -501,17 +497,22 @@ jobs:
         working-directory: ./src/monarch
 
   test-bicep:
-    name: Test Bicep (${{ matrix.rid }})
-    runs-on: ${{ matrix.os }}
+    name: 'Run: ${{matrix.config.name}} (${{ matrix.runtime.rid }})'
+    runs-on: ${{ matrix.runtime.os }}
     needs: build-cli
-
     strategy:
       # let us get failures from other jobs even if one fails
       fail-fast: false
-
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
-        include:
+        config:
+          - name: Bicep.Core.IntegrationTests
+            filter: FullyQualifiedName~Bicep.Core.IntegrationTests
+          - name: Bicep.LangServer.IntegrationTests
+            filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
+          - name: All tests except Bicep.Core.IntegrationTests and Bicep.LangServer.IntegrationTests
+            filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
+        runtime:
           - os: windows-latest
             rid: win-x64
           - os: ubuntu-latest
@@ -530,21 +531,21 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
 
-      - name: Test
-        run: dotnet test --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+      - name: Run Tests
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
-        if: always()
+        if: failure()
         with:
-          name: Bicep.TestResults.${{ matrix.rid }}
+          name: Bicep.TestResults.${{ matrix.runtime.rid }}
           path: ./TestResults/**/*.trx
           if-no-files-found: error
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v3
         with:
-          name: bicep-release-${{ matrix.rid }}
+          name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
 
       - name: Make Bicep CLI executable
@@ -552,14 +553,14 @@ jobs:
         run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
       - name: Run Bicep E2E Tests
-        if: matrix.rid != 'linux-musl-x64'
+        if: matrix.runtime.rid != 'linux-musl-x64'
         run: npm ci && npm test
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: matrix.rid == 'linux-musl-x64'
+        if: matrix.runtime.rid == 'linux-musl-x64'
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
           entrypoint: sh
@@ -577,6 +578,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       access_verified: ${{ steps.check-access.outputs.verified }}
+      
     steps:
       - id: check-access
         env:

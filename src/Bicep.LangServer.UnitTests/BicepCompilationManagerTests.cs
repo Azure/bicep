@@ -519,6 +519,7 @@ module moduleB './moduleB.bicep' = {
                 fileResolver,
                 new ModuleDispatcher(
                     new DefaultModuleRegistryProvider(
+                        BicepTestConstants.EmptyServiceProvider,
                         fileResolver,
                         BicepTestConstants.ClientFactory,
                         BicepTestConstants.TemplateSpecRepositoryFactory,

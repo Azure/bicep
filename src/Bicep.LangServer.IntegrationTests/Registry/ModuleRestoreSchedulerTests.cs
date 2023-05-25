@@ -180,7 +180,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
-            public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri)
+            public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
             {
                 throw new NotImplementedException();
             }
@@ -204,6 +204,8 @@ namespace Bicep.LangServer.UnitTests.Registry
             }
 
             public string? GetDocumentationUri(ModuleReference reference) => null;
+
+            public Task<string?> TryGetDescription(ModuleReference reference) => Task.FromResult<string?>(null);
 
             public bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {

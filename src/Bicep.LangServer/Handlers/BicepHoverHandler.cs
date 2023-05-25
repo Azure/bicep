@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -39,31 +41,31 @@ namespace Bicep.LanguageServer.Handlers
             this.symbolResolver = symbolResolver;
         }
 
-        public override Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
+        public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null)
             {
-                return Task.FromResult<Hover?>(null);
+                return null;
             }
 
-            var markdown = GetMarkdown(request, result, this.moduleDispatcher, this.moduleRegistryProvider);
+            var markdown = await GetMarkdown(request, result, this.moduleDispatcher, this.moduleRegistryProvider);
             if (markdown == null)
             {
-                return Task.FromResult<Hover?>(null);
+                return null;
             }
 
-            return Task.FromResult<Hover?>(new Hover
+            return new Hover
             {
                 Contents = markdown,
                 Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
-            });
+            };
         }
 
         private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
             if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
-                SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax) is { } description)
+                DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax) is { } description)
             {
                 return description;
             }
@@ -71,7 +73,7 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent? GetMarkdown(
+        private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
             IModuleDispatcher moduleDispatcher,
@@ -82,71 +84,45 @@ namespace Bicep.LanguageServer.Handlers
             switch (result.Symbol)
             {
                 case ImportedNamespaceSymbol import:
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         $"import {import.Name}", TryGetDescriptionMarkdown(result, import)));
 
                 case MetadataSymbol metadata:
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         $"metadata {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
 
 
                 case ParameterSymbol parameter:
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameter.Name}: {parameter.Type}", parameter.Type), TryGetDescriptionMarkdown(result, parameter)));
 
                 case TypeAliasSymbol declaredType:
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
 
                 case AmbientTypeSymbol ambientType:
-                    return WithMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
+                    return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
 
                 case VariableSymbol variable:
-                    return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
+                    return AsMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
                     var description = TryGetDescriptionMarkdown(result, resource);
 
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         $"resource {resource.Name} {(resource.Type is ResourceType ? $"'{resource.Type}'" : resource.Type)}",
                         description is { } ? $"{description}\n{docsSuffix}" : docsSuffix));
 
                 case ModuleSymbol module:
-                    var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
-
-                    if (filePath != null)
-                    {
-                        var uri = request.TextDocument.Uri.ToUri();
-                        var registries = moduleRegistryProvider.Registries(uri);
-
-                        if (registries != null &&
-                            registries.Any() &&
-                            moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
-                            moduleReference is not null)
-                        {
-                            foreach (var registry in registries)
-                            {
-                                if (registry.Scheme == moduleReference.Scheme &&
-                                    registry.GetDocumentationUri(moduleReference) is string documentationUri &&
-                                    !string.IsNullOrWhiteSpace(documentationUri))
-                                {
-                                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", $"[View Type Documentation]({Uri.UnescapeDataString(documentationUri)})"));
-                                }
-                            }
-                        }
-
-                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
-                    }
-
-                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
+                    return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
 
                 case OutputSymbol output:
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"output {output.Name}: {output.Type}", output.Type), TryGetDescriptionMarkdown(result, output)));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
-                    return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
+                    return AsMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
 
                 case IFunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
@@ -155,36 +131,80 @@ namespace Bicep.LanguageServer.Handlers
 
                 case DeclaredFunctionSymbol function:
                     // A declared function can only have a single overload!
-                    return WithMarkdown(GetFunctionOverloadMarkdown(function.Overloads.Single()));
+                    return AsMarkdown(GetFunctionOverloadMarkdown(function.Overloads.Single()));
                 case PropertySymbol property:
-                    return WithMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
+                    return AsMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
 
                 case LocalVariableSymbol local:
-                    return WithMarkdown(CodeBlock($"{local.Name}: {local.Type}"));
+                    return AsMarkdown(CodeBlock($"{local.Name}: {local.Type}"));
 
                 case ParameterAssignmentSymbol parameterAssignment:
-                     if(GetDeclaredParameterMetadata(parameterAssignment) is not ParameterMetadata declaredParamMetadata)
-                     {
+                    if (GetDeclaredParameterMetadata(parameterAssignment) is not ParameterMetadata declaredParamMetadata)
+                    {
                         return null;
-                     }
+                    }
 
-                    return WithMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameterAssignment.Name}: {declaredParamMetadata.TypeReference.Type}", declaredParamMetadata.TypeReference.Type), declaredParamMetadata.Description));
-                        
+
                 default:
                     return null;
             }
         }
 
+        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(HoverParams request, SymbolResolutionResult result, IModuleDispatcher moduleDispatcher, IModuleRegistryProvider moduleRegistryProvider, ModuleSymbol module)
+        {
+            var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _) ?? string.Empty;
+            var descriptionLines = new List<string?>();
+            descriptionLines.Add(TryGetDescriptionMarkdown(result, module));
+
+            var uri = request.TextDocument.Uri.ToUri();
+            var registries = moduleRegistryProvider.Registries(uri);
+
+            if (registries != null &&
+                registries.Any() &&
+                moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                moduleReference is not null)
+            {
+                var registry = registries.FirstOrDefault(r => r.Scheme == moduleReference.Scheme);
+                if (registry is not null)
+                {
+                    try
+                    {
+                        descriptionLines.Add(await registry.TryGetDescription(moduleReference));
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+
+                    try
+                    {
+                        if (registry.GetDocumentationUri(moduleReference) is string documentationUri && !string.IsNullOrEmpty(documentationUri))
+                        {
+                            descriptionLines.Add($"[View Documentation]({Uri.UnescapeDataString(documentationUri)})");
+                        }
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+                }
+            }
+
+            var descriptions = string.Join("\n", descriptionLines.WhereNotNull().ToArray());
+            return AsMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
+        }
+
         private static ParameterMetadata? GetDeclaredParameterMetadata(ParameterAssignmentSymbol symbol)
         {
-            if(!symbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            if (!symbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
             {
                 // failed to resolve using
                 return null;
             }
 
-            if(bicepSemanticModel.Parameters.TryGetValue(symbol.Name, out var parameterMetadata))
+            if (bicepSemanticModel.Parameters.TryGetValue(symbol.Name, out var parameterMetadata))
             {
                 return parameterMetadata;
             }
@@ -245,7 +265,7 @@ namespace Bicep.LanguageServer.Handlers
         private static TypeSymbol UnwrapType(TypeSymbol type) => type switch
         {
             TypeType tt => UnwrapType(tt.Unwrapped),
-            _ when TypeHelper.TryRemoveNullability(type) is {} nonNullable => UnwrapType(nonNullable),
+            _ when TypeHelper.TryRemoveNullability(type) is { } nonNullable => UnwrapType(nonNullable),
             _ => type,
         };
 
@@ -256,13 +276,14 @@ namespace Bicep.LanguageServer.Handlers
         $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```\n";
 
         // Markdown needs two leading whitespaces before newline to insert a line break
-        private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
+        private static string CodeBlockWithDescription(string content, string? description) =>
+            CodeBlock(content) + (!string.IsNullOrEmpty(description) ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
 
         private static MarkedStringsOrMarkupContent GetFunctionMarkdown(IFunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
         {
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
             {
-                return WithMarkdown(GetFunctionOverloadMarkdown(matchedOverload));
+                return AsMarkdown(GetFunctionOverloadMarkdown(matchedOverload));
             }
 
             var potentialMatches =
@@ -276,7 +297,7 @@ namespace Bicep.LanguageServer.Handlers
             // If there are no potential matches, just show all overloads
             IEnumerable<FunctionOverload> toShow = potentialMatches.Count > 0 ? potentialMatches : function.Overloads;
 
-            return WithMarkdown(toShow.Select(GetFunctionOverloadMarkdown));
+            return AsMarkdown(toShow.Select(GetFunctionOverloadMarkdown));
         }
 
         private static string GetFunctionOverloadMarkdown(FunctionOverload overload)
@@ -297,13 +318,13 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent WithMarkdown(string markdown) => new MarkedStringsOrMarkupContent(new MarkupContent
+        private static MarkedStringsOrMarkupContent AsMarkdown(string markdown) => new MarkedStringsOrMarkupContent(new MarkupContent
         {
             Kind = MarkupKind.Markdown,
             Value = markdown,
         });
 
-        private static MarkedStringsOrMarkupContent WithMarkdown(IEnumerable<string> markdown)
+        private static MarkedStringsOrMarkupContent AsMarkdown(IEnumerable<string> markdown)
             => new MarkedStringsOrMarkupContent(markdown.Select(md => new MarkedString(md)));
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()

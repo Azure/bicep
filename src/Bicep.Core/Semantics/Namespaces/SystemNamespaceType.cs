@@ -118,23 +118,23 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("cidrSubnet")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription("Returns the specified subnet of a CIDR network.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
-                .WithRequiredParameter("cidr", LanguageConstants.Int, "New CIDR suffix")
-                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "A 0-based index of the desired subnet. Must be less than the maximum number of possible subnets.")
+                .WithGenericDescription("Splits the specified IP address range in CIDR notation into subnets with a new CIDR value and returns the IP address range of the subnet with the specified index.")
+                .WithRequiredParameter("network", LanguageConstants.String, "String containing an IP address range to convert in CIDR notation.")
+                .WithRequiredParameter("cidr", LanguageConstants.Int, "An integer representing the CIDR to be used to subnet. This value should be equal or larger than the CIDR value in the network parameter.")
+                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "Index of the desired subnet IP address range to return.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("cidrHost")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription("Calculates the IP address of the specified host on a network.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
-                .WithRequiredParameter("hostIndex", LanguageConstants.Int, "A 0-based index of the usable host on the specified network. Must be less than the number of usable hosts on the specified network.")
+                .WithGenericDescription("Calculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.")
+                .WithRequiredParameter("network", LanguageConstants.String, "String containing an ip network to convert (must be correct networking format)")
+                .WithRequiredParameter("hostIndex", LanguageConstants.Int, "The index of the host IP address to return.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("parseCidr")
                 .WithReturnType(GetParseCidrReturnType())
-                .WithGenericDescription("Parses an IP address into individual components and other useful information.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
+                .WithGenericDescription("Parses an IP address range in CIDR notation to get various properties of the address range.")
+                .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("concat")

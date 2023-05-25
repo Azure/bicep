@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
 
         public abstract Task<bool> CheckModuleExists(T reference);
 
-        public abstract Task PublishModule(T reference, Stream compiled, string? documentationUri);
+        public abstract Task PublishModule(T reference, Stream compiled, string? documentationUri, string? description);
 
         public abstract Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<T> references);
 
@@ -32,13 +32,15 @@ namespace Bicep.Core.Registry
 
         public abstract bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        public abstract string? GetDocumentationUri(T reference);
+        public abstract string? TryGetDocumentationUri(T reference);
+
+        public abstract Task<string?> TryGetDescription(T reference);
 
         public bool IsModuleRestoreRequired(ModuleReference reference) => this.IsModuleRestoreRequired(ConvertReference(reference));
 
         public Task<bool> CheckModuleExists(ModuleReference reference) => this.CheckModuleExists(ConvertReference(reference));
 
-        public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri) => this.PublishModule(ConvertReference(moduleReference), compiled, documentationUri);
+        public Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri, string? description) => this.PublishModule(ConvertReference(moduleReference), compiled, documentationUri, description);
 
         public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references) =>
             this.RestoreModules(references.Select(ConvertReference));
@@ -49,7 +51,9 @@ namespace Bicep.Core.Registry
         public bool TryGetLocalModuleEntryPointUri(ModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             this.TryGetLocalModuleEntryPointUri(ConvertReference(reference), out localUri, out failureBuilder);
 
-        public string? GetDocumentationUri(ModuleReference reference) => this.GetDocumentationUri(ConvertReference(reference));
+        public string? GetDocumentationUri(ModuleReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
+
+        public async Task<string?> TryGetDescription(ModuleReference reference) => await this.TryGetDescription(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(T reference);
 

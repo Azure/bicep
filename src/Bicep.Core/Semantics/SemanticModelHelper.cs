@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -39,27 +38,6 @@ namespace Bicep.Core.Semantics
                 return LanguageConstants.IdentifierComparer.Equals(namespaceType.ProviderName, @namespace) &&
                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName);
             });
-        }
-
-        public static string? TryGetDescription(SemanticModel semanticModel, DecorableSyntax decorable)
-            => TryGetDescription(semanticModel.Binder, semanticModel.TypeManager, decorable);
-
-        public static string? TryGetDescription(IBinder binder, ITypeManager typeManager, DecorableSyntax decorable)
-        {
-            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder,
-                typeManager.GetDeclaredType,
-                decorable,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.MetadataDescriptionPropertyName);
-
-            if (decorator is not null &&
-                decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string description)
-            {
-                return description;
-            }
-
-            return null;
         }
     }
 }

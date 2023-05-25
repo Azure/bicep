@@ -56,7 +56,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_ShouldSucceed(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
@@ -85,7 +85,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
@@ -257,7 +257,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
