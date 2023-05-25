@@ -532,7 +532,7 @@ jobs:
         uses: actions/setup-dotnet@v3
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
