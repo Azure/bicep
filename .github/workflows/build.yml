@@ -536,7 +536,7 @@ jobs:
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
-        if: failure()
+        if: always()
         with:
           name: Bicep.TestResults.${{ matrix.runtime.rid }}
           path: ./TestResults/**/*.trx
