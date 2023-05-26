@@ -148,18 +148,6 @@ namespace Bicep.Core.Registry
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
-        //private static string? TryGetDescriptionFromOciManifestAnnotationsAsdfg(ImmutableDictionary<string, string>? ociAnnotations) //asdfg fake, we have no descriptions
-        //{
-        //    if (ociAnnotations is not null
-        //        && ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? description)
-        //        && !string.IsNullOrWhiteSpace(description))
-        //    {
-        //        return $"{description} description";
-        //    }
-
-
-        //    return null;
-        //}
         public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference)
         {
             try

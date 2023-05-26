@@ -73,7 +73,9 @@ namespace Bicep.LanguageServer.Completions
 
         public static class CompletionItemDataKeys
         {
-            public const string OciArtifactModuleReference = "OciArtifactModuleReference";
+            public const string OciArtifactModuleReference = "OciArtifactModuleReference"; //asdfg
+
+            public const string asdfg = "asdfg"; 
         }
 
         public ModuleReferenceCompletionProvider(
@@ -111,10 +113,15 @@ namespace Bicep.LanguageServer.Completions
         {
             if (request.Data?.TryGetProperty<OciArtifactModuleReference>(CompletionItemDataKeys.OciArtifactModuleReference) is { } ociModuleReference)
             {
-                var ociRegistry = this.defaultModuleRegistryProvider.Registries(new Uri("nothing://asdfg", UriKind.Absolute)).OfType<OciModuleRegistry>().First();//asdfg
-                if (await ociRegistry.TryGetDescription2(ociModuleReference) is string description)
+                // This is used to locate bicepconfig.json file to find the module aliases.  We're not using module aliases so it is unimportant.
+                var nonExistingBicepFileUri = new Uri("empty:///empty.bicep", UriKind.Absolute);
+
+                if (this.defaultModuleRegistryProvider.Registries(nonExistingBicepFileUri).OfType<OciModuleRegistry>().SingleOrDefault() is OciModuleRegistry ociRegistry)
                 {
-                    return request with { Documentation = description, Detail = description };
+                    if (await ociRegistry.TryGetDescription2(ociModuleReference) is string description)
+                    {
+                        return request with { Documentation = description, Detail = description };
+                    }
                 }
             }
 
@@ -122,6 +129,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles bicep registry and template spec top-level schema completions.
+        // I.e. typing with an empty path:  "module m1 <CURSOR>"
         // E.g. br:, br/, ts:, ts/[alias]
         private IEnumerable<CompletionItem> GetBicepRegistryAndTemplateSpecShemaCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
@@ -217,7 +225,7 @@ namespace Bicep.LanguageServer.Completions
 
                 var insertText = $"{replacementText}{version}'$0";
 
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version)
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, version) //asdfg
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(version, i))
@@ -364,7 +372,7 @@ namespace Bicep.LanguageServer.Completions
                                     var label = $"bicep/{moduleName}";
                                     var insertText = $"{replacementTextWithTrimmedEnd}bicep/{moduleName}:$0'";
 
-                                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
+                                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label) //asdfgasdfg
                                         .WithSnippetEdit(context.ReplacementRange, insertText)
                                         .WithFilterText(insertText)
                                         .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
@@ -495,21 +503,20 @@ namespace Bicep.LanguageServer.Completions
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
+            var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames(); //asdfg
             foreach (var moduleName in moduleNames)
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
 
                 //'br/public:samples/hello-world:'
-                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "1.0.2", null, new Uri("nothing://adsfg"));
+                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "1.0.2"/*asdfg*/, null, new Uri("nothing://adsfg"));
                 //var description = await ociRegistry.TryGetDescription2(moduleReference);
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(moduleName))
-                    //.WithDetail(description ?? "no detail asdfg") //asdfg
-                    .WithDataValue(CompletionItemDataKeys.OciArtifactModuleReference, moduleReference)
+                    .WithDataValue(CompletionItemDataKeys.OciArtifactModuleReference, moduleReference) // Save for resolution later
                     .Build();
 
                 completions.Add(completionItem);
@@ -577,6 +584,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
+                // TODO: Somehow indicate in the completion list that users can get more completions by setting GetAllAzureContainerRegistriesForCompletionsSetting asdfg
                 return GetACRModuleRegistriesCompletionsFromBicepConfig(replacementText, context, sourceFileUri);
             }
         }
@@ -584,6 +592,7 @@ namespace Bicep.LanguageServer.Completions
         // Handles private registry name completions for modules available in ACR registries using ResourceGraphClient query.
         // This returns all registries that the user has access to via Azure (whether or not they contain bicep modules, and whether
         //   or not they're registered in the bicepconfig.json file)
+        // This is for completions after typing "'br:"
         private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
         {
             List<CompletionItem> completions = new List<CompletionItem>();

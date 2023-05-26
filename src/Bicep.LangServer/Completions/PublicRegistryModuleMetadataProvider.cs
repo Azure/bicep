@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Providers
         private DateTime? lastSuccessfulQuery;
         private int consecutiveFailures = 0;
 
-        public PublicRegistryModuleMetadataProvider(bool initializeCache = false)
+        public PublicRegistryModuleMetadataProvider(bool initializeCache = false/*asdfg*/)
         {
             if (initializeCache)
             {

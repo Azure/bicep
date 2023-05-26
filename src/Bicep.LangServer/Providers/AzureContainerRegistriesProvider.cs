@@ -38,6 +38,7 @@ namespace Bicep.LanguageServer.Providers
             this.tokenCredentialFactory = tokenCredentialFactory;
         }
 
+        // Used for completions after typing "'br:"
         public async IAsyncEnumerable<string> GetRegistryUris(Uri templateUri, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
