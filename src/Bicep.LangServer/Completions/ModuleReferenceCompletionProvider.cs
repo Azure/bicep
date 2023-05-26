@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
@@ -587,21 +588,29 @@ namespace Bicep.LanguageServer.Completions
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUris(sourceFileUri, cancellationToken)
-                .WithCancellation(cancellationToken))
+            try
             {
-                var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
-                var insertText = $"'{replacementTextWithTrimmedEnd}{registryName}/$0'";
+                await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUris(sourceFileUri, cancellationToken)
+                    .WithCancellation(cancellationToken))
+                {
+                    var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
+                    var insertText = $"'{replacementTextWithTrimmedEnd}{registryName}/$0'";
 
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
-                    .WithFilterText(insertText)
-                    .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
-                    .Build();
-                completions.Add(completionItem);
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
+                        .WithFilterText(insertText)
+                        .WithSnippetEdit(context.ReplacementRange, insertText)
+                        .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
+                        .Build();
+                    completions.Add(completionItem);
+                }
+
+                return completions;
             }
-
-            return completions;
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.Message);
+                throw;
+            }
         }
 
         // Handles private ACR registry name completions only for registries that are configured in the bicepconfig.json file
