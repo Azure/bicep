@@ -37,7 +37,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
                     return null;
                 }
                 var overriddenProviderVersion = "1.0.0"; //builtin version
-                if (features.DynamicTypeLoading)
+                if (features.DynamicTypeLoadingEnabled)
                 {
                     overriddenProviderVersion = version ?? overriddenProviderVersion;
                 }

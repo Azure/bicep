@@ -13,9 +13,13 @@ namespace Bicep.Core.Configuration
     public class RootConfiguration
     {
         private const string CloudKey = "cloud";
+
         private const string ModuleAliasesKey = "moduleAliases";
+
         private const string AnalyzersKey = "analyzers";
+
         private const string CacheRootDirectoryKey = "cacheRootDirectory";
+
         private const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
 
         public RootConfiguration(
@@ -42,7 +46,7 @@ namespace Bicep.Core.Configuration
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configurationPath);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
-            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey), configurationPath);
+            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
 
             return new(cloud, moduleAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, configurationPath, diagnosticBuilders);
         }

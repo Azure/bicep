@@ -16,31 +16,31 @@ namespace Bicep.Core.Features
             this.configuration = configuration;
         }
 
+        public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
+
         public string CacheRootDirectory => GetCacheRootDirectory(configuration.CacheRootDirectory);
 
         public bool RegistryEnabled => true;
 
-        public bool SymbolicNameCodegenEnabled => configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen ?? false;
+        public bool SymbolicNameCodegenEnabled => configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
 
-        public bool ExtensibilityEnabled => configuration.ExperimentalFeaturesEnabled.Extensibility ?? false;
+        public bool ExtensibilityEnabled => configuration.ExperimentalFeaturesEnabled.Extensibility;
 
-        public bool ResourceTypedParamsAndOutputsEnabled => configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs ?? false;
+        public bool ResourceTypedParamsAndOutputsEnabled => configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs;
 
-        public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
+        public bool SourceMappingEnabled => configuration.ExperimentalFeaturesEnabled.SourceMapping;
 
-        public bool SourceMappingEnabled => configuration.ExperimentalFeaturesEnabled.SourceMapping ?? false;
+        public bool ParamsFilesEnabled => configuration.ExperimentalFeaturesEnabled.ParamsFiles;
 
-        public bool ParamsFilesEnabled => configuration.ExperimentalFeaturesEnabled.ParamsFiles ?? false;
+        public bool UserDefinedTypesEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedTypes;
 
-        public bool UserDefinedTypesEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedTypes ?? false;
+        public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
-        public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions ?? false;
+        public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
 
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
-        public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
-
-        public bool DynamicTypeLoading => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoadingEnabled ?? false;
+        public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

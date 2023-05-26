@@ -101,7 +101,7 @@ namespace Bicep.Core.Configuration
             return configuration;
         }
 
-        private RootConfiguration GetDefaultConfiguration() => IConfigurationManager.GetBuiltInConfiguration();
+        private static RootConfiguration GetDefaultConfiguration() => IConfigurationManager.GetBuiltInConfiguration();
 
         private (RootConfiguration?, DiagnosticBuilder.DiagnosticBuilderDelegate?) LoadConfiguration(Uri configurationUri)
         {

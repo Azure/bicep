@@ -40,9 +40,9 @@ namespace Bicep.Core.Configuration
             : $"{Registry}";
     }
 
-    public class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
+    public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
     {
-        private static readonly Regex ModuleAliasNameRegex = new(@"^[a-zA-Z0-9-_]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex ModuleAliasNameRegex = GeneratedModuleAliasNameRegex();
 
         private readonly string? configurationPath;
 
@@ -129,5 +129,8 @@ namespace Bicep.Core.Configuration
             errorBuilder = null;
             return true;
         }
+
+        [GeneratedRegex("^[a-zA-Z0-9-_]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+        private static partial Regex GeneratedModuleAliasNameRegex();
     }
 }
