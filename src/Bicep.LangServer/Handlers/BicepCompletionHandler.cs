@@ -17,20 +17,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepCompletionResolveHandler : CompletionResolveHandlerBase
-    {
-        public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(request with
-            {
-                Documentation = "https://github.com/stephenweatherford",
-                Detail = "BicepCompletionResolveHandler detail",
-            });
-        }
-
-    }
-
-    public class BicepCompletionHandler : CompletionHandlerBase
+    public class BicepCompletionHandler : CompletionHandlerBase, ICompletionResolveHandler
     {
         private readonly ILogger<BicepCompletionHandler> logger;
         private readonly ICompilationManager compilationManager;
@@ -74,13 +61,15 @@ namespace Bicep.LanguageServer.Handlers
             return new CompletionList(completions, isIncomplete: false);
         }
 
-        public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
+        public async override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(request with
+            cancellationToken.ThrowIfCancellationRequested();
+            if (await this.completionProvider.ResolveCompletion(request, cancellationToken) is CompletionItem completionItem)
             {
-                Detail = $"{request.Detail}: BicepCompletionHandler detail",
-                Documentation = $"{request.Documentation}: BicepCompletionHandler docs",
-            });
+                return completionItem;
+            }
+
+            return request;
         }
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()

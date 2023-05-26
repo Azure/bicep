@@ -91,9 +91,14 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
-        public async Task ResolveCompletion(Compilation compilation, BicepCompletionContext context, CompletionItem request, CancellationToken cancellationToken)
+        public async Task<CompletionItem?> ResolveCompletion(CompletionItem request, CancellationToken cancellationToken)
         {
-            moduleReferenceCompletionProvider.
+            if (await moduleReferenceCompletionProvider.ResolveCompletion(request, cancellationToken) is CompletionItem completionItem)
+            {
+                return completionItem;
+            }
+
+            return null;
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)

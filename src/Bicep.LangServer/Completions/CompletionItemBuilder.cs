@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -20,6 +23,7 @@ namespace Bicep.LanguageServer.Completions
         private InsertTextFormat insertTextFormat;
         private TextEditOrInsertReplaceEdit? textEdit;
         private InsertTextMode insertTextMode;
+        private Dictionary<string, object>? data;
 
         private string? sortText;
         private bool preselect;
@@ -51,7 +55,8 @@ namespace Bicep.LanguageServer.Completions
                 InsertTextMode = this.insertTextMode,
                 SortText = this.sortText,
                 Preselect = this.preselect,
-                Command = this.command
+                Command = this.command,
+                Data = JToken.Parse(JsonConvert.SerializeObject(this.data)),
             };
         }
 
@@ -128,6 +133,13 @@ namespace Bicep.LanguageServer.Completions
         public CompletionItemBuilder WithSortText(string sortText)
         {
             this.sortText = sortText;
+            return this;
+        }
+
+        public CompletionItemBuilder WithDataValue(string key, object value)
+        {
+            this.data ??= new Dictionary<string, object>();
+            this.data[key] = value;
             return this;
         }
 

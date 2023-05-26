@@ -13,6 +13,6 @@ namespace Bicep.LanguageServer.Completions
     {
         Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context, CancellationToken cancellationToken);
 
-        Task ResolveCompletion(CompletionItem completionItem, CancellationToken cancellationToken);
+        Task<CompletionItem?> ResolveCompletion(CompletionItem completionItem, CancellationToken cancellationToken);
     }
 }

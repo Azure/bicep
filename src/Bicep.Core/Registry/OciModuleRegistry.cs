@@ -162,13 +162,23 @@ namespace Bicep.Core.Registry
         //}
         public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference)
         {
-            var asdfg = await this.client.PullArtifactAsync(this.configuration/*asdfg?*/, moduleReference);
+            try
+            {
+                OciArtifactResult result = await this.client.PullArtifactAsync(this.configuration/*asdfg?*/, moduleReference);
 
-            var ociAnnotations = asdfg.Manifest.Annotations;
-            //return DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations);
-            //return TryGetDescriptionFromOciManifestAnnotationsAsdfg(ociAnnotations);
+                using var moduleReader = new StreamReader(result.ModuleStream);
+                var module = moduleReader.ReadToEnd();
 
-            return asdfg.Manifest.Config.Digest;
+                var ociAnnotations = result.Manifest.Annotations;
+                //return DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations);
+                var description = DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations);
+
+                return description + ": " + module; //asdfg
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
 
         private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactModuleReference ociArtifactModuleReference)

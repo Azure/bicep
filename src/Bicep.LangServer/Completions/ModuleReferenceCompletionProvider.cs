@@ -20,6 +20,7 @@ using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -69,6 +70,11 @@ namespace Bicep.LanguageServer.Completions
 
         private DefaultModuleRegistryProvider defaultModuleRegistryProvider;
 
+        public static class CompletionItemDataKeys
+        {
+            public const string OciArtifactModuleReference = "OciArtifactModuleReference";
+        }
+
         public ModuleReferenceCompletionProvider(
             DefaultModuleRegistryProvider defaultModuleRegistryProvider,
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
@@ -98,6 +104,20 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(await GetOciModulePathCompletions(context, replacementText, sourceFileUri))
                 .Concat(await GetMCRModuleRegistryVersionCompletions(context, replacementText, sourceFileUri))
                 .Concat(await GetAllRegistryNameAndAliasCompletions(context, replacementText, sourceFileUri, cancellationToken));
+        }
+
+        public async Task<CompletionItem?> ResolveCompletion(CompletionItem request, CancellationToken cancellationToken)
+        {
+            if (request.Data?.TryGetProperty<OciArtifactModuleReference>(CompletionItemDataKeys.OciArtifactModuleReference) is { } ociModuleReference)
+            {
+                var ociRegistry = this.defaultModuleRegistryProvider.Registries(new Uri("nothing://asdfg", UriKind.Absolute)).OfType<OciModuleRegistry>().First();//asdfg
+                if (await ociRegistry.TryGetDescription2(ociModuleReference) is string description)
+                {
+                    return request with { Documentation = description, Detail = description };
+                }
+            }
+
+            return null;
         }
 
         // Handles bicep registry and template spec top-level schema completions.
@@ -472,8 +492,6 @@ namespace Bicep.LanguageServer.Completions
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            var ociRegistry = this.defaultModuleRegistryProvider.Registries(new Uri( "nothing://asdfg", UriKind.Absolute)).OfType<OciModuleRegistry>().First();//asdfg
-
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
             var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
@@ -482,14 +500,15 @@ namespace Bicep.LanguageServer.Completions
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
 
                 //'br/public:samples/hello-world:'
-                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/samples/hello-world", "1.0.2", null, new Uri("nothing://adsfg"));
-                var description = await ociRegistry.TryGetDescription2(moduleReference);
+                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "1.0.2", null, new Uri("nothing://adsfg"));
+                //var description = await ociRegistry.TryGetDescription2(moduleReference);
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(moduleName))
-                    .WithDetail(description ?? "no detail asdfg") //asdfg
+                    //.WithDetail(description ?? "no detail asdfg") //asdfg
+                    .WithDataValue(CompletionItemDataKeys.OciArtifactModuleReference, moduleReference)
                     .Build();
 
                 completions.Add(completionItem);

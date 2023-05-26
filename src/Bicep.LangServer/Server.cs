@@ -48,7 +48,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepRenameHandler>()
                     .WithHandler<BicepHoverHandler>()
                     .WithHandler<BicepCompletionHandler>()
-                    //.WithHandler<BicepCompletionResolveHandler>()
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepCreateConfigFileHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
