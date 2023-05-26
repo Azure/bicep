@@ -80,5 +80,20 @@ using './one.bicepparam'
                 });
             }
         }
+
+        [TestMethod]
+        public void Parameters_file_cannot_reference_non_existing_env_variable()
+        {
+            var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using 'foo.bicep'
+param fromEnv=readEnvironmentVariable('stringEnvVariable')
+"),
+("foo.bicep", @"param fromEnv string"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []{
+                ("BCP338", DiagnosticLevel.Error, "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist"
+)});
+        }
     }
 }
