@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
+using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
@@ -64,7 +67,10 @@ namespace Bicep.LanguageServer.Completions
 
         private const string MCRRegistry = "mcr.microsoft.com";
 
+        private DefaultModuleRegistryProvider defaultModuleRegistryProvider;
+
         public ModuleReferenceCompletionProvider(
+            DefaultModuleRegistryProvider defaultModuleRegistryProvider,
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IConfigurationManager configurationManager,
             IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
@@ -76,6 +82,7 @@ namespace Bicep.LanguageServer.Completions
             this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
+            this.defaultModuleRegistryProvider = defaultModuleRegistryProvider;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -465,6 +472,8 @@ namespace Bicep.LanguageServer.Completions
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
+            var ociRegistry = this.defaultModuleRegistryProvider.Registries(new Uri( "nothing://asdfg", UriKind.Absolute)).OfType<OciModuleRegistry>().First();//asdfg
+
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
             var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
@@ -472,10 +481,15 @@ namespace Bicep.LanguageServer.Completions
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
 
+                //'br/public:samples/hello-world:'
+                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/samples/hello-world", "1.0.2", null, new Uri("nothing://adsfg"));
+                var description = await ociRegistry.TryGetDescription2(moduleReference);
+
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(moduleName))
+                    .WithDetail(description ?? "no detail asdfg") //asdfg
                     .Build();
 
                 completions.Add(completionItem);

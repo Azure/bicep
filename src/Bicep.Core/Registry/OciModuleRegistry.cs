@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -33,7 +34,7 @@ namespace Bicep.Core.Registry
 
         private readonly Uri parentModuleUri;
 
-        public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
+        public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration /*asdfg is this right?*/, Uri parentModuleUri)
             : base(FileResolver)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
@@ -145,6 +146,29 @@ namespace Bicep.Core.Registry
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
+        }
+
+        //private static string? TryGetDescriptionFromOciManifestAnnotationsAsdfg(ImmutableDictionary<string, string>? ociAnnotations) //asdfg fake, we have no descriptions
+        //{
+        //    if (ociAnnotations is not null
+        //        && ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? description)
+        //        && !string.IsNullOrWhiteSpace(description))
+        //    {
+        //        return $"{description} description";
+        //    }
+
+
+        //    return null;
+        //}
+        public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference)
+        {
+            var asdfg = await this.client.PullArtifactAsync(this.configuration/*asdfg?*/, moduleReference);
+
+            var ociAnnotations = asdfg.Manifest.Annotations;
+            //return DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations);
+            //return TryGetDescriptionFromOciManifestAnnotationsAsdfg(ociAnnotations);
+
+            return asdfg.Manifest.Config.Digest;
         }
 
         private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactModuleReference ociArtifactModuleReference)

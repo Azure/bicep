@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Providers
         private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
         private readonly TimeSpan MaxThrottleDelay = TimeSpan.FromMinutes(2);
 
-        private ImmutableArray<ModuleMetadata> cachedModules = ImmutableArray<ModuleMetadata>.Empty;
+        private ImmutableArray<ModuleMetadata> cachedModules = ImmutableArray<ModuleMetadata>.Empty; //asdfg
         private bool isQueryingLiveData = false;
         private object queryingLiveSyncObject = new();
         private DateTime? lastSuccessfulQuery;

@@ -27,9 +27,7 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
         }
-
-        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
-        {
+        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)        {
             if(ConfigurationHelper.IsBicepConfigFile(uri))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);

@@ -78,8 +78,8 @@ namespace Bicep.LanguageServer.Handlers
         {
             return Task.FromResult(request with
             {
-                Detail = "BicepCompletionHandler detail",
-                Documentation = "BicepCompletionHandler docs",
+                Detail = $"{request.Detail}: BicepCompletionHandler detail",
+                Documentation = $"{request.Documentation}: BicepCompletionHandler docs",
             });
         }
 

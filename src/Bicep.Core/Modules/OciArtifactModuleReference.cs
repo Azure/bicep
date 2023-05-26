@@ -126,7 +126,7 @@ namespace Bicep.Core.Modules
 
             if (aliasName is not null)
             {
-                if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out var alias, out failureBuilder))
+                if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out var alias, out failureBuilder))//asdfg
                 {
                     moduleReference = null;
                     return false;
