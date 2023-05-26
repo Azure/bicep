@@ -12,5 +12,7 @@ namespace Bicep.LanguageServer.Completions
     public interface ICompletionProvider
     {
         Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken);
+
+        Task ResolveCompletion(Compilation compilation, BicepCompletionContext context, CompletionItem request, CancellationToken cancellationToken);
     }
 }
