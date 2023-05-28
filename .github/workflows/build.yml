@@ -574,46 +574,33 @@ jobs:
           flags: dotnet
 
   publish-test-results:
-    name: "Publish Tests Results"
+    name: "Publish Tests Results (${{ matrix.rid }})"
     needs: test-bicep
     runs-on: ubuntu-latest
     permissions:
       checks: write
       # only needed unless run with comment_mode: off
       pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: ["win-x64", "linux-x64", "linux-musl-x64", "osx-x64"]
     if: always()
 
     steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: Bicep.TestResults.win-x64
-          path: TestResults/win-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.linux-x64
-          path: TestResults/linux-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.linux-musl-x64
-          path: TestResults/linux-musl-x64
-        
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.osx-x64
-          path: TestResults/osx-x64
+          name: Bicep.TestResults.${{ matrix.rid }}
+          path: TestResults/
 
       - name: List downloaded artifacts
-        run: ls -R    
+        run: ls -R TestResults/
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
+          check_name: "Test Results (${{ matrix.rid }})"
           files: "TestResults/**/*.trx"
   
 
