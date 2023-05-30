@@ -16,6 +16,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
+using Bicep.Core.Workspaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -51,7 +52,7 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "System",
             ArmTemplateProviderVersion: "1.0.0");
 
-        private static IEnumerable<FunctionOverload> GetSystemOverloads(IFeatureProvider featureProvider)
+        private static IEnumerable<FunctionOverload> GetSystemOverloads(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             yield return new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
                 .WithReturnType(LanguageConstants.Any)
@@ -990,6 +991,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(LanguageConstants.Object);
                 }, LanguageConstants.Object)
                 .Build();
+
+            if(sourceFileKind ==BicepSourceFileKind.ParamsFile){
+                yield return new FunctionOverloadBuilder("readEnvironmentVariable")
+                    .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
+                    .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
+                    .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+                    .Build();
+            }
         }
 
         private static ObjectType GetParseCidrReturnType()
@@ -1105,6 +1115,27 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             return new(ErrorType.Create(errorDiagnostic));
         }
+
+          private static FunctionResult ReadEnvironmentVariableResultBuilder (IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+         {
+            var arguments = functionCall.Arguments.ToImmutableArray();
+           
+            if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+            {
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
+            }
+            var envVariableName = stringLiteral.RawStringValue;
+            var envVariableValue = Environment.GetEnvironmentVariable(envVariableName);
+            
+            //error to fail the build-param with clear message of the missing env var name
+            if (envVariableValue == null)
+            {
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName, "Environment variable does not exist")));
+            }
+            return new(TypeFactory.CreateStringLiteralType(envVariableValue),
+                new StringLiteralExpression(null, envVariableValue));
+        }
+
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
         {
             fileContent = null;
@@ -1562,13 +1593,13 @@ namespace Bicep.Core.Semantics.Namespaces
         private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
             => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));
 
-        public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider)
+        public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
                 GetSystemAmbientSymbols(),
-                GetSystemOverloads(featureProvider),
+                GetSystemOverloads(featureProvider, sourceFileKind),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider),
                 new EmptyResourceTypeProvider());

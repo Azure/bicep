@@ -116,5 +116,7 @@ namespace Bicep.Core.Syntax
             // to have comments attached to them.
             _ => CommentStickiness.None,
         };
+
+        public static bool IsOf(this SyntaxTrivia trivia, SyntaxTriviaType type) => trivia.Type == type;
     }
 }

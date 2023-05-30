@@ -53,7 +53,7 @@ namespace Bicep.Cli.Services
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
-            var compilation = await bicepCompiler.CreateCompilation(inputUri, skipRestore: true, this.workspace);
+            var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore: true, forceModulesRestore: forceModulesRestore);
             var originalModulesToRestore = compilation.SourceFileGrouping.GetModulesToRestore().ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
@@ -74,7 +74,7 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-            var compilation = await bicepCompiler.CreateCompilation(inputUri, skipRestore, this.workspace);
+            var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
 
             LogDiagnostics(compilation);
 
@@ -103,13 +103,13 @@ namespace Bicep.Cli.Services
         private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
             static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, ModuleDeclarationSyntax module)
-                => grouping.TryGetErrorDiagnostic(module) is {} errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.Path)) : null;
+                => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.Path)) : null;
 
             static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore)
             {
                 foreach (var (module, sourceFile) in originalModulesToRestore)
                 {
-                    if (sourceFile is BicepFile bicepFile && DiagnosticForModule(grouping, module) is {} diagnostic)
+                    if (sourceFile is BicepFile bicepFile && DiagnosticForModule(grouping, module) is { } diagnostic)
                     {
                         yield return (bicepFile, diagnostic);
                     }
@@ -122,7 +122,7 @@ namespace Bicep.Cli.Services
                 {
                     foreach (var module in bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>())
                     {
-                        if (DiagnosticForModule(grouping, module) is {} diagnostic)
+                        if (DiagnosticForModule(grouping, module) is { } diagnostic)
                         {
                             yield return (bicepFile, diagnostic);
                         }

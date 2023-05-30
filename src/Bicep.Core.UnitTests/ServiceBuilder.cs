@@ -30,7 +30,6 @@ public static class IDependencyHelperExtensions
             helper.Construct<INamespaceProvider>(),
             sourceFileGrouping,
             helper.Construct<IConfigurationManager>(),
-            helper.Construct<IApiVersionProviderFactory>(),
             helper.Construct<IBicepAnalyzer>(),
             modelLookup);
 

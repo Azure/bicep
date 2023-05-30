@@ -27,7 +27,6 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             var importedNamespaces = fileScope.Declarations.OfType<ImportedNamespaceSymbol>()
                 .DistinctBy(x => x.Name, LanguageConstants.IdentifierComparer);
-            
             var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
             var namespaceTypes = importedNamespaces
                 .Select(x => x.DeclaredType)
@@ -36,7 +35,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             void TryAddBuiltInNamespace(string @namespace)
             {
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features) is not { } namespaceType)
+                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features, sourceFile.FileKind) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;
@@ -61,12 +60,17 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
-            if (sourceFile.FileKind == BicepSourceFileKind.BicepFile)
-            {
-                // don't register "az" namespace for Bicep Parameters files
-                TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
-            }
 
+            if (sourceFile.FileKind == BicepSourceFileKind.BicepFile) // don't register "az" namespace for Bicep Parameters files
+            {
+                var foundAzProviderDeclaration = sourceFile.ProgramSyntax.Children
+                    .OfType<ImportDeclarationSyntax>()
+                    .Any(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
+                if (!foundAzProviderDeclaration) // If no 'az' provider was explicitly declared, load the builtin one
+                {
+                    TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
+                }
+            }
             return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
         }
 

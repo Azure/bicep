@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -43,7 +43,7 @@ public class LinterRuleTestsBase
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
         Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
-        ApiVersionProvider? ApiVersionProvider = null,
+        IAzResourceTypeLoader? AzResourceTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null
     );
 
@@ -109,8 +109,8 @@ public class LinterRuleTestsBase
     {
         options ??= new Options();
         var services = new ServiceBuilder();
-        services = options.ConfigurationPatch is {} ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
-        services = options.ApiVersionProvider is {} ? services.WithApiVersionProvider(options.ApiVersionProvider) : services;
+        services = options.ConfigurationPatch is { } ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
+        services = options.AzResourceTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzResourceTypeLoader) : services;
         var result = CompilationHelper.Compile(services, files);
         using (new AssertionScope().WithFullSource(result.BicepFile))
         {
