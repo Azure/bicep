@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -11,7 +10,6 @@ using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -36,6 +34,8 @@ using System.Text.RegularExpressions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using System.Diagnostics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -50,20 +50,26 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILanguageServerFacade server;
         private readonly ICompilationManager compilationManager;
         private readonly IAzResourceProvider azResourceProvider;
-        private readonly IAzResourceTypeLoader azResourceTypeLoader;
+        private readonly IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory;
         private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
 
-        public InsertResourceHandler(ILanguageServerFacade server, ICompilationManager compilationManager, IAzResourceProvider azResourceProvider, IAzResourceTypeLoader azResourceTypeLoader, ITelemetryProvider telemetryProvider)
+        public InsertResourceHandler(
+            ILanguageServerFacade server,
+            ICompilationManager compilationManager,
+            IAzResourceProvider azResourceProvider,
+            IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory,
+            ITelemetryProvider telemetryProvider)
         {
             this.server = server;
             this.compilationManager = compilationManager;
             this.azResourceProvider = azResourceProvider;
-            this.azResourceTypeLoader = azResourceTypeLoader;
+            this.azResourceTypeLoaderFactory = azResourceTypeLoaderFactory;
             this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider);
         }
 
         public Task<Unit> Handle(InsertResourceParams request, CancellationToken cancellationToken)
-            => helper.ExecuteWithTelemetryAndErrorHandling(async () => {
+            => helper.ExecuteWithTelemetryAndErrorHandling(async () =>
+            {
                 var context = compilationManager.GetCompilation(request.TextDocument.Uri);
                 if (context is null)
                 {
@@ -79,8 +85,18 @@ namespace Bicep.LanguageServer.Handlers
                         BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"),
                         Unit.Value);
                 }
-
-                var matchedType = azResourceTypeLoader.GetAvailableTypes()
+                var azProviderDeclaration = model.SourceFile.ProgramSyntax.Children
+                    .OfType<ImportDeclarationSyntax>()
+                    .FirstOrDefault(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
+                var resourceTypeLoader = azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration?.Specification.Version, model.Features);
+                if (resourceTypeLoader is null)
+                {
+                    throw helper.CreateException(
+                        $"Failed to find a Bicep type definitions for provider \"{azProviderDeclaration}\".",
+                        BicepTelemetryEvent.InsertResourceFailure($"UnknownProvider({azProviderDeclaration})"),
+                        Unit.Value);
+                }
+                var matchedType = resourceTypeLoader.GetAvailableTypes()
                     .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
                     .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
                     .FirstOrDefault();
@@ -189,7 +205,7 @@ namespace Bicep.LanguageServer.Handlers
             var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
             var program = new ProgramSyntax(
                 new[] { resourceDeclaration },
-                SyntaxFactory.CreateToken(TokenType.EndOfFile));
+                SyntaxFactory.EndOfFileToken);
 
             var printed = PrettyPrinter.PrintValidProgram(program, printOptions);
             var bicepFile = RewriterHelper.RewriteMultiple(

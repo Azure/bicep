@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17291791314306692428"
+      "templateHash": "5191902706455743210"
     }
   },
   "variables": {
@@ -461,8 +461,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2505217721104922110"
-            }
+              "templateHash": "14234608298281212658"
+            },
+            "description": "passthrough port description"
           },
           "parameters": {
             "port": {

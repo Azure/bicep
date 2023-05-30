@@ -12,9 +12,9 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -819,11 +819,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 string str => new(TestSyntaxFactory.CreateString(str)),
                 string[] strArray => new(TestSyntaxFactory.CreateArray(strArray.Select(TestSyntaxFactory.CreateString))),
-                int intVal => new(TestSyntaxFactory.CreateInt((ulong) intVal)),
-                int[] intArray => new(TestSyntaxFactory.CreateArray(intArray.Select(@int => TestSyntaxFactory.CreateInt((ulong) @int)))),
+                int intVal => new(TestSyntaxFactory.CreateInt((ulong)intVal)),
+                int[] intArray => new(TestSyntaxFactory.CreateArray(intArray.Select(@int => TestSyntaxFactory.CreateInt((ulong)@int)))),
                 bool boolVal => new(TestSyntaxFactory.CreateBool(boolVal)),
                 bool[] boolArray => new(TestSyntaxFactory.CreateArray(boolArray.Select(TestSyntaxFactory.CreateBool))),
-                object[] mixedArray =>new(TestSyntaxFactory.CreateArray(mixedArray.Select(obj => ToFunctionArgumentSyntax(obj).Expression))),
+                object[] mixedArray => new(TestSyntaxFactory.CreateArray(mixedArray.Select(obj => ToFunctionArgumentSyntax(obj).Expression))),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
             };
 
@@ -1033,11 +1033,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
+            var namespaceProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory);
 
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features)!,
-                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup, BicepTestConstants.Features)!,
+                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
             };
 
             var matches = new List<FunctionOverload>();

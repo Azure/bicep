@@ -4,6 +4,7 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Concurrent;
@@ -190,7 +191,9 @@ namespace Bicep.Core.Registry
         public async Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri)
         {
             var registry = this.GetRegistry(moduleReference);
-            await registry.PublishModule(moduleReference, compiled, documentationUri);
+
+            var description = DescriptionHelper.TryGetFromArmTemplate(compiled);
+            await registry.PublishModule(moduleReference, compiled, documentationUri, description);
         }
 
         public async Task<bool> CheckModuleExists(ModuleReference moduleReference)

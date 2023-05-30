@@ -542,8 +542,9 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "2505217721104922110"
-//@            }
+//@              "templateHash": "14234608298281212658"
+//@            },
+//@            "description": "passthrough port description"
 //@          },
 //@          "parameters": {
 //@            "port": {

@@ -45,6 +45,7 @@
     <PackageReference Include="System.IO.Abstractions" Version="19.2.22" />
     <PackageReference Include="System.Text.Json" Version="8.0.0-preview.3.23174.8" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.32" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

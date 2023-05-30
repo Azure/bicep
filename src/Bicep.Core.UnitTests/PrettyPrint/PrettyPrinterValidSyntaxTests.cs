@@ -300,17 +300,16 @@ param bar array = [
 // Formatted.
 @"param foo object = {/* I can be anywhere */ }
 
-param foo object = {
-/* I can be anywhere */}
+param foo object = {/* I can be anywhere */ }
 
 param foo object = {
   abc: true
-/* I can be anywhere */}
+/* I can be anywhere */ }
 
 param foo object = {
   abc: true
   xyz: false
-/* I can be anywhere */}
+/* I can be anywhere */ }
 
 param foo object = {
   abc: true
@@ -318,21 +317,20 @@ param foo object = {
 /* I
   can
   be anywhere
-  */}
+  */ }
 
-param bar array = [
-/* I can be anywhere */]
+param bar array = [/* I can be anywhere */ ]
 
 param bar array = [/* I can be anywhere */ ]
 
 param bar array = [
   true
-/* I can be anywhere */]
+/* I can be anywhere */ ]
 
 param bar array = [
   true
   false
-/* I can be anywhere */ /* I can be anywhere */]");
+/* I can be anywhere */ /* I can be anywhere */ ]");
 
         [TestMethod]
         public void PrintProgram_EmptyBlocks_ShouldFormatCorrectly() => this.TestPrintProgram(
@@ -565,7 +563,7 @@ null
  */
 
 /* I can be any
-where */module /* I can be anywhere */ foo /* I can be anywhere */ './myModule' = /* I can be anywhere */ {
+where */ module /* I can be anywhere */ foo /* I can be anywhere */ './myModule' = /* I can be anywhere */ {
   name /* I can be any where */: value // I can be anywhere
 }
 
@@ -581,7 +579,7 @@ param bar string = {/* I can be
 anywhere */ /* I can be anywhere */
   foo: true
   bar /* I can be anywhere */: false
-  /* I can be anywhere */baz: [
+  /* I can be anywhere */ baz: [
     bar
     az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[/* I can be anywhere */ 1 /* I can be anywhere */] /* I can be anywhere */./* I can be anywhere */ baz // I can be anywhere
     true
@@ -600,7 +598,7 @@ where */
       // I can be anywhere
     }
     null
-  /* I can be anywhere */ /* I can be anywhere */] // I can be any where
+  /* I can be anywhere */ /* I can be anywhere */ ] // I can be any where
 }
 /* I can be anywhere */");
         }
@@ -654,7 +652,6 @@ var test = 'adfsdf'
 
             var output = @"/* asdfasdf */
 var test = 'adfsdf'
-
 #disable-next-line asdf /*
 
 

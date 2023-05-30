@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <RunSettings>
   <RunConfiguration>
+    <MaxCpuCount>3</MaxCpuCount>
     <!-- Break builds when no tests are discovered. -->
-    <TreatNoTestsAsError>true</TreatNoTestsAsError>
+    <TreatNoTestsAsError>false</TreatNoTestsAsError>
+    <ResultsDirectory>../../TestResults</ResultsDirectory>
   </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <!-- Settings are documented at https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/VSTestIntegration.md#advanced-options-supported-via-runsettings -->
-      <DataCollector friendlyName="XPlat Code Coverage">
+      <!-- "Code Coverage" settings documented in https://learn.microsoft.com/en-us/visualstudio/test/customizing-code-coverage-analysis?view=vs-2022 -->
+      <DataCollector friendlyName="Code Coverage">
         <Configuration>
           <Format>cobertura</Format>
-          <!--
-            By default coverlet includes all assemblies that are referenced by test assemblies.
-            In our case, this includes other test assemblies, which makes the coverage results
-            inconsistent. If we want to exclude all test assemblies in the future, we should
-            use the Exclude setting instead.
-           -->
-          <IncludeTestAssembly>true</IncludeTestAssembly>
+          <CodeCoverage>
+            <ModulePaths>
+              <Exclude>
+                <ModulePath>.*moq.dll$</ModulePath>
+              </Exclude>
+            </ModulePaths>
+          </CodeCoverage>
         </Configuration>
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console" enabled="True">
+        <Configuration>
+          <Verbosity>quiet</Verbosity>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="trx" enabled="True" />
+      <!-- Enables blame -->
+      <Logger friendlyName="blame" enabled="True" />
+    </Loggers>
+  </LoggerRunSettings>
 </RunSettings>

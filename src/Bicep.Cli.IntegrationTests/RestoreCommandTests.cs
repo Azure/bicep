@@ -56,7 +56,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_ShouldSucceed(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
@@ -85,7 +85,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
@@ -200,6 +200,125 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [TestMethod]
+        public async Task Restore_With_Force_Should_Overwrite_Existing_Cache()
+        {
+            var registry = "example.com";
+            var registryUri = new Uri("https://" + registry);
+            var repository = "hello/there";
+
+            var client = new MockRegistryBlobClient();
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+
+            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
+            File.WriteAllText(publishedBicepFilePath,@"
+param p1 string
+output o1 string = p1");
+
+            var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            using (new AssertionScope())
+            {
+                publishResult.Should().Be(0);
+                publishOutput.Should().BeEmpty();
+                publishError.Should().BeEmpty();
+            }
+
+            client.Blobs.Should().HaveCount(2);
+            client.Manifests.Should().HaveCount(1);
+            client.ManifestTags.Should().HaveCount(1);
+
+            string digest = client.Manifests.Single().Key;
+
+            var bicep = $@"
+module mymodule 'br:{registry}/{repository}:v1' = {{
+  name: 'mymodule'
+  params: {{
+    p1: 'p1'
+  }}
+}}
+";
+
+            var clientBicepPath = Path.Combine(tempDirectory, "client.bicep");
+            File.WriteAllText(clientBicepPath, bicep);
+
+            var (output, error, result) = await Bicep(settings, "restore", clientBicepPath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            // Build client.bicep
+            (output, error, result) = await Bicep(settings, "build", clientBicepPath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            // Republish with new required parameter
+            File.WriteAllText(publishedBicepFilePath,
+                @"
+param p1 string
+param p2 string
+output o1 string = '${p1}${p2}'");
+
+            (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", "--force");
+            using (new AssertionScope())
+            {
+                publishResult.Should().Be(0);
+                publishOutput.Should().BeEmpty();
+                publishError.Should().BeEmpty();
+            }
+
+            // Restore without force (won't update local cache)
+            (output, error, result) = await Bicep(settings, "restore", clientBicepPath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            // Build should still succeed
+            (output, error, result) = await Bicep(settings, "build", clientBicepPath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            // Restore with --force
+            (output, error, result) = await Bicep(settings, "restore", clientBicepPath, "--force");
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            // Build should fail because of the new required parameter missing
+            (output, error, result) = await Bicep(settings, "build", clientBicepPath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("missing the following required properties: \"p2\"");
+            }
+        }
+
+        [TestMethod]
         public async Task Restore_ByDigest_ShouldSucceed()
         {
             var registry = "example.com";
@@ -257,7 +376,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
@@ -301,7 +420,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();

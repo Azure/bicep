@@ -15,8 +15,9 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -42,7 +43,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         private async Task<SourceFileGrouping> GetSourceFileGrouping(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
+            var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -50,7 +51,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var configManager = BicepTestConstants.CreateFilesystemConfigurationManager();
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProviderFactory(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), configManager), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProviderFactory(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), configManager), configManager), configManager);
             Workspace workspace = new();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
@@ -293,6 +294,20 @@ this
             emitter.Emit(stringWriter);
         }
 
+        [TestInitialize]
+        public void testInit(){
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
+            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
+        }
+
+        [TestCleanup]
+        public void TestCleanup(){
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", null);
+            System.Environment.SetEnvironmentVariable("intEnvVariableName",null);
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", null);
+        }
+        
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string filePath)
         {
             var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);

@@ -79,7 +79,7 @@
             {
               "name": "hasLabel",
               "parameters": {
-                "label": "Needs: Author Feedback"
+                "label": "awaiting response"
               }
             },
             {
@@ -98,7 +98,7 @@
           {
             "name": "removeLabel",
             "parameters": {
-              "label": "Needs: Author Feedback"
+              "label": "awaiting response"
             }
           }
         ],
@@ -114,7 +114,7 @@
       "subCapability": "IssuesOnlyResponder",
       "version": "1.0",
       "config": {
-        "taskName": "[Closed Issues] Remove 'Status: No Recent Activity' label from issues",
+        "taskName": "[Closed Issues] Remove 'Status: No Recent Activity' label from issues and add Needs: Triage",
         "conditions": {
           "operator": "and",
           "operands": [
@@ -142,6 +142,12 @@
             "name": "removeLabel",
             "parameters": {
               "label": "Status: No Recent Activity"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Triage :mag:"
             }
           }
         ],
@@ -261,7 +267,7 @@
           {
             "name": "hasLabel",
             "parameters": {
-              "label": "Needs: Author Feedback"
+              "label": "awaiting response"
             }
           },
           {
@@ -273,7 +279,7 @@
           {
             "name": "noActivitySince",
             "parameters": {
-              "days": 3
+              "days": 10
             }
           }
         ],
@@ -362,13 +368,13 @@
           {
             "name": "hasLabel",
             "parameters": {
-              "label": "Needs: Author Feedback"
+              "label": "awaiting response"
             }
           },
           {
             "name": "noActivitySince",
             "parameters": {
-              "days": 4
+              "days": 7
             }
           },
           {
@@ -472,6 +478,273 @@
         "mergeType": "squash",
         "deleteBranches": true,
         "allowAutoMergeInstructionsWithoutLabel": false
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "IssueCommentResponder",
+      "version": "1.0",
+      "config": {
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "isOpen",
+                  "parameters": {}
+                }
+              ]
+            },
+            {
+              "name": "isAction",
+              "parameters": {
+                "action": "created"
+              }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Status: No Recent Activity"
+              }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "awaiting response"
+              }
+            },
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "noActivitySince",
+                  "parameters": {
+                    "days": 14
+                  }
+                }
+              ]
+            },
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "isCloseAndComment",
+                  "parameters": {}
+                }
+              ]
+            },
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": {
+                  "type": "author"
+                }
+              }
+            },
+            {
+              "name": "activitySenderHasPermissions",
+              "parameters": {
+                "permissions": "none"
+              }
+            }
+          ]
+        },
+        "eventType": "issue",
+        "eventNames": [
+          "issue_comment"
+        ],
+        "taskName": "For issues closed due to inactivity, re-open an issue if issue author posts a reply within 14 days.",
+        "actions": [
+          {
+            "name": "reopenIssue",
+            "parameters": {}
+          },
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Status: No Recent Activity"
+            }
+          },
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "awaiting response"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Attention :wave:"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "IssueCommentResponder",
+      "version": "1.0",
+      "config": {
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isAction",
+              "parameters": {
+                "action": "created"
+              }
+            },
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "isOpen",
+                  "parameters": {}
+                }
+              ]
+            },
+            {
+              "name": "activitySenderHasPermissions",
+              "parameters": {
+                "permissions": "none"
+              }
+            },
+            {
+              "name": "noActivitySince",
+              "parameters": {
+                "days": 14
+              }
+            },
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "isCloseAndComment",
+                  "parameters": {}
+                }
+              ]
+            }
+          ]
+        },
+        "eventType": "issue",
+        "eventNames": [
+          "issue_comment"
+        ],
+        "taskName": "For issues closed with no activity over 14 days, ask non-contributor to consider opening a new issue instead.",
+        "actions": [
+          {
+            "name": "addReply",
+            "parameters": {
+              "comment": "Hello lovely human, thank you for your comment on this issue. Because this issue has been closed for a period of time, please strongly consider opening a new issue linking to this issue instead to ensure better visibility of your comment. Thank you!"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "taskType": "scheduled",
+      "capabilityId": "ScheduledSearch",
+      "subCapability": "ScheduledSearch",
+      "version": "1.1",
+      "config": {
+        "frequency": [
+          {
+            "weekDay": 0,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          },
+          {
+            "weekDay": 1,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          },
+          {
+            "weekDay": 2,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          },
+          {
+            "weekDay": 3,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          },
+          {
+            "weekDay": 4,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          },
+          {
+            "weekDay": 5,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          },
+          {
+            "weekDay": 6,
+            "hours": [
+              0,
+              6,
+              12,
+              18
+            ]
+          }
+        ],
+        "searchTerms": [
+          {
+            "name": "isClosed",
+            "parameters": {}
+          },
+          {
+            "name": "noActivitySince",
+            "parameters": {
+              "days": 30
+            }
+          },
+          {
+            "name": "isUnlocked",
+            "parameters": {}
+          },
+          {
+            "name": "isIssue",
+            "parameters": {}
+          }
+        ],
+        "taskName": "Lock issues closed without activity for over 30 days",
+        "actions": [
+          {
+            "name": "lockIssue",
+            "parameters": {
+              "reason": "resolved"
+            }
+          }
+        ]
       }
     }
   ],

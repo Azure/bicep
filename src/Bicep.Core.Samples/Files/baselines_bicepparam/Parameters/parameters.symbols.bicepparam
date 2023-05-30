@@ -13,8 +13,11 @@ param myString = 'hello world!!'
 //@[6:14) ParameterAssignment myString. Type: 'hello world!!'. Declaration start char: 0, length: 32
 param myInt = 42
 //@[6:11) ParameterAssignment myInt. Type: 42. Declaration start char: 0, length: 16
-param myBool = true
-//@[6:12) ParameterAssignment myBool. Type: true. Declaration start char: 0, length: 19
+param myBool = false
+//@[6:12) ParameterAssignment myBool. Type: false. Declaration start char: 0, length: 20
+
+param numberOfVMs = 1
+//@[6:17) ParameterAssignment numberOfVMs. Type: 1. Declaration start char: 0, length: 21
 
 // parameter assignment to objects
 param password = 'strongPassword'
@@ -49,4 +52,10 @@ param stringLiteral = 'abc'
 //@[6:19) ParameterAssignment stringLiteral. Type: 'abc'. Declaration start char: 0, length: 27
 param decoratedString = 'Apple'
 //@[6:21) ParameterAssignment decoratedString. Type: 'Apple'. Declaration start char: 0, length: 31
+param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
+//@[6:36) ParameterAssignment stringfromEnvironmentVariables. Type: 'test'. Declaration start char: 0, length: 87
+param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
+//@[6:33) ParameterAssignment intfromEnvironmentVariables. Type: int. Declaration start char: 0, length: 86
+param boolfromEnvironmentVariables = bool(readEnvironmentVariable('boolEnvironmentVariable'))
+//@[6:34) ParameterAssignment boolfromEnvironmentVariables. Type: bool. Declaration start char: 0, length: 93
 

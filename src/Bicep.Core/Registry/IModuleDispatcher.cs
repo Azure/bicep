@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckModuleExists(ModuleReference moduleReference);
 
-        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri = null);
+        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri);
 
         void PruneRestoreStatuses();
     }

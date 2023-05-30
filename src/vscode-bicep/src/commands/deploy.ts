@@ -366,27 +366,34 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      const [parametersFileName, updatedDeploymentParameters] =
-        await this.handleMissingAndDefaultParams(
-          context,
-          documentPath,
-          parametersFilePath,
-          template
-        );
-
+      let parametersFileName: string | null;
+      let updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
       let parametersFileUpdateOption = ParametersFileUpdateOption.None;
 
-      // If all the parameters are of type secure, we will not show an option to create or update parameters file
-      if (
-        updatedDeploymentParameters.length > 0 &&
-        !updatedDeploymentParameters.every((x) => x.isSecure)
-      ) {
-        parametersFileUpdateOption = await this.askToUpdateParametersFile(
-          context,
-          documentPath,
-          await fse.pathExists(parametersFilePath),
-          parametersFileName
-        );
+      if (parametersFilePath.endsWith(".bicepparam")) {
+        parametersFileName = null;
+        updatedDeploymentParameters = [];
+      } else {
+        [parametersFileName, updatedDeploymentParameters] =
+          await this.handleMissingAndDefaultParams(
+            context,
+            documentPath,
+            parametersFilePath,
+            template
+          );
+
+        // If all the parameters are of type secure, we will not show an option to create or update parameters file
+        if (
+          updatedDeploymentParameters.length > 0 &&
+          !updatedDeploymentParameters.every((x) => x.isSecure)
+        ) {
+          parametersFileUpdateOption = await this.askToUpdateParametersFile(
+            context,
+            documentPath,
+            await fse.pathExists(parametersFilePath),
+            parametersFileName
+          );
+        }
       }
 
       const environment = subscription.environment;
@@ -419,7 +426,10 @@ export class DeployCommand implements Command {
 
       // If user chose to create/update/overwrite a parameters file at the end of deployment flow, we'll
       // open it in vscode.
-      if (parametersFileUpdateOption !== ParametersFileUpdateOption.None) {
+      if (
+        parametersFileUpdateOption !== ParametersFileUpdateOption.None &&
+        parametersFileName !== null
+      ) {
         if (
           parametersFileUpdateOption === ParametersFileUpdateOption.Create ||
           parametersFileUpdateOption === ParametersFileUpdateOption.Overwrite
@@ -497,7 +507,11 @@ export class DeployCommand implements Command {
             canSelectMany: false,
             defaultUri: sourceUri,
             openLabel: "Select Parameter File",
-            filters: { "JSON Files": ["json", "jsonc"] },
+            filters: {
+              "All Parameter Files": ["json", "jsonc", "bicepparam"],
+              "JSON Files": ["json", "jsonc"],
+              "Bicepparam Files": ["bicepparam"],
+            },
           });
         if (paramsPaths) {
           assert(paramsPaths.length === 1, "Expected paramsPaths.length === 1");
@@ -512,10 +526,6 @@ export class DeployCommand implements Command {
       }
 
       if (await this.validateIsValidParameterFile(parameterFilePath, true)) {
-        this.outputChannelManager.appendToOutputChannel(
-          `Parameter file used in deployment -> ${parameterFilePath}`
-        );
-
         return parameterFilePath;
       }
     }
@@ -525,6 +535,13 @@ export class DeployCommand implements Command {
     path: string,
     showErrorMessage: boolean
   ): Promise<boolean> {
+    if (path.endsWith(".bicepparam")) {
+      this.outputChannelManager.appendToOutputChannel(
+        `Bicep Parameter file used in deployment -> ${path}`
+      );
+      return true;
+    }
+
     const expectedSchema =
       "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
 
@@ -556,6 +573,9 @@ export class DeployCommand implements Command {
       return false;
     }
 
+    this.outputChannelManager.appendToOutputChannel(
+      `JSON Parameter file used in deployment -> ${path}`
+    );
     return true;
   }
 
@@ -738,11 +758,11 @@ export class DeployCommand implements Command {
     bicepFolder: string
   ): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
-    const workspaceJsonFiles = (
-      await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
+    const workspaceParametersFiles = (
+      await vscode.workspace.findFiles("**/*.{json,jsonc,bicepparam}", undefined)
     ).filter((f) => !!f.fsPath);
 
-    workspaceJsonFiles.sort((a, b) => {
+    workspaceParametersFiles.sort((a, b) => {
       const aIsInBicepFolder = path.dirname(a.fsPath) === bicepFolder;
       const bIsInBicepFolder = path.dirname(b.fsPath) === bicepFolder;
 
@@ -756,8 +776,10 @@ export class DeployCommand implements Command {
       return compareStringsOrdinal(a.path, b.path);
     });
 
-    for (const uri of workspaceJsonFiles) {
-      if (!(await this.validateIsValidParameterFile(uri.fsPath, false))) {
+    for (const uri of workspaceParametersFiles) {
+
+      if (!uri.fsPath.endsWith("biceppparam") && 
+          !(await this.validateIsValidParameterFile(uri.fsPath, false))) {
         continue;
       }
 
@@ -767,7 +789,7 @@ export class DeployCommand implements Command {
         ? path.relative(workspaceRoot, uri.fsPath)
         : path.basename(uri.fsPath);
       const quickPickItem: IAzureQuickPickItem<string> = {
-        label: `${"$(json) "} ${relativePath}`,
+        label: `${(uri.fsPath.endsWith("biceppparam")? "$(bicepparam)" : "$(json)")} ${relativePath}`,
         data: uri.fsPath,
         id: uri.toString(),
       };
