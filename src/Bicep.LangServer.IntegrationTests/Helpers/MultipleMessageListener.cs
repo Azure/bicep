@@ -11,7 +11,7 @@ namespace Bicep.LangServer.IntegrationTests
     /// </summary>
     public class MultipleMessageListener<T>
     {
-        private const int DefaultTimeout = 60000;
+        private const int DefaultTimeout = 30000;
 
         private readonly object lockObj = new();
         private readonly List<TaskCompletionSource<T>> completionSources = new();
