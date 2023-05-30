@@ -144,38 +144,5 @@ param decoratedString = 'Apple'
 //@[22:23) Assignment |=|
 //@[24:31) StringComplete |'Apple'|
 //@[31:32) NewLine |\n|
-param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
-//@[00:05) Identifier |param|
-//@[06:36) Identifier |stringfromEnvironmentVariables|
-//@[37:38) Assignment |=|
-//@[39:62) Identifier |readEnvironmentVariable|
-//@[62:63) LeftParen |(|
-//@[63:86) StringComplete |'stringEnvVariableName'|
-//@[86:87) RightParen |)|
-//@[87:88) NewLine |\n|
-param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
-//@[00:05) Identifier |param|
-//@[06:33) Identifier |intfromEnvironmentVariables|
-//@[34:35) Assignment |=|
-//@[36:39) Identifier |int|
-//@[39:40) LeftParen |(|
-//@[40:63) Identifier |readEnvironmentVariable|
-//@[63:64) LeftParen |(|
-//@[64:84) StringComplete |'intEnvVariableName'|
-//@[84:85) RightParen |)|
-//@[85:86) RightParen |)|
-//@[86:87) NewLine |\n|
-param boolfromEnvironmentVariables = bool(readEnvironmentVariable('boolEnvironmentVariable'))
-//@[00:05) Identifier |param|
-//@[06:34) Identifier |boolfromEnvironmentVariables|
-//@[35:36) Assignment |=|
-//@[37:41) Identifier |bool|
-//@[41:42) LeftParen |(|
-//@[42:65) Identifier |readEnvironmentVariable|
-//@[65:66) LeftParen |(|
-//@[66:91) StringComplete |'boolEnvironmentVariable'|
-//@[91:92) RightParen |)|
-//@[92:93) RightParen |)|
-//@[93:94) NewLine |\n|
 
 //@[00:00) EndOfFile ||

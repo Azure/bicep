@@ -57,15 +57,6 @@
     },
     "decoratedString": {
       "value": "Apple"
-    },
-    "stringfromEnvironmentVariables": {
-      "value": "test"
-    },
-    "intfromEnvironmentVariables": {
-      "value": 100
-    },
-    "boolfromEnvironmentVariables": {
-      "value": true
     }
   }
 }

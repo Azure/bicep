@@ -11,7 +11,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -39,9 +38,9 @@ namespace Bicep.Core.IntegrationTests
 
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new[] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind, string? providerVersion = null) => providerName switch
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, string? providerVersion = null) => providerName switch
             {
-                SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(aliasName, features, sourceFileKind),
+                SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(aliasName, features),
                 { } _ when builderDict.TryGetValue(providerName) is { } builderFunc => builderFunc(aliasName),
                 _ => null,
             };
