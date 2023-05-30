@@ -66,6 +66,9 @@
     },
     "boolfromEnvironmentVariables": {
       "value": true
+    },
+    "intfromEnvironmentVariablesDefault": {
+      "value": 12
     }
   }
 }
