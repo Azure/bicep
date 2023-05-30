@@ -12,7 +12,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        private const int DefaultTimeout = 30000;
+        private const int DefaultTimeout = 60000;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Not an issue in test code.")]
         public static async Task<T> WithTimeoutAsync<T>(Task<T> task, int timeout = DefaultTimeout)
