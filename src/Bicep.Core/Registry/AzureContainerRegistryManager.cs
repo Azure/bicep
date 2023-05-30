@@ -5,9 +5,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection.Metadata.Ecma335;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -15,6 +18,7 @@ using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
+using Microsoft.Win32;
 using OciDescriptor = Bicep.Core.Registry.Oci.OciDescriptor;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
 
@@ -40,7 +44,7 @@ namespace Bicep.Core.Registry
             Stream manifestStream;
             string manifestDigest;
 
-            async Task<(ContainerRegistryContentClient, OciManifest, Stream, string)> DownloadManifestInternalAsync(bool anonymousAccess)
+            async Task<(ContainerRegistryContentClient, OciManifest, Stream, string)> DownloadAsync(bool anonymousAccess)
             {
                 var client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess);
                 var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
@@ -51,24 +55,79 @@ namespace Bicep.Core.Registry
             {
                 // Try authenticated client first.
                 Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
-                (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: false);
+                (client, manifest, manifestStream, manifestDigest) = await DownloadAsync(anonymousAccess: false);
             }
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
-                (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: true);
+                (client, manifest, manifestStream, manifestDigest) = await DownloadAsync(anonymousAccess: true);
             }
             catch (CredentialUnavailableException)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
-                (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: true);
+                (client, manifest, manifestStream, manifestDigest) = await DownloadAsync(anonymousAccess: true);
             }
 
             var moduleStream = await ProcessManifest(client, manifest);
 
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
+        }
+
+        public async Task<string?> TryGetMostRecentDescription(RootConfiguration rootConfiguration, OciArtifactModuleReference moduleReference)
+        {
+            try
+            {
+                await foreach (var manifest in GetAllManifestsAsyncPageable(rootConfiguration, moduleReference, ArtifactManifestOrder.LastUpdatedOnDescending))
+                {
+                    return manifest.Digest; //asdfg
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
+            return null;
+        }
+
+        public AsyncPageable<ArtifactManifestProperties> GetAllManifestsAsyncPageable(RootConfiguration configuration, OciArtifactModuleReference moduleReference, ArtifactManifestOrder manifestOrder = ArtifactManifestOrder.LastUpdatedOnDescending)
+        {
+            AsyncPageable<ArtifactManifestProperties> DownloadAsync(bool anonymousAccess)
+            {
+                var client = this.clientFactory.CreateContainerRegistryClient(configuration, GetRegistryUri(moduleReference), anonymousAccess);
+                var repository = client.GetRepository(moduleReference.Repository);
+
+                return repository.GetAllManifestPropertiesAsync(manifestOrder: ArtifactManifestOrder.LastUpdatedOnDescending);
+
+                //asdfg remove
+                //await foreach (var manifest in repository.GetAllManifestPropertiesAsync(manifestOrder: ArtifactManifestOrder.LastUpdatedOnDescending)) {
+                //    Trace.WriteLine(string.Join(", ", manifest.Tags.ToArray())); //asdfg remove
+                //    tags.AddRange(manifest.Tags);
+                //}
+
+                //return tags;
+            }
+
+            try
+            {
+                // Try authenticated client first.
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
+                return DownloadAsync(anonymousAccess: false);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            { //asdfg will these actually hit?  unit test
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                return DownloadAsync(anonymousAccess: true);
+            }
+            catch (CredentialUnavailableException)
+            { //asdfg will these actually hit?  unit test
+                // Fall back to anonymous client.
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
+                return DownloadAsync(anonymousAccess: true);
+            }
         }
 
         public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri = null, string? description = null, params StreamDescriptor[] layers)
@@ -120,9 +179,10 @@ namespace Bicep.Core.Registry
 
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
 
-        private ContainerRegistryContentClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
-            : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
+        private ContainerRegistryContentClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess) => //asdfg remove (refactor)
+            anonymousAccess
+              ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
+              : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
 
         private static async Task<(OciManifest, Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryContentClient client)
         {

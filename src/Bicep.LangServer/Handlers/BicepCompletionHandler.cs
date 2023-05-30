@@ -61,6 +61,7 @@ namespace Bicep.LanguageServer.Handlers
             return new CompletionList(completions, isIncomplete: false);
         }
 
+        // This allows us to fill in additional properties in a CompletionItem on demand after the completion list has been displayed
         public async override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

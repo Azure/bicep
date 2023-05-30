@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
-            return new(registryUri, repository, credential, options);
+            return new ContainerRegistryContentClient(registryUri, repository, credential, options);
         }
 
         public ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
@@ -35,7 +35,24 @@ namespace Bicep.Core.Registry
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(configuration.Cloud.ResourceManagerAudience);
 
-            return new(registryUri, repository, options);
+            return new ContainerRegistryContentClient(registryUri, repository, options);
+        }
+
+        public ContainerRegistryClient CreateContainerRegistryClient(RootConfiguration configuration, Uri registryUri, bool anonymous)
+        {
+            var options = new ContainerRegistryClientOptions();
+            options.Diagnostics.ApplySharedContainerRegistrySettings();
+            options.Audience = new ContainerRegistryAudience(configuration.Cloud.ResourceManagerAudience);
+
+            if (anonymous)
+            {
+                return new ContainerRegistryClient(registryUri, options);
+            }
+            else
+            {
+                var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
+                return new ContainerRegistryClient(registryUri, credential, options);
+            }
         }
     }
 }

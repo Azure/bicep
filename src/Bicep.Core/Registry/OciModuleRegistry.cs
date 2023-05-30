@@ -148,7 +148,12 @@ namespace Bicep.Core.Registry
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
-        public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference)
+        public async Task<string?> TryGetDescriptionForLatestVersion(OciArtifactModuleReference moduleReference)
+        {
+            return await client.TryGetMostRecentDescription(configuration, moduleReference);
+        }
+
+        public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference) //asdfg
         {
             try
             {

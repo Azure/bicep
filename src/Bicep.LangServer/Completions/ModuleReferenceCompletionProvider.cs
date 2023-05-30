@@ -73,10 +73,13 @@ namespace Bicep.LanguageServer.Completions
 
         public static class CompletionItemDataKeys
         {
-            public const string OciArtifactModuleReference = "OciArtifactModuleReference"; //asdfg
-
-            public const string asdfg = "asdfg"; 
+            public const string OciResolveCompletionInfo = "ociResolveCompletionInfo";
         }
+
+        private record OciResolveCompletionInfo(
+            string sourceUri,
+            OciArtifactModuleReference ModuleReference
+        );
 
         public ModuleReferenceCompletionProvider(
             DefaultModuleRegistryProvider defaultModuleRegistryProvider,
@@ -111,14 +114,15 @@ namespace Bicep.LanguageServer.Completions
 
         public async Task<CompletionItem?> ResolveCompletion(CompletionItem request, CancellationToken cancellationToken)
         {
-            if (request.Data?.TryGetProperty<OciArtifactModuleReference>(CompletionItemDataKeys.OciArtifactModuleReference) is { } ociModuleReference)
+            if (request.Data?.TryGetProperty<OciArtifactModuleReference>(CompletionItemDataKeys.OciArtifactModuleReference) is { } ociModuleReference
+                and request.Data?.TryGetProperty<string>(CompletionItemDataKeys.SourceUri)
             {
                 // This is used to locate bicepconfig.json file to find the module aliases.  We're not using module aliases so it is unimportant.
                 var nonExistingBicepFileUri = new Uri("empty:///empty.bicep", UriKind.Absolute);
 
                 if (this.defaultModuleRegistryProvider.Registries(nonExistingBicepFileUri).OfType<OciModuleRegistry>().SingleOrDefault() is OciModuleRegistry ociRegistry)
                 {
-                    if (await ociRegistry.TryGetDescription2(ociModuleReference) is string description)
+                    if (await ociRegistry.TryGetMostRecentDescription(ociModuleReference) is string description)
                     {
                         return request with { Documentation = description, Detail = description };
                     }
@@ -186,7 +190,7 @@ namespace Bicep.LanguageServer.Completions
 
         // Handles version completions for Microsoft Container Registries (MCR).
         // I.e. completions starting with "br/" or "br:"
-        private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
+        private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri) //asdfg
         {
             if (!IsOciModuleRegistryReference(replacementText))
             {
@@ -508,8 +512,11 @@ namespace Bicep.LanguageServer.Completions
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
 
-                //'br/public:samples/hello-world:'
-                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "1.0.2"/*asdfg*/, null, new Uri("nothing://adsfg"));
+                //'br/public:samples/hello-world:<CURSOR>
+
+                // This is used to locate bicepconfig.json file to find the module aliases.  We're not using module aliases so it is unimportant.
+                var nonExistingBicepFileUri = new Uri("empty:///empty.bicep", UriKind.Absolute);
+                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "1.0.2"/*asdfg*/, null, nonExistingBicepFileUri); //asdfg break this up
                 //var description = await ociRegistry.TryGetDescription2(moduleReference);
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
