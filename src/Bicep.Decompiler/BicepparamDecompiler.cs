@@ -56,7 +56,7 @@ public class BicepparamDecompiler
         return new DecompileResult(entryBicepparamUri, PrintFiles(workspace));
     }
 
-    public ProgramSyntax DecompileParamFile(string jsonInput, Uri entryBicepparamUri, string? bicepFilePath)
+    private ProgramSyntax DecompileParamFile(string jsonInput, Uri entryBicepparamUri, string? bicepFilePath)
     {
         var statements = new List<SyntaxBase>();
 
