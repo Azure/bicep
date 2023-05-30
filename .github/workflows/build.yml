@@ -532,14 +532,14 @@ jobs:
         uses: actions/setup-dotnet@v3
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.runtime.rid }}
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
-        if: failure()
+        if: always()
         with:
           name: Bicep.TestResults.${{ matrix.runtime.rid }}
-          path: ./TestResults/**/*.trx
+          path: ./TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.runtime.rid }}/**/*.trx
           if-no-files-found: error
 
       - name: Download Bicep CLI
@@ -572,6 +572,37 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: dotnet
+
+  publish-test-results:
+    name: "Publish Tests Results (${{ matrix.rid }})"
+    needs: test-bicep
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      # only needed unless run with comment_mode: off
+      pull-requests: write
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: ["win-x64", "linux-x64", "linux-musl-x64", "osx-x64"]
+    if: always()
+
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.${{ matrix.rid }}
+          path: TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}
+
+      - name: List downloaded artifacts
+        run: ls -R TestResults/
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          check_name: "Test Results (${{ matrix.rid }})"
+          files: "TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}/**/*.trx"
+  
 
   can-run-live-tests:
     name: Check secret access
