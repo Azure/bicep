@@ -186,8 +186,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().ContainAll(diagnostics);
             }
         }
-
-        [TestInitialize]
+         [TestInitialize]
         public void testInit(){
             System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
             System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");

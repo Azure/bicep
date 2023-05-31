@@ -16,7 +16,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
-using Bicep.Core.Workspaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -26,6 +25,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpYaml.Serialization;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces
 {

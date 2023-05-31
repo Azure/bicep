@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Azure.Bicep.Types;
@@ -17,9 +18,9 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
 
-        public AzResourceTypeLoader(TypeLoader typeLoader)
+        public AzResourceTypeLoader()
         {
-            this.typeLoader = typeLoader;
+            this.typeLoader = new AzTypeLoader();
             this.resourceTypeFactory = new AzResourceTypeFactory();
             var indexedTypes = typeLoader.LoadTypeIndex();
             this.availableTypes = indexedTypes.Resources.ToImmutableDictionary(

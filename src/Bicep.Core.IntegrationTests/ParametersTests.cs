@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]
         public void Parameter_can_have_resource_type()
@@ -158,7 +158,7 @@ param p resource 'Some.Fake/Type@2019-06-01'
 
 output id string = p.id
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
             });
@@ -175,7 +175,7 @@ import 'storage@1.0.0' with {
 param container resource 'stg:container'
 output name string = container.name // silence unused params warning
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),
@@ -193,7 +193,7 @@ resource resource 'My.Rp/myResource@2020-01-01' = {
   name: 'resource'
 }");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResource@2020-01-01\" does not have types available."),
                 ("BCP229", DiagnosticLevel.Error, "The parameter \"p\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource."),
@@ -216,7 +216,7 @@ resource resource 'Microsoft.Storage/storageAccounts/tableServices@2020-06-01' =
   }
 }");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts/tableServices@2020-06-01\" does not have types available."),
                 ("BCP229", DiagnosticLevel.Error, "The parameter \"p\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource."),
@@ -278,7 +278,7 @@ param foo string
 param bar string
 "));
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
                 ("BCP065", DiagnosticLevel.Error, "Function \"utcNow\" is not valid at this location. It can only be used as a parameter default value."),
                 ("BCP065", DiagnosticLevel.Error, "Function \"newGuid\" is not valid at this location. It can only be used as a parameter default value."),
             });
@@ -299,7 +299,7 @@ param foo string
 param bar object
 "));
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"resourceId\" does not exist in the current context."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"deployment\" does not exist in the current context."),
             });

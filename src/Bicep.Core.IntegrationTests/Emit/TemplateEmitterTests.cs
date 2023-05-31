@@ -307,7 +307,7 @@ this
             System.Environment.SetEnvironmentVariable("intEnvVariableName",null);
             System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", null);
         }
-        
+
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string filePath)
         {
             var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);

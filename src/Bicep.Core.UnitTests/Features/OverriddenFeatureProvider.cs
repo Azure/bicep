@@ -35,6 +35,4 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool UserDefinedTypesEnabled => overrides.UserDefinedTypesEnabled ?? features.UserDefinedTypesEnabled;
 
     public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
-
-    public bool DynamicTypeLoading => overrides.DynamicTypeLoading ?? features.DynamicTypeLoading;
 }
