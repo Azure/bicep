@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -11,10 +10,8 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing.Text;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,8 +39,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutArrayTypeSyntax(ArrayTypeSyntax syntax) =>
             this.Glue(
-                syntax.Item,
                 syntax.OpenBracket,
+                syntax.Item,
                 syntax.CloseBracket);
 
         private IEnumerable<Document> LayoutBinaryOperationSyntax(BinaryOperationSyntax syntax) =>
@@ -55,33 +52,18 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutDecoratorSyntax(DecoratorSyntax syntax) =>
             this.Glue(syntax.At, syntax.Expression);
 
-        private IEnumerable<Document> LayoutForSyntax(ForSyntax syntax)
-        {
-            var variableSection = syntax.VariableSection switch
-            {
-                LocalVariableSyntax localVariable => this.LayoutSingle(localVariable),
-                VariableBlockSyntax variableBlock => this.LayoutSingle(variableBlock) switch
-                {
-                    // The parser does not support multi-line VariableBlockSyntax, so flattening it.
-                    GroupDocument group => group.Flatten().Glue(),
-                    var document => document,
-                },
-
-                _ => throw new NotImplementedException()
-            };
-
-            return this.Glue(
+        private IEnumerable<Document> LayoutForSyntax(ForSyntax syntax) =>
+            this.Glue(
                 syntax.OpenSquare,
                 this.Spread(
                     syntax.ForKeyword,
-                    variableSection,
+                    syntax.VariableSection,
                     syntax.InKeyword,
                     this.Glue(
                         syntax.Expression,
                         syntax.Colon),
                     syntax.Body),
                 syntax.CloseSquare);
-        }
 
         private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax) =>
             this.Glue(
@@ -120,8 +102,8 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutIntanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
             this.Glue(
                 syntax.BaseExpression,
-                syntax.Dot,
                 syntax.Name,
+                syntax.Dot,
                 this.Bracket(
                     syntax.OpenParen,
                     syntax.Children,
@@ -166,18 +148,22 @@ namespace Bicep.Core.PrettyPrintV2
                 this.Glue(syntax.Key, syntax.Colon),
                 syntax.Value);
 
-        private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax) =>
-            this.Bracket(
+        private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax)
+        {
+            // Special case for objects: if the object contains a newline before
+            // the first property, always break the the object.
+            var forceBreak = syntax.Children.FirstOrDefault() is Token token &&
+                token.IsOf(TokenType.NewLine) &&
+                syntax.HasProperties();
+
+            return this.Bracket(
                 syntax.OpenBrace,
                 syntax.Children,
                 syntax.CloseBrace,
                 separator: LineOrCommaSpace,
                 padding: LineOrSpace,
-                forceBreak:
-                    // Special case for objects: if the object contains a newline before
-                    // the first property, always break the the object.
-                    StartsWithNewline(syntax.Children) &&
-                    syntax.Properties.Any());
+                forceBreak: forceBreak);
+        }
 
         private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -197,12 +183,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBrace,
                 separator: LineOrCommaSpace,
-                padding: LineOrSpace,
-                forceBreak:
-                    // Special case for object types: if it contains a newline before
-                    // the first property, always break the the object.
-                    StartsWithNewline(syntax.Children) &&
-                    syntax.Children.Any(x => x is ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax));
+                padding: LineOrSpace);
 
         private IEnumerable<Document> LayoutOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -238,7 +219,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.CloseParen);
 
         private IEnumerable<Document> LayoutProgramSyntax(ProgramSyntax syntax) =>
-            this.LayoutMany(syntax.Children.Append(syntax.EndOfFile))
+            this.LayoutMany(syntax.Children)
                 .TrimHardLine()
                 .CollapseHardLine()
                 .SeparatedByNewline();
@@ -269,42 +250,16 @@ namespace Bicep.Core.PrettyPrintV2
                 ? this.Glue(syntax.Keyword, syntax.Type)
                 : this.LayoutSingle(syntax.Keyword);
 
-        private IEnumerable<Document> LayoutSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
-        {
-            var text = SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim().AsSpan();
-            var trailingNewlineCount = 0;
+        private IEnumerable<Document> LayoutSkippedTriviaSyntax(SkippedTriviaSyntax syntax) =>
+            TextDocument.From(syntax
+                .ToTextPreserveFormatting()
+                .ReplaceLineEndings(this.context.Newline));
 
-            while (text.EndsWith(this.context.Newline))
-            {
-                text = text[0..(text.Length - this.context.Newline.Length)];
-                trailingNewlineCount++;
-            }
-
-            yield return text.ToString();
-
-            if (trailingNewlineCount > 1)
-            {
-                yield return HardLine;
-            }
-        }
-
-        private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax)
-        {
-            var leadingTrivia = this.LayoutLeadingTrivia(syntax.StringTokens[0].LeadingTrivia);
-            var trailingTrivia = this.LayoutTrailingTrivia(syntax.StringTokens[^1].TrailingTrivia, out var suffix);
-
-            var writer = new StringWriter();
-
-            for (var i = 0; i < syntax.Expressions.Length; i++)
-            {
-                writer.Write(syntax.StringTokens[i].Text);
-                SyntaxStringifier.StringifyTo(writer, syntax.Expressions[i], this.context.Newline);
-            }
-
-            writer.Write(syntax.StringTokens[^1].Text);
-
-            return LayoutWithLeadingAndTrailingTrivia(writer.ToString(), leadingTrivia, trailingTrivia, suffix);
-        }
+        private IEnumerable<Document> LayoutStringSyntax(StringSyntax syntax) =>
+            this.Glue(syntax.StringTokens
+                    .Zip(syntax.Expressions, (stringToken, expression) => new SyntaxBase[] { stringToken, expression })
+                    .SelectMany(x => x)
+                    .Append(syntax.StringTokens[^1]));
 
         private IEnumerable<Document> LayoutTargetScopeSyntax(TargetScopeSyntax syntax) =>
             this.Spread(
@@ -330,15 +285,14 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrEmpty);
+                padding: LineOrSpace);
 
         private IEnumerable<Document> LayoutTypeDeclarationSyntax(TypeDeclarationSyntax syntax) =>
-            this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.Spread(
-                    syntax.Keyword,
-                    syntax.Name,
-                    syntax.Assignment,
-                    syntax.Value));
+            this.Spread(
+                syntax.Keyword,
+                syntax.Name,
+                syntax.Assignment,
+                syntax.Value);
 
         private IEnumerable<Document> LayoutUnaryOperationSyntax(UnaryOperationSyntax syntax) =>
             this.Glue(
@@ -346,8 +300,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Expression);
 
         private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.LayoutMany(syntax.Children)
-                .Spread();
+            this.Spread(syntax.Children);
 
         private IEnumerable<Document> LayoutUsingDeclarationSyntax(UsingDeclarationSyntax syntax) =>
             this.Spread(
@@ -379,7 +332,7 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrEmpty);
 
         public IEnumerable<Document> LayoutTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax) =>
-            this.Spread(
+            this.Glue(
                 syntax.Name,
                 syntax.Type);
 
@@ -408,151 +361,97 @@ namespace Bicep.Core.PrettyPrintV2
 
             if (commentStickiness == CommentStickiness.None)
             {
-                return token.IsOf(TokenType.Comma) ? Empty : TextDocument.From(token.Text);
+                return token.IsOf(TokenType.Comma)
+                    ? Enumerable.Empty<Document>()
+                    : TextDocument.From(token.Text);
             }
 
-            var leadingTrivia = this.LayoutLeadingTrivia(token.LeadingTrivia);
+            var leadingTrivia = this.LayoutTrivia(token.LeadingTrivia);
 
             if (commentStickiness == CommentStickiness.Leading)
             {
-                return this.LayoutWithLeadingTrivia(token, leadingTrivia);
+                if (token.IsOf(TokenType.NewLine))
+                {
+                    if (leadingTrivia.Any())
+                    {
+                        this.ForceBreak();
+                    }
+
+                    return token.IsMultiLineNewLine()
+                        ? leadingTrivia.Append(HardLine)
+                        : leadingTrivia;
+                }
+
+                return leadingTrivia.Any()
+                    ? leadingTrivia.Append(token.Text).SeparateBySpace().Glue()
+                    : token.Text;
             }
 
             var trailingTrivia = LayoutTrailingTrivia(token.TrailingTrivia, out var suffix);
 
             if (commentStickiness == CommentStickiness.Trailing)
             {
-                return LayoutWithTrailingTrivia(token, leadingTrivia, trailingTrivia, suffix);
+                Document text = trailingTrivia.Any()
+                    ? trailingTrivia.Prepend(token.Text).SeparateBySpace().Glue()
+                    : token.Text;
+
+                if (leadingTrivia.Any())
+                {
+                    return leadingTrivia.Append(text.AddSuffixIfNotNull(suffix));
+                }
+
+                return text.AddSuffixIfNotNull(suffix);
             }
 
             if (commentStickiness == CommentStickiness.Bidirectional)
             {
-                return LayoutWithLeadingAndTrailingTrivia(token.Text, leadingTrivia, trailingTrivia, suffix);
+                Document text = token.IsMultiLineNewLine()
+                    ? token.Text.ReplaceLineEndings(this.context.Newline)
+                    : token.Text;
+
+                if (leadingTrivia.Any() || trailingTrivia.Any())
+                {
+                    text = leadingTrivia
+                        .Append(text)
+                        .Concat(trailingTrivia)
+                        .SeparateBySpace()
+                        .Glue();
+                }
+
+                return text.AddSuffixIfNotNull(suffix);
             }
 
             throw new NotImplementedException($"Cannot handle {commentStickiness}");
         }
 
-        private IEnumerable<Document> LayoutWithLeadingTrivia(Token token, IEnumerable<Document> leadingTrivia)
-        {
-            var hasLeadingTrivia = leadingTrivia.Any();
-
-            if (token.IsOf(TokenType.EndOfFile))
-            {
-                return hasLeadingTrivia ? leadingTrivia.Spread() : Empty;
-            }
-
-            if (token.IsOf(TokenType.NewLine))
-            {
-                var printHardLine = StringUtils.CountNewlines(token.Text) > 1;
-
-                if (hasLeadingTrivia)
-                {
-                    this.ForceBreak();
-
-                    leadingTrivia = leadingTrivia.Spread();
-
-                    return printHardLine ? leadingTrivia.Append(HardLine) : leadingTrivia;
-                }
-
-                return printHardLine ? HardLine : Empty;
-            }
-
-            return hasLeadingTrivia ? leadingTrivia.Append(token.Text).Spread() : token.Text;
-        }
-
-        private static IEnumerable<Document> LayoutWithTrailingTrivia(Token token, IEnumerable<Document> danglingLeadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
-        {
-            var text = trailingTrivia.Any() ? trailingTrivia.Prepend(token.Text).Spread() : token.Text;
-
-            if (suffix is not null)
-            {
-                text = DocumentOperators.Glue(text, suffix);
-            }
-
-            // Tokens such as ), ], and } may have dangling leading comments attached to them.
-            return danglingLeadingTrivia.Any() ? danglingLeadingTrivia.Append(text) : text;
-        }
-
-        private static IEnumerable<Document> LayoutWithLeadingAndTrailingTrivia(Document text, IEnumerable<Document> leadingTrivia, IEnumerable<Document> trailingTrivia, SuffixDocument? suffix)
-        {
-            if (leadingTrivia.Any() || trailingTrivia.Any())
-            {
-                text = leadingTrivia
-                    .Append(text)
-                    .Concat(trailingTrivia)
-                    .Spread();
-            }
-
-            return suffix is not null ? DocumentOperators.Glue(text, suffix) : text;
-        }
-
-        private IEnumerable<Document> LayoutLeadingTrivia(ImmutableArray<SyntaxTrivia> trivia)
+        private IEnumerable<Document> LayoutTrivia(ImmutableArray<SyntaxTrivia> trivia)
         {
             foreach (var triviaItem in trivia)
             {
-                if (triviaItem.IsOf(SyntaxTriviaType.Whitespace))
-                {
-                    continue;
-                }
-
-                if (triviaItem.IsOf(SyntaxTriviaType.SingleLineComment))
+                if (triviaItem.IsSingleLineComment())
                 {
                     this.ForceBreak();
                 }
 
-                if (triviaItem is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDirective)
+                if (!triviaItem.IsWhitespace())
                 {
-                    var diagnosticCodes = string.Join(" ", disableNextLineDirective.DiagnosticCodes.Select(x => x.Text));
-                    yield return $"#disable-next-line {diagnosticCodes}";
-                    continue;
+                    yield return triviaItem.Text;
                 }
-
-                // Trim newlines to handle unterminated multi-line comments.
-                yield return triviaItem.Text.TrimEnd('\r', '\n');
             }
         }
 
         private IEnumerable<Document> LayoutTrailingTrivia(ImmutableArray<SyntaxTrivia> trivia, out SuffixDocument? suffix)
         {
+            var trailingTrivia = this.LayoutTrivia(trivia);
+
+            if (trivia.SingleOrDefault(SyntaxExtensions.IsSingleLineComment) is { Text: var suffixText })
+            {
+                suffix = new SuffixDocument($" {suffixText}");
+                return trailingTrivia.SkipLast(1);
+            }
+
             suffix = null;
-
-            if (trivia.Length == 0)
-            {
-                return Empty;
-            }
-
-            var trailingTrivia = new List<Document>();
-
-            foreach (var triviaItem in trivia)
-            {
-                if (triviaItem.IsOf(SyntaxTriviaType.Whitespace))
-                {
-                    continue;
-                }
-
-                if (triviaItem.IsOf(SyntaxTriviaType.SingleLineComment))
-                {
-                    this.ForceBreak();
-
-                    // Trailing single-line comment should be ignored
-                    // when calculating occupied width for the current line,
-                    // so making it a zero-length suffix.
-                    suffix = new($" {triviaItem.Text}");
-
-                    // There cannot exist any trivia item after a
-                    // single-line comment that is not a whitespace.
-                    break;
-                }
-
-                // Trim newlines to handle unterminated multi-line comments.
-                trailingTrivia.Add(triviaItem.Text.TrimEnd('\r', '\n'));
-            }
-
             return trailingTrivia;
         }
-
-        private static bool StartsWithNewline(IEnumerable<SyntaxBase> syntaxes) =>
-            syntaxes.FirstOrDefault() is Token { Type: TokenType.NewLine };
     }
 }

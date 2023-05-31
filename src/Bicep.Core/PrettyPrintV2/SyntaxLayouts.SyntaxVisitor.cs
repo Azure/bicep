@@ -168,7 +168,7 @@ namespace Bicep.Core.PrettyPrintV2
             where TSyntax : SyntaxBase
         {
             this.current = syntax is ITopLevelDeclarationSyntax && this.context.HasSyntaxError(syntax)
-                ? TextDocument.From(SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim())
+                ? TextDocument.From(SyntaxStringifier.Stringify(syntax, this.context.Newline))
                 : layoutSpecifier(syntax);
         }
     }
