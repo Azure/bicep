@@ -7,12 +7,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.CompilationManager
 {
-    // TODO: Get rid of the generic interface
-    public interface ICompilationManager<T>
+    public interface ICompilationManager
     {
         void HandleFileChanges(IEnumerable<FileEvent> fileEvents);
 
         void RefreshCompilation(DocumentUri uri);
+
+        void RefreshAllActiveCompilations();
 
         void OpenCompilation(DocumentUri uri, int? version, string text, string languageId);
 
@@ -20,11 +21,6 @@ namespace Bicep.LanguageServer.CompilationManager
 
         void CloseCompilation(DocumentUri uri);
 
-        T? GetCompilation(DocumentUri uri);
-    }
-
-    public interface ICompilationManager : ICompilationManager<CompilationContext>
-    {
-
+        CompilationContext? GetCompilation(DocumentUri uri);
     }
 }

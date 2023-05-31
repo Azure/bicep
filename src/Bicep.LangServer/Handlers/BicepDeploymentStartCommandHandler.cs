@@ -178,7 +178,7 @@ namespace Bicep.LanguageServer.Handlers
         public async Task<BicepparamCompilationResult> TryCompileBicepparamFile(string parametersFilePath)
         {
             var documentUri = DocumentUri.FromFileSystemPath(parametersFilePath);
-            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
+            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
 
             var paramsModel = compilation.GetEntrypointSemanticModel();
 

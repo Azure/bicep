@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var fileUri = documentUri.ToUri();
 
-            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
+            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);
