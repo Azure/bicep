@@ -10,6 +10,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 
 namespace Bicep.Core.Semantics
 {
@@ -18,14 +19,16 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProviderFactory apiVersionProviderFactory, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.featureProviderFactory = featureProviderFactory;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.configurationManager = configurationManager;
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.linterAnalyzer = linterAnalyzer;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
@@ -73,6 +76,7 @@ namespace Bicep.Core.Semantics
             SourceFileGrouping.FileResolver,
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
-            featureProviderFactory.GetFeatureProvider(bicepFile.FileUri));
+            featureProviderFactory.GetFeatureProvider(bicepFile.FileUri),
+            apiVersionProviderFactory.GetApiVersionProvider(bicepFile.FileUri));
     }
 }

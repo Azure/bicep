@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -11,6 +12,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.Semantics
 {
@@ -21,19 +23,17 @@ namespace Bicep.Core.Semantics
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
 
-        private readonly BicepSourceFileKind sourceFileKind;
         private readonly IList<ScopeInfo> localScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind)
+        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes)
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
             this.targetScope = targetScope;
             this.context = context;
             this.localScopes = localScopes;
-            this.sourceFileKind = sourceFileKind;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, targetScope, symbolContext, localScopes, sourceFile.FileKind);
+            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, targetScope, symbolContext, localScopes);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -155,9 +155,9 @@ namespace Bicep.Core.Semantics
                     ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
                     : ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, sourceFileKind, syntax.Specification?.Version) is not { } namespaceType)
+            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features) is not { } namespaceType)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification.Name));
             }
             else
             {
