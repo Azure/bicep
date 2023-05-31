@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -7,6 +8,7 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -77,20 +79,6 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             data.Symbols.WriteToOutputFolder(sourceTextWithDiags);
             data.Symbols.ShouldHaveExpectedValue();
-        }
-
-        [TestInitialize]
-        public void testInit(){
-            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
-            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
-            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
-        }
-
-        [TestCleanup]
-        public void TestCleanup(){
-            System.Environment.SetEnvironmentVariable("stringEnvVariableName", null);
-            System.Environment.SetEnvironmentVariable("intEnvVariableName", null);
-            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", null);
         }
     }
 }

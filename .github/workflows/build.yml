@@ -603,7 +603,6 @@ jobs:
           check_name: "Test Results (${{ matrix.rid }})"
           files: "TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}/**/*.trx"
   
-
   can-run-live-tests:
     name: Check secret access
     runs-on: ubuntu-latest

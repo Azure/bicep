@@ -140,10 +140,18 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             builder.AppendLine("## Outputs");
             builder.AppendLine();
-            builder.AppendLine(outputs.ToMarkdownTable(
-                columnName => columnName == nameof(MainArmTemplateOutput.Type)
-                    ? MarkdownTableColumnAlignment.Center
-                    : MarkdownTableColumnAlignment.Left));
+            builder.AppendLine(outputs
+                .Select(o => new
+                {
+                    Name = $"`{o.Name}`",
+                    Type = $"`{o.Type}`",
+                    Description = o.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
+                })
+                .ToMarkdownTable(columnName => columnName switch
+                {
+                    nameof(MainArmTemplateOutput.Type) => MarkdownTableColumnAlignment.Center,
+                    _ => MarkdownTableColumnAlignment.Left,
+                }));
             builder.AppendLine();
         }
 

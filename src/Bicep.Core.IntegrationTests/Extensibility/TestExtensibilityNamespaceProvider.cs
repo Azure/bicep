@@ -6,8 +6,6 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Features;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {
@@ -15,19 +13,19 @@ namespace Bicep.Core.IntegrationTests.Extensibility
     {
         private readonly INamespaceProvider defaultNamespaceProvider;
 
-        public TestExtensibilityNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+        public TestExtensibilityNamespaceProvider(IAzResourceTypeLoader azResourceTypeLoader)
         {
-            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
+            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader);
         }
 
-        public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new[] {
+        public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new [] {
             StorageNamespaceType.BuiltInName,
             AadNamespaceType.BuiltInName,
         });
 
-        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind, string? version = null)
+        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider featureProvider)
         {
-            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider, sourceFileKind) is { } namespaceType)
+            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider) is { } namespaceType)
             {
                 return namespaceType;
             }
