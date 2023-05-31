@@ -3,7 +3,6 @@
   <RunConfiguration>
     <!-- Break builds when no tests are discovered. -->
     <TreatNoTestsAsError>false</TreatNoTestsAsError>
-    <ResultsDirectory>../../TestResults</ResultsDirectory>
   </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
