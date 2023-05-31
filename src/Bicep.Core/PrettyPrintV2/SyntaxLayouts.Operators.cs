@@ -25,9 +25,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params SyntaxBase[] syntaxes) => this.Spread(syntaxes.AsEnumerable());
 
-        private Document Spread(IEnumerable<SyntaxBase> syntaxes) => syntaxes.Select(this.LayoutSingle).Spread();
+        private Document Spread(IEnumerable<SyntaxBase> syntaxes) => syntaxes.Select(this.LayoutSingle).SeparateBySpace().Glue();
 
-        private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Spread();
+        private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).SeparateBySpace().Glue();
 
         private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {

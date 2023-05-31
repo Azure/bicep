@@ -628,9 +628,6 @@
         },
         "userDefinedFunctions": {
           "type": "boolean"
-        },
-        "dynamicTypeLoading": {
-          "type": "boolean"
         }
       }
     }

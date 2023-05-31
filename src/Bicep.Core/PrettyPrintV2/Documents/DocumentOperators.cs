@@ -18,8 +18,6 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 {
     public static class DocumentOperators
     {
-        public static readonly IEnumerable<Document> Empty = Enumerable.Empty<Document>();
-
         /// <summary>
         /// Prints a whitespace.
         /// </summary>
@@ -54,7 +52,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static Document Glue(this IEnumerable<Document> documents) => documents is Document single ? single : new GlueDocument(documents);
 
-        public static Document Spread(this IEnumerable<Document> documents) => documents.SeparateBySpace().Glue();
+        public static Document AddSuffixIfNotNull(this Document document, SuffixDocument? suffix) => suffix is not null ? Glue(document, suffix) : document;
 
         public static IndentDocument Indent(this IEnumerable<Document> documents) => new(documents);
 
@@ -99,14 +97,9 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             var start = 0;
             var end = documentArray.Length - 1;
 
-            while (start <= end && documentArray[start] == HardLine)
+            while (documentArray[start] == HardLine)
             {
                 start++;
-            }
-
-            if (start > end)
-            {
-                return Empty;
             }
 
             while (documentArray[end] == HardLine)
@@ -116,7 +109,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
             if (start > end)
             {
-                return Empty;
+                return Enumerable.Empty<Document>();
             }
 
             return documentArray[start..(end + 1)];

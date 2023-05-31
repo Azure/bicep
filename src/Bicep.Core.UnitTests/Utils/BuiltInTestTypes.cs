@@ -243,7 +243,7 @@ namespace Bicep.Core.UnitTests.Utils
                     overloads));
         }
 
-        public static ImmutableArray<ResourceTypeComponents> Types { get; } = new[] {
+        public static ImmutableArray<ResourceTypeComponents> Types { get; } = new [] {
             BasicTestsType(),
             ReadWriteTestsType(),
             ReadOnlyTestsType(),
@@ -255,9 +255,6 @@ namespace Bicep.Core.UnitTests.Utils
         }.ToImmutableArray();
 
         public static INamespaceProvider Create()
-            => new DefaultNamespaceProvider(
-                TestTypeHelper.CreateAzResourceTypeLoaderFactory(
-                    TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(Types)));
+            => new DefaultNamespaceProvider(TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(Types));
     }
 }
-
