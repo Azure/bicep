@@ -154,7 +154,7 @@ namespace Bicep.Core.TypeSystem.K8s
             }
 
             // It's important to cache this result because generating the resource type is an expensive operation
-            var resourceType = definedTypeCache.GetOrAdd(flags, typeReference, () =>
+            var resourceType =  definedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
                 var resourceType = this.resourceTypeLoader.LoadType(typeReference);
 
@@ -200,7 +200,5 @@ namespace Bicep.Core.TypeSystem.K8s
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
-
-        public string Version { get; } = "1.0.0";
     }
 }

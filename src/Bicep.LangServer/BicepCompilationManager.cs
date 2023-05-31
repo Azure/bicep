@@ -271,12 +271,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(
-            DocumentUri documentUri, 
-            int? version, 
-            IDictionary<ISourceFile, ISemanticModel> modelLookup, 
-            IEnumerable<ISourceFile> removedFiles, 
-            bool triggeredByFileOpenEvent = false)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool triggeredByFileOpenEvent = false)
         {
             static IEnumerable<Diagnostic> CreateFatalDiagnostics(Exception exception) => new Diagnostic
             {

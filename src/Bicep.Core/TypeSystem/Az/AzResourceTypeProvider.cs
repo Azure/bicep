@@ -66,8 +66,6 @@ namespace Bicep.Core.TypeSystem.Az
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
-        public string Version { get; } = "1.0.0";
-
         private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
@@ -170,7 +168,7 @@ namespace Bicep.Core.TypeSystem.Az
                 TypeFactory.CreateStringLiteralType("Actor"),
                 LanguageConstants.String);
 
-            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new[]
+            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("principalId", LanguageConstants.String),
                 new TypeProperty("clientId", LanguageConstants.String)
@@ -187,9 +185,8 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader, string providerVersion)
+        public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader)
         {
-            this.Version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
             this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();

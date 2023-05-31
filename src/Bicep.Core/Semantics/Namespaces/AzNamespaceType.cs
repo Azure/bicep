@@ -26,9 +26,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
-            return (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
-            {
+            return (binder, fileResolver, diagnostics, functionCall, argumentTypes) => {
                 diagnostics.Write(functionCall.Name, writeDiagnostic);
+
                 return new(returnType);
             };
         }
@@ -446,12 +446,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName,
-                 new NamespaceSettings(
-                    IsSingleton: true,
-                    BicepProviderName: BuiltInName,
-                    ConfigurationType: null,
-                    ArmTemplateProviderName: "AzureResourceManager",
-                    ArmTemplateProviderVersion: resourceTypeProvider.Version),
+                Settings,
                 ImmutableArray<TypeTypeProperty>.Empty,
                 GetAzOverloads(resourceScope),
                 ImmutableArray<BannedFunction>.Empty,
