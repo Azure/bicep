@@ -47,7 +47,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
 
             if (DiffLines(newContent, oldContent))
             {
-                throw new InvalidModuleException($"The file \"{filePath}\" is modified or outdated. Please run `brm generate` to regenerate it.");
+                throw new InvalidModuleException(@$"The file ""{filePath}"" is modified or outdated. Please run ""brm generate"" to regenerate it.");
             }
         }
 
