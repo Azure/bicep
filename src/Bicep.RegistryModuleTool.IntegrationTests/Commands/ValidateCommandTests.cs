@@ -21,6 +21,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     [TestClass]
     public class ValidateCommandTests
     {
+        // NOTE: The templateHash here has to match the templateHash in SampleFiles/Valid/main.json
         private static readonly MockFileData MockValidMainTestArmTemplateData = @"{
   ""resources"": [
     {

@@ -5,6 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
+      "$manuallyAddedComment": "NOTE: This templateHash has to match the templateHash in Bicep.RegistryModuleTool.IntegrationTests/Commands/ValidateCommandTests.cs",
       "templateHash": "16759655392678672335"
     },
     "name": "Sample module",
