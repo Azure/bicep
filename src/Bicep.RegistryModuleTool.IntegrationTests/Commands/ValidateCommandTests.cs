@@ -93,7 +93,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
                 $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is invalid:
   #/summary: Value is not longer than or equal to 10 characters
 ".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please run `brm generate` to regenerate it.
+                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please run ""brm generate"" to regenerate it.
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is invalid:
   #: Required properties [""$schema"",""version"",""pathFilters""] were not present
