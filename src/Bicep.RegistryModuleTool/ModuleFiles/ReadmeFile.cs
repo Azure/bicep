@@ -57,7 +57,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
             if (!moduleOwner.Equals(metadataFile.Owner, StringComparison.InvariantCulture))
             {
-                throw new ArgumentException("The `owner` property in metadata.json does not match `metadata owner` in the bicep file. If both are specified, they must be the same.");
+                throw new ArgumentException(@"The ""owner"" property in metadata.json does not match ""metadata owner"" in the bicep file. If both are specified, they must be the same.");
             }
             if (!moduleSummary.Equals(metadataFile.Summary, StringComparison.InvariantCulture))
             {
