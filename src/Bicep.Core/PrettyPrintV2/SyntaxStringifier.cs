@@ -14,37 +14,45 @@ namespace Bicep.Core.PrettyPrintV2
 {
     public class SyntaxStringifier : CstVisitor
     {
-        private readonly StringBuilder buffer;
+        private readonly TextWriter writer;
 
         private readonly string? newlineReplacement;
 
-        private SyntaxStringifier(string? newlineReplacement)
+        private SyntaxStringifier(TextWriter buffer, string? newlineReplacement)
         {
-            this.buffer = new StringBuilder();
+            this.writer = buffer;
             this.newlineReplacement = newlineReplacement;
         }
 
         public static string Stringify(SyntaxBase syntax, string? newlineReplacement = null)
         {
-            var stringifier = new SyntaxStringifier(newlineReplacement);
+            var writer = new StringWriter();
+            var stringifier = new SyntaxStringifier(writer, newlineReplacement);
 
             stringifier.Visit(syntax);
 
-            return stringifier.buffer.ToString();
+            return writer.ToString();
+        }
+
+        public static void StringifyTo(TextWriter writer, SyntaxBase syntax, string? newlineReplacement = null)
+        {
+            var stringifier = new SyntaxStringifier(writer, newlineReplacement);
+
+            stringifier.Visit(syntax);
         }
 
         public override void VisitToken(Token token)
         {
             WriteTrivia(token.LeadingTrivia);
 
-            if (token.IsOneOf(TokenType.NewLine, TokenType.MultilineString) &&
+            if (token.Type is TokenType.NewLine or TokenType.MultilineString &&
                 !string.IsNullOrEmpty(this.newlineReplacement))
             {
-                buffer.Append(token.Text.ReplaceLineEndings(this.newlineReplacement));
+                writer.Write(token.Text.ReplaceLineEndings(this.newlineReplacement));
             }
             else
             {
-                buffer.Append(token.Text);
+                writer.Write(token.Text);
             }
 
             WriteTrivia(token.TrailingTrivia);
@@ -54,7 +62,7 @@ namespace Bicep.Core.PrettyPrintV2
         {
             foreach (var trivia in triviaList)
             {
-                buffer.Append(trivia.Text);
+                writer.Write(trivia.Text);
             }
         }
     }
