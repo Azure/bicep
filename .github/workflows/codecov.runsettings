@@ -4,7 +4,6 @@
     <MaxCpuCount>3</MaxCpuCount>
     <!-- Break builds when no tests are discovered. -->
     <TreatNoTestsAsError>false</TreatNoTestsAsError>
-    <ResultsDirectory>../../TestResults</ResultsDirectory>
   </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
@@ -23,12 +22,6 @@
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
-  <MSTest>
-    <Parallelize>
-      <Workers>4</Workers>
-      <Scope>ClassLevel</Scope>
-    </Parallelize>
-  </MSTest>
   <LoggerRunSettings>
     <Loggers>
       <Logger friendlyName="console" enabled="True">
