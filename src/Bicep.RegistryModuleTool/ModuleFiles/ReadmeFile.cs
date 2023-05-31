@@ -61,7 +61,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
             if (!moduleSummary.Equals(metadataFile.Summary, StringComparison.InvariantCulture))
             {
-                throw new ArgumentException("The `summary` property in metadata.json does not match `metadata description` in the bicep file. If both are specified, they must be the same.");
+                throw new ArgumentException(@"The ""summary"" property in metadata.json does not match ""metadata description"" in the bicep file. If both are specified, they must be the same.");
             }
 
             try
