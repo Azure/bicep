@@ -112,6 +112,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : ""))),
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesEnabled,
+                original.Formatting,
                 null,
                 null);
         }

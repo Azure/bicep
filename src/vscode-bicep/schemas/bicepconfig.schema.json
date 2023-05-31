@@ -631,6 +631,9 @@
         },
         "dynamicTypeLoading": {
           "type": "boolean"
+        },
+        "prettyPrinting": {
+          "type": "boolean"
         }
       }
     }

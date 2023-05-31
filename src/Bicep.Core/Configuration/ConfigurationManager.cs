@@ -95,7 +95,7 @@ namespace Bicep.Core.Configuration
         {
             if (diagnostics.Count > 0)
             {
-                return new(configuration.Cloud, configuration.ModuleAliases, configuration.Analyzers, configuration.CacheRootDirectory, configuration.ExperimentalFeaturesEnabled, configuration.ConfigurationPath, diagnostics);
+                return new(configuration.Cloud, configuration.ModuleAliases, configuration.Analyzers, configuration.CacheRootDirectory, configuration.ExperimentalFeaturesEnabled, configuration.Formatting, configuration.ConfigurationPath, diagnostics);
             }
 
             return configuration;

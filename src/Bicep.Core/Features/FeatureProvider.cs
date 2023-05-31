@@ -38,6 +38,8 @@ namespace Bicep.Core.Features
 
         public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
 
+        public bool PrettyPrintingEnabled => configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
+
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);

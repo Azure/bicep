@@ -5,12 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Bicep.Core.PrettyPrintV2
 {
     public record PrettyPrinterV2Options(
+        [property:JsonConverter(typeof(JsonStringEnumConverter))]
         IndentKind IndentKind = IndentKind.Space,
+        [property:JsonConverter(typeof(JsonStringEnumConverter))]
         NewlineKind NewlineKind = NewlineKind.LF,
         int IndentSize = 2,
         int Width = 80,
