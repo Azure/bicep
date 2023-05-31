@@ -53,7 +53,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             // TODO: remove support for metadata.json, or generate it from bicep metadata
             if (!moduleName.Equals(metadataFile.Name, StringComparison.InvariantCulture))
             {
-                throw new ArgumentException("The `name` property in metadata.json does not match `metadata name` in the bicep file. If both are specified, they must be the same.");
+                throw new ArgumentException(@"The ""name"" property in metadata.json does not match ""metadata name"" in the bicep file. If both are specified, they must be the same.");
             }
             if (!moduleOwner.Equals(metadataFile.Owner, StringComparison.InvariantCulture))
             {
