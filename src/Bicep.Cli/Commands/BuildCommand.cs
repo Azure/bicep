@@ -54,6 +54,7 @@ namespace Bicep.Cli.Commands
 
             if (IsBicepFile(inputPath))
             {
+                diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
                 if (diagnosticLogger.ErrorCount < 1)
@@ -70,6 +71,8 @@ namespace Bicep.Cli.Commands
                         writer.ToFile(compilation, outputPath);
                     }
                 }
+
+                diagnosticLogger.FlushLog();
 
                 // return non-zero exit code on errors
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
