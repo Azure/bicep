@@ -91,53 +91,6 @@ param fourth = {
         }
 
         [TestMethod]
-        public void Decompiler_Decompiles_ValidParametersFileWithBicepFileReference()
-        {
-            var jsonParametersFile = 
-@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""first"": {
-      ""value"": ""test""
-    },
-    ""second"": {
-      ""value"": 1
-    },
-    ""third"" : {
-      ""value"" : true
-    },
-  }
-}";
-            var expectedBicepparamFile = 
-@"using './dir/main.bicep'
-
-param first = 'test'
-
-param second = 1
-
-param third = true";
-
-            var paramFileUri = new Uri("file:///path/to/main.json");
-
-            var bicepFilePath = "./dir/main.bicep";
-
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-              [paramFileUri] = jsonParametersFile
-            });
-
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
-
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri, 
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), 
-              bicepFilePath);
-
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);         
-        }
-
-        [TestMethod]
         public void Decompiler_Decompiles_ValidParamsFileWithBicepFilePath()
         {
             var jsonParametersFile = 
