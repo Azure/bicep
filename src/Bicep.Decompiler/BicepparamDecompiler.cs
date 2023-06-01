@@ -99,7 +99,7 @@ public class BicepparamDecompiler
 
     private SyntaxBase ParseParam(JProperty param)
     { 
-        if(param.Value?["reference"] is {})
+        if(param.Value?["reference"] is not null)
         {
             return new ParameterAssignmentSyntax(
             SyntaxFactory.CreateIdentifierToken("param"),
