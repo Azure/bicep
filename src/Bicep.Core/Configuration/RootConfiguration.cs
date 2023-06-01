@@ -42,7 +42,7 @@ namespace Bicep.Core.Configuration
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configurationPath);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
-            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey), configurationPath);
+            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
 
             return new(cloud, moduleAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, configurationPath, diagnosticBuilders);
         }

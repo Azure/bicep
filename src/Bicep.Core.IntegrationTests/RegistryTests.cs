@@ -170,7 +170,6 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             var fileResolver = BicepTestConstants.FileResolver;
@@ -222,7 +221,6 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             var fileResolver = BicepTestConstants.FileResolver;
@@ -292,7 +290,6 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             var fileResolver = BicepTestConstants.FileResolver;
@@ -368,7 +365,6 @@ namespace Bicep.Core.IntegrationTests
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             var fileResolver = BicepTestConstants.FileResolver;
