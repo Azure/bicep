@@ -484,7 +484,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to secure parameter &apos;{0}&apos;.
+        ///   Looks up a localized string similar to secure value &apos;{0}&apos;.
         /// </summary>
         internal static string PossibleSecretMessageSecureParam {
             get {
