@@ -481,7 +481,8 @@ output myOutput string = 'hello!'
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().Contain(@"{
+            var errorJToken = JToken.Parse(error);
+            var expectedErrorJToken = JToken.Parse(@"{
   ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
   ""version"": ""2.1.0"",
   ""runs"": [
@@ -501,8 +502,7 @@ output myOutput string = 'hello!'
             {
               ""physicalLocation"": {
                 ""artifactLocation"": {
-                  ""uri"": ""file:///");
-            error.Should().Contain(@"main.bicep""
+                  ""uri"": ""main.bicep""
                 },
                 ""region"": {
                   ""startLine"": 1,
@@ -517,6 +517,17 @@ output myOutput string = 'hello!'
     }
   ]
 }");
+        var selectedPath = errorJToken.SelectToken("$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri");
+        selectedPath.Should().NotBeNull();
+        selectedPath?.Value<string>().Should().Contain("file://");
+        selectedPath?.Value<string>().Should().Contain("main.bicep");
+        selectedPath?.Replace("main.bicep");
+        errorJToken.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                expectedErrorJToken,
+                "",
+                "",
+                validateLocation: false);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets
