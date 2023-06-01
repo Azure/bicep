@@ -327,7 +327,8 @@ output myOutput string = 'hello!'
             output.Should().BeEmpty();
             if (Array.Exists(args, x => x.Equals("sarif", StringComparison.OrdinalIgnoreCase)))
             {
-                error.Should().Contain(@"{
+                var errorJToken = JToken.Parse(error);
+                var expectedErrorJToken = JToken.Parse(@"{
   ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
   ""version"": ""2.1.0"",
   ""runs"": [
@@ -342,6 +343,12 @@ output myOutput string = 'hello!'
     }
   ]
 }");
+                errorJToken.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                expectedErrorJToken,
+                "",
+                "",
+                validateLocation: false);
             }
             else
             {
