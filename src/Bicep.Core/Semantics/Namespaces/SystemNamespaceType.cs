@@ -998,7 +998,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
                     .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
-                    .WithOptionalParameter("default",LanguageConstants.String, "Default value to return if environment variable was not found.")
+                    .WithOptionalParameter("default",LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
             }
         }
