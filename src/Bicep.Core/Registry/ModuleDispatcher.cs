@@ -166,10 +166,11 @@ namespace Bicep.Core.Registry
             foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
             {
                 // if we're asked to purge modules cache
-                if (forceModulesRestore) {
+                if (forceModulesRestore)
+                {
                     var forceModulesRestoreStatuses = await registry.InvalidateModulesCache(referencesByRegistry[registry]);
 
-                    // update cache invalidation status for each failed modules
+                    // update cache invalidation status for each failed module
                     foreach (var (failedReference, failureBuilder) in forceModulesRestoreStatuses)
                     {
                         this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
