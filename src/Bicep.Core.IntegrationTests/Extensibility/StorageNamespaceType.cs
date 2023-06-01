@@ -94,6 +94,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
             public IEnumerable<ResourceTypeReference> GetAvailableTypes()
                 => resourceTypes.Keys;
+
+            public string Version { get; } = "1.0.0";
         }
 
         public static NamespaceType Create(string aliasName)

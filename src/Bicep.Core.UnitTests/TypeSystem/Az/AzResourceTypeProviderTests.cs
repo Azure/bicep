@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -14,8 +13,6 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Extensions;
-using Moq;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Namespaces;
 using System.Reflection;
 using Bicep.Core.Resources;
@@ -36,9 +33,9 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
         private static NamespaceType GetAzNamespaceType()
         {
-            var nsProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
+            var nsProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory);
 
-            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features)!;
+            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, null)!;
         }
 
         private static IEnumerable<object[]> GetDeserializeTestData()
@@ -54,7 +51,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 "microsoft.web/2022-03-01",
             }.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var flagPermutationsToTest = new [] {
+            var flagPermutationsToTest = new[] {
                 ResourceTypeGenerationFlags.None,
                 ResourceTypeGenerationFlags.ExistingResource,
                 ResourceTypeGenerationFlags.HasParentDefined,
@@ -62,8 +59,10 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.HasParentDefined,
             };
 
-            foreach (var providerGrouping in GetAzNamespaceType().ResourceTypeProvider.GetAvailableTypes().GroupBy(x => x.TypeSegments[0])) {
-                foreach (var apiVersionGrouping in providerGrouping.GroupBy(x => x.ApiVersion)) {
+            foreach (var providerGrouping in GetAzNamespaceType().ResourceTypeProvider.GetAvailableTypes().GroupBy(x => x.TypeSegments[0]))
+            {
+                foreach (var apiVersionGrouping in providerGrouping.GroupBy(x => x.ApiVersion))
+                {
                     var providerName = providerGrouping.Key;
                     var apiVersion = apiVersionGrouping.Key!;
 
@@ -72,7 +71,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                         continue;
                     }
 
-                    foreach (var flags in flagPermutationsToTest) {
+                    foreach (var flags in flagPermutationsToTest)
+                    {
                         var resourceTypes = apiVersionGrouping.Select(x => x.FormatName()).ToList();
 
                         yield return new object[] { providerName, apiVersion, flags, resourceTypes };

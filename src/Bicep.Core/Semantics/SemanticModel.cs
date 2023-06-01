@@ -15,6 +15,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -39,28 +40,26 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features, IApiVersionProvider apiVersionProvider)
+        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind})");
 
-            Compilation = compilation;
-            SourceFile = sourceFile;
-            Configuration = configuration;
-            Features = features;
-            ApiVersionProvider = apiVersionProvider;
-            FileResolver = fileResolver;
+            this.Compilation = compilation;
+            this.SourceFile = sourceFile;
+            this.Configuration = configuration;
+            this.Features = features;
+            this.FileResolver = fileResolver;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
             var symbolContext = new SymbolContext(compilation, this);
-            SymbolContext = symbolContext;
+            this.SymbolContext = symbolContext;
+            this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
+            this.ApiVersionProvider = new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes());
+            this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
-            Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, symbolContext);
-            TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
-
-            // name binding is done
-            // allow type queries now
+            // name binding is done, allow type queries now
             symbolContext.Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
@@ -363,7 +362,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
-            if(this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)
+            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
                 return ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>.Empty;
@@ -436,7 +435,7 @@ namespace Bicep.Core.Semantics
             }
 
             // try to get the bicep file's semantic model
-            if(!this.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
+            if (!this.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic.AsEnumerable<IDiagnostic>();

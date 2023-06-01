@@ -9,7 +9,13 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public interface INamespaceProvider
 {
-    NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features);
+    NamespaceType? TryGetNamespace(
+        string providerName,
+        string aliasName,
+        ResourceScope resourceScope,
+        IFeatureProvider features,
+        string? providerVersion = null
+    );
 
     IEnumerable<string> AvailableNamespaces { get; }
 }

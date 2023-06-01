@@ -5,7 +5,6 @@ using Bicep.Cli.Commands;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -15,10 +14,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.IO.Abstractions;
-using System.Linq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.Helpers;
@@ -54,7 +50,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
@@ -63,7 +59,6 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IFileSystem, IOFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()

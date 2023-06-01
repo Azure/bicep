@@ -4,7 +4,6 @@ using System.IO.Abstractions;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -22,7 +21,7 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
@@ -31,7 +30,6 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IFileSystem, IOFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
