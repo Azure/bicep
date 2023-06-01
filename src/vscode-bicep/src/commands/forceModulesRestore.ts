@@ -11,7 +11,7 @@ export class ForceModulesRestoreCommand implements Command {
   public constructor(
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager
-  ) {}
+  ) { }
 
   public async execute(
     _context: IActionContext,
@@ -37,6 +37,12 @@ export class ForceModulesRestoreCommand implements Command {
     }
 
     try {
+      this.outputChannelManager.appendToOutputChannel(
+        `Force restoring modules in ${
+          documentUri.fsPath ?? documentUri.toString()
+        }...`
+      );
+
       const forceModulesRestoreOutput: string = await this.client.sendRequest(
         "workspace/executeCommand",
         {

@@ -36,6 +36,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private readonly Lazy<string> lazyTemplateHash;
 
+        private readonly Lazy<string?> lazyNameMetadata;
+        private readonly Lazy<string?> lazyOwnerMetadata;
+        private readonly Lazy<string?> lazyDescriptionMetadata;
+
         public MainArmTemplateFile(string path, string content)
             : base(path)
         {
@@ -51,6 +55,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 ? Enumerable.Empty<MainArmTemplateOutput>()
                 : outputsElement.EnumerateObject().Select(ToOutput));
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
+            this.lazyNameMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath("metadata.name")?.ToNonNullString());
+            this.lazyOwnerMetadata= new(() => lazyRootElement.Value.TryGetPropertyByPath("metadata.owner")?.ToNonNullString());
+            this.lazyDescriptionMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath("metadata.description")?.ToNonNullString());
         }
 
         private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch {
@@ -78,6 +85,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public IEnumerable<MainArmTemplateOutput> Outputs => this.lazyOutputs.Value;
 
         public string TemplateHash => this.lazyTemplateHash.Value;
+
+        public string? NameMetadata => this.lazyNameMetadata.Value;
+
+        public string? OwnerMetadata => this.lazyOwnerMetadata.Value;
+
+        public string? DescriptionMetadata => this.lazyDescriptionMetadata.Value;
 
         public static MainArmTemplateFile Generate(IFileSystem fileSystem, BicepCliProxy bicepCliProxy, MainBicepFile mainBicepFile)
         {

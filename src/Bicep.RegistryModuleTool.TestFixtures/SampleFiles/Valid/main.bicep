@@ -1,27 +1,32 @@
-@description('The dns prefix')
+metadata name = 'Sample module'
+metadata description = 'Sample summary'
+metadata owner = 'test'
+
+// TODO: Remove "sys." everywhere once bicep v0.18 ships
+@sys.description('The dns prefix')
 param dnsPrefix string
 
-@description('The linux administrator username')
+@sys.description('The linux administrator username')
 param linuxAdminUsername string
 
-@description('The RSA public key for SSH')
+@sys.description('The RSA public key for SSH')
 param sshRSAPublicKey string
 
-@description('The service principal client ID')
+@sys.description('The service principal client ID')
 param servicePrincipalClientId string
 
-@description('The service principal client secret')
+@sys.description('The service principal client secret')
 @secure()
 param servicePrincipalClientSecret string
 
 // optional params
-@description('The cluster name')
+@sys.description('The cluster name')
 param clusterName string = 'aks101cluster'
 
-@description('The deployment location')
+@sys.description('The deployment location')
 param location string = resourceGroup().location
 
-@description('''
+@sys.description('''
 The OS disk size (in GB)
 - Minimum value is 0
 - Maximum value is 1023
@@ -30,12 +35,13 @@ The OS disk size (in GB)
 @maxValue(1023)
 param osDiskSizeGB int
 
-@description('The agent count')
+@sys.description('The agent count')
 @minValue(1)
 @maxValue(50)
+// TODO: Causes error during build
 param agentCount int = 0
 
-@description('The agent VM size')
+@sys.description('The agent VM size')
 param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
@@ -71,5 +77,5 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
   }
 }
 
-@description('The control plane FQDN')
+@sys.description('The control plane FQDN')
 output controlPlaneFQDN string = aks.properties.fqdn

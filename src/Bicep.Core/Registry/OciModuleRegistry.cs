@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -205,7 +206,7 @@ namespace Bicep.Core.Registry
 
         public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<OciArtifactModuleReference> references)
         {
-            return await base.InvalidateModulesCacheInternal(configuration, references);
+            return await base.InvalidateModulesCacheInternal(references);
         }
 
         public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)

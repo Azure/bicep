@@ -48,7 +48,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please run \"brm generate\" to regenerate it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         [DataTestMethod]
@@ -81,7 +81,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -107,7 +107,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         private static IEnumerable<object[]> GetEmptyExamplesSectionData()

@@ -16,6 +16,7 @@ namespace Bicep.Core.Semantics
 {
     public class Compilation
     {
+        // Stores semantic model for each source file (map exists for all source files, but semantic model created only when indexed)
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -35,7 +36,7 @@ namespace Bicep.Core.Semantics
                 sourceFile => sourceFile,
                 sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?
                     new(existingModel) :
-                    new Lazy<ISemanticModel>(() => sourceFile switch
+                    new Lazy<ISemanticModel>(() => sourceFile switch // semantic model doesn't yet exist for file, create it
                     {
                         BicepFile bicepFile => CreateSemanticModel(bicepFile),
                         BicepParamFile bicepParamFile => CreateSemanticModel(bicepParamFile),
