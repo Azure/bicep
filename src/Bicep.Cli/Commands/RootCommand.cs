@@ -130,12 +130,12 @@ Usage:
       --bicep-file      Path to the bicep-file that will be referenced in the using declaration
 
     Examples:
-      bicep decompile file.json
-      bicep decompile file.json --bicep-file ./dir/main.bicep
-      bicep decompile file.json --stdout
-      bicep decompile file.json --outdir dir1
-      bicep decompile file.json --force
-      bicep decompile file.json --outfile file.bicep
+      bicep decompile-params file.json
+      bicep decompile-params file.json --bicep-file ./dir/main.bicep
+      bicep decompile-params file.json --stdout
+      bicep decompile-params file.json --outdir dir1
+      bicep decompile-params file.json --force
+      bicep decompile-params file.json --outfile file.bicepparam
 
   {exeName} generate-params [options] <file>
     Builds parameters file from the given bicep file, updates if there is an existing parameters file.
