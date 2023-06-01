@@ -153,8 +153,8 @@
       {
         "id": "bicep-params",
         "aliases": [
-          "Bicep Parameters (Experimental)",
-          "Bicep Params (Experimental)"
+          "Bicep Parameters",
+          "Bicep Params"
         ],
         "extensions": [
           ".bicepparam"

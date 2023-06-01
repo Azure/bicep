@@ -236,7 +236,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             data.Compiled.Should().NotBeNull();
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
-            var result = this.EmitParam(sourceFileGrouping, new(ParamsFilesEnabled: true), data.Compiled!.OutputFilePath);
+            var result = this.EmitParam(sourceFileGrouping, data.Compiled!.OutputFilePath);
 
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
@@ -252,7 +252,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var data = baselineData.GetData(TestContext);
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
-            var result = this.EmitParam(sourceFileGrouping, new(), Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
+            var result = this.EmitParam(sourceFileGrouping, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
 
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
@@ -312,9 +312,9 @@ this
             return emitter.Emit(tw);
         }
 
-        private EmitResult EmitParam(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string outputFilePath)
+        private EmitResult EmitParam(SourceFileGrouping sourceFileGrouping, string outputFilePath)
         {
-            var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
+            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
             var emitter = new ParametersEmitter(compilation.GetEntrypointSemanticModel());
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.Emit(stream);
