@@ -21,6 +21,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     [TestClass]
     public class ValidateCommandTests
     {
+        // NOTE: The templateHash here has to match the templateHash in SampleFiles/Valid/main.json
         private static readonly MockFileData MockValidMainTestArmTemplateData = @"{
   ""resources"": [
     {
@@ -42,6 +43,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
   ""resources"": []
 }";
 
+        // TODO: This test doesn't catch if main.json does not match the compiled main.bicep
         [TestMethod]
         public void Invoke_ValidFiles_ReturnsZero()
         {
@@ -92,7 +94,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
                 $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is invalid:
   #/summary: Value is not longer than or equal to 10 characters
 ".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
+                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please run ""brm generate"" to regenerate it.
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is invalid:
   #: Required properties [""$schema"",""version"",""pathFilters""] were not present
