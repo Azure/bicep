@@ -999,7 +999,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
                     .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
-                    .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
             }
         }
@@ -1122,26 +1121,18 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
 
-            if (argumentTypes.Length < 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+            if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
             {
                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
             }
             var envVariableName = stringLiteral.RawStringValue;
             var envVariableValue = Environment.GetEnvironmentVariable(envVariableName);
 
+            //error to fail the build-param with clear message of the missing env var name
             if (envVariableValue == null)
             {
-                if (argumentTypes.Length == 2 && argumentTypes[1] is StringLiteralType stringLiteral2)
-                {
-                    return new(TypeFactory.CreateStringLiteralType(stringLiteral2.RawStringValue),
-                new StringLiteralExpression(null, stringLiteral2.RawStringValue));
-                }
-                else
-                {
-                    //error to fail the build-param with clear message of the missing env var name
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
-                    "Environment variable does not exist, and no default value set")));
-                }
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
+                "Environment variable does not exist.")));
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),
                 new StringLiteralExpression(null, envVariableValue));
