@@ -40,10 +40,8 @@ namespace Bicep.Core.Configuration
             : $"{Registry}";
     }
 
-    public class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
+    public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
     {
-        private static readonly Regex ModuleAliasNameRegex = new(@"^[a-zA-Z0-9-_]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
         private readonly string? configurationPath;
 
         private ModuleAliasesConfiguration(ModuleAliases data, string? configurationPath)
@@ -120,7 +118,7 @@ namespace Bicep.Core.Configuration
 
         private static bool ValidateAliasName(string aliasName, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)
         {
-            if (!ModuleAliasNameRegex.IsMatch(aliasName))
+            if (!ModuleAliasNameRegex().IsMatch(aliasName))
             {
                 errorBuilder = x => x.InvalidModuleAliasName(aliasName);
                 return false;
@@ -129,5 +127,8 @@ namespace Bicep.Core.Configuration
             errorBuilder = null;
             return true;
         }
+
+        [GeneratedRegex("^[a-zA-Z0-9-_]+$", RegexOptions.CultureInvariant)]
+        private static partial Regex ModuleAliasNameRegex();
     }
 }

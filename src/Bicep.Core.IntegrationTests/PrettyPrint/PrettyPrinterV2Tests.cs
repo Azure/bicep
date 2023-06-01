@@ -80,11 +80,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         {
             var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
             var context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
-            var writer = new StringWriter();
 
-            PrettyPrinterV2.PrintTo(writer, context);
-
-            return writer.ToString();
+            return PrettyPrinterV2.Print(context);
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets

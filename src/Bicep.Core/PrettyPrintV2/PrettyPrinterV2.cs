@@ -33,6 +33,15 @@ namespace Bicep.Core.PrettyPrintV2
             this.context = context;
         }
 
+        public static string Print(PrettyPrinterV2Context context)
+        {
+            var writer = new StringWriter();
+
+            PrintTo(writer, context);
+
+            return writer.ToString();
+        }
+
         public static void PrintTo(TextWriter writer, PrettyPrinterV2Context context)
         {
             var layouts = new SyntaxLayouts(context);

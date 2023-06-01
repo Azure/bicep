@@ -17,9 +17,11 @@ public record FeatureProviderOverrides(
     bool? ParamsFilesEnabled = default,
     bool? UserDefinedTypesEnabled = default,
     bool? UserDefinedFunctionsEnabled = default,
+    bool? PrettyPrintingEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
-    public FeatureProviderOverrides(TestContext testContext,
+    public FeatureProviderOverrides(
+        TestContext testContext,
         bool? RegistryEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
         bool? ExtensibilityEnabled = default,
@@ -29,6 +31,19 @@ public record FeatureProviderOverrides(
         bool? ParamsFilesEnabled = default,
         bool? UserDefinedTypesEnabled = default,
         bool? UserDefinedFunctionsEnabled = default,
+        bool? PrettyPrintingEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
-    ) : this(FileHelper.GetCacheRootPath(testContext), RegistryEnabled, SymbolicNameCodegenEnabled, ExtensibilityEnabled, AdvancedListComprehensionEnabled, ResourceTypedParamsAndOutputsEnabled, SourceMappingEnabled, ParamsFilesEnabled, UserDefinedTypesEnabled, UserDefinedFunctionsEnabled, AssemblyVersion) {}
+    ) : this(
+        FileHelper.GetCacheRootPath(testContext),
+        RegistryEnabled,
+        SymbolicNameCodegenEnabled,
+        ExtensibilityEnabled,
+        AdvancedListComprehensionEnabled,
+        ResourceTypedParamsAndOutputsEnabled,
+        SourceMappingEnabled,
+        ParamsFilesEnabled,
+        UserDefinedTypesEnabled,
+        UserDefinedFunctionsEnabled,
+        PrettyPrintingEnabled,
+        AssemblyVersion) {}
 }

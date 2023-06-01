@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Json
 {
@@ -18,6 +19,7 @@ namespace Bicep.Core.Json
         private static readonly JsonSerializerOptions DefaultSerializeOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new JsonStringEnumConverter() },
         };
 
         public static JsonElement CreateElement(ReadOnlyMemory<byte> utf8Json, JsonDocumentOptions? options = null)
