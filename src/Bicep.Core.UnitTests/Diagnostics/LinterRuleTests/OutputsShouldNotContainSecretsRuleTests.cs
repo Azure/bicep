@@ -96,6 +96,41 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: secure value 'arr[0]'"
         )]
+        [DataRow(@"
+            param arr [
+                @secure()
+                string
+                string
+            ]
+
+            output badResult string = 'this is the value ${arr}'
+        ",
+            $"{description} Found possible secret: secure value 'arr[0]'"
+        )]
+        [DataRow(@"
+            param arr [
+                @secure()
+                string
+                string
+            ]
+            param idx int
+
+            output badResult string = 'this is the value ${arr[idx]}'
+        ",
+            $"{description} Found possible secret: secure value 'arr[idx]'"
+        )]
+        [DataRow(@"
+            type recursiveType = {
+                @secure()
+                secureProp: string
+                recur: recursiveType?
+            }
+            param obj recursiveType
+
+            output badResult string = 'this is the value ${obj}'
+        ",
+            $"{description} Found possible secret: secure value 'obj.secureProp'"
+        )]
         [DataTestMethod]
         public void If_OutputReferencesSecureParamProperty_ShouldFail(string text, params string[] expectedMessages)
         {

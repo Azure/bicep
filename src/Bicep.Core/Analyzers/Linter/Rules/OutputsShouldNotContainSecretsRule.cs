@@ -96,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //   param secureParam string
                 //   output badResult string = 'this is the value ${secureParam}'
 
-                foreach (var pathToSecureComponent in FindPathsToSecureComponents(model.GetTypeInfo(syntax)))
+                foreach (var pathToSecureComponent in FindPathsToSecureTypeComponents(model.GetTypeInfo(syntax)))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.Name.IdentifierName + pathToSecureComponent);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Name.Span, foundMessage));
@@ -107,7 +107,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             {
-                foreach (var pathToSecureComponent in FindPathsToSecureComponents(model.GetTypeInfo(syntax)))
+                foreach (var pathToSecureComponent in FindPathsToSecureTypeComponents(model.GetTypeInfo(syntax)))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.ToTextPreserveFormatting() + pathToSecureComponent);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.PropertyName.Span, foundMessage));
@@ -120,7 +120,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
             {
-                foreach (var pathToSecureComponent in FindPathsToSecureComponents(model.GetTypeInfo(syntax)))
+                foreach (var pathToSecureComponent in FindPathsToSecureTypeComponents(model.GetTypeInfo(syntax)))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.ToTextPreserveFormatting() + pathToSecureComponent);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.IndexExpression.Span, foundMessage));
@@ -131,9 +131,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 trailingAccessExpressions--;
             }
 
-            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type) => FindPathsToSecureComponents(type, "", new());
+            private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type) => FindPathsToSecureTypeComponents(type, "", new());
 
-            private IEnumerable<string> FindPathsToSecureComponents(TypeSymbol type, string path, HashSet<TypeSymbol> visited)
+            private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type, string path, HashSet<TypeSymbol> visited)
             {
                 // types can be recursive. cut out early if we've already seen this type
                 if (visited.Contains(type))
@@ -150,7 +150,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 if (type is UnionType union)
                 {
-                    foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureComponents(m.Type, path, visited)))
+                    foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureTypeComponents(m.Type, path, visited)))
                     {
                         yield return variantPath;
                     }
@@ -159,6 +159,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
                 // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
                 // if they haven't, then the value dereferenced isn't sensitive
+                //
+                //    param p {
+                //      prop: {
+                //        @secure()
+                //        nestedSecret: string
+                //        nestedInnocuousProperty: string
+                //      }
+                //    }
+                //
+                //    output objectContainingSecrets object = p                     // <-- should be flagged
+                //    output propertyContainingSecrets object = p.prop              // <-- should be flagged
+                //    output nestedSecret string = p.prop.nestedSecret              // <-- should be flagged
+                //    output siblingOfSecret string = p.prop.nestedInnocuousData    // <-- should NOT be flagged
                 if (trailingAccessExpressions == 0)
                 {
                     switch (type)
@@ -166,25 +179,25 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         case ObjectType obj:
                             if (obj.AdditionalPropertiesType?.Type is TypeSymbol addlPropsType)
                             {
-                                foreach (var dictMemberPath in FindPathsToSecureComponents(addlPropsType, $"{path}.*", visited))
+                                foreach (var dictMemberPath in FindPathsToSecureTypeComponents(addlPropsType, $"{path}.*", visited))
                                 {
                                     yield return dictMemberPath;
                                 }
                             }
 
-                            foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited)))
+                            foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureTypeComponents(p.Value.TypeReference.Type, $"{path}.{p.Key}", visited)))
                             {
                                 yield return propertyPath;
                             }
                             break;
                         case TupleType tuple:
-                            foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureComponents(typeAtIndex.Type, $"{path}[{index}]", visited)))
+                            foreach (var pathFromIndex in tuple.Items.SelectMany((ITypeReference typeAtIndex, int index) => FindPathsToSecureTypeComponents(typeAtIndex.Type, $"{path}[{index}]", visited)))
                             {
                                 yield return pathFromIndex;
                             }
                             break;
                         case ArrayType array:
-                            foreach (var pathFromElement in FindPathsToSecureComponents(array.Item.Type, $"{path}[*]", visited))
+                            foreach (var pathFromElement in FindPathsToSecureTypeComponents(array.Item.Type, $"{path}[*]", visited))
                             {
                                 yield return pathFromElement;
                             }
