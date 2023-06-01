@@ -96,7 +96,7 @@ namespace Bicep.Core
 
         public const string ListFunctionPrefix = "list";
 
-        public const string McrRegistry = "mcr.microsoft.com";
+        public const string McrRegistry = "mcr.microsoft.com"; //asdfg
         public const string McrRepositoryPrefix = "bicep/";
         public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
         public const string OciOpenContainerImageDescriptionAnnotation = "org.opencontainers.image.description";

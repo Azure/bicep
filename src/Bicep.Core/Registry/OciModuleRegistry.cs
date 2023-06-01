@@ -148,9 +148,19 @@ namespace Bicep.Core.Registry
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
-        public async Task<string?> TryGetDescriptionForLatestVersion(OciArtifactModuleReference moduleReference)
+        public async Task<string?> TryGetMostRecentDescription(OciArtifactModuleReference moduleReference)
         {
-            return await client.TryGetMostRecentDescription(configuration, moduleReference);
+            try
+            {
+                moduleReference = new OciArtifactModuleReference("sawbicep.azurecr.io", "misc/deep-stuff/and-deeper/and-deeper/just-right/modules/storage", "v3", null, moduleReference.ParentModuleUri); //asdfg
+                var tag = await client.GetMostRecentTag(configuration, moduleReference);
+                return await TryGetDescription2(new OciArtifactModuleReference(moduleReference.Registry, moduleReference.Repository, tag, null, moduleReference.ParentModuleUri)); //asdfg improves
+                //return await client.GetMostRecentDescription(configuration, moduleReference);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference) //asdfg

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using System.IO;
@@ -75,18 +76,28 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task<string?> TryGetMostRecentDescription(RootConfiguration rootConfiguration, OciArtifactModuleReference moduleReference)
+        //public async Task<string?> GetMostRecentDescription(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        //{
+        //    var client = this.clientFactory.CreateContainerRegistryClient(configuration, GetRegistryUri(moduleReference), false);
+        //    var repository = client.GetRepository(moduleReference.Repository);
+        //    var tag = GetMostRecentTag(configuration, moduleReference);
+
+        //    return tryget
+
+        //    return null;
+        //}
+
+        public async Task<string?> GetMostRecentTag(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
         {
-            try
+            var client = this.clientFactory.CreateContainerRegistryClient(configuration, GetRegistryUri(moduleReference), false);
+            var repository = client.GetRepository(moduleReference.Repository);
+            //var a = repository.GetAllManifestProperties();
+            //var b = a.First();
+            var result = repository.GetAllManifestPropertiesAsync(manifestOrder: ArtifactManifestOrder.LastUpdatedOnDescending);
+
+            await foreach (var r in result)
             {
-                await foreach (var manifest in GetAllManifestsAsyncPageable(rootConfiguration, moduleReference, ArtifactManifestOrder.LastUpdatedOnDescending))
-                {
-                    return manifest.Digest; //asdfg
-                }
-            }
-            catch
-            {
-                // ignore
+                return r.Tags.LastOrDefault();
             }
 
             return null;

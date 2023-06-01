@@ -77,7 +77,6 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private record OciResolveCompletionInfo(
-            string sourceUri,
             OciArtifactModuleReference ModuleReference
         );
 
@@ -114,15 +113,11 @@ namespace Bicep.LanguageServer.Completions
 
         public async Task<CompletionItem?> ResolveCompletion(CompletionItem request, CancellationToken cancellationToken)
         {
-            if (request.Data?.TryGetProperty<OciArtifactModuleReference>(CompletionItemDataKeys.OciArtifactModuleReference) is { } ociModuleReference
-                and request.Data?.TryGetProperty<string>(CompletionItemDataKeys.SourceUri)
+            if (request.Data?.TryGetProperty<OciResolveCompletionInfo>(CompletionItemDataKeys.OciResolveCompletionInfo) is { } resolutionInfo)
             {
-                // This is used to locate bicepconfig.json file to find the module aliases.  We're not using module aliases so it is unimportant.
-                var nonExistingBicepFileUri = new Uri("empty:///empty.bicep", UriKind.Absolute);
-
-                if (this.defaultModuleRegistryProvider.Registries(nonExistingBicepFileUri).OfType<OciModuleRegistry>().SingleOrDefault() is OciModuleRegistry ociRegistry)
+                if (this.defaultModuleRegistryProvider.Registries(resolutionInfo.ModuleReference.ParentModuleUri).OfType<OciModuleRegistry>().SingleOrDefault() is OciModuleRegistry ociRegistry) //asdfg extract
                 {
-                    if (await ociRegistry.TryGetMostRecentDescription(ociModuleReference) is string description)
+                    if (await ociRegistry.TryGetMostRecentDescription(resolutionInfo.ModuleReference) is string description)
                     {
                         return request with { Documentation = description, Detail = description };
                     }
@@ -311,7 +306,7 @@ namespace Bicep.LanguageServer.Completions
                 replacementText == "'br/public:" ||
                 replacementText == $"'br:{MCRRegistry}/bicep/")
             {
-                return await GetPublicMCRPathCompletions(replacementText, context);
+                return await GetPublicMCRPathCompletions(replacementText, context, sourceFileUri);
             }
             else
             {
@@ -501,7 +496,7 @@ namespace Bicep.LanguageServer.Completions
 
         // Handles path completions for MCR.
         // I.e., completions after "br/public:" or "br:{MCRRegistry}/bicep/:"
-        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context) //asdfg
+        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context, Uri sourceUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
@@ -514,16 +509,18 @@ namespace Bicep.LanguageServer.Completions
 
                 //'br/public:samples/hello-world:<CURSOR>
 
-                // This is used to locate bicepconfig.json file to find the module aliases.  We're not using module aliases so it is unimportant.
-                var nonExistingBicepFileUri = new Uri("empty:///empty.bicep", UriKind.Absolute);
-                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "1.0.2"/*asdfg*/, null, nonExistingBicepFileUri); //asdfg break this up
+                // This is used to locate bicepconfig.json file to find the module aliases.  We're not using module aliases so it is unimportant. // asdfg wrong
+                //var nonExistingBicepFileUri = new Uri("empty:///empty.bicep", UriKind.Absolute);
+                var moduleReference = new OciArtifactModuleReference("mcr.microsoft.com", $"bicep/{moduleName}", "0.0.0asdfg", digest: null, sourceUri); //asdfg break this up?
                 //var description = await ociRegistry.TryGetDescription2(moduleReference);
 
                 var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, moduleName)
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(moduleName))
-                    .WithDataValue(CompletionItemDataKeys.OciArtifactModuleReference, moduleReference) // Save for resolution later
+                    .WithDataValue( // Save for on-demand resolution of description later
+                        CompletionItemDataKeys.OciResolveCompletionInfo,
+                        new OciResolveCompletionInfo(moduleReference))
                     .Build();
 
                 completions.Add(completionItem);

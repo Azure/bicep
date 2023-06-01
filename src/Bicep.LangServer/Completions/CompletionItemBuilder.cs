@@ -136,7 +136,7 @@ namespace Bicep.LanguageServer.Completions
             return this;
         }
 
-        public CompletionItemBuilder WithDataValue(string key, object value)
+        public CompletionItemBuilder WithDataValue<T>(string key, T value) where T : class
         {
             this.data ??= new Dictionary<string, object>();
             this.data[key] = value;

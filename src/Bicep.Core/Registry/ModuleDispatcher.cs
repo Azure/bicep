@@ -89,7 +89,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) //asdfg can use this?
         {
             var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
             if (moduleReferenceString is null)
