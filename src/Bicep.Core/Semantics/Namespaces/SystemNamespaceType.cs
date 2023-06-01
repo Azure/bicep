@@ -992,13 +992,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 }, LanguageConstants.Object)
                 .Build();
 
-            if(sourceFileKind ==BicepSourceFileKind.ParamsFile){
+            if (sourceFileKind == BicepSourceFileKind.ParamsFile)
+            {
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
                     .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
                     .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
-                    .WithOptionalParameter("default",LanguageConstants.String, "Default value to return if environment variable is not found.")
+                    .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
             }
         }
@@ -1015,7 +1016,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
         }
-        
+
         private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
             if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
@@ -1117,17 +1118,17 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(ErrorType.Create(errorDiagnostic));
         }
 
-        private static FunctionResult ReadEnvironmentVariableResultBuilder (IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult ReadEnvironmentVariableResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
-            
+
             if (argumentTypes.Length < 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
             {
                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
             }
             var envVariableName = stringLiteral.RawStringValue;
             var envVariableValue = Environment.GetEnvironmentVariable(envVariableName);
-                  
+
             if (envVariableValue == null)
             {
                 if (argumentTypes.Length == 2 && argumentTypes[1] is StringLiteralType stringLiteral2)
