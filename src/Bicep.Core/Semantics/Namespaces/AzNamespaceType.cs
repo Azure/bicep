@@ -303,7 +303,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new FunctionOverloadBuilder("getSecret")
                     .WithReturnType(LanguageConstants.String)
-                    .WithGenericDescription("Get Secret from KeyVault")
+                    .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
                     .WithEvaluator(expression =>
                     {
                         var subscriptionIdParameter = (expression.Parameters[0] as StringLiteralExpression)?.Value;
