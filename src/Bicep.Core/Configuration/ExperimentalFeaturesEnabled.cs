@@ -12,7 +12,6 @@ public record ExperimentalFeaturesEnabled(
     bool Extensibility,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
-    bool ParamsFiles,
     bool UserDefinedTypes,
     bool UserDefinedFunctions,
     bool PrettyPrinting)

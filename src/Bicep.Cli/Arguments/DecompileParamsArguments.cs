@@ -2,14 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
-using System;
+using LanguageConstants = Bicep.Core.LanguageConstants;
+
+
 using System.IO;
 
 namespace Bicep.Cli.Arguments
 {
-    public class BuildArguments : ArgumentsBase
+    public class DecompileParamsArguments : ArgumentsBase
     {
-        public BuildArguments(string[] args) : base(Constants.Command.Build)
+        public DecompileParamsArguments(string[] args) : base(Constants.Command.DecompileParams)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -18,11 +20,9 @@ namespace Bicep.Cli.Arguments
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
-
-                    case "--no-restore":
-                        NoRestore = true;
+                    case "--force":
+                        AllowOverwrite = true;
                         break;
-
                     case "--outdir":
                         if (args.Length == i + 1)
                         {
@@ -35,7 +35,6 @@ namespace Bicep.Cli.Arguments
                         OutputDir = args[i + 1];
                         i++;
                         break;
-
                     case "--outfile":
                         if (args.Length == i + 1)
                         {
@@ -48,20 +47,19 @@ namespace Bicep.Cli.Arguments
                         OutputFile = args[i + 1];
                         i++;
                         break;
-
-                    case "--diagnostics-format":
+                    case "--bicep-file":
                         if (args.Length == i + 1)
                         {
-                            throw new CommandLineException($"The --diagnostics-format parameter expects an argument");
+                            throw new CommandLineException($"The --bicep-file parameter expects an argument");
                         }
-                        if (DiagnosticsFormat is not null)
+                        if (BicepFilePath is not null)
                         {
-                            throw new CommandLineException($"The --diagnostics-format parameter cannot be specified twice");
+                            throw new CommandLineException($"The --bicep-file parameter cannot be specified twice");
                         }
-                        DiagnosticsFormat = ToDiagnosticsFormat(args[i + 1]);
+                        BicepFilePath = args[i + 1];
                         i++;
                         break;
-
+                    
                     default:
                         if (args[i].StartsWith("--"))
                         {
@@ -85,7 +83,6 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --outdir and --stdout parameters cannot both be used");
             }
-
             if (OutputToStdOut && OutputFile is not null)
             {
                 throw new CommandLineException($"The --outfile and --stdout parameters cannot both be used");
@@ -106,24 +103,15 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            if(DiagnosticsFormat is null)
+            if (!OutputToStdOut && !AllowOverwrite)
             {
-                DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
-            }
-        }
+                string outputFilePath = Path.ChangeExtension(PathHelper.ResolvePath(InputFile), LanguageConstants.ParamsFileExtension);
+                if (File.Exists(outputFilePath))
+                {
+                    throw new CommandLineException($"The output path \"{outputFilePath}\" already exists. Use --force to overwrite the existing file.");
+                }
 
-        private static DiagnosticsFormat ToDiagnosticsFormat(string? format)
-        {
-            if(format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))
-            {
-                return Arguments.DiagnosticsFormat.Default;
             }
-            else if(format is not null && format.Equals("sarif", StringComparison.OrdinalIgnoreCase))
-            {
-                return Arguments.DiagnosticsFormat.Sarif;
-            }
-
-            throw new ArgumentException($"Unrecognized diagnostics format {format}");
         }
 
         public bool OutputToStdOut { get; }
@@ -134,8 +122,8 @@ namespace Bicep.Cli.Arguments
 
         public string? OutputFile { get; }
 
-        public DiagnosticsFormat? DiagnosticsFormat { get; }
+        public bool AllowOverwrite { get; }
 
-        public bool NoRestore { get; }
+        public string? BicepFilePath { get; }
     }
 }

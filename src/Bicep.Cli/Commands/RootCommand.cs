@@ -63,10 +63,11 @@ Usage:
       <file>        The input file
 
     Options:
-      --outdir <dir>    Saves the output at the specified directory.
-      --outfile <file>  Saves the output as the specified file path.
-      --stdout          Prints the output to stdout.
-      --no-restore      Builds the bicep file without restoring external modules.
+      --outdir <dir>                Saves the output at the specified directory.
+      --outfile <file>              Saves the output as the specified file path.
+      --stdout                      Prints the output to stdout.
+      --no-restore                  Builds the bicep file without restoring external modules.
+      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
 
     Examples:
       bicep build file.bicep
@@ -74,6 +75,7 @@ Usage:
       bicep build file.bicep --outdir dir1
       bicep build file.bicep --outfile file.json
       bicep build file.bicep --no-restore
+      bicep build file.bicep --diagnostics-format sarif
 
     {exeName} format [options] <file>
     Formats a .bicep file.
@@ -107,7 +109,7 @@ Usage:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
-      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile').
+      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').
 
     Examples:
       bicep decompile file.json
@@ -115,6 +117,27 @@ Usage:
       bicep decompile file.json --outdir dir1
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
+
+  {exeName} decompile-params [options] <file>
+    Attempts to decompile a parameters .json file to .bicepparam.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --outdir <dir>    Saves the output at the specified directory.
+      --outfile <file>  Saves the output as the specified file path.
+      --stdout          Prints the output to stdout.
+      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').
+      --bicep-file      Path to the bicep template file (relative to the .bicepparam file) that will be referenced in the using declaration
+
+    Examples:
+      bicep decompile-params file.json
+      bicep decompile-params file.json --bicep-file ./dir/main.bicep
+      bicep decompile-params file.json --stdout
+      bicep decompile-params file.json --outdir dir1
+      bicep decompile-params file.json --force
+      bicep decompile-params file.json --outfile file.bicepparam
 
   {exeName} generate-params [options] <file>
     Builds parameters file from the given bicep file, updates if there is an existing parameters file.
