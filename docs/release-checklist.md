@@ -17,7 +17,8 @@
 1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
 1. Run the Official Build (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
 1. Get version number from official build by looking at the artifacts and push a new tag to the Bicep repo. This should be of format `vXX.YY.ZZ` - e.g `v0.14.85`.
-    1. In the Bicep repo, make sure you are on the main branch and on the latest commit.
+    1. In the Bicep repo, make sure you are on the main branch and on the commit that matches the submodule commit that triggers the official build in the BicepMirror repository.
+        - This can be done by running `git reset <submodule_commit_id> --hard` in your local Bicep repository folder.
     1. Run git tag v<new_release_number> (ex: git tag v0.15.31)
     1. Run git push origin v<new_release_number> (ex: git push origin v0.15.31)
 1. [Create a draft release](https://github.com/Azure/bicep/releases/new) for the new tag and set release title to the tag name. Use the "Save draft" button to save the changes without publishing it.
