@@ -127,7 +127,7 @@ Usage:
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
       --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').
-      --bicep-file      Path to the bicep-file that will be referenced in the using declaration
+      --bicep-file      Path to the bicep template file (relative to the .bicepparam file) that will be referenced in the using declaration
 
     Examples:
       bicep decompile-params file.json
