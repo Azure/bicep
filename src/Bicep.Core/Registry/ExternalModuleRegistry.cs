@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
              * We have already downloaded the module content from the registry.
              * The following sections will attempt to synchronize the module write with other
              * instances of the language server running on the same machine.
-             * 
+             *
              * We are not trying to prevent tampering with the module cache by the user.
              */
 
@@ -102,21 +102,21 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                // recursively delete the directory 
+                // recursively delete the directory
                 Directory.Delete(moduleDirectoryPath, true);
             }
             catch (Exception exception)
             {
                 throw new ExternalModuleException($"Unable to delete the local module directory \"{moduleDirectoryPath}\". {exception.Message}", exception);
             }
-        }        
+        }
 
         private async Task TryDeleteModuleDirectoryAsync(TModuleReference reference)
         {
             /*
              * The following sections will attempt to synchronize the module directory delete with other
              * instances of the language server running on the same machine.
-             * 
+             *
              * We are not trying to prevent tampering with the module cache by the user.
              */
 
@@ -130,7 +130,7 @@ namespace Bicep.Core.Registry
                     // no lock exists, proceed
                     var moduleDirectoryPath = this.GetModuleDirectoryPath(reference);
 
-                    // delete the directory the contents to disk
+                    // delete the directory and its contents on disk
                     DeleteModuleDirectory(moduleDirectoryPath);
 
                     return;
@@ -138,7 +138,7 @@ namespace Bicep.Core.Registry
                     try {
                         // Even if the FileLock is disposed, the file remain there. See comments in FileLock.cs
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
-                        // We will attempt the delete the file. If it throws, the lock is still open and will continue 
+                        // We will attempt to delete the file. If it throws, the lock is still open and will continue
                         // to wait until retry interval expires
                         File.Delete(lockFileUri.LocalPath);
                     }
@@ -155,7 +155,7 @@ namespace Bicep.Core.Registry
         }
 
         // base implementation for cache invalidation that should fit all external registries
-        protected async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCacheInternal(RootConfiguration configuration, IEnumerable<TModuleReference> references)
+        protected async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCacheInternal(IEnumerable<TModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 

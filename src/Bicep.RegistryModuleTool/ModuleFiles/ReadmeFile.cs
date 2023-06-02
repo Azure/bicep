@@ -19,6 +19,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "README.md";
 
+        // TODO: rename to "Details"
         private static readonly string DescriptionSectionTemplate = @"## Description
 {{ Add detailed description for the module. }}".ReplaceLineEndings();
 
@@ -40,13 +41,34 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
         {
+            // TODO: rename to "Details"
             var descriptionSection = DescriptionSectionTemplate;
             var examplesSection = ExamplesSectionTemplate;
+
+            var moduleName = mainArmTemplateFile.NameMetadata ?? metadataFile.Name ?? "MISSING Name";
+            var moduleOwner = mainArmTemplateFile.OwnerMetadata ?? metadataFile.Owner ?? "MISSING Owner";
+            // TODO: rename to "Description"
+            var moduleSummary = mainArmTemplateFile.DescriptionMetadata ?? metadataFile.Summary ?? "MISSING Summary";
+
+            // TODO: remove support for metadata.json, or generate it from bicep metadata
+            if (!moduleName.Equals(metadataFile.Name, StringComparison.InvariantCulture))
+            {
+                throw new ArgumentException(@"The ""name"" property in metadata.json does not match ""metadata name"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
+            }
+            if (!moduleOwner.Equals(metadataFile.Owner, StringComparison.InvariantCulture))
+            {
+                throw new ArgumentException(@"The ""owner"" property in metadata.json does not match ""metadata owner"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
+            }
+            if (!moduleSummary.Equals(metadataFile.Summary, StringComparison.InvariantCulture))
+            {
+                throw new ArgumentException(@"The ""summary"" property in metadata.json does not match ""metadata description"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
+            }
 
             try
             {
                 var existingFile = ReadFromFileSystem(fileSystem);
 
+                // TODO: rename to "Details"
                 UseExistingSectionIfNotEmpty(existingFile, "## Description", ref descriptionSection);
                 UseExistingSectionIfNotEmpty(existingFile, "## Examples", ref examplesSection);
             }
@@ -57,10 +79,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             var builder = new StringBuilder();
 
-            builder.AppendLine($"# {metadataFile.Name}");
+            builder.AppendLine($"# {moduleName}");
             builder.AppendLine();
 
-            builder.AppendLine(metadataFile.Summary);
+            builder.AppendLine(moduleSummary);
             builder.AppendLine();
 
             builder.AppendLine(descriptionSection);
@@ -118,10 +140,18 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             builder.AppendLine("## Outputs");
             builder.AppendLine();
-            builder.AppendLine(outputs.ToMarkdownTable(
-                columnName => columnName == nameof(MainArmTemplateOutput.Type)
-                    ? MarkdownTableColumnAlignment.Center
-                    : MarkdownTableColumnAlignment.Left));
+            builder.AppendLine(outputs
+                .Select(o => new
+                {
+                    Name = $"`{o.Name}`",
+                    Type = $"`{o.Type}`",
+                    Description = o.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
+                })
+                .ToMarkdownTable(columnName => columnName switch
+                {
+                    nameof(MainArmTemplateOutput.Type) => MarkdownTableColumnAlignment.Center,
+                    _ => MarkdownTableColumnAlignment.Left,
+                }));
             builder.AppendLine();
         }
 

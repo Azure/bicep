@@ -56,10 +56,10 @@ namespace Bicep.Core.Registry
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
                 // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");                
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
                 (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: true);
             }
-            catch(CredentialUnavailableException)
+            catch (CredentialUnavailableException)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
@@ -71,7 +71,7 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri = null, params StreamDescriptor[] layers)
+        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri = null, string? description = null, params StreamDescriptor[] layers)
         {
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
@@ -83,7 +83,7 @@ namespace Bicep.Core.Registry
             var configDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, config);
 
             config.ResetStream();
-            var configUploadResult = await blobClient.UploadBlobAsync(config.Stream);
+            _ = await blobClient.UploadBlobAsync(config.Stream);
 
             var layerDescriptors = new List<OciDescriptor>(layers.Length);
             foreach (var layer in layers)
@@ -93,23 +93,22 @@ namespace Bicep.Core.Registry
                 layerDescriptors.Add(layerDescriptor);
 
                 layer.ResetStream();
-                var layerUploadResult = await blobClient.UploadBlobAsync(layer.Stream);
+                _ = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-            OciManifest manifest;
+            var annotations = new Dictionary<string, string>();
 
-            if (string.IsNullOrWhiteSpace(documentationUri))
+            if (!string.IsNullOrWhiteSpace(documentationUri))
             {
-                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors);
+                annotations[LanguageConstants.OciOpenContainerImageDocumentationAnnotation] = documentationUri;
             }
-            else
+
+            if (!string.IsNullOrWhiteSpace(description))
             {
-                var annotations = new Dictionary<string, string>
-            {
-                { LanguageConstants.OciOpenContainerImageDocumentationAnnotation, documentationUri }
-            };
-                manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, annotations);
+                annotations[LanguageConstants.OciOpenContainerImageDescriptionAnnotation] = description;
             }
+
+            var manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, annotations);
 
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
@@ -177,7 +176,7 @@ namespace Bicep.Core.Registry
         {
             // Bicep versions before 0.14 used to publish modules without the artifactType field set in the OCI manifest,
             // so we must allow null here
-            if(manifest.ArtifactType is not null && !string.Equals(manifest.ArtifactType, BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
+            if (manifest.ArtifactType is not null && !string.Equals(manifest.ArtifactType, BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.", InvalidModuleExceptionKind.WrongArtifactType);
             }

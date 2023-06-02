@@ -28,14 +28,14 @@ namespace Bicep.Core.Workspaces
 
         private readonly bool forceModulesRestore;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.uriResultByModule = new();
             this.fileResultByUri = new();
-            this.forceModulesRestore = forceforceModulesRestore;
+            this.forceModulesRestore = forceModulesRestore;
         }
 
         private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
@@ -66,7 +66,7 @@ namespace Bicep.Core.Workspaces
                 builder.uriResultByModule[sourceFile].Remove(module);
             }
 
-            // Rebuild source files that contains external module references restored during the inital build.
+            // Rebuild source files that contain external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
                 .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()

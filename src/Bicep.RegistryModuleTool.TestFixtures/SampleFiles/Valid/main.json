@@ -4,9 +4,13 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.5.6.12127",
+      "version": "0.17.1.54307",
+      "$manuallyAddedComment": "NOTE: This templateHash has to match the templateHash in Bicep.RegistryModuleTool.IntegrationTests/Commands/ValidateCommandTests.cs",
       "templateHash": "16759655392678672335"
-    }
+    },
+    "name": "Sample module",
+    "description": "Sample summary",
+    "owner": "test"
   },
   "parameters": {
     "dnsPrefix": {
@@ -58,7 +62,7 @@
       "maxValue": 1023,
       "minValue": 0,
       "metadata": {
-        "description": "The OS disk size (in GB)\n- Minimum value is 0\n- Maximum value is 1023\n"
+        "description": "The OS disk size (in GB)\r\n- Minimum value is 0\r\n- Maximum value is 1023\r\n"
       }
     },
     "agentCount": {
@@ -116,10 +120,10 @@
   "outputs": {
     "controlPlaneFQDN": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]",
       "metadata": {
         "description": "The control plane FQDN"
-      }
+      },
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2020-09-01').fqdn]"
     }
   }
 }

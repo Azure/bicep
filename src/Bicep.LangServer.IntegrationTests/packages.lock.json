@@ -881,6 +881,15 @@
         "resolved": "4.4.0",
         "contentHash": "YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA=="
       },
+      "Sarif.Sdk": {
+        "type": "Transitive",
+        "resolved": "4.1.0",
+        "contentHash": "+wws/czP6/gGhFeLyHTtBIQ3V6rg7K8c5aGeGMnLvbUTQybAV0j25sQ9DF5t+qgRA4XxBRJGGKN4lRB1Q+tUdA==",
+        "dependencies": {
+          "Newtonsoft.Json": "9.0.1",
+          "System.Collections.Immutable": "1.5.0"
+        }
+      },
       "SharpYaml": {
         "type": "Transitive",
         "resolved": "2.1.0",
@@ -2014,6 +2023,7 @@
           "Microsoft.Extensions.Configuration": "[7.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[7.0.4, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
+          "Microsoft.Extensions.DependencyInjection": "[7.0.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",
@@ -2032,7 +2042,8 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
-          "Microsoft.Extensions.Logging": "[7.0.0, )"
+          "Microsoft.Extensions.Logging": "[7.0.0, )",
+          "Sarif.Sdk": "[4.1.0, )"
         }
       },
       "bicep.core.samples": {

@@ -36,6 +36,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string? Summary => this.RootElement.TryGetProperty("summary", out var element) ? element.GetString() : null;
 
+        public string? Owner => this.RootElement.TryGetProperty("owner", out var element) ? element.GetString() : null;
+
         public static MetadataFile EnsureInFileSystem(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);

@@ -36,3 +36,7 @@ param additionalMetadata = 'more metadata'
 param someParameter = 'three'
 param stringLiteral = 'abc'
 param decoratedString = 'Apple'
+param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
+param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
+param boolfromEnvironmentVariables = bool(readEnvironmentVariable('boolEnvironmentVariable'))
+param intfromEnvironmentVariablesDefault = int(readEnvironmentVariable('intDefaultEnvVariableName', '12'))

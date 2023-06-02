@@ -91,7 +91,7 @@ namespace Bicep.Core.Semantics
 
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
-                    var description = SemanticModelHelper.TryGetDescription(this, param.DeclaringParameter);
+                    var description = DescriptionHelper.TryGetFromDecorator(this, param.DeclaringParameter);
                     var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
                     if (param.Type is ResourceType resourceType)
                     {
@@ -115,7 +115,7 @@ namespace Bicep.Core.Semantics
 
                 foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
                 {
-                    var description = SemanticModelHelper.TryGetDescription(this, output.DeclaringOutput);
+                    var description = DescriptionHelper.TryGetFromDecorator(this, output.DeclaringOutput);
                     if (output.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated

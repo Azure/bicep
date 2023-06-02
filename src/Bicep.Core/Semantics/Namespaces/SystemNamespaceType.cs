@@ -25,6 +25,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpYaml.Serialization;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -51,7 +52,7 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "System",
             ArmTemplateProviderVersion: "1.0.0");
 
-        private static IEnumerable<FunctionOverload> GetSystemOverloads(IFeatureProvider featureProvider)
+        private static IEnumerable<FunctionOverload> GetSystemOverloads(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             yield return new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
                 .WithReturnType(LanguageConstants.Any)
@@ -118,23 +119,23 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("cidrSubnet")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription("Returns the specified subnet of a CIDR network.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
-                .WithRequiredParameter("cidr", LanguageConstants.Int, "New CIDR suffix")
-                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "A 0-based index of the desired subnet. Must be less than the maximum number of possible subnets.")
+                .WithGenericDescription("Splits the specified IP address range in CIDR notation into subnets with a new CIDR value and returns the IP address range of the subnet with the specified index.")
+                .WithRequiredParameter("network", LanguageConstants.String, "String containing an IP address range to convert in CIDR notation.")
+                .WithRequiredParameter("cidr", LanguageConstants.Int, "An integer representing the CIDR to be used to subnet. This value should be equal or larger than the CIDR value in the network parameter.")
+                .WithRequiredParameter("subnetIndex", LanguageConstants.Int, "Index of the desired subnet IP address range to return.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("cidrHost")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription("Calculates the IP address of the specified host on a network.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an ip network (CIDR format)")
-                .WithRequiredParameter("hostIndex", LanguageConstants.Int, "A 0-based index of the usable host on the specified network. Must be less than the number of usable hosts on the specified network.")
+                .WithGenericDescription("Calculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.")
+                .WithRequiredParameter("network", LanguageConstants.String, "String containing an ip network to convert (must be correct networking format)")
+                .WithRequiredParameter("hostIndex", LanguageConstants.Int, "The index of the host IP address to return.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("parseCidr")
                 .WithReturnType(GetParseCidrReturnType())
-                .WithGenericDescription("Parses an IP address into individual components and other useful information.")
-                .WithRequiredParameter("network", LanguageConstants.String, "The string containing an IP network (CIDR format)")
+                .WithGenericDescription("Parses an IP address range in CIDR notation to get various properties of the address range.")
+                .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("concat")
@@ -990,6 +991,17 @@ namespace Bicep.Core.Semantics.Namespaces
                     return new(LanguageConstants.Object);
                 }, LanguageConstants.Object)
                 .Build();
+
+            if (sourceFileKind == BicepSourceFileKind.ParamsFile)
+            {
+                yield return new FunctionOverloadBuilder("readEnvironmentVariable")
+                    .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
+                    .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
+                    .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+                    .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
+                    .Build();
+            }
         }
 
         private static ObjectType GetParseCidrReturnType()
@@ -1004,7 +1016,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
         }
-        
+
         private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
             if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
@@ -1105,6 +1117,36 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             return new(ErrorType.Create(errorDiagnostic));
         }
+
+        private static FunctionResult ReadEnvironmentVariableResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            var arguments = functionCall.Arguments.ToImmutableArray();
+
+            if (argumentTypes.Length < 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+            {
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
+            }
+            var envVariableName = stringLiteral.RawStringValue;
+            var envVariableValue = Environment.GetEnvironmentVariable(envVariableName);
+
+            if (envVariableValue == null)
+            {
+                if (argumentTypes.Length == 2 && argumentTypes[1] is StringLiteralType stringLiteral2)
+                {
+                    return new(TypeFactory.CreateStringLiteralType(stringLiteral2.RawStringValue),
+                new StringLiteralExpression(null, stringLiteral2.RawStringValue));
+                }
+                else
+                {
+                    //error to fail the build-param with clear message of the missing env var name
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(envVariableName,
+                    "Environment variable does not exist, and no default value set")));
+                }
+            }
+            return new(TypeFactory.CreateStringLiteralType(envVariableValue),
+                new StringLiteralExpression(null, envVariableValue));
+        }
+
         private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
         {
             fileContent = null;
@@ -1562,13 +1604,13 @@ namespace Bicep.Core.Semantics.Namespaces
         private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
             => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));
 
-        public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider)
+        public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
                 GetSystemAmbientSymbols(),
-                GetSystemOverloads(featureProvider),
+                GetSystemOverloads(featureProvider, sourceFileKind),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider),
                 new EmptyResourceTypeProvider());
