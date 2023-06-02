@@ -47,7 +47,7 @@ namespace Bicep.Core.Tracing
             // This option just controls whether the User-Agent header is sent
             options.IsTelemetryEnabled = true;
 
-            options.IsLoggingContentEnabled = true; //asdfg
+            //options.IsLoggingContentEnabled = true; //asdfg
             options.IsDistributedTracingEnabled = false;
 
             foreach (var header in additionalHeaders)

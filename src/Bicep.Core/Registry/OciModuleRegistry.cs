@@ -4,22 +4,29 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
+using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Tracing;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
@@ -148,19 +155,24 @@ namespace Bicep.Core.Registry
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
+        private record TagsResponse();
+
         public async Task<string?> TryGetMostRecentDescription(OciArtifactModuleReference moduleReference)
         {
             try
             {
                 moduleReference = new OciArtifactModuleReference("sawbicep.azurecr.io", "misc/deep-stuff/and-deeper/and-deeper/just-right/modules/storage", "v3", null, moduleReference.ParentModuleUri); //asdfg
-                var tag = await client.GetMostRecentTag(configuration, moduleReference);
-                return await TryGetDescription2(new OciArtifactModuleReference(moduleReference.Registry, moduleReference.Repository, tag, null, moduleReference.ParentModuleUri)); //asdfg improves
+                if ((await client.GetTags(configuration, moduleReference)).LastOrDefault() is { } tag)
+                {
+                    return await TryGetDescription2(new OciArtifactModuleReference(moduleReference.Registry, moduleReference.Repository, tag, null, moduleReference.ParentModuleUri)); //asdfg improves
+                }
                 //return await client.GetMostRecentDescription(configuration, moduleReference);
             }
             catch
             {
-                return null;
             }
+
+            return null;
         }
 
         public async Task<string?> TryGetDescription2(OciArtifactModuleReference moduleReference) //asdfg
@@ -200,7 +212,7 @@ namespace Bicep.Core.Registry
                     return null;
                 }
 
-                OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
+                OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents); //asdfg convert?
                 if (ociManifest is null)
                 {
                     return null;

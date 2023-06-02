@@ -4,6 +4,8 @@
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
@@ -18,5 +20,8 @@ namespace Bicep.Core.Registry
         ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
 
         ContainerRegistryClient CreateContainerRegistryClient(RootConfiguration configuration, Uri registryUri, bool anonymous);
+
+        //asdfg
+        Task<HttpClient> CreateHttpClientAsdfgAsync(RootConfiguration configuration, bool anonymous); //asdfg
     }
 }

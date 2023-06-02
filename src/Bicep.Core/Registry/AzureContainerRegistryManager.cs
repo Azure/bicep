@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Numerics;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading;
@@ -17,8 +18,12 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Oci;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Win32;
 using OciDescriptor = Bicep.Core.Registry.Oci.OciDescriptor;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
@@ -87,21 +92,72 @@ namespace Bicep.Core.Registry
         //    return null;
         //}
 
-        public async Task<string?> GetMostRecentTag(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        public async Task<string[]> GetTags(RootConfiguration configuration, OciArtifactModuleReference moduleReference /*asdfg split up*/) //asdfg does this work with aliases correctly?  no configuration passed in
         {
-            var client = this.clientFactory.CreateContainerRegistryClient(configuration, GetRegistryUri(moduleReference), false);
-            var repository = client.GetRepository(moduleReference.Repository);
-            //var a = repository.GetAllManifestProperties();
-            //var b = a.First();
-            var result = repository.GetAllManifestPropertiesAsync(manifestOrder: ArtifactManifestOrder.LastUpdatedOnDescending);
-
-            await foreach (var r in result)
+            try
             {
-                return r.Tags.LastOrDefault();
+                
+                //TokenCredentialFactory a;
+                //var b = a.CreateChain();
+                //var c = b.GetToken();
+
+                // Create an HttpClient instance
+                using (HttpClient httpClient = await clientFactory.CreateHttpClientAsdfgAsync(configuration, false)) //asdfg how authenticate?
+                {
+                    // Send a GET request to retrieve the tags
+                    string url = $"{AzureContainerRegistryManager.GetRegistryUri(moduleReference)}/v2/{moduleReference.Repository}/tags/list"; //asdfg??  works for MCR
+                    HttpResponseMessage response = await httpClient.GetAsync(url);
+
+                    Trace.WriteLine("Request Headers:");
+                    foreach (var header in response.RequestMessage!.Headers)
+                    {
+                        Trace.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
+                    }
+
+                    // Check if the request was successful
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Read the response content as a string
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        var responseObject = JsonElementFactory.CreateElement(responseContent);
+                        if (responseObject.TryGetProperty("tags", out var tags) is { })
+                        {
+                            return tags.ToNonNullObject<string[]>();
+                        }
+
+                        // Process the response (assuming it's JSON)
+                        Trace.WriteLine(responseContent);
+                    }
+                    else
+                    {
+                        Trace.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}"); //asdfg
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex); //asdfg
             }
 
-            return null;
+            return new string[0];
         }
+
+        //asdfg
+        //public async Task<string?> GetMostRecentTag(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        //{
+        //    var client = this.clientFactory.CreateContainerRegistryClient(configuration, GetRegistryUri(moduleReference), false);
+        //    var repository = client.GetRepository(moduleReference.Repository);
+        //    //var a = repository.GetAllManifestProperties();
+        //    //var b = a.First();
+        //    var result = repository.GetAllManifestPropertiesAsync(manifestOrder: ArtifactManifestOrder.LastUpdatedOnDescending);
+
+        //    await foreach (var r in result)
+        //    {
+        //        return r.Tags.LastOrDefault();
+        //    }
+
+        //    return null;
+        //}
 
         public AsyncPageable<ArtifactManifestProperties> GetAllManifestsAsyncPageable(RootConfiguration configuration, OciArtifactModuleReference moduleReference, ArtifactManifestOrder manifestOrder = ArtifactManifestOrder.LastUpdatedOnDescending)
         {
@@ -188,7 +244,7 @@ namespace Bicep.Core.Registry
             var manifestUploadResult = await blobClient.SetManifestAsync(manifestBinaryData, moduleReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
-        private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
+        public/*asdfg?*/ static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}"); //asdfg extract?
 
         private ContainerRegistryContentClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess) => //asdfg remove (refactor)
             anonymousAccess
