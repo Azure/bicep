@@ -28,6 +28,7 @@ namespace Bicep.Cli.Services
     {
         private readonly BicepCompiler bicepCompiler;
         private readonly BicepDecompiler decompiler;
+        private readonly BicepparamDecompiler paramDecompiler;
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
@@ -36,12 +37,14 @@ namespace Bicep.Cli.Services
         public CompilationService(
             BicepCompiler bicepCompiler,
             BicepDecompiler decompiler,
+            BicepparamDecompiler paramDecompiler,
             IDiagnosticLogger diagnosticLogger,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager)
         {
             this.bicepCompiler = bicepCompiler;
             this.decompiler = decompiler;
+            this.paramDecompiler = paramDecompiler;
             this.diagnosticLogger = diagnosticLogger;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
@@ -97,6 +100,22 @@ namespace Bicep.Cli.Services
             // to verify success we recompile and check for syntax errors.
             await CompileAsync(decompilation.EntrypointUri.LocalPath, skipRestore: true);
 
+            return decompilation;
+        }
+
+        public DecompileResult DecompileParams(string inputPath, string outputPath, string? bicepPath)
+        {
+            inputPath = PathHelper.ResolvePath(inputPath);
+            Uri inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            Uri outputUri = PathHelper.FilePathToFileUrl(outputPath);
+
+            var decompilation =  paramDecompiler.Decompile(inputUri, outputUri, bicepPath);
+
+            foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
+            {
+                workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
+            }
+           
             return decompilation;
         }
 
