@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Bicep.Core.UnitTests.PrettyPrintV2
 {
     [TestClass]
-    public class PrettyPrintV2Tests
+    public class PrettyPrinterV2Tests
     {
         private readonly static string ProgramText = """
             var foo = {
@@ -54,11 +54,46 @@ namespace Bicep.Core.UnitTests.PrettyPrintV2
 
             var program = ParserHelper.Parse(ProgramText, out var lexingErrorLookup, out var parsingErrorLookup);
             var context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
-            var writer = new StringWriter();
 
-            PrettyPrinterV2.PrintTo(writer, context);
+            var output = PrettyPrinterV2.Print(context);
 
-            writer.ToString().Should().Be(expectedOutput);
+            output.Should().Be(expectedOutput);
+        }
+
+        [TestMethod]
+        public void Print_HasTrailingSpaces_TrimsTrailingSpaces()
+        {
+            var programText = " var foo = { \n prop1: true  \n   \nprop2: false }\n";
+            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var context = PrettyPrinterV2Context.Create(program, PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
+
+            var output = PrettyPrinterV2.Print(context);
+
+            output.Should().Be("var foo = {\n  prop1: true\n\n  prop2: false\n}\n");
+        }
+
+        [TestMethod]
+        public void Print_StartsAndEndsWithNewlines_TrimNewlines()
+        {
+            var programText = "\n\n\n \n \n // comment  \nvar foo = true\n \n // comment \n \n";
+            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var context = PrettyPrinterV2Context.Create(program, PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
+
+            var output = PrettyPrinterV2.Print(context);
+
+            output.Should().Be("// comment  \nvar foo = true\n\n// comment \n");
+        }
+
+        [TestMethod]
+        public void Print_HasConsecutiveNewlines_CollapsesNewlines()
+        {
+            var programText = " var foo = {\n prop1: true\n\n\n \n\n   \n\n\nprop2: false}\n\n \n/* leading comment */ \n\n\n   \nvar bar = 1\n";
+            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var context = PrettyPrinterV2Context.Create(program, PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
+
+            var output = PrettyPrinterV2.Print(context);
+
+            output.Should().Be("var foo = {\n  prop1: true\n\n  prop2: false\n}\n\n/* leading comment */\n\nvar bar = 1\n");
         }
     }
 }

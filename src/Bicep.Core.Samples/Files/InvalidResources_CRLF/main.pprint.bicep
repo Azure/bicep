@@ -409,6 +409,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
@@ -524,6 +525,7 @@ Discriminator value set 1
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
   }
@@ -542,6 +544,7 @@ Discriminator value set 1 (conditional)
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (2 == 3) {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
   }
@@ -560,6 +563,7 @@ Discriminator value set 1 (loop)
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
   }
@@ -578,6 +582,7 @@ Discriminator value set 1 (filtered loop)
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if (true) {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
   }
@@ -596,6 +601,7 @@ Discriminator value set 2
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
   }
@@ -616,6 +622,7 @@ Discriminator value set 2 (conditional)
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
   }
@@ -636,6 +643,7 @@ Discriminator value set 2 (loops)
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
   }
@@ -656,6 +664,7 @@ Discriminator value set 2 (filtered loops)
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if (true) {
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
   }

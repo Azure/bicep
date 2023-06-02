@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [DataRow(40)]
         [DataRow(80)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Print_DifferentWidth_OptimizesLayoutAccordingly(int width)
+        public void Print_VariousWidths_OptimizesLayoutAccordingly(int width)
         {
             var dataSet = DataSets.PrettyPrint_LF;
             var options = new PrettyPrinterV2Options(Width: width);

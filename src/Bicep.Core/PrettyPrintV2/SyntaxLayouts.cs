@@ -239,8 +239,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutProgramSyntax(ProgramSyntax syntax) =>
             this.LayoutMany(syntax.Children.Append(syntax.EndOfFile))
-                .TrimHardLine()
-                .CollapseHardLine()
+                .TrimNewlines()
+                .CollapseNewlines()
                 .SeparatedByNewline();
 
         private IEnumerable<Document> LayoutPropertyAccessSyntax(PropertyAccessSyntax syntax) =>
@@ -452,10 +452,10 @@ namespace Bicep.Core.PrettyPrintV2
 
                     leadingTrivia = leadingTrivia.Spread();
 
-                    return printHardLine ? leadingTrivia.Append(HardLine) : leadingTrivia;
+                    return printHardLine ? leadingTrivia.Append(HardLine) : leadingTrivia.Append(SoftLine);
                 }
 
-                return printHardLine ? HardLine : Empty;
+                return printHardLine ? HardLine : SoftLine;
             }
 
             return hasLeadingTrivia ? leadingTrivia.Append(token.Text).Spread() : token.Text;
