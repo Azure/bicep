@@ -428,13 +428,6 @@ namespace Bicep.Core.Semantics
                 return Enumerable.Empty<IDiagnostic>();
             }
 
-            if (!this.Features.ParamsFilesEnabled)
-            {
-                // prompt the user to enable the experimental feature before showing any other diagnostics
-                var paramsFileUnsupportedDiag = DiagnosticBuilder.ForDocumentStart().ParametersFileUnsupported();
-                return paramsFileUnsupportedDiag.AsEnumerable();
-            }
-
             // try to get the bicep file's semantic model
             if(!this.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
             {

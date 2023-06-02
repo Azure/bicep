@@ -381,8 +381,7 @@ param myArray array
                 fileTextsByUri,
                 paramUri,
                 services => services
-                    .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
+                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
             var completions = await file.RequestCompletion(cursor);

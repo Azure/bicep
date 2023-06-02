@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(Services.WithFeatureOverrides(new(ParamsFilesEnabled: true)), data.Parameters.OutputFilePath);
+            var model = CreateSemanticModel(Services, data.Parameters.OutputFilePath);
 
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()

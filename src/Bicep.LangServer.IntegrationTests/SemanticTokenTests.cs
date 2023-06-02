@@ -102,8 +102,7 @@ namespace Bicep.LangServer.IntegrationTests
                 fileTextsByUri,
                 paramFileUri,
                 services => services
-                    .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
+                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {

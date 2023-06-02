@@ -79,7 +79,7 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath)
         {
-            var compiler = new ServiceBuilder().WithEmptyAzResources().WithFeatureOverrides(new(ParamsFilesEnabled: true)).Build().GetCompiler();
+            var compiler = new ServiceBuilder().WithEmptyAzResources().Build().GetCompiler();
 
             var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
 
