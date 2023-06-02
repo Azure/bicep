@@ -4,7 +4,7 @@
     1. Run the [Update Types](https://github.com/Azure/bicep-types-az/actions/workflows/update-types.yml) GitHub Action to generate the latest type definitions.
     1. Wait ~3hrs for the previous step to complete. Ensure it runs successfully, and generates + merges a PR (example [here](https://github.com/Azure/bicep-types-az/pull/1299)).
     1. Run the Official Build (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
-    1. Publish Bicep.Types NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
+    1. Publish Bicep.Types.Az NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
         1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
         1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
         1. Run `./scripts/UploadPackages.ps1 -PackageDirectory <downloads>/drop_build_main -NuGetPath <nuget_tool_directory>`
