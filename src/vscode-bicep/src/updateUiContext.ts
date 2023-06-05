@@ -42,12 +42,13 @@ export async function updateUiContext(
       switch (currentDocument?.languageId) {
         case "json":
         case "jsonc":
-          cannotDecompileParams = !(await DecompileParamsCommand.mightBeArmParametersNoThrow(
-            currentDocument.uri
-          ));
+          cannotDecompileParams =
+            !(await DecompileParamsCommand.mightBeArmParametersNoThrow(
+              currentDocument.uri
+            ));
           break;
         default:
-          cannotDecompileParams = true
+          cannotDecompileParams = true;
           break;
       }
 
@@ -55,7 +56,7 @@ export async function updateUiContext(
         "setContext",
         "bicep.cannotDecompileParams",
         cannotDecompileParams
-      )
+      );
     }
   );
 }

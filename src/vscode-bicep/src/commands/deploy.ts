@@ -759,7 +759,10 @@ export class DeployCommand implements Command {
   ): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
     const workspaceParametersFiles = (
-      await vscode.workspace.findFiles("**/*.{json,jsonc,bicepparam}", undefined)
+      await vscode.workspace.findFiles(
+        "**/*.{json,jsonc,bicepparam}",
+        undefined
+      )
     ).filter((f) => !!f.fsPath);
 
     workspaceParametersFiles.sort((a, b) => {
@@ -777,9 +780,10 @@ export class DeployCommand implements Command {
     });
 
     for (const uri of workspaceParametersFiles) {
-
-      if (!uri.fsPath.endsWith("biceppparam") && 
-          !(await this.validateIsValidParameterFile(uri.fsPath, false))) {
+      if (
+        !uri.fsPath.endsWith("biceppparam") &&
+        !(await this.validateIsValidParameterFile(uri.fsPath, false))
+      ) {
         continue;
       }
 
@@ -789,7 +793,9 @@ export class DeployCommand implements Command {
         ? path.relative(workspaceRoot, uri.fsPath)
         : path.basename(uri.fsPath);
       const quickPickItem: IAzureQuickPickItem<string> = {
-        label: `${(uri.fsPath.endsWith("biceppparam")? "$(bicepparam)" : "$(json)")} ${relativePath}`,
+        label: `${
+          uri.fsPath.endsWith("biceppparam") ? "$(bicepparam)" : "$(json)"
+        } ${relativePath}`,
         data: uri.fsPath,
         id: uri.toString(),
       };

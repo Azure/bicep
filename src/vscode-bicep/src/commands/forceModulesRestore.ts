@@ -11,7 +11,7 @@ export class ForceModulesRestoreCommand implements Command {
   public constructor(
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager
-  ) { }
+  ) {}
 
   public async execute(
     _context: IActionContext,
