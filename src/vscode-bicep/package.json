@@ -40,6 +40,7 @@
     "onLanguage:bicep-params",
     "onCommand:bicep.build",
     "onCommand:bicep.decompile",
+    "onCommand:bicep.decompileParams",
     "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
@@ -222,6 +223,12 @@
         "$comment2": "Also keeping it enabled when the editor doesn't have focus, to allow command to appear enabled on e.g. right-clicking in explorer"
       },
       {
+        "command": "bicep.decompileParams",
+        "title": "Decompile into Bicepparams",
+        "category": "Bicep",
+        "enablement": "!bicep.cannotDecompileParams"
+      },
+      {
         "command": "bicep.generateParams",
         "title": "Generate Parameters File",
         "category": "Bicep",
@@ -372,6 +379,11 @@
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
           "group": "9_bicep_in_json"
+        },
+        {
+          "command": "bicep.decompileParams",
+          "when": "resourceLangId == json || resourceLangId == jsonc",
+          "group": "9_bicep_in_json"
         }
       ],
       "editor/title/context": [
@@ -413,6 +425,11 @@
         {
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
+          "group": "9_bicep_in_json"
+        },
+        {
+          "command": "bicep.decompileParams",
+          "when": "resourceLangId == json || resourceLangId == jsonc",
           "group": "9_bicep_in_json"
         }
       ],
@@ -460,6 +477,11 @@
         {
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
+          "group": "9_bicep_in_json"
+        },
+        {
+          "command": "bicep.decompileParams",
+          "when": "resourceLangId == json || resourceLangId == jsonc",
           "group": "9_bicep_in_json"
         }
       ],

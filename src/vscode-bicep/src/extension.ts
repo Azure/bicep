@@ -51,6 +51,7 @@ import { BuildCommand } from "./commands/build";
 import { CommandManager } from "./commands/commandManager";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
 import * as surveys from "./feedback/surveys";
+import { DecompileParamsCommand } from "./commands/decompileParams";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -154,6 +155,7 @@ export async function activate(
               treeManager
             ),
             new DecompileCommand(languageClient, outputChannelManager),
+            new DecompileParamsCommand(languageClient, outputChannelManager),
             new ForceModulesRestoreCommand(
               languageClient,
               outputChannelManager
