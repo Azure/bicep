@@ -399,18 +399,6 @@ module modulea 'modulea.bicep' = {
         }
 
         [TestMethod]
-        public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, RegistryEnabled: false));
-            var result = CompilationHelper.Compile(services, @"module test 'br:totally-fake' = {}");
-
-            result.Should().HaveDiagnostics(new[]
-            {
-                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"br\" is not recognized. Specify a path to a local module file.")
-            });
-        }
-
-        [TestMethod]
         public void Module_cannot_use_resource_typed_parameter_without_feature_enabled()
         {
             var result = CompilationHelper.Compile(

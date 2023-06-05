@@ -91,7 +91,7 @@ public class FormatCommand : ICommand
             args.InsertFinalNewline ?? false
         );
 
-        var output = PrettyPrinter.PrintProgram(parser.Program(), options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+        var output = PrettyPrinter.PrintProgram(program, options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         if (args.OutputToStdOut)
         {
             io.Output.Write(output);

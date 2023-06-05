@@ -85,6 +85,7 @@ namespace Bicep.Core.UnitTests
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["analyzers"] = new Dictionary<string, object>(),
                 ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
+                ["formatting"] = new Dictionary<string, bool>(),
             };
 
             if (customConfigurationData is not null)
