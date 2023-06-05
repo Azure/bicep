@@ -198,7 +198,7 @@ export class DecompileParamsCommand implements Command {
     };
 
     const optionPicked: MessageItem = await context.ui.showWarningMessage(
-      "The Bicep Parameters file already exist in the file system. Would like to overwrite?",
+      "The Bicep Parameters file already exist in the file system. Do you want to overwrite it or make a copy?",
       overwriteAction,
       copyAction,
       cancelAction
