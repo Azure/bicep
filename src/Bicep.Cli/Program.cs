@@ -83,6 +83,9 @@ namespace Bicep.Cli
 
                     case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
                         return await services.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
+                    
+                    case DecompileParamsArguments decompileParamsArguments when decompileParamsArguments.CommandName == Constants.Command.DecompileParams:
+                        return services.GetRequiredService<DecompileParamsCommand>().Run(decompileParamsArguments);
 
                     case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
                         return await services.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
@@ -118,6 +121,7 @@ namespace Bicep.Cli
             => new ServiceCollection()
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddBicepparamDecompiler()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()

@@ -896,7 +896,7 @@ param foo|bar = true
                 [bicepFile.FileUri] = bicepText
             };
 
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, paramsFile.FileUri, services => services.WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, paramsFile.FileUri);
             var client = helper.Client;
 
             var hovers = await RequestHovers(client, paramsFile, cursors);

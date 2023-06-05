@@ -236,7 +236,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
         [TestMethod]
         public async Task Goto_definition_works_with_using_statement()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ParamsFilesEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(@"
@@ -259,7 +259,7 @@ var foo = 'foo'
         [TestMethod]
         public async Task Goto_definition_works_with_param_assignment_statements()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ParamsFilesEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(@"

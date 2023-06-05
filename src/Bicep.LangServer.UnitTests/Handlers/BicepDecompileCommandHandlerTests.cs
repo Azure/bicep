@@ -285,8 +285,8 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            result.output.Should().Contain("WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.");
-            result.output.Should().Contain("You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.");
+            result.output.Should().Contain("WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep Template or Bicep Parameters.");
+            result.output.Should().Contain("You may need to fix warnings and errors in the generated bicep/bicepparam file(s), or decompilation may fail entirely if an accurate conversion is not possible.");
         }
 
         [TestMethod]
