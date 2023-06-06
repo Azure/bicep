@@ -65,6 +65,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDecompileCommandHandler>()
                     .WithHandler<BicepDecompileSaveCommandHandler>()
                     .WithHandler<BicepDecompileForPasteCommandHandler>()
+                    .WithHandler<BicepDecompileParamsCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()
@@ -105,6 +106,7 @@ namespace Bicep.LanguageServer
             services
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddBicepparamDecompiler()
                 .AddSingleton<IWorkspace, Workspace>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
