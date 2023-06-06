@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                 return "Building parameters file failed. The file \"" + compiledFile + "\" already exists but does not contain the schema for a parameters file. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
             }
 
-            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
+            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
             var fileUri = documentUri.ToUri();
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().FirstOrDefault(x => x.Key.FileUri == fileUri);
