@@ -42,10 +42,13 @@ public class ParametersJsonWriter
 
             var parameter = model.EmitLimitationInfo.ParameterAssignments[assignment];
 
+            var propertyName = (parameter.First as JProperty)?.Name;
+            var isReferenceProperty = propertyName == "reference";
+            var isObjectType = assignment.Type.TypeKind == TypeSystem.TypeKind.Object;
+
             if (parameter.Type == JTokenType.Object)
             {
-                var propertyName = (parameter.First as JProperty)?.Name;
-                if (propertyName != "reference")
+                if (!isReferenceProperty || (isReferenceProperty && isObjectType))
                 {
                     jsonWriter.WriteStartObject();
                     jsonWriter.WritePropertyName("value");
@@ -61,8 +64,7 @@ public class ParametersJsonWriter
 
             if (parameter.Type == JTokenType.Object)
             {
-                var propertyName = (parameter.First as JProperty)?.Name;
-                if (propertyName != "reference")
+                if (!isReferenceProperty || (isReferenceProperty && isObjectType))
                 {
                     jsonWriter.WriteEndObject();
                 }
