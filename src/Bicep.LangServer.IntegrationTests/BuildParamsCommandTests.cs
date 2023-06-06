@@ -54,7 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
                 }
             });
 
-            var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".parameters.json"));
+            var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
             buildCommandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
     }
