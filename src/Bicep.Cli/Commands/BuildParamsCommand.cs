@@ -1,16 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
@@ -59,7 +56,7 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }
 
-            if(bicepFileArgPath != null && !IsBicepFile(bicepFileArgPath))
+            if (bicepFileArgPath != null && !IsBicepFile(bicepFileArgPath))
             {
                 throw new CommandLineException($"{bicepFileArgPath} is not a bicep file");
             }
@@ -75,11 +72,11 @@ namespace Bicep.Cli.Commands
             var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
 
             //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis
-            if(paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
             {
                 var bicepFileUsingPathUri = bicepSemanticModel.Root.FileUri;
 
-                if(bicepFileArgPath is {} && !bicepFileUsingPathUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath)))
+                if (bicepFileArgPath is { } && !bicepFileUsingPathUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath)))
                 {
                     throw new CommandLineException($"Bicep file {bicepFileArgPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the using declaration in the parameters file");
                 }

@@ -47,6 +47,7 @@ import { ForceModulesRestoreCommand } from "./commands/forceModulesRestore";
 import { InsertResourceCommand } from "./commands/insertResource";
 import { DeployCommand } from "./commands/deploy";
 import { GenerateParamsCommand } from "./commands/generateParams";
+import { BuildParamsCommand } from "./commands/buildParams";
 import { BuildCommand } from "./commands/build";
 import { CommandManager } from "./commands/commandManager";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
@@ -148,6 +149,7 @@ export async function activate(
           .registerCommands(
             new BuildCommand(languageClient, outputChannelManager),
             new GenerateParamsCommand(languageClient, outputChannelManager),
+            new BuildParamsCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
             new DeployCommand(
               languageClient,
