@@ -1926,9 +1926,9 @@ namespace Bicep.Core.Diagnostics
                     "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-                
+
             public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
-                TextSpan, 
+                TextSpan,
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
@@ -1936,6 +1936,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
+
+            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
+                TextSpan,
+                "BCP344",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

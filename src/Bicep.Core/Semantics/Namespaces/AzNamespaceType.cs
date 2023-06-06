@@ -17,6 +17,7 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class AzNamespaceType
     {
         public const string BuiltInName = "az";
+        public const string GetSecretFunctionName = "getSecret";
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
@@ -301,8 +302,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (sourceFileKind == BicepSourceFileKind.ParamsFile)
             {
-                yield return new FunctionOverloadBuilder("getSecret")
-                    .WithReturnType(LanguageConstants.String)
+                yield return new FunctionOverloadBuilder(GetSecretFunctionName)
+                    .WithReturnType(LanguageConstants.SecureString)
                     .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
                     .WithEvaluator(expression =>
                     {
@@ -325,6 +326,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("keyVaultName", LanguageConstants.String, "Name of the target KeyVault")
                     .WithRequiredParameter("secretName", LanguageConstants.String, "Name of the Secret")
                     .WithOptionalParameter("secretVersion", LanguageConstants.String, "Version of the Secret")
+                    .WithFlags(FunctionFlags.DirectAssignment)
                     .Build();
             }
             else
