@@ -50,6 +50,7 @@
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
+    "onCommand:bicep.buildParams",
     "onCommand:bicep.gettingStarted.copyToClipboard",
     "onCommand:bicep.gettingStarted.createBicepFile",
     "onCommand:bicep.gettingStarted.openBicepFile",
@@ -262,6 +263,12 @@
         "category": "Bicep"
       },
       {
+        "command": "bicep.buildParams",
+        "title": "Build Parameters File",
+        "category": "Bicep",
+        "icon": "$(output)"
+      },
+      {
         "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
         "title": "Create Empty Bicep File (Walkthrough)",
@@ -306,6 +313,12 @@
       {
         "command": "bicep.decompile",
         "when": "editorFocus && (resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template)"
+      },
+      {
+        "command": "bicep.buildParams",
+        "key": "ctrl+shift+b",
+        "mac": "cmd+alt+b",
+        "when": "resourceLangId == bicep-params"
       }
     ],
     "menus": {
@@ -324,6 +337,11 @@
         {
           "command": "bicep.insertResource",
           "when": "editorLangId == bicep",
+          "group": "1_bicep"
+        },
+        {
+          "command": "bicep.buildParams",
+          "when": "editorLangId == bicep-params",
           "group": "1_bicep"
         }
       ],
@@ -372,6 +390,11 @@
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
           "group": "9_bicep_in_json"
+        },
+        {
+          "command": "bicep.buildParams",
+          "when": "resourceLangId == bicep-params",
+          "group": "2_bicep_1_edit"
         }
       ],
       "editor/title/context": [
@@ -414,6 +437,11 @@
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
           "group": "9_bicep_in_json"
+        },
+        {
+          "command": "bicep.buildParams",
+          "when": "resourceLangId == bicep-params",
+          "group": "2_bicep_1_edit"
         }
       ],
       "editor/context": [
@@ -461,6 +489,11 @@
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
           "group": "9_bicep_in_json"
+        },
+        {
+          "command": "bicep.buildParams",
+          "when": "resourceLangId == bicep-params",
+          "group": "2_bicep_1_edit"
         }
       ],
       "commandPalette": [
@@ -510,6 +543,10 @@
         {
           "command": "bicep.gettingStarted.copyToClipboard",
           "when": "never"
+        },
+        {
+          "command": "bicep.buildParams",
+          "group": "0_bicep"
         }
       ]
     },
