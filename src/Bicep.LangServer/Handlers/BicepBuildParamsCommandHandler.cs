@@ -71,8 +71,6 @@ namespace Bicep.LanguageServer.Handlers
                 return "Building parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
-            var existingContent = File.Exists(compiledFilePath) ? File.ReadAllText(compiledFilePath) : string.Empty;
-
             var paramsSemanticModel = compilation.GetEntrypointSemanticModel();
 
             if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
