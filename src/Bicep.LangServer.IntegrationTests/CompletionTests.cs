@@ -944,6 +944,110 @@ module mod 'mod.bicep' = {
         }
 
         [TestMethod]
+        public async Task Completions_are_offered_within_values_with_an_interpolated_property_name()
+        {
+            var module = @"
+param properties {
+  *: {
+    nestedProperty: string
+  }
+}
+";
+            var fileWithCursors = @"
+param unknownValue string
+var knownValue = 'fizz'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    properties: {
+      foo: {
+        |
+      }
+      '${knownValue}': {
+        |
+      }
+      '${unknownValue}': {
+        |
+      }
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Should().AllSatisfy(y => y.Any(x => x.Label == "nestedProperty").Should().BeTrue());
+        }
+
+        [TestMethod]
+        public async Task Completions_are_not_offered_within_values_with_an_ambiguous_interpolated_property_name()
+        {
+            var module = @"
+param properties {
+  foo: {
+    bar: string
+  }
+  *: {
+    nestedProperty: string
+  }
+}
+";
+            var fileWithCursors = @"
+param unknownValue string
+var knownValue = 'fizz'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    properties: {
+      foo: {
+        |
+      }
+      '${knownValue}': {
+        |
+      }
+      '${unknownValue}': {
+        |
+      }
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Should().SatisfyRespectively(
+              y => y.Any(x => x.Label == "bar").Should().BeTrue(),
+              y => y.Any(x => x.Label == "nestedProperty").Should().BeTrue(),
+              y => y.Any().Should().BeFalse());
+        }
+
+        [TestMethod]
         public async Task Completions_after_resource_type_should_only_include_existing_keyword()
         {
             var fileWithCursors = @"
