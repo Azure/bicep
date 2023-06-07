@@ -1408,6 +1408,9 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetObjectPropertyType(ObjectPropertySyntax syntax)
         {
+            // `syntax.TryGetKeyText()` will only return a non-null value if the key is a bare identifier or a non-interpolated string
+            // if it does return null, look at the *type* of the key and see if it's a string literal. If an interpolated key can be folded
+            // to a literal type at compile time, this will likely already have been calculated and cached in the type manager
             var propertyName = syntax.TryGetKeyText() ?? (typeManager.GetTypeInfo(syntax.Key) as StringLiteralType)?.RawStringValue;
             var parent = this.binder.GetParent(syntax);
             if (parent is not ObjectSyntax parentObject)
