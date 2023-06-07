@@ -1408,21 +1408,37 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetObjectPropertyType(ObjectPropertySyntax syntax)
         {
-            var propertyName = syntax.TryGetKeyText();
+            // `syntax.TryGetKeyText()` will only return a non-null value if the key is a bare identifier or a non-interpolated string
+            // if it does return null, look at the *type* of the key and see if it's a string literal. If an interpolated key can be folded
+            // to a literal type at compile time, this will likely already have been calculated and cached in the type manager
+            var propertyName = syntax.TryGetKeyText() ?? (typeManager.GetTypeInfo(syntax.Key) as StringLiteralType)?.RawStringValue;
             var parent = this.binder.GetParent(syntax);
-            if (propertyName == null || !(parent is ObjectSyntax parentObject))
+            if (parent is not ObjectSyntax parentObject)
             {
-                // the property name is an interpolated string (expression) OR the parent is missing OR the parent is not ObjectSyntax
+                // the parent is missing OR the parent is not ObjectSyntax
                 // cannot establish declared type
-                // TODO: Improve this when we have constant folding
                 return null;
             }
 
-            var assignment = GetNonNullableTypeAssignment(parent);
+            var parentAssignment = GetNonNullableTypeAssignment(parent);
+
+            if (propertyName is null)
+            {
+                // if we don't know the property name BUT we know that the parent is a simple dictionary (has an additional properties type and has no named
+                // properties with their own types), then use the dictionary value type
+                if (parentAssignment?.Reference.Type is ObjectType parentObjectType &&
+                    parentObjectType.Properties.IsEmpty &&
+                    parentObjectType.AdditionalPropertiesType is {} additionalPropertiesType)
+                {
+                    return new(additionalPropertiesType, syntax, DeclaredTypeFlags.None);
+                }
+
+                return null;
+            }
 
             // we are in the process of establishing the declared type for the syntax nodes,
             // so we must set useSyntax to false to avoid a stack overflow
-            return GetObjectPropertyType(assignment?.Reference.Type, parentObject, propertyName, useSyntax: false);
+            return GetObjectPropertyType(parentAssignment?.Reference.Type, parentObject, propertyName, useSyntax: false);
         }
 
         private DeclaredTypeAssignment? GetObjectPropertyType(TypeSymbol? type, ObjectSyntax? objectSyntax, string propertyName, bool useSyntax)
