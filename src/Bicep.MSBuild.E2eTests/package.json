@@ -20,6 +20,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "test": "jest",
+    "test:ado": "jest --config jest.config.ado.js",
     "lint": "eslint src --ext ts",
     "lint:fix": "eslint src --ext ts --fix"
   }
