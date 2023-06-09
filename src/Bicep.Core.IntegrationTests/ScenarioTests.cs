@@ -4753,4 +4753,41 @@ func foo(resourceGroup string) string => resourceGroup('test')
             ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/10884
+    [TestMethod]
+    public void Test_Issue10884()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+("main.bicep", @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    resourceGroups: [
+      {
+        actionGroups: [
+          {
+          }
+        ]
+      }
+    ]
+  }
+}
+"),
+("mod.bicep", @"
+type resourceGroup = {
+  actionGroups: {
+    foo: string
+    bar: string
+  }[]?
+}
+
+param resourceGroups resourceGroup[]
+"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"bar\", \"foo\"."),
+        });
+    }
 }
