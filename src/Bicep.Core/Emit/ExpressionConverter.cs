@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -475,6 +476,11 @@ namespace Bicep.Core.Emit
             }
             else if (resource is DeclaredResourceMetadata declared)
             {
+                if (declared.Symbol.IsCollection)
+                {
+                    return new JTokenExpression(declared.Symbol.Name);
+                }
+
                 var nameSegments = GetResourceNameSegments(declared);
                 return ScopeHelper.FormatFullyQualifiedResourceId(
                     context,
@@ -543,6 +549,18 @@ namespace Bicep.Core.Emit
                 return CreateFunction(
                     "reference",
                     referenceExpression);
+            }
+
+            if (resource is DeclaredResourceMetadata { Symbol.IsCollection: true })
+            {
+                return full
+                    ? CreateFunction(
+                        "references",
+                        referenceExpression,
+                        new JTokenExpression("full"))
+                    : CreateFunction(
+                        "references",
+                        referenceExpression);
             }
 
             // full gives access to top-level resource properties, but generates a longer statement
