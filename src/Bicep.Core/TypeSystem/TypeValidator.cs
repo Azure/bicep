@@ -781,10 +781,12 @@ namespace Bicep.Core.TypeSystem
                 return c.Errors;
             });
 
+            diagnosticWriter.WriteMultiple(errors);
+
             // If *any* variant of the expression type is not assignable, the expression type is not assignable
             if (errors.Any())
             {
-                return ErrorType.Create(errors);
+                return targetType;
             }
 
             return TypeHelper.CreateTypeUnion(candidacyEvaluations.Select(c => c.NarrowedType!));
@@ -829,7 +831,14 @@ namespace Bicep.Core.TypeSystem
                 return TypeHelper.CreateTypeUnion(viableCandidates.Select(c => c.Type));
             }
 
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(expressionType, targetType));
+            diagnosticWriter.WriteMultiple(candidacyEvaluations.SelectMany(e => e.Diagnostics.Concat(e.Errors)));
+
+            if (candidacyEvaluations.All(c => c.NarrowedType is null))
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(expressionType, targetType));
+            }
+
+            return targetType;
         }
 
         private record UnionTypeMemberViabilityInfo
