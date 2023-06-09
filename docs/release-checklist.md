@@ -25,7 +25,7 @@
 1. Run `bicep/scripts/CreateReleaseNotes -FromTag <previous tag> -ToTag <new tag>` and set the output as the release description.
     1. Give the output of this script to a PM, and ask them to clean up the notes for the release.
     1. Once they have cleaned up the notes, copy + paste them into the draft notes, and hit "Save draft" again.
-1. Run `BicepMirror/scripts/UploadSignedReleaseArtifacts.ps1` to add official artifacts to the release.
+1. From the **Bicep** repo, run `<full-path-to>/BicepMirror/scripts/UploadSignedReleaseArtifacts.ps1` to add official artifacts to the release.
     * `-WorkingDir` can be any empty temporary directory that you create
     * `-BuildId` is only needed if the latest official build is NOT the official build you are trying to release
 1. Validate VSCode extension and Bicep CLI manually on Windows, Mac & Linux:
