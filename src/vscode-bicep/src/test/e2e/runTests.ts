@@ -63,6 +63,7 @@ async function go() {
         extensionTestsEnv: { TEST_MODE: "e2e" },
         launchArgs: [
           "--no-sandbox",
+          "--disable-gpu-sandbox",
           "--enable-proposed-api=ms-azuretools.vscode-bicep",
           ...userDataArguments,
         ],
