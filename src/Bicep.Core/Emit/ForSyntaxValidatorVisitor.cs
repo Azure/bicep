@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using System;
 
 namespace Bicep.Core.Emit
 {
@@ -237,7 +237,7 @@ namespace Bicep.Core.Emit
         private void ValidateDirectAccessToResourceOrModuleCollection(SyntaxBase variableOrResourceAccessSyntax)
         {
             var symbol = this.semanticModel.GetSymbolInfo(variableOrResourceAccessSyntax);
-            if (symbol is ResourceSymbol { IsCollection: true } || symbol is ModuleSymbol { IsCollection: true })
+            if (symbol is ModuleSymbol { IsCollection: true })
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
@@ -247,6 +247,11 @@ namespace Bicep.Core.Emit
                     // which is not allowed outside of the dependsOn properties
                     this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(variableOrResourceAccessSyntax).DirectAccessToCollectionNotSupported());
                 }
+            }
+            else if (symbol is ResourceSymbol { IsCollection: true })
+            {
+                // TODO(k.a): add diagnostics for circular calls and calls within resource copies
+                //  what about standalone calls that are not passed to something like map()?
             }
         }
 
