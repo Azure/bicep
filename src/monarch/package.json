@@ -28,7 +28,7 @@
     "lint:fix": "eslint src"
   },
   "dependencies": {
-    "@babel/core": "^7.22.1",
+    "@babel/core": "^7.22.5",
     "@babel/plugin-transform-modules-commonjs": "^7.21.5",
     "babel-jest": "^29.5.0"
   }
