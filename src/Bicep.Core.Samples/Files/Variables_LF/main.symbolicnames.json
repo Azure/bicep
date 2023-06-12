@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "408436272131712996"
+      "templateHash": "12389768359658361977"
     }
   },
   "parameters": {
@@ -30,6 +30,36 @@
         "name": "incrementingNumbers",
         "count": "[length(range(0, 10))]",
         "input": "[range(0, 10)[copyIndex('incrementingNumbers')]]"
+      },
+      {
+        "name": "printToSingleLine1",
+        "count": "[length(range(0, 20))]",
+        "input": "[range(0, 20)[copyIndex('printToSingleLine1')]]"
+      },
+      {
+        "name": "printToSingleLine2",
+        "count": "[length(range(0, 20))]",
+        "input": "[range(0, 20)[copyIndex('printToSingleLine2')]]"
+      },
+      {
+        "name": "printToSingleLine3",
+        "count": "[length(range(0, 20))]",
+        "input": "[range(0, 20)[copyIndex('printToSingleLine3')]]"
+      },
+      {
+        "name": "forceLineBreaks1",
+        "count": "[length(range(0, 30))]",
+        "input": "[range(0, 30)[copyIndex('forceLineBreaks1')]]"
+      },
+      {
+        "name": "forceLineBreaks2",
+        "count": "[length(range(0, 30))]",
+        "input": "[range(0, 30)[copyIndex('forceLineBreaks2')]]"
+      },
+      {
+        "name": "forceLineBreaks3",
+        "count": "[length(range(0, 30))]",
+        "input": "[range(0, 30)[copyIndex('forceLineBreaks3')]]"
       },
       {
         "name": "arrayOfStringsViaLoop",

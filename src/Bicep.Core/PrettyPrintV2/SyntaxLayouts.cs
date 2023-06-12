@@ -70,17 +70,34 @@ namespace Bicep.Core.PrettyPrintV2
                 _ => throw new NotImplementedException()
             };
 
-            return this.Glue(
+            return this.Bracket(
                 syntax.OpenSquare,
-                this.Spread(
-                    syntax.ForKeyword,
-                    variableSection,
-                    syntax.InKeyword,
-                    this.Glue(
-                        syntax.Expression,
-                        syntax.Colon),
-                    syntax.Body),
-                syntax.CloseSquare);
+                () => this
+                    .LayoutMany(syntax.OpenNewlines)
+                    .Append(this.Spread(
+                        syntax.ForKeyword,
+                        variableSection,
+                        syntax.InKeyword,
+                        this.Glue(
+                            syntax.Expression,
+                            syntax.Colon),
+                        syntax.Body))
+                    .Concat(this.LayoutMany(syntax.CloseNewlines)),
+                syntax.CloseSquare,
+                separator: LineOrEmpty,
+                padding: LineOrEmpty);
+
+            //return this.Glue(
+            //    syntax.OpenSquare,
+            //    this.Spread(
+            //        syntax.ForKeyword,
+            //        variableSection,
+            //        syntax.InKeyword,
+            //        this.Glue(
+            //            syntax.Expression,
+            //            syntax.Colon),
+            //        syntax.Body),
+            //    syntax.CloseSquare);
         }
 
         private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax) =>

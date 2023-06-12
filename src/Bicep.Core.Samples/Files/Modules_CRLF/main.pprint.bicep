@@ -145,69 +145,83 @@ var myModules = [
 var emptyArray = []
 
 // simple module loop
-module storageResources 'modulea.bicep' = [for module in myModules: {
-  name: module.name
-  params: {
-    arrayParam: []
-    objParam: module
-    stringParamB: module.location
+module storageResources 'modulea.bicep' = [
+  for module in myModules: {
+    name: module.name
+    params: {
+      arrayParam: []
+      objParam: module
+      stringParamB: module.location
+    }
   }
-}]
+]
 
 // simple indexed module loop
-module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
-  name: module.name
-  params: {
-    arrayParam: [i + 1]
-    objParam: module
-    stringParamB: module.location
-    stringParamA: concat('a', i)
+module storageResourcesWithIndex 'modulea.bicep' = [
+  for (module, i) in myModules: {
+    name: module.name
+    params: {
+      arrayParam: [i + 1]
+      objParam: module
+      stringParamB: module.location
+      stringParamA: concat('a', i)
+    }
   }
-}]
+]
 
 // nested module loop
-module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-  name: module.name
-  params: {
-    arrayParam: [for i in range(0, 3): concat('test-', i, '-', module.name)]
-    objParam: module
-    stringParamB: module.location
+module nestedModuleLoop 'modulea.bicep' = [
+  for module in myModules: {
+    name: module.name
+    params: {
+      arrayParam: [for i in range(0, 3): concat('test-', i, '-', module.name)]
+      objParam: module
+      stringParamB: module.location
+    }
   }
-}]
+]
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray: {
-  name: 'hello-${x}'
-  params: {
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [
+  for x in emptyArray: {
+    name: 'hello-${x}'
+    params: {
+      objParam: {}
+      stringParamA: 'test'
+      stringParamB: 'test'
+      arrayParam: [for x in emptyArray: x]
+    }
   }
-}]
+]
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 var duplicateAcrossScopes = 'hello'
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-  name: 'hello-${duplicateAcrossScopes}'
-  params: {
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [
+  for duplicateAcrossScopes in []: {
+    name: 'hello-${duplicateAcrossScopes}'
+    params: {
+      objParam: {}
+      stringParamA: 'test'
+      stringParamB: 'test'
+      arrayParam: [for x in emptyArray: x]
+    }
   }
-}]
+]
 
 var someDuplicate = true
 var otherDuplicate = false
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-  name: 'hello-${someDuplicate}'
-  params: {
-    objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+module duplicatesEverywhere 'modulea.bicep' = [
+  for someDuplicate in []: {
+    name: 'hello-${someDuplicate}'
+    params: {
+      objParam: {}
+      stringParamB: 'test'
+      arrayParam: [
+        for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}'
+      ]
+    }
   }
-}]
+]
 
 module propertyLoopInsideParameterValue 'modulea.bicep' = {
   name: 'propertyLoopInsideParameterValue'
@@ -218,9 +232,11 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
       c: {
         d: [for j in range(2, 3): j]
       }
-      e: [for k in range(4, 4): {
-        f: k
-      }]
+      e: [
+        for k in range(4, 4): {
+          f: k
+        }
+      ]
     }
     stringParamB: ''
     arrayParam: [
@@ -240,10 +256,12 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
       c: {
         d: [for (j, j2) in range(2, 3): j * j2]
       }
-      e: [for (k, k2) in range(4, 4): {
-        f: k
-        g: k2
-      }]
+      e: [
+        for (k, k2) in range(4, 4): {
+          f: k
+          g: k2
+        }
+      ]
     }
     stringParamB: ''
     arrayParam: [
@@ -254,30 +272,31 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
   }
 }
 
-module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(
-  0,
-  1
-): {
-  name: 'propertyLoopInsideParameterValueInsideModuleLoop'
-  params: {
-    objParam: {
-      a: [for i in range(0, 10): i + thing]
-      b: [for i in range(1, 2): i * thing]
-      c: {
-        d: [for j in range(2, 3): j]
+module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [
+  for thing in range(0, 1): {
+    name: 'propertyLoopInsideParameterValueInsideModuleLoop'
+    params: {
+      objParam: {
+        a: [for i in range(0, 10): i + thing]
+        b: [for i in range(1, 2): i * thing]
+        c: {
+          d: [for j in range(2, 3): j]
+        }
+        e: [
+          for k in range(4, 4): {
+            f: k - thing
+          }
+        ]
       }
-      e: [for k in range(4, 4): {
-        f: k - thing
-      }]
+      stringParamB: ''
+      arrayParam: [
+        {
+          e: [for j in range(7, 7): j % thing]
+        }
+      ]
     }
-    stringParamB: ''
-    arrayParam: [
-      {
-        e: [for j in range(7, 7): j % thing]
-      }
-    ]
   }
-}]
+]
 
 // BEGIN: Key Vault Secret Reference
 
@@ -330,18 +349,22 @@ var secrets = [
   }
 ]
 
-resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' = [for vault in vaults: {
-  name: vault.vaultName
-  scope: resourceGroup(vault.vaultSub, vault.vaultRG)
-}]
-
-module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
-  name: 'secureModuleLooped-${i}'
-  params: {
-    secureStringParam1: loopedKv[i].getSecret(secret.name)
-    secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
+resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' = [
+  for vault in vaults: {
+    name: vault.vaultName
+    scope: resourceGroup(vault.vaultSub, vault.vaultRG)
   }
-}]
+]
+
+module secureModuleLooped 'child/secureParams.bicep' = [
+  for (secret, i) in secrets: {
+    name: 'secureModuleLooped-${i}'
+    params: {
+      secureStringParam1: loopedKv[i].getSecret(secret.name)
+      secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
+    }
+  }
+]
 
 module secureModuleCondition 'child/secureParams.bicep' = {
   name: 'secureModuleCondition'

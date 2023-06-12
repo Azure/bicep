@@ -974,6 +974,48 @@
     }
   },
   {
+    "label": "forceLineBreaks1",
+    "kind": "variable",
+    "detail": "forceLineBreaks1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceLineBreaks1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceLineBreaks1"
+    }
+  },
+  {
+    "label": "forceLineBreaks2",
+    "kind": "variable",
+    "detail": "forceLineBreaks2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceLineBreaks2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceLineBreaks2"
+    }
+  },
+  {
+    "label": "forceLineBreaks3",
+    "kind": "variable",
+    "detail": "forceLineBreaks3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceLineBreaks3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceLineBreaks3"
+    }
+  },
+  {
     "label": "format",
     "kind": "function",
     "documentation": {
@@ -2350,6 +2392,48 @@
     "textEdit": {
       "range": {},
       "newText": "previousEmitLimit3"
+    }
+  },
+  {
+    "label": "printToSingleLine1",
+    "kind": "variable",
+    "detail": "printToSingleLine1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_printToSingleLine1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "printToSingleLine1"
+    }
+  },
+  {
+    "label": "printToSingleLine2",
+    "kind": "variable",
+    "detail": "printToSingleLine2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_printToSingleLine2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "printToSingleLine2"
+    }
+  },
+  {
+    "label": "printToSingleLine3",
+    "kind": "variable",
+    "detail": "printToSingleLine3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_printToSingleLine3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "printToSingleLine3"
     }
   },
   {

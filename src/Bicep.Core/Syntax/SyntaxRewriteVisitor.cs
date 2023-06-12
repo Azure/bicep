@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -859,12 +860,14 @@ namespace Bicep.Core.Syntax
         protected virtual SyntaxBase ReplaceForSyntax(ForSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.OpenSquare, out var openSquare);
+            hasChanges |= TryRewrite(syntax.OpenNewlines, out var openNewlines);
             hasChanges |= TryRewriteStrict(syntax.ForKeyword, out var forKeyword);
             hasChanges |= TryRewrite(syntax.VariableSection, out var itemVariable);
             hasChanges |= TryRewrite(syntax.InKeyword, out var inKeyword);
             hasChanges |= TryRewrite(syntax.Expression, out var expression);
             hasChanges |= TryRewrite(syntax.Colon, out var colon);
             hasChanges |= TryRewrite(syntax.Body, out var body);
+            hasChanges |= TryRewrite(syntax.CloseNewlines, out var closeNewlines);
             hasChanges |= TryRewrite(syntax.CloseSquare, out var closeSquare);
 
             if (!hasChanges)
@@ -872,7 +875,17 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ForSyntax(openSquare, forKeyword, itemVariable, inKeyword, expression, colon, body, closeSquare);
+            return new ForSyntax(
+                openSquare,
+                openNewlines.Cast<Token>().ToImmutableArray(),
+                forKeyword,
+                itemVariable,
+                inKeyword,
+                expression,
+                colon,
+                body,
+                closeNewlines.Cast<Token>().ToImmutableArray(),
+                closeSquare);
         }
 
         void ISyntaxVisitor.VisitForSyntax(ForSyntax syntax) => ReplaceCurrent(syntax, ReplaceForSyntax);

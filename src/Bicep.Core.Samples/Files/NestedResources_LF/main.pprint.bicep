@@ -72,9 +72,11 @@ var items = ['a', 'b']
 resource loopParent 'My.Rp/parentType@2020-12-01' = {
   name: 'loopParent'
 
-  resource loopChild 'childType' = [for item in items: {
-    name: 'loopChild'
-  }]
+  resource loopChild 'childType' = [
+    for item in items: {
+      name: 'loopChild'
+    }
+  ]
 }
 
 output loopChildOutput string = loopParent::loopChild[0].name

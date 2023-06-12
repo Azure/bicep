@@ -3,6 +3,9 @@
 
 using Bicep.Core.Parsing;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Bicep.Core.Syntax
@@ -11,12 +14,14 @@ namespace Bicep.Core.Syntax
     {
         public ForSyntax(
             Token openSquare,
+            ImmutableArray<Token> openNewlines,
             Token forKeyword,
             SyntaxBase variableSection,
             SyntaxBase inKeyword,
             SyntaxBase expression,
             SyntaxBase colon,
             SyntaxBase body,
+            ImmutableArray<Token> closeNewlines,
             SyntaxBase closeSquare)
         {
             AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
@@ -30,16 +35,20 @@ namespace Bicep.Core.Syntax
             AssertTokenType(closeSquare as Token, nameof(closeSquare), TokenType.RightSquare);
 
             this.OpenSquare = openSquare;
+            this.OpenNewlines = openNewlines;
             this.ForKeyword = forKeyword;
             this.VariableSection = variableSection;
             this.InKeyword = inKeyword;
             this.Expression = expression;
             this.Colon = colon;
             this.Body = body;
+            this.CloseNewlines = closeNewlines;
             this.CloseSquare = closeSquare;
         }
 
         public Token OpenSquare { get; }
+
+        public ImmutableArray<Token> OpenNewlines { get; }
 
         public Token ForKeyword { get; }
 
@@ -52,6 +61,8 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Colon { get; }
 
         public SyntaxBase Body { get; }
+
+        public ImmutableArray<Token> CloseNewlines { get; }
 
         public SyntaxBase CloseSquare { get; }
 

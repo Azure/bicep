@@ -29,7 +29,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Spread();
 
-        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
+        private Document Bracket(SyntaxBase openSyntax, Func<IEnumerable<Document>> itemsLayoutSpecifier, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {
             var openBracket = this.LayoutSingle(openSyntax);
             var closeParts = this.Layout(closeSyntax).ToArray();
@@ -37,7 +37,7 @@ namespace Bicep.Core.PrettyPrintV2
             var closeBracket = closeParts[^1];
 
             var lineBreakerCountBefore = this.lineBreakerCount;
-            var items = this.LayoutMany(syntaxes)
+            var items = itemsLayoutSpecifier()
                 .TrimNewlines()
                 .CollapseNewlines(onHardLine: this.ForceBreak)
                 .Concat(danglingComments)
@@ -69,6 +69,10 @@ namespace Bicep.Core.PrettyPrintV2
                 ? DocumentOperators.Glue(documents)
                 : DocumentOperators.Group(documents);
         }
+
+        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false) =>
+            this.Bracket(openSyntax, () => this.LayoutMany(syntaxes), closeSyntax, separator, padding, forceBreak);
+        
 
         /// <summary>
         /// Breaks the enclosing parent groups.

@@ -56,7 +56,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         /// </summary>
         public static readonly Document CommaLineOrCommaSpace = Glue(",", LineOrSpace);
 
-        public static Document Glue(params Document[] documents) => Glue(documents.AsEnumerable());
+        public static Document Glue(params Document[] documents) => new GlueDocument(documents);
 
         public static Document Glue(this IEnumerable<Document> documents) => documents is Document single ? single : new GlueDocument(documents);
 

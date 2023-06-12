@@ -426,6 +426,59 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@        "count": "[length(range(0, 10))]",
 //@        "input": "[range(0, 10)[copyIndex('incrementingNumbers')]]"
 //@      },
+var printToSingleLine1 = [
+    for i in range(0,20) : i
+//@      {
+//@        "name": "printToSingleLine1",
+//@        "count": "[length(range(0, 20))]",
+//@        "input": "[range(0, 20)[copyIndex('printToSingleLine1')]]"
+//@      },
+]
+var printToSingleLine2 = [
+    /* harmless comment */ for i in range(0,20) : i
+//@      {
+//@        "name": "printToSingleLine2",
+//@        "count": "[length(range(0, 20))]",
+//@        "input": "[range(0, 20)[copyIndex('printToSingleLine2')]]"
+//@      },
+]
+var printToSingleLine3 = [
+    for i in range(0,20) : i /* harmless comment */
+//@      {
+//@        "name": "printToSingleLine3",
+//@        "count": "[length(range(0, 20))]",
+//@        "input": "[range(0, 20)[copyIndex('printToSingleLine3')]]"
+//@      },
+]
+var forceLineBreaks1 = [
+    // force line breaks
+    for i in range(0,    30) : i
+//@      {
+//@        "name": "forceLineBreaks1",
+//@        "count": "[length(range(0, 30))]",
+//@        "input": "[range(0, 30)[copyIndex('forceLineBreaks1')]]"
+//@      },
+]
+var forceLineBreaks2 = [
+    for i in range(0,    30) : i
+//@      {
+//@        "name": "forceLineBreaks2",
+//@        "count": "[length(range(0, 30))]",
+//@        "input": "[range(0, 30)[copyIndex('forceLineBreaks2')]]"
+//@      },
+    // force line breaks
+]
+var forceLineBreaks3 = [
+    /* force line breaks */
+    for i in range(0,    30) : i
+//@      {
+//@        "name": "forceLineBreaks3",
+//@        "count": "[length(range(0, 30))]",
+//@        "input": "[range(0, 30)[copyIndex('forceLineBreaks3')]]"
+//@      },
+    /* force line breaks */
+]
+
 var loopInput = [
 //@    "loopInput": [
 //@    ],

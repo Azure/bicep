@@ -38,47 +38,33 @@ namespace Bicep.Core.Parsing
 
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
-        private static int GetOperatorPrecedence(TokenType tokenType)
+        private static int GetOperatorPrecedence(TokenType tokenType) => tokenType switch
         {
             // the absolute values are not important here
-            switch (tokenType)
-            {
-                case TokenType.Modulo:
-                case TokenType.Asterisk:
-                case TokenType.Slash:
-                    return 100;
+            TokenType.Modulo or
+            TokenType.Asterisk or
+            TokenType.Slash => 100,
 
-                case TokenType.Plus:
-                case TokenType.Minus:
-                    return 90;
+            TokenType.Plus or
+            TokenType.Minus => 90,
 
-                case TokenType.GreaterThan:
-                case TokenType.GreaterThanOrEqual:
-                case TokenType.LessThan:
-                case TokenType.LessThanOrEqual:
-                    return 80;
+            TokenType.GreaterThan
+            or TokenType.GreaterThanOrEqual
+            or TokenType.LessThan
+            or TokenType.LessThanOrEqual => 80,
 
-                case TokenType.Equals:
-                case TokenType.NotEquals:
-                case TokenType.EqualsInsensitive:
-                case TokenType.NotEqualsInsensitive:
-                    return 70;
+            TokenType.Equals
+            or TokenType.NotEquals
+            or TokenType.EqualsInsensitive
+            or TokenType.NotEqualsInsensitive => 70,
 
-                // if we add bitwise operators in the future, they should go here
+            // if we add bitwise operators in the future, they should go here
+            TokenType.LogicalAnd => 50,
+            TokenType.LogicalOr => 40,
+            TokenType.DoubleQuestion => 30,
 
-                case TokenType.LogicalAnd:
-                    return 50;
-
-                case TokenType.LogicalOr:
-                    return 40;
-
-                case TokenType.DoubleQuestion:
-                    return 30;
-
-                default:
-                    return -1;
-            }
-        }
+            _ => -1,
+        };
 
         protected static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
         {
@@ -304,6 +290,7 @@ namespace Bicep.Core.Parsing
         protected ForSyntax ForExpression(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+            var openNewlines = this.NewLines().ToImmutableArray();
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
             SyntaxBase variableSection = this.reader.Peek().Type switch
             {
@@ -319,9 +306,12 @@ namespace Bicep.Core.Parsing
                 () => this.ForBody(expressionFlags, isResourceOrModuleContext),
                 GetSuppressionFlag(colon),
                 TokenType.RightSquare, TokenType.NewLine);
+            var closeNewlines = body.IsSkipped
+                ? ImmutableArray<Token>.Empty
+                : this.NewLines().ToImmutableArray();
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
 
-            return new(openBracket, forKeyword, variableSection, inKeyword, expression, colon, body, closeBracket);
+            return new(openBracket, openNewlines, forKeyword, variableSection, inKeyword, expression, colon, body, closeNewlines, closeBracket);
         }
 
         private SyntaxBase ForVariableBlock()
@@ -1127,7 +1117,7 @@ namespace Bicep.Core.Parsing
                     return this.Object(expressionFlags);
 
                 case TokenType.LeftSquare when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
-                    return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword)
+                    return CheckKeyword(this.reader.PeekAhead(skipNewline: true), LanguageConstants.ForKeyword)
                         ? this.ForExpression(expressionFlags, isResourceOrModuleContext: false)
                         : this.Array();
 

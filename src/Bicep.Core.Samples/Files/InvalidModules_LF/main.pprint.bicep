@@ -216,22 +216,28 @@ module singleModuleForRuntimeCheck 'modulea.bicep' = {
 var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
 var moduleRuntimeCheck2 = moduleRuntimeCheck
 
-module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
-  name: moduleRuntimeCheck2
-}]
+module moduleLoopForRuntimeCheck 'modulea.bicep' = [
+  for thing in []: {
+    name: moduleRuntimeCheck2
+  }
+]
 
 var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
 var moduleRuntimeCheck4 = moduleRuntimeCheck3
-module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
-  name: moduleRuntimeCheck4
-}]
+module moduleLoopForRuntimeCheck2 'modulea.bicep' = [
+  for thing in []: {
+    name: moduleRuntimeCheck4
+  }
+]
 
-module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
-  name: concat(
-    moduleLoopForRuntimeCheck[1].outputs.stringOutputB,
-    moduleLoopForRuntimeCheck[1].outputs.stringOutputA
-  )
-}]
+module moduleLoopForRuntimeCheck3 'modulea.bicep' = [
+  for thing in []: {
+    name: concat(
+      moduleLoopForRuntimeCheck[1].outputs.stringOutputB,
+      moduleLoopForRuntimeCheck[1].outputs.stringOutputA
+    )
+  }
+]
 
 module moduleWithDuplicateName1 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
@@ -328,72 +334,86 @@ module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
-module missingLoopBodyProperties2 'modulea.bicep' = [for (x, i) in emptyArray: {}]
+module missingLoopBodyProperties2 'modulea.bicep' = [
+  for (x, i) in emptyArray: {}
+]
 
 // wrong array type
 var notAnArray = true
 module wrongArrayType 'modulea.bicep' = [for x in notAnArray: {}]
 
 // missing fewer properties
-module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {
-  name: 'hello-${x}'
-  params: {}
-}]
+module missingFewerLoopBodyProperties 'modulea.bicep' = [
+  for x in emptyArray: {
+    name: 'hello-${x}'
+    params: {}
+  }
+]
 
 // wrong parameter in the module loop
-module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray: {
-  // #completionTest(17) -> symbolsPlusX
-  name: 'hello-${x}'
-  params: {
-    arrayParam: []
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    notAThing: 'test'
+module wrongModuleParameterInLoop 'modulea.bicep' = [
+  for x in emptyArray: {
+    // #completionTest(17) -> symbolsPlusX
+    name: 'hello-${x}'
+    params: {
+      arrayParam: []
+      objParam: {}
+      stringParamA: 'test'
+      stringParamB: 'test'
+      notAThing: 'test'
+    }
   }
-}]
-module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray: if (true) {
-  // #completionTest(17) -> symbolsPlusX_if
-  name: 'hello-${x}'
-  params: {
-    arrayParam: []
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    notAThing: 'test'
+]
+module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [
+  for x in emptyArray: if (true) {
+    // #completionTest(17) -> symbolsPlusX_if
+    name: 'hello-${x}'
+    params: {
+      arrayParam: []
+      objParam: {}
+      stringParamA: 'test'
+      stringParamB: 'test'
+      notAThing: 'test'
+    }
   }
-}]
-module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x, i) in emptyArray: {
-  name: 'hello-${x}'
-  params: {
-    arrayParam: [i]
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    notAThing: 'test'
+]
+module wrongModuleParameterInLoop2 'modulea.bicep' = [
+  for (x, i) in emptyArray: {
+    name: 'hello-${x}'
+    params: {
+      arrayParam: [i]
+      objParam: {}
+      stringParamA: 'test'
+      stringParamB: 'test'
+      notAThing: 'test'
+    }
   }
-}]
+]
 
-module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x, i) in emptyArray: if (true) {
-  name: 'hello-${x}'
-  params: {
-    // #completionTest(0,1,2) -> moduleAParams
+module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [
+  for (x, i) in emptyArray: if (true) {
+    name: 'hello-${x}'
+    params: {
+      // #completionTest(0,1,2) -> moduleAParams
+    }
   }
-}]
+]
 
 // #completionTest(100) -> moduleAOutputs
 var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
-module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
-  name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
-  params: {
-    objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
+module nonexistentArrays 'modulea.bicep' = [
+  for evenMoreDuplicates in alsoDoesNotExist: {
+    name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
+    params: {
+      objParam: {}
+      stringParamB: 'test'
+      arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
+    }
   }
-}]
+]
 
 output directRefToCollectionViaOutput array = nonexistentArrays
 
@@ -415,25 +435,29 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if (true)
   }
 }
 
-module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
-  name: 'hello3'
-  params: {
-    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-    objParam: {}
-    stringParamB: ''
+module directRefToCollectionViaLoopBody 'modulea.bicep' = [
+  for test in []: {
+    name: 'hello3'
+    params: {
+      arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+      objParam: {}
+      stringParamB: ''
+    }
   }
-}]
+]
 
-module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
-  name: 'hello4'
-  params: {
-    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-    objParam: {}
-    stringParamB: ''
-    dependsOn: [nonexistentArrays]
+module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [
+  for test in []: {
+    name: 'hello4'
+    params: {
+      arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+      objParam: {}
+      stringParamB: ''
+      dependsOn: [nonexistentArrays]
+    }
+    dependsOn: []
   }
-  dependsOn: []
-}]
+]
 
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
@@ -453,11 +477,13 @@ module anyTypeInScopeConditional 'empty.bicep' = if (false) {
   scope: any(42)
 }
 
-module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
-  dependsOn: [any('s')]
+module anyTypeInScopeLoop 'empty.bicep' = [
+  for thing in []: {
+    dependsOn: [any('s')]
 
-  scope: any(42)
-}]
+    scope: any(42)
+  }
+]
 
 // Key Vault Secret Reference
 
