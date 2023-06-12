@@ -987,7 +987,6 @@ param foo|bar = true
         private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectory)
         {
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
             features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
 
             var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();

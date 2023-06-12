@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Cli.Logging;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
@@ -26,7 +28,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [DataRow(40)]
         [DataRow(80)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Print_DifferentWidth_OptimizesLayoutAccordingly(int width)
+        public void Print_VariousWidths_OptimizesLayoutAccordingly(int width)
         {
             var dataSet = DataSets.PrettyPrint_LF;
             var options = new PrettyPrinterV2Options(Width: width);
@@ -50,15 +52,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
-            var program = ParserHelper.Parse(dataSet.Bicep, out var lexingErrorLookup, out var parsingErrorLookup);
-            var options = PrettyPrinterV2Options.Default;
-
-            var writer = new StringWriter();
-            var context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
-
-            PrettyPrinterV2.PrintTo(writer, context);
-            var output = writer.ToString();
-
+            var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
             var outputFileName = $"main.pprint.bicep";
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
 
@@ -70,21 +64,38 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
                 actualLocation: outputFile);
 
-            AssertConsistentOutput(output, options);
+            AssertConsistentOutput(output, PrettyPrinterV2Options.Default);
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+
+            data.PrettyPrinted.WriteToOutputFolder(output);
+            data.PrettyPrinted.ShouldHaveExpectedValue();
+
+            AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
         }
 
         private static void AssertConsistentOutput(string formatted, PrettyPrinterV2Options options) =>
             Print(formatted, options).Should().Be(formatted);
 
-        private static string Print(string programText, PrettyPrinterV2Options options)
+        private static void AssertConsistentParamsOutput(string formatted, PrettyPrinterV2Options options) =>
+            Print(formatted, options, isParamFile: true).Should().Be(formatted);
+
+        private static string Print(string programText, PrettyPrinterV2Options options, bool isParamFile = false)
         {
-            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var program = isParamFile
+                ? ParserHelper.ParamsParse(programText, out var lexingErrorLookup, out var parsingErrorLookup)
+                : ParserHelper.Parse(programText, out lexingErrorLookup, out parsingErrorLookup);
+
             var context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
-            var writer = new StringWriter();
 
-            PrettyPrinterV2.PrintTo(writer, context);
-
-            return writer.ToString();
+            return PrettyPrinterV2.Print(context);
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets

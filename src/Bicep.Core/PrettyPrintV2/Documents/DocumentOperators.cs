@@ -3,6 +3,7 @@
 
 using Azure.Deployments.Core.Extensions;
 using Azure.ResourceManager.Resources.Models;
+using JetBrains.Annotations;
 using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
 using System;
@@ -29,6 +30,11 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         /// Prints a newline that is always included in the output and doesn't indent the next line.
         /// </summary>
         public static readonly LineDocument HardLine = new(null);
+
+        /// <summary>
+        /// A newline placeholder that may or may not be printed.
+        /// </summary>
+        public static readonly LineDocument SoftLine = new(null);
 
         /// <summary>
         /// Prints a newline and indent the next line. If the enclosing group fits on one line, the newline will be replaced with an empty string.
@@ -87,7 +93,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static IEnumerable<Document> SeparatedByNewline(this IEnumerable<Document> documents) => documents.SeparateBy(HardLine);
 
-        public static IEnumerable<Document> TrimHardLine(this IEnumerable<Document> documents)
+        public static IEnumerable<Document> TrimNewlines(this IEnumerable<Document> documents)
         {
             if (!documents.Any())
             {
@@ -99,7 +105,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             var start = 0;
             var end = documentArray.Length - 1;
 
-            while (start <= end && documentArray[start] == HardLine)
+            while (start <= end && documentArray[start] is LineDocument)
             {
                 start++;
             }
@@ -109,7 +115,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
                 return Empty;
             }
 
-            while (documentArray[end] == HardLine)
+            while (documentArray[end] is LineDocument)
             {
                 end--;
             }
@@ -122,28 +128,62 @@ namespace Bicep.Core.PrettyPrintV2.Documents
             return documentArray[start..(end + 1)];
         }
 
-        public static IEnumerable<Document> CollapseHardLine(this IEnumerable<Document> documents, Action? onCollapse = null)
+        public static IEnumerable<Document> CollapseNewlines(this IEnumerable<Document> documents, Action? onHardLine = null)
         {
             using var enumerator = documents.GetEnumerator();
 
-            if (enumerator.MoveNext())
+            if (!enumerator.MoveNext())
             {
-                yield return enumerator.Current;
+                yield break;
             }
 
-            var previous = enumerator.Current;
+            var current = enumerator.Current;
+
+            if (current != SoftLine)
+            {
+                yield return current;
+
+                if (current == HardLine)
+                {
+                    onHardLine?.Invoke();
+                }
+            }
+
+            var previous = current;
 
             while (enumerator.MoveNext())
             {
-                if (previous == HardLine)
-                {
-                    onCollapse?.Invoke();
-                }
+                current = enumerator.Current;
 
-                if (enumerator.Current != HardLine || enumerator.Current != previous)
+                if (current == SoftLine)
                 {
-                    yield return enumerator.Current;
-                    previous = enumerator.Current;
+                    if (previous == SoftLine)
+                    {
+                        // Collapse consecutive SoftLines into a HardLine.
+                        yield return HardLine;
+
+                        onHardLine?.Invoke();
+                        previous = HardLine;
+                    }
+
+                    previous = SoftLine;
+                }
+                else if (current == HardLine)
+                {
+                    if (previous != HardLine)
+                    {
+                        yield return HardLine;
+
+                        onHardLine?.Invoke();
+                    }
+
+                    previous = HardLine;
+                }
+                else
+                {
+                    yield return current;
+
+                    previous = current;
                 }
             }
         }

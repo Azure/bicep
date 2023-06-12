@@ -38,8 +38,8 @@ namespace Bicep.Core.PrettyPrintV2
 
             var lineBreakerCountBefore = this.lineBreakerCount;
             var items = this.LayoutMany(syntaxes)
-                .TrimHardLine()
-                .CollapseHardLine(onCollapse: () => this.lineBreakerCount++)
+                .TrimNewlines()
+                .CollapseNewlines(onHardLine: this.ForceBreak)
                 .Concat(danglingComments)
                 .SeparateBy(separator);
 

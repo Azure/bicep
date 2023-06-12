@@ -11,12 +11,7 @@
       "title": "Diagnostic Level",
       "description": "Type of diagnostic to display, most rules default to warning",
       "type": "string",
-      "enum": [
-        "off",
-        "info",
-        "warning",
-        "error"
-      ]
+      "enum": ["off", "info", "warning", "error"]
     },
     "rule-def-level-warning": {
       "type": "object",
@@ -28,9 +23,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-error": {
       "type": "object",
@@ -42,9 +35,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-off": {
       "type": "object",
@@ -56,17 +47,12 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "resourceManagerEndpoint",
-        "activeDirectoryAuthority"
-      ],
+      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
@@ -96,10 +82,7 @@
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "subscription",
-        "resourceGroup"
-      ],
+      "required": ["subscription", "resourceGroup"],
       "properties": {
         "subscription": {
           "title": "Subscription ID",
@@ -120,9 +103,7 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "registry"
-      ],
+      "required": ["registry"],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -147,20 +128,14 @@
       "title": "Cloud",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "currentProfile"
-      ],
+      "required": ["currentProfile"],
       "properties": {
         "currentProfile": {
           "title": "Current Profile",
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": [
-                "AzureCloud",
-                "AzureChinaCloud",
-                "AzureUSGovernment"
-              ]
+              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
             },
             {
               "type": "string"
@@ -357,9 +332,7 @@
                         "excludedhosts": {
                           "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
                           "type": "array",
-                          "default": [
-                            "schema.management.azure.com"
-                          ],
+                          "default": ["schema.management.azure.com"],
                           "items": {
                             "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
                             "title": "Items",
@@ -625,6 +598,37 @@
         },
         "userDefinedFunctions": {
           "type": "boolean"
+        },
+        "prettyPrinting": {
+          "type": "boolean"
+        }
+      }
+    },
+    "formatting": {
+      "type": "object",
+      "description": "The Bicep format settings",
+      "properties": {
+        "indentKind": {
+          "type": "string",
+          "description": "The indentation kind",
+          "enum": ["Space", "Tab"]
+        },
+        "newlineKind": {
+          "type": "string",
+          "description": "The newline kind",
+          "enum": ["LF", "CRLF", "CR"]
+        },
+        "indentSize": {
+          "type": "integer",
+          "description": "The indentation size (applicable when \"indentKind\" is set to \"Space\")"
+        },
+        "width": {
+          "type": "string",
+          "description": "The maximum number of characters that should appear on a line"
+        },
+        "insertFinalNewline": {
+          "type": "boolean",
+          "description": ""
         }
       }
     }
