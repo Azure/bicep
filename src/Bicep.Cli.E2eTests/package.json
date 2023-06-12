@@ -7,7 +7,7 @@
     "@types/minimist": "^1.2.2",
     "@types/rimraf": "^4.0.5",
     "@types/uuid": "^9.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/eslint-plugin": "^5.59.9",
     "@typescript-eslint/parser": "^5.59.8",
     "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
