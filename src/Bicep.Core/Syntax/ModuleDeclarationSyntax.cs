@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -10,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class ModuleDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value)
+        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
@@ -25,6 +26,7 @@ namespace Bicep.Core.Syntax
             this.Name = name;
             this.Path = path;
             this.Assignment = assignment;
+            this.Newlines = newlines;
             this.Value = value;
         }
 
@@ -35,6 +37,8 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Path { get; }
 
         public SyntaxBase Assignment { get; }
+
+        public ImmutableArray<Token> Newlines { get; }
 
         public SyntaxBase Value { get; }
 

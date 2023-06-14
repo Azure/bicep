@@ -86,18 +86,6 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.CloseSquare,
                 separator: LineOrEmpty,
                 padding: LineOrEmpty);
-
-            //return this.Glue(
-            //    syntax.OpenSquare,
-            //    this.Spread(
-            //        syntax.ForKeyword,
-            //        variableSection,
-            //        syntax.InKeyword,
-            //        this.Glue(
-            //            syntax.Expression,
-            //            syntax.Colon),
-            //        syntax.Body),
-            //    syntax.CloseSquare);
         }
 
         private IEnumerable<Document> LayoutFunctionCallSyntax(FunctionCallSyntax syntax) =>
@@ -164,13 +152,14 @@ namespace Bicep.Core.PrettyPrintV2
             this.LayoutMany(syntax.LeadingNodes);
 
         private IEnumerable<Document> LayoutModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
-            this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.Spread(
-                    syntax.Keyword,
-                    syntax.Name,
-                    syntax.Path,
-                    syntax.Assignment,
-                    syntax.Value));
+            this.LayoutResourceOrModuleDeclarationSyntax(
+                syntax.LeadingNodes,
+                syntax.Keyword,
+                syntax.Name,
+                syntax.Path,
+                syntax.Assignment,
+                syntax.Newlines,
+                syntax.Value);
 
         private IEnumerable<Document> LayoutNonNullAssertionSyntax(NonNullAssertionSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.AssertionOperator);
@@ -273,13 +262,48 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.ResourceName);
 
         private IEnumerable<Document> LayoutResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) =>
-            this.LayoutLeadingNodes(syntax.LeadingNodes)
+            this.LayoutResourceOrModuleDeclarationSyntax(
+                syntax.LeadingNodes,
+                syntax.Keyword,
+                syntax.Name,
+                syntax.Type,
+                syntax.Assignment,
+                syntax.Newlines,
+                syntax.Value);
+
+        private IEnumerable<Document> LayoutResourceOrModuleDeclarationSyntax(
+            IEnumerable<SyntaxBase> leadingNodes,
+            SyntaxBase keyword,
+            SyntaxBase name,
+            SyntaxBase typeOrPath,
+            SyntaxBase assignment,
+            IEnumerable<SyntaxBase> newlines,
+            SyntaxBase value)
+        {
+            if (value is IfConditionSyntax)
+            {
+                var valueAssignment = this.Group(() =>
+                    this.LayoutMany(newlines.Prepend(assignment).Append(value))
+                        .Where(x => x is not LineDocument)
+                        .SeparateBy(LineOrSpace)
+                        .Indent());
+
+                return this.LayoutLeadingNodes(leadingNodes)
+                    .Concat(this.Spread(
+                        keyword,
+                        name,
+                        typeOrPath,
+                        valueAssignment));
+            }
+
+            return this.LayoutLeadingNodes(leadingNodes)
                 .Concat(this.Spread(
-                    syntax.Keyword,
-                    syntax.Name,
-                    syntax.Type,
-                    syntax.Assignment,
-                    syntax.Value));
+                    keyword,
+                    name,
+                    typeOrPath,
+                    assignment,
+                    value));
+        }
 
         private IEnumerable<Document> LayoutResourceTypeSyntax(ResourceTypeSyntax syntax) =>
             syntax.Type is not null

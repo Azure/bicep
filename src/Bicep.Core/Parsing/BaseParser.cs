@@ -405,7 +405,8 @@ namespace Bicep.Core.Parsing
 
         private ParenthesizedExpressionSyntax GetParenthesizedExpressionSyntax(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
         {
-            var bodyExpression = expressionsOrCommas.Length switch {
+            var bodyExpression = expressionsOrCommas.Length switch
+            {
                 0 => SkipEmpty(openParen.Span.GetEndPosition(), x => x.ParenthesesMustHaveExactlyOneItem()),
                 1 when expressionsOrCommas[0] is Token token => Skip(token.AsEnumerable()),
                 1 => expressionsOrCommas[0],
@@ -417,7 +418,8 @@ namespace Bicep.Core.Parsing
 
         private VariableBlockSyntax GetVariableBlock(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
         {
-            var rewritten = expressionsOrCommas.Select(item => item switch {
+            var rewritten = expressionsOrCommas.Select(item => item switch
+            {
                 VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
                 Token { Type: TokenType.Comma } => item,
                 SkippedTriviaSyntax => item,
@@ -930,7 +932,7 @@ namespace Bicep.Core.Parsing
             return NewLine();
         }
 
-        private IEnumerable<Token> NewLines()
+        protected IEnumerable<Token> NewLines()
         {
             while (Check(TokenType.NewLine))
             {
@@ -1117,7 +1119,7 @@ namespace Bicep.Core.Parsing
                     return this.Object(expressionFlags);
 
                 case TokenType.LeftSquare when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
-                    return CheckKeyword(this.reader.PeekAhead(skipNewline: true), LanguageConstants.ForKeyword)
+                    return CheckKeyword(this.reader.PeekAhead(skipNewlines: true), LanguageConstants.ForKeyword)
                         ? this.ForExpression(expressionFlags, isResourceOrModuleContext: false)
                         : this.Array();
 
@@ -1254,7 +1256,7 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase Type(bool allowOptionalResourceType)
         {
-            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
+            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is { } resourceKeyword)
             {
                 var type = this.WithRecoveryNullable(
                     () =>
@@ -1294,7 +1296,8 @@ namespace Bicep.Core.Parsing
                     if (Check(TokenType.NewLine))
                     {
                         elementAndSeparators.Add(SkipEmpty(b => b.ExpectedTypeLiteral()));
-                    } else
+                    }
+                    else
                     {
                         elementAndSeparators.Add(WithRecovery(() => new UnionTypeMemberSyntax(UnaryTypeExpression()), RecoveryFlags.None));
                     }

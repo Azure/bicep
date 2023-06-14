@@ -27,16 +27,26 @@ namespace Bicep.Core.Parsing
             return this.Tokens[Position - 1];
         }
 
-        public Token Peek()
+        public Token Peek(bool skipNewlines = false)
         {
-            return Tokens[Position];
+            var peekPosition = this.Position;
+
+            if (skipNewlines)
+            {
+                while (this.AtPosition(peekPosition).IsOf(TokenType.NewLine))
+                {
+                    peekPosition++;
+                }
+            }
+
+            return Tokens[peekPosition];
         }
 
-        public Token? PeekAhead(int charCount = 1, bool skipNewline = false)
+        public Token? PeekAhead(int charCount = 1, bool skipNewlines = false)
         {
             var effectivePosition = this.Position + charCount;
 
-            if (skipNewline)
+            if (skipNewlines)
             {
                 while (this.AtPosition(effectivePosition).IsOf(TokenType.NewLine))
                 {

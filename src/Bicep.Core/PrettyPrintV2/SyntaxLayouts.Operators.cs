@@ -29,6 +29,17 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Spread();
 
+        private Document Group(Func<IEnumerable<Document>> itemsLayoutSpecifier)
+        {
+            var lineBreakerCountBefore = this.lineBreakerCount;
+            var items = itemsLayoutSpecifier();
+            var lineBreakerCountAfter = this.lineBreakerCount;
+
+            return lineBreakerCountAfter > lineBreakerCountBefore
+                ? DocumentOperators.Glue(items)
+                : DocumentOperators.Group(items);
+        }
+
         private Document Bracket(SyntaxBase openSyntax, Func<IEnumerable<Document>> itemsLayoutSpecifier, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {
             var openBracket = this.LayoutSingle(openSyntax);
@@ -72,7 +83,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false) =>
             this.Bracket(openSyntax, () => this.LayoutMany(syntaxes), closeSyntax, separator, padding, forceBreak);
-        
+
 
         /// <summary>
         /// Breaks the enclosing parent groups.

@@ -28,7 +28,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if ({ 'a': b }.a == 'foo') {}
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
@@ -56,24 +57,21 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 }
 
 // invalid condition type
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (123) {
-  name: 'foo'
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if (123) {
+    name: 'foo'
+  }
 
 // runtime functions are no allowed in resource conditions
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference(
-  'Micorosft.Management/managementGroups/MG',
-  '2020-05-01'
-).name == 'something') {
-  name: 'foo'
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+    name: 'foo'
+  }
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys(
-  'foo',
-  '2020-05-01'
-).bar == true) {
-  name: 'foo'
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if (listKeys('foo', '2020-05-01').bar == true) {
+    name: 'foo'
+  }
 
 // duplicate property at the top level
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -441,9 +439,10 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 /*
 Discriminator key missing (conditional)
 */
-resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (true) {
-  // #completionTest(0,1,2) -> discriminatorProperty
-}
+resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' =
+  if (true) {
+    // #completionTest(0,1,2) -> discriminatorProperty
+  }
 
 /*
 Discriminator key missing (loop)
@@ -553,14 +552,15 @@ var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 /*
 Discriminator value set 1 (conditional)
 */
-resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (2 == 3) {
-  kind: 'AzureCLI'
-  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' =
+  if (2 == 3) {
+    kind: 'AzureCLI'
+    // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
-  properties: {
-    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    properties: {
+      // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    }
   }
-}
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
 // #completionTest(81) -> cliPropertyAccess
@@ -773,15 +773,14 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 /* 
 Nested discriminator missing key (conditional)
 */
-resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if (bool(
-  1
-)) {
-  name: 'test'
-  location: 'l'
-  properties: {
-    //createMode: 'Default'
+resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' =
+  if (bool(1)) {
+    name: 'test'
+    location: 'l'
+    properties: {
+      //createMode: 'Default'
+    }
   }
-}
 // #completionTest(96) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
 // #completionTest(98) -> createMode
@@ -855,13 +854,14 @@ var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 /*
 Nested discriminator (conditional)
 */
-resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if (true) {
-  name: 'test'
-  location: 'l'
-  properties: {
-    createMode: 'Default'
+resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' =
+  if (true) {
+    name: 'test'
+    location: 'l'
+    properties: {
+      createMode: 'Default'
+    }
   }
-}
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
 // #completionTest(79) -> defaultCreateModeProperties
@@ -923,13 +923,14 @@ var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['prop
 var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
 
 // sample resource to validate completions on the next declarations
-resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
-  location: 'test'
-  name: 'test'
-  properties: {
-    additionalCapabilities: {}
+resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' =
+  if (true) {
+    location: 'test'
+    name: 'test'
+    properties: {
+      additionalCapabilities: {}
+    }
   }
-}
 // this validates that we can get nested property access completions on a conditional resource
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
@@ -1265,13 +1266,14 @@ resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' 
   }
 }
 
-resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if (true) {
-  name: 'myZone3'
-  location: 'global'
-  properties: {
-    registrationVirtualNetworks: concat(premiumStorages, stuffs)
+resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' =
+  if (true) {
+    name: 'myZone3'
+    location: 'global'
+    properties: {
+      registrationVirtualNetworks: concat(premiumStorages, stuffs)
+    }
   }
-}
 
 @batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [
@@ -1460,9 +1462,10 @@ resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
   scope: any(invalidExistingLocationRef)
 }
 
-resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if (true) {
-  scope: any(invalidExistingLocationRef)
-}
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' =
+  if (true) {
+    scope: any(invalidExistingLocationRef)
+  }
 
 resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' = {
   parent: any('')

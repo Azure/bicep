@@ -80,7 +80,7 @@ namespace Bicep.Core.Syntax
 
         public LocalVariableSyntax? IndexVariable => this.VariableSection switch
         {
-            LocalVariableSyntax itemVariable => null,
+            LocalVariableSyntax => null,
             VariableBlockSyntax block => block.Arguments.Skip(1).FirstOrDefault(),
             SkippedTriviaSyntax => null,
             _ => throw new NotImplementedException($"Unexpected loop variable section type '{this.VariableSection.GetType().Name}'.")

@@ -66,6 +66,8 @@ namespace Bicep.Core.PrettyPrintV2.Documents
 
         public static GroupDocument Group(params Document[] documents) => new(documents);
 
+        public static GroupDocument Group(IEnumerable<Document> documents) => new(documents);
+
         public static IEnumerable<Document> SeparateBy(this IEnumerable<Document> documents, Document separator)
         {
             using var enumerator = documents.GetEnumerator();

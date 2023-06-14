@@ -27,12 +27,13 @@ module modB './child/moduleb.bicep' = {
 }
 
 @sys.description('this is just module b with a condition')
-module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
-  name: 'modBWithCondition'
-  params: {
-    location: 'East US'
+module modBWithCondition './child/moduleb.bicep' =
+  if (1 + 1 == 2) {
+    name: 'modBWithCondition'
+    params: {
+      location: 'East US'
+    }
   }
-}
 
 module modC './child/modulec.json' = {
   name: 'modC'
@@ -41,12 +42,13 @@ module modC './child/modulec.json' = {
   }
 }
 
-module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
-  name: 'modCWithCondition'
-  params: {
-    location: 'East US'
+module modCWithCondition './child/modulec.json' =
+  if (2 - 1 == 1) {
+    name: 'modCWithCondition'
+    params: {
+      location: 'East US'
+    }
   }
-}
 
 module optionalWithNoParams1 './child/optionalParams.bicep' = {
   name: 'optionalWithNoParams1'

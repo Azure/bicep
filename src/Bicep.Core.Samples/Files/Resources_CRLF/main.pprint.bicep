@@ -220,17 +220,18 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 param shouldDeployVm bool = true
 
 @sys.description('this is vmWithCondition')
-resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
-  name: 'vmName'
-  location: 'westus'
-  properties: {
-    osProfile: {
-      windowsConfiguration: {
-        enableAutomaticUpdates: true
+resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' =
+  if (shouldDeployVm) {
+    name: 'vmName'
+    location: 'westus'
+    properties: {
+      osProfile: {
+        windowsConfiguration: {
+          enableAutomaticUpdates: true
+        }
       }
     }
   }
-}
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
   name: 'extension'

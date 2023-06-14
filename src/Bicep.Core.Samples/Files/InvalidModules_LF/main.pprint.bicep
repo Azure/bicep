@@ -60,19 +60,16 @@ module modANoName './modulea.bicep' = {
   // #completionTest(0) -> moduleATopLevelProperties
 }
 
-module modANoNameWithCondition './modulea.bicep' = if (true) {
-  // #completionTest(0) -> moduleAWithConditionTopLevelProperties
-}
+module modANoNameWithCondition './modulea.bicep' =
+  if (true) {
+    // #completionTest(0) -> moduleAWithConditionTopLevelProperties
+  }
 
-module modWithReferenceInCondition './main.bicep' = if (reference(
-  'Micorosft.Management/managementGroups/MG',
-  '2020-05-01'
-).name == 'something') {}
+module modWithReferenceInCondition './main.bicep' =
+  if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {}
 
-module modWithListKeysInCondition './main.bicep' = if (listKeys(
-  'foo',
-  '2020-05-01'
-).bar == true) {}
+module modWithListKeysInCondition './main.bicep' =
+  if (listKeys('foo', '2020-05-01').bar == true) {}
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {}
 
@@ -81,10 +78,11 @@ module modANoInputs './modulea.bicep' = {
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
 }
 
-module modANoInputsWithCondition './modulea.bicep' = if (length(['foo']) == 1) {
-  name: 'modANoInputs'
-  // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
-}
+module modANoInputsWithCondition './modulea.bicep' =
+  if (length(['foo']) == 1) {
+    name: 'modANoInputs'
+    // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
+  }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
@@ -93,12 +91,13 @@ module modAEmptyInputs './modulea.bicep' = {
   }
 }
 
-module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
-  name: 'modANoInputs'
-  params: {
-    // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
+module modAEmptyInputsWithCondition './modulea.bicep' =
+  if (1 + 2 == 2) {
+    name: 'modANoInputs'
+    params: {
+      // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
+    }
   }
-}
 
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
@@ -426,14 +425,15 @@ module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   }
 }
 
-module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if (true) {
-  name: 'hello2'
-  params: {
-    arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-    objParam: {}
-    stringParamB: ''
+module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' =
+  if (true) {
+    name: 'hello2'
+    params: {
+      arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
+      objParam: {}
+      stringParamB: ''
+    }
   }
-}
 
 module directRefToCollectionViaLoopBody 'modulea.bicep' = [
   for test in []: {
@@ -471,11 +471,12 @@ module anyTypeInScope 'empty.bicep' = {
   scope: any(42)
 }
 
-module anyTypeInScopeConditional 'empty.bicep' = if (false) {
-  dependsOn: [any('s')]
+module anyTypeInScopeConditional 'empty.bicep' =
+  if (false) {
+    dependsOn: [any('s')]
 
-  scope: any(42)
-}
+    scope: any(42)
+  }
 
 module anyTypeInScopeLoop 'empty.bicep' = [
   for thing in []: {
