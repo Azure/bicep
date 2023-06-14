@@ -549,6 +549,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedObjectDeclarationsUnsupported());
             }
 
+            HashSet<string> propertyNamesEncountered = new();
             List<TypeProperty> properties = new();
             List<ErrorDiagnostic> diagnostics = new();
             ObjectTypeNameBuilder nameBuilder = new();
@@ -560,6 +561,14 @@ namespace Bicep.Core.TypeSystem
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
+                    if (propertyNamesEncountered.Contains(propertyName))
+                    {
+                        // if there is already a property with this name declared, log an error and move on
+                        diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).PropertyMultipleDeclarations(propertyName));
+                        continue;
+                    }
+                    propertyNamesEncountered.Add(propertyName);
+
                     properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, DescriptionHelper.TryGetFromDecorator(binder, typeManager, prop)));
                     nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 } else
