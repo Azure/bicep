@@ -83,9 +83,9 @@ namespace Bicep.LanguageServer.Handlers
             // with multiple borders
             switch (result.Symbol)
             {
-                case ImportedNamespaceSymbol import:
+                case ProviderNamespaceSymbol provider:
                     return AsMarkdown(CodeBlockWithDescription(
-                        $"import {import.Name}", TryGetDescriptionMarkdown(result, import)));
+                        $"import {provider.Name}", TryGetDescriptionMarkdown(result, provider)));
 
                 case MetadataSymbol metadata:
                     return AsMarkdown(CodeBlockWithDescription(

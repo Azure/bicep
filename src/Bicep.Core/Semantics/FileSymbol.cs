@@ -37,7 +37,7 @@ namespace Bicep.Core.Semantics
 
             // TODO: Avoid looping 10 times?
             this.DeclarationsBySyntax = fileScope.Declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
-            this.ImportDeclarations = fileScope.Declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
+            this.ProviderDeclarations = fileScope.Declarations.OfType<ProviderNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = fileScope.Declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = fileScope.Declarations.OfType<ParameterSymbol>().ToImmutableArray();
             this.TypeDeclarations = fileScope.Declarations.OfType<TypeAliasSymbol>().ToImmutableArray();
@@ -56,7 +56,7 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<Symbol> Descendants =>
             this.NamespaceResolver.BuiltIns.Values
-            .Concat<Symbol>(this.ImportDeclarations)
+            .Concat<Symbol>(this.ProviderDeclarations)
             .Concat(this.LocalScopes)
             .Concat(this.MetadataDeclarations)
             .Concat(this.ParameterDeclarations)
@@ -71,7 +71,7 @@ namespace Bicep.Core.Semantics
 
         public IEnumerable<Symbol> Namespaces =>
             this.NamespaceResolver.BuiltIns.Values
-            .Concat<Symbol>(this.ImportDeclarations);
+            .Concat<Symbol>(this.ProviderDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
 
@@ -87,7 +87,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<SyntaxBase, DeclaredSymbol> DeclarationsBySyntax { get; }
 
-        public ImmutableArray<ImportedNamespaceSymbol> ImportDeclarations { get; }
+        public ImmutableArray<ProviderNamespaceSymbol> ProviderDeclarations { get; }
 
         public ImmutableArray<MetadataSymbol> MetadataDeclarations { get; }
 
@@ -213,7 +213,7 @@ namespace Bicep.Core.Semantics
                 // so we don't need to look at other levels
                 var outputDeclarations = scope.Declarations.OfType<OutputSymbol>();
                 var metadataDeclarations = scope.Declarations.OfType<MetadataSymbol>();
-                var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
+                var namespaceDeclarations = scope.Declarations.OfType<ProviderNamespaceSymbol>();
                 var referenceableDeclarations = scope.Declarations.Where(decl => decl.CanBeReferenced());
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
@@ -254,9 +254,9 @@ namespace Bicep.Core.Semantics
                 .Where(group => group.Count() > 1)
                 .SelectMany(group => group);
 
-            private static IEnumerable<ImportedNamespaceSymbol> FindDuplicateNamespaceImports(IEnumerable<ImportedNamespaceSymbol> symbols)
+            private static IEnumerable<ProviderNamespaceSymbol> FindDuplicateNamespaceImports(IEnumerable<ProviderNamespaceSymbol> symbols)
             {
-                var typeBySymbol = new Dictionary<ImportedNamespaceSymbol, NamespaceType>();
+                var typeBySymbol = new Dictionary<ProviderNamespaceSymbol, NamespaceType>();
 
                 foreach (var symbol in symbols)
                 {

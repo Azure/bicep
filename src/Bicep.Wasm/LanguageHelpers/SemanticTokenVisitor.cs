@@ -293,7 +293,7 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitTargetScopeSyntax(syntax);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.SpecificationString);
@@ -301,13 +301,13 @@ namespace Bicep.Wasm.LanguageHelpers
             this.Visit(syntax.AsClause);
         }
 
-        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.Config);
         }
-        
-        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+
+        public override void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Alias, SemanticTokenType.Variable);

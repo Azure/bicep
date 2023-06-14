@@ -132,7 +132,7 @@ namespace Bicep.Core.Semantics
             base.VisitTestDeclarationSyntax(syntax);
 
             var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
-            DeclareSymbol(symbol);            
+            DeclareSymbol(symbol);
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -151,9 +151,9 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
-            base.VisitImportDeclarationSyntax(syntax);
+            base.VisitProviderDeclarationSyntax(syntax);
 
             TypeSymbol declaredType;
             if (!features.ExtensibilityEnabled)
@@ -179,7 +179,7 @@ namespace Bicep.Core.Semantics
                 declaredType = namespaceType;
             }
 
-            var symbol = new ImportedNamespaceSymbol(this.context, syntax, declaredType);
+            var symbol = new ProviderNamespaceSymbol(this.context, syntax, declaredType);
             DeclareSymbol(symbol);
         }
 

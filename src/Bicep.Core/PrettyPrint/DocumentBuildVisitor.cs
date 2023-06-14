@@ -97,7 +97,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
                 this.VisitNodes(syntax.LeadingNodes);

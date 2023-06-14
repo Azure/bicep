@@ -158,7 +158,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Description);
     }
 
-    public void VisitDeclaredImportExpression(DeclaredImportExpression expression)
+    public void VisitDeclaredProviderExpression(DeclaredProviderExpression expression)
     {
         VisitDescribableExpression(expression);
         Visit(expression.Config);
@@ -322,7 +322,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     public void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);
-        Visit(expression.Imports);
+        Visit(expression.Providers);
         Visit(expression.Types);
         Visit(expression.Parameters);
         Visit(expression.Variables);

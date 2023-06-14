@@ -112,7 +112,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(emitter, program.Variables);
 
-            this.EmitImports(emitter, program.Imports);
+            this.EmitProviders(emitter, program.Providers);
 
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
@@ -569,27 +569,27 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitImports(ExpressionEmitter emitter, ImmutableArray<DeclaredImportExpression> imports)
+        private void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
         {
-            if (!imports.Any())
+            if (!providers.Any())
             {
                 return;
             }
 
             emitter.EmitObjectProperty("imports", () => {
-                foreach (var import in imports)
+                foreach (var provider in providers)
                 {
-                    var settings = import.NamespaceType.Settings;
+                    var settings = provider.NamespaceType.Settings;
 
-                    emitter.EmitObjectProperty(import.Name, () =>
+                    emitter.EmitObjectProperty(provider.Name, () =>
                     {
                         emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
-                        if (import.Config is not null)
+                        if (provider.Config is not null)
                         {
-                            emitter.EmitProperty("config", import.Config);
+                            emitter.EmitProperty("config", provider.Config);
                         }
-                    }, import.SourceSyntax);
+                    }, provider.SourceSyntax);
                 }
             });
         }
@@ -663,7 +663,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("existing", new BooleanLiteralExpression(null, true));
                 }
 
-                var importSymbol = Context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                var importSymbol = Context.SemanticModel.Root.ProviderDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (importSymbol is not null)
                 {
                     emitter.EmitProperty("import", importSymbol.Name);

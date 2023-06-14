@@ -165,13 +165,13 @@ public class ExpressionBuilder
                     metadata.Name.IdentifierName,
                     ConvertWithoutLowering(metadata.Value)));
 
-            case ImportDeclarationSyntax import:
-                var symbol = GetDeclaredSymbol<ImportedNamespaceSymbol>(import);
-                return EvaluateDecorators(import, new DeclaredImportExpression(
-                    import,
+            case ProviderDeclarationSyntax provider:
+                var symbol = GetDeclaredSymbol<ProviderNamespaceSymbol>(provider);
+                return EvaluateDecorators(provider, new DeclaredProviderExpression(
+                    provider,
                     symbol.Name,
-                    GetTypeInfo<NamespaceType>(import),
-                    import.Config is not null ? ConvertWithoutLowering(import.Config) : null));
+                    GetTypeInfo<NamespaceType>(provider),
+                    provider.Config is not null ? ConvertWithoutLowering(provider.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
                 return EvaluateDecorators(parameter, new DeclaredParameterExpression(
@@ -357,9 +357,9 @@ public class ExpressionBuilder
             .OfType<DeclaredMetadataExpression>()
             .ToImmutableArray();
 
-        var imports = Context.SemanticModel.Root.ImportDeclarations
+        var providers = Context.SemanticModel.Root.ProviderDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-            .OfType<DeclaredImportExpression>()
+            .OfType<DeclaredProviderExpression>()
             .ToImmutableArray();
 
         var typeDefinitions = Context.SemanticModel.Root.TypeDeclarations
@@ -411,7 +411,7 @@ public class ExpressionBuilder
         return new ProgramExpression(
             syntax,
             metadataArray,
-            imports,
+            providers,
             typeDefinitions,
             parameters,
             functionVariables.AddRange(variables),

@@ -690,10 +690,10 @@ namespace Bicep.Core.TypeSystem
             return declaredType;
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (binder.GetSymbolInfo(syntax) is not ImportedNamespaceSymbol namespaceSymbol)
+                if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.
                     return ErrorType.Empty();
@@ -1768,8 +1768,8 @@ namespace Bicep.Core.TypeSystem
                     case LocalVariableSymbol local:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, local));
 
-                    case ImportedNamespaceSymbol import:
-                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, import));
+                    case ProviderNamespaceSymbol provider:
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, provider));
 
                     case BuiltInNamespaceSymbol @namespace:
                         return @namespace.Type;

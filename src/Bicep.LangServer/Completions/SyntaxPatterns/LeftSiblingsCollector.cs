@@ -3,11 +3,7 @@
 
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 {
@@ -33,13 +29,13 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             return (collector.leftSiblings, collector.overlappingNode);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.SpecificationString, syntax.WithClause);
 
-        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax) =>
+        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.Config);
 
-        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax) =>
+        public override void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.Alias);
 
         private void AddLeftSiblings(params SyntaxBase[] candidates)

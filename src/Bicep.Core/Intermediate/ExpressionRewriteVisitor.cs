@@ -245,8 +245,8 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Value = value } : expression;
     }
 
-    void IExpressionVisitor.VisitDeclaredImportExpression(DeclaredImportExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredImportExpression);
-    public virtual Expression ReplaceDeclaredImportExpression(DeclaredImportExpression expression)
+    void IExpressionVisitor.VisitDeclaredProviderExpression(DeclaredProviderExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredProviderExpression);
+    public virtual Expression ReplaceDeclaredProviderExpression(DeclaredProviderExpression expression)
     {
         var hasChanges =
             TryRewrite(expression.Config, out var config);
@@ -484,7 +484,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewriteStrict(expression.Metadata, out var metadata) |
-            TryRewriteStrict(expression.Imports, out var imports) |
+            TryRewriteStrict(expression.Providers, out var providers) |
             TryRewriteStrict(expression.Parameters, out var parameters) |
             TryRewriteStrict(expression.Variables, out var variables) |
             TryRewriteStrict(expression.Functions, out var functions) |
@@ -492,7 +492,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewriteStrict(expression.Modules, out var modules) |
             TryRewriteStrict(expression.Outputs, out var outputs);
 
-        return hasChanges ? expression with { Metadata = metadata, Imports = imports, Parameters = parameters, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
+        return hasChanges ? expression with { Metadata = metadata, Providers = providers, Parameters = parameters, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
     }
 
     protected Expression Replace(Expression expression)

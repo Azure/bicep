@@ -1090,8 +1090,8 @@ param foo|bar = true
                         tooltip.Should().Contain($"{local.Name}: {local.Type}");
                         break;
 
-                    case ImportedNamespaceSymbol import:
-                        tooltip.Should().Contain($"{import.Name} namespace");
+                    case ProviderNamespaceSymbol provider:
+                        tooltip.Should().Contain($"{provider.Name} namespace");
                         break;
 
                     case BuiltInNamespaceSymbol @namespace:

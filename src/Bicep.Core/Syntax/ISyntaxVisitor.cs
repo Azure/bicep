@@ -112,11 +112,11 @@ namespace Bicep.Core.Syntax
 
         void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
 
-        void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
+        void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax);
 
-        void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax);
+        void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax);
 
-        void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax);
+        void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax);
 
         void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
 

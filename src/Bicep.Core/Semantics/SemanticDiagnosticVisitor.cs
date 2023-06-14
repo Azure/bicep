@@ -111,9 +111,9 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitImportedNamespaceSymbol(ImportedNamespaceSymbol symbol)
+        public override void VisitProviderNamespaceSymbol(ProviderNamespaceSymbol symbol)
         {
-            base.VisitImportedNamespaceSymbol(symbol);
+            base.VisitProviderNamespaceSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 
@@ -135,4 +135,3 @@ namespace Bicep.Core.Semantics
         }
     }
 }
-

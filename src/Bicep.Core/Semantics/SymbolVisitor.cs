@@ -91,7 +91,7 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitImportedNamespaceSymbol(ImportedNamespaceSymbol symbol)
+        public virtual void VisitProviderNamespaceSymbol(ProviderNamespaceSymbol symbol)
         {
             VisitDescendants(symbol);
         }

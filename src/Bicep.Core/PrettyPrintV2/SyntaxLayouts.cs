@@ -104,12 +104,12 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.ConditionExpression,
                 syntax.Body);
 
-        private IEnumerable<Document> LayoutImportAsClauseSyntax(ImportAsClauseSyntax syntax) =>
+        private IEnumerable<Document> LayoutProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) =>
             this.Spread(
                 syntax.Keyword,
                 syntax.Alias);
 
-        private IEnumerable<Document> LayoutImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
+        private IEnumerable<Document> LayoutProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(this.Spread(
                     syntax.Keyword,
@@ -117,7 +117,7 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.WithClause,
                     syntax.AsClause));
 
-        private IEnumerable<Document> LayoutImportWithClauseSyntax(ImportWithClauseSyntax syntax) =>
+        private IEnumerable<Document> LayoutProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) =>
             this.Spread(
                 syntax.Keyword,
                 syntax.Config);

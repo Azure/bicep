@@ -57,11 +57,11 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitIfConditionSyntax(IfConditionSyntax syntax) => this.Apply(syntax, this.LayoutIfConditionSyntax);
 
-        public void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax) => this.Apply(syntax, this.LayoutImportAsClauseSyntax);
+        public void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) => this.Apply(syntax, this.LayoutProviderAsClauseSyntax);
 
-        public void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutImportDeclarationSyntax);
+        public void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutProviderDeclarationSyntax);
 
-        public void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax) => this.Apply(syntax, this.LayoutImportWithClauseSyntax);
+        public void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) => this.Apply(syntax, this.LayoutProviderWithClauseSyntax);
 
         public void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) => this.Apply(syntax, this.LayoutIntanceFunctionCallSyntax);
 

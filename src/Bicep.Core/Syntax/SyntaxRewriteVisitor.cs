@@ -335,7 +335,7 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceOutputDeclarationSyntax);
 
-        protected virtual SyntaxBase ReplaceImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        protected virtual SyntaxBase ReplaceProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -348,11 +348,11 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
+            return new ProviderDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
         }
-        void ISyntaxVisitor.VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportDeclarationSyntax);
+        void ISyntaxVisitor.VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderDeclarationSyntax);
 
-        protected virtual SyntaxBase ReplaceImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        protected virtual SyntaxBase ReplaceProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Config, out var config);
@@ -362,11 +362,11 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportWithClauseSyntax(keyword, config);
+            return new ProviderWithClauseSyntax(keyword, config);
         }
-        void ISyntaxVisitor.VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportWithClauseSyntax);
+        void ISyntaxVisitor.VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderWithClauseSyntax);
 
-        protected virtual SyntaxBase ReplaceImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        protected virtual SyntaxBase ReplaceProviderAsClauseSyntax(ProviderAsClauseSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Alias, out var alias);
@@ -376,9 +376,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportAsClauseSyntax(keyword, alias);
+            return new ProviderAsClauseSyntax(keyword, alias);
         }
-        void ISyntaxVisitor.VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportAsClauseSyntax);
+        void ISyntaxVisitor.VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderAsClauseSyntax);
 
         protected virtual SyntaxBase ReplaceIdentifierSyntax(IdentifierSyntax syntax)
         {

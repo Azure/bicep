@@ -37,11 +37,11 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
-        public abstract void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax);
+        public abstract void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax);
 
-        public abstract void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
+        public abstract void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax);
 
-        public abstract void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax);
+        public abstract void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax);
 
         public abstract void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax);
 

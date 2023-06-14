@@ -1896,9 +1896,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportConfig))
             {
-                if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
-                    model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
-                    importSymbol.TryGetNamespaceType() is { } namespaceType)
+                if (context.EnclosingDeclaration is ProviderDeclarationSyntax importSyntax &&
+                    model.GetSymbolInfo(importSyntax) is ProviderNamespaceSymbol providerSymbol &&
+                    providerSymbol.TryGetNamespaceType() is { } namespaceType)
                 {
                     foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
                     {

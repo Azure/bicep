@@ -51,9 +51,9 @@ namespace Bicep.Core.TypeSystem
         OutputDecorator = 1 << 6,
 
         /// <summary>
-        /// The  function can be used as an output decorator.
+        /// The  function can be used as an provider decorator.
         /// </summary>
-        ImportDecorator = 1 << 7,
+        ProviderDecorator = 1 << 7,
 
         /// <summary>
         /// The function can be used in direct assignment to a module parameter with @secure decorator
@@ -94,6 +94,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
-        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator | MetadataDecorator | TypeDecorator,
+        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ProviderDecorator | MetadataDecorator | TypeDecorator,
     }
 }

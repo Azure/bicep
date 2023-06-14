@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -275,7 +274,8 @@ namespace Bicep.Core.Parsing
 
             return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
-        private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+
+        private SyntaxBase ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
             var providerSpecification = this.WithRecovery(
@@ -301,10 +301,10 @@ namespace Bicep.Core.Parsing
                 _ => this.WithRecovery(() => this.ImportAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
             };
 
-            return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
+            return new ProviderDeclarationSyntax(leadingNodes, keyword, providerSpecification, withClause, asClause);
         }
 
-        private ImportWithClauseSyntax ImportWithClause()
+        private ProviderWithClauseSyntax ImportWithClause()
         {
             var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
@@ -312,7 +312,7 @@ namespace Bicep.Core.Parsing
             return new(keyword, config);
         }
 
-        private ImportAsClauseSyntax ImportAsClause()
+        private ProviderAsClauseSyntax ImportAsClause()
         {
             var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
