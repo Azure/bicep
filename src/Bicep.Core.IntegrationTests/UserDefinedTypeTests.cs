@@ -714,4 +714,21 @@ param myParam string
             ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
         });
     }
+
+    [TestMethod]
+    public void Duplicate_property_names_should_raise_descriptive_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+            """
+            type foo = {
+                bar: bool
+                bar: string
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP025", DiagnosticLevel.Error, "The property \"bar\" is declared multiple times in this object. Remove or rename the duplicate properties.")
+        });
+    }
 }
