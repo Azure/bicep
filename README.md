@@ -78,7 +78,7 @@ We spent a lot of time researching various different options and even prototyped
 
 **Why not focus your energy on Terraform or other third-party IaC offerings?**
 
-Using terraform can be a great choice depending on the requirements of the organization, and if you are happy using terraform there is no reason to switch. At Microsoft, we are actively investing to make sure the terraform on Azure experience is the best it can be.
+Using [Terraform](https://www.terraform.io/) can be a great choice depending on the requirements of the organization, and if you are happy using Terraform there is no reason to switch. At Microsoft, we are actively investing to make sure the Terraform on Azure experience is the best it can be.
 
 That being said, there is a huge customer base using ARM templates today because it provides a unique set of capabilities and benefits. We wanted to make the experience for those customers first-class as well, in addition to making it easier to start for Azure focused customers who have not yet transitioned to infra-as-code.
 
