@@ -1,5 +1,5 @@
 
-//@[000:12434) ProgramExpression
+//@[000:12777) ProgramExpression
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -640,6 +640,39 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[078:00092) |   ├─ParametersReferenceExpression { Parameter = shouldDeployVm }
 //@[094:00263) |   └─ObjectExpression
   name: 'vmName'
+  location: 'westus'
+//@[002:00020) |     ├─ObjectPropertyExpression
+//@[002:00010) |     | ├─StringLiteralExpression { Value = location }
+//@[012:00020) |     | └─StringLiteralExpression { Value = westus }
+  properties: {
+//@[002:00123) |     └─ObjectPropertyExpression
+//@[002:00012) |       ├─StringLiteralExpression { Value = properties }
+//@[014:00123) |       └─ObjectExpression
+    osProfile: {
+//@[004:00101) |         └─ObjectPropertyExpression
+//@[004:00013) |           ├─StringLiteralExpression { Value = osProfile }
+//@[015:00101) |           └─ObjectExpression
+      windowsConfiguration: {
+//@[006:00076) |             └─ObjectPropertyExpression
+//@[006:00026) |               ├─StringLiteralExpression { Value = windowsConfiguration }
+//@[028:00076) |               └─ObjectExpression
+        enableAutomaticUpdates: true
+//@[008:00036) |                 └─ObjectPropertyExpression
+//@[008:00030) |                   ├─StringLiteralExpression { Value = enableAutomaticUpdates }
+//@[032:00036) |                   └─BooleanLiteralExpression { Value = True }
+      }
+    }
+  }
+}
+
+@sys.description('this is another vmWithCondition')
+//@[000:00339) ├─DeclaredResourceExpression
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+                    if (shouldDeployVm) {
+//@[024:00038) | └─ConditionExpression
+//@[024:00038) |   ├─ParametersReferenceExpression { Parameter = shouldDeployVm }
+//@[040:00210) |   └─ObjectExpression
+  name: 'vmName2'
   location: 'westus'
 //@[002:00020) |     ├─ObjectPropertyExpression
 //@[002:00010) |     | ├─StringLiteralExpression { Value = location }

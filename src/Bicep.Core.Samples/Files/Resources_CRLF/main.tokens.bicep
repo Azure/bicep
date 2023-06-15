@@ -1110,6 +1110,71 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
+@sys.description('this is another vmWithCondition')
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) Dot |.|
+//@[005:016) Identifier |description|
+//@[016:017) LeftParen |(|
+//@[017:050) StringComplete |'this is another vmWithCondition'|
+//@[050:051) RightParen |)|
+//@[051:053) NewLine |\r\n|
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |vmWithCondition2|
+//@[026:072) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[073:074) Assignment |=|
+//@[074:076) NewLine |\r\n|
+                    if (shouldDeployVm) {
+//@[020:022) Identifier |if|
+//@[023:024) LeftParen |(|
+//@[024:038) Identifier |shouldDeployVm|
+//@[038:039) RightParen |)|
+//@[040:041) LeftBrace |{|
+//@[041:043) NewLine |\r\n|
+  name: 'vmName2'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:017) StringComplete |'vmName2'|
+//@[017:019) NewLine |\r\n|
+  location: 'westus'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'westus'|
+//@[020:022) NewLine |\r\n|
+  properties: {
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
+    osProfile: {
+//@[004:013) Identifier |osProfile|
+//@[013:014) Colon |:|
+//@[015:016) LeftBrace |{|
+//@[016:018) NewLine |\r\n|
+      windowsConfiguration: {
+//@[006:026) Identifier |windowsConfiguration|
+//@[026:027) Colon |:|
+//@[028:029) LeftBrace |{|
+//@[029:031) NewLine |\r\n|
+        enableAutomaticUpdates: true
+//@[008:030) Identifier |enableAutomaticUpdates|
+//@[030:031) Colon |:|
+//@[032:036) TrueKeyword |true|
+//@[036:038) NewLine |\r\n|
+      }
+//@[006:007) RightBrace |}|
+//@[007:009) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@[000:008) Identifier |resource|
 //@[009:019) Identifier |extension1|
