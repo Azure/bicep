@@ -4790,4 +4790,31 @@ param resourceGroups resourceGroup[]
             ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"bar\", \"foo\"."),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/10098
+    [TestMethod]
+    public void Test_Issue10098()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+("mod.bicep", @"
+@allowed([0, 1, 2, 3 ])
+param availabilityZone int = 0
+
+param availabilityZoneUnion 0 | 1 | 2 | 3 = 0
+"),
+("main.bicep", @"
+@minValue(0)
+param count int
+
+module mod 'mod.bicep' = [for i in range(0, count): {
+  name: 'mod${i}'
+  params: {
+    availabilityZone: i % 3 + 1
+    availabilityZoneUnion: i % 3 + 1
+  }
+}]
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
