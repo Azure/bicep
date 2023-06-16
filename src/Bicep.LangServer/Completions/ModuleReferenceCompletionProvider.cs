@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,12 +13,10 @@ using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -94,6 +92,7 @@ namespace Bicep.LanguageServer.Completions
         }
 
         // Handles bicep registry and template spec top-level schema completions.
+        // I.e. typing with an empty path:  "module m1 <CURSOR>"
         // E.g. br:, br/, ts:, ts/[alias]
         private IEnumerable<CompletionItem> GetBicepRegistryAndTemplateSpecShemaCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
@@ -148,8 +147,12 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        // Handles version completions for Microsoft Container Registries (MCR).
-        // I.e. completions starting with "br/" or "br:"
+        // Handles version completions for Microsoft Container Registries (MCR):
+        //
+        //   br/module/name:<CURSOR>
+        //   br:mcr.microsoft/bicep/module/name:<CURSOR>
+        //
+        // etc
         private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
             if (!IsOciModuleRegistryReference(replacementText))
@@ -157,24 +160,24 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            string? filePath;
+            string? modulePath;
 
             if (MCRModuleRegistryWithAlias.IsMatch(replacementText))
             {
                 var matches = MCRModuleRegistryWithAlias.Matches(replacementText);
-                filePath = matches[0].Groups["filePath"].Value;
+                modulePath = matches[0].Groups["filePath"].Value;
             }
             else if (MCRModuleRegistryWithoutAlias.IsMatch(replacementText))
             {
                 var matches = MCRModuleRegistryWithoutAlias.Matches(replacementText);
-                filePath = matches[0].Groups["filePath"].Value;
+                modulePath = matches[0].Groups["filePath"].Value;
             }
             else
             {
-                filePath = GetNonPublicMCRFilePathForVersionCompletion(replacementText, sourceFileUri);
+                modulePath = GetNonPublicMCRFilePathForVersionCompletion(replacementText, sourceFileUri);
             }
 
-            if (filePath is null)
+            if (modulePath is null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -182,10 +185,10 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new List<CompletionItem>();
             replacementText = replacementText.TrimEnd('\'');
 
-            var versions = await publicRegistryModuleMetadataProvider.GetVersions(filePath);
-            for (int i = versions.Count() - 1; i >= 0; i--)
+            var versionInfos = await publicRegistryModuleMetadataProvider.GetVersions(modulePath);
+            for (int i = versionInfos.Count() - 1; i >= 0; i--)
             {
-                var version = versions.ElementAt(i);
+                var (version, description, documentationUri) = versionInfos.ElementAt(i);
 
                 var insertText = $"{replacementText}{version}'$0";
 
@@ -193,6 +196,8 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(version, i))
+                    .WithDetail(description)
+                    .WithDocumentation(GetDocumentationLink(documentationUri))
                     .Build();
 
                 completions.Add(completionItem);
@@ -271,7 +276,7 @@ namespace Bicep.LanguageServer.Completions
                 replacementText == "'br/public:" ||
                 replacementText == $"'br:{MCRRegistry}/bicep/")
             {
-                return await GetPublicMCRPathCompletions(replacementText, context);
+                return await GetPublicMCRPathCompletions(replacementText, context, sourceFileUri);
             }
             else
             {
@@ -309,56 +314,58 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
-                    // br/[alias]:<cursor>
+                    // br/[alias-that-points-to-mcr.microsoft.com]:<cursor>
                     if (registry.Equals(MCRRegistry, StringComparison.Ordinal) &&
                         replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:"))
                     {
                         var modulePath = kvp.Value.ModulePath;
 
-                        // E.g bicepconfig.json
-                        // {
-                        //   "moduleAliases": {
-                        //     "br": {
-                        //       "test": {
-                        //         "registry": "mcr.microsoft.com"
-                        //       }
-                        //     }
-                        //   }
-                        // }
                         if (modulePath is null)
                         {
-                            // Completions are e.g. br/[alias]/bicep/[module]
+                            // E.g bicepconfig.json
+                            // {
+                            //   "moduleAliases": {
+                            //     "br": {
+                            //       "test": {
+                            //         "registry": "mcr.microsoft.com"
+                            //       }
+                            //     }
+                            //   }
+                            // }
+
                             if (replacementTextWithTrimmedEnd.Equals($"'br/{kvp.Key}:", StringComparison.Ordinal))
                             {
-                                var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
-                                foreach (var moduleName in moduleNames)
+                                var modules = await publicRegistryModuleMetadataProvider.GetModules();
+                                foreach (var (moduleName, description, documentationUri) in modules)
                                 {
                                     var label = $"bicep/{moduleName}";
                                     var insertText = $"{replacementTextWithTrimmedEnd}bicep/{moduleName}:$0'";
-
                                     var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                                         .WithSnippetEdit(context.ReplacementRange, insertText)
                                         .WithFilterText(insertText)
                                         .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
+                                        .WithDetail(description)
+                                        .WithDocumentation(GetDocumentationLink(documentationUri))
                                         .Build();
 
                                     completions.Add(completionItem);
                                 }
                             }
                         }
-                        // E.g bicepconfig.json
-                        // {
-                        //   "moduleAliases": {
-                        //     "br": {
-                        //       "test": {
-                        //         "registry": "mcr.microsoft.com",
-                        //         "modulePath": "bicep/app"
-                        //       }
-                        //     }
-                        //   }
-                        // }
                         else
                         {
+                            // E.g bicepconfig.json
+                            // {
+                            //   "moduleAliases": {
+                            //     "br": {
+                            //       "test": {
+                            //         "registry": "mcr.microsoft.com",
+                            //         "modulePath": "bicep/app"
+                            //       }
+                            //     }
+                            //   }
+                            // }
+
                             if (modulePath.Equals("bicep", StringComparison.Ordinal) || !modulePath.StartsWith("bicep/", StringComparison.Ordinal))
                             {
                                 continue;
@@ -366,13 +373,13 @@ namespace Bicep.LanguageServer.Completions
 
                             // Completions are e.g. br/[alias]/[module]
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
-                            var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
+                            var modules = await publicRegistryModuleMetadataProvider.GetModules();
 
-                            var matchingModuleNames = moduleNames.Where(x => x.StartsWith($"{modulePathWithoutBicepKeyword}/"));
+                            var matchingModules = modules.Where(x => x.name.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
-                            foreach (var moduleName in matchingModuleNames)
+                            foreach (var module in matchingModules)
                             {
-                                var label = moduleName.Substring($"{modulePathWithoutBicepKeyword}/".Length);
+                                var label = module.name.Substring($"{modulePathWithoutBicepKeyword}/".Length);
                                 StringBuilder sb = new StringBuilder(replacementTextWithTrimmedEnd);
 
                                 if (!replacementTextWithTrimmedEnd.EndsWith(":"))
@@ -385,6 +392,8 @@ namespace Bicep.LanguageServer.Completions
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
                                     .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
+                                    .WithDetail(module.description)
+                                    .WithDocumentation(GetDocumentationLink(module.documentationUri))
                                     .Build();
                                 completions.Add(completionItem);
                             }
@@ -459,16 +468,18 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        // Handles path completions for MCR.
-        // I.e., completions after "br/public:" or "br:{MCRRegistry}/bicep/:"
-        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context)
+        // Handles path completions for MCR:
+        //   br/public:<CURSOR>
+        // or
+        //   br:mcr.microsoft.com/bicep/:<CURSOR>
+        private async Task<IEnumerable<CompletionItem>> GetPublicMCRPathCompletions(string replacementText, BicepCompletionContext context, Uri sourceUri)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
             var replacementTextWithTrimmedEnd = replacementText.TrimEnd('\'');
 
-            var moduleNames = await publicRegistryModuleMetadataProvider.GetModuleNames();
-            foreach (var moduleName in moduleNames)
+            var modules = await publicRegistryModuleMetadataProvider.GetModules();
+            foreach (var (moduleName, description, documentationUri) in modules)
             {
                 var insertText = $"{replacementTextWithTrimmedEnd}{moduleName}:$0'";
 
@@ -476,6 +487,8 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(context.ReplacementRange, insertText)
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(moduleName))
+                    .WithDetail(description)
+                    .WithDocumentation(GetDocumentationLink(documentationUri))
                     .Build();
 
                 completions.Add(completionItem);
@@ -543,6 +556,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
+                // CONSIDER: Somehow indicate in the completion list that users can get more completions by setting GetAllAzureContainerRegistriesForCompletionsSetting
                 return GetACRModuleRegistriesCompletionsFromBicepConfig(replacementText, context, sourceFileUri);
             }
         }
@@ -550,25 +564,34 @@ namespace Bicep.LanguageServer.Completions
         // Handles private registry name completions for modules available in ACR registries using ResourceGraphClient query.
         // This returns all registries that the user has access to via Azure (whether or not they contain bicep modules, and whether
         //   or not they're registered in the bicepconfig.json file)
+        // This is for completions after typing "'br:"
         private async Task<IEnumerable<CompletionItem>> GetACRModuleRegistriesCompletionsFromGraphClient(string replacementText, BicepCompletionContext context, Uri sourceFileUri, CancellationToken cancellationToken)
         {
             List<CompletionItem> completions = new List<CompletionItem>();
 
-            await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUris(sourceFileUri, cancellationToken)
-                .WithCancellation(cancellationToken))
+            try
             {
-                var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
-                var insertText = $"'{replacementTextWithTrimmedEnd}{registryName}/$0'";
+                await foreach (string registryName in azureContainerRegistriesProvider.GetRegistryUris(sourceFileUri, cancellationToken)
+                    .WithCancellation(cancellationToken))
+                {
+                    var replacementTextWithTrimmedEnd = replacementText.Trim('\'');
+                    var insertText = $"'{replacementTextWithTrimmedEnd}{registryName}/$0'";
 
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
-                    .WithFilterText(insertText)
-                    .WithSnippetEdit(context.ReplacementRange, insertText)
-                    .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
-                    .Build();
-                completions.Add(completionItem);
+                    var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Snippet, registryName)
+                        .WithFilterText(insertText)
+                        .WithSnippetEdit(context.ReplacementRange, insertText)
+                        .WithSortText(GetSortText(registryName, ModuleCompletionPriority.FullPath))
+                        .Build();
+                    completions.Add(completionItem);
+                }
+
+                return completions;
             }
-
-            return completions;
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.Message);
+                throw;
+            }
         }
 
         // Handles private ACR registry name completions only for registries that are configured in the bicepconfig.json file
@@ -600,6 +623,11 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return completions;
+        }
+
+        private static string? GetDocumentationLink(string? documentationUri)
+        {
+            return Bicep.LanguageServer.Utils.MarkdownHelper.GetDocumentationLink(documentationUri);
         }
 
         private static string GetSortText(string label, int priority) => $"{priority}_{label}";

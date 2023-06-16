@@ -126,7 +126,286 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IArmClientProvider, ArmClientProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
-                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCache: true));
+                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(@"[
+  {
+    ""moduleName"": ""app/dapr-containerapp"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2""
+    ]
+  },
+  {
+    ""moduleName"": ""app/dapr-containerapps-environment"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.1.1"",
+      ""1.2.1"",
+      ""1.2.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""azure-gaming/game-dev-vm"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2"",
+      ""2.0.1"",
+      ""2.0.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""azure-gaming/game-dev-vmss"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.1.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""compute/availability-set"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""compute/container-registry"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""compute/custom-image-vmss"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""cost/resourcegroup-scheduled-action"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""cost/subscription-scheduled-action"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""deployment-scripts/aks-run-command"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2"",
+      ""1.0.3"",
+      ""2.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""deployment-scripts/aks-run-helm"",
+    ""tags"": [
+      ""1.0.1"",
+      ""2.0.1"",
+      ""2.0.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""deployment-scripts/build-acr"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2"",
+      ""2.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""deployment-scripts/create-kv-certificate"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.1.1"",
+      ""1.1.2"",
+      ""2.1.1"",
+      ""3.0.1"",
+      ""3.0.2"",
+      ""3.1.1"",
+      ""3.2.1"",
+      ""3.3.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""deployment-scripts/import-acr"",
+    ""tags"": [
+      ""1.0.1"",
+      ""2.0.1"",
+      ""2.1.1"",
+      ""3.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""deployment-scripts/wait"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""identity/user-assigned-identity"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""lz/sub-vending"",
+    ""tags"": [
+      ""1.1.1"",
+      ""1.1.2"",
+      ""1.2.1"",
+      ""1.2.2"",
+      ""1.3.1""
+    ],
+    ""properties"": {
+      ""1.1.1"": {
+        ""description"": ""1.1.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.""
+      },
+      ""1.1.2"": {
+        ""description"": ""1.1.2: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.""
+      },
+      ""1.2.1"": {
+        ""description"": ""1.2.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.""
+      },
+      ""1.2.2"": {
+        ""description"": ""1.2.2: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.""
+      },
+      ""1.3.1"": {
+        ""description"": ""1.3.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.""
+      }
+    }
+  },
+  {
+    ""moduleName"": ""network/dns-zone"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""network/nat-gateway"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""network/traffic-manager"",
+    ""tags"": [
+      ""1.0.1"",
+      ""2.0.1"",
+      ""2.1.1"",
+      ""2.2.1"",
+      ""2.3.1"",
+      ""2.3.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""network/virtual-network"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2"",
+      ""1.0.3"",
+      ""1.1.1"",
+      ""1.1.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""observability/grafana"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""samples/array-loop"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2""
+    ],
+    ""properties"": {
+      ""1.0.1"": {
+        ""description"": ""Description for 1.0.1""
+      }
+    }
+  },
+  {
+    ""moduleName"": ""samples/hello-world"",
+    ""tags"": [
+      ""1.0.1"",
+      ""1.0.2"",
+      ""1.0.3""
+    ],
+    ""properties"": {
+      ""1.0.3"": {
+        ""description"": ""A \""שָׁלוֹם עוֹלָם\"" sample Bicep registry module"",
+        ""other property - we have to be forwards compatible"": ""whatever""
+      },
+      ""unexpected tag should be ignored"": {
+      }
+    },
+    ""other property - we have to be forwards compatible"": ""whatever""
+  },
+  {
+    ""moduleName"": ""security/keyvault"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""storage/cosmos-db"",
+    ""tags"": [
+      ""1.0.1"",
+      ""2.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""storage/log-analytics-workspace"",
+    ""tags"": [
+      ""1.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""storage/redis-cache"",
+    ""tags"": [
+      ""0.0.1""
+    ],
+    ""properties"": {}
+  },
+  {
+    ""moduleName"": ""storage/storage-account"",
+    ""tags"": [
+      ""0.0.1"",
+      ""1.0.1"",
+      ""2.0.1"",
+      ""2.0.2""
+    ],
+    ""properties"": {}
+  }
+]"));
         }
 
         public void Dispose()
