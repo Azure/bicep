@@ -720,7 +720,7 @@
     "moment": "^2.29.4",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.6.133",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.0",
     "semver": "^7.5.1",
