@@ -48,15 +48,15 @@ namespace Bicep.Core.Parsing
             TokenType.Plus or
             TokenType.Minus => 90,
 
-            TokenType.GreaterThan
-            or TokenType.GreaterThanOrEqual
-            or TokenType.LessThan
-            or TokenType.LessThanOrEqual => 80,
+            TokenType.GreaterThan or
+            TokenType.GreaterThanOrEqual or
+            TokenType.LessThan or
+            TokenType.LessThanOrEqual => 80,
 
-            TokenType.Equals
-            or TokenType.NotEquals
-            or TokenType.EqualsInsensitive
-            or TokenType.NotEqualsInsensitive => 70,
+            TokenType.Equals or
+            TokenType.NotEquals or
+            TokenType.EqualsInsensitive or
+            TokenType.NotEqualsInsensitive => 70,
 
             // if we add bitwise operators in the future, they should go here
             TokenType.LogicalAnd => 50,
