@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -250,8 +251,14 @@ namespace Bicep.Core.Emit
             }
             else if (symbol is ResourceSymbol { IsCollection: true })
             {
-                // TODO(k.a): add diagnostics for circular calls and calls within resource copies
-                //  what about standalone calls that are not passed to something like map()?
+                var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
+
+                if (parent is not ArrayAccessSyntax && this.semanticModel.Binder
+                    .GetAllAncestors<ResourceDeclarationSyntax>(variableOrResourceAccessSyntax)
+                    .Any(decl => decl.IsCollection()))
+                {
+                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(variableOrResourceAccessSyntax).DirectAccessToCollectionNotSupported());
+                }
             }
         }
 
