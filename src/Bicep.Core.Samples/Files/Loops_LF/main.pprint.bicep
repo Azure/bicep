@@ -32,15 +32,17 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 
 // resource collection
 @batchSize(42)
-resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
-  name: '${name}-collection-${account.name}'
-  location: account.location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
+resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in accounts: {
+    name: '${name}-collection-${account.name}'
+    location: account.location
+    kind: 'StorageV2'
+    sku: {
+      name: 'Standard_LRS'
+    }
+    dependsOn: [singleResource]
   }
-  dependsOn: [singleResource]
-}]
+]
 
 // extension of a single resource in a collection
 resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09-01' = {
@@ -52,29 +54,27 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 }
 
 // collection of extensions
-resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(
-  0,
-  1
-): {
-  name: 'lock-${i}'
-  properties: {
-    level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
+resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [
+  for i in range(0, 1): {
+    name: 'lock-${i}'
+    properties: {
+      level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
+    }
+    scope: singleResource
   }
-  scope: singleResource
-}]
+]
 
 // cascade extend the extension
 @batchSize(1)
-resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(
-  0,
-  1
-): {
-  name: 'lock-the-lock-${i}'
-  properties: {
-    level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
+resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [
+  for i in range(0, 1): {
+    name: 'lock-the-lock-${i}'
+    properties: {
+      level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
+    }
+    scope: extensionCollection[i]
   }
-  scope: extensionCollection[i]
-}]
+]
 
 // special case property access
 output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.primaryEndpoints.blob
@@ -98,41 +98,41 @@ output indexViaReference string = storageAccounts[int(
 )].properties.accessTier
 
 // dependency on a resource collection
-resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
-  name: '${name}-collection-${account.name}'
-  location: account.location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
+resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in accounts: {
+    name: '${name}-collection-${account.name}'
+    location: account.location
+    kind: 'StorageV2'
+    sku: {
+      name: 'Standard_LRS'
+    }
+    dependsOn: [storageAccounts]
   }
-  dependsOn: [storageAccounts]
-}]
+]
 
 // one-to-one paired dependencies
-resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(
-  0,
-  length(accounts)
-): {
-  name: '${name}-set1-${i}'
-  location: resourceGroup().location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
+resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for i in range(0, length(accounts)): {
+    name: '${name}-set1-${i}'
+    location: resourceGroup().location
+    kind: 'StorageV2'
+    sku: {
+      name: 'Standard_LRS'
+    }
   }
-}]
+]
 
-resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(
-  0,
-  length(accounts)
-): {
-  name: '${name}-set2-${i}'
-  location: resourceGroup().location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
+resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for i in range(0, length(accounts)): {
+    name: '${name}-set2-${i}'
+    location: resourceGroup().location
+    kind: 'StorageV2'
+    sku: {
+      name: 'Standard_LRS'
+    }
+    dependsOn: [firstSet[i]]
   }
-  dependsOn: [firstSet[i]]
-}]
+]
 
 // depending on collection and one resource in the collection optimizes the latter part away
 resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -157,10 +157,12 @@ var vnetConfigurations = [
   }
 ]
 
-resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [for vnetConfig in vnetConfigurations: {
-  name: vnetConfig.name
-  location: vnetConfig.location
-}]
+resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for vnetConfig in vnetConfigurations: {
+    name: vnetConfig.name
+    location: vnetConfig.location
+  }
+]
 
 // implicit dependency on single resource from a resource collection
 resource implicitDependencyOnSingleResourceByIndex 'Microsoft.Network/dnsZones@2018-05-01' = {
@@ -204,22 +206,26 @@ var moduleSetup = ['one', 'two', 'three']
 
 // module collection plus explicit dependency on single module
 @sys.batchSize(3)
-module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
-  name: moduleName
-  params: {
-    myInput: 'in-${moduleName}'
+module moduleCollectionWithSingleDependency 'passthrough.bicep' = [
+  for moduleName in moduleSetup: {
+    name: moduleName
+    params: {
+      myInput: 'in-${moduleName}'
+    }
+    dependsOn: [singleModule, singleResource]
   }
-  dependsOn: [singleModule, singleResource]
-}]
+]
 
 // another module collection with dependency on another module collection
-module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for moduleName in moduleSetup: {
-  name: moduleName
-  params: {
-    myInput: 'in-${moduleName}'
+module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [
+  for moduleName in moduleSetup: {
+    name: moduleName
+    params: {
+      myInput: 'in-${moduleName}'
+    }
+    dependsOn: [storageAccounts, moduleCollectionWithSingleDependency]
   }
-  dependsOn: [storageAccounts, moduleCollectionWithSingleDependency]
-}]
+]
 
 module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
@@ -232,21 +238,25 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   dependsOn: [storageAccounts2[index - 10]]
 }
 
-module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for moduleName in moduleSetup: {
-  name: moduleName
-  params: {
-    myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName}'
+module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [
+  for moduleName in moduleSetup: {
+    name: moduleName
+    params: {
+      myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName}'
+    }
+    dependsOn: [storageAccounts2[index - 9]]
   }
-  dependsOn: [storageAccounts2[index - 9]]
-}]
+]
 
 output indexedModulesName string = moduleCollectionWithSingleDependency[index].name
 output indexedModuleOutput string = moduleCollectionWithSingleDependency[index * 1].outputs.myOutput
 
 // resource collection
-resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
-  name: '${name}-existing-${account.name}'
-}]
+resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in accounts: {
+    name: '${name}-existing-${account.name}'
+  }
+]
 
 output existingIndexedResourceName string = existingStorageAccounts[index * 0].name
 output existingIndexedResourceId string = existingStorageAccounts[index * 1].id
@@ -255,26 +265,32 @@ output existingIndexedResourceApiVersion string = existingStorageAccounts[index 
 output existingIndexedResourceLocation string = existingStorageAccounts[index / 2].location
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index % 3].properties.accessTier
 
-resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-  name: 'no loop variable'
-  location: 'eastus'
-}]
+resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for zone in []: {
+    name: 'no loop variable'
+    location: 'eastus'
+  }
+]
 
 // reference to a resource collection whose name expression does not reference any loop variables
-resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-  name: 'no loop variable 2'
-  location: 'eastus'
-  dependsOn: [duplicatedNames[index]]
-}]
+resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for zone in []: {
+    name: 'no loop variable 2'
+    location: 'eastus'
+    dependsOn: [duplicatedNames[index]]
+  }
+]
 
 var regions = ['eastus', 'westus']
 
-module apim 'passthrough.bicep' = [for region in regions: {
-  name: 'apim-${region}-${name}'
-  params: {
-    myInput: region
+module apim 'passthrough.bicep' = [
+  for region in regions: {
+    name: 'apim-${region}-${name}'
+    params: {
+      myInput: region
+    }
   }
-}]
+]
 
 resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
   name: name
@@ -284,38 +300,11 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
       {
         name: 'BackendAPIMs'
         properties: {
-          backends: [for index in range(0, length(regions)): {
-            // we cannot codegen index correctly because the generated dependsOn property
-            // would be outside of the scope of the property loop
-            // as a result, this will generate a dependency on the entire collection
-            address: apim[index].outputs.myOutput
-            backendHostHeader: apim[index].outputs.myOutput
-            httpPort: 80
-            httpsPort: 443
-            priority: 1
-            weight: 50
-          }]
-        }
-      }
-    ]
-  }
-}
-
-resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(
-  0,
-  length(regions)
-): {
-  name: '${name}-${index}'
-  location: 'Global'
-  properties: {
-    backendPools: [
-      {
-        name: 'BackendAPIMs'
-        properties: {
           backends: [
-            {
-              // this indexed dependency on a module collection will be generated correctly because
-              // copyIndex() can be invoked in the generated dependsOn
+            for index in range(0, length(regions)): {
+              // we cannot codegen index correctly because the generated dependsOn property
+              // would be outside of the scope of the property loop
+              // as a result, this will generate a dependency on the entire collection
               address: apim[index].outputs.myOutput
               backendHostHeader: apim[index].outputs.myOutput
               httpPort: 80
@@ -328,7 +317,35 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
       }
     ]
   }
-}]
+}
+
+resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [
+  for index in range(0, length(regions)): {
+    name: '${name}-${index}'
+    location: 'Global'
+    properties: {
+      backendPools: [
+        {
+          name: 'BackendAPIMs'
+          properties: {
+            backends: [
+              {
+                // this indexed dependency on a module collection will be generated correctly because
+                // copyIndex() can be invoked in the generated dependsOn
+                address: apim[index].outputs.myOutput
+                backendHostHeader: apim[index].outputs.myOutput
+                httpPort: 80
+                httpsPort: 443
+                priority: 1
+                weight: 50
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
 
 resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
   name: name
@@ -338,38 +355,11 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
       {
         name: 'BackendAPIMs'
         properties: {
-          backends: [for index in range(0, length(accounts)): {
-            // we cannot codegen index correctly because the generated dependsOn property
-            // would be outside of the scope of the property loop
-            // as a result, this will generate a dependency on the entire collection
-            address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
-            backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
-            httpPort: 80
-            httpsPort: 443
-            priority: 1
-            weight: 50
-          }]
-        }
-      }
-    ]
-  }
-}
-
-resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(
-  0,
-  length(accounts)
-): {
-  name: '${name}-${index}'
-  location: 'Global'
-  properties: {
-    backendPools: [
-      {
-        name: 'BackendAPIMs'
-        properties: {
           backends: [
-            {
-              // this indexed dependency on a module collection will be generated correctly because
-              // copyIndex() can be invoked in the generated dependsOn
+            for index in range(0, length(accounts)): {
+              // we cannot codegen index correctly because the generated dependsOn property
+              // would be outside of the scope of the property loop
+              // as a result, this will generate a dependency on the entire collection
               address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
               backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
               httpPort: 80
@@ -382,35 +372,68 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
       }
     ]
   }
-}]
+}
 
-resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(
-  0,
-  10
-): if (i % 3 == 0) {
-  name: 'zone${i}'
-  location: resourceGroup().location
-}]
-
-module filteredModules 'passthrough.bicep' = [for i in range(0, 6): if (i % 2 == 0) {
-  name: 'stuff${i}'
-  params: {
-    myInput: 'script-${i}'
+resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [
+  for index in range(0, length(accounts)): {
+    name: '${name}-${index}'
+    location: 'Global'
+    properties: {
+      backendPools: [
+        {
+          name: 'BackendAPIMs'
+          properties: {
+            backends: [
+              {
+                // this indexed dependency on a module collection will be generated correctly because
+                // copyIndex() can be invoked in the generated dependsOn
+                address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+                backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
+                httpPort: 80
+                httpsPort: 443
+                priority: 1
+                weight: 50
+              }
+            ]
+          }
+        }
+      ]
+    }
   }
-}]
+]
 
-resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (account, i) in accounts: if (account.enabled) {
-  name: 'indexedZone-${account.name}-${i}'
-  location: account.location
-}]
+resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for i in range(0, 10): if (i % 3 == 0) {
+    name: 'zone${i}'
+    location: resourceGroup().location
+  }
+]
+
+module filteredModules 'passthrough.bicep' = [
+  for i in range(0, 6): if (i % 2 == 0) {
+    name: 'stuff${i}'
+    params: {
+      myInput: 'script-${i}'
+    }
+  }
+]
+
+resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for (account, i) in accounts: if (account.enabled) {
+    name: 'indexedZone-${account.name}-${i}'
+    location: account.location
+  }
+]
 
 output lastNameServers array = filteredIndexedZones[length(accounts) - 1].properties.nameServers
 
-module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if (account.enabled) {
-  name: 'stuff-${i}'
-  params: {
-    myInput: 'script-${account.name}-${i}'
+module filteredIndexedModules 'passthrough.bicep' = [
+  for (account, i) in accounts: if (account.enabled) {
+    name: 'stuff-${i}'
+    params: {
+      myInput: 'script-${account.name}-${i}'
+    }
   }
-}]
+]
 
 output lastModuleOutput string = filteredIndexedModules[length(accounts) - 1].outputs.myOutput

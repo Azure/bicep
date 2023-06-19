@@ -179,9 +179,11 @@ var nonTopLevelLoop = {
 var noFilteredLoopsInVariables = [for thing in stuff: if]
 
 // nested loops are also not allowed
-var noNestedVariableLoopsEither = [for thing in stuff: {
-  hello: [for thing in []: 4]
-}]
+var noNestedVariableLoopsEither = [
+  for thing in stuff: {
+    hello: [for thing in []: 4]
+  }
+]
 
 // loops in inner properties of a variable are also not supported
 var innerPropertyLoop = {
@@ -201,19 +203,25 @@ var runtimeLoop = [for (item, index) in []: indirection]
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 
 var zoneInput = []
-resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
-  name: zone
-  location: az.resourceGroup().location
-}]
+resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for (zone, i) in zoneInput: {
+    name: zone
+    location: az.resourceGroup().location
+  }
+]
 var inlinedVariable = zones[0].properties.zoneType
 
-var runtimeLoop3 = [for (zone, i) in zoneInput: {
-  a: inlinedVariable
-}]
+var runtimeLoop3 = [
+  for (zone, i) in zoneInput: {
+    a: inlinedVariable
+  }
+]
 
-var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
-  a: 0
-}]
+var runtimeLoop4 = [
+  for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
+    a: 0
+  }
+]
 
 var notRuntime = concat('a', 'b')
 var evenMoreIndirection = concat(notRuntime, string(moreIndirection))

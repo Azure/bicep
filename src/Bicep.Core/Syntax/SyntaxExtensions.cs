@@ -19,6 +19,10 @@ namespace Bicep.Core.Syntax
 
         public static bool IsOf(this Token token, TokenType type) => token.Type == type;
 
+        public static bool IsKeyword(this Token token, string keyword) =>
+            token.Type == TokenType.Identifier &&
+            LanguageConstants.IdentifierComparer.Equals(token.Text, keyword);
+
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
 

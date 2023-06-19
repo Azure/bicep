@@ -18,30 +18,38 @@ resource singleGroup 'Microsoft.Management/managementGroups@2020-05-01' = {
   }
 }
 
-resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
-  name: mg.name
-  properties: {
-    displayName: '${mg.displayName} (${singleGroup.properties.displayName})'
+resource manyGroups 'Microsoft.Management/managementGroups@2020-05-01' = [
+  for mg in managementGroups: {
+    name: mg.name
+    properties: {
+      displayName: '${mg.displayName} (${singleGroup.properties.displayName})'
+    }
   }
-}]
+]
 
-resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, index) in managementGroups: {
-  name: concat(mg.name, '-one-', index)
-  properties: {
-    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
+resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [
+  for (mg, index) in managementGroups: {
+    name: concat(mg.name, '-one-', index)
+    properties: {
+      displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 1) (index ${index})'
+    }
+    dependsOn: [manyGroups]
   }
-  dependsOn: [manyGroups]
-}]
+]
 
-resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for mg in managementGroups: {
-  name: concat(mg.name, '-two')
-  properties: {
-    displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 2)'
+resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [
+  for mg in managementGroups: {
+    name: concat(mg.name, '-two')
+    properties: {
+      displayName: '${mg.displayName} (${singleGroup.properties.displayName}) (set 2)'
+    }
+    dependsOn: [anotherSet[0]]
   }
-  dependsOn: [anotherSet[0]]
-}]
+]
 
-output managementGroupIds array = [for i in range(0, length(managementGroups)): {
-  name: yetAnotherSet[i].name
-  displayName: yetAnotherSet[i].properties.displayName
-}]
+output managementGroupIds array = [
+  for i in range(0, length(managementGroups)): {
+    name: yetAnotherSet[i].name
+    displayName: yetAnotherSet[i].properties.displayName
+  }
+]

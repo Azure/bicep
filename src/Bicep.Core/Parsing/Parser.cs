@@ -193,6 +193,10 @@ namespace Bicep.Core.Parsing
             var existingKeyword = GetOptionalKeyword(LanguageConstants.ExistingKeyword);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
 
+            var newlines = !assignment.IsSkipped && reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : ImmutableArray<Token>.Empty;
+
             var value = this.WithRecovery(() =>
                 {
                     var current = reader.Peek();
@@ -207,7 +211,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, value);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, newlines, value);
         }
 
         private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
@@ -222,6 +226,10 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
+            var newlines = reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : ImmutableArray<Token>.Empty;
+
             var value = this.WithRecovery(() =>
                 {
                     var current = reader.Peek();
@@ -236,7 +244,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
         }
 
         private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)

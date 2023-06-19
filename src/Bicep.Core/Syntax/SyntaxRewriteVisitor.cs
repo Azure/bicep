@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -251,6 +252,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= TryRewrite(syntax.Type, out var type);
             hasChanges |= TryRewriteStrict(syntax.ExistingKeyword, out var existingKeyword);
             hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Newlines, out var newlines);
             hasChanges |= TryRewrite(syntax.Value, out var value);
 
             if (!hasChanges)
@@ -258,7 +260,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, value);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, newlines.Cast<Token>().ToImmutableArray(), value);
         }
         void ISyntaxVisitor.VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceDeclarationSyntax);
 
@@ -269,6 +271,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewrite(syntax.Path, out var path);
             hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Newlines, out var newlines);
             hasChanges |= TryRewrite(syntax.Value, out var value);
 
             if (!hasChanges)
@@ -276,7 +279,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines.Cast<Token>().ToImmutableArray(), value);
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
@@ -859,12 +862,14 @@ namespace Bicep.Core.Syntax
         protected virtual SyntaxBase ReplaceForSyntax(ForSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.OpenSquare, out var openSquare);
+            hasChanges |= TryRewrite(syntax.OpenNewlines, out var openNewlines);
             hasChanges |= TryRewriteStrict(syntax.ForKeyword, out var forKeyword);
             hasChanges |= TryRewrite(syntax.VariableSection, out var itemVariable);
             hasChanges |= TryRewrite(syntax.InKeyword, out var inKeyword);
             hasChanges |= TryRewrite(syntax.Expression, out var expression);
             hasChanges |= TryRewrite(syntax.Colon, out var colon);
             hasChanges |= TryRewrite(syntax.Body, out var body);
+            hasChanges |= TryRewrite(syntax.CloseNewlines, out var closeNewlines);
             hasChanges |= TryRewrite(syntax.CloseSquare, out var closeSquare);
 
             if (!hasChanges)
@@ -872,7 +877,17 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ForSyntax(openSquare, forKeyword, itemVariable, inKeyword, expression, colon, body, closeSquare);
+            return new ForSyntax(
+                openSquare,
+                openNewlines.Cast<Token>().ToImmutableArray(),
+                forKeyword,
+                itemVariable,
+                inKeyword,
+                expression,
+                colon,
+                body,
+                closeNewlines.Cast<Token>().ToImmutableArray(),
+                closeSquare);
         }
 
         void ISyntaxVisitor.VisitForSyntax(ForSyntax syntax) => ReplaceCurrent(syntax, ReplaceForSyntax);

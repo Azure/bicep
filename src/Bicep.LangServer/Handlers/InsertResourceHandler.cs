@@ -249,6 +249,7 @@ namespace Bicep.LanguageServer.Handlers
                 SyntaxFactory.CreateStringLiteral(typeReference.FormatName()),
                 null,
                 SyntaxFactory.CreateToken(TokenType.Assignment),
+                ImmutableArray<Token>.Empty,
                 SyntaxFactory.CreateObject(properties));
         }
 

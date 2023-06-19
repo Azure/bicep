@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -150,6 +151,7 @@ namespace Bicep.LanguageServer.Handlers
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
                 null,
                 SyntaxFactory.AssignmentToken,
+                ImmutableArray<Token>.Empty,
                 resourceBody);
         }
 

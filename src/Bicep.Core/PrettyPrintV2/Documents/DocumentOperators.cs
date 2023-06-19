@@ -56,7 +56,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         /// </summary>
         public static readonly Document CommaLineOrCommaSpace = Glue(",", LineOrSpace);
 
-        public static Document Glue(params Document[] documents) => Glue(documents.AsEnumerable());
+        public static Document Glue(params Document[] documents) => new GlueDocument(documents);
 
         public static Document Glue(this IEnumerable<Document> documents) => documents is Document single ? single : new GlueDocument(documents);
 
@@ -65,6 +65,8 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         public static IndentDocument Indent(this IEnumerable<Document> documents) => new(documents);
 
         public static GroupDocument Group(params Document[] documents) => new(documents);
+
+        public static GroupDocument Group(IEnumerable<Document> documents) => new(documents);
 
         public static IEnumerable<Document> SeparateBy(this IEnumerable<Document> documents, Document separator)
         {

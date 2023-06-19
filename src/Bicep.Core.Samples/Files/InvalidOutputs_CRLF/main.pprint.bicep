@@ -105,18 +105,22 @@ var attemptToReferenceAnOutput = myOutput
 output notAttachableDecorators int = 32
 
 // nested loops inside output loops are not supported
-output noNestedLoops array = [for thing in things: {
-  something: [[for thing in things: true]]
-}]
+output noNestedLoops array = [
+  for thing in things: {
+    something: [[for thing in things: true]]
+  }
+]
 
 // loops in inner properties inside outputs are not supported
 output noInnerLoopsInOutputs object = {
   a: [for i in range(0, 10): i]
 }
 output noInnerLoopsInOutputs2 object = {
-  a: [for i in range(0, 10): {
-    b: [for j in range(0, 10): i + j]
-  }]
+  a: [
+    for i in range(0, 10): {
+      b: [for j in range(0, 10): i + j]
+    }
+  ]
 }
 
 //KeyVault Secret Reference

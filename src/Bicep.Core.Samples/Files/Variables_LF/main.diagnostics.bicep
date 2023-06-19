@@ -316,6 +316,35 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 // variable loops
 var incrementingNumbers = [for i in range(0,10) : i]
 //@[04:23) [no-unused-vars (Warning)] Variable "incrementingNumbers" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |incrementingNumbers|
+var printToSingleLine1 = [
+//@[04:22) [no-unused-vars (Warning)] Variable "printToSingleLine1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |printToSingleLine1|
+    for i in range(0,20) : i
+]
+var printToSingleLine2 = [
+//@[04:22) [no-unused-vars (Warning)] Variable "printToSingleLine2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |printToSingleLine2|
+    /* harmless comment */ for i in range(0,20) : i
+]
+var printToSingleLine3 = [
+//@[04:22) [no-unused-vars (Warning)] Variable "printToSingleLine3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |printToSingleLine3|
+    for i in range(0,20) : i /* harmless comment */
+]
+var forceLineBreaks1 = [
+//@[04:20) [no-unused-vars (Warning)] Variable "forceLineBreaks1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceLineBreaks1|
+    // force line breaks
+    for i in range(0,    30) : i
+]
+var forceLineBreaks2 = [
+//@[04:20) [no-unused-vars (Warning)] Variable "forceLineBreaks2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceLineBreaks2|
+    for i in range(0,    30) : i
+    // force line breaks
+]
+var forceLineBreaks3 = [
+//@[04:20) [no-unused-vars (Warning)] Variable "forceLineBreaks3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |forceLineBreaks3|
+    /* force line breaks */
+    for i in range(0,    30) : i
+    /* force line breaks */
+]
+
 var loopInput = [
   'one'
   'two'
