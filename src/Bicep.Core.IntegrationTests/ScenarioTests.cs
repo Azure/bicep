@@ -4208,6 +4208,62 @@ output sql resource = sql
         });
     }
 
+    [TestMethod]
+    public void Test_Issue6065_ResourceFunctions()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
+            ("main.bicep", """
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                }
+
+                output key string = mod.outputs.sa.listKeys().keys[0].value
+                """),
+            ("mod.bicep", """
+                resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+                  name: 'sa'
+                }
+
+                output sa resource = sa
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue6065_GetSecretFunction()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
+            ("main.bicep", """
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                }
+
+                module mod2 'mod2.bicep' = {
+                  name: 'mod2'
+                  params: {
+                    secret: mod.outputs.kv.getSecret('password')
+                  }
+                }
+                """),
+            ("mod.bicep", """
+                resource kv 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+                  name: 'kv'
+                }
+
+                output kv resource = kv
+                """),
+            ("mod2.bicep", """
+                @secure()
+                param secret string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
     // https://github.com/Azure/bicep/issues/9713
     [TestMethod]
     public void Test_9713()
@@ -4814,6 +4870,18 @@ module mod 'mod.bicep' = [for i in range(0, count): {
   }
 }]
 "));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/10994
+    [TestMethod]
+    public void Test_Issue10994()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), """
+            param ir resource 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01'
+            output authkeys string = ir.listAuthKeys().authKey1
+            """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
