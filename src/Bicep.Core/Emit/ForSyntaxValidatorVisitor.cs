@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -18,6 +18,8 @@ namespace Bicep.Core.Emit
         private readonly SemanticModel semanticModel;
 
         private SyntaxBase? activeLoopCapableTopLevelDeclaration = null;
+        private VariableDeclarationSyntax? currentVariableDeclarationSyntax = null;
+        private OutputDeclarationSyntax? currentOutputDeclarationSyntax = null;
 
         private enum PropertyLoopCapability
         {
@@ -45,10 +47,16 @@ namespace Bicep.Core.Emit
 
         private int propertyLoopCount = 0;
 
+        private int loopLevel = 0;
+
         // points to the top level dependsOn property in the resource/module declaration currently being processed
         private ObjectPropertySyntax? currentDependsOnProperty = null;
 
+        private ObjectPropertySyntax? currentPropertiesProperty = null;
+
         private bool insideTopLevelDependsOn = false;
+
+        private bool insideProperties = false;
 
         private ForSyntaxValidatorVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
@@ -98,13 +106,18 @@ namespace Bicep.Core.Emit
 
             // stash the body (handles loops and conditions as well)
             var previousDependsOnProperty = this.currentDependsOnProperty;
-            this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
+            var resourceBodySyntax = syntax.TryGetBody();
+            this.currentDependsOnProperty = TryGetDependsOnProperty(resourceBodySyntax);
+
+            var previousPropertiesProperty = this.currentPropertiesProperty;
+            this.currentPropertiesProperty = TryGetPropertiesProperty(resourceBodySyntax);
 
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore state
             this.currentDependsOnProperty = previousDependsOnProperty;
             this.activeLoopCapableTopLevelDeclaration = previousLoopCapableTopLevelDeclaration;
+            this.currentPropertiesProperty = previousPropertiesProperty;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -112,12 +125,15 @@ namespace Bicep.Core.Emit
             this.activeLoopCapableTopLevelDeclaration = syntax;
 
             // stash the body (handles loops and conditions as well)
-            this.currentDependsOnProperty = TryGetDependsOnProperty(syntax.TryGetBody());
+            var moduleBodySyntax = syntax.TryGetBody();
+            this.currentDependsOnProperty = TryGetDependsOnProperty(moduleBodySyntax);
+            this.currentPropertiesProperty = TryGetPropertiesProperty(moduleBodySyntax);
 
             base.VisitModuleDeclarationSyntax(syntax);
 
             // clear the stash
             this.currentDependsOnProperty = null;
+            this.currentPropertiesProperty = null;
 
             this.activeLoopCapableTopLevelDeclaration = null;
         }
@@ -125,15 +141,19 @@ namespace Bicep.Core.Emit
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             this.activeLoopCapableTopLevelDeclaration = syntax;
+            this.currentVariableDeclarationSyntax = syntax;
             base.VisitVariableDeclarationSyntax(syntax);
             this.activeLoopCapableTopLevelDeclaration = null;
+            this.currentVariableDeclarationSyntax = null;
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             this.activeLoopCapableTopLevelDeclaration = syntax;
+            this.currentOutputDeclarationSyntax = syntax;
             base.VisitOutputDeclarationSyntax(syntax);
             this.activeLoopCapableTopLevelDeclaration = null;
+            this.currentOutputDeclarationSyntax = null;
         }
 
         public override void VisitForSyntax(ForSyntax syntax)
@@ -161,8 +181,12 @@ namespace Bicep.Core.Emit
                     break;
             }
 
+            this.loopLevel++;
+
             // visit children
             base.VisitForSyntax(syntax);
+
+            this.loopLevel--;
 
             // restore previous property loop count
             this.propertyLoopCount = previousPropertyLoopCount;
@@ -177,10 +201,12 @@ namespace Bicep.Core.Emit
             }
 
             bool insideDependsOnInThisScope = ReferenceEquals(this.currentDependsOnProperty, syntax);
+            bool insidePropertiesInThisScope = ReferenceEquals(this.currentPropertiesProperty, syntax);
 
             // set this to true if the current property is the top-level dependsOn property
             // leave it true if already set to true
             this.insideTopLevelDependsOn = this.insideTopLevelDependsOn || insideDependsOnInThisScope;
+            this.insideProperties = this.insideProperties || insidePropertiesInThisScope;
 
             // visit children
             base.VisitObjectPropertySyntax(syntax);
@@ -189,6 +215,11 @@ namespace Bicep.Core.Emit
             if (insideDependsOnInThisScope)
             {
                 this.insideTopLevelDependsOn = false;
+            }
+
+            if (insidePropertiesInThisScope)
+            {
+                this.insideProperties = false;
             }
         }
 
@@ -238,31 +269,48 @@ namespace Bicep.Core.Emit
         private void ValidateDirectAccessToResourceOrModuleCollection(SyntaxBase variableOrResourceAccessSyntax)
         {
             var symbol = this.semanticModel.GetSymbolInfo(variableOrResourceAccessSyntax);
-            if (symbol is ModuleSymbol { IsCollection: true })
+            if (symbol is ResourceSymbol { IsCollection: true } or ModuleSymbol { IsCollection: true })
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
                 if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
-                    // which is not allowed outside of the dependsOn properties
-                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(variableOrResourceAccessSyntax).DirectAccessToCollectionNotSupported());
-                }
-            }
-            else if (symbol is ResourceSymbol { IsCollection: true })
-            {
-                var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
+                    if (symbol is not ResourceSymbol)
+                    {
+                        // not allowed outside of the dependsOn property for modules
+                        WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
+                        return;
+                    }
 
-                if (parent is not ArrayAccessSyntax && this.semanticModel.Binder
-                    .GetAllAncestors<ResourceDeclarationSyntax>(variableOrResourceAccessSyntax)
-                    .Any(decl => decl.IsCollection()))
-                {
-                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(variableOrResourceAccessSyntax).DirectAccessToCollectionNotSupported());
+                    // NOTE(kylealbert): Direct access to resource collections:
+                    //  1. Not allowed inside a loop
+                    //  2. In a resource body, it must be in a top level depends on property or inside the properties property.
+                    //  3. Allowed in a variable declaration value
+                    //  4. Allowed in an output value
+                    if (this.loopLevel > 0)
+                    {
+                        WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
+                        return;
+                    }
+
+                    var isValidResourceCollectionDirectAccessLocation = this.insideProperties
+                        || this.currentVariableDeclarationSyntax != null
+                        || this.currentOutputDeclarationSyntax != null;
+
+                    if (!isValidResourceCollectionDirectAccessLocation)
+                    {
+                        WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
+                    }
                 }
             }
         }
 
-        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName("dependsOn");
+        private void WriteDirectAccessToCollectionNotSupported(IPositionable positionable) =>
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).DirectAccessToCollectionNotSupported());
+
+        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
+        private static ObjectPropertySyntax? TryGetPropertiesProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName);
 
         private bool? IsLoopAllowedHere(ForSyntax syntax)
         {
