@@ -476,11 +476,6 @@ namespace Bicep.Core.Emit
             }
             else if (resource is DeclaredResourceMetadata declared)
             {
-                if (declared.Symbol.IsCollection)
-                {
-                    return new JTokenExpression(declared.Symbol.Name);
-                }
-
                 var nameSegments = GetResourceNameSegments(declared);
                 return ScopeHelper.FormatFullyQualifiedResourceId(
                     context,
@@ -537,7 +532,9 @@ namespace Bicep.Core.Emit
 
                 DeclaredResourceMetadata declared when context.Settings.EnableSymbolicNames =>
                     GenerateSymbolicReference(declared, indexContext),
-                DeclaredResourceMetadata => GetFullyQualifiedResourceId(resource),
+                DeclaredResourceMetadata declared => declared.Symbol.IsCollection
+                    ? new JTokenExpression(declared.Symbol.Name) // this is the copy name
+                    : GetFullyQualifiedResourceId(resource),
 
                 _ => throw new InvalidOperationException($"Unexpected resource metadata type: {resource.GetType()}"),
             };
