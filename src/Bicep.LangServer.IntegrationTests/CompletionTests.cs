@@ -64,6 +64,8 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager ServerWithUDFsEnabled = new();
 
+        private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -109,6 +111,12 @@ namespace Bicep.LangServer.IntegrationTests
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
                     services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
+
+            ServerWithResourceTypedParamsEnabled.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    testContext,
+                    services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
+                        .WithNamespaceProvider(BuiltInTestTypes.Create())));
         }
 
         [ClassCleanup]
@@ -120,6 +128,7 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithExtensibilityEnabled.DisposeAsync();
             await ServerWithTypesEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
+            await ServerWithResourceTypedParamsEnabled.DisposeAsync();
         }
 
         [TestMethod]
@@ -2113,6 +2122,30 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 
 var outTest = abc.listWithInput(|)
 ");
+        }
+
+        [TestMethod]
+        public async Task Known_list_functions_are_offered_on_resource_typed_params()
+        {
+            var fileWithCursors = """
+                param ir resource 'Test.Rp/listFuncTests@2020-01-01'
+
+                output authkeys string = ir.|
+                """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithResourceTypedParamsEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "listNoInput");
+            completions.Should().Contain(x => x.Label == "listWithInput");
+
+            var updatedFile = file.ApplyCompletion(completions, "listWithInput");
+            updatedFile.Should().HaveSourceText("""
+                param ir resource 'Test.Rp/listFuncTests@2020-01-01'
+
+                output authkeys string = ir.listWithInput(|)
+                """);
         }
 
         [TestMethod]
