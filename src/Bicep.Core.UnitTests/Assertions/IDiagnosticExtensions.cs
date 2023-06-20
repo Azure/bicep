@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Analyzers.Linter;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -24,5 +24,8 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             return diagnostics.ExcludingCode("BCP081");
         }
+
+        public static IEnumerable<IDiagnostic> OnlyIncludingErrorDiagnostics(this IEnumerable<IDiagnostic> diagnostics)
+            => diagnostics.Where(d => d.Level == DiagnosticLevel.Error);
     }
 }

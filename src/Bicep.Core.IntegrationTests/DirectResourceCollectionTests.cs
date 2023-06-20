@@ -11,14 +11,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class ReferencesFunctionTests
+    public class DirectResourceCollectionTests
     {
         [TestMethod]
-        public void ReferencesFunction_NonSymbolic_Basic()
+        public void DirectResourceCollectionAccess_NonSymbolic_Basic()
         {
             var result = CompilationHelper.Compile(CreateReferencesBicepContent());
 
-            result.ExcludingLinterDiagnostics()
+            result.WithErrorDiagnosticsOnly()
                 .Should()
                 .NotHaveAnyDiagnostics();
 
@@ -37,11 +37,13 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public void ReferencesFunction_Basic()
+        public void DirectResourceCollectionAccess_Basic()
         {
             var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), CreateReferencesBicepContent());
 
-            result.ExcludingLinterDiagnostics()
+            // NOTE(kylealbert): it's important that this test asserts no diagnostics for CreateReferencesBicepContent()
+            // in relation to other tests that extend this content
+            result.WithErrorDiagnosticsOnly()
                 .Should()
                 .NotHaveAnyDiagnostics();
 
@@ -72,36 +74,76 @@ namespace Bicep.Core.IntegrationTests
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
         }
 
+        [DataTestMethod]
+        [DataRow("""
+var loopVar = [for i in range(0, 2): {
+  prop: map(containerWorkers, (w) => w.properties.ipAddress.ip)
+}]
+""")]
+        [DataRow("""
+output loopOutput array = [for i in range(0, 2): {
+  prop: map(containerWorkers, (w) => w.properties.ipAddress.ip)
+}]
+""")]
+        [DataRow("""
+resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
+  name: 'gh9440-loop'
+  location: 'westus'
+  properties: {
+    containers: [for i in range(0, 2): {
+      name: 'gh9440-w1c-${i}'
+      properties: {
+        command: [
+          'echo "${join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')}"'
+        ]
+      }
+    }]
+  }
+}
+""")]
+        public void DirectResourceCollectionAccess_NotAllowedWithinLoops(string additionalContent)
+        {
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression."),
+                    });
+        }
+
         [TestMethod]
-        public void ReferencesFunction_NotAllowedWithinResourceCollection()
+        public void DirectResourceCollectionAccess_NotAllowedWithinUnsupportedResourceProperties()
+        {
+            const string additionalContent = """
+resource containerController2 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
+  name: 'gh9440-c2'
+  tags: {
+    prop: join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+  }
+}
+""";
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression."),
+                    });
+        }
+
+        [TestMethod]
+        public void DirectResourceCollectionAccess_NotAllowedWithinResourceCollection()
         {
             const string bicepContents = """
 resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
   name: 'gh9440-w1-${i}'
   location: 'westus'
   properties: {
-    containers: [
-      {
-        name: 'gh9440-w1c-${i}'
-        properties: {
-          image: 'mcr.microsoft.com/azuredocs/aci-helloworld'
-          ports: [
-            {
-              port: 80
-              protocol: 'TCP'
-            }
-          ]
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 2
-            }
-          }
-        }
-      }
-    ]
-    osType: 'Linux'
-    restartPolicy: 'Always'
     ipAddress: {
       type: 'Public'
       ports: [
@@ -125,40 +167,16 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
           command: [
             'echo "${join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')}"'
           ]
-          image: 'mcr.microsoft.com/azuredocs/aci-helloworld'
-          ports: [
-            {
-              port: 80
-              protocol: 'TCP'
-            }
-          ]
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 2
-            }
-          }
         }
       }
     ]
-    osType: 'Linux'
-    restartPolicy: 'Always'
-    ipAddress: {
-      type: 'Public'
-      ports: [
-        {
-          port: 80
-          protocol: 'TCP'
-        }
-      ]
-    }
   }
 }]
 """;
 
             var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), bicepContents);
 
-            result.ExcludingLinterDiagnostics()
+            result.WithErrorDiagnosticsOnly()
                 .Should()
                 .HaveDiagnostics(
                     new[]
@@ -170,44 +188,13 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
         private static ServiceBuilder NewServiceBuilder(bool isSymbolicNameCodegenEnabled) => new ServiceBuilder()
             .WithFeatureOverrides(new FeatureProviderOverrides { SymbolicNameCodegenEnabled = isSymbolicNameCodegenEnabled });
 
-        private static string CreateReferencesBicepContent(string additionalContent = "", string additionalOutput = "")
+        private static string CreateReferencesBicepContent()
         {
-            return $$"""
+            return """
 resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
   name: 'gh9440-w1-${i}'
   location: 'westus'
   properties: {
-    containers: [
-      {
-        name: 'gh9440-w1c-${i}'
-        properties: {
-          image: 'mcr.microsoft.com/azuredocs/aci-helloworld'
-          ports: [
-            {
-              port: 80
-              protocol: 'TCP'
-            }
-          ]
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 2
-            }
-          }
-        }
-      }
-    ]
-    osType: 'Linux'
-    restartPolicy: 'Always'
-    ipAddress: {
-      type: 'Public'
-      ports: [
-        {
-          port: 80
-          protocol: 'TCP'
-        }
-      ]
-    }
   }
 }]
 
@@ -225,41 +212,14 @@ resource containerController 'Microsoft.ContainerInstance/containerGroups@2022-0
             'echo "${join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')}"'
             'echo "${ipAddresses}"'
           ]
-          image: 'mcr.microsoft.com/azuredocs/aci-helloworld'
-          ports: [
-            {
-              port: 80
-              protocol: 'TCP'
-            }
-          ]
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 2
-            }
-          }
         }
       }
     ]
-    osType: 'Linux'
-    restartPolicy: 'Always'
-    ipAddress: {
-      type: 'Public'
-      ports: [
-        {
-          port: 80
-          protocol: 'TCP'
-        }
-      ]
-    }
   }
 }
 
-{{additionalContent}}
-
 output o1 string = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
 output o2 string = ipAddresses
-{{additionalOutput}}
 """;
         }
     }
