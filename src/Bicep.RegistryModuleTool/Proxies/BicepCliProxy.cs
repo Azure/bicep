@@ -21,7 +21,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             @"^([^\s].*)\((\d+)(?:,\d+|,\d+,\d+)?\)\s+:\s+(Warning)\s+([a-zA-Z-\d]+):\s*(.*?)\s+\[(.*?)\]$",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private readonly static string[] LineSeperators = new[] { "\r", "\n", "\r\n" };
+        private readonly static string[] LineSeparators = new[] { "\r", "\n", "\r\n" };
 
         private readonly IEnvironmentProxy environmentProxy;
 
@@ -56,7 +56,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             {
                 if (standardError.Length > 0)
                 {
-                    foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var warning in standardError.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries))
                     {
                         console.WriteWarning(warning);
                     }
@@ -68,7 +68,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             }
 
             // Exit code is not 0. There exists errors.
-            foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var line in standardError.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (BicepBuildWarningRegex.IsMatch(line))
                 {
