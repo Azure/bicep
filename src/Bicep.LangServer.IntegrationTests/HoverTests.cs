@@ -453,14 +453,7 @@ output o1 string = mod|1.name
 
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
-            var expectedHover = @"```bicep
-module mod1 './mod.bicep'
-```
-this is mod1  
-this  
-is  
-a description
-";
+            var expectedHover = "```bicep\nmodule mod1 './mod.bicep'\n```\nthis is mod1  \n  \nthis  \nis  \na description\n";
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover),
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover)
@@ -508,14 +501,7 @@ output o1 string = mod|1.name
 
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
-            var expectedHover = $@"```bicep
-module mod1 './mod.{extension}'
-```
-this is mod1  
-this  
-is  
-a description
-";
+            var expectedHover = $"```bicep\nmodule mod1 './mod.{extension}'\n```\nthis is mod1  \n  \nthis  \nis  \na description\n";
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover),
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover)
@@ -820,8 +806,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             "sha:12345",
             null,
             "my description", // description
-
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy description  \n[View Documentation](http://test.com)\n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy description  \n  \n[View Documentation](http://test.com)\n")]
         public async Task Verify_Hover_ContainerRegistry(string? documentationUri, string repositoryAndTag, string registry, string repository, string? digest, string? tag, string? description, string expectedHoverContent)
         {
             string manifestFileContents = GetManifestFileContents(documentationUri, description);
