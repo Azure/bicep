@@ -61,16 +61,28 @@ namespace Bicep.Core.IntegrationTests
                     "$.resources.containerController.properties.containers[0].properties.command[1]",
                     "[format('echo \"{0}\"', join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ','))]");
 
-            // output value
+            // output value: no outer expression
             template.Should()
                 .HaveValueAtPath(
-                    "$.outputs.o1.value",
+                    "$.outputs.outputWithoutOuterExpression.value",
+                    "[references('containerWorkers', 'full')]");
+
+            // output value: with outer expression
+            template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.outputWithOuterExpression.value",
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
 
-            // output value via inlined variable
+            // output value: no outer expression; inlined
             template.Should()
                 .HaveValueAtPath(
-                    "$.outputs.o2.value",
+                    "$.outputs.outputInlinedWithoutOuterExpression.value",
+                    "[references('containerWorkers', 'full')]");
+
+            // output value: with outer expression; inlined
+            template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.outputInlinedWithOuterExpression.value",
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
         }
 
@@ -199,6 +211,7 @@ resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-0
 }]
 
 var ipAddresses = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+var containerWorkersAlias = containerWorkers
 
 resource containerController 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
    name: 'gh9440-c'
@@ -218,8 +231,10 @@ resource containerController 'Microsoft.ContainerInstance/containerGroups@2022-0
   }
 }
 
-output o1 string = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
-output o2 string = ipAddresses
+output outputWithoutOuterExpression array = containerWorkers
+output outputWithOuterExpression string = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+output outputInlinedWithoutOuterExpression array = containerWorkersAlias
+output outputInlinedWithOuterExpression string = ipAddresses
 """;
         }
     }

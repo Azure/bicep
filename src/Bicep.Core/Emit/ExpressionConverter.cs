@@ -532,7 +532,7 @@ namespace Bicep.Core.Emit
 
                 DeclaredResourceMetadata declared when context.Settings.EnableSymbolicNames =>
                     GenerateSymbolicReference(declared, indexContext),
-                DeclaredResourceMetadata declared => declared.Symbol.IsCollection
+                DeclaredResourceMetadata declared => declared.Symbol.IsCollection && indexContext == null
                     ? new JTokenExpression(declared.Symbol.Name) // this is the copy name
                     : GetFullyQualifiedResourceId(resource),
 
@@ -548,7 +548,7 @@ namespace Bicep.Core.Emit
                     referenceExpression);
             }
 
-            if (resource is DeclaredResourceMetadata { Symbol.IsCollection: true })
+            if (resource is DeclaredResourceMetadata { Symbol.IsCollection: true } && indexContext == null)
             {
                 return full
                     ? CreateFunction(
