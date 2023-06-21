@@ -572,7 +572,7 @@ public class ExpressionBuilder
         var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
 
         // Looking for short-circuitable access chains
-        if (arrayAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
+        if (!arrayAccess.IsSafeAccess && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
         {
             if (convertedBase is AccessExpression baseAccess)
             {
@@ -659,7 +659,7 @@ public class ExpressionBuilder
         var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
 
         // Looking for short-circuitable access chains
-        if (propertyAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
+        if (!propertyAccess.IsSafeAccess && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
         {
             Expression nextLink = new StringLiteralExpression(propertyAccess.PropertyName, propertyAccess.PropertyName.IdentifierName);
 

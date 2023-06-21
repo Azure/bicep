@@ -248,4 +248,24 @@ output deeplyNested string = foo[0].?nested.deeplyNested
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"string\" but the provided value is of type \"'value' | null\"."),
         });
     }
+
+    [TestMethod]
+    public void Safe_dereference_of_unknown_property_should_be_warning_not_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+var foo = {
+  bar: 'present'
+}
+var baz = 'baz'
+
+output nulls object = {
+  propertyAccess: foo.?baz
+  arrayAccess: foo[?baz]
+}
+");
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
+            ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
+        });
+    }
 }

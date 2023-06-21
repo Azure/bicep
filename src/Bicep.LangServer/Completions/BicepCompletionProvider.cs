@@ -1571,7 +1571,7 @@ namespace Bicep.LanguageServer.Completions
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
                 var edit = new StringBuilder("[");
-                if (propertyAccess.SafeAccessMarker is not null)
+                if (propertyAccess.IsSafeAccess)
                 {
                     edit.Append('?');
                 }
