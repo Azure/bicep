@@ -1097,6 +1097,8 @@ namespace Bicep.Core.TypeSystem
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
+                    return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
             }
