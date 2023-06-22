@@ -45,7 +45,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 
             FluentActions.Invoking(() => ReadmeFile.Generate(fileSystem, MetadataFile.ReadFromFileSystem(fileSystem), MainArmTemplateFile.ReadFromFileSystem(fileSystem))).Should()
                 .Throw<BicepException>()
-                .WithMessage("The readme file C:\\modules\\test\\testmodule\\README.md must not contain both a Description and a Details section.");
+                .WithMessage("The readme file *README.md must not contain both a Description and a Details section.");
         }
     }
 }
