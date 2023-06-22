@@ -127,6 +127,26 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
         }
 
         [TestMethod]
+        public void DirectResourceCollectionAccess_NotAllowedWithinLoops_InlinedVariable()
+        {
+            const string additionalContent = """
+var containerWorkersAliased = containerWorkers
+var loopVar = [for i in range(0, 2): {
+  prop: map(containerWorkersAliased, (w) => w.properties.ipAddress.ip)
+}]
+""";
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    });
+        }
+
+        [TestMethod]
         public void DirectResourceCollectionAccess_NotAllowedWithinUnsupportedResourceProperties()
         {
             const string additionalContent = """
@@ -246,6 +266,56 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
                     new[]
                     {
                         ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression.")
+                    });
+        }
+
+        [TestMethod]
+        public void DirectResourceCollectionAccess_NotAllowedWithinResourceCollection_InlinedVariable()
+        {
+            const string bicepContents = """
+resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
+  name: 'gh9440-w1-${i}'
+  location: 'westus'
+  properties: {
+    ipAddress: {
+      type: 'Public'
+      ports: [
+        {
+          port: 80
+          protocol: 'TCP'
+        }
+      ]
+    }
+  }
+}]
+
+var ipAddresses = map(containerWorkers, (w) => w.properties.ipAddress.ip)
+resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
+  name: 'gh9440-w1-${i}'
+  location: 'westus'
+  properties: {
+    containers: [
+      {
+        name: 'gh9440-w1c-${i}'
+        properties: {
+          command: [
+            'echo "${join(ipAddresses, ',')}"'
+          ]
+        }
+      }
+    ]
+  }
+}]
+""";
+
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), bicepContents);
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression.")
                     });
         }
 
