@@ -185,10 +185,10 @@ namespace Bicep.LanguageServer.Completions
             List<CompletionItem> completions = new List<CompletionItem>();
             replacementText = replacementText.TrimEnd('\'');
 
-            var versionInfos = await publicRegistryModuleMetadataProvider.GetVersions(modulePath);
+            var versionInfos = (await publicRegistryModuleMetadataProvider.GetVersions(modulePath)).ToArray();
             for (int i = versionInfos.Count() - 1; i >= 0; i--)
             {
-                var (version, description, documentationUri) = versionInfos.ElementAt(i);
+                var (version, description, documentationUri) = versionInfos[i];
 
                 var insertText = $"{replacementText}{version}'$0";
 
