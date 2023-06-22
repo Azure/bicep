@@ -405,9 +405,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(29);
-            var m = modules.Should().Contain(m => m.name == "app/dapr-containerapp").Which;
-            m.description.Should().BeNull();
-            m.documentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapp/1.0.2/modules/app/dapr-containerapp/README.md");
+            var m = modules.Should().Contain(m => m.Name == "app/dapr-containerapp").Which;
+            m.Description.Should().BeNull();
+            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapp/1.0.2/modules/app/dapr-containerapp/README.md");
         }
 
         [TestMethod]
@@ -417,9 +417,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(29);
-            var m = modules.Should().Contain(m => m.name == "app/dapr-containerapps-environment").Which;
-            m.description.Should().BeNull();
-            m.documentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.2.2/modules/app/dapr-containerapps-environment/README.md");
+            var m = modules.Should().Contain(m => m.Name == "app/dapr-containerapps-environment").Which;
+            m.Description.Should().BeNull();
+            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.2.2/modules/app/dapr-containerapps-environment/README.md");
         }
 
         [TestMethod]
@@ -429,9 +429,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(29);
-            var m = modules.Should().Contain(m => m.name == "security/keyvault").Which;
-            m.description.Should().BeNull();
-            m.documentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/security/keyvault/1.0.1/modules/security/keyvault/README.md");
+            var m = modules.Should().Contain(m => m.Name == "security/keyvault").Which;
+            m.Description.Should().BeNull();
+            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/security/keyvault/1.0.1/modules/security/keyvault/README.md");
         }
 
         [TestMethod]
@@ -441,9 +441,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(29);
-            var m = modules.Should().Contain(m => m.name == "samples/array-loop").Which;
-            m.description.Should().Be("Description for 1.0.1");
-            m.documentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.2/modules/samples/array-loop/README.md");
+            var m = modules.Should().Contain(m => m.Name == "samples/array-loop").Which;
+            m.Description.Should().Be("Description for 1.0.1");
+            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.2/modules/samples/array-loop/README.md");
         }
 
         [TestMethod]
@@ -453,9 +453,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(29);
-            var m = modules.Should().Contain(m => m.name == "samples/hello-world").Which;
-            m.description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
-            m.documentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.3/modules/samples/hello-world/README.md");
+            var m = modules.Should().Contain(m => m.Name == "samples/hello-world").Which;
+            m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
+            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.3/modules/samples/hello-world/README.md");
         }
 
         [TestMethod]
@@ -465,9 +465,9 @@ namespace Bicep.LangServer.UnitTests.Completions
             (await provider.TryUpdateCacheAsync()).Should().BeTrue();
             var modules = await provider.GetModules();
             modules.Should().HaveCount(29);
-            var m = modules.Should().Contain(m => m.name == "lz/sub-vending").Which;
-            m.description.Should().Be("1.3.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.");
-            m.documentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.3.1/modules/lz/sub-vending/README.md");
+            var m = modules.Should().Contain(m => m.Name == "lz/sub-vending").Which;
+            m.Description.Should().Be("1.3.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.");
+            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.3.1/modules/lz/sub-vending/README.md");
         }
     }
 }

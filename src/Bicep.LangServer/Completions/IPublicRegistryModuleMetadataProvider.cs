@@ -11,8 +11,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public record PublicRegistryModule(string name, string? description, string? documentationUri);
-    public record PublicRegistryModuleVersion(string version, string? description, string? documentationUri);
+    public record PublicRegistryModule(string Name, string? Description, string? DocumentationUri);
+    public record PublicRegistryModuleVersion(string Version, string? Description, string? DocumentationUri);
 
     public interface IPublicRegistryModuleMetadataProvider
     {

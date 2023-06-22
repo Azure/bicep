@@ -375,11 +375,11 @@ namespace Bicep.LanguageServer.Completions
                             var modulePathWithoutBicepKeyword = modulePath.Substring("bicep/".Length);
                             var modules = await publicRegistryModuleMetadataProvider.GetModules();
 
-                            var matchingModules = modules.Where(x => x.name.StartsWith($"{modulePathWithoutBicepKeyword}/"));
+                            var matchingModules = modules.Where(x => x.Name.StartsWith($"{modulePathWithoutBicepKeyword}/"));
 
                             foreach (var module in matchingModules)
                             {
-                                var label = module.name.Substring($"{modulePathWithoutBicepKeyword}/".Length);
+                                var label = module.Name.Substring($"{modulePathWithoutBicepKeyword}/".Length);
                                 StringBuilder sb = new StringBuilder(replacementTextWithTrimmedEnd);
 
                                 if (!replacementTextWithTrimmedEnd.EndsWith(":"))
@@ -392,8 +392,8 @@ namespace Bicep.LanguageServer.Completions
                                     .WithSnippetEdit(context.ReplacementRange, insertText)
                                     .WithFilterText(insertText)
                                     .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
-                                    .WithDetail(module.description)
-                                    .WithDocumentation(GetDocumentationLink(module.documentationUri))
+                                    .WithDetail(module.Description)
+                                    .WithDocumentation(GetDocumentationLink(module.DocumentationUri))
                                     .Build();
                                 completions.Add(completionItem);
                             }
