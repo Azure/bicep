@@ -41,6 +41,7 @@ public class RootConfigurationTests
             new object[] { "~/", $"{homeDirectory}/" },
             new object[] { "~\\", $"{homeDirectory}\\" },
             new object[] { "~/foo/bar", $"{homeDirectory}/foo/bar" },
+            new object[] { "~\\foo\\bar", $"{homeDirectory}\\foo\\bar" },
             new object[] { "~\\foo/bar", $"{homeDirectory}\\foo/bar" },
         };
     }
