@@ -398,6 +398,17 @@ namespace Bicep.Core.Semantics
         private IEnumerable<Symbol> FindFunctionMatchesInAllNamespaces(IdentifierSyntax identifierSyntax)
             => namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.AssertDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         private class ScopeCollectorVisitor : SymbolVisitor
         {
             private IDictionary<SyntaxBase, LocalScope> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScope>();

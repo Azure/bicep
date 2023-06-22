@@ -1930,6 +1930,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
+
+            public ErrorDiagnostic ExpectedAssertIdentifier() => new(
+                TextSpan,
+                "BCP344",
+                "Expected an assert identifier at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

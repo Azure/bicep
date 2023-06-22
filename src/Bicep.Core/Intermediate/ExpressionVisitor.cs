@@ -176,6 +176,11 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.DependsOn);
     }
 
+    public void VisitDeclaredAssertExpression(DeclaredAssertExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
     public void VisitDeclaredModuleExpression(DeclaredModuleExpression expression)
     {
         Visit(expression.Body);

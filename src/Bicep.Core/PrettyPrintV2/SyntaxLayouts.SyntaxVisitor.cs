@@ -171,5 +171,7 @@ namespace Bicep.Core.PrettyPrintV2
                 ? TextDocument.From(SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim())
                 : layoutSpecifier(syntax);
         }
+
+        public void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutAssertDeclarationSyntax);
     }
 }

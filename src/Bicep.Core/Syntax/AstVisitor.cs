@@ -73,6 +73,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
         {
             this.Visit(syntax.Name);

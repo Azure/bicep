@@ -97,6 +97,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitResourceTypeSyntax(ResourceTypeSyntax syntax);
 
+        public abstract void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax);
+
         public abstract void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax);
 
         public abstract void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax);

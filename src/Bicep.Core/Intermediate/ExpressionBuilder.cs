@@ -199,6 +199,12 @@ public class ExpressionBuilder
                     GetDeclaredSymbol<OutputSymbol>(output),
                     ConvertWithoutLowering(output.Value));
 
+            case AssertDeclarationSyntax assert:
+                return new DeclaredAssertExpression(
+                    assert,
+                    assert.Name.IdentifierName,
+                    ConvertWithoutLowering(assert.Value));
+
             case ResourceDeclarationSyntax resource:
                 return ConvertResource(resource);
 
@@ -279,6 +285,11 @@ public class ExpressionBuilder
             .OfType<DeclaredOutputExpression>()
             .ToImmutableArray();
 
+        var asserts = Context.SemanticModel.Root.AssertDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredAssertExpression>()
+            .ToImmutableArray();
+
         var functions = Context.SemanticModel.Root.FunctionDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
             .OfType<DeclaredFunctionExpression>()
@@ -293,7 +304,8 @@ public class ExpressionBuilder
             functions,
             resources,
             modules,
-            outputs);
+            outputs,
+            asserts);
     }
 
     private record LoopExpressionContext(string Name, SyntaxBase SourceSyntax, Expression LoopExpression);

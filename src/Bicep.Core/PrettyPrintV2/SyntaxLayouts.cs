@@ -411,6 +411,14 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Assignment,
                     syntax.Value));
 
+        private IEnumerable<Document> LayoutAssertDeclarationSyntax(AssertDeclarationSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.Spread(
+                    syntax.Keyword,
+                    syntax.Name,
+                    syntax.Assignment,
+                    syntax.Value));
+
         private IEnumerable<Document> LayoutTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,

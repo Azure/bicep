@@ -61,6 +61,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitAssertSymbol(AssertSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitTypeSymbol(TypeSymbol symbol)
         {
             VisitDescendants(symbol);
