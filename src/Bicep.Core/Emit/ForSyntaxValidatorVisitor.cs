@@ -303,15 +303,11 @@ namespace Bicep.Core.Emit
                     //  2. In a resource body, it must be in a top level depends on property or inside the properties property.
                     //  3. Allowed in a variable declaration value
                     //  4. Allowed in an output value
-                    if (this.loopLevel > 0)
-                    {
-                        WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
-                        return;
-                    }
-
-                    var isValidResourceCollectionDirectAccessLocation = this.insideProperties
-                        || this.currentOutputDeclarationSyntax != null
-                        || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null);
+                    var isValidResourceCollectionDirectAccessLocation =
+                        this.loopLevel == 0
+                        && (this.insideProperties
+                            || this.currentOutputDeclarationSyntax != null
+                            || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null));
 
                     if (!isValidResourceCollectionDirectAccessLocation)
                     {
@@ -328,7 +324,7 @@ namespace Bicep.Core.Emit
                         }
                     }
                 }
-            } else if (this.currentVariableDeclarationSyntax == null
+            } else if ((this.currentVariableDeclarationSyntax == null || this.loopLevel > 0)
                 && variableOrResourceAccessSyntax is VariableAccessSyntax variableAccessSyntax
                 && symbol is VariableSymbol variableSymbol
                 && InlineDependencyVisitor.ShouldInlineVariable(this.semanticModel, variableSymbol.DeclaringVariable, out var outInlineVariableChain))

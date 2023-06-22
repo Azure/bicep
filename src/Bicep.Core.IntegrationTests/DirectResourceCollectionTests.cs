@@ -142,7 +142,7 @@ var loopVar = [for i in range(0, 2): {
                 .HaveDiagnostics(
                     new[]
                     {
-                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkersAliased\" -> \"containerWorkers\". Apply an array indexer to the expression."),
                     });
         }
 
