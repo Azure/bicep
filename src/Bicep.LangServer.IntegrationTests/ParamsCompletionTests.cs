@@ -368,11 +368,79 @@ param myArray array
                 );
         }
 
+        [TestMethod]
+        public async Task Completions_are_provided_for_object_property_names_in_parameters_with_custom_types()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param customParam = {
+    |
+}";
+
+            var bicepText = @"
+type customType = {
+    requireProperty: string
+    optionalProperty: string?
+}
+
+param customParam customType
+";
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
+            }; 
+        
+            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("requireProperty");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `string`  \n");
+                    x.Kind.Should().Be(CompletionItemKind.Property);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("optionalProperty");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `null | string`  \n");
+                    x.Kind.Should().Be(CompletionItemKind.Property);
+                });
+        }
+
+        [TestMethod]
+        public async Task Type_based_completions_are_provided_for_arrays_of_user_defined_types()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param customParam = [
+    |
+]
+"; 
+
+            var bicepText = @"
+type customType = {
+    requireProperty: string
+    optionalProperty: string?
+}
+
+param customParam customType[]
+";
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
+            }; 
+        
+            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+
+            completions.Any(x => x.Label == "required-properties");
+        }
+
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)
         {
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramTextWithCursors, cursorInsertionMarker);
-            var paramFile = SourceFileFactory.CreateBicepFile(paramUri, paramFileTextNoCursor);
 
             fileTextsByUri = fileTextsByUri.Add(paramUri, paramFileTextNoCursor);
 
@@ -381,8 +449,10 @@ param myArray array
                 fileTextsByUri,
                 paramUri,
                 services => services
-                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
+                    .WithNamespaceProvider(BuiltInTestTypes.Create())
+                    .WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
 
+            var paramFile = SourceFileFactory.CreateBicepParamFile(paramUri, paramFileTextNoCursor);
             var file = new FileRequestHelper(helper.Client, paramFile);
             var completions = await file.RequestCompletion(cursor);
             return completions.OrderBy(completion => completion.SortText);

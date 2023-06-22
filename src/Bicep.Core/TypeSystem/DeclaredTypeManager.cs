@@ -1099,6 +1099,8 @@ namespace Bicep.Core.TypeSystem
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
                     return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
+                case ParameterAssignmentSyntax:
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
             }
@@ -1412,6 +1414,13 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignment.Reference.Type, syntax), syntax, parameterAssignment.Flags);
+                case ParameterAssignmentSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
+                    {
+                        return null;
+                    };
+
+                    return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
             }
 
             return null;
