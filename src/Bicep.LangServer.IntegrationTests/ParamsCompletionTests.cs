@@ -408,6 +408,35 @@ param customParam customType
                 });
         }
 
+        [TestMethod]
+        public async Task Type_based_completions_are_provided_for_arrays_of_user_defined_types()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param customParam = [
+    |
+]
+"; 
+
+            var bicepText = @"
+type customType = {
+    requireProperty: string
+    optionalProperty: string?
+}
+
+param customParam customType[]
+";
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
+            }; 
+        
+            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+
+            completions.Any(x => x.Label == "required-properties");
+        }
+
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)
         {
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
