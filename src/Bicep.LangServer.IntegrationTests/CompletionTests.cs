@@ -1048,6 +1048,41 @@ module mod 'mod.bicep' = {
         }
 
         [TestMethod]
+        public async Task Item_completions_are_offered_for_array_typed_parameter_default_values()
+        {
+            var fileWithCursors = """
+                type fizz = {
+                  buzz: string
+                  pop: string
+                }
+
+                param fizzes fizz[] = [
+                  |
+                ]
+                """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "required-properties");
+            updatedFile.Should().HaveSourceText("""
+                type fizz = {
+                  buzz: string
+                  pop: string
+                }
+
+                param fizzes fizz[] = [
+                  {
+                  buzz: $1
+                  pop: $2
+                }|
+                ]
+                """);
+        }
+
+        [TestMethod]
         public async Task Completions_after_resource_type_should_only_include_existing_keyword()
         {
             var fileWithCursors = @"
