@@ -28,7 +28,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if ({ 'a': b }.a == 'foo') {}
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
@@ -56,24 +57,21 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 }
 
 // invalid condition type
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (123) {
-  name: 'foo'
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if (123) {
+    name: 'foo'
+  }
 
 // runtime functions are no allowed in resource conditions
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference(
-  'Micorosft.Management/managementGroups/MG',
-  '2020-05-01'
-).name == 'something') {
-  name: 'foo'
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+    name: 'foo'
+  }
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys(
-  'foo',
-  '2020-05-01'
-).bar == true) {
-  name: 'foo'
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
+  if (listKeys('foo', '2020-05-01').bar == true) {
+    name: 'foo'
+  }
 
 // duplicate property at the top level
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -360,10 +358,12 @@ resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-
   name: runtimeValidRes2['${magicString2}']
 }
 
-resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-  name: 'test'
-  location: 'test'
-}]
+resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for thing in []: {
+    name: 'test'
+    location: 'test'
+  }
+]
 
 var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
 var runtimeCheckVar2 = runtimeCheckVar
@@ -373,22 +373,28 @@ resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' =
   location: 'test'
 }
 
-resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-  name: runtimeCheckVar2
-  location: 'test'
-}]
+resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for thing in []: {
+    name: runtimeCheckVar2
+    location: 'test'
+  }
+]
 
-resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-  name: loopForRuntimeCheck[0].properties.zoneType
-  location: 'test'
-}]
+resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for otherThing in []: {
+    name: loopForRuntimeCheck[0].properties.zoneType
+    location: 'test'
+  }
+]
 
 var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
 var varForRuntimeCheck4b = varForRuntimeCheck4a
-resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-  name: varForRuntimeCheck4b
-  location: 'test'
-}]
+resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for otherThing in []: {
+    name: varForRuntimeCheck4b
+    location: 'test'
+  }
+]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   // #completionTest(0, 1, 2) -> topLevelProperties
@@ -433,23 +439,28 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 /*
 Discriminator key missing (conditional)
 */
-resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (true) {
-  // #completionTest(0,1,2) -> discriminatorProperty
-}
+resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' =
+  if (true) {
+    // #completionTest(0,1,2) -> discriminatorProperty
+  }
 
 /*
 Discriminator key missing (loop)
 */
-resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-  // #completionTest(0,1,2) -> discriminatorProperty
-}]
+resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [
+  for thing in []: {
+    // #completionTest(0,1,2) -> discriminatorProperty
+  }
+]
 
 /*
 Discriminator key missing (filtered loop)
 */
-resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if (true) {
-  // #completionTest(0,1,2) -> discriminatorProperty
-}]
+resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [
+  for thing in []: if (true) {
+    // #completionTest(0,1,2) -> discriminatorProperty
+  }
+]
 
 /*
 Discriminator key value missing with property access
@@ -541,14 +552,15 @@ var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 /*
 Discriminator value set 1 (conditional)
 */
-resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (2 == 3) {
-  kind: 'AzureCLI'
-  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' =
+  if (2 == 3) {
+    kind: 'AzureCLI'
+    // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
-  properties: {
-    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    properties: {
+      // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    }
   }
-}
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
 // #completionTest(81) -> cliPropertyAccess
@@ -560,14 +572,16 @@ var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties
 /*
 Discriminator value set 1 (loop)
 */
-resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-  kind: 'AzureCLI'
-  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [
+  for thing in []: {
+    kind: 'AzureCLI'
+    // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
-  properties: {
-    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    properties: {
+      // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    }
   }
-}]
+]
 // #completionTest(86) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_for = discriminatorKeySetOne_for[0].properties.a
 // #completionTest(94) -> cliPropertyAccess
@@ -579,14 +593,16 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 /*
 Discriminator value set 1 (filtered loop)
 */
-resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if (true) {
-  kind: 'AzureCLI'
-  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [
+  for thing in []: if (true) {
+    kind: 'AzureCLI'
+    // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
-  properties: {
-    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    properties: {
+      // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    }
   }
-}]
+]
 // #completionTest(92) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
 // #completionTest(100) -> cliPropertyAccess
@@ -640,14 +656,16 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_i
 /*
 Discriminator value set 2 (loops)
 */
-resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-  kind: 'AzurePowerShell'
-  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [
+  for thing in []: {
+    kind: 'AzurePowerShell'
+    // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
-  properties: {
-    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    properties: {
+      // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    }
   }
-}]
+]
 // #completionTest(86) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_for = discriminatorKeySetTwo_for[0].properties.a
 // #completionTest(86) -> powershellPropertyAccess
@@ -661,14 +679,16 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_
 /*
 Discriminator value set 2 (filtered loops)
 */
-resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if (true) {
-  kind: 'AzurePowerShell'
-  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [
+  for thing in []: if (true) {
+    kind: 'AzurePowerShell'
+    // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
-  properties: {
-    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    properties: {
+      // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    }
   }
-}]
+]
 // #completionTest(92) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
 // #completionTest(92) -> powershellPropertyAccess
@@ -753,15 +773,14 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 /* 
 Nested discriminator missing key (conditional)
 */
-resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if (bool(
-  1
-)) {
-  name: 'test'
-  location: 'l'
-  properties: {
-    //createMode: 'Default'
+resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' =
+  if (bool(1)) {
+    name: 'test'
+    location: 'l'
+    properties: {
+      //createMode: 'Default'
+    }
   }
-}
 // #completionTest(96) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
 // #completionTest(98) -> createMode
@@ -773,13 +792,15 @@ var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissin
 /* 
 Nested discriminator missing key (loop)
 */
-resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-  name: 'test'
-  location: 'l'
-  properties: {
-    //createMode: 'Default'
+resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [
+  for thing in []: {
+    name: 'test'
+    location: 'l'
+    properties: {
+      //createMode: 'Default'
+    }
   }
-}]
+]
 // #completionTest(101) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_for = nestedDiscriminatorMissingKey_for[0].properties.cr
 // #completionTest(103) -> createMode
@@ -791,13 +812,15 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 /* 
 Nested discriminator missing key (filtered loop)
 */
-resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if (true) {
-  name: 'test'
-  location: 'l'
-  properties: {
-    //createMode: 'Default'
+resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [
+  for thing in []: if (true) {
+    name: 'test'
+    location: 'l'
+    properties: {
+      //createMode: 'Default'
+    }
   }
-}]
+]
 // #completionTest(107) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
 // #completionTest(109) -> createMode
@@ -831,13 +854,14 @@ var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 /*
 Nested discriminator (conditional)
 */
-resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if (true) {
-  name: 'test'
-  location: 'l'
-  properties: {
-    createMode: 'Default'
+resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' =
+  if (true) {
+    name: 'test'
+    location: 'l'
+    properties: {
+      createMode: 'Default'
+    }
   }
-}
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
 // #completionTest(79) -> defaultCreateModeProperties
@@ -853,13 +877,15 @@ var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.propert
 /*
 Nested discriminator (loop)
 */
-resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-  name: 'test'
-  location: 'l'
-  properties: {
-    createMode: 'Default'
+resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [
+  for thing in []: {
+    name: 'test'
+    location: 'l'
+    properties: {
+      createMode: 'Default'
+    }
   }
-}]
+]
 // #completionTest(80) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_for = nestedDiscriminator_for[0].properties.a
 // #completionTest(84) -> defaultCreateModeProperties
@@ -875,13 +901,15 @@ var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].pr
 /*
 Nested discriminator (filtered loop)
 */
-resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if (true) {
-  name: 'test'
-  location: 'l'
-  properties: {
-    createMode: 'Default'
+resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [
+  for thing in []: if (true) {
+    name: 'test'
+    location: 'l'
+    properties: {
+      createMode: 'Default'
+    }
   }
-}]
+]
 // #completionTest(86) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
 // #completionTest(90) -> defaultCreateModeProperties
@@ -895,13 +923,14 @@ var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['prop
 var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
 
 // sample resource to validate completions on the next declarations
-resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if (true) {
-  location: 'test'
-  name: 'test'
-  properties: {
-    additionalCapabilities: {}
+resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' =
+  if (true) {
+    location: 'test'
+    name: 'test'
+    properties: {
+      additionalCapabilities: {}
+    }
   }
-}
 // this validates that we can get nested property access completions on a conditional resource
 //#completionTest(56) -> vmProperties
 var sigh = nestedPropertyAccessOnConditional.properties.
@@ -1029,153 +1058,189 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
 
 // duplicate variable in the same scope
-resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {}]
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [
+  for (same, same) in emptyArray: {}
+]
 
 // errors in the array expression
-resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union(
-  [],
-  2
-): {}]
-resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union(
-  [],
-  2
-): {}]
+resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in union([], 2): {}
+]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for (account, k) in union([], 2): {}
+]
 
 // wrong array type
 var notAnArray = true
-resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {}]
-resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {}]
+resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in notAnArray: {}
+]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for (account, i) in notAnArray: {}
+]
 
 // wrong filter expression type
-resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if (4) {}]
-resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in emptyArray: if (concat(
-  's'
-)) {}]
+resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in emptyArray: if (4) {}
+]
+resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for (account, i) in emptyArray: if (concat('s')) {}
+]
 
 // missing required properties
-resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {}]
-resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {}]
+resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in []: {}
+]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for (account, j) in []: {}
+]
 
 // fewer missing required properties and a wrong property
-resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-  name: account
-  location: 'eastus42'
-  properties: {
-    wrong: 'test'
+resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in []: {
+    name: account
+    location: 'eastus42'
+    properties: {
+      wrong: 'test'
+    }
   }
-}]
+]
 
 // wrong property inside the nested property loop
-resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(
-  0,
-  3
-): {
-  name: 'vnet-${i}'
-  properties: {
-    subnets: [for j in range(0, 4): {
-      doesNotExist: 'test'
-      name: 'subnet-${i}-${j}'
-    }]
+resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for i in range(0, 3): {
+    name: 'vnet-${i}'
+    properties: {
+      subnets: [
+        for j in range(0, 4): {
+          doesNotExist: 'test'
+          name: 'subnet-${i}-${j}'
+        }
+      ]
+    }
   }
-}]
-resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i, k) in range(
-  0,
-  3
-): {
-  name: 'vnet-${i}'
-  properties: {
-    subnets: [for j in range(0, 4): {
-      doesNotExist: 'test'
-      name: 'subnet-${i}-${j}-${k}'
-    }]
+]
+resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for (i, k) in range(0, 3): {
+    name: 'vnet-${i}'
+    properties: {
+      subnets: [
+        for j in range(0, 4): {
+          doesNotExist: 'test'
+          name: 'subnet-${i}-${j}-${k}'
+        }
+      ]
+    }
   }
-}]
+]
 
 // nonexistent arrays and loop variables
-resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
-  name: 'vnet-${justPlainWrong}'
-  properties: {
-    subnets: [for j in alsoNotAThing: {
-      doesNotExist: 'test'
-      name: 'subnet-${fake}-${totallyFake}'
-    }]
+resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for i in notAThing: {
+    name: 'vnet-${justPlainWrong}'
+    properties: {
+      subnets: [
+        for j in alsoNotAThing: {
+          doesNotExist: 'test'
+          name: 'subnet-${fake}-${totallyFake}'
+        }
+      ]
+    }
   }
-}]
+]
 
 // property loops cannot be nested
-resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-  name: account.name
-  location: account.location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    networkAcls: {
-      virtualNetworkRules: [for rule in []: {
-        id: '${account.name}-${account.location}'
-        state: [for lol in []: 4]
-      }]
+resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in storageAccounts: {
+    name: account.name
+    location: account.location
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
+    properties: {
+      networkAcls: {
+        virtualNetworkRules: [
+          for rule in []: {
+            id: '${account.name}-${account.location}'
+            state: [for lol in []: 4]
+          }
+        ]
+      }
     }
   }
-}]
-resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
-  name: account.name
-  location: account.location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    networkAcls: {
-      virtualNetworkRules: [for (rule, j) in []: {
-        id: '${account.name}-${account.location}'
-        state: [for (lol, k) in []: 4]
-      }]
+]
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for (account, i) in storageAccounts: {
+    name: account.name
+    location: account.location
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
+    properties: {
+      networkAcls: {
+        virtualNetworkRules: [
+          for (rule, j) in []: {
+            id: '${account.name}-${account.location}'
+            state: [for (lol, k) in []: 4]
+          }
+        ]
+      }
     }
   }
-}]
+]
 
 // property loops cannot be nested (even more nesting)
-resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-  name: account.name
-  location: account.location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    networkAcls: {
-      virtualNetworkRules: [for rule in []: {
-        // #completionTest(15,31) -> symbolsPlusRule
-        id: '${account.name}-${account.location}'
-        state: [for state in []: {
-          // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
-          fake: [for something in []: true]
-        }]
-      }]
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in storageAccounts: {
+    name: account.name
+    location: account.location
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
+    properties: {
+      networkAcls: {
+        virtualNetworkRules: [
+          for rule in []: {
+            // #completionTest(15,31) -> symbolsPlusRule
+            id: '${account.name}-${account.location}'
+            state: [
+              for state in []: {
+                // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
+                fake: [for something in []: true]
+              }
+            ]
+          }
+        ]
+      }
     }
   }
-}]
+]
 
 // loops cannot be used inside of expressions
-resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-  name: account.name
-  location: account.location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    networkAcls: {
-      virtualNetworkRules: concat(
-        [for lol in []: {
-          id: '${account.name}-${account.location}'
-        }]
-      )
+resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in storageAccounts: {
+    name: account.name
+    location: account.location
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
+    properties: {
+      networkAcls: {
+        virtualNetworkRules: concat(
+          [
+            for lol in []: {
+              id: '${account.name}-${account.location}'
+            }
+          ]
+        )
+      }
     }
   }
-}]
+]
 
 // using the same loop variable in a new language scope should be allowed
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
@@ -1201,44 +1266,45 @@ resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' 
   }
 }
 
-resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if (true) {
-  name: 'myZone3'
-  location: 'global'
-  properties: {
-    registrationVirtualNetworks: concat(premiumStorages, stuffs)
+resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' =
+  if (true) {
+    name: 'myZone3'
+    location: 'global'
+    properties: {
+      registrationVirtualNetworks: concat(premiumStorages, stuffs)
+    }
   }
-}
 
 @batchSize()
-resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(
-  0,
-  3
-): {
-  name: 'vnet-${i}'
-  properties: {
-    subnets: premiumStorages
+resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for i in range(0, 3): {
+    name: 'vnet-${i}'
+    properties: {
+      subnets: premiumStorages
+    }
   }
-}]
+]
 
 @batchSize(0)
-resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(
-  0,
-  3
-): {
-  name: 'vnet-${i}'
-  properties: {
-    subnets: premiumStorages
-    dependsOn: [premiumStorages]
+resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for i in range(0, 3): {
+    name: 'vnet-${i}'
+    properties: {
+      subnets: premiumStorages
+      dependsOn: [premiumStorages]
+    }
+    dependsOn: []
   }
-  dependsOn: []
-}]
+]
 
 var expressionInPropertyLoopVar = true
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'hello'
   location: 'eastus'
   properties: {
-    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [
+      for thing in []: {}
+    ]
   }
 }
 
@@ -1386,27 +1452,32 @@ resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
   parent: any(true)
 }
 
-resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
-  parent: any(true)
-}]
+resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [
+  for thing in []: {
+    parent: any(true)
+  }
+]
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
   scope: any(invalidExistingLocationRef)
 }
 
-resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if (true) {
-  scope: any(invalidExistingLocationRef)
-}
+resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' =
+  if (true) {
+    scope: any(invalidExistingLocationRef)
+  }
 
 resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' = {
   parent: any('')
   scope: any(false)
 }
 
-resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' = [for thing in []: {
-  parent: any('')
-  scope: any(false)
-}]
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' = [
+  for thing in []: {
+    parent: any('')
+    scope: any(false)
+  }
+]
 
 resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
   name: 'tenantLevelResourceBlocked'
@@ -1501,13 +1572,15 @@ var defaultLogAnalyticsWorkspace = {
   subscriptionId: subscription().subscriptionId
 }
 
-resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-  name: logAnalyticsWorkspace.name
-  scope: resourceGroup(
-    union(defaultLogAnalyticsWorkspace, logAnalyticsWorkspace).subscriptionId,
-    logAnalyticsWorkspace.resourceGroup
-  )
-}]
+resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' = [
+  for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+    name: logAnalyticsWorkspace.name
+    scope: resourceGroup(
+      union(defaultLogAnalyticsWorkspace, logAnalyticsWorkspace).subscriptionId,
+      logAnalyticsWorkspace.resourceGroup
+    )
+  }
+]
 
 resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
   name: dataCollectionRule.name
@@ -1523,10 +1596,12 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
         }
       },
       {
-        logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-          name: logAnalyticsWorkspace.destinationName
-          workspaceResourceId: logAnalyticsWorkspaces[i].id
-        }]
+        logAnalytics: [
+          for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+            name: logAnalyticsWorkspace.destinationName
+            workspaceResourceId: logAnalyticsWorkspaces[i].id
+          }
+        ]
       }
     )
     dataSources: dataCollectionRule.dataSources

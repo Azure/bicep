@@ -52,29 +52,34 @@ resource existingParent 'My.Rp/parentType@2020-12-01' = {
 param createParent bool
 param createChild bool
 param createGrandchild bool
-resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
-  name: 'conditionParent'
+resource conditionParent 'My.Rp/parentType@2020-12-01' =
+  if (createParent) {
+    name: 'conditionParent'
 
-  resource conditionChild 'childType' = if (createChild) {
-    name: 'conditionChild'
+    resource conditionChild 'childType' =
+      if (createChild) {
+        name: 'conditionChild'
 
-    resource conditionGrandchild 'grandchildType' = if (createGrandchild) {
-      name: 'conditionGrandchild'
-      properties: {
-        size: conditionParent.properties.size
-        style: conditionChild.properties.style
+        resource conditionGrandchild 'grandchildType' =
+          if (createGrandchild) {
+            name: 'conditionGrandchild'
+            properties: {
+              size: conditionParent.properties.size
+              style: conditionChild.properties.style
+            }
+          }
       }
-    }
   }
-}
 
 var items = ['a', 'b']
 resource loopParent 'My.Rp/parentType@2020-12-01' = {
   name: 'loopParent'
 
-  resource loopChild 'childType' = [for item in items: {
-    name: 'loopChild'
-  }]
+  resource loopChild 'childType' = [
+    for item in items: {
+      name: 'loopChild'
+    }
+  ]
 }
 
 output loopChildOutput string = loopParent::loopChild[0].name

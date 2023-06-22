@@ -50,6 +50,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);

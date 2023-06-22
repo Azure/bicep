@@ -1,5 +1,5 @@
 
-//@[000:7416) ProgramSyntax
+//@[000:7923) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -2311,6 +2311,225 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[050:0051) |   |   └─Token(Identifier) |i|
 //@[051:0052) |   └─Token(RightSquare) |]|
 //@[052:0053) ├─Token(NewLine) |\n|
+var printToSingleLine1 = [
+//@[000:0057) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |printToSingleLine1|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0057) | └─ForSyntax
+//@[025:0026) |   ├─Token(LeftSquare) |[|
+//@[026:0027) |   ├─Token(NewLine) |\n|
+    for i in range(0,20) : i
+//@[004:0007) |   ├─Token(Identifier) |for|
+//@[008:0009) |   ├─LocalVariableSyntax
+//@[008:0009) |   | └─IdentifierSyntax
+//@[008:0009) |   |   └─Token(Identifier) |i|
+//@[010:0012) |   ├─Token(Identifier) |in|
+//@[013:0024) |   ├─FunctionCallSyntax
+//@[013:0018) |   | ├─IdentifierSyntax
+//@[013:0018) |   | | └─Token(Identifier) |range|
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0020) |   | ├─FunctionArgumentSyntax
+//@[019:0020) |   | | └─IntegerLiteralSyntax
+//@[019:0020) |   | |   └─Token(Integer) |0|
+//@[020:0021) |   | ├─Token(Comma) |,|
+//@[021:0023) |   | ├─FunctionArgumentSyntax
+//@[021:0023) |   | | └─IntegerLiteralSyntax
+//@[021:0023) |   | |   └─Token(Integer) |20|
+//@[023:0024) |   | └─Token(RightParen) |)|
+//@[025:0026) |   ├─Token(Colon) |:|
+//@[027:0028) |   ├─VariableAccessSyntax
+//@[027:0028) |   | └─IdentifierSyntax
+//@[027:0028) |   |   └─Token(Identifier) |i|
+//@[028:0029) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0002) ├─Token(NewLine) |\n|
+var printToSingleLine2 = [
+//@[000:0080) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |printToSingleLine2|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0080) | └─ForSyntax
+//@[025:0026) |   ├─Token(LeftSquare) |[|
+//@[026:0027) |   ├─Token(NewLine) |\n|
+    /* harmless comment */ for i in range(0,20) : i
+//@[027:0030) |   ├─Token(Identifier) |for|
+//@[031:0032) |   ├─LocalVariableSyntax
+//@[031:0032) |   | └─IdentifierSyntax
+//@[031:0032) |   |   └─Token(Identifier) |i|
+//@[033:0035) |   ├─Token(Identifier) |in|
+//@[036:0047) |   ├─FunctionCallSyntax
+//@[036:0041) |   | ├─IdentifierSyntax
+//@[036:0041) |   | | └─Token(Identifier) |range|
+//@[041:0042) |   | ├─Token(LeftParen) |(|
+//@[042:0043) |   | ├─FunctionArgumentSyntax
+//@[042:0043) |   | | └─IntegerLiteralSyntax
+//@[042:0043) |   | |   └─Token(Integer) |0|
+//@[043:0044) |   | ├─Token(Comma) |,|
+//@[044:0046) |   | ├─FunctionArgumentSyntax
+//@[044:0046) |   | | └─IntegerLiteralSyntax
+//@[044:0046) |   | |   └─Token(Integer) |20|
+//@[046:0047) |   | └─Token(RightParen) |)|
+//@[048:0049) |   ├─Token(Colon) |:|
+//@[050:0051) |   ├─VariableAccessSyntax
+//@[050:0051) |   | └─IdentifierSyntax
+//@[050:0051) |   |   └─Token(Identifier) |i|
+//@[051:0052) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0002) ├─Token(NewLine) |\n|
+var printToSingleLine3 = [
+//@[000:0080) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |printToSingleLine3|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0080) | └─ForSyntax
+//@[025:0026) |   ├─Token(LeftSquare) |[|
+//@[026:0027) |   ├─Token(NewLine) |\n|
+    for i in range(0,20) : i /* harmless comment */
+//@[004:0007) |   ├─Token(Identifier) |for|
+//@[008:0009) |   ├─LocalVariableSyntax
+//@[008:0009) |   | └─IdentifierSyntax
+//@[008:0009) |   |   └─Token(Identifier) |i|
+//@[010:0012) |   ├─Token(Identifier) |in|
+//@[013:0024) |   ├─FunctionCallSyntax
+//@[013:0018) |   | ├─IdentifierSyntax
+//@[013:0018) |   | | └─Token(Identifier) |range|
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0020) |   | ├─FunctionArgumentSyntax
+//@[019:0020) |   | | └─IntegerLiteralSyntax
+//@[019:0020) |   | |   └─Token(Integer) |0|
+//@[020:0021) |   | ├─Token(Comma) |,|
+//@[021:0023) |   | ├─FunctionArgumentSyntax
+//@[021:0023) |   | | └─IntegerLiteralSyntax
+//@[021:0023) |   | |   └─Token(Integer) |20|
+//@[023:0024) |   | └─Token(RightParen) |)|
+//@[025:0026) |   ├─Token(Colon) |:|
+//@[027:0028) |   ├─VariableAccessSyntax
+//@[027:0028) |   | └─IdentifierSyntax
+//@[027:0028) |   |   └─Token(Identifier) |i|
+//@[051:0052) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0002) ├─Token(NewLine) |\n|
+var forceLineBreaks1 = [
+//@[000:0084) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0020) | ├─IdentifierSyntax
+//@[004:0020) | | └─Token(Identifier) |forceLineBreaks1|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0084) | └─ForSyntax
+//@[023:0024) |   ├─Token(LeftSquare) |[|
+//@[024:0025) |   ├─Token(NewLine) |\n|
+    // force line breaks
+//@[024:0025) |   ├─Token(NewLine) |\n|
+    for i in range(0,    30) : i
+//@[004:0007) |   ├─Token(Identifier) |for|
+//@[008:0009) |   ├─LocalVariableSyntax
+//@[008:0009) |   | └─IdentifierSyntax
+//@[008:0009) |   |   └─Token(Identifier) |i|
+//@[010:0012) |   ├─Token(Identifier) |in|
+//@[013:0028) |   ├─FunctionCallSyntax
+//@[013:0018) |   | ├─IdentifierSyntax
+//@[013:0018) |   | | └─Token(Identifier) |range|
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0020) |   | ├─FunctionArgumentSyntax
+//@[019:0020) |   | | └─IntegerLiteralSyntax
+//@[019:0020) |   | |   └─Token(Integer) |0|
+//@[020:0021) |   | ├─Token(Comma) |,|
+//@[025:0027) |   | ├─FunctionArgumentSyntax
+//@[025:0027) |   | | └─IntegerLiteralSyntax
+//@[025:0027) |   | |   └─Token(Integer) |30|
+//@[027:0028) |   | └─Token(RightParen) |)|
+//@[029:0030) |   ├─Token(Colon) |:|
+//@[031:0032) |   ├─VariableAccessSyntax
+//@[031:0032) |   | └─IdentifierSyntax
+//@[031:0032) |   |   └─Token(Identifier) |i|
+//@[032:0033) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0002) ├─Token(NewLine) |\n|
+var forceLineBreaks2 = [
+//@[000:0084) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0020) | ├─IdentifierSyntax
+//@[004:0020) | | └─Token(Identifier) |forceLineBreaks2|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0084) | └─ForSyntax
+//@[023:0024) |   ├─Token(LeftSquare) |[|
+//@[024:0025) |   ├─Token(NewLine) |\n|
+    for i in range(0,    30) : i
+//@[004:0007) |   ├─Token(Identifier) |for|
+//@[008:0009) |   ├─LocalVariableSyntax
+//@[008:0009) |   | └─IdentifierSyntax
+//@[008:0009) |   |   └─Token(Identifier) |i|
+//@[010:0012) |   ├─Token(Identifier) |in|
+//@[013:0028) |   ├─FunctionCallSyntax
+//@[013:0018) |   | ├─IdentifierSyntax
+//@[013:0018) |   | | └─Token(Identifier) |range|
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0020) |   | ├─FunctionArgumentSyntax
+//@[019:0020) |   | | └─IntegerLiteralSyntax
+//@[019:0020) |   | |   └─Token(Integer) |0|
+//@[020:0021) |   | ├─Token(Comma) |,|
+//@[025:0027) |   | ├─FunctionArgumentSyntax
+//@[025:0027) |   | | └─IntegerLiteralSyntax
+//@[025:0027) |   | |   └─Token(Integer) |30|
+//@[027:0028) |   | └─Token(RightParen) |)|
+//@[029:0030) |   ├─Token(Colon) |:|
+//@[031:0032) |   ├─VariableAccessSyntax
+//@[031:0032) |   | └─IdentifierSyntax
+//@[031:0032) |   |   └─Token(Identifier) |i|
+//@[032:0033) |   ├─Token(NewLine) |\n|
+    // force line breaks
+//@[024:0025) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0002) ├─Token(NewLine) |\n|
+var forceLineBreaks3 = [
+//@[000:0115) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0020) | ├─IdentifierSyntax
+//@[004:0020) | | └─Token(Identifier) |forceLineBreaks3|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0115) | └─ForSyntax
+//@[023:0024) |   ├─Token(LeftSquare) |[|
+//@[024:0025) |   ├─Token(NewLine) |\n|
+    /* force line breaks */
+//@[027:0028) |   ├─Token(NewLine) |\n|
+    for i in range(0,    30) : i
+//@[004:0007) |   ├─Token(Identifier) |for|
+//@[008:0009) |   ├─LocalVariableSyntax
+//@[008:0009) |   | └─IdentifierSyntax
+//@[008:0009) |   |   └─Token(Identifier) |i|
+//@[010:0012) |   ├─Token(Identifier) |in|
+//@[013:0028) |   ├─FunctionCallSyntax
+//@[013:0018) |   | ├─IdentifierSyntax
+//@[013:0018) |   | | └─Token(Identifier) |range|
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0020) |   | ├─FunctionArgumentSyntax
+//@[019:0020) |   | | └─IntegerLiteralSyntax
+//@[019:0020) |   | |   └─Token(Integer) |0|
+//@[020:0021) |   | ├─Token(Comma) |,|
+//@[025:0027) |   | ├─FunctionArgumentSyntax
+//@[025:0027) |   | | └─IntegerLiteralSyntax
+//@[025:0027) |   | |   └─Token(Integer) |30|
+//@[027:0028) |   | └─Token(RightParen) |)|
+//@[029:0030) |   ├─Token(Colon) |:|
+//@[031:0032) |   ├─VariableAccessSyntax
+//@[031:0032) |   | └─IdentifierSyntax
+//@[031:0032) |   |   └─Token(Identifier) |i|
+//@[032:0033) |   ├─Token(NewLine) |\n|
+    /* force line breaks */
+//@[027:0028) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
 var loopInput = [
 //@[000:0035) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|

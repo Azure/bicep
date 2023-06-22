@@ -13,12 +13,11 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
 }
 
-module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
-  'foo'
-) == 3) {
-  name: 'mySubscriptionModWithCondition'
-  scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-}
+module mySubscriptionModWithCondition 'modules/subscription.bicep' =
+  if (length('foo') == 3) {
+    name: 'mySubscriptionModWithCondition'
+    scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
+  }
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
   name: 'mySubscriptionMod'

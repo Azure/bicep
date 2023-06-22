@@ -270,6 +270,9 @@ namespace Bicep.Core.TypeSystem
 
                         return new TypedArrayType(narrowedBody, TypeSymbolValidationFlags.Default);
                     }
+                case UnionType when TypeCollapser.TryCollapse(targetType) is TypeSymbol collapsed:
+                    targetType = collapsed;
+                    break;
             }
 
             // basic assignability check

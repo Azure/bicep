@@ -249,18 +249,35 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 
 // variable loops
 var incrementingNumbers = [for i in range(0, 10): i]
+var printToSingleLine1 = [for i in range(0, 20): i]
+var printToSingleLine2 = [/* harmless comment */ for i in range(0, 20): i]
+var printToSingleLine3 = [for i in range(0, 20): i /* harmless comment */]
+var forceLineBreaks1 = [
+  // force line breaks
+  for i in range(0, 30): i
+]
+var forceLineBreaks2 = [
+  for i in range(0, 30): i
+  // force line breaks
+]
+var forceLineBreaks3 = [
+  /* force line breaks */
+  for i in range(0, 30): i
+  /* force line breaks */
+]
+
 var loopInput = ['one', 'two']
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
-var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
-  index: i
-  name: name
-  value: 'prefix-${i}-${name}-suffix'
-}]
-var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
-  i
-  name
-  'prefix-${i}-${name}-suffix'
-]]
+var arrayOfObjectsViaLoop = [
+  for (name, i) in loopInput: {
+    index: i
+    name: name
+    value: 'prefix-${i}-${name}-suffix'
+  }
+]
+var arrayOfArraysViaLoop = [
+  for (name, i) in loopInput: [i, name, 'prefix-${i}-${name}-suffix']
+]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 var arrayOfHardCodedNumbers = [for i in range(0, 10): 3]
 var arrayOfHardCodedBools = [for i in range(0, 10): false]

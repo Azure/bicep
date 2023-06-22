@@ -91,6 +91,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Type);
             this.Visit(syntax.ExistingKeyword);
             this.Visit(syntax.Assignment);
+            this.VisitNodes(syntax.Newlines);
             this.Visit(syntax.Value);
         }
 
@@ -101,6 +102,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
             this.Visit(syntax.Assignment);
+            this.VisitNodes(syntax.Newlines);
             this.Visit(syntax.Value);
         }
 
@@ -273,12 +275,14 @@ namespace Bicep.Core.Syntax
         public override void VisitForSyntax(ForSyntax syntax)
         {
             this.Visit(syntax.OpenSquare);
+            this.VisitNodes(syntax.OpenNewlines);
             this.Visit(syntax.ForKeyword);
             this.Visit(syntax.VariableSection);
             this.Visit(syntax.InKeyword);
             this.Visit(syntax.Expression);
             this.Visit(syntax.Colon);
             this.Visit(syntax.Body);
+            this.VisitNodes(syntax.CloseNewlines);
             this.Visit(syntax.CloseSquare);
         }
 
