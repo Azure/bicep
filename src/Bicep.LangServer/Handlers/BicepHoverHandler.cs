@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            var descriptions = string.Join("\n\n", descriptionLines.WhereNotNull().ToArray());
+            var descriptions = string.Join("\n\n", descriptionLines.WhereNotNull());
             return AsMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
         }
 
