@@ -897,10 +897,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP143",
                 "For-expressions cannot be used with properties whose names are also expressions.");
 
-            public ErrorDiagnostic DirectAccessToCollectionNotSupported() => new(
+            public ErrorDiagnostic DirectAccessToCollectionNotSupported(IEnumerable<string>? accessChain = null) => new(
                 TextSpan,
                 "BCP144",
-                "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+                $"Directly referencing a resource or module collection is not currently supported here. {(accessChain?.Any() ?? false ? $"The collection was accessed by the chain of \"{string.Join("\" -> \"", accessChain)}\". " : "")}Apply an array indexer to the expression.");
 
             public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
                 TextSpan,
@@ -1920,9 +1920,9 @@ namespace Bicep.Core.Diagnostics
                     "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-                
+
             public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
-                TextSpan, 
+                TextSpan,
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 

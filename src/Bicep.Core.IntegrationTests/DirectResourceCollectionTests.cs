@@ -122,7 +122,7 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
                 .HaveDiagnostics(
                     new[]
                     {
-                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression."),
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
                     });
         }
 
@@ -144,7 +144,59 @@ resource containerController2 'Microsoft.ContainerInstance/containerGroups@2022-
                 .HaveDiagnostics(
                     new[]
                     {
-                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression."),
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    });
+        }
+
+        [TestMethod]
+        public void DirectResourceCollectionAccess_NotAllowedWithinUnsupportedResourceProperties_InlinedVariable()
+        {
+            const string additionalContent = """
+var containerWorkerIps = map(containerWorkers, (w) => w.properties.ipAddress.ip)
+resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
+  name: 'gh9440-inlined'
+  location: 'westus'
+  tags: {
+    test: containerWorkerIps
+  }
+  properties: {}
+}
+""";
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkerIps\" -> \"containerWorkers\". Apply an array indexer to the expression."),
+                    });
+        }
+
+        [TestMethod]
+        public void DirectResourceCollectionAccess_NotAllowedWithinUnsupportedResourceProperties_DoubleInlinedVariable()
+        {
+            const string additionalContent = """
+var containerWorkersAliased = containerWorkers
+var containerWorkerIps = map(containerWorkersAliased, (w) => w.properties.ipAddress.ip)
+resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
+  name: 'gh9440-inlined'
+  location: 'westus'
+  tags: {
+    test: containerWorkerIps
+  }
+  properties: {}
+}
+""";
+
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkerIps\" -> \"containerWorkersAliased\" -> \"containerWorkers\". Apply an array indexer to the expression."),
                     });
         }
 
@@ -193,7 +245,7 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
                 .HaveDiagnostics(
                     new[]
                     {
-                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.")
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression.")
                     });
         }
 

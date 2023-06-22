@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -48,6 +51,10 @@ namespace Bicep.Core.Emit
         private int propertyLoopCount = 0;
 
         private int loopLevel = 0;
+
+        private VariableAccessSyntax? variableAccessForInlineCheck = null;
+        private ImmutableArray<string>? inlineVariableChain = null;
+        private int inlineVariableVisitLevel = 0;
 
         // points to the top level dependsOn property in the resource/module declaration currently being processed
         private ObjectPropertySyntax? currentDependsOnProperty = null;
@@ -140,11 +147,19 @@ namespace Bicep.Core.Emit
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            this.activeLoopCapableTopLevelDeclaration = syntax;
-            this.currentVariableDeclarationSyntax = syntax;
+            if (this.inlineVariableVisitLevel == 0)
+            {
+                this.activeLoopCapableTopLevelDeclaration = syntax;
+                this.currentVariableDeclarationSyntax = syntax;
+            }
+
             base.VisitVariableDeclarationSyntax(syntax);
-            this.activeLoopCapableTopLevelDeclaration = null;
-            this.currentVariableDeclarationSyntax = null;
+
+            if (this.inlineVariableVisitLevel == 0)
+            {
+                this.activeLoopCapableTopLevelDeclaration = null;
+                this.currentVariableDeclarationSyntax = null;
+            }
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -295,19 +310,52 @@ namespace Bicep.Core.Emit
                     }
 
                     var isValidResourceCollectionDirectAccessLocation = this.insideProperties
-                        || this.currentVariableDeclarationSyntax != null
-                        || this.currentOutputDeclarationSyntax != null;
+                        || this.currentOutputDeclarationSyntax != null
+                        || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null);
 
                     if (!isValidResourceCollectionDirectAccessLocation)
                     {
-                        WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
+                        if (this.variableAccessForInlineCheck != null)
+                        {
+                            var chainBuilder = ImmutableArray.CreateBuilder<string>();
+                            chainBuilder.AddRange(this.inlineVariableChain ?? Enumerable.Empty<string>());
+                            chainBuilder.AddRange(symbol.Name);
+                            WriteDirectAccessToCollectionNotSupported(this.variableAccessForInlineCheck, chainBuilder.ToImmutable());
+                        }
+                        else
+                        {
+                            WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
+                        }
                     }
+                }
+            } else if (this.currentVariableDeclarationSyntax == null
+                && variableOrResourceAccessSyntax is VariableAccessSyntax variableAccessSyntax
+                && symbol is VariableSymbol variableSymbol
+                && InlineDependencyVisitor.ShouldInlineVariable(this.semanticModel, variableSymbol.DeclaringVariable, out var outInlineVariableChain))
+            {
+                if (this.inlineVariableVisitLevel == 0)
+                {
+                    this.variableAccessForInlineCheck = variableAccessSyntax;
+                    var chainBuilder = ImmutableArray.CreateBuilder<string>();
+                    chainBuilder.AddRange(symbol.Name);
+                    chainBuilder.AddRange(outInlineVariableChain);
+                    this.inlineVariableChain = chainBuilder.ToImmutable();
+                }
+
+                this.inlineVariableVisitLevel++;
+                VisitVariableDeclarationSyntax(variableSymbol.DeclaringVariable);
+                this.inlineVariableVisitLevel--;
+
+                if (this.inlineVariableVisitLevel == 0)
+                {
+                    this.variableAccessForInlineCheck = null;
+                    this.inlineVariableChain = null;
                 }
             }
         }
 
-        private void WriteDirectAccessToCollectionNotSupported(IPositionable positionable) =>
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).DirectAccessToCollectionNotSupported());
+        private void WriteDirectAccessToCollectionNotSupported(IPositionable positionable, IEnumerable<string>? accessChain = null) =>
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).DirectAccessToCollectionNotSupported(accessChain));
 
         private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
         private static ObjectPropertySyntax? TryGetPropertiesProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName);
