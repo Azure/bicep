@@ -1411,12 +1411,12 @@ namespace Bicep.Core.TypeSystem
 
                     return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignment.Reference.Type, syntax), syntax, parameterAssignment.Flags);
                 case ParameterAssignmentSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentType)
+                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
                     {
                         return null;
                     };
 
-                    return TryCreateAssignment(parameterAssignmentType.Reference.Type, syntax);
+                    return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
             }
 
             return null;
