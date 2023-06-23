@@ -456,10 +456,19 @@ namespace Bicep.Core.Emit
         }
 
         private static void BlockModuleOutputResourcePropertyAccess(SemanticModel model, IDiagnosticWriter diagnostics) =>
-            diagnostics.WriteMultiple(SyntaxAggregator.Aggregate(model.Root.Syntax, syntax => syntax is PropertyAccessSyntax propertyAccess &&
+            diagnostics.WriteMultiple(
+                SyntaxAggregator.Aggregate(model.Root.Syntax, syntax => IsModuleOutputResourceRuntimePropertyAccess(model, syntax) || IsModuleOutputResourceListFunction(model, syntax))
+                    .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
+
+        private static bool IsModuleOutputResourceRuntimePropertyAccess(SemanticModel model, SyntaxBase syntax)
+            => syntax is PropertyAccessSyntax propertyAccess &&
                 model.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata &&
-                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName))
-                .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
+                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName);
+
+        private static bool IsModuleOutputResourceListFunction(SemanticModel model, SyntaxBase syntax)
+            => syntax is InstanceFunctionCallSyntax instanceFunctionCall &&
+                model.ResourceMetadata.TryLookup(instanceFunctionCall.BaseExpression) is ModuleOutputResourceMetadata &&
+                !LanguageConstants.IdentifierComparer.Equals(instanceFunctionCall.Name.IdentifierName, AzResourceTypeProvider.GetSecretFunctionName);
 
         private static void BlockSafeDereferenceOfModuleOrResourceCollectionMember(SemanticModel model, IDiagnosticWriter diagnostics) =>
             diagnostics.WriteMultiple(SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(model.Root.Syntax)
