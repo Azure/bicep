@@ -153,6 +153,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutFunctionDeclarationSyntax);
 
+        public void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutAssertDeclarationSyntax);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);
@@ -171,7 +173,5 @@ namespace Bicep.Core.PrettyPrintV2
                 ? TextDocument.From(SyntaxStringifier.Stringify(syntax, this.context.Newline).Trim())
                 : layoutSpecifier(syntax);
         }
-
-        public void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutAssertDeclarationSyntax);
     }
 }

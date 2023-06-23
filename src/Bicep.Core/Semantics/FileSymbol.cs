@@ -35,7 +35,7 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
-            // TODO: Avoid looping 9 times?
+            // TODO: Avoid looping 10 times?
             this.DeclarationsBySyntax = fileScope.Declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
             this.ImportDeclarations = fileScope.Declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = fileScope.Declarations.OfType<MetadataSymbol>().ToImmutableArray();
