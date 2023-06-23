@@ -44,8 +44,9 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
 var w38___ = true? 'xxxxx' : 'xxxxxx'
 //@[04:10) Variable w38___. Type: 'xxxxx' | 'xxxxxx'. Declaration start char: 0, length: 37
-var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
-//@[04:10) Variable w39___. Type: 'xxxxxx'. Declaration start char: 0, length: 38
+var w39___ = true
+//@[04:10) Variable w39___. Type: 'xxxxxx'. Declaration start char: 0, length: 39
+? 'xxxxxx' : 'xxxxxx' // suffix
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
 //@[04:10) Variable w40___. Type: 'xxxxxx' | 'xxxxxxx'. Declaration start char: 0, length: 39
 var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
@@ -98,8 +99,10 @@ var w81__ = union({ foo: 'x' } /* xxx */, any({ baz: 'func call length: 38  ' })
 var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }))
 //@[04:09) Variable w82__. Type: object. Declaration start char: 0, length: 82
 
-var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 //@[04:10) Variable w78___. Type: 1234567890. Declaration start char: 0, length: 78
+? 1234567890
+: 1234567890
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
 //@[04:10) Variable w79___. Type: [12345678] | object. Declaration start char: 0, length: 79
 var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4174) ProgramExpression
+//@[00:4175) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -122,12 +122,13 @@ var w38___ = true? 'xxxxx' : 'xxxxxx'
 //@[13:0017) |   ├─BooleanLiteralExpression { Value = True }
 //@[19:0026) |   ├─StringLiteralExpression { Value = xxxxx }
 //@[29:0037) |   └─StringLiteralExpression { Value = xxxxxx }
-var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
-//@[00:0038) ├─DeclaredVariableExpression { Name = w39___ }
-//@[13:0038) | └─TernaryExpression
+var w39___ = true
+//@[00:0039) ├─DeclaredVariableExpression { Name = w39___ }
+//@[13:0039) | └─TernaryExpression
 //@[13:0017) |   ├─BooleanLiteralExpression { Value = True }
-//@[19:0027) |   ├─StringLiteralExpression { Value = xxxxxx }
-//@[30:0038) |   └─StringLiteralExpression { Value = xxxxxx }
+? 'xxxxxx' : 'xxxxxx' // suffix
+//@[02:0010) |   ├─StringLiteralExpression { Value = xxxxxx }
+//@[13:0021) |   └─StringLiteralExpression { Value = xxxxxx }
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
 //@[00:0039) ├─DeclaredVariableExpression { Name = w40___ }
 //@[13:0039) | └─TernaryExpression
@@ -342,12 +343,14 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 //@[48:0051) |       ├─StringLiteralExpression { Value = baz }
 //@[53:0078) |       └─StringLiteralExpression { Value = func call length: 39    }
 
-var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 //@[00:0078) ├─DeclaredVariableExpression { Name = w78___ }
 //@[48:0078) | └─TernaryExpression
 //@[48:0052) |   ├─BooleanLiteralExpression { Value = True }
-//@[55:0065) |   ├─IntegerLiteralExpression { Value = 1234567890 }
-//@[68:0078) |   └─IntegerLiteralExpression { Value = 1234567890 }
+? 1234567890
+//@[02:0012) |   ├─IntegerLiteralExpression { Value = 1234567890 }
+: 1234567890
+//@[02:0012) |   └─IntegerLiteralExpression { Value = 1234567890 }
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
 //@[00:0079) ├─DeclaredVariableExpression { Name = w79___ }
 //@[49:0079) | └─TernaryExpression

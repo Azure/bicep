@@ -220,16 +220,18 @@ var w38___ = true? 'xxxxx' : 'xxxxxx'
 //@[27:28) Colon |:|
 //@[29:37) StringComplete |'xxxxxx'|
 //@[37:38) NewLine |\n|
-var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
+var w39___ = true
 //@[00:03) Identifier |var|
 //@[04:10) Identifier |w39___|
 //@[11:12) Assignment |=|
 //@[13:17) TrueKeyword |true|
-//@[17:18) Question |?|
-//@[19:27) StringComplete |'xxxxxx'|
-//@[28:29) Colon |:|
-//@[30:38) StringComplete |'xxxxxx'|
-//@[48:49) NewLine |\n|
+//@[17:18) NewLine |\n|
+? 'xxxxxx' : 'xxxxxx' // suffix
+//@[00:01) Question |?|
+//@[02:10) StringComplete |'xxxxxx'|
+//@[11:12) Colon |:|
+//@[13:21) StringComplete |'xxxxxx'|
+//@[31:32) NewLine |\n|
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
 //@[00:03) Identifier |var|
 //@[04:10) Identifier |w40___|
@@ -593,16 +595,20 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 //@[81:82) RightParen |)|
 //@[82:84) NewLine |\n\n|
 
-var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 //@[00:03) Identifier |var|
 //@[04:10) Identifier |w78___|
 //@[11:12) Assignment |=|
 //@[48:52) TrueKeyword |true|
-//@[53:54) Question |?|
-//@[55:65) Integer |1234567890|
-//@[66:67) Colon |:|
-//@[68:78) Integer |1234567890|
-//@[78:79) NewLine |\n|
+//@[52:53) NewLine |\n|
+? 1234567890
+//@[00:01) Question |?|
+//@[02:12) Integer |1234567890|
+//@[12:13) NewLine |\n|
+: 1234567890
+//@[00:01) Colon |:|
+//@[02:12) Integer |1234567890|
+//@[12:13) NewLine |\n|
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
 //@[00:03) Identifier |var|
 //@[04:10) Identifier |w79___|

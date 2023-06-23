@@ -48,8 +48,9 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
 var w38___ = true? 'xxxxx' : 'xxxxxx'
 //@[04:10) [no-unused-vars (Warning)] Variable "w38___" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w38___|
-var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
+var w39___ = true
 //@[04:10) [no-unused-vars (Warning)] Variable "w39___" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w39___|
+? 'xxxxxx' : 'xxxxxx' // suffix
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
 //@[04:10) [no-unused-vars (Warning)] Variable "w40___" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w40___|
 var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
@@ -103,8 +104,10 @@ var w81__ = union({ foo: 'x' } /* xxx */, any({ baz: 'func call length: 38  ' })
 var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }))
 //@[04:09) [no-unused-vars (Warning)] Variable "w82__" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w82__|
 
-var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 //@[04:10) [no-unused-vars (Warning)] Variable "w78___" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w78___|
+? 1234567890
+: 1234567890
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
 //@[04:10) [no-unused-vars (Warning)] Variable "w79___" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |w79___|
 var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]

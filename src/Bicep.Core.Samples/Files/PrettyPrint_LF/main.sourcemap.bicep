@@ -83,8 +83,9 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
 var w38___ = true? 'xxxxx' : 'xxxxxx'
 //@    "w38___": "[if(true(), 'xxxxx', 'xxxxxx')]",
-var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
+var w39___ = true
 //@    "w39___": "[if(true(), 'xxxxxx', 'xxxxxx')]",
+? 'xxxxxx' : 'xxxxxx' // suffix
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
 //@    "w40___": "[if(true(), 'xxxxxx', 'xxxxxxx')]",
 var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
@@ -198,8 +199,10 @@ var w81__ = union({ foo: 'x' } /* xxx */, any({ baz: 'func call length: 38  ' })
 var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }))
 //@    "w82__": "[union(createObject('foo', 'x', 'bar', 'x'), createObject('baz', 'func call length: 39   '))]",
 
-var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 //@    "w78___": "[if(true(), 1234567890, 1234567890)]",
+? 1234567890
+: 1234567890
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
 //@    "w79___": "[if(true(), createObject('foo', 1), createArray(12345678))]",
 var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4174) ProgramSyntax
+//@[00:4175) ProgramSyntax
 //@[80:0081) ├─Token(NewLine) |\n|
 //////////////////////////// Baselines for width 40 ////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
@@ -363,22 +363,24 @@ var w38___ = true? 'xxxxx' : 'xxxxxx'
 //@[29:0037) |   └─StringSyntax
 //@[29:0037) |     └─Token(StringComplete) |'xxxxxx'|
 //@[37:0038) ├─Token(NewLine) |\n|
-var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
-//@[00:0038) ├─VariableDeclarationSyntax
+var w39___ = true
+//@[00:0039) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0010) | ├─IdentifierSyntax
 //@[04:0010) | | └─Token(Identifier) |w39___|
 //@[11:0012) | ├─Token(Assignment) |=|
-//@[13:0038) | └─TernaryOperationSyntax
+//@[13:0039) | └─TernaryOperationSyntax
 //@[13:0017) |   ├─BooleanLiteralSyntax
 //@[13:0017) |   | └─Token(TrueKeyword) |true|
-//@[17:0018) |   ├─Token(Question) |?|
-//@[19:0027) |   ├─StringSyntax
-//@[19:0027) |   | └─Token(StringComplete) |'xxxxxx'|
-//@[28:0029) |   ├─Token(Colon) |:|
-//@[30:0038) |   └─StringSyntax
-//@[30:0038) |     └─Token(StringComplete) |'xxxxxx'|
-//@[48:0049) ├─Token(NewLine) |\n|
+//@[17:0018) |   ├─Token(NewLine) |\n|
+? 'xxxxxx' : 'xxxxxx' // suffix
+//@[00:0001) |   ├─Token(Question) |?|
+//@[02:0010) |   ├─StringSyntax
+//@[02:0010) |   | └─Token(StringComplete) |'xxxxxx'|
+//@[11:0012) |   ├─Token(Colon) |:|
+//@[13:0021) |   └─StringSyntax
+//@[13:0021) |     └─Token(StringComplete) |'xxxxxx'|
+//@[31:0032) ├─Token(NewLine) |\n|
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
 //@[00:0039) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -991,7 +993,7 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 //@[81:0082) |   └─Token(RightParen) |)|
 //@[82:0084) ├─Token(NewLine) |\n\n|
 
-var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 //@[00:0078) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0010) | ├─IdentifierSyntax
@@ -1000,13 +1002,17 @@ var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 //@[48:0078) | └─TernaryOperationSyntax
 //@[48:0052) |   ├─BooleanLiteralSyntax
 //@[48:0052) |   | └─Token(TrueKeyword) |true|
-//@[53:0054) |   ├─Token(Question) |?|
-//@[55:0065) |   ├─IntegerLiteralSyntax
-//@[55:0065) |   | └─Token(Integer) |1234567890|
-//@[66:0067) |   ├─Token(Colon) |:|
-//@[68:0078) |   └─IntegerLiteralSyntax
-//@[68:0078) |     └─Token(Integer) |1234567890|
-//@[78:0079) ├─Token(NewLine) |\n|
+//@[52:0053) |   ├─Token(NewLine) |\n|
+? 1234567890
+//@[00:0001) |   ├─Token(Question) |?|
+//@[02:0012) |   ├─IntegerLiteralSyntax
+//@[02:0012) |   | └─Token(Integer) |1234567890|
+//@[12:0013) |   ├─Token(NewLine) |\n|
+: 1234567890
+//@[00:0001) |   ├─Token(Colon) |:|
+//@[02:0012) |   └─IntegerLiteralSyntax
+//@[02:0012) |     └─Token(Integer) |1234567890|
+//@[12:0013) ├─Token(NewLine) |\n|
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
 //@[00:0079) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
