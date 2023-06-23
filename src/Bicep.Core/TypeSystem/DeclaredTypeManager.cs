@@ -1051,7 +1051,7 @@ namespace Bicep.Core.TypeSystem
                     break;
                 }
 
-                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
+                if (prevAccess?.IsSafeAccess is true || nextAccess.IsSafeAccess)
                 {
                     // if the first access definitely returns null, short-circuit the whole chain
                     if (ReferenceEquals(baseAssignment.Reference.Type, LanguageConstants.Null))

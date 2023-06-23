@@ -1203,7 +1203,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // index was of the wrong type
-                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.SafeAccessMarker is not null);
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.IsSafeAccess);
 
                 case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
                     return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression);
@@ -1238,7 +1238,7 @@ namespace Bicep.Core.TypeSystem
                         return baseArray.Item.Type;
                     }
 
-                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType), diagnostics, syntax.IsSafeAccess);
 
                 case ObjectType baseObject:
                     {
@@ -1251,19 +1251,17 @@ namespace Bicep.Core.TypeSystem
 
                         if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
                         {
-                            switch (syntax.IndexExpression)
+                            if (indexType is StringLiteralType literalIndex)
                             {
-                                case StringSyntax @string when @string.TryGetLiteralValue() is { } literalValue:
-                                    // indexing using a string literal so we know the name of the property
-                                    return TypeHelper.GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, TypeValidator.ShouldWarn(baseObject), diagnostics);
-
-                                default:
-                                    // the property name is itself an expression
-                                    return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                                // indexing using a string literal so we know the name of the property
+                                return TypeHelper.GetNamedPropertyType(baseObject, syntax.IndexExpression, literalIndex.RawStringValue, syntax.IsSafeAccess || TypeValidator.ShouldWarn(baseObject), diagnostics);
                             }
+
+                            // the property name is itself an expression
+                            return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
                         }
 
-                        return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
+                        return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.IsSafeAccess);
                     }
 
                 case DiscriminatedObjectType:
@@ -1275,7 +1273,7 @@ namespace Bicep.Core.TypeSystem
                         return LanguageConstants.Any;
                     }
 
-                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.SafeAccessMarker is not null);
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType), diagnostics, syntax.IsSafeAccess);
 
                 case UnionType unionType:
                     {
@@ -1297,7 +1295,7 @@ namespace Bicep.Core.TypeSystem
 
                 default:
                     // base expression was of the wrong type
-                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType), diagnostics, syntax.SafeAccessMarker is not null);
+                    return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType), diagnostics, syntax.IsSafeAccess);
             }
         }
 
@@ -1324,7 +1322,7 @@ namespace Bicep.Core.TypeSystem
             AccessExpressionSyntax? prevAccess = null;
             while (chainedAccesses.TryPop(out var nextAccess))
             {
-                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
+                if (prevAccess?.IsSafeAccess is true || nextAccess.IsSafeAccess)
                 {
                     // if the first access definitely returns null, short-circuit the whole chain
                     if (ReferenceEquals(baseType, LanguageConstants.Null))
@@ -1366,7 +1364,7 @@ namespace Bicep.Core.TypeSystem
             // there's already a parse error for it, so we don't need to add a type error as well
             ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
-            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, TypeValidator.ShouldWarn(objectType), diagnostics),
+            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, syntax.IsSafeAccess || TypeValidator.ShouldWarn(objectType), diagnostics),
 
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,

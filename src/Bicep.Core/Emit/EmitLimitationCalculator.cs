@@ -463,7 +463,7 @@ namespace Bicep.Core.Emit
 
         private static void BlockSafeDereferenceOfModuleOrResourceCollectionMember(SemanticModel model, IDiagnosticWriter diagnostics) =>
             diagnostics.WriteMultiple(SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(model.Root.Syntax)
-                .Select(arrayAccess => arrayAccess.SafeAccessMarker is not null
+                .Select(arrayAccess => arrayAccess.IsSafeAccess
                     ? model.GetSymbolInfo(arrayAccess.BaseExpression) switch
                     {
                         ModuleSymbol module when module.IsCollection => arrayAccess.SafeAccessMarker,
