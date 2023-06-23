@@ -1705,7 +1705,9 @@ var objectMap4 = toObject(sortByObjectKey, x =>
 //@[043:0044) |   |   | └─IdentifierSyntax
 //@[043:0044) |   |   |   └─Token(Identifier) |x|
 //@[045:0047) |   |   ├─Token(Arrow) |=>|
+//@[047:0048) |   |   ├─Token(NewLine) |\n|
   
+//@[002:0003) |   |   ├─Token(NewLine) |\n|
   x.name)
 //@[002:0008) |   |   └─PropertyAccessSyntax
 //@[002:0003) |   |     ├─VariableAccessSyntax
@@ -1789,6 +1791,7 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[053:0054) |   |   | └─IdentifierSyntax
 //@[053:0054) |   |   |   └─Token(Identifier) |i|
 //@[055:0057) |   |   ├─Token(Arrow) |=>|
+//@[068:0069) |   |   ├─Token(NewLine) |\n|
 {
 //@[000:0052) |   |   └─ObjectSyntax
 //@[000:0001) |   |     ├─Token(LeftBrace) |{|
