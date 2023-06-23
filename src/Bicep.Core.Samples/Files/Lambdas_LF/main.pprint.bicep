@@ -95,3 +95,18 @@ var objectMap2 = toObject(
   }
 )
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
+var objectMap4 = toObject(sortByObjectKey, x => x.name)
+var objectMap5 = toObject(
+  sortByObjectKey,
+  xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name
+)
+var objectMap6 = toObject(
+  range(0, 10),
+  i => '${i}',
+  i =>
+    // comment
+    {
+      isEven: (i % 2) == 0
+      isGreaterThan4: (i > 4)
+    }
+)

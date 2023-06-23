@@ -386,9 +386,13 @@ namespace Bicep.Core.Parsing
             if (Check(TokenType.Arrow))
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
+                var next = this.reader.Peek(skipNewlines: true);
+                var newlinesBeforeBody = !LanguageConstants.DeclarationKeywords.Contains(next.Text)
+                    ? this.NewLines().ToImmutableArray()
+                    : ImmutableArray<Token>.Empty;
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
 
-                return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, expression);
+                return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, newlinesBeforeBody, expression);
             }
 
             return new VariableAccessSyntax(identifier);
@@ -1078,10 +1082,14 @@ namespace Bicep.Core.Parsing
             if (Check(TokenType.Arrow))
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
+                var next = this.reader.Peek(skipNewlines: true);
+                var newlinesBeforeBody = !LanguageConstants.DeclarationKeywords.Contains(next.Text)
+                    ? this.NewLines().ToImmutableArray()
+                    : ImmutableArray<Token>.Empty;
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
                 var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-                return new LambdaSyntax(variableBlock, arrow, expression);
+                return new LambdaSyntax(variableBlock, arrow, newlinesBeforeBody.ToImmutableArray(), expression);
             }
 
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
@@ -1101,10 +1109,14 @@ namespace Bicep.Core.Parsing
 
             var returnType = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var next = this.reader.Peek(skipNewlines: true);
+            var newlinesBeforeBody = !arrow.IsSkipped && !LanguageConstants.DeclarationKeywords.Contains(next.Text)
+                ? this.NewLines().ToImmutableArray()
+                : ImmutableArray<Token>.Empty;
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
 
-            return new TypedLambdaSyntax(variableBlock, returnType, arrow, expression);
+            return new TypedLambdaSyntax(variableBlock, returnType, arrow, newlinesBeforeBody, expression);
         }
 
         private SyntaxBase PrimaryExpression(ExpressionFlags expressionFlags)

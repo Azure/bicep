@@ -162,5 +162,17 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
   isGreaterThan4: (i > 4)
 })
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
-//@    "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]"
+//@    "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]",
+var objectMap4 = toObject(sortByObjectKey, x =>
+//@    "objectMap4": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]",
+  
+  x.name)
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name)
+//@    "objectMap5": "[toObject(variables('sortByObjectKey'), lambda('xxxxxxxxxxxxxxxx', lambdaVariables('xxxxxxxxxxxxxxxx').name))]",
+var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
+//@    "objectMap6": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]"
+{
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
 

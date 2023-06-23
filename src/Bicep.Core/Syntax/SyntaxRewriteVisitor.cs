@@ -948,6 +948,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
             hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
+            hasChanges |= TryRewrite(syntax.NewlinesBeforeBody, out var newlinesBeforeBody);
             hasChanges |= TryRewrite(syntax.Body, out var body);
 
             if (!hasChanges)
@@ -955,7 +956,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new LambdaSyntax(variableSection, arrow, body);
+            return new LambdaSyntax(variableSection, arrow, newlinesBeforeBody.Cast<Token>().ToImmutableArray(), body);
         }
         void ISyntaxVisitor.VisitLambdaSyntax(LambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceLambdaSyntax);
 
@@ -1006,13 +1007,14 @@ namespace Bicep.Core.Syntax
             var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
             hasChanges |= TryRewrite(syntax.ReturnType, out var returnType);
             hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
+            hasChanges |= TryRewrite(syntax.NewlinesBeforeBody, out var newlinesBeforeBody);
             hasChanges |= TryRewrite(syntax.Body, out var body);
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new TypedLambdaSyntax(variableSection, returnType, arrow, body);
+            return new TypedLambdaSyntax(variableSection, returnType, arrow, newlinesBeforeBody.Cast<Token>().ToImmutableArray(), body);
         }
         void ISyntaxVisitor.VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypedLambdaSyntax);
 

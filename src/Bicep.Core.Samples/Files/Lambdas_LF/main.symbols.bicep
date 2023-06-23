@@ -154,4 +154,20 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
 //@[043:044) Local x. Type: object | object | object | object. Declaration start char: 43, length: 1
 //@[004:014) Variable objectMap3. Type: object. Declaration start char: 0, length: 55
+var objectMap4 = toObject(sortByObjectKey, x =>
+//@[043:044) Local x. Type: object | object | object | object. Declaration start char: 43, length: 1
+//@[004:014) Variable objectMap4. Type: object. Declaration start char: 0, length: 60
+  
+  x.name)
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name)
+//@[043:059) Local xxxxxxxxxxxxxxxx. Type: object | object | object | object. Declaration start char: 43, length: 16
+//@[004:014) Variable objectMap5. Type: object. Declaration start char: 0, length: 85
+var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
+//@[040:041) Local i. Type: int. Declaration start char: 40, length: 1
+//@[053:054) Local i. Type: int. Declaration start char: 53, length: 1
+//@[004:014) Variable objectMap6. Type: object. Declaration start char: 0, length: 122
+{
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
 

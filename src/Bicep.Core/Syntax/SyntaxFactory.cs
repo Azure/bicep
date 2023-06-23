@@ -405,6 +405,7 @@ namespace Bicep.Core.Syntax
             return new LambdaSyntax(
                 variableBlock,
                 SyntaxFactory.ArrowToken,
+                ImmutableArray<Token>.Empty,
                 functionExpression);
         }
 

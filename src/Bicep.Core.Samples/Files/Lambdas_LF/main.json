@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4686158236210752139"
+      "templateHash": "8390802115660072641"
     }
   },
   "variables": {
@@ -48,7 +48,10 @@
     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]",
     "objectMap": "[toObject(createArray(123, 456, 789), lambda('i', format('{0}', div(lambdaVariables('i'), 100))))]",
     "objectMap2": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]",
-    "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]"
+    "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]",
+    "objectMap4": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]",
+    "objectMap5": "[toObject(variables('sortByObjectKey'), lambda('xxxxxxxxxxxxxxxx', lambdaVariables('xxxxxxxxxxxxxxxx').name))]",
+    "objectMap6": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]"
   },
   "resources": [
     {

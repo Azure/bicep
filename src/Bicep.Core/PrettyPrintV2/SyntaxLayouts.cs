@@ -134,11 +134,29 @@ namespace Bicep.Core.PrettyPrintV2
                     separator: CommaLineOrCommaSpace,
                     padding: LineOrEmpty));
 
-        private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax) =>
-            this.Spread(
+        private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
+        {
+            if (syntax.Body is not ObjectSyntax and not ArraySyntax ||
+                syntax.NewlinesBeforeBody.Any(
+                    newline => newline.LeadingTrivia.Any(
+                        trivia => !trivia.IsOf(SyntaxTriviaType.Whitespace))))
+            {
+                // Optimization:
+                // Only group "=> <newlines> <body>" if body is not an object or an array,
+                // or there are dangling comments after =>.
+                return this.Spread(
+                    syntax.VariableSection,
+                    this.IndentTail(
+                        syntax.NewlinesBeforeBody
+                            .Prepend(syntax.Arrow)
+                            .Append(syntax.Body)));
+            }
+
+            return this.Spread(
                 syntax.VariableSection,
                 syntax.Arrow,
                 syntax.Body);
+        }
 
         private IEnumerable<Document> LayoutMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -282,14 +300,14 @@ namespace Bicep.Core.PrettyPrintV2
         {
             if (value is IfConditionSyntax)
             {
-                var valueAssignment = newlines.Prepend(assignment).Append(value);
+                var valueAssignmentClause = newlines.Prepend(assignment).Append(value);
 
                 return this.LayoutLeadingNodes(leadingNodes)
                     .Concat(this.Spread(
                         keyword,
                         name,
                         typeOrPath,
-                        this.IndentTail(valueAssignment)));
+                        this.IndentTail(valueAssignmentClause)));
             }
 
             return this.LayoutLeadingNodes(leadingNodes)
@@ -415,7 +433,7 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,
-                syntax.Children,
+                    syntax.Children,
                 syntax.CloseParen,
                 separator: CommaLineOrCommaSpace,
                 padding: LineOrEmpty);
@@ -425,12 +443,31 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Name,
                 syntax.Type);
 
-        public IEnumerable<Document> LayoutTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
-            this.Spread(
+        public IEnumerable<Document> LayoutTypedLambdaSyntax(TypedLambdaSyntax syntax)
+        {
+            if (syntax.Body is not ObjectSyntax and not ArraySyntax ||
+                syntax.NewlinesBeforeBody.Any(
+                    newline => newline.LeadingTrivia.Any(
+                        trivia => !trivia.IsOf(SyntaxTriviaType.Whitespace))))
+            {
+                // Optimization:
+                // Only group "=> <newlines> <body>" if body is not an object or an array,
+                // or there are dangling comments after =>.
+                return this.Spread(
+                    syntax.VariableSection,
+                    syntax.ReturnType,
+                    this.IndentTail(
+                        syntax.NewlinesBeforeBody
+                            .Prepend(syntax.Arrow)
+                            .Append(syntax.Body)));
+            }
+
+            return this.Spread(
                 syntax.VariableSection,
                 syntax.ReturnType,
                 syntax.Arrow,
                 syntax.Body);
+        }
 
         public IEnumerable<Document> LayoutFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
