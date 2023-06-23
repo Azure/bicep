@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2803) ProgramSyntax
+//@[000:2847) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -1716,13 +1716,13 @@ var objectMap4 = toObject(sortByObjectKey, x =>
 //@[004:0008) |   |       └─Token(Identifier) |name|
 //@[008:0009) |   └─Token(RightParen) |)|
 //@[009:0010) ├─Token(NewLine) |\n|
-var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name)
-//@[000:0085) ├─VariableDeclarationSyntax
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[000:0129) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0014) | ├─IdentifierSyntax
 //@[004:0014) | | └─Token(Identifier) |objectMap5|
 //@[015:0016) | ├─Token(Assignment) |=|
-//@[017:0085) | └─FunctionCallSyntax
+//@[017:0129) | └─FunctionCallSyntax
 //@[017:0025) |   ├─IdentifierSyntax
 //@[017:0025) |   | └─Token(Identifier) |toObject|
 //@[025:0026) |   ├─Token(LeftParen) |(|
@@ -1731,21 +1731,21 @@ var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.
 //@[026:0041) |   |   └─IdentifierSyntax
 //@[026:0041) |   |     └─Token(Identifier) |sortByObjectKey|
 //@[041:0042) |   ├─Token(Comma) |,|
-//@[043:0084) |   ├─FunctionArgumentSyntax
-//@[043:0084) |   | └─LambdaSyntax
-//@[043:0059) |   |   ├─LocalVariableSyntax
-//@[043:0059) |   |   | └─IdentifierSyntax
-//@[043:0059) |   |   |   └─Token(Identifier) |xxxxxxxxxxxxxxxx|
-//@[060:0062) |   |   ├─Token(Arrow) |=>|
-//@[063:0084) |   |   └─PropertyAccessSyntax
-//@[063:0079) |   |     ├─VariableAccessSyntax
-//@[063:0079) |   |     | └─IdentifierSyntax
-//@[063:0079) |   |     |   └─Token(Identifier) |xxxxxxxxxxxxxxxx|
-//@[079:0080) |   |     ├─Token(Dot) |.|
-//@[080:0084) |   |     └─IdentifierSyntax
-//@[080:0084) |   |       └─Token(Identifier) |name|
-//@[084:0085) |   └─Token(RightParen) |)|
-//@[085:0086) ├─Token(NewLine) |\n|
+//@[043:0128) |   ├─FunctionArgumentSyntax
+//@[043:0128) |   | └─LambdaSyntax
+//@[043:0081) |   |   ├─LocalVariableSyntax
+//@[043:0081) |   |   | └─IdentifierSyntax
+//@[043:0081) |   |   |   └─Token(Identifier) |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+//@[082:0084) |   |   ├─Token(Arrow) |=>|
+//@[085:0128) |   |   └─PropertyAccessSyntax
+//@[085:0123) |   |     ├─VariableAccessSyntax
+//@[085:0123) |   |     | └─IdentifierSyntax
+//@[085:0123) |   |     |   └─Token(Identifier) |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+//@[123:0124) |   |     ├─Token(Dot) |.|
+//@[124:0128) |   |     └─IdentifierSyntax
+//@[124:0128) |   |       └─Token(Identifier) |name|
+//@[128:0129) |   └─Token(RightParen) |)|
+//@[129:0130) ├─Token(NewLine) |\n|
 var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[000:0122) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|

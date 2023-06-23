@@ -98,7 +98,8 @@ var objectMap3 = toObject(sortByObjectKey, x => x.name)
 var objectMap4 = toObject(sortByObjectKey, x => x.name)
 var objectMap5 = toObject(
   sortByObjectKey,
-  xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name
+  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx =>
+    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name
 )
 var objectMap6 = toObject(
   range(0, 10),

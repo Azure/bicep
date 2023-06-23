@@ -927,7 +927,7 @@ var objectMap4 = toObject(sortByObjectKey, x =>
 //@[004:008) Identifier |name|
 //@[008:009) RightParen |)|
 //@[009:010) NewLine |\n|
-var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name)
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
 //@[000:003) Identifier |var|
 //@[004:014) Identifier |objectMap5|
 //@[015:016) Assignment |=|
@@ -935,13 +935,13 @@ var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.
 //@[025:026) LeftParen |(|
 //@[026:041) Identifier |sortByObjectKey|
 //@[041:042) Comma |,|
-//@[043:059) Identifier |xxxxxxxxxxxxxxxx|
-//@[060:062) Arrow |=>|
-//@[063:079) Identifier |xxxxxxxxxxxxxxxx|
-//@[079:080) Dot |.|
-//@[080:084) Identifier |name|
-//@[084:085) RightParen |)|
-//@[085:086) NewLine |\n|
+//@[043:081) Identifier |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+//@[082:084) Arrow |=>|
+//@[085:123) Identifier |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+//@[123:124) Dot |.|
+//@[124:128) Identifier |name|
+//@[128:129) RightParen |)|
+//@[129:130) NewLine |\n|
 var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[000:003) Identifier |var|
 //@[004:014) Identifier |objectMap6|

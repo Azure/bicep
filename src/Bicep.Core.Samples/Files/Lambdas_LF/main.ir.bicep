@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2803) ProgramExpression
+//@[000:2847) ProgramExpression
 //@[000:0054) ├─DeclaredVariableExpression { Name = doggos }
 //@[013:0054) | └─ArrayExpression
   'Evie'
@@ -451,13 +451,13 @@ var objectMap4 = toObject(sortByObjectKey, x =>
   x.name)
 //@[002:0008) |     └─PropertyAccessExpression { PropertyName = name }
 //@[002:0003) |       └─LambdaVariableReferenceExpression { Variable = x }
-var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name)
-//@[000:0085) ├─DeclaredVariableExpression { Name = objectMap5 }
-//@[017:0085) | └─FunctionCallExpression { Name = toObject }
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[000:0129) ├─DeclaredVariableExpression { Name = objectMap5 }
+//@[017:0129) | └─FunctionCallExpression { Name = toObject }
 //@[026:0041) |   ├─VariableReferenceExpression { Variable = sortByObjectKey }
-//@[043:0084) |   └─LambdaExpression
-//@[063:0084) |     └─PropertyAccessExpression { PropertyName = name }
-//@[063:0079) |       └─LambdaVariableReferenceExpression { Variable = xxxxxxxxxxxxxxxx }
+//@[043:0128) |   └─LambdaExpression
+//@[085:0128) |     └─PropertyAccessExpression { PropertyName = name }
+//@[085:0123) |       └─LambdaVariableReferenceExpression { Variable = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx }
 var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[000:0122) ├─DeclaredVariableExpression { Name = objectMap6 }
 //@[017:0122) | └─FunctionCallExpression { Name = toObject }

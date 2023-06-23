@@ -159,9 +159,9 @@ var objectMap4 = toObject(sortByObjectKey, x =>
 //@[004:014) Variable objectMap4. Type: object. Declaration start char: 0, length: 60
   
   x.name)
-var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxx.name)
-//@[043:059) Local xxxxxxxxxxxxxxxx. Type: object | object | object | object. Declaration start char: 43, length: 16
-//@[004:014) Variable objectMap5. Type: object. Declaration start char: 0, length: 85
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[043:081) Local xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Type: object | object | object | object. Declaration start char: 43, length: 38
+//@[004:014) Variable objectMap5. Type: object. Declaration start char: 0, length: 129
 var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[040:041) Local i. Type: int. Declaration start char: 40, length: 1
 //@[053:054) Local i. Type: int. Declaration start char: 53, length: 1
