@@ -433,7 +433,7 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
             this.Bracket(
                 syntax.OpenParen,
-                    syntax.Children,
+                syntax.Children,
                 syntax.CloseParen,
                 separator: CommaLineOrCommaSpace,
                 padding: LineOrEmpty);
