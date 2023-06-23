@@ -126,6 +126,11 @@ namespace Bicep.Core.Parsing
         {
             var candidate = this.BinaryExpression(expressionFlags);
 
+            var newlinesBeforeQuestion =
+                this.reader.Peek(skipNewlines: true).IsOf(TokenType.Question)
+                    ? this.NewLines().ToImmutableArray()
+                    : ImmutableArray<Token>.Empty;
+
             if (this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
@@ -138,6 +143,12 @@ namespace Bicep.Core.Parsing
                     TokenType.RightParen,
                     TokenType.RightSquare,
                     TokenType.NewLine);
+
+                var newlinesBeforeColon =
+                    !trueExpression.IsSkipped && this.reader.Peek(skipNewlines: true).IsOf(TokenType.Colon)
+                        ? this.NewLines().ToImmutableArray()
+                        : ImmutableArray<Token>.Empty;
+
                 var colon = this.WithRecovery(
                     () => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")),
                     GetSuppressionFlag(trueExpression),
@@ -155,7 +166,7 @@ namespace Bicep.Core.Parsing
                     TokenType.RightSquare,
                     TokenType.NewLine);
 
-                return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
+                return new TernaryOperationSyntax(candidate, newlinesBeforeQuestion, question, trueExpression, newlinesBeforeColon, colon, falseExpression);
             }
 
             return candidate;

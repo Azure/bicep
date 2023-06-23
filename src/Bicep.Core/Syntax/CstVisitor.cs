@@ -296,8 +296,10 @@ namespace Bicep.Core.Syntax
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {
             this.Visit(syntax.ConditionExpression);
+            this.VisitNodes(syntax.NewlinesBeforeQuestion);
             this.Visit(syntax.Question);
             this.Visit(syntax.TrueExpression);
+            this.VisitNodes(syntax.NewlinesBeforeColon);
             this.Visit(syntax.Colon);
             this.Visit(syntax.FalseExpression);
         }

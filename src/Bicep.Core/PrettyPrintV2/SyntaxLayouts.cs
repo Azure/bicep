@@ -282,18 +282,14 @@ namespace Bicep.Core.PrettyPrintV2
         {
             if (value is IfConditionSyntax)
             {
-                var valueAssignment = this.Group(() =>
-                    this.LayoutMany(newlines.Prepend(assignment).Append(value))
-                        .Where(x => x is not LineDocument)
-                        .SeparateBy(LineOrSpace)
-                        .Indent());
+                var valueAssignment = newlines.Prepend(assignment).Append(value);
 
                 return this.LayoutLeadingNodes(leadingNodes)
                     .Concat(this.Spread(
                         keyword,
                         name,
                         typeOrPath,
-                        valueAssignment));
+                        this.IndentTail(valueAssignment)));
             }
 
             return this.LayoutLeadingNodes(leadingNodes)
@@ -354,12 +350,17 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Value);
 
         private IEnumerable<Document> LayoutTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
-            this.Spread(
-                syntax.ConditionExpression,
-                syntax.Question,
-                syntax.TrueExpression,
-                syntax.Colon,
-                syntax.FalseExpression);
+            this.IndentTail(() => this.LayoutSingle(syntax.ConditionExpression)
+                .Concat(this.LayoutMany(syntax.NewlinesBeforeQuestion))
+                .Append(this.Spread(
+                    syntax.Question,
+                    this.LayoutSingle(syntax.TrueExpression)
+                        .Indent()))
+                .Concat(this.LayoutMany(syntax.NewlinesBeforeColon))
+                .Append(this.Spread(
+                    syntax.Colon,
+                    this.LayoutSingle(syntax.FalseExpression)
+                        .Indent())));
 
         private IEnumerable<Document> LayoutTupleTypeItemSyntax(TupleTypeItemSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)

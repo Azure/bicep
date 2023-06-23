@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:3274) ProgramSyntax
+//@[00:4174) ProgramSyntax
 //@[80:0081) ├─Token(NewLine) |\n|
 //////////////////////////// Baselines for width 40 ////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
@@ -346,6 +346,87 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[28:0041) |   |   └─Token(StringComplete) |'xxxxxxxxxxx'|
 //@[41:0042) |   └─Token(RightParen) |)|
 //@[42:0044) ├─Token(NewLine) |\n\n|
+
+var w38___ = true? 'xxxxx' : 'xxxxxx'
+//@[00:0037) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w38___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0037) | └─TernaryOperationSyntax
+//@[13:0017) |   ├─BooleanLiteralSyntax
+//@[13:0017) |   | └─Token(TrueKeyword) |true|
+//@[17:0018) |   ├─Token(Question) |?|
+//@[19:0026) |   ├─StringSyntax
+//@[19:0026) |   | └─Token(StringComplete) |'xxxxx'|
+//@[27:0028) |   ├─Token(Colon) |:|
+//@[29:0037) |   └─StringSyntax
+//@[29:0037) |     └─Token(StringComplete) |'xxxxxx'|
+//@[37:0038) ├─Token(NewLine) |\n|
+var w39___ = true? 'xxxxxx' : 'xxxxxx' // suffix
+//@[00:0038) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w39___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0038) | └─TernaryOperationSyntax
+//@[13:0017) |   ├─BooleanLiteralSyntax
+//@[13:0017) |   | └─Token(TrueKeyword) |true|
+//@[17:0018) |   ├─Token(Question) |?|
+//@[19:0027) |   ├─StringSyntax
+//@[19:0027) |   | └─Token(StringComplete) |'xxxxxx'|
+//@[28:0029) |   ├─Token(Colon) |:|
+//@[30:0038) |   └─StringSyntax
+//@[30:0038) |     └─Token(StringComplete) |'xxxxxx'|
+//@[48:0049) ├─Token(NewLine) |\n|
+var w40___ = true ?'xxxxxx' : 'xxxxxxx'
+//@[00:0039) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w40___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0039) | └─TernaryOperationSyntax
+//@[13:0017) |   ├─BooleanLiteralSyntax
+//@[13:0017) |   | └─Token(TrueKeyword) |true|
+//@[18:0019) |   ├─Token(Question) |?|
+//@[19:0027) |   ├─StringSyntax
+//@[19:0027) |   | └─Token(StringComplete) |'xxxxxx'|
+//@[28:0029) |   ├─Token(Colon) |:|
+//@[30:0039) |   └─StringSyntax
+//@[30:0039) |     └─Token(StringComplete) |'xxxxxxx'|
+//@[39:0040) ├─Token(NewLine) |\n|
+var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
+//@[00:0049) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w41___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0049) | └─TernaryOperationSyntax
+//@[13:0017) |   ├─BooleanLiteralSyntax
+//@[13:0017) |   | └─Token(TrueKeyword) |true|
+//@[18:0019) |   ├─Token(Question) |?|
+//@[20:0029) |   ├─StringSyntax
+//@[20:0029) |   | └─Token(StringComplete) |'xxxxxxx'|
+//@[30:0031) |   ├─Token(Colon) |:|
+//@[40:0049) |   └─StringSyntax
+//@[40:0049) |     └─Token(StringComplete) |'xxxxxxx'|
+//@[49:0050) ├─Token(NewLine) |\n|
+var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
+//@[00:0040) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w42___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0040) | └─TernaryOperationSyntax
+//@[13:0017) |   ├─BooleanLiteralSyntax
+//@[13:0017) |   | └─Token(TrueKeyword) |true|
+//@[18:0019) |   ├─Token(Question) |?|
+//@[20:0029) |   ├─StringSyntax
+//@[20:0029) |   | └─Token(StringComplete) |'xxxxxxx'|
+//@[29:0030) |   ├─Token(Colon) |:|
+//@[30:0040) |   └─StringSyntax
+//@[30:0040) |     └─Token(StringComplete) |'xxxxxxxx'|
+//@[40:0042) ├─Token(NewLine) |\n\n|
 
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
@@ -910,6 +991,135 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 //@[81:0082) |   └─Token(RightParen) |)|
 //@[82:0084) ├─Token(NewLine) |\n\n|
 
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@[00:0078) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w78___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[48:0078) | └─TernaryOperationSyntax
+//@[48:0052) |   ├─BooleanLiteralSyntax
+//@[48:0052) |   | └─Token(TrueKeyword) |true|
+//@[53:0054) |   ├─Token(Question) |?|
+//@[55:0065) |   ├─IntegerLiteralSyntax
+//@[55:0065) |   | └─Token(Integer) |1234567890|
+//@[66:0067) |   ├─Token(Colon) |:|
+//@[68:0078) |   └─IntegerLiteralSyntax
+//@[68:0078) |     └─Token(Integer) |1234567890|
+//@[78:0079) ├─Token(NewLine) |\n|
+var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
+//@[00:0079) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w79___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[49:0079) | └─TernaryOperationSyntax
+//@[49:0053) |   ├─BooleanLiteralSyntax
+//@[49:0053) |   | └─Token(TrueKeyword) |true|
+//@[54:0055) |   ├─Token(Question) |?|
+//@[56:0066) |   ├─ObjectSyntax
+//@[56:0057) |   | ├─Token(LeftBrace) |{|
+//@[58:0064) |   | ├─ObjectPropertySyntax
+//@[58:0061) |   | | ├─IdentifierSyntax
+//@[58:0061) |   | | | └─Token(Identifier) |foo|
+//@[61:0062) |   | | ├─Token(Colon) |:|
+//@[63:0064) |   | | └─IntegerLiteralSyntax
+//@[63:0064) |   | |   └─Token(Integer) |1|
+//@[65:0066) |   | └─Token(RightBrace) |}|
+//@[67:0068) |   ├─Token(Colon) |:|
+//@[69:0079) |   └─ArraySyntax
+//@[69:0070) |     ├─Token(LeftSquare) |[|
+//@[70:0078) |     ├─ArrayItemSyntax
+//@[70:0078) |     | └─IntegerLiteralSyntax
+//@[70:0078) |     |   └─Token(Integer) |12345678|
+//@[78:0079) |     └─Token(RightSquare) |]|
+//@[79:0080) ├─Token(NewLine) |\n|
+var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]
+//@[00:0080) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w80___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0080) | └─TernaryOperationSyntax
+//@[13:0017) |   ├─BooleanLiteralSyntax
+//@[13:0017) |   | └─Token(TrueKeyword) |true|
+//@[18:0019) |   ├─Token(Question) |?|
+//@[20:0045) |   ├─ObjectSyntax
+//@[20:0021) |   | ├─Token(LeftBrace) |{|
+//@[22:0031) |   | ├─ObjectPropertySyntax
+//@[22:0025) |   | | ├─IdentifierSyntax
+//@[22:0025) |   | | | └─Token(Identifier) |foo|
+//@[25:0026) |   | | ├─Token(Colon) |:|
+//@[27:0031) |   | | └─BooleanLiteralSyntax
+//@[27:0031) |   | |   └─Token(TrueKeyword) |true|
+//@[31:0032) |   | ├─Token(Comma) |,|
+//@[33:0043) |   | ├─ObjectPropertySyntax
+//@[33:0036) |   | | ├─IdentifierSyntax
+//@[33:0036) |   | | | └─Token(Identifier) |bar|
+//@[36:0037) |   | | ├─Token(Colon) |:|
+//@[38:0043) |   | | └─BooleanLiteralSyntax
+//@[38:0043) |   | |   └─Token(FalseKeyword) |false|
+//@[44:0045) |   | └─Token(RightBrace) |}|
+//@[46:0047) |   ├─Token(Colon) |:|
+//@[48:0080) |   └─ArraySyntax
+//@[48:0049) |     ├─Token(LeftSquare) |[|
+//@[49:0052) |     ├─ArrayItemSyntax
+//@[49:0052) |     | └─IntegerLiteralSyntax
+//@[49:0052) |     |   └─Token(Integer) |123|
+//@[52:0053) |     ├─Token(Comma) |,|
+//@[54:0057) |     ├─ArrayItemSyntax
+//@[54:0057) |     | └─IntegerLiteralSyntax
+//@[54:0057) |     |   └─Token(Integer) |234|
+//@[57:0058) |     ├─Token(Comma) |,|
+//@[59:0062) |     ├─ArrayItemSyntax
+//@[59:0062) |     | └─IntegerLiteralSyntax
+//@[59:0062) |     |   └─Token(Integer) |456|
+//@[62:0063) |     ├─Token(Comma) |,|
+//@[64:0079) |     ├─ArrayItemSyntax
+//@[64:0079) |     | └─ObjectSyntax
+//@[64:0065) |     |   ├─Token(LeftBrace) |{|
+//@[66:0077) |     |   ├─ObjectPropertySyntax
+//@[66:0069) |     |   | ├─IdentifierSyntax
+//@[66:0069) |     |   | | └─Token(Identifier) |xyz|
+//@[69:0070) |     |   | ├─Token(Colon) |:|
+//@[71:0077) |     |   | └─StringSyntax
+//@[71:0077) |     |   |   └─Token(StringComplete) |'xxxx'|
+//@[78:0079) |     |   └─Token(RightBrace) |}|
+//@[79:0080) |     └─Token(RightSquare) |]|
+//@[80:0081) ├─Token(NewLine) |\n|
+var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@[00:0081) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w81___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[51:0081) | └─TernaryOperationSyntax
+//@[51:0055) |   ├─BooleanLiteralSyntax
+//@[51:0055) |   | └─Token(TrueKeyword) |true|
+//@[56:0057) |   ├─Token(Question) |?|
+//@[58:0068) |   ├─IntegerLiteralSyntax
+//@[58:0068) |   | └─Token(Integer) |1234567890|
+//@[69:0070) |   ├─Token(Colon) |:|
+//@[71:0081) |   └─IntegerLiteralSyntax
+//@[71:0081) |     └─Token(Integer) |1234567890|
+//@[81:0082) ├─Token(NewLine) |\n|
+var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@[00:0082) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |w82___|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[52:0082) | └─TernaryOperationSyntax
+//@[52:0056) |   ├─BooleanLiteralSyntax
+//@[52:0056) |   | └─Token(TrueKeyword) |true|
+//@[57:0058) |   ├─Token(Question) |?|
+//@[59:0069) |   ├─IntegerLiteralSyntax
+//@[59:0069) |   | └─Token(Integer) |1234567890|
+//@[70:0071) |   ├─Token(Colon) |:|
+//@[72:0082) |   └─IntegerLiteralSyntax
+//@[72:0082) |     └─Token(Integer) |1234567890|
+//@[82:0084) ├─Token(NewLine) |\n\n|
+
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
 ////////////////////////// Baselines for line breakers /////////////////////////
@@ -1209,6 +1419,125 @@ var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[11:0012) |   |   |   └─Token(RightBrace) |}|
 //@[12:0013) |   |   └─Token(RightParen) |)|
 //@[13:0014) |   └─Token(RightSquare) |]|
-//@[14:0015) ├─Token(NewLine) |\n|
+//@[14:0016) ├─Token(NewLine) |\n\n|
+
+var forceBreak11 = true // comment
+//@[00:0057) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |forceBreak11|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0057) | └─TernaryOperationSyntax
+//@[19:0023) |   ├─BooleanLiteralSyntax
+//@[19:0023) |   | └─Token(TrueKeyword) |true|
+//@[34:0035) |   ├─Token(NewLine) |\n|
+    ? true
+//@[04:0005) |   ├─Token(Question) |?|
+//@[06:0010) |   ├─BooleanLiteralSyntax
+//@[06:0010) |   | └─Token(TrueKeyword) |true|
+//@[10:0011) |   ├─Token(NewLine) |\n|
+    : false
+//@[04:0005) |   ├─Token(Colon) |:|
+//@[06:0011) |   └─BooleanLiteralSyntax
+//@[06:0011) |     └─Token(FalseKeyword) |false|
+//@[11:0012) ├─Token(NewLine) |\n|
+var forceBreak12 = true ? true // comment
+//@[00:0053) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |forceBreak12|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0053) | └─TernaryOperationSyntax
+//@[19:0023) |   ├─BooleanLiteralSyntax
+//@[19:0023) |   | └─Token(TrueKeyword) |true|
+//@[24:0025) |   ├─Token(Question) |?|
+//@[26:0030) |   ├─BooleanLiteralSyntax
+//@[26:0030) |   | └─Token(TrueKeyword) |true|
+//@[41:0042) |   ├─Token(NewLine) |\n|
+    : false
+//@[04:0005) |   ├─Token(Colon) |:|
+//@[06:0011) |   └─BooleanLiteralSyntax
+//@[06:0011) |     └─Token(FalseKeyword) |false|
+//@[11:0012) ├─Token(NewLine) |\n|
+var forceBreak13 = true
+//@[00:0057) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |forceBreak13|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0057) | └─TernaryOperationSyntax
+//@[19:0023) |   ├─BooleanLiteralSyntax
+//@[19:0023) |   | └─Token(TrueKeyword) |true|
+//@[23:0024) |   ├─Token(NewLine) |\n|
+    ? true // comment
+//@[04:0005) |   ├─Token(Question) |?|
+//@[06:0010) |   ├─BooleanLiteralSyntax
+//@[06:0010) |   | └─Token(TrueKeyword) |true|
+//@[21:0022) |   ├─Token(NewLine) |\n|
+    : false
+//@[04:0005) |   ├─Token(Colon) |:|
+//@[06:0011) |   └─BooleanLiteralSyntax
+//@[06:0011) |     └─Token(FalseKeyword) |false|
+//@[11:0012) ├─Token(NewLine) |\n|
+var forceBreak14 = true ? {
+//@[00:0049) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |forceBreak14|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0049) | └─TernaryOperationSyntax
+//@[19:0023) |   ├─BooleanLiteralSyntax
+//@[19:0023) |   | └─Token(TrueKeyword) |true|
+//@[24:0025) |   ├─Token(Question) |?|
+//@[26:0041) |   ├─ObjectSyntax
+//@[26:0027) |   | ├─Token(LeftBrace) |{|
+//@[27:0028) |   | ├─Token(NewLine) |\n|
+    foo: 42
+//@[04:0011) |   | ├─ObjectPropertySyntax
+//@[04:0007) |   | | ├─IdentifierSyntax
+//@[04:0007) |   | | | └─Token(Identifier) |foo|
+//@[07:0008) |   | | ├─Token(Colon) |:|
+//@[09:0011) |   | | └─IntegerLiteralSyntax
+//@[09:0011) |   | |   └─Token(Integer) |42|
+//@[11:0012) |   | ├─Token(NewLine) |\n|
+} : false
+//@[00:0001) |   | └─Token(RightBrace) |}|
+//@[02:0003) |   ├─Token(Colon) |:|
+//@[04:0009) |   └─BooleanLiteralSyntax
+//@[04:0009) |     └─Token(FalseKeyword) |false|
+//@[09:0010) ├─Token(NewLine) |\n|
+var forceBreak15 = true ? { foo: 0 } : {
+//@[00:0052) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |forceBreak15|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0052) | └─TernaryOperationSyntax
+//@[19:0023) |   ├─BooleanLiteralSyntax
+//@[19:0023) |   | └─Token(TrueKeyword) |true|
+//@[24:0025) |   ├─Token(Question) |?|
+//@[26:0036) |   ├─ObjectSyntax
+//@[26:0027) |   | ├─Token(LeftBrace) |{|
+//@[28:0034) |   | ├─ObjectPropertySyntax
+//@[28:0031) |   | | ├─IdentifierSyntax
+//@[28:0031) |   | | | └─Token(Identifier) |foo|
+//@[31:0032) |   | | ├─Token(Colon) |:|
+//@[33:0034) |   | | └─IntegerLiteralSyntax
+//@[33:0034) |   | |   └─Token(Integer) |0|
+//@[35:0036) |   | └─Token(RightBrace) |}|
+//@[37:0038) |   ├─Token(Colon) |:|
+//@[39:0052) |   └─ObjectSyntax
+//@[39:0040) |     ├─Token(LeftBrace) |{|
+//@[40:0041) |     ├─Token(NewLine) |\n|
+    bar: 1}
+//@[04:0010) |     ├─ObjectPropertySyntax
+//@[04:0007) |     | ├─IdentifierSyntax
+//@[04:0007) |     | | └─Token(Identifier) |bar|
+//@[07:0008) |     | ├─Token(Colon) |:|
+//@[09:0010) |     | └─IntegerLiteralSyntax
+//@[09:0010) |     |   └─Token(Integer) |1|
+//@[10:0011) |     └─Token(RightBrace) |}|
+//@[11:0013) ├─Token(NewLine) |\n\n|
+
 
 //@[00:0000) └─Token(EndOfFile) ||

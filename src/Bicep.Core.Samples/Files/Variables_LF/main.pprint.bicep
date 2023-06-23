@@ -235,11 +235,13 @@ var scopesWithArmRepresentation = {
 
 // Issue #1332
 var issue1332_propname = 'ptest'
-var issue1332 = true ? {
-  prop1: {
-    '${issue1332_propname}': {}
-  }
-} : {}
+var issue1332 = true
+  ? {
+      prop1: {
+        '${issue1332_propname}': {}
+      }
+    }
+  : {}
 
 // Issue #486
 var myBigInt = 2199023255552

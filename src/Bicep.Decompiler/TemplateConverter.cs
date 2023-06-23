@@ -376,8 +376,10 @@ namespace Bicep.Decompiler
                     SyntaxFactory.LeftParenToken,
                     new TernaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
+                        ImmutableArray<Token>.Empty,
                         SyntaxFactory.QuestionToken,
                         ParseLanguageExpression(expression.Parameters[1]),
+                        ImmutableArray<Token>.Empty,
                         SyntaxFactory.ColonToken,
                         ParseLanguageExpression(expression.Parameters[2])),
                     SyntaxFactory.RightParenToken);
