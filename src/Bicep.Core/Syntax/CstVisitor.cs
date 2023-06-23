@@ -428,6 +428,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.VariableSection);
             this.Visit(syntax.Arrow);
+            this.VisitNodes(syntax.NewlinesBeforeBody);
             this.Visit(syntax.Body);
         }
 
@@ -455,6 +456,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.VariableSection);
             this.Visit(syntax.ReturnType);
             this.Visit(syntax.Arrow);
+            this.VisitNodes(syntax.NewlinesBeforeBody);
             this.Visit(syntax.Body);
         }
 
