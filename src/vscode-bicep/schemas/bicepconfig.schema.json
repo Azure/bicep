@@ -611,6 +611,9 @@
         },
         "prettyPrinting": {
           "type": "boolean"
+        },
+        "asserts": {
+          "type": "boolean"
         }
       }
     },

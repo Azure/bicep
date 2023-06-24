@@ -1935,6 +1935,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP344",
                 "Expected an assert identifier at this location.");
+
+            public ErrorDiagnostic AssertsUnsupported() => new(
+                TextSpan,
+                "BCP345",
+                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Asserts)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
