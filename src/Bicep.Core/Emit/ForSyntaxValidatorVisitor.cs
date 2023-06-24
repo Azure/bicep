@@ -135,13 +135,6 @@ namespace Bicep.Core.Emit
             this.activeLoopCapableTopLevelDeclaration = null;
         }
 
-        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
-        {
-            this.activeLoopCapableTopLevelDeclaration = syntax;
-            base.VisitAssertDeclarationSyntax(syntax);
-            this.activeLoopCapableTopLevelDeclaration = null;
-        }
-
         public override void VisitForSyntax(ForSyntax syntax)
         {
             // save previous property loop count on the call stack
