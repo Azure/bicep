@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -53,7 +52,7 @@ namespace Bicep.Core.Emit
         private int loopLevel = 0;
 
         private VariableAccessSyntax? variableAccessForInlineCheck = null;
-        private ImmutableArray<string>? inlineVariableChain = null;
+        private ImmutableArray<string>.Builder? inlineVariableChainBuilder = null;
         private int inlineVariableVisitLevel = 0;
 
         // points to the top level dependsOn property in the resource/module declaration currently being processed
@@ -313,10 +312,13 @@ namespace Bicep.Core.Emit
                     {
                         if (this.variableAccessForInlineCheck != null)
                         {
-                            var chainBuilder = ImmutableArray.CreateBuilder<string>();
-                            chainBuilder.AddRange(this.inlineVariableChain ?? Enumerable.Empty<string>());
-                            chainBuilder.AddRange(symbol.Name);
-                            WriteDirectAccessToCollectionNotSupported(this.variableAccessForInlineCheck, chainBuilder.ToImmutable());
+                            IEnumerable<string>? inlineVariableChain = null;
+                            if (this.inlineVariableChainBuilder != null)
+                            {
+                                this.inlineVariableChainBuilder.Add(symbol.Name);
+                                inlineVariableChain = this.inlineVariableChainBuilder.ToImmutable();
+                            }
+                            WriteDirectAccessToCollectionNotSupported(this.variableAccessForInlineCheck, inlineVariableChain);
                         }
                         else
                         {
@@ -335,7 +337,7 @@ namespace Bicep.Core.Emit
                     var chainBuilder = ImmutableArray.CreateBuilder<string>();
                     chainBuilder.AddRange(symbol.Name);
                     chainBuilder.AddRange(outInlineVariableChain);
-                    this.inlineVariableChain = chainBuilder.ToImmutable();
+                    this.inlineVariableChainBuilder = chainBuilder;
                 }
 
                 this.inlineVariableVisitLevel++;
@@ -345,7 +347,7 @@ namespace Bicep.Core.Emit
                 if (this.inlineVariableVisitLevel == 0)
                 {
                     this.variableAccessForInlineCheck = null;
-                    this.inlineVariableChain = null;
+                    this.inlineVariableChainBuilder = null;
                 }
             }
         }
