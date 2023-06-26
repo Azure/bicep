@@ -38,6 +38,8 @@ resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "exist
 
 moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object | forExpression) NL
 
+assertDecl -> decorator* "assert" IDENTIFIER(name) "=" expression NL
+
 outputDecl ->
   decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
   decorator* "output" IDENTIFIER(name) "resource" interpString(type) "=" expression NL
