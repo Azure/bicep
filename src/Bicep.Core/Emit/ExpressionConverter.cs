@@ -502,15 +502,25 @@ namespace Bicep.Core.Emit
 
         public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
         {
+            var isDirectCollectionAccess = indexContext == null && moduleSymbol is { IsCollection: true };
+            var referenceFunctionName = isDirectCollectionAccess ? "references" : "reference";
+
             if (context.Settings.EnableSymbolicNames)
             {
                 return CreateFunction(
-                    "reference",
+                    referenceFunctionName,
                     GenerateSymbolicReference(moduleSymbol, indexContext));
             }
 
+            if (isDirectCollectionAccess)
+            {
+                return CreateFunction(
+                    referenceFunctionName,
+                    new JTokenExpression(moduleSymbol.Name)); // this is the copy name
+            }
+
             return CreateFunction(
-                "reference",
+                referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol),
                 new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion));
         }

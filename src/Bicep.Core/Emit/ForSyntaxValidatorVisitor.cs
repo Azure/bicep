@@ -290,13 +290,6 @@ namespace Bicep.Core.Emit
                 if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
-                    if (symbol is not ResourceSymbol)
-                    {
-                        // not allowed outside of the dependsOn property for modules
-                        WriteDirectAccessToCollectionNotSupported(variableOrResourceAccessSyntax);
-                        return;
-                    }
-
                     // NOTE(kylealbert): Direct access to resource collections:
                     //  1. Not allowed inside a loop
                     //  2. In a resource body, it must be in a top level depends on property or inside the properties property.

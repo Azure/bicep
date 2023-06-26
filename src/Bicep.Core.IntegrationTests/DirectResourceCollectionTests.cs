@@ -87,55 +87,79 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public void DirectResourceCollectionAccess_ModuleParams()
+        public void DirectResourceCollectionAccess_Modules()
         {
             var result = CompilationHelper.Compile(
                 NewServiceBuilder(isSymbolicNameCodegenEnabled: true),
-                ("main.bicep", CreateReferencesBicepContent() + @"
-module testModule 'mod.bicep' = {
-  name: 'testmodule'
-  params: {
-    test: join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
-    test2: ipAddresses
-  }
-}
-"),
-                ("mod.bicep", @"
-param test string = 'test'
-param test2 string = 'test'
-
-resource storage 'Providers.Test/statefulResources@2014-04-01' = {
-  name: 'modstorage'
-  location: resourceGroup().location
-  properties: {
-    test: test
-    test2: test2
-  }
-}
-")
+                CreateReferencesBicepContentWithModules()
             );
 
-            // NOTE(kylealbert): it's important that this test asserts no diagnostics for CreateReferencesBicepContent()
-            // in relation to other tests that extend this content
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .NotHaveAnyDiagnostics();
 
             var template = result.Template;
 
-            // inside params
+            // module params
             template.Should()
                 .HaveValueAtPath(
-                    "$.resources.testModule.properties.parameters.test.value",
+                    "$.resources.singleModule.properties.parameters.modInput1.value",
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
 
-            // inside params via inlined variable
+            // module params via inlined variable
             template.Should()
                 .HaveValueAtPath(
-                    "$.resources.testModule.properties.parameters.test2.value",
+                    "$.resources.singleModule.properties.parameters.modInput2.value",
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
+
+            // output
+            template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.modOutputWithOuterExpression.value",
+                    "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
+
+            // output via inlined variable
+            template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.modOutputInlinedWithOuterExpression.value",
+                    "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
         }
 
+        [TestMethod]
+        public void DirectResourceCollectionAccess_NonSymbolic_Modules()
+        {
+            var result = CompilationHelper.Compile(CreateReferencesBicepContentWithModules());
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var template = result.Template;
+
+            // module params
+            template.Should()
+                .HaveValueAtPath(
+                    "$.resources[?(@.name == 'singleModule')].properties.parameters.modInput1.value",
+                    "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
+
+            // module params via inlined variable
+            template.Should()
+                .HaveValueAtPath(
+                    "$.resources[?(@.name == 'singleModule')].properties.parameters.modInput2.value",
+                    "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
+
+            // output
+            template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.modOutputWithOuterExpression.value",
+                    "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
+
+            // output via inlined variable
+            template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.modOutputInlinedWithOuterExpression.value",
+                    "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
+        }
 
         [DataTestMethod]
         [DataRow("""
@@ -409,6 +433,81 @@ output outputWithOuterExpression string = join(map(containerWorkers, (w) => w.pr
 output outputInlinedWithoutOuterExpression array = containerWorkersAlias
 output outputInlinedWithOuterExpression string = ipAddresses
 """;
+        }
+
+        private static (string fileName, string fileContents)[] CreateReferencesBicepContentWithModules()
+        {
+            return new[]
+            {
+                ("main.bicep", """
+resource containerWorkers 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = [for i in range(0, 4): {
+  name: 'gh9440-w1-${i}'
+  location: 'westus'
+  properties: {
+  }
+}]
+
+var ipAddresses = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+var containerWorkersAlias = containerWorkers
+
+resource containerController 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
+   name: 'gh9440-c'
+   dependsOn: [containerWorkers]
+   properties: {
+    containers: [
+      {
+        name: 'gh9440-cc'
+        properties: {
+          command: [
+            'echo "${join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')}"'
+            'echo "${ipAddresses}"'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+module singleModule 'mod1.bicep' = {
+  name: 'singleModule'
+  params: {
+    modInput1: join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+    modInput2: ipAddresses
+  }
+}
+
+module multiModules 'mod1.bicep' = [for i in range(0, 4): {
+  name: 'multiModule${i}'
+  params: {
+    modInput1: 'input-${i}'
+  }
+}]
+
+var moduleOutput1s = join(map(multiModules, (m) => m.outputs.modOutput1), ',')
+
+output outputWithoutOuterExpression array = containerWorkers
+output outputWithOuterExpression string = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+output outputInlinedWithoutOuterExpression array = containerWorkersAlias
+output outputInlinedWithOuterExpression string = ipAddresses
+output modOutputWithOuterExpression string = join(map(multiModules, (m) => m.outputs.modOutput1), ',')
+output modOutputInlinedWithOuterExpression string = join(map(multiModules, (m) => m.outputs.modOutput1), ',')
+"""),
+                ("mod1.bicep", """
+param modInput1 string = 'unspecified'
+param modInput2 string = 'unspecified'
+
+resource storage 'Providers.Test/statefulResources@2014-04-01' = {
+  name: 'gh9440-m1'
+  location: resourceGroup().location
+  properties: {
+    prop1: modInput1
+    prop2: modInput2
+  }
+}
+
+output modOutput1 string = storage.properties.modInput1
+""")
+            };
         }
     }
 }
