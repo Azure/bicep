@@ -133,7 +133,7 @@ namespace Bicep.Core.Emit
                     return GetReferenceExpression(exp.Metadata, exp.IndexContext, true);
 
                 case ModuleReferenceExpression exp:
-                    return GetModuleReferenceExpression(exp.Module, exp.IndexContext);
+                    return GetModuleReferenceExpression(exp.Module, exp.IndexContext, false);
 
                 case VariableReferenceExpression exp:
                     return CreateFunction("variables", new JTokenExpression(exp.Variable.Name));
@@ -278,7 +278,7 @@ namespace Bicep.Core.Emit
                 {
                     case "id" when shortCircuitableResourceRef:
                         return (
-                            AppendProperties(GetModuleReferenceExpression(output.Module, null), new JTokenExpression("outputs")),
+                            AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                             new LanguageExpression[]
                             {
                                 new JTokenExpression(output.OutputName),
@@ -286,7 +286,14 @@ namespace Bicep.Core.Emit
                             },
                             true);
                     case "id":
-                        return (GetFullyQualifiedResourceId(output), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return (
+                            AppendProperties(
+                                GetModuleReferenceExpression(output.Module, null, true),
+                                new JTokenExpression("outputs"),
+                                new JTokenExpression(output.OutputName),
+                                new JTokenExpression("value")),
+                            Enumerable.Empty<LanguageExpression>(),
+                            safeAccess);
                     case "type":
                         return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "apiVersion":
@@ -301,7 +308,7 @@ namespace Bicep.Core.Emit
                                     new FunctionExpression("contains",
                                         new LanguageExpression[]
                                         {
-                                            AppendProperties(GetModuleReferenceExpression(output.Module, null), new JTokenExpression("outputs")),
+                                            AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                                             new JTokenExpression(output.OutputName),
                                         },
                                         Array.Empty<LanguageExpression>()),
@@ -359,7 +366,7 @@ namespace Bicep.Core.Emit
         {
             // the name is dependent on the name expression which could involve locals in case of a resource collection
             "name" => (GetModuleNameExpression(reference.Module), Enumerable.Empty<LanguageExpression>(), false),
-            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext),
+            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
                 new[] { new JTokenExpression("outputs") },
                 expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)),
             string otherwise => throw new InvalidOperationException($"Unsupported module property: {otherwise}"),
@@ -469,7 +476,7 @@ namespace Bicep.Core.Emit
             else if (resource is ModuleOutputResourceMetadata output)
             {
                 return AppendProperties(
-                    GetModuleReferenceExpression(output.Module, null),
+                    GetModuleReferenceExpression(output.Module, null, true),
                     new JTokenExpression("outputs"),
                     new JTokenExpression(output.OutputName),
                     new JTokenExpression("value"));
@@ -500,9 +507,9 @@ namespace Bicep.Core.Emit
                 GetModuleNameExpression(moduleSymbol).AsEnumerable());
         }
 
-        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
+        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, bool isModuleOutputResource)
         {
-            var isDirectCollectionAccess = indexContext == null && moduleSymbol is { IsCollection: true };
+            var isDirectCollectionAccess = !isModuleOutputResource && indexContext == null && moduleSymbol is { IsCollection: true };
             var referenceFunctionName = isDirectCollectionAccess ? "references" : "reference";
 
             if (context.Settings.EnableSymbolicNames)
@@ -535,7 +542,7 @@ namespace Bicep.Core.Emit
                     Array.Empty<LanguageExpression>()),
 
                 ModuleOutputResourceMetadata output => AppendProperties(
-                    GetModuleReferenceExpression(output.Module, null),
+                    GetModuleReferenceExpression(output.Module, null, true),
                     new JTokenExpression("outputs"),
                     new JTokenExpression(output.OutputName),
                     new JTokenExpression("value")),
