@@ -114,6 +114,11 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty("languageVersion", "1.10-experimental");
             }
 
+            if (Context.Settings.EnableAsserts)
+            {
+                emitter.EmitProperty("languageVersion", "1.11-experimental");
+            }
+
             emitter.EmitProperty("contentVersion", "1.0.0.0");
 
             this.EmitMetadata(emitter, program.Metadata);
@@ -131,6 +136,8 @@ namespace Bicep.Core.Emit
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
             this.EmitOutputsIfPresent(emitter, program.Outputs);
+
+            this.EmitAssertsIfPresent(emitter, program.Asserts);
 
             jsonWriter.WriteEndObject();
 
@@ -1002,6 +1009,22 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("value", output.Value);
                 }
             }, output.SourceSyntax);
+        }
+
+        private void EmitAssertsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredAssertExpression> asserts)
+        {
+            if (!asserts.Any())
+            {
+                return;
+            }
+
+            emitter.EmitObjectProperty("asserts", () =>
+            {
+                foreach (var assert in asserts)
+                {
+                    emitter.EmitProperty(assert.Name, assert.Value);
+                }
+            });
         }
 
         public void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
