@@ -150,7 +150,7 @@ namespace Bicep.LanguageServer.Completions
                     return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
-                    //we're in a comment, no hints here
+                    // we're in a comment, no hints here
                     return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
@@ -207,6 +207,11 @@ namespace Bicep.LanguageServer.Completions
                     ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
                     ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
                     ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
+            }
+
+            if (featureProvider.AssertsEnabled)
+            {
+                kind |= ConvertFlag(IsAssertValueContext(matchingNodes, offset), BicepCompletionContextKind.AssertValue | BicepCompletionContextKind.Expression);
             }
 
             if (kind == BicepCompletionContextKind.None)
@@ -743,6 +748,15 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, Token>(matchingNodes, (variable, token) => variable.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // var foo = a|
             SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
+
+        private static bool IsAssertValueContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // | below indicates cursor position
+            // assert foo = |
+            SyntaxMatcher.IsTailMatch<AssertDeclarationSyntax>(matchingNodes, assert => assert.Assignment is not SkippedTriviaSyntax && offset >= assert.Assignment.GetEndPosition()) ||
+            // assert foo =|
+            SyntaxMatcher.IsTailMatch<AssertDeclarationSyntax, Token>(matchingNodes, (assert, token) => assert.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
+            // assert foo = a|
+            SyntaxMatcher.IsTailMatch<AssertDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (assert, _, _, token) => token.Type == TokenType.Identifier && assert.Assignment is Token assignmentToken && offset > assignmentToken.GetEndPosition());
 
         private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // resources only allow {} as the body so we don't need to worry about

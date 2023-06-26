@@ -853,9 +853,11 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                // TODO: add a check on the type of value assigned to an assert and throw InvalidAssertAssignment
+                if (!TypeValidator.AreTypesAssignable(valueType, LanguageConstants.Bool))
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).InvalidAssertAssignment(valueType));
+                }
 
-                // TODO: validate decorators (if any)
                 this.ValidateDecorators(syntax.Decorators, valueType, diagnostics);
 
                 base.VisitAssertDeclarationSyntax(syntax);

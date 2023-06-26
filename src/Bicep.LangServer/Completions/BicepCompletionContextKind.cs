@@ -215,5 +215,10 @@ namespace Bicep.LanguageServer.Completions
         /// Cursor is on a typed lambda output type.
         /// </summary>
         TypedLambdaOutputType = 1UL << 39,
+
+        /// <summary>
+        /// The current location needs an assert value.
+        /// </summary>
+        AssertValue = 1UL << 40,
     }
 }
