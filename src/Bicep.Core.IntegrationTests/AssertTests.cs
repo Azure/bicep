@@ -3,10 +3,12 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -17,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder ServicesWithAsserts => new ServiceBuilder()
-    .WithFeatureOverrides(new(TestContext, AssertsEnabled: true));
+            .WithFeatureOverrides(new(TestContext, AssertsEnabled: true));
 
 
         [TestMethod]
@@ -38,6 +40,69 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Assert_end_to_end_test()
+        {
+            var result = CompilationHelper.Compile(ServicesWithAsserts,
+                ("main.bicep", @"
+                    param accountName string
+
+                    resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+                        name: toLower(accountName)
+                        location: resourceGroup().location
+                        kind: 'Storage'
+                        sku: {
+                            name: 'Standard_LRS'
+                        }
+                    }
+
+                    var myInt = 24
+
+                    assert a1 = true
+                "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().DeepEqual(JToken.Parse(@"
+                {
+                    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+                    ""languageVersion"": ""1.11-experimental"",
+                    ""contentVersion"": ""1.0.0.0"",
+                    ""metadata"": {
+                        ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_generator"": {
+                            ""name"": ""bicep"",
+                            ""version"": ""dev"",
+                            ""templateHash"": ""1085922886486578528""
+                        }
+                    },
+                    ""parameters"": {
+                        ""accountName"": {
+                            ""type"": ""string""
+                        }
+                    },
+                    ""resources"": {
+                        ""stgAccount"": {
+                            ""type"": ""Microsoft.Storage/storageAccounts"",
+                            ""apiVersion"": ""2019-06-01"",
+                            ""name"": ""[toLower(parameters('accountName'))]"",
+                            ""location"": ""[resourceGroup().location]"",
+                            ""kind"": ""Storage"",
+                            ""sku"": {
+                                ""name"": ""Standard_LRS""
+                            }
+                        }
+                    },
+                    ""variables"": {
+                            ""myInt"": 24
+                        },
+                    ""asserts"": {
+                            ""a1"": true
+                    }
+                }
+            "));
         }
     }
 }
