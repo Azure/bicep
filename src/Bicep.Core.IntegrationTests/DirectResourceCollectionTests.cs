@@ -86,6 +86,57 @@ namespace Bicep.Core.IntegrationTests
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
         }
 
+        [TestMethod]
+        public void DirectResourceCollectionAccess_ModuleParams()
+        {
+            var result = CompilationHelper.Compile(
+                NewServiceBuilder(isSymbolicNameCodegenEnabled: true),
+                ("main.bicep", CreateReferencesBicepContent() + @"
+module testModule 'mod.bicep' = {
+  name: 'testmodule'
+  params: {
+    test: join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
+    test2: ipAddresses
+  }
+}
+"),
+                ("mod.bicep", @"
+param test string = 'test'
+param test2 string = 'test'
+
+resource storage 'Providers.Test/statefulResources@2014-04-01' = {
+  name: 'modstorage'
+  location: resourceGroup().location
+  properties: {
+    test: test
+    test2: test2
+  }
+}
+")
+            );
+
+            // NOTE(kylealbert): it's important that this test asserts no diagnostics for CreateReferencesBicepContent()
+            // in relation to other tests that extend this content
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var template = result.Template;
+
+            // inside params
+            template.Should()
+                .HaveValueAtPath(
+                    "$.resources.testModule.properties.parameters.test.value",
+                    "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
+
+            // inside params via inlined variable
+            template.Should()
+                .HaveValueAtPath(
+                    "$.resources.testModule.properties.parameters.test2.value",
+                    "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
+        }
+
+
         [DataTestMethod]
         [DataRow("""
 var loopVar = [for i in range(0, 2): {

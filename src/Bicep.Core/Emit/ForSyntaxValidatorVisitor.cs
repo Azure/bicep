@@ -117,7 +117,7 @@ namespace Bicep.Core.Emit
             this.currentDependsOnProperty = TryGetDependsOnProperty(resourceBodySyntax);
 
             var previousPropertiesProperty = this.currentPropertiesProperty;
-            this.currentPropertiesProperty = TryGetPropertiesProperty(resourceBodySyntax);
+            this.currentPropertiesProperty = TryGetPropertiesProperty(resourceBodySyntax, false);
 
             base.VisitResourceDeclarationSyntax(syntax);
 
@@ -134,7 +134,7 @@ namespace Bicep.Core.Emit
             // stash the body (handles loops and conditions as well)
             var moduleBodySyntax = syntax.TryGetBody();
             this.currentDependsOnProperty = TryGetDependsOnProperty(moduleBodySyntax);
-            this.currentPropertiesProperty = TryGetPropertiesProperty(moduleBodySyntax);
+            this.currentPropertiesProperty = TryGetPropertiesProperty(moduleBodySyntax, true);
 
             base.VisitModuleDeclarationSyntax(syntax);
 
@@ -354,7 +354,10 @@ namespace Bicep.Core.Emit
             this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).DirectAccessToCollectionNotSupported(accessChain));
 
         private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
-        private static ObjectPropertySyntax? TryGetPropertiesProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName);
+        private static ObjectPropertySyntax? TryGetPropertiesProperty(ObjectSyntax? body, bool isModule) =>
+            isModule
+                ? body?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)
+                : body?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName);
 
         private bool? IsLoopAllowedHere(ForSyntax syntax)
         {
