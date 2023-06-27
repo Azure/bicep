@@ -394,6 +394,47 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
                     });
         }
 
+        [TestMethod]
+        public void DirectResourceCollectionAccess_AllowedForExistingResourceCollection()
+        {
+            const string additionalContent = """
+resource directAccessOfExisting 'Providers.Test/statefulResources@2014-04-01' = {
+  name: 'dacoe'
+  properties: {
+    test: join(map(existingCollection, (r) => r.properties.test), ',')
+  }
+}
+""";
+
+            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), CreateReferencesBicepContent() + "\n" + additionalContent);
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void DirectResourceCollectionAccess_NonSymbolic_NotAllowedForExistingResourceCollection()
+        {
+            const string additionalContent = """
+resource directAccessOfExisting 'Providers.Test/statefulResources@2014-04-01' = {
+  name: 'dacoe'
+  properties: {
+    test: join(map(existingCollection, (r) => r.properties.test), ',')
+  }
+}
+""";
+            var result = CompilationHelper.Compile(CreateReferencesBicepContent() + "\n" + additionalContent);
+
+            result.WithErrorDiagnosticsOnly()
+                .Should()
+                .HaveDiagnostics(
+                    new[]
+                    {
+                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression.")
+                    });
+        }
+
         private static ServiceBuilder NewServiceBuilder(bool isSymbolicNameCodegenEnabled) => new ServiceBuilder()
             .WithFeatureOverrides(new FeatureProviderOverrides { SymbolicNameCodegenEnabled = isSymbolicNameCodegenEnabled });
 
@@ -427,6 +468,10 @@ resource containerController 'Microsoft.ContainerInstance/containerGroups@2022-0
     ]
   }
 }
+
+resource existingCollection 'Providers.Test/statefulResources@2014-04-01' existing = [for i in range(0, 2): {
+  name: 'existing'
+}]
 
 output outputWithoutOuterExpression array = containerWorkers
 output outputWithOuterExpression string = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
