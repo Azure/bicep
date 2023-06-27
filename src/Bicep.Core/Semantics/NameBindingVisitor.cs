@@ -241,7 +241,6 @@ namespace Bicep.Core.Semantics
 
         public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.AssertDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);

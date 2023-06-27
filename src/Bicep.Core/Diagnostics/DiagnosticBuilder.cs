@@ -1944,7 +1944,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
                 TextSpan,
                 "BCP346",
-                $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type boolean only.");
+                $"Value of type \"{valueType.TypeKind}\" cannot be assigned to an assert. Asserts can take values of type boolean only.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

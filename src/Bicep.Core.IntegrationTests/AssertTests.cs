@@ -43,11 +43,35 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public void Asserts_only_take_boolean()
+        {
+            var result = CompilationHelper.Compile(ServicesWithAsserts,
+                ("main.bicep", @"
+                    param accountName string
+                    param environment string
+
+                    assert a1 = 1
+                    
+                    assert a3 = contains(accountName, 'dev')
+                    assert a4 = true
+                    assert devEnv = environment == 'dev'
+                "));
+
+            result.Should().NotGenerateATemplate();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"IntegerLiteral\" cannot be assigned to an assert. Asserts can take values of type boolean only.")
+            });
+        }
+
+        [TestMethod]
         public void Assert_end_to_end_test()
         {
             var result = CompilationHelper.Compile(ServicesWithAsserts,
                 ("main.bicep", @"
                     param accountName string
+                    param environment string
+                    param location string
 
                     resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                         name: toLower(accountName)
@@ -60,7 +84,9 @@ namespace Bicep.Core.IntegrationTests
 
                     var myInt = 24
 
-                    assert a1 = true
+                    assert a1 = length(accountName) < myInt
+                    assert a2 = contains(location, 'us')
+                    assert a3 = environment == 'dev'    
                 "));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -75,13 +101,19 @@ namespace Bicep.Core.IntegrationTests
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""1085922886486578528""
+                            ""templateHash"": ""7560528332789115725""
                         }
                     },
                     ""parameters"": {
                         ""accountName"": {
                             ""type"": ""string""
-                        }
+                        },
+                        ""environment"": {
+                            ""type"": ""string""
+                        },
+                        ""location"": {
+                            ""type"": ""string""
+                        }           
                     },
                     ""resources"": {
                         ""stgAccount"": {
@@ -99,7 +131,9 @@ namespace Bicep.Core.IntegrationTests
                             ""myInt"": 24
                         },
                     ""asserts"": {
-                            ""a1"": true
+                            ""a1"": ""[less(length(parameters('accountName')), variables('myInt'))]"",
+                            ""a2"": ""[contains(parameters('location'), 'us')]"",
+                            ""a3"": ""[equals(parameters('environment'), 'dev')]""
                     }
                 }
             "));

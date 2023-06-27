@@ -862,7 +862,7 @@ namespace Bicep.Core.TypeSystem
 
                 base.VisitAssertDeclarationSyntax(syntax);
 
-                return TypeFactory.CreateBooleanType();
+                return LanguageConstants.Bool;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
