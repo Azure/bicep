@@ -1,8 +1,8 @@
 # 
 
-## Description
+## Details
 
-{{ Add detailed description for the module. }}
+{{ Add detailed information about the module. }}
 
 ## Parameters
 
