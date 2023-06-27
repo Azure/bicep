@@ -1985,6 +1985,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP353",
                 "Expected a valid symbol alias at this location.");
+
+            public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
+                TextSpan,
+                "BCP354",
+                $@"Using compile-time imports requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
