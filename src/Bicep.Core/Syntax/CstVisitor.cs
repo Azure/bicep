@@ -419,7 +419,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Config);
         }
 
-        public override void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax)
+        public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Alias);
@@ -483,6 +483,39 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Lambda);
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.ImportExpression);
+            this.Visit(syntax.FromClause);
+        }
+
+        public override void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax)
+        {
+            this.Visit(syntax.OpenBrace);
+            this.VisitNodes(syntax.Children);
+            this.Visit(syntax.CloseBrace);
+        }
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+        {
+            this.Visit(syntax.OriginalSymbolName);
+            this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax)
+        {
+            this.Visit(syntax.Wildcard);
+            this.Visit(syntax.AliasAsClause);
+        }
+
+        public override void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Path);
         }
     }
 }

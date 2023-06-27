@@ -63,6 +63,7 @@ namespace Bicep.Core
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
+        public const string FromKeyword = "from";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
@@ -103,7 +104,8 @@ namespace Bicep.Core
             .Add(TargetScopeKeyword)
             .Add(IfKeyword)
             .Add(ForKeyword)
-            .Add(InKeyword);
+            .Add(InKeyword)
+            .Add(FromKeyword);
 
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";

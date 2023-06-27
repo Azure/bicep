@@ -116,7 +116,7 @@ namespace Bicep.Core.Syntax
 
         void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax);
 
-        void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax);
+        void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax);
 
         void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
 
@@ -131,5 +131,15 @@ namespace Bicep.Core.Syntax
         void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax);
 
         void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax);
+
+        void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax);
+
+        void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax);
+
+        void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax);
+
+        void VisitWildcardImportSyntax(WildcardImportSyntax syntax);
+
+        void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax);
     }
 }

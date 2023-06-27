@@ -278,6 +278,75 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
+
+            // Provider namespace imports will use the `provider` keyword soon, but in the meantime, the keyword is
+            // shared between provider imports and type imports. If the next character is a '{' or '*', assume the
+            // statement is a type import
+            switch (reader.Peek().Type)
+            {
+                case TokenType.LeftBrace:
+                case TokenType.Asterisk:
+                    return CompileTimeImportDeclaration(keyword, leadingNodes);
+                default:
+                    return ProviderImportDeclaration(keyword, leadingNodes);
+            }
+        }
+
+        private CompileTimeImportDeclarationSyntax CompileTimeImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
+        {
+            SyntaxBase importExpression = reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine or
+                TokenType.Identifier => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
+                TokenType.LeftBrace => ImportedSymbolsList(),
+                TokenType.Asterisk => WildcardImport(),
+                _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
+            };
+
+            var fromClause = CompileTimeImportFromClause();
+
+            return new(leadingNodes, keyword, importExpression, fromClause);
+        }
+
+        private ImportedSymbolsListSyntax ImportedSymbolsList()
+        {
+            var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
+
+            var itemsOrTokens = HandleArrayOrObjectElements(
+                closingTokenType: TokenType.RightBrace,
+                parseChildElement: ImportedSymbolsListItem);
+
+            var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
+
+            return new(openBrace, itemsOrTokens, closeBrace);
+        }
+
+        private ImportedSymbolsListItemSyntax ImportedSymbolsListItem()
+            => new(Identifier(b => b.ExpectedExportedSymbolName()), ImportedSymbolsListItemAsClause());
+
+        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => Check(reader.Peek(), TokenType.AsKeyword)
+            ? new(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+                IdentifierWithRecovery(b => b.ExpectedSymbolAliasIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.NewLine))
+            : null;
+
+        private WildcardImportSyntax WildcardImport() => new(Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
+            new AliasAsClauseSyntax(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+                Identifier(b => b.ExpectedSymbolAliasIdentifier())));
+
+        private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.FromKeyword);
+            var path = WithRecovery(
+                () => ThrowIfSkipped(InterpolableString, b => b.ExpectedModulePathString()),
+                GetSuppressionFlag(keyword),
+                TokenType.NewLine);
+
+            return new(keyword, path);
+        }
+
+        private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
+        {
             var providerSpecification = this.WithRecovery(
                 () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
                 RecoveryFlags.None,
@@ -301,7 +370,7 @@ namespace Bicep.Core.Parsing
                 _ => this.WithRecovery(() => this.ImportAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
             };
 
-            return new ProviderDeclarationSyntax(leadingNodes, keyword, providerSpecification, withClause, asClause);
+            return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
         }
 
         private ProviderWithClauseSyntax ImportWithClause()
@@ -312,7 +381,7 @@ namespace Bicep.Core.Parsing
             return new(keyword, config);
         }
 
-        private ProviderAsClauseSyntax ImportAsClause()
+        private AliasAsClauseSyntax ImportAsClause()
         {
             var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);

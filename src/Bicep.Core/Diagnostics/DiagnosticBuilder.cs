@@ -1942,7 +1942,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP344",
                 "Expected an assert identifier at this location.");
-        
+
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
                 "BCP345",
@@ -1970,6 +1970,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP350",
                 $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
+
+            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
+                TextSpan,
+                "BCP351",
+                "Expected left brace ('{') or asterisk ('*') character at this location.");
+
+            public ErrorDiagnostic ExpectedExportedSymbolName() => new(
+                TextSpan,
+                "BCP352",
+                "Expected the name of an exported symbol at this location.");
+
+            public ErrorDiagnostic ExpectedSymbolAliasIdentifier() => new(
+                TextSpan,
+                "BCP353",
+                "Expected a valid symbol alias at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

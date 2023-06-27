@@ -57,7 +57,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitIfConditionSyntax(IfConditionSyntax syntax) => this.Apply(syntax, this.LayoutIfConditionSyntax);
 
-        public void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) => this.Apply(syntax, this.LayoutProviderAsClauseSyntax);
+        public void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax) => this.Apply(syntax, this.LayoutAliasAsClauseSyntax);
 
         public void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutProviderDeclarationSyntax);
 
@@ -156,6 +156,16 @@ namespace Bicep.Core.PrettyPrintV2
         public void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutFunctionDeclarationSyntax);
 
         public void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutAssertDeclarationSyntax);
+
+        public void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutCompileTimeImportDeclarationSyntax);
+
+        public void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax) => this.Apply(syntax, LayoutImportedSymbolsListSyntax);
+
+        public void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax) => this.Apply(syntax, LayoutImportedSymbolsListItemSyntax);
+
+        public void VisitWildcardImportSyntax(WildcardImportSyntax syntax) => this.Apply(syntax, LayoutWildcardImportSyntax);
+
+        public void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax) => this.Apply(syntax, LayoutCompileTimeImportFromClauseSyntax);
 
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {

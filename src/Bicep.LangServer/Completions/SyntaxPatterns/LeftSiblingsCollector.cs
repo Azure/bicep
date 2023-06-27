@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
         public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.Config);
 
-        public override void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) =>
+        public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax) =>
             this.AddLeftSiblings(syntax.Keyword, syntax.Alias);
 
         private void AddLeftSiblings(params SyntaxBase[] candidates)

@@ -38,7 +38,7 @@ namespace Bicep.Core.Syntax
 
         public ObjectSyntax? Config => (this.WithClause as ProviderWithClauseSyntax)?.Config as ObjectSyntax;
 
-        public IdentifierSyntax? Alias => (this.AsClause as ProviderAsClauseSyntax)?.Alias as IdentifierSyntax;
+        public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 

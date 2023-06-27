@@ -104,7 +104,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.ConditionExpression,
                 syntax.Body);
 
-        private IEnumerable<Document> LayoutProviderAsClauseSyntax(ProviderAsClauseSyntax syntax) =>
+        private IEnumerable<Document> LayoutAliasAsClauseSyntax(AliasAsClauseSyntax syntax) =>
             this.Spread(
                 syntax.Keyword,
                 syntax.Alias);
@@ -494,6 +494,32 @@ namespace Bicep.Core.PrettyPrintV2
                     this.Glue(
                         syntax.Name,
                         syntax.Lambda)));
+
+        public IEnumerable<Document> LayoutCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+            => LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(Spread(
+                    syntax.Keyword,
+                    syntax.ImportExpression,
+                    syntax.FromClause));
+
+        public IEnumerable<Document> LayoutImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax)
+            => Bracket(
+                syntax.OpenBrace,
+                syntax.Children,
+                syntax.CloseBrace,
+                separator: LineOrCommaSpace,
+                padding: LineOrSpace,
+                forceBreak: StartsWithNewline(syntax.Children) && syntax.Children.OfType<ImportedSymbolsListItemSyntax>().Any());
+
+        public IEnumerable<Document> LayoutImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+            => Spread(syntax.OriginalSymbolName.AsEnumerable<SyntaxBase>()
+                .Concat(syntax.AsClause is SyntaxBase nonNullAsClause ? nonNullAsClause.AsEnumerable() : Enumerable.Empty<SyntaxBase>()));
+
+        public IEnumerable<Document> LayoutWildcardImportSyntax(WildcardImportSyntax syntax)
+            => Spread(syntax.Wildcard, syntax.AliasAsClause);
+
+        public IEnumerable<Document> LayoutCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax)
+            => Spread(syntax.Keyword, syntax.Path);
 
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)

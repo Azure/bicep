@@ -334,7 +334,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Config);
         }
 
-        public override void VisitProviderAsClauseSyntax(ProviderAsClauseSyntax syntax)
+        public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {
             this.Visit(syntax.Alias);
         }
@@ -386,6 +386,34 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);
             this.Visit(syntax.Lambda);
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.ImportExpression);
+            this.Visit(syntax.FromClause);
+        }
+
+        public override void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax)
+        {
+            this.VisitNodes(syntax.Children);
+        }
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+        {
+            this.Visit(syntax.OriginalSymbolName);
+            this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax)
+        {
+            this.Visit(syntax.AliasAsClause);
+        }
+
+        public override void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax)
+        {
+            this.Visit(syntax.Path);
         }
     }
 }
