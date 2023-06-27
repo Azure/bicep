@@ -50,7 +50,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
                 // TTK error message:
                 //  [-] CommandToExecute Must Use ProtectedSettings For Secrets (62 ms)
                 //    CommandToExecute references parameter 'arguments' of type 'securestring', but is not in .protectedSettings
-                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
+                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure value 'arguments'"
               }
             );
         }
@@ -88,7 +88,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
 }
             ",
               new string[] {
-                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
+                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure value 'arguments'"
                }
             );
         }
@@ -187,7 +187,7 @@ resource vmNameSql_installpostgresql 'Microsoft.Compute/virtualMachines/extensio
 }
             ",
               new string[] {
-                "[84] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'adminPasswordOrKey'"
+                "[84] Use protectedSettings for commandToExecute secrets. Found possible secret: secure value 'adminPasswordOrKey'"
                }
             );
         }
@@ -220,7 +220,7 @@ resource vmName_CustomScript 'Microsoft.HybridCompute/machines/extensions@2019-0
 }
             ",
               new string[] {
-                "[17] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'commandToExecute'"
+                "[17] Use protectedSettings for commandToExecute secrets. Found possible secret: secure value 'commandToExecute'"
               }
             );
         }

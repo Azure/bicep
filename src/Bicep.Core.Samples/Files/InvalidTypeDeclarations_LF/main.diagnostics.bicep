@@ -79,7 +79,6 @@ type objectWithInvalidPropertyDecorators = {
   fooProp: string
 
   @secure()
-//@[03:09) [BCP297 (Error)] Function "secure" cannot be used as a type decorator. (CodeDescription: none) |secure|
   barProp: string
 
   @allowed(['snap', 'crackle', 'pop'])
