@@ -82,7 +82,19 @@ namespace Bicep.Core
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
-        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { MetadataKeyword, ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword, TypeKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static readonly ImmutableSortedSet<string> DeclarationKeywords = ImmutableSortedSet.Create(
+            StringComparer.Ordinal,
+            new[]
+            {
+                ImportKeyword,
+                MetadataKeyword,
+                ParameterKeyword,
+                VariableKeyword,
+                ResourceKeyword,
+                OutputKeyword,
+                ModuleKeyword,
+                TypeKeyword
+            });
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)

@@ -134,11 +134,29 @@ namespace Bicep.Core.PrettyPrintV2
                     separator: CommaLineOrCommaSpace,
                     padding: LineOrEmpty));
 
-        private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax) =>
-            this.Spread(
+        private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
+        {
+            if (syntax.Body is not ObjectSyntax and not ArraySyntax ||
+                syntax.NewlinesBeforeBody.Any(
+                    newline => newline.LeadingTrivia.Any(
+                        trivia => !trivia.IsOf(SyntaxTriviaType.Whitespace))))
+            {
+                // Optimization:
+                // Only group "=> <newlines> <body>" if body is not an object or an array,
+                // or there are dangling comments after =>.
+                return this.Spread(
+                    syntax.VariableSection,
+                    this.IndentTail(
+                        syntax.NewlinesBeforeBody
+                            .Prepend(syntax.Arrow)
+                            .Append(syntax.Body)));
+            }
+
+            return this.Spread(
                 syntax.VariableSection,
                 syntax.Arrow,
                 syntax.Body);
+        }
 
         private IEnumerable<Document> LayoutMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -282,18 +300,14 @@ namespace Bicep.Core.PrettyPrintV2
         {
             if (value is IfConditionSyntax)
             {
-                var valueAssignment = this.Group(() =>
-                    this.LayoutMany(newlines.Prepend(assignment).Append(value))
-                        .Where(x => x is not LineDocument)
-                        .SeparateBy(LineOrSpace)
-                        .Indent());
+                var valueAssignmentClause = newlines.Prepend(assignment).Append(value);
 
                 return this.LayoutLeadingNodes(leadingNodes)
                     .Concat(this.Spread(
                         keyword,
                         name,
                         typeOrPath,
-                        valueAssignment));
+                        this.IndentTail(valueAssignmentClause)));
             }
 
             return this.LayoutLeadingNodes(leadingNodes)
@@ -354,12 +368,17 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Value);
 
         private IEnumerable<Document> LayoutTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
-            this.Spread(
-                syntax.ConditionExpression,
-                syntax.Question,
-                syntax.TrueExpression,
-                syntax.Colon,
-                syntax.FalseExpression);
+            this.IndentTail(() => this.LayoutSingle(syntax.ConditionExpression)
+                .Concat(this.LayoutMany(syntax.NewlinesBeforeQuestion))
+                .Append(this.Spread(
+                    syntax.Question,
+                    this.LayoutSingle(syntax.TrueExpression)
+                        .Indent()))
+                .Concat(this.LayoutMany(syntax.NewlinesBeforeColon))
+                .Append(this.Spread(
+                    syntax.Colon,
+                    this.LayoutSingle(syntax.FalseExpression)
+                        .Indent())));
 
         private IEnumerable<Document> LayoutTupleTypeItemSyntax(TupleTypeItemSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -424,12 +443,31 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Name,
                 syntax.Type);
 
-        public IEnumerable<Document> LayoutTypedLambdaSyntax(TypedLambdaSyntax syntax) =>
-            this.Spread(
+        public IEnumerable<Document> LayoutTypedLambdaSyntax(TypedLambdaSyntax syntax)
+        {
+            if (syntax.Body is not ObjectSyntax and not ArraySyntax ||
+                syntax.NewlinesBeforeBody.Any(
+                    newline => newline.LeadingTrivia.Any(
+                        trivia => !trivia.IsOf(SyntaxTriviaType.Whitespace))))
+            {
+                // Optimization:
+                // Only group "=> <newlines> <body>" if body is not an object or an array,
+                // or there are dangling comments after =>.
+                return this.Spread(
+                    syntax.VariableSection,
+                    syntax.ReturnType,
+                    this.IndentTail(
+                        syntax.NewlinesBeforeBody
+                            .Prepend(syntax.Arrow)
+                            .Append(syntax.Body)));
+            }
+
+            return this.Spread(
                 syntax.VariableSection,
                 syntax.ReturnType,
                 syntax.Arrow,
                 syntax.Body);
+        }
 
         public IEnumerable<Document> LayoutFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)

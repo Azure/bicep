@@ -20,6 +20,12 @@ var w40__ = concat('xxxxxx', 'xxxxxxxx') // suffix
 var w41__ = concat('xxxxx' /* xxxxxxx */)
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
+var w38___ = true ? 'xxxxx' : 'xxxxxx'
+var w39___ = true ? 'xxxxxx' : 'xxxxxx' // suffix
+var w40___ = true ? 'xxxxxx' : 'xxxxxxx'
+var w41___ = true ? 'xxxxxxx' : 'xxxxxxx'
+var w42___ = true ? 'xxxxxxx' : 'xxxxxxxx'
+
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +71,16 @@ var w82__ = union(
   { foo: 'x', bar: 'x' },
   any({ baz: 'func call length: 39   ' })
 )
+
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
+var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]
+var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
+  ? 1234567890
+  : 1234567890
+var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
+  ? 1234567890
+  : 1234567890
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
@@ -126,3 +142,23 @@ var forceBreak10 = [
     }
   )
 ]
+
+var forceBreak11 = true // comment
+  ? true
+  : false
+var forceBreak12 = true
+  ? true // comment
+  : false
+var forceBreak13 = true
+  ? true // comment
+  : false
+var forceBreak14 = true
+  ? {
+      foo: 42
+    }
+  : false
+var forceBreak15 = true
+  ? { foo: 0 }
+  : {
+      bar: 1
+    }
