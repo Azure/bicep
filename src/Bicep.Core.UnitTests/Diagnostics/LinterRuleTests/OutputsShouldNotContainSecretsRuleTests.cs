@@ -140,6 +140,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 config.Analyzers,
                 config.CacheRootDirectory,
                 config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
+                config.Formatting,
                 config.ConfigurationPath,
                 config.DiagnosticBuilders));
         }
@@ -230,6 +231,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 config.Analyzers,
                 config.CacheRootDirectory,
                 config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
+                config.Formatting,
                 config.ConfigurationPath,
                 config.DiagnosticBuilders));
         }
@@ -280,6 +282,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 config.Analyzers,
                 config.CacheRootDirectory,
                 config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
+                config.Formatting,
                 config.ConfigurationPath,
                 config.DiagnosticBuilders));
         }
