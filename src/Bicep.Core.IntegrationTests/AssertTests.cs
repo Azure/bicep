@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -86,7 +85,7 @@ namespace Bicep.Core.IntegrationTests
 
                     assert a1 = length(accountName) < myInt
                     assert a2 = contains(location, 'us')
-                    assert a3 = environment == 'dev'    
+                    assert a3 = environment == 'dev'
                 "));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
