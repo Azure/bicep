@@ -594,20 +594,23 @@ namespace Bicep.Core.TypeSystem
         {
             foreach (var (memberType, memberSyntax) in memberTypes)
             {
-                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is {} diagnostic)
+                if (!TypeHelper.IsLiteralType(memberType))
                 {
-                    diagnostics.Write(diagnostic);
+                    diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
                 }
             }
         }
 
         private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, IDiagnosticWriter diagnostics)
         {
+            var isObjectUnion = memberTypes.All(member => member.Item1 is ObjectType);
+
             foreach (var (memberType, memberSyntax) in memberTypes)
             {
-                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is {} diagnostic)
+                if (!TypeHelper.IsLiteralType(memberType))
                 {
-                    diagnostics.Write(diagnostic);
+                    // TODO(k.a): check for a @discriminator decorator, check the property exists on all members as a string literal, fail on every other case
+                    diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
                 }
                 else if (!TypeValidator.AreTypesAssignable(memberType, keystoneType))
                 {
@@ -616,8 +619,8 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static ErrorDiagnostic? GetNonLiteralUnionMemberDiagnostic(TypeSymbol memberType, UnionTypeMemberSyntax memberSyntax)
-            => TypeHelper.IsLiteralType(memberType) ? null : DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember();
+        private static ErrorDiagnostic GetNonLiteralUnionMemberDiagnostic(UnionTypeMemberSyntax memberSyntax)
+            => DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember();
 
         public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
