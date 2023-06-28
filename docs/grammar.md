@@ -11,6 +11,7 @@ statement ->
   variableDecl |
   resourceDecl |
   moduleDecl |
+  assertDel |
   outputDecl |
   functionDecl |
   NL
