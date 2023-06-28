@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -730,5 +731,35 @@ param myParam string
         {
             ("BCP025", DiagnosticLevel.Error, "The property \"bar\" is declared multiple times in this object. Remove or rename the duplicate properties.")
         });
+    }
+
+    [TestMethod]
+    public void ObjectTypeUnions_Basic()
+    {
+        var result = CompilationHelper.Compile(
+            ServicesWithUserDefinedTypes,
+            """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+type typeC = {
+  type: 'c'
+  value: bool
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB | typeC | { type: 'd' value: array }
+""");
+
+        result.ExcludingLinterDiagnostics()
+            .Should()
+            .NotHaveAnyDiagnostics();
     }
 }
