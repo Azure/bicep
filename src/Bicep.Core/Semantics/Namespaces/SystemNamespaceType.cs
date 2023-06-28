@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,7 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -17,15 +17,11 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SharpYaml.Serialization;
-using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 using Bicep.Core.Workspaces;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
+using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -1575,7 +1571,31 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false)))
                     .Build();
+
+                yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
+                    .WithDescription("Defines the discriminator property to use for a union of object types that is shared between all union members")
+                    .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
+                    .WithFlags(FunctionFlags.TypeDecorator)
+                    .WithValidator(ValidateTypeDiscriminator)
+                    .WithTypeEvaluator(EvaluateTypeDiscriminator)
+                    .Build();
             }
+        }
+
+        private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
+        {
+            if (targetType is not UnionType)
+            {
+                // TODO(k.a): diagnostic for not using on a union type
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+            }
+        }
+
+        private static TypeSymbol EvaluateTypeDiscriminator(FunctionCallExpression functionCall, TypeSymbol targetType)
+        {
+            var unionType = targetType as UnionType;
+            var discriminatorPropertyExpr = functionCall.Parameters.First() as StringLiteralExpression;
+            return UnionType.GetModifiedUnionType(unionType!, discriminatorPropertyExpr!.Value);
         }
 
         private static SyntaxBase? GetDeclaredTypeSyntaxOfParent(DecoratorSyntax syntax, IBinder binder) => binder.GetParent(syntax) switch

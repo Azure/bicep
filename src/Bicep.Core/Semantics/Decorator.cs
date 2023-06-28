@@ -17,6 +17,10 @@ namespace Bicep.Core.Semantics
         IDiagnosticLookup parsingErrorLookup,
         IDiagnosticWriter diagnosticWriter);
 
+    public delegate TypeSymbol DecoratorTypeEvaluator(
+        FunctionCallExpression functionCall,
+        TypeSymbol targetType);
+
     public delegate ObjectExpression? DecoratorEvaluator(
         FunctionCallExpression functionCall,
         TypeSymbol targetType,
@@ -30,12 +34,15 @@ namespace Bicep.Core.Semantics
 
         private readonly DecoratorEvaluator? evaluator;
 
-        public Decorator(FunctionOverload overload, TypeSymbol attachableType, DecoratorValidator? validator, DecoratorEvaluator? evaluator)
+        private readonly DecoratorTypeEvaluator? typeEvaluator;
+
+        public Decorator(FunctionOverload overload, TypeSymbol attachableType, DecoratorValidator? validator, DecoratorEvaluator? evaluator, DecoratorTypeEvaluator? typeEvaluator)
         {
             this.Overload = overload;
             this.attachableType = attachableType;
             this.validator = validator;
             this.evaluator = evaluator;
+            this.typeEvaluator = typeEvaluator;
         }
 
         public FunctionOverload Overload { get; }
@@ -63,6 +70,10 @@ namespace Bicep.Core.Semantics
             // Invoke custom validator if provided.
             this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
         }
+
+        // TODO(k.a): where to call this?
+        public TypeSymbol EvaluateType(FunctionCallExpression functionCall, TypeSymbol targetType)
+            => this.typeEvaluator != null ? this.typeEvaluator(functionCall, targetType) : targetType;
 
         public ObjectExpression? Evaluate(FunctionCallExpression functionCall, TypeSymbol targetType, ObjectExpression? targetObject)
         {

@@ -749,13 +749,8 @@ type typeB = {
   value: int
 }
 
-type typeC = {
-  type: 'c'
-  value: bool
-}
-
 @discriminator('type')
-type typeUnion = typeA | typeB | typeC | { type: 'd' value: array }
+type typeUnion = typeA | typeB | { type: 'c', value: bool }
 """);
 
         result.ExcludingLinterDiagnostics()

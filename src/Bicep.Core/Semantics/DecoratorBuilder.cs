@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.TypeSystem;
+
 using System;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
@@ -12,6 +13,8 @@ namespace Bicep.Core.Semantics
         private TypeSymbol attachableType;
 
         private DecoratorValidator? validator;
+
+        private DecoratorTypeEvaluator? typeEvaluator;
 
         private DecoratorEvaluator? evaluator;
 
@@ -76,6 +79,13 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
+        public DecoratorBuilder WithTypeEvaluator(DecoratorTypeEvaluator evaluator)
+        {
+            this.typeEvaluator = evaluator;
+
+            return this;
+        }
+
         public DecoratorBuilder WithEvaluator(DecoratorEvaluator evaluator)
         {
             this.evaluator = evaluator;
@@ -83,6 +93,6 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public Decorator Build() => new Decorator(this.functionOverloadBuilder.Build(), this.attachableType, this.validator, this.evaluator);
+        public Decorator Build() => new Decorator(this.functionOverloadBuilder.Build(), this.attachableType, this.validator, this.evaluator, this.typeEvaluator);
     }
 }
