@@ -32,6 +32,7 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
         private readonly BicepSourceFileKind fileKind;
+        private TypeDeclarationSyntax? currentTypeDeclarationSyntax = null;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, Workspaces.BicepSourceFileKind fileKind)
         {
@@ -472,7 +473,11 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
+                this.currentTypeDeclarationSyntax = syntax;
+
                 base.VisitTypeDeclarationSyntax(syntax);
+
+                this.currentTypeDeclarationSyntax = null;
 
                 diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
 
@@ -544,7 +549,7 @@ namespace Bicep.Core.TypeSystem
                 switch (TypeHelper.CreateTypeUnion(memberTypes.Select(t => GetNonLiteralType(t.memberType)).WhereNotNull()))
                 {
                     case UnionType union when TypeHelper.TryRemoveNullability(union) is {} nonNullable && LanguageConstants.DeclarationTypes.ContainsValue(nonNullable):
-                        ValidateAllowedValuesUnion(union, memberTypes, diagnostics);
+                        ValidateAllowedValuesUnion(union, memberTypes, this.currentTypeDeclarationSyntax, diagnostics);
                         break;
 
                     case UnionType union when MightBeArrayAny(syntax) &&
@@ -554,7 +559,7 @@ namespace Bicep.Core.TypeSystem
                         break;
 
                     case TypeSymbol ts when LanguageConstants.DeclarationTypes.ContainsValue(ts):
-                        ValidateAllowedValuesUnion(ts, memberTypes, diagnostics);
+                        ValidateAllowedValuesUnion(ts, memberTypes, this.currentTypeDeclarationSyntax, diagnostics);
                         break;
 
                     default:
@@ -601,20 +606,61 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, IDiagnosticWriter diagnostics)
+        private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, TypeDeclarationSyntax? typeDeclarationSyntax, IDiagnosticWriter diagnostics)
         {
             var isObjectUnion = memberTypes.All(member => member.Item1 is ObjectType);
+            string? discriminatorPropertyName = null;
+            HashSet<string>? discriminatorMemberValues = null;
+
+            if (isObjectUnion)
+            {
+                var discriminatorDecorator = typeDeclarationSyntax?.Decorators
+                    .FirstOrDefault(d => d.Expression is FunctionCallSyntax { Name.IdentifierName: LanguageConstants.TypeDiscriminatorDecoratorName });
+
+                var discriminatorPropertySyntax = discriminatorDecorator?.Arguments.FirstOrDefault()?.Expression as StringSyntax;
+                discriminatorPropertyName = discriminatorPropertySyntax?.TryGetLiteralValue();
+                discriminatorMemberValues = new HashSet<string>();
+            }
 
             foreach (var (memberType, memberSyntax) in memberTypes)
             {
-                if (!TypeHelper.IsLiteralType(memberType))
+                if (!isObjectUnion && !TypeHelper.IsLiteralType(memberType))
                 {
-                    // TODO(k.a): check for a @discriminator decorator, check the property exists on all members as a string literal, fail on every other case
                     diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
                 }
                 else if (!TypeValidator.AreTypesAssignable(memberType, keystoneType))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).InvalidUnionTypeMember(keystoneType.Name));
+                }
+                else if (isObjectUnion && !string.IsNullOrEmpty(discriminatorPropertyName))
+                {
+                    // validate all members have the discriminator property as a required string literal that don't overlap
+                    var objectType = memberType as ObjectType;
+
+                    if (!objectType!.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
+                    {
+                        // TODO(k.a): write diagnostic for missing property
+                        diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
+                        continue;
+                    }
+
+                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+                    {
+                        // TODO(k.a): write diagnostic for invalid discriminator property type
+                        diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
+                        continue;
+                    }
+
+                    var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
+                    var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
+
+                    if (discriminatorMemberValues!.Contains(discriminatorMemberValue))
+                    {
+                        // TODO(k.a): write diagnostic for overlapping discriminator literal value
+                        diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
+                    }
+
+                    discriminatorMemberValues.Add(discriminatorMemberValue);
                 }
             }
         }

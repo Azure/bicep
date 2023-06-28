@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -134,6 +135,7 @@ namespace Bicep.Core
         public const string MetadataDescriptionPropertyName = "description";
         public const string MetadataResourceTypePropertyName = "resourceType";
         public const string BatchSizePropertyName = "batchSize";
+        public const string TypeDiscriminatorDecoratorName = "discriminator";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";
