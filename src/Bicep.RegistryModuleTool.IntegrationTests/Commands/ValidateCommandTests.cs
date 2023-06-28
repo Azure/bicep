@@ -144,7 +144,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
 
             var console = new MockConsole().ExpectErrorLines(
-                "The file \"/modules/test/testmodule/metadata.json\" is obsolete.  Please run \"brm generate\" to have its contents moved to \"main.bicep\".\n");
+                $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is obsolete.  Please run ""brm generate"" to have its contents moved to ""main.bicep""." + "\n");
 
             Invoke(fileSystem, processProxy, console);
 
