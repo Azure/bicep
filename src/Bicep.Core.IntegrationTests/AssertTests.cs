@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public void Asserts_only_take_boolean()
+        public void Asserts_only_take_bool()
         {
             var result = CompilationHelper.Compile(ServicesWithAsserts,
                 ("main.bicep", @"
@@ -67,12 +67,12 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"1\" cannot be assigned to an assert. Asserts can take values of type boolean only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"3\" cannot be assigned to an assert. Asserts can take values of type boolean only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"null\" cannot be assigned to an assert. Asserts can take values of type boolean only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"[1, 2, 3]\" cannot be assigned to an assert. Asserts can take values of type boolean only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"object\" cannot be assigned to an assert. Asserts can take values of type boolean only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"string\" cannot be assigned to an assert. Asserts can take values of type boolean only."),
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"1\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"3\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"null\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"[1, 2, 3]\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"object\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP346", DiagnosticLevel.Error, "Value of type \"string\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
             });
         }
 

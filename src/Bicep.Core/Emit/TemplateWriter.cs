@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
 
-            if (Context.Settings.EnableSymbolicNames)
+            if (Context.Settings.EnableSymbolicNames && !Context.Settings.EnableAsserts)
             {
                 emitter.EmitProperty("languageVersion", "1.10-experimental");
             }

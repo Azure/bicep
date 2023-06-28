@@ -214,7 +214,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of asserts used..
+        ///   Looks up a localized string similar to Maximum number of &apos;assert&apos; statements used..
         /// </summary>
         internal static string MaxNumberAssertsRuleDescription {
             get {
@@ -223,7 +223,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Too many asserts. Number of asserts is limited to {0}..
+        ///   Looks up a localized string similar to Too many predeployment conditions. Number of &apos;assert&apos; statements is limited to {0}..
         /// </summary>
         internal static string MaxNumberAssertsRuleMessageFormat {
             get {

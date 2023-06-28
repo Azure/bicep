@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ParameterNameInFormattedMessage()
         {
             var ruleToTest = new MaxNumberAssertsRule();
-            ruleToTest.GetMessage(1).Should().Be("Too many asserts. Number of asserts is limited to 1.");
+            ruleToTest.GetMessage(1).Should().Be("Too many predeployment conditions. Number of 'assert' statements is limited to 1.");
         }
 
         private void CompileAndTest(string text, params string[] unusedParams)
