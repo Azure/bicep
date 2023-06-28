@@ -61,7 +61,7 @@ namespace Bicep.Core.IntegrationTests
                     assert a8 = {
                         x: 'y'
                     }
-                     assert a9 = concat('a', 'b')
+                    assert a9 = concat('a', 'b')
                 "));
 
             result.Should().NotGenerateATemplate();

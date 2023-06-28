@@ -258,7 +258,7 @@
                 "max-asserts": {
                   "allOf": [
                     {
-                      "description": "Maximum number of asserts used. See https://aka.ms/bicep/linter/max-asserts"
+                      "description": "Maximum number of 'assert' statements used. See https://aka.ms/bicep/linter/max-asserts"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
