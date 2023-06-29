@@ -30,13 +30,13 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.Should().Be(
+            bicepFile.Contents.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Sample module'
 metadata description = 'Sample summary'
 metadata owner = 'test'
 
 // My Bicep file
-");
+".ReplaceLineEndings());
         }
 
         [TestMethod]
@@ -58,13 +58,13 @@ metadata owner = 'test'
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.Should().Be(
+            bicepFile.Contents.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Sample module'
 metadata owner = 'test'
 metadata description = 'My description in Bicep'
 
 // My Bicep file
-");
+".ReplaceLineEndings());
         }
 
         [TestMethod]
@@ -86,13 +86,13 @@ metadata description = 'My description in Bicep'
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.Should().Be(
+            bicepFile.Contents.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Sample module'
 metadata description = 'Sample description'
 metadata owner = 'test'
 
 // My Bicep file
-");
+".ReplaceLineEndings());
         }
 
         [TestMethod]
@@ -115,13 +115,13 @@ metadata owner = 'test'
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.Should().Be(
+            bicepFile.Contents.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Not your mother\'s ""module""'
 metadata description = 'Sample\ndescription\r\nwith\twhitespace'
 metadata owner = 'test'
 
 // My Bicep file
-");
+".ReplaceLineEndings());
         }
     }
 }
