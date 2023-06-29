@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP345", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Asserts\".")
+                ("BCP345", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Assertions\".")
             });
 
             result = CompilationHelper.Compile(ServicesWithAsserts, @"
