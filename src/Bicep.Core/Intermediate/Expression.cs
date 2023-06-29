@@ -560,7 +560,8 @@ public record DeclaredTypeExpression(
     Expression? MaxLength = null,
     Expression? MinValue = null,
     Expression? MaxValue = null,
-    Expression? Sealed = null
+    Expression? Sealed = null,
+    Expression? Exported = null
 ) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
