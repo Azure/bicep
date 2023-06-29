@@ -1939,7 +1939,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic AssertsUnsupported() => new(
                 TextSpan,
                 "BCP345",
-                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Asserts)}"".");
+                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Assertions)}"".");
 
             public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
                 TextSpan,

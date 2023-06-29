@@ -34,7 +34,7 @@ namespace Bicep.Core.Features
 
         public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
 
-        public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Asserts;
+        public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
 
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
