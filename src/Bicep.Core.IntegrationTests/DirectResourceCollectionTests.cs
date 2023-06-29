@@ -20,20 +20,17 @@ namespace Bicep.Core.IntegrationTests
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
-                .NotHaveAnyDiagnostics();
-
-            var template = result.Template;
-
-            template.Should()
-                .HaveValueAtPath(
-                    "$.resources[?(@.name == 'gh9440-c')].properties.containers[0].properties.command[0]",
-                    "[format('echo \"{0}\"', join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ','))]");
-
-            // inlined variable
-            template.Should()
-                .HaveValueAtPath(
-                    "$.resources[?(@.name == 'gh9440-c')].properties.containers[0].properties.command[1]",
-                    "[format('echo \"{0}\"', join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ','))]");
+                .HaveDiagnostics(new []
+                {
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkersAlias\" -> \"containerWorkers\". Apply an array indexer to the expression."),
+                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression."),
+                });
         }
 
         [TestMethod]
@@ -110,42 +107,6 @@ namespace Bicep.Core.IntegrationTests
             template.Should()
                 .HaveValueAtPath(
                     "$.resources.singleModule.properties.parameters.modInput2.value",
-                    "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
-
-            // output
-            template.Should()
-                .HaveValueAtPath(
-                    "$.outputs.modOutputWithOuterExpression.value",
-                    "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
-
-            // output via inlined variable
-            template.Should()
-                .HaveValueAtPath(
-                    "$.outputs.modOutputInlinedWithOuterExpression.value",
-                    "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
-        }
-
-        [TestMethod]
-        public void DirectResourceCollectionAccess_NonSymbolic_Modules()
-        {
-            var result = CompilationHelper.Compile(CreateReferencesBicepContentWithModules());
-
-            result.WithErrorDiagnosticsOnly()
-                .Should()
-                .NotHaveAnyDiagnostics();
-
-            var template = result.Template;
-
-            // module params
-            template.Should()
-                .HaveValueAtPath(
-                    "$.resources[?(@.name == 'singleModule')].properties.parameters.modInput1.value",
-                    "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
-
-            // module params via inlined variable
-            template.Should()
-                .HaveValueAtPath(
-                    "$.resources[?(@.name == 'singleModule')].properties.parameters.modInput2.value",
                     "[join(map(references('containerWorkers', 'full'), lambda('w', lambdaVariables('w').properties.ipAddress.ip)), ',')]");
 
             // output
@@ -411,28 +372,6 @@ resource directAccessOfExisting 'Providers.Test/statefulResources@2014-04-01' = 
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .NotHaveAnyDiagnostics();
-        }
-
-        [TestMethod]
-        public void DirectResourceCollectionAccess_NonSymbolic_NotAllowedForExistingResourceCollection()
-        {
-            const string additionalContent = """
-resource directAccessOfExisting 'Providers.Test/statefulResources@2014-04-01' = {
-  name: 'dacoe'
-  properties: {
-    test: join(map(existingCollection, (r) => r.properties.test), ',')
-  }
-}
-""";
-            var result = CompilationHelper.Compile(CreateReferencesBicepContent() + "\n" + additionalContent);
-
-            result.WithErrorDiagnosticsOnly()
-                .Should()
-                .HaveDiagnostics(
-                    new[]
-                    {
-                        ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression.")
-                    });
         }
 
         private static ServiceBuilder NewServiceBuilder(bool isSymbolicNameCodegenEnabled) => new ServiceBuilder()

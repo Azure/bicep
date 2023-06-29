@@ -291,22 +291,17 @@ namespace Bicep.Core.Emit
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
                     // NOTE(kylealbert): Direct access to resource collections:
+                    //  1. Must be a symbolic resource template
                     //  1. Not allowed inside a loop
-                    //  2. In a resource body, it must be in a top level depends on property or inside the properties property.
-                    //  3. Allowed in a variable declaration value
-                    //  4. Allowed in an output value
-                    //  5. Not allowed to reference non-symbolic template existing resource collections
+                    //  1. In a resource body, it must be in a top level depends on property or inside the properties property.
+                    //  1. Allowed in a variable declaration value
+                    //  1. Allowed in an output value
                     var isValidResourceCollectionDirectAccessLocation =
-                        this.loopLevel == 0
+                        this.semanticModel.Features.SymbolicNameCodegenEnabled
+                        && this.loopLevel == 0
                         && (this.insideProperties
                             || this.currentOutputDeclarationSyntax != null
                             || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null));
-
-                    if (isValidResourceCollectionDirectAccessLocation && symbol is ResourceSymbol resourceSymbol)
-                    {
-                        isValidResourceCollectionDirectAccessLocation = !resourceSymbol.DeclaringResource.IsExistingResource()
-                            || this.semanticModel.Features.SymbolicNameCodegenEnabled;
-                    }
 
                     if (!isValidResourceCollectionDirectAccessLocation)
                     {
