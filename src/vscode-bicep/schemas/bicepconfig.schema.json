@@ -623,7 +623,7 @@
           "description": "The indentation size (applicable when \"indentKind\" is set to \"Space\")"
         },
         "width": {
-          "type": "string",
+          "type": "integer",
           "description": "The maximum number of characters that should appear on a line"
         },
         "insertFinalNewline": {
