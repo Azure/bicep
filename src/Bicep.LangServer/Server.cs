@@ -126,7 +126,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IArmClientProvider, ArmClientProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
-                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCache: true));
+                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCacheInBackground: true));
         }
 
         public void Dispose()

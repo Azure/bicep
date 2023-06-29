@@ -107,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 
                 case ResourceSymbol resource:
-                    var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
+                    var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? MarkdownHelper.GetDocumentationLink(typeDocsLink) : "";
                     var description = TryGetDescriptionMarkdown(result, resource);
 
                     return AsMarkdown(CodeBlockWithDescription(
@@ -182,7 +182,7 @@ namespace Bicep.LanguageServer.Handlers
                     {
                         if (registry.GetDocumentationUri(moduleReference) is string documentationUri && !string.IsNullOrEmpty(documentationUri))
                         {
-                            descriptionLines.Add($"[View Documentation]({Uri.UnescapeDataString(documentationUri)})");
+                            descriptionLines.Add(MarkdownHelper.GetDocumentationLink(documentationUri));
                         }
                     }
                     catch
@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            var descriptions = string.Join("\n", descriptionLines.WhereNotNull().ToArray());
+            var descriptions = string.Join("\n\n", descriptionLines.WhereNotNull());
             return AsMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
         }
 
