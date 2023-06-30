@@ -31,12 +31,16 @@ export async function activateWithTelemetryAndErrorHandling(
 }
 
 // Creates a possible telemetry event scope.  But the event is only sent if there is a cancel or an error
-export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(callbackId: string, callback: (context: IActionContext) => T | PromiseLike<T>): Promise<T | undefined> {
+export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(
+  callbackId: string,
+  callback: (context: IActionContext) => T | PromiseLike<T>
+): Promise<T | undefined> {
   return await callWithTelemetryAndErrorHandling<T | undefined>(
     callbackId,
     async (context): Promise<T | undefined> => {
       context.telemetry.suppressIfSuccessful = true;
 
       return await callback(context);
-    });
+    }
+  );
 }

@@ -23,7 +23,10 @@ describe("buildParams", (): void => {
     await executeBuildParamsCommand(textDocument.uri);
 
     const folderContainingSourceFile = path.dirname(examplePath);
-    const compiledFilePath = path.join(folderContainingSourceFile, "main.parameters.json");
+    const compiledFilePath = path.join(
+      folderContainingSourceFile,
+      "main.parameters.json"
+    );
 
     expect(fs.existsSync(compiledFilePath)).toBe(true);
 
