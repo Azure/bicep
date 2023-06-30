@@ -13,7 +13,7 @@ import {
   MessageItem,
   ConfigurationTarget,
   ProgressLocation,
-  Position
+  Position,
 } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
@@ -21,14 +21,14 @@ import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
-  parseError
+  parseError,
 } from "@microsoft/vscode-azext-utils";
 import { areEqualIgnoringWhitespace } from "../utils/areEqualIgnoringWhitespace";
 import { getTextAfterFormattingChanges } from "../utils/getTextAfterFormattingChanges";
 import { bicepConfigurationKeys, bicepLanguageId } from "../language/constants";
 import {
   BicepDecompileForPasteCommandParams,
-  BicepDecompileForPasteCommandResult
+  BicepDecompileForPasteCommandResult,
 } from "../language";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
@@ -163,7 +163,7 @@ export class PasteAsBicepCommand implements Command {
       {
         location: ProgressLocation.Notification,
         title:
-          "Decompiling clipboard text into Bicep is taking longer than expected..."
+          "Decompiling clipboard text into Bicep is taking longer than expected...",
       },
       async () => {
         const decompileParams: BicepDecompileForPasteCommandParams = {
@@ -172,12 +172,12 @@ export class PasteAsBicepCommand implements Command {
           rangeOffset,
           rangeLength,
           jsonContent,
-          queryCanPaste
+          queryCanPaste,
         };
         const decompileResult: BicepDecompileForPasteCommandResult =
           await this.client.sendRequest("workspace/executeCommand", {
             command: "decompileForPaste",
-            arguments: [decompileParams]
+            arguments: [decompileParams],
           });
 
         context.telemetry.properties.pasteType = decompileResult.pasteType;
@@ -423,10 +423,10 @@ export class PasteAsBicepCommand implements Command {
     }
 
     const dontShowAgain: MessageItem = {
-      title: "Never show again"
+      title: "Never show again",
     };
     const disable: MessageItem = {
-      title: "Disable automatic decompile on paste"
+      title: "Disable automatic decompile on paste",
     };
 
     this.disclaimerShownThisSession = true;
