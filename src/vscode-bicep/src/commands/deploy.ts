@@ -352,7 +352,6 @@ export class DeployCommand implements Command {
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
-      parametersFilePath = "";
     } else {
       context.telemetry.properties.parameterFileProvided = "true";
     }
@@ -366,12 +365,14 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      let parametersFileName: string | null;
+      let parametersFileName: string | undefined;
       let updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
       let parametersFileUpdateOption = ParametersFileUpdateOption.None;
 
-      if (parametersFilePath.endsWith(".bicepparam")) {
-        parametersFileName = null;
+      //if no parameter file or bicepparam file is provided then we don't do the  
+      //prerequisite steps for updating the parameter file on the disk 
+      if (parametersFilePath === undefined || parametersFilePath.endsWith(".bicepparam")) {
+        parametersFileName = undefined;
         updatedDeploymentParameters = [];
       } else {
         [parametersFileName, updatedDeploymentParameters] =
@@ -428,7 +429,8 @@ export class DeployCommand implements Command {
       // open it in vscode.
       if (
         parametersFileUpdateOption !== ParametersFileUpdateOption.None &&
-        parametersFileName !== null
+        parametersFileName !== undefined &&
+        parametersFilePath !== undefined
       ) {
         if (
           parametersFileUpdateOption === ParametersFileUpdateOption.Create ||
