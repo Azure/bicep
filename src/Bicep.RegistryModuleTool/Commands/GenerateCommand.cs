@@ -55,25 +55,34 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogInformation("Ensuring {MainBicepTestFile} exists...", "main Bicep test file");
                 MainBicepTestFile.EnsureInFileSystem(this.FileSystem);
 
-                // Generate main ARM template file.
+                // Generate main ARM template file initially, ignoring warnings, to compile metadata in the Bicep file into the ARM template file,
+                //   which is where MainBicepFile reads it from
                 var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
                 var mainArmTemplateFile = this.GenerateFileAndLogInformation("main ARM template file", () => MainArmTemplateFile
-                    .Generate(this.FileSystem, bicepCliProxy, mainBicepFile)
+                    .Generate(this.FileSystem, bicepCliProxy, mainBicepFile, ignoreWarnings: true)
                     .WriteToFileSystem(FileSystem));
-
-                // Read or create metadata file.
-                this.Logger.LogInformation("Ensuring {MetadataFile} exists...", "metadata file");
-                var metadataFile = MetadataFile.EnsureInFileSystem(this.FileSystem);
 
                 // Generate README file.
                 this.GenerateFileAndLogInformation("README file", () => ReadmeFile
-                    .Generate(this.FileSystem, metadataFile, mainArmTemplateFile)
+                    .Generate(this.FileSystem, mainArmTemplateFile)
                     .WriteToFileSystem(this.FileSystem));
 
                 // Generate version file.
                 this.GenerateFileAndLogInformation("version file", () => VersionFile
                     .Generate(this.FileSystem)
                     .WriteToFileSystem(this.FileSystem));
+
+                // Read metadata file if it exists (it's obsolete) and move its info into main Bicep file
+                this.Logger.LogInformation("Replace {MetadataFile} if it exists...", "metadata file");
+                var metadataFile = MetadataFile.TryReadFromFileSystem(this.FileSystem);
+                GenerateFileAndLogInformation($"Main Bicep file", () => MainBicepFile
+                    .Generate(this.FileSystem, metadataFile, mainArmTemplateFile)
+                    .WriteToFileSystem(this.FileSystem));
+
+                // Generate final main ARM template file
+                mainArmTemplateFile = this.GenerateFileAndLogInformation("main ARM template file (again)", () => MainArmTemplateFile
+                    .Generate(this.FileSystem, bicepCliProxy, mainBicepFile)
+                    .WriteToFileSystem(FileSystem));
 
                 return 0;
             }

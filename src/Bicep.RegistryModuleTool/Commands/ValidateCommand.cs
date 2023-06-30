@@ -41,6 +41,14 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogInformation("Validating module path...");
                 valid &= Validate(context.Console, () => ModulePathValidator.ValidateModulePath(this.FileSystem));
 
+                this.Logger.LogInformation("Validating obsolete metadata file doesn't exist...");
+                var noMetadataFileValidator = new NoMetadataFileValidator(this.Logger);
+                valid &= Validate(context.Console, () => MetadataFile.TryReadFromFileSystem(this.FileSystem)?.ValidatedBy(noMetadataFileValidator));
+                if (!valid) {
+                    // Exit early so user can run generate
+                    return 1;
+                }
+
                 this.Logger.LogInformation("Validating main Bicep file...");
 
                 var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
@@ -55,6 +63,7 @@ namespace Bicep.RegistryModuleTool.Commands
                 var testValidator = new TestValidator(this.FileSystem, this.Logger, bicepCliProxy, latestMainArmTemplateFile);
                 var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
+                var metadataValidator = new BicepMetadataValidator(this.Logger, mainBicepFile);
 
                 this.Logger.LogInformation("Validating main Bicep test file...");
                 valid &= Validate(context.Console, () => MainBicepTestFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(testValidator));
@@ -62,8 +71,8 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogInformation("Validating main ARM template file...");
                 valid &= Validate(context.Console, () => MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
-                this.Logger.LogInformation("Validating metadata file...");
-                valid &= Validate(context.Console, () => MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator));
+                this.Logger.LogInformation("Validating metadata in main Bicep file...");
+                valid &= Validate(context.Console, () => latestMainArmTemplateFile.ValidatedBy(metadataValidator));
 
                 this.Logger.LogInformation("Validating README file...");
                 valid &= Validate(context.Console, () => ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));

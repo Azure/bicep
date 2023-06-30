@@ -42,7 +42,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             this.console = console;
         }
 
-        public void Build(string bicepFilePath, string outputFilePath)
+        public void Build(string bicepFilePath, string outputFilePath, bool ignoreWarnings = false)
         {
             this.logger.LogInformation("Building \"{BicepFilePath}\"...", bicepFilePath);
 
@@ -50,11 +50,12 @@ namespace Bicep.RegistryModuleTool.Proxies
             var command = $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
             this.logger.LogInformation("Running Bicep CLI command: {Command}", command);
-            var (exitCode, _, standardError) = this.processProxy.Start(bicepCliPath, command);
+            var (exitCode, stdOutput, standardError) = this.processProxy.Start(bicepCliPath, command);
+            this.logger.LogInformation(stdOutput);
 
             if (exitCode is 0)
             {
-                if (standardError.Length > 0)
+                if (standardError.Length > 0 && !ignoreWarnings)
                 {
                     foreach (var warning in standardError.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries))
                     {
