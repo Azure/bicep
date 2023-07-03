@@ -155,7 +155,7 @@
     <comment>{0} name of a programmatic output</comment>
   </data>
   <data name="OutputsShouldNotContainSecretsSecureParam" xml:space="preserve">
-    <value>secure parameter '{0}'</value>
+    <value>secure value '{0}'</value>
     <comment>{0} name of a programmatic parameter</comment>
   </data>
   <data name="OutputsShouldNotContainSecretsFunction" xml:space="preserve">
@@ -246,8 +246,8 @@
     <comment>{0} is the function name. This string appears in the middle of a sentence, hence doesn't start with capital letter. Something similar to: Found: function 'listKeys()'</comment>
   </data>
   <data name="PossibleSecretMessageSecureParam" xml:space="preserve">
-    <value>secure parameter '{0}'</value>
-    <comment>{0} is the parameter name. This string appears in the middle of a sentence, so it doesn't start with a capital letter. Something similar to: Found: secure parameter 'parameter1'</comment>
+    <value>secure value '{0}'</value>
+    <comment>{0} is a valid Bicep expression. This string appears in the middle of a sentence, so it doesn't start with a capital letter. Something similar to: Found: secure value 'parameter1'</comment>
   </data>
   <data name="SecureParameterDefaultFixTitle" xml:space="preserve">
     <value>Remove insecure default value</value>

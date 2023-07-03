@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": ["dom", "dom.iterable", "es2019"],
+    "lib": ["dom", "dom.iterable", "es2019", "ES2021.String"],
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,

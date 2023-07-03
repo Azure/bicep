@@ -1,4 +1,5 @@
-func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+func buildUrl(https bool, hostname string, path string) string =>
+  '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
 output foo string = buildUrl(true, 'google.com', 'search')
 

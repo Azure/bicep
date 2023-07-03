@@ -270,6 +270,21 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
   }
 }
 
+@sys.description('this is another vmWithCondition')
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+//@[09:025) Resource vmWithCondition2. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 339
+                    if (shouldDeployVm) {
+  name: 'vmName2'
+  location: 'westus'
+  properties: {
+    osProfile: {
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+      }
+    }
+  }
+}
+
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@[09:019) Resource extension1. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 110
   name: 'extension'

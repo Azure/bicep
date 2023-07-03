@@ -1,5 +1,5 @@
 
-//@[000:7416) ProgramExpression
+//@[000:7923) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
@@ -771,6 +771,89 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[036:0047) |     └─FunctionCallExpression { Name = range }
 //@[042:0043) |       ├─IntegerLiteralExpression { Value = 0 }
 //@[044:0046) |       └─IntegerLiteralExpression { Value = 10 }
+var printToSingleLine1 = [
+//@[000:0057) ├─DeclaredVariableExpression { Name = printToSingleLine1 }
+//@[025:0057) | └─ForLoopExpression
+    for i in range(0,20) : i
+//@[013:0024) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |   | └─IntegerLiteralExpression { Value = 20 }
+//@[027:0028) |   └─ArrayAccessExpression
+//@[027:0028) |     ├─CopyIndexExpression
+//@[013:0024) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |       └─IntegerLiteralExpression { Value = 20 }
+]
+var printToSingleLine2 = [
+//@[000:0080) ├─DeclaredVariableExpression { Name = printToSingleLine2 }
+//@[025:0080) | └─ForLoopExpression
+    /* harmless comment */ for i in range(0,20) : i
+//@[036:0047) |   ├─FunctionCallExpression { Name = range }
+//@[042:0043) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[044:0046) |   | └─IntegerLiteralExpression { Value = 20 }
+//@[050:0051) |   └─ArrayAccessExpression
+//@[050:0051) |     ├─CopyIndexExpression
+//@[036:0047) |     └─FunctionCallExpression { Name = range }
+//@[042:0043) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[044:0046) |       └─IntegerLiteralExpression { Value = 20 }
+]
+var printToSingleLine3 = [
+//@[000:0080) ├─DeclaredVariableExpression { Name = printToSingleLine3 }
+//@[025:0080) | └─ForLoopExpression
+    for i in range(0,20) : i /* harmless comment */
+//@[013:0024) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |   | └─IntegerLiteralExpression { Value = 20 }
+//@[027:0028) |   └─ArrayAccessExpression
+//@[027:0028) |     ├─CopyIndexExpression
+//@[013:0024) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |       └─IntegerLiteralExpression { Value = 20 }
+]
+var forceLineBreaks1 = [
+//@[000:0084) ├─DeclaredVariableExpression { Name = forceLineBreaks1 }
+//@[023:0084) | └─ForLoopExpression
+    // force line breaks
+    for i in range(0,    30) : i
+//@[013:0028) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |   | └─IntegerLiteralExpression { Value = 30 }
+//@[031:0032) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─CopyIndexExpression
+//@[013:0028) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |       └─IntegerLiteralExpression { Value = 30 }
+]
+var forceLineBreaks2 = [
+//@[000:0084) ├─DeclaredVariableExpression { Name = forceLineBreaks2 }
+//@[023:0084) | └─ForLoopExpression
+    for i in range(0,    30) : i
+//@[013:0028) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |   | └─IntegerLiteralExpression { Value = 30 }
+//@[031:0032) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─CopyIndexExpression
+//@[013:0028) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |       └─IntegerLiteralExpression { Value = 30 }
+    // force line breaks
+]
+var forceLineBreaks3 = [
+//@[000:0115) ├─DeclaredVariableExpression { Name = forceLineBreaks3 }
+//@[023:0115) | └─ForLoopExpression
+    /* force line breaks */
+    for i in range(0,    30) : i
+//@[013:0028) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |   | └─IntegerLiteralExpression { Value = 30 }
+//@[031:0032) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─CopyIndexExpression
+//@[013:0028) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |       └─IntegerLiteralExpression { Value = 30 }
+    /* force line breaks */
+]
+
 var loopInput = [
 //@[000:0035) ├─DeclaredVariableExpression { Name = loopInput }
 //@[016:0035) | └─ArrayExpression

@@ -47,10 +47,12 @@ import { ForceModulesRestoreCommand } from "./commands/forceModulesRestore";
 import { InsertResourceCommand } from "./commands/insertResource";
 import { DeployCommand } from "./commands/deploy";
 import { GenerateParamsCommand } from "./commands/generateParams";
+import { BuildParamsCommand } from "./commands/buildParams";
 import { BuildCommand } from "./commands/build";
 import { CommandManager } from "./commands/commandManager";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
 import * as surveys from "./feedback/surveys";
+import { DecompileParamsCommand } from "./commands/decompileParams";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -147,6 +149,7 @@ export async function activate(
           .registerCommands(
             new BuildCommand(languageClient, outputChannelManager),
             new GenerateParamsCommand(languageClient, outputChannelManager),
+            new BuildParamsCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
             new DeployCommand(
               languageClient,
@@ -154,6 +157,7 @@ export async function activate(
               treeManager
             ),
             new DecompileCommand(languageClient, outputChannelManager),
+            new DecompileParamsCommand(languageClient, outputChannelManager),
             new ForceModulesRestoreCommand(
               languageClient,
               outputChannelManager

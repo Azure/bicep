@@ -73,7 +73,9 @@ var ternary = null ? 4 : false
 var complex = test(2 + 3 * 4, true || false && null)
 var complex = -2 && 3 && !4 && 5
 var complex = null ? !4 : false
-var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
+var complex = true == false != null == 4 != 'a'
+  ? -2 && 3 && !4 && 5
+  : true || false && null
 
 var nestedTernary = null ? 1 : 2 ? true ? 'a' : 'b' : false ? 'd' : 15
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a' : 'b') : (false ? 'd' : 15)

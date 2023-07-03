@@ -63,7 +63,6 @@ namespace Bicep.LangServer.IntegrationTests
                 fileTextsByUri,
                 bicepFileUri, 
                 services => services
-                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
@@ -117,7 +116,6 @@ namespace Bicep.LangServer.IntegrationTests
                 fileTextsByUri,
                 bicepFileUri, 
                 services => services
-                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
@@ -172,7 +170,6 @@ namespace Bicep.LangServer.IntegrationTests
                 fileTextsByUri,
                 bicepFileUri, 
                 services => services
-                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
@@ -224,7 +221,6 @@ namespace Bicep.LangServer.IntegrationTests
                 fileTextsByUri,
                 bicepFileUri, 
                 services => services
-                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
@@ -279,7 +275,6 @@ namespace Bicep.LangServer.IntegrationTests
                 fileTextsByUri,
                 bicepFileUri, 
                 services => services
-                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;

@@ -81,6 +81,18 @@ var        w41__= concat('xxxxx'/* xxxxxxx */)
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@    "w42__": "[concat('xxxxx', 'xxxxxxxxxxx')]",
 
+var w38___ = true? 'xxxxx' : 'xxxxxx'
+//@    "w38___": "[if(true(), 'xxxxx', 'xxxxxx')]",
+var w39___ = true
+//@    "w39___": "[if(true(), 'xxxxxx', 'xxxxxx')]",
+? 'xxxxxx' : 'xxxxxx' // suffix
+var w40___ = true ?'xxxxxx' : 'xxxxxxx'
+//@    "w40___": "[if(true(), 'xxxxxx', 'xxxxxxx')]",
+var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
+//@    "w41___": "[if(true(), 'xxxxxxx', 'xxxxxxx')]",
+var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
+//@    "w42___": "[if(true(), 'xxxxxxx', 'xxxxxxxx')]",
+
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,6 +199,19 @@ var w81__ = union({ foo: 'x' } /* xxx */, any({ baz: 'func call length: 38  ' })
 var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }))
 //@    "w82__": "[union(createObject('foo', 'x', 'bar', 'x'), createObject('baz', 'func call length: 39   '))]",
 
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
+//@    "w78___": "[if(true(), 1234567890, 1234567890)]",
+? 1234567890
+: 1234567890
+var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
+//@    "w79___": "[if(true(), createObject('foo', 1), createArray(12345678))]",
+var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]
+//@    "w80___": "[if(true(), createObject('foo', true(), 'bar', false()), createArray(123, 234, 456, createObject('xyz', 'xxxx')))]",
+var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@    "w81___": "[if(true(), 1234567890, 1234567890)]",
+var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@    "w82___": "[if(true(), 1234567890, 1234567890)]",
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,6 +288,26 @@ var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@      1,
 //@      2,
 //@      "[intersection(createObject('foo', true(), 'bar', false()), createObject('foo', true()))]"
-//@    ]
+//@    ],
   foo: true})]
+
+var forceBreak11 = true // comment
+//@    "forceBreak11": "[if(true(), true(), false())]",
+    ? true
+    : false
+var forceBreak12 = true ? true // comment
+//@    "forceBreak12": "[if(true(), true(), false())]",
+    : false
+var forceBreak13 = true
+//@    "forceBreak13": "[if(true(), true(), false())]",
+    ? true // comment
+    : false
+var forceBreak14 = true ? {
+//@    "forceBreak14": "[if(true(), createObject('foo', 42), false())]",
+    foo: 42
+} : false
+var forceBreak15 = true ? { foo: 0 } : {
+//@    "forceBreak15": "[if(true(), createObject('foo', 0), createObject('bar', 1))]"
+    bar: 1}
+
 

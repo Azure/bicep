@@ -14,36 +14,37 @@ public record FeatureProviderOverrides(
     bool? AdvancedListComprehensionEnabled = default,
     bool? ResourceTypedParamsAndOutputsEnabled = default,
     bool? SourceMappingEnabled = default,
-    bool? ParamsFilesEnabled = default,
     bool? UserDefinedTypesEnabled = default,
     bool? UserDefinedFunctionsEnabled = default,
-    bool? DynamicTypeLoading = default,
-    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
+    bool? PrettyPrintingEnabled = default,
+    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
+    bool? DynamicTypeLoading = default)
 {
-    public FeatureProviderOverrides(TestContext testContext,
+    public FeatureProviderOverrides(
+        TestContext testContext,
         bool? RegistryEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
         bool? ExtensibilityEnabled = default,
         bool? AdvancedListComprehensionEnabled = default,
         bool? ResourceTypedParamsAndOutputsEnabled = default,
         bool? SourceMappingEnabled = default,
-        bool? ParamsFilesEnabled = default,
         bool? UserDefinedTypesEnabled = default,
         bool? UserDefinedFunctionsEnabled = default,
-        bool? DynamicTypeLoadingEnabled = default,
-        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
+        bool? PrettyPrintingEnabled = default,
+        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
+        bool? DynamicTypeLoading = default
     ) : this(
-            FileHelper.GetCacheRootPath(testContext),
-            RegistryEnabled,
-            SymbolicNameCodegenEnabled,
-            ExtensibilityEnabled,
-            AdvancedListComprehensionEnabled,
-            ResourceTypedParamsAndOutputsEnabled,
-            SourceMappingEnabled,
-            ParamsFilesEnabled,
-            UserDefinedTypesEnabled,
-            UserDefinedFunctionsEnabled,
-            DynamicTypeLoadingEnabled,
-            AssemblyVersion)
+        FileHelper.GetCacheRootPath(testContext),
+        RegistryEnabled,
+        SymbolicNameCodegenEnabled,
+        ExtensibilityEnabled,
+        AdvancedListComprehensionEnabled,
+        ResourceTypedParamsAndOutputsEnabled,
+        SourceMappingEnabled,
+        UserDefinedTypesEnabled,
+        UserDefinedFunctionsEnabled,
+        PrettyPrintingEnabled,
+        AssemblyVersion,
+        DynamicTypeLoading)
     { }
 }

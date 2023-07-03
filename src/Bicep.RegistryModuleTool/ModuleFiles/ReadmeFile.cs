@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Exceptions;
+using Bicep.Core.Registry;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleValidators;
 using Markdig;
@@ -19,9 +21,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "README.md";
 
-        // TODO: rename to "Details"
-        private static readonly string DescriptionSectionTemplate = @"## Description
-{{ Add detailed description for the module. }}".ReplaceLineEndings();
+        private const string DetailsSectionHeader = "## Details";
+        private static readonly string DetailsSectionTemplate = @$"{DetailsSectionHeader}
+{{{{ Add detailed information about the module. }}}}".ReplaceLineEndings();
 
         private static readonly string ExamplesSectionTemplate = @"## Examples
 ### Example 1
@@ -31,6 +33,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 ```bicep
 ```".ReplaceLineEndings();
 
+        private const string ObsoleteDetailsSectionHeader = "## Description";
+
         public ReadmeFile(string path, string contents)
             : base(path)
         {
@@ -39,42 +43,44 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string Contents { get; }
 
-        public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
+        public static ReadmeFile Generate(IFileSystem fileSystem, MainArmTemplateFile mainArmTemplateFile)
         {
-            // TODO: rename to "Details"
-            var descriptionSection = DescriptionSectionTemplate;
+            string? detailsSection = DetailsSectionTemplate;
             var examplesSection = ExamplesSectionTemplate;
 
-            var moduleName = mainArmTemplateFile.NameMetadata ?? metadataFile.Name ?? "MISSING Name";
-            var moduleOwner = mainArmTemplateFile.OwnerMetadata ?? metadataFile.Owner ?? "MISSING Owner";
-            // TODO: rename to "Description"
-            var moduleSummary = mainArmTemplateFile.DescriptionMetadata ?? metadataFile.Summary ?? "MISSING Summary";
-
-            // TODO: remove support for metadata.json, or generate it from bicep metadata
-            if (!moduleName.Equals(metadataFile.Name, StringComparison.InvariantCulture))
-            {
-                throw new ArgumentException(@"The ""name"" property in metadata.json does not match ""metadata name"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
-            }
-            if (!moduleOwner.Equals(metadataFile.Owner, StringComparison.InvariantCulture))
-            {
-                throw new ArgumentException(@"The ""owner"" property in metadata.json does not match ""metadata owner"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
-            }
-            if (!moduleSummary.Equals(metadataFile.Summary, StringComparison.InvariantCulture))
-            {
-                throw new ArgumentException(@"The ""summary"" property in metadata.json does not match ""metadata description"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
-            }
+            var moduleName = mainArmTemplateFile.NameMetadata ?? "TODO: MISSING Name";
+            var moduleDescription = mainArmTemplateFile.DescriptionMetadata ?? "TODO: MISSING Description";
 
             try
             {
                 var existingFile = ReadFromFileSystem(fileSystem);
 
-                // TODO: rename to "Details"
-                UseExistingSectionIfNotEmpty(existingFile, "## Description", ref descriptionSection);
-                UseExistingSectionIfNotEmpty(existingFile, "## Examples", ref examplesSection);
+                // Details section
+                string? existingDetailsSection = TryGetExistingSection(existingFile, DetailsSectionHeader);
+                string? existingDescriptionSection = TryGetExistingSection(existingFile, ObsoleteDetailsSectionHeader);
+                if (existingDetailsSection is not null && existingDescriptionSection is not null)
+                {
+                    throw new BicepException($"The readme file {existingFile.Path} must not contain both a Description and a Details section.");
+                }
+                else if (existingDetailsSection is not null)
+                {
+                    detailsSection = existingDetailsSection;
+                }
+                else if (existingDescriptionSection is not null)
+                {
+                    // Upgrade "Description" section to "Details" section
+                    detailsSection = existingDescriptionSection.Replace(ObsoleteDetailsSectionHeader, DetailsSectionHeader);
+                }
+
+                // Examples section
+                if (TryGetExistingSection(existingFile, "## Examples") is string existingExamplesSection)
+                {
+                    examplesSection = existingExamplesSection;
+                }
             }
             catch (FileNotFoundException)
             {
-                // Do thing.
+                // Do nothing.
             }
 
             var builder = new StringBuilder();
@@ -82,10 +88,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             builder.AppendLine($"# {moduleName}");
             builder.AppendLine();
 
-            builder.AppendLine(moduleSummary);
+            builder.AppendLine(moduleDescription);
             builder.AppendLine();
 
-            builder.AppendLine(descriptionSection);
+            builder.AppendLine(detailsSection);
 
             BuildParametersTable(builder, mainArmTemplateFile.Parameters);
             BuildOutputsTable(builder, mainArmTemplateFile.Outputs);
@@ -177,18 +183,21 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 ? markdownText[headingBlock.Span.Start..nextHeadingBlock.Span.Start]
                 : markdownText[headingBlock.Span.Start..];
 
-            // Normlize the section to remove trivia characters.
+            // Normalize the section to remove trivia characters.
             return Markdown.Normalize(section);
         }
-        private static void UseExistingSectionIfNotEmpty(ReadmeFile existingFile, string sectionTitle, ref string section)
+
+        private static string? TryGetExistingSection(ReadmeFile existingFile, string sectionTitle)
         {
             var existingSection = TryReadSection(existingFile.Contents, sectionTitle);
 
             if (existingSection is not null && !existingSection.Equals(sectionTitle, StringComparison.Ordinal))
             {
                 // The existing section is not empty.
-                section = existingSection;
+                return existingSection;
             }
+
+            return null;
         }
     }
 }

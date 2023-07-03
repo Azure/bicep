@@ -22,6 +22,7 @@
     <None Remove="SampleFiles\Invalid\metadata.json" />
     <None Remove="SampleFiles\Invalid\test\main.test.bicep" />
     <None Remove="SampleFiles\Valid\test\main.test.bicep" />
+    <None Remove="SampleFiles\ModuleWithObsoleteMetadataFile\" />
   </ItemGroup>
 
   <ItemGroup>

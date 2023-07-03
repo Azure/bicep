@@ -19,16 +19,17 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
     [TestClass]
     public class JsonSchemaValidatorTests
     {
-        private static readonly MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
+        private static readonly MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithModuleWithObsoleteMetadataFile();
 
         private readonly JsonSchemaValidator sut = new(MockLoggerFactory.CreateLogger());
 
         [TestMethod]
         public void Validate_ValidMetadataFile_Succeeds()
         {
-            var fileToValidate = MetadataFile.ReadFromFileSystem(FileSystem);
+            var fileToValidate = MetadataFile.TryReadFromFileSystem(FileSystem);
+            fileToValidate.Should().NotBeNull();
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
+            FluentActions.Invoking(() => this.sut.Validate(fileToValidate!)).Should().NotThrow();
         }
 
         [DataTestMethod]
@@ -42,12 +43,13 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
         private static IEnumerable<object[]> GetInvalidMetadataFileData()
         {
-            var file = MetadataFile.ReadFromFileSystem(FileSystem);
+            var file = MetadataFile.TryReadFromFileSystem(FileSystem);
+            file.Should().NotBeNull();
 
             yield return new object[]
             {
-                PatchMetadataFile(file, JsonPatchOperations.Add("/extra", true)),
-                @$"The file ""{file.Path}"" is invalid:
+                PatchMetadataFile(file!, JsonPatchOperations.Add("/extra", true)),
+                @$"The file ""{file!.Path}"" is invalid:
   #/extra: The property is not allowed
 ",
             };
@@ -73,7 +75,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             var tempFileSystem = MockFileSystemFactory.CreateFileSystemWithEmptyFolder();
             tempFileSystem.AddFile(file.Path, patchedElement.ToJsonString());
 
-            return MetadataFile.ReadFromFileSystem(tempFileSystem);
+            return MetadataFile.TryReadFromFileSystem(tempFileSystem)!;
         }
     }
 }

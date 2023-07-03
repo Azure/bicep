@@ -19,18 +19,25 @@ namespace Bicep.Core.PrettyPrintV2
 {
     public class PrettyPrinterV2
     {
-        private readonly TextWriter writer;
+        private readonly NoTrailingSpaceWriter writer;
 
         private readonly PrettyPrinterV2Context context;
 
         private int occupiedWidth = 0;
 
-        private int indentLevelToPrint = 0;
-
         private PrettyPrinterV2(TextWriter writer, PrettyPrinterV2Context context)
         {
-            this.writer = writer;
+            this.writer = new(writer, context);
             this.context = context;
+        }
+
+        public static string Print(PrettyPrinterV2Context context)
+        {
+            var writer = new StringWriter();
+
+            PrintTo(writer, context);
+
+            return writer.ToString();
         }
 
         public static void PrintTo(TextWriter writer, PrettyPrinterV2Context context)
@@ -120,8 +127,6 @@ namespace Bicep.Core.PrettyPrintV2
             switch (document)
             {
                 case TextDocument text:
-                    this.PrintIndent();
-
                     this.writer.Write(text);
                     this.occupiedWidth += text.Width;
 
@@ -129,16 +134,13 @@ namespace Bicep.Core.PrettyPrintV2
 
 
                 case LineDocument:
-                    this.writer.Write(this.context.Newline);
-
-                    this.occupiedWidth = 0;
-                    this.indentLevelToPrint = indentLevel;
+                    this.writer.WriteLine();
+                    this.writer.WriteIndent(indentLevel);
+                    this.occupiedWidth = this.context.Indent.Length * indentLevel;
 
                     return;
 
                 case GroupDocument group:
-                    this.PrintIndent();
-
                     var remainingWidth = this.context.Width - this.occupiedWidth;
 
                     if (remainingWidth < 0)
@@ -175,20 +177,57 @@ namespace Bicep.Core.PrettyPrintV2
             }
         }
 
-        private void PrintIndent()
+        private class NoTrailingSpaceWriter
         {
-            if (this.indentLevelToPrint == 0)
+            private readonly TextWriter writer;
+
+            private readonly PrettyPrinterV2Context context;
+
+            private readonly StringBuilder spaceBuffer;
+
+            public NoTrailingSpaceWriter(TextWriter writer, PrettyPrinterV2Context context)
             {
-                return;
+                this.writer = writer;
+                this.context = context;
+                this.spaceBuffer = new();
             }
 
-            for (int i = 0; i < this.indentLevelToPrint; i++)
+            public void Write(string text)
             {
-                this.writer.Write(this.context.Indent);
-                this.occupiedWidth += this.context.Indent.Length;
+                if (string.IsNullOrEmpty(text))
+                {
+                    return;
+                }
+
+                if (text.All(char.IsWhiteSpace))
+                {
+                    spaceBuffer.Append(text);
+
+                    return;
+                }
+
+                if (spaceBuffer.Length > 0)
+                {
+                    this.writer.Write(spaceBuffer.ToString());
+                    spaceBuffer.Clear();
+                }
+
+                this.writer.Write(text);
             }
 
-            this.indentLevelToPrint = 0;
+            public void WriteLine()
+            {
+                this.spaceBuffer.Clear();
+                this.writer.Write(this.context.Newline);
+            }
+
+            public void WriteIndent(int indentLevel)
+            {
+                for (int i = 0; i < indentLevel; i++)
+                {
+                    this.spaceBuffer.Append(this.context.Indent);
+                }
+            }
         }
     }
 }

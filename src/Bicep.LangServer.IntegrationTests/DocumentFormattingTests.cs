@@ -73,7 +73,7 @@ output myOutput string = 'value'", 0));
         [TestMethod]
         public async Task Formatting_is_supported_for_params_files()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ParamsFilesEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             await helper.OpenFile("/main.bicep", @"

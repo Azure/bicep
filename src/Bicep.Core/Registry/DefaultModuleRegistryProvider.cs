@@ -29,6 +29,7 @@ namespace Bicep.Core.Registry
             this.serviceProvider = serviceProvider;
         }
 
+        // The templateUri affects how module aliases are resolved (depending on whether the bicepconfig.json is located for the given template)
         public ImmutableArray<IModuleRegistry> Registries(Uri templateUri)
         {
             var configuration = configurationManager.GetConfiguration(templateUri);
@@ -38,12 +39,8 @@ namespace Bicep.Core.Registry
             // Using IServiceProvider instead of constructor injection due to a dependency cycle
             var compiler = this.serviceProvider.GetService<BicepCompiler>();
             builder.Add(new LocalModuleRegistry(this.fileResolver, templateUri, compiler));
-
-            if (features.RegistryEnabled)
-            {
-                builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, features, configuration, templateUri));
-                builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, features, configuration, templateUri));
-            }
+            builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, features, configuration, templateUri));
+            builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, features, configuration, templateUri));
 
             return builder.ToImmutableArray();
         }

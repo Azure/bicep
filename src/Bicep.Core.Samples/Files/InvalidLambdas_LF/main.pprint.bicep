@@ -48,17 +48,16 @@ var inObject = {
 
 var inArray = [i => i, j => j]
 
-resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(
-  0,
-  2
-): {
-  name: 'antteststg${i}'
-  location: 'West US'
-  sku: {
-    name: 'Standard_LRS'
+resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [
+  for i in range(0, 2): {
+    name: 'antteststg${i}'
+    location: 'West US'
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
   }
-  kind: 'StorageV2'
-}]
+]
 
 output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
 output stgKeys2 array = map(
@@ -76,9 +75,11 @@ output accessTiers2 array = map(
 )
 output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 
-module modLoop './empty.bicep' = [for item in range(0, 5): {
-  name: 'foo${item}'
-}]
+module modLoop './empty.bicep' = [
+  for item in range(0, 5): {
+    name: 'foo${item}'
+  }
+]
 
 var modLoopNames = map(modLoop, i => i.name)
 output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)

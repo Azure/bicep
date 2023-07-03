@@ -340,6 +340,41 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 var incrementingNumbers = [for i in range(0,10) : i]
 //@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
 //@[04:23) Variable incrementingNumbers. Type: int[]. Declaration start char: 0, length: 52
+var printToSingleLine1 = [
+//@[04:22) Variable printToSingleLine1. Type: int[]. Declaration start char: 0, length: 57
+    for i in range(0,20) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+]
+var printToSingleLine2 = [
+//@[04:22) Variable printToSingleLine2. Type: int[]. Declaration start char: 0, length: 80
+    /* harmless comment */ for i in range(0,20) : i
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
+]
+var printToSingleLine3 = [
+//@[04:22) Variable printToSingleLine3. Type: int[]. Declaration start char: 0, length: 80
+    for i in range(0,20) : i /* harmless comment */
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+]
+var forceLineBreaks1 = [
+//@[04:20) Variable forceLineBreaks1. Type: int[]. Declaration start char: 0, length: 84
+    // force line breaks
+    for i in range(0,    30) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+]
+var forceLineBreaks2 = [
+//@[04:20) Variable forceLineBreaks2. Type: int[]. Declaration start char: 0, length: 84
+    for i in range(0,    30) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+    // force line breaks
+]
+var forceLineBreaks3 = [
+//@[04:20) Variable forceLineBreaks3. Type: int[]. Declaration start char: 0, length: 115
+    /* force line breaks */
+    for i in range(0,    30) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+    /* force line breaks */
+]
+
 var loopInput = [
 //@[04:13) Variable loopInput. Type: ['one', 'two']. Declaration start char: 0, length: 35
   'one'

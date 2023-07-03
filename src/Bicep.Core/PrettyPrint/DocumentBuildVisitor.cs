@@ -240,22 +240,53 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitIfConditionSyntax(IfConditionSyntax syntax) =>
             this.BuildWithSpread(() => base.VisitIfConditionSyntax(syntax));
 
-        public override void VisitForSyntax(ForSyntax syntax) =>
-            this.Build(() => base.VisitForSyntax(syntax), children =>
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            this.Build(
+            () =>
             {
-                Debug.Assert(children.Length == 8);
+                this.Visit(syntax.OpenSquare);
+                this.VisitNodes(syntax.OpenNewlines);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.ForKeyword);
+                this.Visit(syntax.VariableSection);
+                this.Visit(syntax.InKeyword);
+                this.Visit(syntax.Expression);
+                this.Visit(syntax.Colon);
+                this.Visit(syntax.Body);
+                this.documentStack.Push(Nil);
+                this.VisitNodes(syntax.CloseNewlines);
+                this.Visit(syntax.CloseSquare);
+            },
+            children =>
+            {
+                var firstNilIndex = Array.IndexOf(children, Nil);
+                var lastNilIndex = Array.LastIndexOf(children, Nil);
 
                 ILinkedDocument openBracket = children[0];
-                ILinkedDocument forKeyword = children[1];
-                ILinkedDocument variableBlock = children[2];
-                ILinkedDocument inKeyword = children[3];
-                ILinkedDocument arrayExpression = children[4];
-                ILinkedDocument colon = children[5];
-                ILinkedDocument loopBody = children[6];
-                ILinkedDocument closeBracket = children[7];
+                var openNewlines = children[1..firstNilIndex];
 
-                return Concat(openBracket, Spread(forKeyword, variableBlock, inKeyword, arrayExpression), Spread(colon, loopBody), closeBracket);
+                var closeNewlines = children[(lastNilIndex + 1)..^1];
+                ILinkedDocument closeBracket = children[^1];
+
+                var bracketEnclosed = children[(firstNilIndex + 1)..lastNilIndex];
+                ILinkedDocument forKeyword = bracketEnclosed[0];
+                ILinkedDocument variableBlock = bracketEnclosed[1];
+                ILinkedDocument inKeyword = bracketEnclosed[2];
+                ILinkedDocument arrayExpression = bracketEnclosed[3];
+                ILinkedDocument colon = bracketEnclosed[4];
+                ILinkedDocument loopBody = bracketEnclosed[5];
+
+                var documentsToConcat = new List<ILinkedDocument> { openBracket };
+                documentsToConcat.AddRange(openNewlines);
+                documentsToConcat.Add(Spread(forKeyword, variableBlock, inKeyword, arrayExpression));
+                documentsToConcat.Add(Spread(colon, loopBody));
+                documentsToConcat.AddRange(closeNewlines);
+                documentsToConcat.Add(closeBracket);
+
+                return Concat(documentsToConcat);
             });
+        }
 
         public override void VisitVariableBlockSyntax(VariableBlockSyntax syntax) =>
             this.BuildWithConcat(() => {

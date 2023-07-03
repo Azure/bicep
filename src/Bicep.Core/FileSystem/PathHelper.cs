@@ -110,6 +110,17 @@ namespace Bicep.Core.FileSystem
             return Path.ChangeExtension(path, BicepExtension);
         }
 
+        public static string GetDefaultDecompileparamOutputPath(string path)
+        {
+            if (string.Equals(Path.GetExtension(path), BicepParamsExtension, PathComparison))
+            {
+                // throwing because this could lead to us destroying the input file if extensions get mixed up.
+                throw new ArgumentException($"The specified file already has the '{BicepParamsExtension}' extension.");
+            }
+
+            return Path.ChangeExtension(path, BicepParamsExtension);
+        }
+
         /// <summary>
         /// Returns true if the current file system is case sensitive (most Linux and MacOS X file systems). Returns false if the file system is case insensitive (Windows file systems.)
         /// </summary>
@@ -171,7 +182,9 @@ namespace Bicep.Core.FileSystem
         public static Uri RemoveExtension(Uri uri) => ChangeExtension(uri, null);
 
         public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
-
+        
+        public static Uri ChangeToBicepparamExtension(Uri uri) => ChangeExtension(uri, BicepParamsExtension);
+        
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
 
         public static bool HasBicepparamsExension(Uri uri) => HasExtension(uri, BicepParamsExtension);

@@ -261,7 +261,7 @@ var badIndexOverObj2 = {}[0]
 //@[26:27) [BCP075 (Error)] Indexing over objects requires an index of type "string" but the provided index was of type "0". (CodeDescription: none) |0|
 var badExpressionIndexer = {}[base64('a')]
 //@[04:24) [no-unused-vars (Warning)] Variable "badExpressionIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badExpressionIndexer|
-//@[30:41) [BCP054 (Error)] The type "object" does not contain any properties. (CodeDescription: none) |base64('a')|
+//@[30:41) [BCP052 (Error)] The type "object" does not contain property "YQ==". (CodeDescription: none) |base64('a')|
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
