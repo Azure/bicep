@@ -59,7 +59,7 @@ func sayHelloBadNewlines(
 //@[25:25) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) ||
 //@[25:25) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) ||
   name string) string => 'Hi ${name}!'
-//@[02:06) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |name|
+//@[02:06) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration. (CodeDescription: none) |name|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a

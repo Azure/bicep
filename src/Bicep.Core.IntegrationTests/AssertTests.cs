@@ -43,6 +43,46 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public void Asserts_are_parsed_with_diagnostics()
+        {
+            var result = CompilationHelper.Compile(ServicesWithAsserts, @"
+                assert
+            ");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP344", DiagnosticLevel.Error, "Expected an assert identifier at this location."),
+            });
+
+            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+                assert a1
+            ");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
+            });
+
+            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+                assert a1 =
+            ");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
+            });
+        }
+
+        [TestMethod]
+        public void Assert_symbolic_names_must_be_unique()
+        {
+            var result = CompilationHelper.Compile(ServicesWithAsserts, @"
+                param location string
+
+                assert location = contains(location, 'west')
+            ");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP028", DiagnosticLevel.Error, "Identifier \"location\" is declared multiple times. Remove or rename the duplicates."),
+                ("BCP028", DiagnosticLevel.Error, "Identifier \"location\" is declared multiple times. Remove or rename the duplicates."),
+            });
+        }
+
+        [TestMethod]
         public void Asserts_only_take_bool()
         {
             var result = CompilationHelper.Compile(ServicesWithAsserts,

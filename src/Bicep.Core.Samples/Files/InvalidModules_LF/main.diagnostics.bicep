@@ -21,7 +21,7 @@ module moduleWithoutPath = {
 //@[028:028) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 }
-//@[000:001) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
+//@[000:001) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration. (CodeDescription: none) |}|
 
 // #completionTest(41) -> moduleBodyCompletions
 module moduleWithPath './moduleb.bicep' =
