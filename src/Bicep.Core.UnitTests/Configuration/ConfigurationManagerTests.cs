@@ -103,7 +103,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false,
-                    ""dynamicTypeLoadingEnabled"": false
+                    "dynamicTypeLoadingEnabled": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -172,7 +172,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false,
-                    ""dynamicTypeLoadingEnabled"": false
+                    "dynamicTypeLoadingEnabled": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -266,7 +266,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false,
-                    ""dynamicTypeLoadingEnabled"": false
+                    "dynamicTypeLoadingEnabled": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -591,7 +591,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false,
-                    ""dynamicTypeLoadingEnabled"": false
+                    "dynamicTypeLoadingEnabled": false
                   },
                   "formatting": {
                     "indentKind": "Space",
