@@ -40,14 +40,14 @@ namespace Bicep.Core.Features
 
         public bool DynamicTypeLoading => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoadingEnabled;
 
-        private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
-            => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
+        // private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
+        //     => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
-        private static T ReadEnumEnvvar<T>(string envVar, T defaultValue) where T : struct
-        {
-            var str = Environment.GetEnvironmentVariable(envVar);
-            return Enum.TryParse<T>(str, true, out var value) ? value : defaultValue;
-        }
+        // private static T ReadEnumEnvvar<T>(string envVar, T defaultValue) where T : struct
+        // {
+        //     var str = Environment.GetEnvironmentVariable(envVar);
+        //     return Enum.TryParse<T>(str, true, out var value) ? value : defaultValue;
+        // }
 
         private static string GetDefaultCachePath()
         {
