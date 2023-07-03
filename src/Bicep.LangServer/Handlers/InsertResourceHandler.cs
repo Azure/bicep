@@ -36,6 +36,7 @@ using Bicep.LanguageServer.Telemetry;
 using System.Diagnostics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core;
+using System.Collections.Immutable;
 
 namespace Bicep.LanguageServer.Handlers
 {
