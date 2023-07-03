@@ -17,6 +17,7 @@ public record FeatureProviderOverrides(
     bool? UserDefinedTypesEnabled = default,
     bool? UserDefinedFunctionsEnabled = default,
     bool? PrettyPrintingEnabled = default,
+    bool? TestSyntaxEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(
@@ -30,6 +31,7 @@ public record FeatureProviderOverrides(
         bool? UserDefinedTypesEnabled = default,
         bool? UserDefinedFunctionsEnabled = default,
         bool? PrettyPrintingEnabled = default,
+        bool? TestSyntaxEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
@@ -42,5 +44,6 @@ public record FeatureProviderOverrides(
         UserDefinedTypesEnabled,
         UserDefinedFunctionsEnabled,
         PrettyPrintingEnabled,
+        TestSyntaxEnabled,
         AssemblyVersion) {}
 }

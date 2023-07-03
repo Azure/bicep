@@ -14,7 +14,8 @@ public record ExperimentalFeaturesEnabled(
     bool SourceMapping,
     bool UserDefinedTypes,
     bool UserDefinedFunctions,
-    bool PrettyPrinting)
+    bool PrettyPrinting,
+    bool TestSyntax)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
