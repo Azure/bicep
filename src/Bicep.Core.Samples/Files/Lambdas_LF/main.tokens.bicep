@@ -908,5 +908,88 @@ var objectMap3 = toObject(sortByObjectKey, x => x.name)
 //@[050:054) Identifier |name|
 //@[054:055) RightParen |)|
 //@[055:056) NewLine |\n|
+var objectMap4 = toObject(sortByObjectKey, x =>
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |objectMap4|
+//@[015:016) Assignment |=|
+//@[017:025) Identifier |toObject|
+//@[025:026) LeftParen |(|
+//@[026:041) Identifier |sortByObjectKey|
+//@[041:042) Comma |,|
+//@[043:044) Identifier |x|
+//@[045:047) Arrow |=>|
+//@[047:048) NewLine |\n|
+  
+//@[002:003) NewLine |\n|
+  x.name)
+//@[002:003) Identifier |x|
+//@[003:004) Dot |.|
+//@[004:008) Identifier |name|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |objectMap5|
+//@[015:016) Assignment |=|
+//@[017:025) Identifier |toObject|
+//@[025:026) LeftParen |(|
+//@[026:041) Identifier |sortByObjectKey|
+//@[041:042) Comma |,|
+//@[043:081) Identifier |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+//@[082:084) Arrow |=>|
+//@[085:123) Identifier |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+//@[123:124) Dot |.|
+//@[124:128) Identifier |name|
+//@[128:129) RightParen |)|
+//@[129:130) NewLine |\n|
+var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |objectMap6|
+//@[015:016) Assignment |=|
+//@[017:025) Identifier |toObject|
+//@[025:026) LeftParen |(|
+//@[026:031) Identifier |range|
+//@[031:032) LeftParen |(|
+//@[032:033) Integer |0|
+//@[033:034) Comma |,|
+//@[035:037) Integer |10|
+//@[037:038) RightParen |)|
+//@[038:039) Comma |,|
+//@[040:041) Identifier |i|
+//@[042:044) Arrow |=>|
+//@[045:048) StringLeftPiece |'${|
+//@[048:049) Identifier |i|
+//@[049:051) StringRightPiece |}'|
+//@[051:052) Comma |,|
+//@[053:054) Identifier |i|
+//@[055:057) Arrow |=>|
+//@[068:069) NewLine |\n|
+{
+//@[000:001) LeftBrace |{|
+//@[001:002) NewLine |\n|
+  isEven: (i % 2) == 0
+//@[002:008) Identifier |isEven|
+//@[008:009) Colon |:|
+//@[010:011) LeftParen |(|
+//@[011:012) Identifier |i|
+//@[013:014) Modulo |%|
+//@[015:016) Integer |2|
+//@[016:017) RightParen |)|
+//@[018:020) Equals |==|
+//@[021:022) Integer |0|
+//@[022:023) NewLine |\n|
+  isGreaterThan4: (i > 4)
+//@[002:016) Identifier |isGreaterThan4|
+//@[016:017) Colon |:|
+//@[018:019) LeftParen |(|
+//@[019:020) Identifier |i|
+//@[021:022) GreaterThan |>|
+//@[023:024) Integer |4|
+//@[024:025) RightParen |)|
+//@[025:026) NewLine |\n|
+})
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 
 //@[000:000) EndOfFile ||

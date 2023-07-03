@@ -62,6 +62,8 @@ async function go() {
         extensionTestsPath: path.resolve(__dirname, "index"),
         extensionTestsEnv: { TEST_MODE: "e2e" },
         launchArgs: [
+          "--no-sandbox",
+          "--disable-gpu-sandbox",
           "--enable-proposed-api=ms-azuretools.vscode-bicep",
           ...userDataArguments,
         ],

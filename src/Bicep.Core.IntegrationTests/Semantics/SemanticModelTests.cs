@@ -339,6 +339,14 @@ param storageAccount string = 'testStorageAccount'";
                 actualLocation: resultsFile);
         }
 
+        [TestInitialize]
+        public void testInit()
+        {
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
+            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
+        }
+
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)
         {
             return SyntaxAggregator.Aggregate(

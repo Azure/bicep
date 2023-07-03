@@ -154,12 +154,14 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             return new ForSyntax(
                 syntax.OpenSquare,
+                syntax.OpenNewlines,
                 syntax.ForKeyword,
                 forVariableBlockSyntax,
                 syntax.InKeyword,
                 forExpression,
                 syntax.Colon,
                 forBody,
+                syntax.CloseNewlines,
                 syntax.CloseSquare);
         }
 

@@ -1449,6 +1449,147 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[050:051) Identifier |i|
 //@[051:052) RightSquare |]|
 //@[052:053) NewLine |\n|
+var printToSingleLine1 = [
+//@[000:003) Identifier |var|
+//@[004:022) Identifier |printToSingleLine1|
+//@[023:024) Assignment |=|
+//@[025:026) LeftSquare |[|
+//@[026:027) NewLine |\n|
+    for i in range(0,20) : i
+//@[004:007) Identifier |for|
+//@[008:009) Identifier |i|
+//@[010:012) Identifier |in|
+//@[013:018) Identifier |range|
+//@[018:019) LeftParen |(|
+//@[019:020) Integer |0|
+//@[020:021) Comma |,|
+//@[021:023) Integer |20|
+//@[023:024) RightParen |)|
+//@[025:026) Colon |:|
+//@[027:028) Identifier |i|
+//@[028:029) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:002) NewLine |\n|
+var printToSingleLine2 = [
+//@[000:003) Identifier |var|
+//@[004:022) Identifier |printToSingleLine2|
+//@[023:024) Assignment |=|
+//@[025:026) LeftSquare |[|
+//@[026:027) NewLine |\n|
+    /* harmless comment */ for i in range(0,20) : i
+//@[027:030) Identifier |for|
+//@[031:032) Identifier |i|
+//@[033:035) Identifier |in|
+//@[036:041) Identifier |range|
+//@[041:042) LeftParen |(|
+//@[042:043) Integer |0|
+//@[043:044) Comma |,|
+//@[044:046) Integer |20|
+//@[046:047) RightParen |)|
+//@[048:049) Colon |:|
+//@[050:051) Identifier |i|
+//@[051:052) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:002) NewLine |\n|
+var printToSingleLine3 = [
+//@[000:003) Identifier |var|
+//@[004:022) Identifier |printToSingleLine3|
+//@[023:024) Assignment |=|
+//@[025:026) LeftSquare |[|
+//@[026:027) NewLine |\n|
+    for i in range(0,20) : i /* harmless comment */
+//@[004:007) Identifier |for|
+//@[008:009) Identifier |i|
+//@[010:012) Identifier |in|
+//@[013:018) Identifier |range|
+//@[018:019) LeftParen |(|
+//@[019:020) Integer |0|
+//@[020:021) Comma |,|
+//@[021:023) Integer |20|
+//@[023:024) RightParen |)|
+//@[025:026) Colon |:|
+//@[027:028) Identifier |i|
+//@[051:052) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:002) NewLine |\n|
+var forceLineBreaks1 = [
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |forceLineBreaks1|
+//@[021:022) Assignment |=|
+//@[023:024) LeftSquare |[|
+//@[024:025) NewLine |\n|
+    // force line breaks
+//@[024:025) NewLine |\n|
+    for i in range(0,    30) : i
+//@[004:007) Identifier |for|
+//@[008:009) Identifier |i|
+//@[010:012) Identifier |in|
+//@[013:018) Identifier |range|
+//@[018:019) LeftParen |(|
+//@[019:020) Integer |0|
+//@[020:021) Comma |,|
+//@[025:027) Integer |30|
+//@[027:028) RightParen |)|
+//@[029:030) Colon |:|
+//@[031:032) Identifier |i|
+//@[032:033) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:002) NewLine |\n|
+var forceLineBreaks2 = [
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |forceLineBreaks2|
+//@[021:022) Assignment |=|
+//@[023:024) LeftSquare |[|
+//@[024:025) NewLine |\n|
+    for i in range(0,    30) : i
+//@[004:007) Identifier |for|
+//@[008:009) Identifier |i|
+//@[010:012) Identifier |in|
+//@[013:018) Identifier |range|
+//@[018:019) LeftParen |(|
+//@[019:020) Integer |0|
+//@[020:021) Comma |,|
+//@[025:027) Integer |30|
+//@[027:028) RightParen |)|
+//@[029:030) Colon |:|
+//@[031:032) Identifier |i|
+//@[032:033) NewLine |\n|
+    // force line breaks
+//@[024:025) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:002) NewLine |\n|
+var forceLineBreaks3 = [
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |forceLineBreaks3|
+//@[021:022) Assignment |=|
+//@[023:024) LeftSquare |[|
+//@[024:025) NewLine |\n|
+    /* force line breaks */
+//@[027:028) NewLine |\n|
+    for i in range(0,    30) : i
+//@[004:007) Identifier |for|
+//@[008:009) Identifier |i|
+//@[010:012) Identifier |in|
+//@[013:018) Identifier |range|
+//@[018:019) LeftParen |(|
+//@[019:020) Integer |0|
+//@[020:021) Comma |,|
+//@[025:027) Integer |30|
+//@[027:028) RightParen |)|
+//@[029:030) Colon |:|
+//@[031:032) Identifier |i|
+//@[032:033) NewLine |\n|
+    /* force line breaks */
+//@[027:028) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
+
 var loopInput = [
 //@[000:003) Identifier |var|
 //@[004:013) Identifier |loopInput|

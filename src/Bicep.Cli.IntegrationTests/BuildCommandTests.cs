@@ -305,8 +305,11 @@ output myOutput string = 'hello!'
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
         }
 
-        [TestMethod]
-        public async Task Build_WithOutDir_ShouldSucceed()
+        [DataRow(new string[] {})]
+        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
+        [DataRow(new[] { "--diagnostics-format", "sArif"})]
+        [DataTestMethod]
+        public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
 output myOutput string = 'hello!'
@@ -317,11 +320,40 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep("build", "--outdir", outputFileDir, bicepPath);
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath}.Concat(args).ToArray());
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
-            error.Should().BeEmpty();
+            if (Array.Exists(args, x => x.Equals("sarif", StringComparison.OrdinalIgnoreCase)))
+            {
+                var errorJToken = JToken.Parse(error);
+                var expectedErrorJToken = JToken.Parse(@"{
+  ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
+  ""version"": ""2.1.0"",
+  ""runs"": [
+    {
+      ""tool"": {
+        ""driver"": {
+          ""name"": ""bicep""
+        }
+      },
+      ""results"": [],
+      ""columnKind"": ""utf16CodeUnits""
+    }
+  ]
+}");
+                errorJToken.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                expectedErrorJToken,
+                "",
+                "",
+                validateLocation: false);
+            }
+            else
+            {
+                error.Should().BeEmpty();
+            }
+
             result.Should().Be(0);
         }
 
@@ -395,8 +427,40 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.\".");
         }
 
+        [DataRow(new string[] {})]
+        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
+        [DataTestMethod]
+        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
+            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}", testOutputPath);
+
+            var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
+
+            File.Exists(expectedOutputFile).Should().BeFalse();
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile}.Concat(args).ToArray());
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        }
+
         [TestMethod]
-        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError()
+        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedErrorInSarifFormat()
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
@@ -418,12 +482,58 @@ output myOutput string = 'hello!'
 
             File.Exists(expectedOutputFile).Should().BeFalse();
 
-            var (output, error, result) = await Bicep("build", "--outdir", testOutputPath, inputFile);
+            var (output, error, result) = await Bicep("build", "--outdir", testOutputPath, inputFile, "--diagnostics-format", "saRif");
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+            var errorJToken = JToken.Parse(error);
+            var expectedErrorJToken = JToken.Parse(@"{
+  ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
+  ""version"": ""2.1.0"",
+  ""runs"": [
+    {
+      ""tool"": {
+        ""driver"": {
+          ""name"": ""bicep""
+        }
+      },
+      ""results"": [
+        {
+          ""ruleId"": ""no-unused-params"",
+          ""message"": {
+            ""text"": ""Parameter \""storageAccountName\"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]""
+          },
+          ""locations"": [
+            {
+              ""physicalLocation"": {
+                ""artifactLocation"": {
+                  ""uri"": ""main.bicep""
+                },
+                ""region"": {
+                  ""startLine"": 1,
+                  ""charOffset"": 7
+                }
+              }
+            }
+          ]
+        }
+      ],
+      ""columnKind"": ""utf16CodeUnits""
+    }
+  ]
+}");
+        var selectedPath = errorJToken.SelectToken("$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri");
+        selectedPath.Should().NotBeNull();
+        selectedPath?.Value<string>().Should().Contain("file://");
+        selectedPath?.Value<string>().Should().Contain("main.bicep");
+        selectedPath?.Replace("main.bicep");
+        errorJToken.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                expectedErrorJToken,
+                "",
+                "",
+                validateLocation: false);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

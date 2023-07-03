@@ -541,7 +541,6 @@ namespace Bicep.Core.UnitTests.Registry
         private IFeatureProvider GetFeatures(bool cacheRootDirectory, string rootDirectory)
         {
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
 
             if (cacheRootDirectory)
             {

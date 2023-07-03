@@ -1,3 +1,7 @@
+metadata name = 'Test module'
+metadata description = ''
+metadata owner = '42'
+
 param dnsPrefix string
 
 @description('The linux administrator username')

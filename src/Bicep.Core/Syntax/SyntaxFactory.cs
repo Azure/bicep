@@ -140,12 +140,14 @@ namespace Bicep.Core.Syntax
             // generates "[for <identifier> in <inSyntax>: <body>]"
             return new(
                 LeftSquareToken,
+                ImmutableArray<Token>.Empty,
                 CreateFreeformToken(TokenType.Identifier, "for"),
                 new LocalVariableSyntax(new IdentifierSyntax(CreateFreeformToken(TokenType.Identifier, indexIdentifier))),
                 CreateFreeformToken(TokenType.Identifier, "in"),
                 inSyntax,
                 ColonToken,
                 body,
+                ImmutableArray<Token>.Empty,
                 RightSquareToken);
         }
 
@@ -403,6 +405,7 @@ namespace Bicep.Core.Syntax
             return new LambdaSyntax(
                 variableBlock,
                 SyntaxFactory.ArrowToken,
+                ImmutableArray<Token>.Empty,
                 functionExpression);
         }
 

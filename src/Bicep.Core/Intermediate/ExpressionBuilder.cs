@@ -491,25 +491,34 @@ public class ExpressionBuilder
                 var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(method.BaseExpression);
                 var baseSymbol = Context.SemanticModel.GetSymbolInfo(baseSyntax);
 
-                switch (baseSymbol)
+                if (baseSymbol is INamespaceSymbol namespaceSymbol)
                 {
-                    case INamespaceSymbol namespaceSymbol:
-                        Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
-                        return new FunctionCallExpression(
-                            method,
-                            method.Name.IdentifierName,
-                            method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
-                    case { } _ when Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is DeclaredResourceMetadata resource:
-                        var indexContext = TryGetReplacementContext(resource.NameSyntax, indexExpression, method);
-
-                        // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
-                        // This is also used for kv.getSecret() - for passing secure values to module parameters
-                        return new ResourceFunctionCallExpression(
-                            method,
-                            new ResourceReferenceExpression(method.BaseExpression, resource, indexContext),
-                            method.Name.IdentifierName,
-                            method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                    Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
+                    return new FunctionCallExpression(
+                        method,
+                        method.Name.IdentifierName,
+                        method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
                 }
+
+                var resource = Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax);
+                var indexContext = resource switch
+                {
+                    DeclaredResourceMetadata declaredResource => TryGetReplacementContext(declaredResource.NameSyntax, indexExpression, method),
+                    ModuleOutputResourceMetadata moduleOutputResource => TryGetReplacementContext(moduleOutputResource.Module, indexExpression, method),
+                    _ => null,
+                };
+
+                if (resource is not null)
+                {
+                    // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
+                    // This is also used for kv.getSecret() - for passing secure values to module parameters
+                    return new ResourceFunctionCallExpression(
+                        method,
+                        new ResourceReferenceExpression(method.BaseExpression, resource, indexContext),
+                        method.Name.IdentifierName,
+                        method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                }
+
                 throw new InvalidOperationException($"Unrecognized base expression {baseSymbol?.Kind}");
             default:
                 throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
@@ -572,7 +581,7 @@ public class ExpressionBuilder
         var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
 
         // Looking for short-circuitable access chains
-        if (arrayAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
+        if (!arrayAccess.IsSafeAccess && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
         {
             if (convertedBase is AccessExpression baseAccess)
             {
@@ -659,7 +668,7 @@ public class ExpressionBuilder
         var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
 
         // Looking for short-circuitable access chains
-        if (propertyAccess.SafeAccessMarker is null && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
+        if (!propertyAccess.IsSafeAccess && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
         {
             Expression nextLink = new StringLiteralExpression(propertyAccess.PropertyName, propertyAccess.PropertyName.IdentifierName);
 

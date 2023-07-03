@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         private readonly List<string> expectedOutLines = new();
 
-        private readonly List<string> expectedErrorLines = new ();
+        private readonly List<string> expectedErrorLines = new();
 
         private readonly List<string> actualOutLines = new();
 
@@ -76,8 +76,23 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         public void Verify()
         {
-            this.actualOutLines.Should().Equal(this.expectedOutLines);
-            this.actualErrorLines.Should().Equal(this.expectedErrorLines);
+            VerifyStringList(this.actualOutLines, this.expectedOutLines);
+            VerifyStringList(this.actualErrorLines, this.expectedErrorLines);
+        }
+
+        private void VerifyStringList(List<string> a, List<string> b)
+        {
+            if (a.Count != b.Count)
+            {
+                a.Should().Equal(b);
+            }
+            else
+            {
+                for (var i = 0; i < a.Count; ++i)
+                {
+                    a[i].ReplaceLineEndings().Should().Be(b[i].ReplaceLineEndings());
+                }
+            }
         }
     }
 }

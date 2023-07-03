@@ -216,3 +216,8 @@ param decoratedArray array = [
     utcNow()
     newGuid()
 ]
+
+param stringfromEnvironmentVariables string
+param intfromEnvironmentVariables int
+param boolfromEnvironmentVariables bool
+param intfromEnvironmentVariablesDefault int

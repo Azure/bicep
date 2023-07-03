@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Extensions
 {
@@ -19,6 +20,7 @@ namespace Bicep.Core.Extensions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             ReadCommentHandling = JsonCommentHandling.Skip,
+            Converters = { new JsonStringEnumConverter() },
         };
 
         public static bool IsNotNullValue(this JsonElement element) => element.ValueKind is not JsonValueKind.Null;
