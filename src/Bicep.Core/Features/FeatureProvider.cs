@@ -34,9 +34,9 @@ namespace Bicep.Core.Features
 
         public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
 
-        public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
+        public static bool TracingEnabled => true;
 
-        public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+        public static TraceVerbosity TracingVerbosity => TraceVerbosity.Full;
 
         public bool DynamicTypeLoading => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoadingEnabled;
 
