@@ -179,6 +179,16 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
+        private IEnumerable<Document> LayoutTestDeclarationSyntax(TestDeclarationSyntax syntax) =>
+            this.LayoutResourceOrModuleDeclarationSyntax(
+                syntax.LeadingNodes,
+                syntax.Keyword,
+                syntax.Name,
+                syntax.Path,
+                syntax.Assignment,
+                syntax.Newlines,
+                syntax.Value);
+
         private IEnumerable<Document> LayoutNonNullAssertionSyntax(NonNullAssertionSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.AssertionOperator);
 

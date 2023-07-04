@@ -11,6 +11,7 @@ namespace Bicep.Core.Semantics
         Variable,
         Resource,
         Module,
+        Test,
         Output,
         Namespace,
         ImportedNamespace,
