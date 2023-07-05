@@ -31,9 +31,11 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
+        private readonly ConcurrentDictionary<CompileTimeImportDeclarationSyntax, ISemanticModel?> importedModels;
         private readonly BicepSourceFileKind fileKind;
+        private readonly Compilation compilation;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, Workspaces.BicepSourceFileKind fileKind)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, Workspaces.BicepSourceFileKind fileKind, Compilation compilation)
         {
             this.typeManager = typeManager;
             this.features = features;
@@ -43,7 +45,9 @@ namespace Bicep.Core.TypeSystem
             assignedTypes = new();
             matchedFunctionOverloads = new();
             matchedFunctionResultValues = new();
+            importedModels = new();
             this.fileKind = fileKind;
+            this.compilation = compilation;
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -893,6 +897,91 @@ namespace Bicep.Core.TypeSystem
                 base.VisitAssertDeclarationSyntax(syntax);
 
                 return LanguageConstants.Bool;
+            });
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                if (!features.CompileTimeImportsEnabled)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax).CompileTimeImportsNotSupported());
+                    return ErrorType.Empty();
+                }
+
+                if (!SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(compilation,
+                    syntax,
+                    b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                    out var semanticModel,
+                    out var failureDiagnostic))
+                {
+                    diagnostics.Write(failureDiagnostic);
+                    return ErrorType.Empty();
+                }
+
+                if (semanticModel.HasErrors())
+                {
+                    diagnostics.Write(semanticModel is ArmTemplateSemanticModel
+                        ? DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedArmTemplateHasErrors()
+                        : DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedModuleHasErrors());
+                }
+
+                return new CompileTimeImportType(importPath: syntax.TryGetPath()?.TryGetLiteralValue() ?? "<unknown path>",
+                    importableTypes: semanticModel.ExportedTypes.Select(kvp => new TypeTypeProperty(kvp.Key,
+                        kvp.Value.TypeReference.Type switch
+                        {
+                            TypeType tt => tt,
+                            TypeSymbol otherwise => new TypeType(otherwise),
+                        },
+                        TypePropertyFlags.ReadOnly | TypePropertyFlags.Required,
+                        kvp.Value.Description)));
+            });
+
+        public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                if (binder.GetParent(syntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
+                    GetTypeInfo(importDeclarationSyntax) is not CompileTimeImportType importType)
+                {
+                    return ErrorType.Empty();
+                }
+
+                NamespaceSettings settings = new(
+                    IsSingleton: true,
+                    BicepProviderName: syntax.Name.IdentifierName,
+                    ConfigurationType: null,
+                    ArmTemplateProviderName: syntax.Name.IdentifierName,
+                    ArmTemplateProviderVersion: "1.0.0");
+
+                return new NamespaceType(syntax.Name.IdentifierName,
+                    settings,
+                    importType.ImportableTypes.Values,
+                    ImmutableArray<FunctionOverload>.Empty,
+                    ImmutableArray<BannedFunction>.Empty,
+                    ImmutableArray<Decorator>.Empty,
+                    new EmptyResourceTypeProvider());
+            });
+
+        public override void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax)
+            => AssignType(syntax, () => binder.GetParent(syntax) is CompileTimeImportDeclarationSyntax importDeclarationSyntax
+                ? GetTypeInfo(importDeclarationSyntax)
+                : ErrorType.Empty());
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                if (binder.GetParent(syntax) is not ImportedSymbolsListSyntax parentSyntax ||
+                    GetTypeInfo(parentSyntax) is not CompileTimeImportType importType)
+                {
+                    return ErrorType.Empty();
+                }
+
+                if (importType.ImportableTypes.TryGetValue(syntax.OriginalSymbolName.IdentifierName) is not {} exportedType)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportedSymbolNotFound(syntax.OriginalSymbolName.IdentifierName));
+                    return ErrorType.Empty();
+                }
+
+                return exportedType.TypeReference;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)

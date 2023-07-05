@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
             this.targetScope = targetScope;
             this.context = context;
             this.localScopes = localScopes;
-            this.sourceFileKind=sourceFileKind;
+            this.sourceFileKind = sourceFileKind;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
@@ -263,6 +263,24 @@ namespace Bicep.Core.Semantics
             base.VisitForSyntax(syntax);
 
             this.PopScope();
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            base.VisitCompileTimeImportDeclarationSyntax(syntax);
+
+            switch (syntax.ImportExpression)
+            {
+                case WildcardImportSyntax wildcardImport:
+                    DeclareSymbol(new WildcardImportSymbol(context, wildcardImport));
+                    break;
+                case ImportedSymbolsListSyntax importedSymbolsList:
+                    foreach (var item in importedSymbolsList.ImportedSymbols)
+                    {
+                        DeclareSymbol(new ImportedTypeSymbol(context, item));
+                    }
+                    break;
+            }
         }
 
         private void DeclareSymbol(DeclaredSymbol symbol)

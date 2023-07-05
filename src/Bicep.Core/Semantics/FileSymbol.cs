@@ -35,7 +35,7 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
-            // TODO: Avoid looping 10 times?
+            // TODO: Avoid looping 12 times?
             this.DeclarationsBySyntax = fileScope.Declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
             this.ProviderDeclarations = fileScope.Declarations.OfType<ProviderNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = fileScope.Declarations.OfType<MetadataSymbol>().ToImmutableArray();
@@ -49,6 +49,9 @@ namespace Bicep.Core.Semantics
             this.AssertDeclarations = fileScope.Declarations.OfType<AssertSymbol>().ToImmutableArray();
             this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
             this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
+            this.TypeImports = fileScope.Declarations.OfType<ImportedTypeSymbol>().ToImmutableArray();
+            this.WildcardImports = fileScope.Declarations.OfType<WildcardImportSymbol>().ToImmutableArray();
+
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
 
             this.usingDeclarationLazy = new Lazy<UsingDeclarationSyntax?>(() => this.Syntax.Children.OfType<UsingDeclarationSyntax>().FirstOrDefault());
@@ -67,7 +70,9 @@ namespace Bicep.Core.Semantics
             .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations)
             .Concat(this.AssertDeclarations)
-            .Concat(this.ParameterAssignments);
+            .Concat(this.ParameterAssignments)
+            .Concat(this.TypeImports)
+            .Concat(this.WildcardImports);
 
         public IEnumerable<Symbol> Namespaces =>
             this.NamespaceResolver.BuiltIns.Values
@@ -110,6 +115,10 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<TestSymbol> TestDeclarations { get; }
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
+
+        public ImmutableArray<ImportedTypeSymbol> TypeImports { get; }
+
+        public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 
         public UsingDeclarationSyntax? UsingDeclarationSyntax => this.usingDeclarationLazy.Value;
 

@@ -6,7 +6,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax
+    public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IForeignTemplateReference
     {
         public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
             : base(Enumerable.Empty<SyntaxBase>())
@@ -28,5 +28,7 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Path);
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
+
+        SyntaxBase IForeignTemplateReference.ReferenceSourceSyntax => Path;
     }
 }

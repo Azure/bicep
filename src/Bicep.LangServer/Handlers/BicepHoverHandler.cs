@@ -154,7 +154,10 @@ namespace Bicep.LanguageServer.Handlers
 
         private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(HoverParams request, SymbolResolutionResult result, IModuleDispatcher moduleDispatcher, IModuleRegistryProvider moduleRegistryProvider, ModuleSymbol module)
         {
-            var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _) ?? string.Empty;
+            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
+            {
+                filePath = string.Empty;
+            }
             var descriptionLines = new List<string?>();
             descriptionLines.Add(TryGetDescriptionMarkdown(result, module));
 

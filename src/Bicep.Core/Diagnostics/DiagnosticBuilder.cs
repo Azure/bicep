@@ -1473,7 +1473,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP250",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+            public ErrorDiagnostic UsingPathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP256",
                 "The using declaration is missing a bicep template file path reference.");
@@ -1990,6 +1990,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP354",
                 $@"Using compile-time imports requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
+
+            public ErrorDiagnostic PathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP355",
+                "This declaration is missing a template file path reference.");
+
+            public ErrorDiagnostic CompileTimeImportDeclarationMustReferenceTemplate() => new(
+                TextSpan,
+                "BCP356",
+                "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.");
+
+            public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
+                TextSpan,
+                "BCP357",
+                $"The '{symbolName}' symbol was not found in the imported template.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

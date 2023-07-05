@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -38,6 +42,38 @@ namespace Bicep.Core.Semantics
                 return LanguageConstants.IdentifierComparer.Equals(namespaceType.ProviderName, @namespace) &&
                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName);
             });
+        }
+
+        public static bool TryGetSemanticModelForForeignTemplateReference(Compilation compilation,
+            IForeignTemplateReference reference,
+            DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
+            [NotNullWhen(true)] out ISemanticModel? semanticModel,
+            [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
+        {
+            if (compilation.SourceFileGrouping.TryGetErrorDiagnostic(reference) is {} errorBuilder)
+            {
+                semanticModel = null;
+                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(reference.ReferenceSourceSyntax));
+                return false;
+            }
+
+            // SourceFileGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
+            // So it is safe to assume that this lookup will succeed without throwing an exception.
+            var sourceFile = compilation.SourceFileGrouping.TryGetSourceFile(reference) ?? throw new InvalidOperationException($"Failed to find source file for module");
+
+            // when we inevitably add a third language ID,
+            // the inclusion list style below will prevent the new language ID from being
+            // automatically allowed to be referenced via module declarations
+            if (sourceFile is not BicepFile and not ArmTemplateFile and not TemplateSpecFile)
+            {
+                semanticModel = null;
+                failureDiagnostic = onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.ReferenceSourceSyntax));
+                return false;
+            }
+
+            failureDiagnostic = null;
+            semanticModel = compilation.GetSemanticModel(sourceFile);
+            return true;
         }
     }
 }

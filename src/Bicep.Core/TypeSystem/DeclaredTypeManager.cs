@@ -511,8 +511,11 @@ namespace Bicep.Core.TypeSystem
             {
                 BuiltInNamespaceSymbol builtInNamespace when allowNamespaceReferences => builtInNamespace.Type,
                 ProviderNamespaceSymbol providerNamespace when allowNamespaceReferences => providerNamespace.Type,
-                BuiltInNamespaceSymbol or ProviderNamespaceSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
-                AmbientTypeSymbol ambientType when ambientType.Type is TypeType assignableType => assignableType.Unwrapped,
+                WildcardImportSymbol wildcardImport when allowNamespaceReferences => wildcardImport.Type,
+                BuiltInNamespaceSymbol or ProviderNamespaceSymbol or WildcardImportSymbol
+                    => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
+                AmbientTypeSymbol ambientType => UnwrapType(ambientType.Type),
+                ImportedTypeSymbol importedType => UnwrapType(importedType.Type),
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
@@ -782,12 +785,14 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Diagnostics will be surfaced by the TypeAssignmentVisitor, so we're only concerned here with whether the property access would be an error type
-            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()) switch
-            {
-                TypeType tt => tt.Unwrapped,
-                TypeSymbol otherwise => otherwise,
-            };
+            return UnwrapType(TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()));
         }
+
+        private TypeSymbol UnwrapType(TypeSymbol type) => type switch
+        {
+            TypeType tt => tt.Unwrapped,
+            _ => type,
+        };
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
         {

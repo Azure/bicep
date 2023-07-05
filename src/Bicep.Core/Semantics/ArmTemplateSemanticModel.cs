@@ -14,7 +14,6 @@ using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
@@ -28,6 +27,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ResourceScope> targetScopeLazy;
 
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
+
+        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
 
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
@@ -85,6 +86,23 @@ namespace Bicep.Core.Semantics
                         LanguageConstants.IdentifierComparer);
             });
 
+            // TODO: we have discussed exporting variables and functions in addition to types, but ARM template semantics allow a variable and a type to use the
+            // same name, whereas Bicep requires symbols to be unique within a template. How should we handle naming conflicts on exported members?
+            this.exportedTypesLazy = new(() =>
+            {
+                if (SourceFile.Template?.Definitions is not {} typeDefinitions)
+                {
+                    return ImmutableDictionary<string, ExportedTypeMetadata>.Empty;
+                }
+
+                return typeDefinitions.Where(typeDefinition => IsExported(typeDefinition.Value))
+                    .ToImmutableDictionary(typeDefinition => typeDefinition.Key,
+                        typeDefinition => new ExportedTypeMetadata(typeDefinition.Key,
+                            GetType(typeDefinition.Value),
+                            GetMostSpecificDescription(typeDefinition.Value)),
+                        LanguageConstants.IdentifierComparer);
+            });
+
             this.outputsLazy = new(() =>
             {
                 if (this.SourceFile.Template?.Outputs is null)
@@ -108,6 +126,8 @@ namespace Bicep.Core.Semantics
             : this.targetScopeLazy.Value;
 
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+
+        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -432,5 +452,28 @@ namespace Bicep.Core.Semantics
             }
             return null;
         }
+
+        /// <summary>
+        /// Determines if the provided type definition should be allowlisted for use in <c>import</c> statements
+        /// </summary>
+        /// <remarks>
+        /// This method does not use <see cref="GetMetadata"/> because <see cref="GetMetadata"/> merges metadata across $refs.
+        /// We only want to look at the metadata explicitly applied to this type.
+        /// E.g., in the following, `public` should match the predicate and `private` should not:
+        /// <code>
+        ///   {
+        ///      "public": {"type": "string", "metadata": {"exported": true}},
+        ///      "private": {"$ref": "#/definitions/public"}
+        ///   }
+        /// </code>
+        /// The above would be compiled from the following Bicep:
+        /// <code>
+        ///   @export()
+        ///   type public = string
+        ///   type private = public
+        /// </code>
+        /// </remarks>
+        private static bool IsExported(TemplateTypeDefinition typeDefinition)
+            => typeDefinition.Metadata?.Value is JObject metadataDict && metadataDict["exported"] is JValue { Value: true };
     }
 }

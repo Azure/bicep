@@ -3,7 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
-using Bicep.Core.Syntax;
+using Bicep.Core.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -19,9 +19,7 @@ namespace Bicep.Core.Registry
 
         bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
-
-        bool TryGetModuleReference(TestDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        bool TryGetModuleReference(IForeignTemplateReference module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
 

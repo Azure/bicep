@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -17,7 +18,6 @@ namespace Bicep.Core.Workspaces
         ISourceFile? File);
 
     public record UriResolutionResult(
-        StatementSyntax Statement,
         Uri? FileUri,
         bool RequiresRestore,
         ErrorBuilderDelegate? ErrorBuilder);
@@ -30,7 +30,7 @@ namespace Bicep.Core.Workspaces
         IFileResolver FileResolver,
         Uri EntryFileUri,
         ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<StatementSyntax, UriResolutionResult>> UriResultByModule,
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignTemplateReference, UriResolutionResult>> UriResultByModule,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup)
     {
         public IEnumerable<ModuleSourceResolutionInfo> GetModulesToRestore()
@@ -43,9 +43,9 @@ namespace Bicep.Core.Workspaces
 
         public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.File).WhereNotNull();
 
-        public ErrorBuilderDelegate? TryGetErrorDiagnostic(StatementSyntax statement)
+        public ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignTemplateReference foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(statement, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.ErrorBuilder is not null)
             {
                 return uriResult.ErrorBuilder;
@@ -55,9 +55,9 @@ namespace Bicep.Core.Workspaces
             return fileResult.ErrorBuilder;
         }
 
-        public ISourceFile? TryGetSourceFile(StatementSyntax statement)
+        public ISourceFile? TryGetSourceFile(IForeignTemplateReference foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(statement, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.FileUri is null)
             {
                 return null;
