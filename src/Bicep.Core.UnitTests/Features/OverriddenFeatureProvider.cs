@@ -34,5 +34,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool PrettyPrintingEnabled => overrides.PrettyPrintingEnabled ?? features.PrettyPrintingEnabled;
     
-    public bool TestSyntaxEnabled => overrides.TestSyntaxEnabled ?? features.TestSyntaxEnabled;
+    public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;
 }
