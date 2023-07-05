@@ -602,7 +602,7 @@
         "prettyPrinting": {
           "type": "boolean"
         },
-        "TestFramework": {
+        "testFramework": {
           "type": "boolean"
         }
       }
