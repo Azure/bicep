@@ -420,7 +420,7 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
             // resource foo '...' |=
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
-
+        
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>
                 !targetScope.Assignment.Span.ContainsInclusive(offset) &&

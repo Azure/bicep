@@ -175,6 +175,11 @@ namespace Bicep.LanguageServer.Completions
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
 
+                        if (model.Features.TestFrameworkEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.TestKeyword, "Test keyword", context.ReplacementRange);
+                        }
+
                         if (model.Features.UserDefinedFunctionsEnabled)
                         {
                             yield return CreateContextualSnippetCompletion(
