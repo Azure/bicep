@@ -73,6 +73,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetLocalModulePathCompletions(model, context))
+                .Concat(GetLocalTestPathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
@@ -698,6 +699,77 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private IEnumerable<CompletionItem> GetLocalTestPathCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.TestPath))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            // To provide intellisense before the quotes are typed
+            if (context.EnclosingDeclaration is not TestDeclarationSyntax declarationSyntax
+                || declarationSyntax.Path is not StringSyntax stringSyntax
+                || stringSyntax.TryGetLiteralValue() is not string entered)
+            {
+                entered = "";
+            }
+
+            try
+            {
+                // These should only fail if we're not able to resolve cwd path or the entered string
+                if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
+                {
+                    return Enumerable.Empty<CompletionItem>();
+                }
+
+                var replacementRange = context.EnclosingDeclaration is TestDeclarationSyntax test ? test.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
+
+                // Prioritize .bicep files higher than other files.
+                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
+                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
+                var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
+
+                return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            // Local functions.
+
+            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
+
+            bool IsArmTemplateFileLike(Uri fileUri)
+            {
+                if (PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
+                {
+                    return true;
+                }
+
+                if (model.Compilation.SourceFileGrouping.SourceFiles.Any(sourceFile =>
+                        sourceFile is ArmTemplateFile &&
+                        sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
+                {
+                    return true;
+                }
+
+                if (!PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) &&
+                    !PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension))
+                {
+                    return false;
+                }
+
+                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000, out var fileContents) &&
+                    LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
         private bool IsOciModuleRegistryReference(BicepCompletionContext context)
         {
             return context.ReplacementTarget is Token token &&
@@ -890,7 +962,7 @@ namespace Bicep.LanguageServer.Completions
             // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
             // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference)
-                && symbol is ResourceSymbol or ModuleSymbol)
+                && symbol is ResourceSymbol or ModuleSymbol or TestSymbol)
             {
                 // parent resource symbols of the current resource should not be prioritized but are still provided for use in expressions
                 var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
@@ -915,7 +987,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // For nested resource/module symbol completions, don't suggest child symbols for resource.dependsOn symbol completions.
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol or TestSymbol)
             {
                 // filter out child resource symbols of the enclosing declaration symbol
                 var symbolResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == symbol);
@@ -1875,6 +1947,7 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.TypeAlias => CompletionItemKind.TypeParameter,
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 SymbolKind.Module => CompletionItemKind.Module,
+                SymbolKind.Test => CompletionItemKind.Keyword,
                 SymbolKind.Local => CompletionItemKind.Variable,
 
                 _ => CompletionItemKind.Text

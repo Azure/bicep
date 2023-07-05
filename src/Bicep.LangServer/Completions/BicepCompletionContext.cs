@@ -393,6 +393,18 @@ namespace Bicep.LanguageServer.Completions
                 // we are in a token that is inside a StringSyntax node, which is inside a module declaration
                 return BicepCompletionContextKind.ModulePath;
             }
+            
+            if (SyntaxMatcher.IsTailMatch<TestDeclarationSyntax>(matchingNodes, test => CheckTypeIsExpected(test.Name, test.Path)) ||
+                SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
+                SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (test, skipped, _) => test.Path == skipped))
+            {
+                // the most specific matching node is a test declaration
+                // the declaration syntax is "test <identifier> '<path>' ..."
+                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position
+                // OR
+                // we are in a token that is inside a StringSyntax node, which is inside a module declaration
+                return BicepCompletionContextKind.TestPath;
+            }
 
             return BicepCompletionContextKind.None;
         }
