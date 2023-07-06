@@ -547,7 +547,6 @@ namespace Bicep.Core.TypeSystem
                 var memberTypes = syntax.Members.Select(memberSyntax => (GetTypeInfo(memberSyntax), memberSyntax))
                     .SelectMany(t => FlattenUnionMemberType(t.Item1, t.memberSyntax)).ToImmutableArray();
 
-                // TODO(k.a): this gets the non literal type flattened, so in the case of an object only union, it goes to TypeSymbol ts case where ts is the object union
                 var nonLiteralUnion = TypeHelper.CreateTypeUnion(memberTypes.Select(t => GetNonLiteralType(t.memberType)).WhereNotNull());
                 switch (nonLiteralUnion)
                 {

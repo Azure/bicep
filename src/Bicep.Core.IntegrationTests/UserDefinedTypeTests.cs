@@ -761,10 +761,25 @@ type typeB = {
         var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
         unionToken.Should().NotBeNull();
 
-        var unionDiscrimToken = unionToken!.SelectToken(".discriminator");
-        unionDiscrimToken.Should().NotBeNull();
+        var expectedTypeUnionToken = JToken.Parse("""
+{
+  "discriminator": {
+    "propertyName": "type",
+    "mappings": {
+      "a": {
 
-        unionDiscrimToken!.SelectToken(".propertyName").Should().NotBeNull();
-        unionDiscrimToken!.SelectToken(".propertyName").As<JValue>().ToString().Should().Be("type");
+      },
+      "b": {
+
+      },
+      "c": {
+
+      }
+    }
+  }
+}
+""");
+
+        unionToken.Should().DeepEqual(expectedTypeUnionToken);
     }
 }
