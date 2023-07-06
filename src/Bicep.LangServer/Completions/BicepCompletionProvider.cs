@@ -88,6 +88,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
+                .Concat(GetAssertValueCompletions(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
@@ -858,6 +859,16 @@ namespace Bicep.LanguageServer.Completions
                     snippet.CompletionPriority,
                     preselect: true);
             }
+        }
+
+        private IEnumerable<CompletionItem> GetAssertValueCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.AssertValue) || context.EnclosingDeclaration is not AssertDeclarationSyntax assert)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            return GetValueCompletionsForType(model, context, LanguageConstants.Bool, loopsAllowed: false);
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
