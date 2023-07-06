@@ -9,19 +9,16 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class UnionTypeSyntax : TypeSyntax, IDecorableSyntax
+public class UnionTypeSyntax : TypeSyntax
 {
-    public UnionTypeSyntax(IEnumerable<SyntaxBase> children, IEnumerable<SyntaxBase> leadingNodes)
+    public UnionTypeSyntax(IEnumerable<SyntaxBase> children)
     {
-        LeadingNodes = leadingNodes.ToImmutableArray();
         Children = children.ToImmutableArray();
         if (!Members.Any())
         {
             throw new ArgumentException("Union types must contain at least one member");
         }
     }
-
-    public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
     public ImmutableArray<SyntaxBase> Children { get; }
 
@@ -30,6 +27,4 @@ public class UnionTypeSyntax : TypeSyntax, IDecorableSyntax
     public override TextSpan Span => TextSpan.Between(Children.First(), Children.Last());
 
     public IEnumerable<UnionTypeMemberSyntax> Members => Children.OfType<UnionTypeMemberSyntax>();
-
-    public IEnumerable<DecoratorSyntax> Decorators => LeadingNodes.OfType<DecoratorSyntax>();
 }

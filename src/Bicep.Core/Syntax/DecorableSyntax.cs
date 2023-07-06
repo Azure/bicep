@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax;
 
-public abstract class DecorableSyntax : SyntaxBase, IDecorableSyntax
+public abstract class DecorableSyntax : SyntaxBase
 {
     protected DecorableSyntax(IEnumerable<SyntaxBase> leadingNodes)
     {

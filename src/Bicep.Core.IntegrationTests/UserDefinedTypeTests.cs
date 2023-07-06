@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -744,17 +745,26 @@ type typeA = {
   value: string
 }
 
+@discriminator('type')
+type typeUnion = typeA | typeB | { type: 'c', value: bool }
+
 type typeB = {
   type: 'b'
   value: int
 }
-
-@discriminator('type')
-type typeUnion = typeA | typeB | { type: 'c', value: bool }
 """);
 
         result.ExcludingLinterDiagnostics()
             .Should()
             .NotHaveAnyDiagnostics();
+
+        var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
+        unionToken.Should().NotBeNull();
+
+        var unionDiscrimToken = unionToken!.SelectToken(".discriminator");
+        unionDiscrimToken.Should().NotBeNull();
+
+        unionDiscrimToken!.SelectToken(".propertyName").Should().NotBeNull();
+        unionDiscrimToken!.SelectToken(".propertyName").As<JValue>().ToString().Should().Be("type");
     }
 }

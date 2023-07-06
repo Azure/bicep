@@ -268,7 +268,7 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
             => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
-        private ITypeReference ApplyTypeModifyingDecorators(ITypeReference declaredType, IDecorableSyntax syntax, bool allowLooseAssignment = false) => declaredType switch
+        private ITypeReference ApplyTypeModifyingDecorators(ITypeReference declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false) => declaredType switch
         {
             DeferredTypeReference => new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment)),
             _ => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment),
@@ -276,7 +276,7 @@ namespace Bicep.Core.TypeSystem
 
         // decorator diagnostics are raised by the TypeAssignmentVisitor, so we're only concerned in this method
         // with the happy path or any errors that produce an invalid type
-        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, IDecorableSyntax syntax, bool allowLooseAssignment = false)
+        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false)
         {
             var validationFlags = declaredType switch
             {
@@ -307,7 +307,7 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
-        private TypeSymbol GetModifiedInteger(IntegerType declaredInteger, IDecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        private TypeSymbol GetModifiedInteger(IntegerType declaredInteger, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
         {
             var minValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName);
             var minValue = GetSingleIntDecoratorArgument(minValueDecorator) ?? declaredInteger.MinValue;
@@ -344,7 +344,7 @@ namespace Bicep.Core.TypeSystem
                 ? integerLiteral.Value
                 : null;
 
-        private TypeSymbol GetModifiedArray(ArrayType declaredArray, IDecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        private TypeSymbol GetModifiedArray(ArrayType declaredArray, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
         {
             if (!GetLengthModifiers(syntax, declaredArray.MinLength, declaredArray.MaxLength, out var minLength, out var maxLength, out var errorType))
             {
@@ -354,7 +354,7 @@ namespace Bicep.Core.TypeSystem
             return TypeFactory.CreateArrayType(declaredArray.Item, minLength, maxLength, validationFlags);
         }
 
-        private TypeSymbol GetModifiedString(StringType declaredString, IDecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        private TypeSymbol GetModifiedString(StringType declaredString, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
         {
             if (!GetLengthModifiers(syntax, declaredString.MinLength, declaredString.MaxLength, out var minLength, out var maxLength, out var errorType))
             {
@@ -364,7 +364,7 @@ namespace Bicep.Core.TypeSystem
             return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
         }
 
-        private bool GetLengthModifiers(IDecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
+        private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
         {
             var minLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinLengthPropertyName);
             minLength = GetSingleIntDecoratorArgument(minLengthDecorator) ?? defaultMinLength;
@@ -399,7 +399,7 @@ namespace Bicep.Core.TypeSystem
             return true;
         }
 
-        private TypeSymbol GetModifiedObject(ObjectType declaredObject, IDecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        private TypeSymbol GetModifiedObject(ObjectType declaredObject, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
         {
             if (TryGetSystemDecorator(syntax, LanguageConstants.ParameterSealedPropertyName) is DecoratorSyntax sealedDecorator)
             {
@@ -416,7 +416,7 @@ namespace Bicep.Core.TypeSystem
             return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
         }
 
-        private TypeSymbol GetModifiedUnion(UnionType unionType, IDecorableSyntax syntax)
+        private TypeSymbol GetModifiedUnion(UnionType unionType, DecorableSyntax syntax)
         {
             if (TryGetSystemDecorator(syntax, LanguageConstants.TypeDiscriminatorDecoratorName) is not DecoratorSyntax discriminatorDecorator)
             {
@@ -633,10 +633,10 @@ namespace Bicep.Core.TypeSystem
             return propertyType.Type.Name;
         }
 
-        private bool HasSecureDecorator(IDecorableSyntax syntax)
+        private bool HasSecureDecorator(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
 
-        private DecoratorSyntax? TryGetSystemDecorator(IDecorableSyntax syntax, string decoratorName)
+        private DecoratorSyntax? TryGetSystemDecorator(DecorableSyntax syntax, string decoratorName)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, decoratorName);
 
         private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)

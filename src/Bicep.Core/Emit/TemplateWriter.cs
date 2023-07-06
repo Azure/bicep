@@ -9,10 +9,8 @@ using System.IO;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -288,14 +286,17 @@ namespace Bicep.Core.Emit
         {
             jsonWriter.WriteStartObject();
 
-            EmitProperties(emitter, AddDecoratorsToBody(declaredTypeSymbol.DeclaringType,
-                TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value),
-                declaredTypeSymbol.Type));
+            EmitProperties(
+                emitter,
+                AddDecoratorsToBody(
+                    declaredTypeSymbol.DeclaringType,
+                    TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value, declaredTypeSymbol.UnwrapType()),
+                    declaredTypeSymbol.Type));
 
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectExpression TypePropertiesForTypeExpression(SyntaxBase typeExpressionSyntax) => typeExpressionSyntax switch
+        private ObjectExpression TypePropertiesForTypeExpression(SyntaxBase typeExpressionSyntax, TypeSymbol? declaredType = null) => typeExpressionSyntax switch
         {
             VariableAccessSyntax variableAccess => TypePropertiesForUnqualifedReference(variableAccess),
             PropertyAccessSyntax propertyAccess => TypePropertiesForQualifiedReference(propertyAccess),
@@ -307,8 +308,8 @@ namespace Bicep.Core.Emit
             IntegerLiteralSyntax integerLiteral => GetTypePropertiesForIntegerLiteralSyntax(integerLiteral),
             BooleanLiteralSyntax booleanLiteral => GetTypePropertiesForBooleanLiteralSyntax(booleanLiteral),
             UnaryOperationSyntax unaryOperation => GetTypePropertiesForUnaryOperationSyntax(unaryOperation),
-            UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType),
-            ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression),
+            UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType, declaredType),
+            ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression, declaredType),
             NullableTypeSyntax nullableType => GetTypePropertiesForNullableTypeSyntax(nullableType),
             NonNullAssertionSyntax nonNullableType => GetTypePropertiesForNonNullableTypeSyntax(nonNullableType),
             // this should have been caught by the parser
@@ -408,6 +409,18 @@ namespace Bicep.Core.Emit
         private ArrayExpression GetAllowedValuesForUnionType(UnionType unionType)
             => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue));
 
+        private ObjectExpression GetUnionDiscriminatorExpression(UnionType unionType)
+        {
+            var objectProperties = new List<ObjectPropertyExpression>();
+
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(unionType.DiscriminatorPropertyName!)));
+
+            // TODO(k.a): generate the mapping object, this will need to recurse somewhere.
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(Enumerable.Empty<ObjectPropertyExpression>())));
+
+            return ExpressionFactory.CreateObject(properties: objectProperties);
+        }
+
         private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax)
         {
             var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType) };
@@ -487,7 +500,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private ObjectExpression GetTypePropertiesForUnionTypeSyntax(UnionTypeSyntax syntax)
+        private ObjectExpression GetTypePropertiesForUnionTypeSyntax(UnionTypeSyntax syntax, TypeSymbol? typeDeclarationType)
         {
             // Union types permit symbolic references, unary operations, and literals, so long as the whole expression embodied in the UnionTypeSyntax can be
             // reduced to a flat union of literal types. If this didn't happen during type checking, the syntax will resolve to an ErrorType instead of a UnionType
@@ -506,8 +519,16 @@ namespace Bicep.Core.Emit
             var properties = new List<ObjectPropertyExpression>
             {
                 TypeProperty(nonLiteralTypeName),
-                ExpressionFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)),
             };
+
+            if (typeDeclarationType is UnionType typeDeclarationUnionType && !string.IsNullOrEmpty(typeDeclarationUnionType.DiscriminatorPropertyName))
+            {
+                properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetUnionDiscriminatorExpression(typeDeclarationUnionType)));
+            }
+            else
+            {
+                properties.Add(ExpressionFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)));
+            }
 
             if (nullable)
             {

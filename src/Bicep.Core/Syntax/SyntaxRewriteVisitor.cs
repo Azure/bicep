@@ -481,7 +481,7 @@ namespace Bicep.Core.Syntax
         {
             if (TryRewrite(syntax.Children, out var children))
             {
-                return new UnionTypeSyntax(children, syntax.LeadingNodes);
+                return new UnionTypeSyntax(children);
             }
 
             return syntax;

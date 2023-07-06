@@ -1326,7 +1326,7 @@ namespace Bicep.Core.Parsing
                     }
                 }
 
-                return new UnionTypeSyntax(elementAndSeparators, DecorableSyntaxLeadingNodes());
+                return new UnionTypeSyntax(elementAndSeparators);
             }
 
             return candidate;
