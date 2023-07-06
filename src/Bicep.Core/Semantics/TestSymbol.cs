@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
                 return false;
             }
 
-            // SourceFileGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
+            // SourceFileGroupingBuilder should have already visited every test declaration and either recorded a failure or mapped it to a syntax tree.
             // So it is safe to assume that this lookup will succeed without throwing an exception.
             var sourceFile = Context.Compilation.SourceFileGrouping.TryGetSourceFile(this.DeclaringTest) ?? throw new InvalidOperationException($"Failed to find source file for Test");
 
@@ -59,7 +59,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public bool IsCollection => this.Type is ArrayType;
+        // public bool IsCollection => this.Type is ArrayType;
 
         // public TestType? TryGetModuleType() => TestType.TryUnwrap(this.Type);
 
