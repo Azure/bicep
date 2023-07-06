@@ -129,6 +129,18 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            base.VisitTestDeclarationSyntax(syntax);
+            // TypeSymbol declaredType;
+            // declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
+    
+            var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+
+            
+        }
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             base.VisitOutputDeclarationSyntax(syntax);

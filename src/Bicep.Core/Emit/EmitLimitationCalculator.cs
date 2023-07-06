@@ -49,6 +49,7 @@ namespace Bicep.Core.Emit
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
             BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
+            BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
@@ -529,6 +530,17 @@ namespace Bicep.Core.Emit
                 if (!model.Features.UserDefinedFunctionsEnabled)
                 {
                     diagnostics.Write(function.DeclaringFunction, x => x.FuncDeclarationStatementsUnsupported());
+                }
+            }
+        }
+
+        private static void BlockTestFrameworkWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var test in model.Root.TestDeclarations)
+            {
+                if (!model.Features.TestFrameworkEnabled)
+                {
+                    diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
                 }
             }
         }

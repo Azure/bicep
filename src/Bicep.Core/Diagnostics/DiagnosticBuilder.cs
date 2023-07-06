@@ -1949,6 +1949,10 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP0348",
                 "Expected a Test Path String at this location.");
+            public ErrorDiagnostic TestDeclarationStatementsUnsupported() => new(
+                TextSpan,
+                "BCP349",
+                $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
