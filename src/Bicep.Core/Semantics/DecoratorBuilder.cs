@@ -14,8 +14,6 @@ namespace Bicep.Core.Semantics
 
         private DecoratorValidator? validator;
 
-        private DecoratorTypeEvaluator? typeEvaluator;
-
         private DecoratorEvaluator? evaluator;
 
         public DecoratorBuilder(string name)
@@ -79,13 +77,6 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public DecoratorBuilder WithTypeEvaluator(DecoratorTypeEvaluator evaluator)
-        {
-            this.typeEvaluator = evaluator;
-
-            return this;
-        }
-
         public DecoratorBuilder WithEvaluator(DecoratorEvaluator evaluator)
         {
             this.evaluator = evaluator;
@@ -93,6 +84,6 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public Decorator Build() => new Decorator(this.functionOverloadBuilder.Build(), this.attachableType, this.validator, this.evaluator, this.typeEvaluator);
+        public Decorator Build() => new Decorator(this.functionOverloadBuilder.Build(), this.attachableType, this.validator, this.evaluator);
     }
 }

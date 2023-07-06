@@ -1577,7 +1577,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
                     .WithFlags(FunctionFlags.TypeDecorator)
                     .WithValidator(ValidateTypeDiscriminator)
-                    .WithTypeEvaluator(EvaluateTypeDiscriminator)
                     .Build();
             }
         }
@@ -1589,13 +1588,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 // TODO(k.a): diagnostic for not using on a union type
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
             }
-        }
-
-        private static TypeSymbol EvaluateTypeDiscriminator(FunctionCallExpression functionCall, TypeSymbol targetType)
-        {
-            var unionType = targetType as UnionType;
-            var discriminatorPropertyExpr = functionCall.Parameters.First() as StringLiteralExpression;
-            return UnionType.GetModifiedUnionType(unionType!, discriminatorPropertyExpr!.Value);
         }
 
         private static SyntaxBase? GetDeclaredTypeSyntaxOfParent(DecoratorSyntax syntax, IBinder binder) => binder.GetParent(syntax) switch
