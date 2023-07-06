@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,16 +9,19 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class UnionTypeSyntax : TypeSyntax
+public class UnionTypeSyntax : TypeSyntax, IDecorableSyntax
 {
-    public UnionTypeSyntax(IEnumerable<SyntaxBase> children)
+    public UnionTypeSyntax(IEnumerable<SyntaxBase> children, IEnumerable<SyntaxBase> leadingNodes)
     {
+        LeadingNodes = leadingNodes.ToImmutableArray();
         Children = children.ToImmutableArray();
         if (!Members.Any())
         {
             throw new ArgumentException("Union types must contain at least one member");
         }
     }
+
+    public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
     public ImmutableArray<SyntaxBase> Children { get; }
 
@@ -26,4 +30,6 @@ public class UnionTypeSyntax : TypeSyntax
     public override TextSpan Span => TextSpan.Between(Children.First(), Children.Last());
 
     public IEnumerable<UnionTypeMemberSyntax> Members => Children.OfType<UnionTypeMemberSyntax>();
+
+    public IEnumerable<DecoratorSyntax> Decorators => LeadingNodes.OfType<DecoratorSyntax>();
 }

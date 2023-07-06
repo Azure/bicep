@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -481,7 +481,7 @@ namespace Bicep.Core.Syntax
         {
             if (TryRewrite(syntax.Children, out var children))
             {
-                return new UnionTypeSyntax(children);
+                return new UnionTypeSyntax(children, syntax.LeadingNodes);
             }
 
             return syntax;
