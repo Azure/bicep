@@ -763,6 +763,7 @@ type typeB = {
 
         var expectedTypeUnionToken = JToken.Parse("""
 {
+  "type": "object",
   "discriminator": {
     "propertyName": "type",
     "mappings": {

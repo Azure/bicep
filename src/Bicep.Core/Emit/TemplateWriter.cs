@@ -413,10 +413,26 @@ namespace Bicep.Core.Emit
         {
             var objectProperties = new List<ObjectPropertyExpression>();
 
-            objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(unionType.DiscriminatorPropertyName!)));
+            var discriminatorPropertyName = unionType.DiscriminatorPropertyName!;
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(discriminatorPropertyName)));
 
             // TODO(k.a): generate the mapping object, this will need to recurse somewhere.
-            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(Enumerable.Empty<ObjectPropertyExpression>())));
+            var mappingPropertyExpressions = new List<ObjectPropertyExpression>();
+
+            foreach (var unionMember in unionType.Members.Select(m => m.Type))
+            {
+                if (unionMember is not ObjectType memberObjectType
+                    || !memberObjectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
+                    || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
+                {
+                    // This should have been caught during type checking
+                    throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                }
+
+                mappingPropertyExpressions.Add(ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, ExpressionFactory.CreateObject(Enumerable.Empty<ObjectPropertyExpression>())));
+            }
+
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mappings", ExpressionFactory.CreateObject(mappingPropertyExpressions)));
 
             return ExpressionFactory.CreateObject(properties: objectProperties);
         }
