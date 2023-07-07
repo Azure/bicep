@@ -182,12 +182,18 @@ namespace Bicep.Core.Registry
             }
 
             ProcessConfig(manifest.Config);
-            if (manifest.Layers.Length != 1)
+
+            // First layer must be our bicep artifact layer.  Ignore any other layers to allow for future expansion
+            //   (but note that v0.18 and earlier  throw if they find multiple layers, so it will be a breaking change
+            //   with those Bicep versions if we add additional layers).  In the meantime, additional data needs to be attached
+            //   in a new artifact.
+            if (manifest.Layers.Length < 1)
             {
-                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
+                throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
             }
 
-            var layer = manifest.Layers.Single();
+            // Ignore other layers for now
+            var layer = manifest.Layers.First(); 
 
             return await ProcessLayer(client, layer);
         }
@@ -241,10 +247,8 @@ namespace Bicep.Core.Registry
                 throw new InvalidModuleException($"Did not expect config media type \"{config.MediaType}\".");
             }
 
-            if (config.Size != 0)
-            {
-                throw new InvalidModuleException("Expected an empty config blob.");
-            }
+            // Ignore config contents in order to allow for future expansion.
+            // (NOTE: Bicep v0.18 and earlier throws if it finds non-empty config contents)
         }
 
         private static OciManifest DeserializeManifest(Stream stream)

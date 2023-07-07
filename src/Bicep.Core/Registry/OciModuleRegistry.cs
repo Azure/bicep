@@ -224,7 +224,12 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
         {
+            // Write out an empty config
+            // NOTE: Bicep v0.18 and earlier will throw if it finds a non-empty config
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
+
+            // Write out a single layer with the compiled JSON
+            // NOTE: Bicep v0.18 and earlier will throw if it finds more than one layer
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
