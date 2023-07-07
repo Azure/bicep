@@ -417,7 +417,7 @@ namespace Bicep.Core.Emit
             var discriminatorPropertyName = unionType.DiscriminatorPropertyName!;
             objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(discriminatorPropertyName)));
 
-            // TODO(k.a): generate the mapping object, this will need to recurse somewhere.
+            // TODO(k.a): check more complex cases here
             var mappingPropertyExpressions = new List<ObjectPropertyExpression>();
 
             foreach (var unionMemberSyntax in syntax.Members)
