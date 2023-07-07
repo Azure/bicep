@@ -514,7 +514,7 @@
                       "description": "Use recent API versions. See https://aka.ms/bicep/linter/use-recent-api-versions",
                       "type": "object",
                       "properties": {
-                        "maxAllowedAgeInDays": {
+                        "maxAgeInDays": {
                           "description": "Maximum age in days before an API version is considered old (default is 730 days = 2 years)",
                           "type": "integer",
                           "default": 730,
@@ -601,6 +601,9 @@
         },
         "prettyPrinting": {
           "type": "boolean"
+        },
+        "testFramework": {
+          "type": "boolean"
         }
       }
     },
@@ -623,7 +626,7 @@
           "description": "The indentation size (applicable when \"indentKind\" is set to \"Space\")"
         },
         "width": {
-          "type": "string",
+          "type": "integer",
           "description": "The maximum number of characters that should appear on a line"
         },
         "insertFinalNewline": {

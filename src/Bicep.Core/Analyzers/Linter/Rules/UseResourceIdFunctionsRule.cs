@@ -52,7 +52,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         // Some of the names are unique enough (and for backwards compat with the ARM TTK) that we won't worry about matching against
         //   an exact resource type, plus some of them occur in multiple resource types.
 
-        // Both resource type and property name are case-insensitive
+        // Resource type is a regex pattern (case-insensitive), property name is an exact match (case-insensitive)
         private static readonly Exclusion[] allowedResourcesAndProperties = new[] {
             new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
                 new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
@@ -84,6 +84,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 new Exclusion(null, "sid"),                         // Example: Microsoft.Sql/servers/administrators/activeDirectory
                 new Exclusion(null, "StartingDeviceID"),            // Example: SQLIaasVMExtension > settings/ServerConfigurationsManagementSettings/SQLStorageUpdateSettings
                 new Exclusion(null, "subscriptionId"),              // Example: Microsoft.Cdn/profiles urlSigningKeys
+                new Exclusion(null, "storageAccountSubscriptionId"),// Example: Microsoft.Sql/servers/auditingSettings
                 new Exclusion(null, "SyntheticMonitorId"),          // Example: Microsoft.Insights/webtests
                 new Exclusion(null, "tags"),                        // Multiple resources
                 new Exclusion(null, "targetProtectionContainerId"), // Example: Microsoft.RecoveryServices/vaults/replicationFabrics/replicationProtectionContainers/replicationProtectionContainerMappings (yes really)

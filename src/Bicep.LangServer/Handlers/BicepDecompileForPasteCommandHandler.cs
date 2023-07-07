@@ -49,7 +49,7 @@ namespace Bicep.LanguageServer.Handlers
 
     public record BicepDecompileForPasteCommandResult
     (
-        string DecompileId, // Used to synchronize telemetry events
+        string DecompileId, // Used to synchronize `ry events
         string Output,
         string? PasteContext,
         string? PasteType,

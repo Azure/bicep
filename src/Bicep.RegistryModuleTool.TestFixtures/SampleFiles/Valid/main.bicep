@@ -1,32 +1,31 @@
 metadata name = 'Sample module'
-metadata description = 'Sample summary'
+metadata description = 'Sample description'
 metadata owner = 'test'
 
-// TODO: Remove "sys." everywhere once bicep v0.18 ships
-@sys.description('The dns prefix')
+@description('The dns prefix')
 param dnsPrefix string
 
-@sys.description('The linux administrator username')
+@description('The linux administrator username')
 param linuxAdminUsername string
 
-@sys.description('The RSA public key for SSH')
+@description('The RSA public key for SSH')
 param sshRSAPublicKey string
 
-@sys.description('The service principal client ID')
+@description('The service principal client ID')
 param servicePrincipalClientId string
 
-@sys.description('The service principal client secret')
+@description('The service principal client secret')
 @secure()
 param servicePrincipalClientSecret string
 
 // optional params
-@sys.description('The cluster name')
+@description('The cluster name')
 param clusterName string = 'aks101cluster'
 
-@sys.description('The deployment location')
+@description('The deployment location')
 param location string = resourceGroup().location
 
-@sys.description('''
+@description('''
 The OS disk size (in GB)
 - Minimum value is 0
 - Maximum value is 1023
@@ -35,13 +34,13 @@ The OS disk size (in GB)
 @maxValue(1023)
 param osDiskSizeGB int
 
-@sys.description('The agent count')
+@description('The agent count')
 @minValue(1)
 @maxValue(50)
 // TODO: Causes error during build
 param agentCount int = 0
 
-@sys.description('The agent VM size')
+@description('The agent VM size')
 param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
@@ -77,5 +76,5 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
   }
 }
 
-@sys.description('The control plane FQDN')
+@description('The control plane FQDN')
 output controlPlaneFQDN string = aks.properties.fqdn
