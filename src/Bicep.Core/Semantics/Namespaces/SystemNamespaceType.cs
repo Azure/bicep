@@ -1583,18 +1583,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {
-            if (targetType is not UnionType unionType)
+            if (targetType is not UnionType unionType || !unionType.Members.All(m => m is ObjectType))
             {
-                // TODO(k.a): diagnostic for not using on a union type
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
-
-                return;
-            }
-
-            if (!unionType.Members.All(m => m is ObjectType))
-            {
-                // TODO(k.a): diagnostic for not using on a object-only union type
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
 
                 return;
             }
@@ -1605,32 +1596,30 @@ namespace Bicep.Core.Semantics.Namespaces
             foreach (var memberType in unionType.Members)
             {
                 var objectType = memberType as ObjectType;
-
                 if (!objectType!.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
                 {
-                    // TODO(k.a): write diagnostic for missing property
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName, objectType.Name));
 
-                    return;
+                    continue;
                 }
 
                 if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
                 {
                     // TODO(k.a): write diagnostic for invalid discriminator property type
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName, objectType.Name));
 
-                    return;
+                    continue;
                 }
 
                 var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
                 var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
 
-                if (discriminatorMemberValues!.Contains(discriminatorMemberValue))
+                if (discriminatorMemberValues.Contains(discriminatorMemberValue))
                 {
                     // TODO(k.a): write diagnostic for overlapping discriminator literal value
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, discriminatorMemberValue, "t1", "t2"));
 
-                    return;
+                    continue;
                 }
 
                 discriminatorMemberValues.Add(discriminatorMemberValue);

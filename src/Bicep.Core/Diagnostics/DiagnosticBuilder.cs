@@ -1920,9 +1920,9 @@ namespace Bicep.Core.Diagnostics
                     "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-                
+
             public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
-                TextSpan, 
+                TextSpan,
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
@@ -1930,6 +1930,22 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
+
+            public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
+                TextSpan,
+                "BCP344",
+                $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types.");
+
+            public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName, string offendingType) => new(
+                TextSpan,
+                "BCP345",
+                $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types. Type \"{offendingType}\" does not meet this criteria.");
+
+            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue, string offendingType1, string offendingType2) => new(
+                TextSpan,
+                "BCP346",
+                $"The property \"{discriminatorPropertyName}\" must have a unique value across all union member types. Type \"{offendingType1}\" and \"{offendingType2}\" both have value \"{discriminatorPropertyValue}\".");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
