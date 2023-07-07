@@ -30,6 +30,7 @@ namespace Bicep.Core.Emit
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         public const string TemplateHashPropertyName = "templateHash";
+        private const string TypePropertyName = "type";
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2022-09-01";
@@ -336,7 +337,7 @@ namespace Bicep.Core.Emit
         }
 
         private ObjectPropertyExpression TypeProperty(string typeName)
-            => ExpressionFactory.CreateObjectProperty("type", new StringLiteralExpression(null, typeName));
+            => ExpressionFactory.CreateObjectProperty(TypePropertyName, new StringLiteralExpression(null, typeName));
 
         private ObjectExpression GetTypePropertiesForResourceType(ResourceTypeSyntax syntax)
         {
@@ -409,7 +410,7 @@ namespace Bicep.Core.Emit
         private ArrayExpression GetAllowedValuesForUnionType(UnionType unionType)
             => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue));
 
-        private ObjectExpression GetUnionDiscriminatorExpression(UnionType unionType)
+        private ObjectExpression GetUnionDiscriminatorExpression(UnionTypeSyntax syntax, UnionType unionType)
         {
             var objectProperties = new List<ObjectPropertyExpression>();
 
@@ -419,9 +420,12 @@ namespace Bicep.Core.Emit
             // TODO(k.a): generate the mapping object, this will need to recurse somewhere.
             var mappingPropertyExpressions = new List<ObjectPropertyExpression>();
 
-            foreach (var unionMember in unionType.Members.Select(m => m.Type))
+            foreach (var unionMemberSyntax in syntax.Members)
             {
-                if (unionMember is not ObjectType memberObjectType
+                var memberSyntax = unionMemberSyntax.Value;
+                var memberType = Context.SemanticModel.GetDeclaredType(unionMemberSyntax);
+
+                if (memberType is not ObjectType memberObjectType
                     || !memberObjectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
                     || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
                 {
@@ -429,15 +433,36 @@ namespace Bicep.Core.Emit
                     throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
                 }
 
-                mappingPropertyExpressions.Add(ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, ExpressionFactory.CreateObject(Enumerable.Empty<ObjectPropertyExpression>())));
+                ObjectTypeSyntax? objectTypeSyntaxBase;
+                if (memberSyntax is VariableAccessSyntax)
+                {
+                    var memberSymbolInfo = Context.SemanticModel.Binder.GetSymbolInfo(memberSyntax) as TypeAliasSymbol;
+                    var memberDeclaringSyntax = memberSymbolInfo!.DeclaringType;
+                    objectTypeSyntaxBase = memberDeclaringSyntax.Value as ObjectTypeSyntax;
+                }
+                else
+                {
+                    objectTypeSyntaxBase = memberSyntax as ObjectTypeSyntax;
+                }
+
+                if (objectTypeSyntaxBase == null)
+                {
+                    // This should have been caught during type checking
+                    throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                }
+
+                var objectExpression = GetTypePropertiesForObjectType(objectTypeSyntaxBase, new HashSet<string> { discriminatorPropertyName });
+                objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
+
+                mappingPropertyExpressions.Add(ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression));
             }
 
-            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mappings", ExpressionFactory.CreateObject(mappingPropertyExpressions)));
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(mappingPropertyExpressions)));
 
             return ExpressionFactory.CreateObject(properties: objectProperties);
         }
 
-        private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax)
+        private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax, HashSet<string>? excludedObjectProperties = null)
         {
             var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType) };
             List<ObjectPropertyExpression> propertySchemata = new();
@@ -448,6 +473,11 @@ namespace Bicep.Core.Emit
                 {
                     // This should have been caught during type checking
                     throw new ArgumentException("Invalid object type key encountered during serialization.");
+                }
+
+                if (excludedObjectProperties?.Contains(keyText) ?? false)
+                {
+                    continue;
                 }
 
                 var propertySchema = TypePropertiesForTypeExpression(property.Value);
@@ -539,7 +569,7 @@ namespace Bicep.Core.Emit
 
             if (typeDeclarationType is UnionType typeDeclarationUnionType && !string.IsNullOrEmpty(typeDeclarationUnionType.DiscriminatorPropertyName))
             {
-                properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetUnionDiscriminatorExpression(typeDeclarationUnionType)));
+                properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetUnionDiscriminatorExpression(syntax, typeDeclarationUnionType)));
             }
             else
             {

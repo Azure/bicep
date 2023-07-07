@@ -766,15 +766,27 @@ type typeB = {
   "type": "object",
   "discriminator": {
     "propertyName": "type",
-    "mappings": {
+    "mapping": {
       "a": {
-
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
       },
       "b": {
-
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
       },
       "c": {
-
+        "properties": {
+          "value": {
+            "type": "bool"
+          }
+        }
       }
     }
   }
