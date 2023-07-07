@@ -198,6 +198,80 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
+        /// <summary>
+        /// Validates that we can restore a module published by an older version of Bicep that did not set artifactType in the OCI manifest.
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task Restore_ArtifactWithMultipleLayers_ShouldIgnoreAdditionalLayers()
+        {
+            var registry = "example.com";
+            var registryUri = new Uri("https://" + registry);
+            var repository = "hello/there";
+            var dataSet = DataSets.Empty;
+
+            var client = new MockRegistryBlobClient();
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+
+            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+
+            using (var compiledStream = new BufferedMemoryStream())
+            {
+                OciArtifactModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var moduleReference, out _).Should().BeTrue();
+
+                compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
+                compiledStream.Position = 0;
+
+                await containerRegistryManager.PushArtifactAsync(
+                    configuration: configuration,
+                    moduleReference: moduleReference!,
+                    // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
+                    artifactType: null,
+                    config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
+                    layers: new[] {
+                        new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json),
+                        new StreamDescriptor(compiledStream, "application/vnd.ms.bicep.module.layer.v2+json") // this extra layer should get ignored
+                    });
+            }
+
+            /*
+             * TODO: Publish via code
+             */
+
+            client.Blobs.Should().HaveCount(2);
+            client.Manifests.Should().HaveCount(1);
+            client.ManifestTags.Should().HaveCount(1);
+
+            string digest = client.Manifests.Single().Key;
+
+            var bicep = $@"
+module empty 'br:{registry}/{repository}@{digest}' = {{
+  name: 'empty'
+}}
+";
+
+            var restoreBicepFilePath = Path.Combine(tempDirectory, "restored.bicep");
+            File.WriteAllText(restoreBicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep(settings, "restore", restoreBicepFilePath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+        }
+
         [TestMethod]
         public async Task Restore_With_Force_Should_Overwrite_Existing_Cache()
         {

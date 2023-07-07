@@ -143,17 +143,15 @@ namespace Bicep.Core.Registry
                 throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
             }
 
-            if (config.Size > 2)
+            // Ignore the config contents for now, we're not currently doing anything with it but might in the future, but should remain backwards compatible
+
+            if (manifest.Layers.Length < 1)
             {
-                throw new InvalidModuleException("Expected an empty config blob.");
+                throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
             }
 
-            if (manifest.Layers.Length != 1)
-            {
-                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
-            }
-
-            var layer = manifest.Layers.Single();
+            // Ignore all but the first layer for now. Might add more layers later but should remain backwards compatible
+            var layer = manifest.Layers.First();
             if (!allowedLayerMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
             {
                 throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
@@ -298,7 +296,12 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
         {
+            // Write out an empty config asdfg
+            // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
+
+            // Write out a single layer with the compiled JSON
+            // NOTE: Bicep v0.20 and earlier will throw if it finds more than one layer
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
@@ -320,7 +323,7 @@ namespace Bicep.Core.Registry
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
 
-        protected override void WriteArtifactContent(OciModuleReference reference, OciArtifactResult result)
+        protected override void WriteArtifactContentToCache(OciModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
