@@ -128,6 +128,143 @@ type typeUnion = typeA | { type: 'b', value: int }
         }
 
         [TestMethod]
+        public void ObjectTypeUnions_Combination()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  config: string
+}
+
+type typeC = {
+  type: 'c'
+  config: string
+}
+
+type typeD = {
+  type: 'd'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion1 = typeA | typeB
+@discriminator('type')
+type typeUnion2 = typeC | typeUnion1 | typeD
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion2");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "b": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
+        // TODO(k.a): is this an error/restricted?
+        [TestMethod]
+        public void ObjectTypeUnions_Nested()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  config: string
+}
+@discriminator('type')
+type typeUnion1 = typeA | typeB
+
+type typeC = {
+  type: 'c'
+  config: typeUnion1
+}
+
+type typeD = {
+  type: 'd'
+  value: typeUnion1
+}
+
+@discriminator('type')
+type typeUnion2 = typeC | typeD
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion2");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "b": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
+        [TestMethod]
         public void ObjectTypeUnions_Error_NonLiteralObjectTypes_NoDiscriminatorDecorator()
         {
             var result = CompilationHelper.Compile(
