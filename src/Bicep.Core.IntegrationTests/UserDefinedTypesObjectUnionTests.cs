@@ -1,0 +1,267 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
+
+namespace Bicep.Core.IntegrationTests
+{
+    [TestClass]
+    public class UserDefinedTypesObjectUnionTests
+    {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
+        private ServiceBuilder ServicesWithUserDefinedTypes => new ServiceBuilder()
+            .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
+
+        [TestMethod]
+        public void ObjectTypeUnions_Basic()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "b": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_MixedTypedAliasAndLiteral()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+@discriminator('type')
+type typeUnion = typeA | { type: 'b', value: int }
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "b": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_Error_NonLiteralObjectTypes_NoDiscriminatorDecorator()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+type typeUnion = typeA | typeB
+""");
+
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_Error_Discriminator_MissingOnMember()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  value: int
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB
+""");
+
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_Error_Discriminator_NonStringLiteral()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 0
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB
+""");
+
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_Error_Discriminator_OptionalProperty()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'?
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB
+""");
+
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_Error_Discriminator_DuplicatedAcrossMembers()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'a'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB
+""");
+
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+        }
+
+        [TestMethod]
+        public void ObjectTypeUnions_Error_DiscriminatorAppliedToMixedArray()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion = (typeA | typeB)[]
+""");
+
+            // TODO(k.a): right diagnostic
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "msg");
+        }
+    }
+}
