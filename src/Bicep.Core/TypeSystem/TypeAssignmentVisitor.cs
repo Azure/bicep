@@ -611,54 +611,23 @@ namespace Bicep.Core.TypeSystem
         private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, TypeSymbol? typeDeclarationDeclaredType, IDiagnosticWriter diagnostics)
         {
             var isObjectUnion = keystoneType is ObjectType;
-            string? discriminatorPropertyName = null;
-            HashSet<string>? discriminatorMemberValues = null;
+            // NOTE(kylealbert): Discriminated object unions are validated by the decorator validator
+            var isDiscriminatedObjectUnion = false;
 
-            if (isObjectUnion && typeDeclarationDeclaredType is UnionType declaredUnionType)
+            if (isObjectUnion && (typeDeclarationDeclaredType is TypeType typeType ? typeType.Unwrapped : typeDeclarationDeclaredType) is UnionType unionType)
             {
-                discriminatorPropertyName = declaredUnionType.DiscriminatorPropertyName;
-                discriminatorMemberValues = new HashSet<string>();
+                isDiscriminatedObjectUnion = !string.IsNullOrEmpty(unionType.DiscriminatorPropertyName);
             }
 
             foreach (var (memberType, memberSyntax) in memberTypes)
             {
-                if (!isObjectUnion && !TypeHelper.IsLiteralType(memberType))
+                if (!isDiscriminatedObjectUnion && !TypeHelper.IsLiteralType(memberType))
                 {
                     diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
                 }
                 else if (!TypeValidator.AreTypesAssignable(memberType, keystoneType))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).InvalidUnionTypeMember(keystoneType.Name));
-                }
-                else if (isObjectUnion && !string.IsNullOrEmpty(discriminatorPropertyName))
-                {
-                    // validate all members have the discriminator property as a required string literal that don't overlap
-                    var objectType = memberType as ObjectType;
-
-                    if (!objectType!.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
-                    {
-                        // TODO(k.a): write diagnostic for missing property
-                        diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
-                        continue;
-                    }
-
-                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
-                    {
-                        // TODO(k.a): write diagnostic for invalid discriminator property type
-                        diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
-                        continue;
-                    }
-
-                    var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
-                    var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
-
-                    if (discriminatorMemberValues!.Contains(discriminatorMemberValue))
-                    {
-                        // TODO(k.a): write diagnostic for overlapping discriminator literal value
-                        diagnostics.Write(GetNonLiteralUnionMemberDiagnostic(memberSyntax));
-                    }
-
-                    discriminatorMemberValues.Add(discriminatorMemberValue);
                 }
             }
         }
