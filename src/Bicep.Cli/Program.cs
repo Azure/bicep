@@ -65,6 +65,8 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args)
         {
+            Trace.WriteLine($"Bicep version: {ThisAssembly.AssemblyInformationalVersion}, CLI arguments: \"{string.Join(' ', args)}\"");
+
             try
             {
                 switch (ArgumentParser.TryParse(args))

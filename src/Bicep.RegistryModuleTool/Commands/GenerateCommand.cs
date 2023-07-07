@@ -62,11 +62,6 @@ namespace Bicep.RegistryModuleTool.Commands
                     .Generate(this.FileSystem, bicepCliProxy, mainBicepFile, ignoreWarnings: true)
                     .WriteToFileSystem(FileSystem));
 
-                // Generate README file.
-                this.GenerateFileAndLogInformation("README file", () => ReadmeFile
-                    .Generate(this.FileSystem, mainArmTemplateFile)
-                    .WriteToFileSystem(this.FileSystem));
-
                 // Generate version file.
                 this.GenerateFileAndLogInformation("version file", () => VersionFile
                     .Generate(this.FileSystem)
@@ -83,6 +78,11 @@ namespace Bicep.RegistryModuleTool.Commands
                 mainArmTemplateFile = this.GenerateFileAndLogInformation("main ARM template file (again)", () => MainArmTemplateFile
                     .Generate(this.FileSystem, bicepCliProxy, mainBicepFile)
                     .WriteToFileSystem(FileSystem));
+
+                // Generate README file based on final ARM template
+                this.GenerateFileAndLogInformation("README file", () => ReadmeFile
+                    .Generate(this.FileSystem, mainArmTemplateFile)
+                    .WriteToFileSystem(this.FileSystem));
 
                 return 0;
             }

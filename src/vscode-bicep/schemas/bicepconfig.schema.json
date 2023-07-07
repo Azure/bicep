@@ -601,6 +601,9 @@
         },
         "prettyPrinting": {
           "type": "boolean"
+        },
+        "testFramework": {
+          "type": "boolean"
         }
       }
     },
