@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<BuildCommand>()
             .AddSingleton<BuildParamsCommand>()
             .AddSingleton<DecompileCommand>()
+            .AddSingleton<DecompileParamsCommand>()
             .AddSingleton<FormatCommand>()
             .AddSingleton<GenerateParametersFileCommand>()
             .AddSingleton<PublishCommand>()
@@ -72,4 +73,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
+
+    public static IServiceCollection AddBicepparamDecompiler(this IServiceCollection services) => services
+        .AddSingleton<BicepparamDecompiler>();
 }

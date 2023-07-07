@@ -17,18 +17,11 @@ namespace Bicep.Core.Syntax
 
         public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
 
-        public static bool IsWhitespace(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.Whitespace;
-
         public static bool IsOf(this Token token, TokenType type) => token.Type == type;
 
-        public static bool IsOneOf(this Token token, TokenType firstType, TokenType secondType, params TokenType[] types) =>
-            types.Append(firstType).Append(secondType).Any(x => token.Type == x);
-
-        public static bool IsMultiLineNewLine(this Token token) => token.IsOf(TokenType.NewLine) && StringUtils.CountNewlines(token.Text) > 1;
-
-        public static bool IsMultiLineString(this Token token) => token.IsOf(TokenType.MultilineString);
-
-        public static bool HasProperties(this ObjectSyntax syntax) => syntax.Properties.Any();
+        public static bool IsKeyword(this Token token, string keyword) =>
+            token.Type == TokenType.Identifier &&
+            LanguageConstants.IdentifierComparer.Equals(token.Text, keyword);
 
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
@@ -73,7 +66,7 @@ namespace Bicep.Core.Syntax
             Stack<AccessExpressionSyntax> chainedAccesses = new();
             chainedAccesses.Push(syntax);
 
-            while (chainedAccesses.TryPeek(out var current) && current.SafeAccessMarker is null && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
+            while (chainedAccesses.TryPeek(out var current) && !current.IsSafeAccess && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
             {
                 chainedAccesses.Push(baseAccessExpression);
             }

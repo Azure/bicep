@@ -18,7 +18,6 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -26,14 +25,12 @@ namespace Bicep.Cli.Commands
         public BuildCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
-            IOContext io,
             CompilationService compilationService,
             CompilationWriter writer,
             IFeatureProviderFactory featureProviderFactory)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
-            this.io = io;
             this.compilationService = compilationService;
             this.writer = writer;
             this.featureProviderFactory = featureProviderFactory;
@@ -57,6 +54,7 @@ namespace Bicep.Cli.Commands
 
             if (IsBicepFile(inputPath))
             {
+                diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
                 if (diagnosticLogger.ErrorCount < 1)
@@ -73,6 +71,8 @@ namespace Bicep.Cli.Commands
                         writer.ToFile(compilation, outputPath);
                     }
                 }
+
+                diagnosticLogger.FlushLog();
 
                 // return non-zero exit code on errors
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;

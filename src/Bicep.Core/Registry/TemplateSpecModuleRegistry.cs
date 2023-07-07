@@ -125,7 +125,7 @@ namespace Bicep.Core.Registry
 
         public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<TemplateSpecModuleReference> references)
         {
-            return await base.InvalidateModulesCacheInternal(configuration, references);
+            return await base.InvalidateModulesCacheInternal(references);
         }
 
         public override string? TryGetDocumentationUri(TemplateSpecModuleReference moduleReference) => null;

@@ -11,10 +11,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
+    public record PublicRegistryModule(string Name, string? Description, string? DocumentationUri);
+    public record PublicRegistryModuleVersion(string Version, string? Description, string? DocumentationUri);
+
     public interface IPublicRegistryModuleMetadataProvider
     {
-        Task<IEnumerable<string>> GetModuleNames();
+        Task<IEnumerable<PublicRegistryModule>> GetModules();
 
-        Task<IEnumerable<string>> GetVersions(string moduleName);
+        Task<IEnumerable<PublicRegistryModuleVersion>> GetVersions(string modulePath);
     }
 }

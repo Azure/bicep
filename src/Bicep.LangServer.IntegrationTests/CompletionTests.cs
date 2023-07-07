@@ -64,6 +64,8 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager ServerWithUDFsEnabled = new();
 
+        private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -109,6 +111,12 @@ namespace Bicep.LangServer.IntegrationTests
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
                     services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
+
+            ServerWithResourceTypedParamsEnabled.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    testContext,
+                    services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
+                        .WithNamespaceProvider(BuiltInTestTypes.Create())));
         }
 
         [ClassCleanup]
@@ -120,6 +128,7 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithExtensibilityEnabled.DisposeAsync();
             await ServerWithTypesEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
+            await ServerWithResourceTypedParamsEnabled.DisposeAsync();
         }
 
         [TestMethod]
@@ -941,6 +950,145 @@ module mod 'mod.bicep' = {
 
             // despite being in a location with a nullable type or nested within a nullable type, each cursor should be recognized as accepting a typed object and therefore offer the "required-properties" snippet as a completion
             completions.Should().AllSatisfy(y => y.Any(x => x.Label == "required-properties").Should().BeTrue());
+        }
+
+        [TestMethod]
+        public async Task Completions_are_offered_within_values_with_an_interpolated_property_name()
+        {
+            var module = @"
+param properties {
+  *: {
+    nestedProperty: string
+  }
+}
+";
+            var fileWithCursors = @"
+param unknownValue string
+var knownValue = 'fizz'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    properties: {
+      foo: {
+        |
+      }
+      '${knownValue}': {
+        |
+      }
+      '${unknownValue}': {
+        |
+      }
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Should().AllSatisfy(y => y.Any(x => x.Label == "nestedProperty").Should().BeTrue());
+        }
+
+        [TestMethod]
+        public async Task Completions_are_not_offered_within_values_with_an_ambiguous_interpolated_property_name()
+        {
+            var module = @"
+param properties {
+  foo: {
+    bar: string
+  }
+  *: {
+    nestedProperty: string
+  }
+}
+";
+            var fileWithCursors = @"
+param unknownValue string
+var knownValue = 'fizz'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    properties: {
+      foo: {
+        |
+      }
+      '${knownValue}': {
+        |
+      }
+      '${unknownValue}': {
+        |
+      }
+    }
+  }
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Should().SatisfyRespectively(
+              y => y.Any(x => x.Label == "bar").Should().BeTrue(),
+              y => y.Any(x => x.Label == "nestedProperty").Should().BeTrue(),
+              y => y.Any().Should().BeFalse());
+        }
+
+        [TestMethod]
+        public async Task Item_completions_are_offered_for_array_typed_parameter_default_values()
+        {
+            var fileWithCursors = """
+                type fizz = {
+                  buzz: string
+                  pop: string
+                }
+
+                param fizzes fizz[] = [
+                  |
+                ]
+                """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var updatedFile = file.ApplyCompletion(completions, "required-properties");
+            updatedFile.Should().HaveSourceText("""
+                type fizz = {
+                  buzz: string
+                  pop: string
+                }
+
+                param fizzes fizz[] = [
+                  {
+                  buzz: $1
+                  pop: $2
+                }|
+                ]
+                """);
         }
 
         [TestMethod]
@@ -2009,6 +2157,30 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 
 var outTest = abc.listWithInput(|)
 ");
+        }
+
+        [TestMethod]
+        public async Task Known_list_functions_are_offered_on_resource_typed_params()
+        {
+            var fileWithCursors = """
+                param ir resource 'Test.Rp/listFuncTests@2020-01-01'
+
+                output authkeys string = ir.|
+                """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithResourceTypedParamsEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "listNoInput");
+            completions.Should().Contain(x => x.Label == "listWithInput");
+
+            var updatedFile = file.ApplyCompletion(completions, "listWithInput");
+            updatedFile.Should().HaveSourceText("""
+                param ir resource 'Test.Rp/listFuncTests@2020-01-01'
+
+                output authkeys string = ir.listWithInput(|)
+                """);
         }
 
         [TestMethod]
@@ -3733,7 +3905,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-containerapp", "app/dapr-containerapp-env" });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).ReturnsAsync(new List<PublicRegistryModule> { new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2") });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3746,8 +3918,8 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "app/dapr-containerapp" && x.Kind == CompletionItemKind.Snippet);
-            completions.Should().Contain(x => x.Label == "app/dapr-containerapp-env" && x.Kind == CompletionItemKind.Snippet);
+            completions.Should().Contain(x => x.Label == "app/dapr-containerapp" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
+            completions.Should().Contain(x => x.Label == "app/dapr-containerapp-env" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d2" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help2)");
         }
 
         [DataTestMethod]
@@ -3767,7 +3939,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.2", "1.0.1" });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null) });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3780,8 +3952,8 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet);
-            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet);
+            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
+            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
         }
 
         [DataTestMethod]

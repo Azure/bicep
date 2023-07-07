@@ -42,7 +42,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .AddSingleton(compilationManager)
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton(StrictMock.Of<IArmClientProvider>().Object)
-                .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true))
                 .AddSingleton<BicepDeploymentStartCommandHandler>());
 
             return helper.Construct<BicepDeploymentStartCommandHandler>();

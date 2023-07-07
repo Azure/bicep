@@ -13,7 +13,7 @@ namespace Bicep.Core.Configuration
             this.Data = data;
         }
 
-        protected T Data { get; }
+        public T Data { get; }
 
         public virtual void WriteTo(Utf8JsonWriter writer) => JsonElementFactory.CreateElement(this.Data).WriteTo(writer);
     }

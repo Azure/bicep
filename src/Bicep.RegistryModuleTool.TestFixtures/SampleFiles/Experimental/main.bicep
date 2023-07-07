@@ -1,3 +1,7 @@
+metadata name = 'Sample module'
+metadata description = 'Sample description'
+metadata owner = 'test'
+
 @description('The dns prefix')
 param dnsPrefix string
 

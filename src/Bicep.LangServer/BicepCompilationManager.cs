@@ -42,7 +42,6 @@ namespace Bicep.LanguageServer
         private readonly IModuleRestoreScheduler scheduler;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
-        private readonly IBicepAnalyzer bicepAnalyzer;
 
         // represents compilations of open bicep or param files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
@@ -53,8 +52,7 @@ namespace Bicep.LanguageServer
             IWorkspace workspace,
             IModuleRestoreScheduler scheduler,
             ITelemetryProvider telemetryProvider,
-            ILinterRulesProvider LinterRulesProvider,
-            IBicepAnalyzer bicepAnalyzer)
+            ILinterRulesProvider LinterRulesProvider)
         {
             this.server = server;
             this.provider = provider;
@@ -62,7 +60,6 @@ namespace Bicep.LanguageServer
             this.scheduler = scheduler;
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
-            this.bicepAnalyzer = bicepAnalyzer;
         }
 
         public void RefreshCompilation(DocumentUri documentUri)
@@ -78,7 +75,7 @@ namespace Bicep.LanguageServer
                 // compute diagnostics till errors in bicepconfig.json are fixed.
                 // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
                 // method again. CompilationContext will be null. We'll get the souceFile from workspace and
-                // upsert compulation.
+                // upsert compilation.
                 if (workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
                 {
                     UpsertCompilationInternal(documentUri, null, sourceFile);
@@ -92,6 +89,14 @@ namespace Bicep.LanguageServer
             // this was the easiest way to force the compilation to be regenerated
             var shallowCopy = compilationContext.Compilation.SourceFileGrouping.EntryPoint.ShallowClone();
             UpsertCompilationInternal(documentUri, null, shallowCopy);
+        }
+
+        public void RefreshAllActiveCompilations()
+        {
+            foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
+            {
+                RefreshCompilation(DocumentUri.From(sourceFileUri));
+            }
         }
 
         public void OpenCompilation(DocumentUri documentUri, int? version, string fileContents, string languageId)
@@ -121,7 +126,7 @@ namespace Bicep.LanguageServer
             }
 
             // try creating the file using the URI (like in the SourceFileGroupingBuilder)
-            if(SourceFileFactory.TryCreateSourceFile(documentUri.ToUri(), fileContents) is { } sourceFileViaUri)
+            if (SourceFileFactory.TryCreateSourceFile(documentUri.ToUri(), fileContents) is { } sourceFileViaUri)
             {
                 // this handles *.bicep, *.bicepparam, *.jsonc, *.json, and *.arm files
                 return sourceFileViaUri;
@@ -130,7 +135,7 @@ namespace Bicep.LanguageServer
             // we failed to create new file by URI
             // this means we're dealing with an untitled file
             // however the language ID was made available to us on file open
-            if(this.GetCompilationUnsafe(documentUri) is { } potentiallyUnsafeContext &&
+            if (this.GetCompilationUnsafe(documentUri) is { } potentiallyUnsafeContext &&
                 SourceFileFactory.TryCreateSourceFileByFileKind(documentUri.ToUri(), fileContents, potentiallyUnsafeContext.SourceFileKind) is { } sourceFileViaFileKind)
             {
                 return sourceFileViaFileKind;
@@ -254,7 +259,7 @@ namespace Bicep.LanguageServer
             {
                 return this.provider.Create(workspace, documentUri, modelLookup);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 if (!workspace.TryGetSourceFile(documentUri.ToUri(), out var sourceFile))
                 {
@@ -312,7 +317,7 @@ namespace Bicep.LanguageServer
                         return CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary());
                     });
 
-                switch(potentiallyUnsafeContext)
+                switch (potentiallyUnsafeContext)
                 {
                     case CompilationContext context:
                         foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)

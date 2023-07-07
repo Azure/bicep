@@ -12,18 +12,27 @@ using Microsoft.Extensions.Logging;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using Bicep.Core.Features;
+using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDocumentFormattingHandler : DocumentFormattingHandlerBase
     {
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
+
         private readonly ICompilationManager compilationManager;
 
-        public BicepDocumentFormattingHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
+        private readonly IFeatureProviderFactory featureProviderFactory;
+
+        public BicepDocumentFormattingHandler(
+            ILogger<BicepDocumentSymbolHandler> logger,
+            ICompilationManager compilationManager,
+            IFeatureProviderFactory featureProviderFactory)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public override Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken)
@@ -38,15 +47,29 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<TextEditContainer?>(null);
             }
 
+            var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
+            var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
+            var featureProvider = this.featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri());
+
+            if (featureProvider.PrettyPrintingEnabled)
+            {
+                var v2Options = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
+                var printerV2Context = PrettyPrinterV2Context.Create(context.ProgramSyntax, v2Options, lexingErrorLookup, parsingErrorLookup);
+                var v2Output = PrettyPrinterV2.Print(printerV2Context);
+
+                return Task.FromResult<TextEditContainer?>(new TextEditContainer(new TextEdit
+                {
+                    Range = context.ProgramSyntax.Span.ToRange(context.LineStarts),
+                    NewText = v2Output,
+                }));
+            }
+
             long indentSize = request.Options.TabSize;
             IndentKindOption indentKindOption = request.Options.InsertSpaces ? IndentKindOption.Space : IndentKindOption.Tab;
 
             ProgramSyntax programSyntax = context.ProgramSyntax;
             PrettyPrintOptions options = new PrettyPrintOptions(NewlineOption.Auto, indentKindOption, indentSize, request.Options.InsertFinalNewline);
-
-            var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
-            var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
-            string? output = PrettyPrinter.PrintProgram(programSyntax, options, lexingErrorLookup, parsingErrorLookup);
+            string? output = PrettyPrinter.PrintProgram(context.ProgramSyntax, options, lexingErrorLookup, parsingErrorLookup);
 
             if (output == null)
             {

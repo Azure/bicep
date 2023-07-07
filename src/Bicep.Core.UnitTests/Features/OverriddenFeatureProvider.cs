@@ -20,8 +20,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public string CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
 
-    public bool RegistryEnabled => overrides.RegistryEnabled ?? features.RegistryEnabled;
-
     public bool SymbolicNameCodegenEnabled => overrides.SymbolicNameCodegenEnabled ?? features.SymbolicNameCodegenEnabled;
 
     public bool ExtensibilityEnabled => overrides.ExtensibilityEnabled ?? features.ExtensibilityEnabled;
@@ -30,9 +28,11 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool SourceMappingEnabled => overrides.SourceMappingEnabled ?? features.SourceMappingEnabled;
 
-    public bool ParamsFilesEnabled => overrides.ParamsFilesEnabled ?? features.ParamsFilesEnabled;
-
     public bool UserDefinedTypesEnabled => overrides.UserDefinedTypesEnabled ?? features.UserDefinedTypesEnabled;
 
     public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
+
+    public bool PrettyPrintingEnabled => overrides.PrettyPrintingEnabled ?? features.PrettyPrintingEnabled;
+    
+    public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;
 }

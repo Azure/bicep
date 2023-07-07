@@ -503,6 +503,37 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
   }
 }
 
+@sys.description('this is another vmWithCondition')
+//@        "description": "this is another vmWithCondition"
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+//@    {
+//@      "type": "Microsoft.Compute/virtualMachines",
+//@      "apiVersion": "2020-06-01",
+//@      "name": "vmName2",
+//@      "metadata": {
+//@      }
+//@    },
+                    if (shouldDeployVm) {
+//@      "condition": "[parameters('shouldDeployVm')]",
+  name: 'vmName2'
+  location: 'westus'
+//@      "location": "westus",
+  properties: {
+//@      "properties": {
+//@      },
+    osProfile: {
+//@        "osProfile": {
+//@        }
+      windowsConfiguration: {
+//@          "windowsConfiguration": {
+//@          }
+        enableAutomaticUpdates: true
+//@            "enableAutomaticUpdates": true
+      }
+    }
+  }
+}
+
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@    {
 //@      "type": "My.Rp/extensionResource",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "312840267205288776"
+      "templateHash": "13324572606250097358"
     }
   },
   "parameters": {
@@ -285,6 +285,23 @@
       },
       "metadata": {
         "description": "this is vmWithCondition"
+      }
+    },
+    "vmWithCondition2": {
+      "condition": "[parameters('shouldDeployVm')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "vmName2",
+      "location": "westus",
+      "properties": {
+        "osProfile": {
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true
+          }
+        }
+      },
+      "metadata": {
+        "description": "this is another vmWithCondition"
       }
     },
     "extension1": {

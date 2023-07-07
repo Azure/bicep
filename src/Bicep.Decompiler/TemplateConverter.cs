@@ -376,8 +376,10 @@ namespace Bicep.Decompiler
                     SyntaxFactory.LeftParenToken,
                     new TernaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
+                        ImmutableArray<Token>.Empty,
                         SyntaxFactory.QuestionToken,
                         ParseLanguageExpression(expression.Parameters[1]),
+                        ImmutableArray<Token>.Empty,
                         SyntaxFactory.ColonToken,
                         ParseLanguageExpression(expression.Parameters[2])),
                     SyntaxFactory.RightParenToken);
@@ -1023,11 +1025,11 @@ namespace Bicep.Decompiler
         /// Used to generate the module's templateSpec format from the id parameter.
         /// </summary>
         private SyntaxBase GetModuleFromId(string templateID, JObject resource)
-        {   
-            // eg for modules templateSpec - ts:<subscription-ID>/<resource-group-name>/<Template-spec-name>:<version>   
+        {
+            // eg for modules templateSpec - ts:<subscription-ID>/<resource-group-name>/<Template-spec-name>:<version>
             if (!ResourceGroupLevelResourceId.TryParse(templateID, out var id)) {
                throw  new ConversionFailedException($"Unable to interpret \"{templateID}\" as a valid template spec resource id under property {resource["name"]}.properties.templateLink.id", resource);
-            }          
+            }
             var templateSpec = $"ts:{id.SubscriptionId}/{id.ResourceGroup}/{id.NameHierarchy.First()}:{id.NameHierarchy.Last()}";
             return SyntaxFactory.CreateStringLiteral(templateSpec);
         }
@@ -1399,13 +1401,14 @@ namespace Bicep.Decompiler
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
+                    ImmutableArray<Token>.Empty,
                     nestedValue);
             }
             else
             {
-                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") 
+                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri")
                                 ?? TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
-                                
+
                 var idProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "id");
 
                 // Metadata/description should be first
@@ -1420,11 +1423,11 @@ namespace Bicep.Decompiler
                 Uri? jsonTemplateUri = null;
                 if (pathProperty?.Value<string>() is string templatePathString)
                 {
-                    (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);      
-                } 
+                    (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
+                }
                 else if (idProperty?.Value<string>() is string templateSpecIdString)
                 {
-                    modulePath = GetModuleFromId(templateSpecIdString,resource);            
+                    modulePath = GetModuleFromId(templateSpecIdString,resource);
                 }
                 else
                 {
@@ -1436,6 +1439,7 @@ namespace Bicep.Decompiler
                     SyntaxFactory.CreateIdentifier(identifier),
                     modulePath,
                     SyntaxFactory.AssignmentToken,
+                    ImmutableArray<Token>.Empty,
                     value);
 
                 /*
@@ -1547,6 +1551,7 @@ namespace Bicep.Decompiler
                 SyntaxFactory.CreateStringLiteral($"{typeString}@{apiVersionString}"),
                 null,
                 SyntaxFactory.AssignmentToken,
+                ImmutableArray<Token>.Empty,
                 value);
         }
 

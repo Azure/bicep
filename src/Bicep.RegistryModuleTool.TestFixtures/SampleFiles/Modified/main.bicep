@@ -1,3 +1,7 @@
+metadata name = 'Sample module'
+metadata description = 'Sample description'
+metadata owner = 'test'
+
 @description('The dns prefix')
 param dnsPrefix string
 
@@ -33,6 +37,7 @@ param osDiskSizeGB int
 @description('The agent count')
 @minValue(1)
 @maxValue(50)
+// TODO: Causes error during build
 param agentCount int = 0
 
 @description('The agent VM size')

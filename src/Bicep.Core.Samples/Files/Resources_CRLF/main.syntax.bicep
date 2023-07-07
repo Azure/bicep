@@ -1,5 +1,5 @@
 
-//@[000:12434) ProgramSyntax
+//@[000:12777) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -1691,6 +1691,104 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[008:00016) |     | └─StringSyntax
 //@[008:00016) |     |   └─Token(StringComplete) |'vmName'|
 //@[016:00018) |     ├─Token(NewLine) |\r\n|
+  location: 'westus'
+//@[002:00020) |     ├─ObjectPropertySyntax
+//@[002:00010) |     | ├─IdentifierSyntax
+//@[002:00010) |     | | └─Token(Identifier) |location|
+//@[010:00011) |     | ├─Token(Colon) |:|
+//@[012:00020) |     | └─StringSyntax
+//@[012:00020) |     |   └─Token(StringComplete) |'westus'|
+//@[020:00022) |     ├─Token(NewLine) |\r\n|
+  properties: {
+//@[002:00123) |     ├─ObjectPropertySyntax
+//@[002:00012) |     | ├─IdentifierSyntax
+//@[002:00012) |     | | └─Token(Identifier) |properties|
+//@[012:00013) |     | ├─Token(Colon) |:|
+//@[014:00123) |     | └─ObjectSyntax
+//@[014:00015) |     |   ├─Token(LeftBrace) |{|
+//@[015:00017) |     |   ├─Token(NewLine) |\r\n|
+    osProfile: {
+//@[004:00101) |     |   ├─ObjectPropertySyntax
+//@[004:00013) |     |   | ├─IdentifierSyntax
+//@[004:00013) |     |   | | └─Token(Identifier) |osProfile|
+//@[013:00014) |     |   | ├─Token(Colon) |:|
+//@[015:00101) |     |   | └─ObjectSyntax
+//@[015:00016) |     |   |   ├─Token(LeftBrace) |{|
+//@[016:00018) |     |   |   ├─Token(NewLine) |\r\n|
+      windowsConfiguration: {
+//@[006:00076) |     |   |   ├─ObjectPropertySyntax
+//@[006:00026) |     |   |   | ├─IdentifierSyntax
+//@[006:00026) |     |   |   | | └─Token(Identifier) |windowsConfiguration|
+//@[026:00027) |     |   |   | ├─Token(Colon) |:|
+//@[028:00076) |     |   |   | └─ObjectSyntax
+//@[028:00029) |     |   |   |   ├─Token(LeftBrace) |{|
+//@[029:00031) |     |   |   |   ├─Token(NewLine) |\r\n|
+        enableAutomaticUpdates: true
+//@[008:00036) |     |   |   |   ├─ObjectPropertySyntax
+//@[008:00030) |     |   |   |   | ├─IdentifierSyntax
+//@[008:00030) |     |   |   |   | | └─Token(Identifier) |enableAutomaticUpdates|
+//@[030:00031) |     |   |   |   | ├─Token(Colon) |:|
+//@[032:00036) |     |   |   |   | └─BooleanLiteralSyntax
+//@[032:00036) |     |   |   |   |   └─Token(TrueKeyword) |true|
+//@[036:00038) |     |   |   |   ├─Token(NewLine) |\r\n|
+      }
+//@[006:00007) |     |   |   |   └─Token(RightBrace) |}|
+//@[007:00009) |     |   |   ├─Token(NewLine) |\r\n|
+    }
+//@[004:00005) |     |   |   └─Token(RightBrace) |}|
+//@[005:00007) |     |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |     |   └─Token(RightBrace) |}|
+//@[003:00005) |     ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
+
+@sys.description('this is another vmWithCondition')
+//@[000:00339) ├─ResourceDeclarationSyntax
+//@[000:00051) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00051) | | └─InstanceFunctionCallSyntax
+//@[001:00004) | |   ├─VariableAccessSyntax
+//@[001:00004) | |   | └─IdentifierSyntax
+//@[001:00004) | |   |   └─Token(Identifier) |sys|
+//@[004:00005) | |   ├─Token(Dot) |.|
+//@[005:00016) | |   ├─IdentifierSyntax
+//@[005:00016) | |   | └─Token(Identifier) |description|
+//@[016:00017) | |   ├─Token(LeftParen) |(|
+//@[017:00050) | |   ├─FunctionArgumentSyntax
+//@[017:00050) | |   | └─StringSyntax
+//@[017:00050) | |   |   └─Token(StringComplete) |'this is another vmWithCondition'|
+//@[050:00051) | |   └─Token(RightParen) |)|
+//@[051:00053) | ├─Token(NewLine) |\r\n|
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |vmWithCondition2|
+//@[026:00072) | ├─StringSyntax
+//@[026:00072) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[073:00074) | ├─Token(Assignment) |=|
+//@[074:00076) | ├─Token(NewLine) |\r\n|
+                    if (shouldDeployVm) {
+//@[020:00210) | └─IfConditionSyntax
+//@[020:00022) |   ├─Token(Identifier) |if|
+//@[023:00039) |   ├─ParenthesizedExpressionSyntax
+//@[023:00024) |   | ├─Token(LeftParen) |(|
+//@[024:00038) |   | ├─VariableAccessSyntax
+//@[024:00038) |   | | └─IdentifierSyntax
+//@[024:00038) |   | |   └─Token(Identifier) |shouldDeployVm|
+//@[038:00039) |   | └─Token(RightParen) |)|
+//@[040:00210) |   └─ObjectSyntax
+//@[040:00041) |     ├─Token(LeftBrace) |{|
+//@[041:00043) |     ├─Token(NewLine) |\r\n|
+  name: 'vmName2'
+//@[002:00017) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00017) |     | └─StringSyntax
+//@[008:00017) |     |   └─Token(StringComplete) |'vmName2'|
+//@[017:00019) |     ├─Token(NewLine) |\r\n|
   location: 'westus'
 //@[002:00020) |     ├─ObjectPropertySyntax
 //@[002:00010) |     | ├─IdentifierSyntax

@@ -3308,7 +3308,7 @@ output fooBadIdProps object = {
             ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"123\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'1'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-            ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"'ArcZone' | 'CustomLocation' | 'EdgeZone' | 'NotSpecified' | string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'2'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"3\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
@@ -4208,6 +4208,62 @@ output sql resource = sql
         });
     }
 
+    [TestMethod]
+    public void Test_Issue6065_ResourceFunctions()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
+            ("main.bicep", """
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                }
+
+                output key string = mod.outputs.sa.listKeys().keys[0].value
+                """),
+            ("mod.bicep", """
+                resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+                  name: 'sa'
+                }
+
+                output sa resource = sa
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP320", DiagnosticLevel.Error, "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein."),
+        });
+    }
+
+    [TestMethod]
+    public void Test_Issue6065_GetSecretFunction()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
+            ("main.bicep", """
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                }
+
+                module mod2 'mod2.bicep' = {
+                  name: 'mod2'
+                  params: {
+                    secret: mod.outputs.kv.getSecret('password')
+                  }
+                }
+                """),
+            ("mod.bicep", """
+                resource kv 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+                  name: 'kv'
+                }
+
+                output kv resource = kv
+                """),
+            ("mod2.bicep", """
+                @secure()
+                param secret string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
     // https://github.com/Azure/bicep/issues/9713
     [TestMethod]
     public void Test_9713()
@@ -4345,7 +4401,7 @@ resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 output vaultId string = CertificateVault.id
 ";
 
-        var (parameters, _, _) = CompilationHelper.CompileParams(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true, ParamsFilesEnabled: true)), ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+        var (parameters, _, _) = CompilationHelper.CompileParams(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
         var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), bicepTemplateText);
 
@@ -4752,5 +4808,81 @@ func foo(resourceGroup string) string => resourceGroup('test')
         {
             ("BCP265", DiagnosticLevel.Error, "The name \"resourceGroup\" is not a function. Did you mean \"az.resourceGroup\"?"),
         });
+    }
+
+    // https://github.com/Azure/bicep/issues/10884
+    [TestMethod]
+    public void Test_Issue10884()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+("main.bicep", @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: {
+    resourceGroups: [
+      {
+        actionGroups: [
+          {
+          }
+        ]
+      }
+    ]
+  }
+}
+"),
+("mod.bicep", @"
+type resourceGroup = {
+  actionGroups: {
+    foo: string
+    bar: string
+  }[]?
+}
+
+param resourceGroups resourceGroup[]
+"));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"bar\", \"foo\"."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/10098
+    [TestMethod]
+    public void Test_Issue10098()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+("mod.bicep", @"
+@allowed([0, 1, 2, 3 ])
+param availabilityZone int = 0
+
+param availabilityZoneUnion 0 | 1 | 2 | 3 = 0
+"),
+("main.bicep", @"
+@minValue(0)
+param count int
+
+module mod 'mod.bicep' = [for i in range(0, count): {
+  name: 'mod${i}'
+  params: {
+    availabilityZone: i % 3 + 1
+    availabilityZoneUnion: i % 3 + 1
+  }
+}]
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/10994
+    [TestMethod]
+    public void Test_Issue10994()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), """
+            param ir resource 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01'
+            output authkeys string = ir.listAuthKeys().authKey1
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

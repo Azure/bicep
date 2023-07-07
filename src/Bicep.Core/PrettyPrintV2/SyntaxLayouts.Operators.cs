@@ -25,11 +25,32 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params SyntaxBase[] syntaxes) => this.Spread(syntaxes.AsEnumerable());
 
-        private Document Spread(IEnumerable<SyntaxBase> syntaxes) => syntaxes.Select(this.LayoutSingle).SeparateBySpace().Glue();
+        private Document Spread(IEnumerable<SyntaxBase> syntaxes) => syntaxes.Select(this.LayoutSingle).Spread();
 
-        private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).SeparateBySpace().Glue();
+        private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Spread();
 
-        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
+        private Document IndentTail(Func<IEnumerable<Document>> layoutSpecifier)
+        {
+            var lineBreakerCountBefore = this.lineBreakerCount;
+            var indented = layoutSpecifier()
+                .Where(x => x is not LineDocument)
+                .SeparateBy(DocumentOperators.LineOrSpace)
+                .Indent();
+
+            if (indented.HasSuffix())
+            {
+                this.lineBreakerCount--;
+            }
+
+            return this.lineBreakerCount > lineBreakerCountBefore
+                ? DocumentOperators.Glue(indented)
+                : DocumentOperators.Group(indented);
+        }
+
+        private Document IndentTail(IEnumerable<SyntaxBase> syntaxes) =>
+            this.IndentTail(() => this.LayoutMany(syntaxes));
+
+        private Document Bracket(SyntaxBase openSyntax, Func<IEnumerable<Document>> itemsLayoutSpecifier, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {
             var openBracket = this.LayoutSingle(openSyntax);
             var closeParts = this.Layout(closeSyntax).ToArray();
@@ -37,9 +58,9 @@ namespace Bicep.Core.PrettyPrintV2
             var closeBracket = closeParts[^1];
 
             var lineBreakerCountBefore = this.lineBreakerCount;
-            var items = this.LayoutMany(syntaxes)
-                .TrimHardLine()
-                .CollapseHardLine(onCollapse: () => this.lineBreakerCount++)
+            var items = itemsLayoutSpecifier()
+                .TrimNewlines()
+                .CollapseNewlines(onHardLine: this.ForceBreak)
                 .Concat(danglingComments)
                 .SeparateBy(separator);
 
@@ -69,6 +90,10 @@ namespace Bicep.Core.PrettyPrintV2
                 ? DocumentOperators.Glue(documents)
                 : DocumentOperators.Group(documents);
         }
+
+        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false) =>
+            this.Bracket(openSyntax, () => this.LayoutMany(syntaxes), closeSyntax, separator, padding, forceBreak);
+
 
         /// <summary>
         /// Breaks the enclosing parent groups.

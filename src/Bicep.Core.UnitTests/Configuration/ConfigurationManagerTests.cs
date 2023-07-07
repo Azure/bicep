@@ -32,78 +32,88 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = IConfigurationManager.GetBuiltInConfiguration();
 
             // Assert.
-            configuration.Should().HaveContents(@"{
-  ""cloud"": {
-    ""currentProfile"": ""AzureCloud"",
-    ""profiles"": {
-      ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
-        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
-      },
-      ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
-      },
-      ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
-      }
-    },
-    ""credentialPrecedence"": [
-      ""AzureCLI"",
-      ""AzurePowerShell""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {},
-    ""br"": {
-      ""public"": {
-        ""registry"": ""mcr.microsoft.com"",
-        ""modulePath"": ""bicep""
-      }
-    }
-  },
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-hardcoded-env-urls"": {
-          ""level"": ""warning"",
-          ""disallowedhosts"": [
-            ""api.loganalytics.io"",
-            ""azuredatalakeanalytics.net"",
-            ""azuredatalakestore.net"",
-            ""batch.core.windows.net"",
-            ""core.windows.net"",
-            ""database.windows.net"",
-            ""datalake.azure.net"",
-            ""gallery.azure.com"",
-            ""graph.windows.net"",
-            ""login.microsoftonline.com"",
-            ""management.azure.com"",
-            ""management.core.windows.net"",
-            ""region.asazure.windows.net"",
-            ""trafficmanager.net"",
-            ""vault.azure.net""
-          ],
-          ""excludedhosts"": [
-            ""schema.management.azure.com""
-          ]
-        }
-      }
-    }
-  },
-  ""experimentalFeaturesEnabled"": {
-    ""symbolicNameCodegen"": null,
-    ""extensibility"": null,
-    ""resourceTypedParamsAndOutputs"": null,
-    ""sourceMapping"": null,
-    ""paramsFiles"": null,
-    ""userDefinedTypes"": null,
-    ""userDefinedFunctions"": null
-  }
-}");
+            configuration.Should().HaveContents(/*lang=json,strict*/ """
+                {
+                  "cloud": {
+                    "currentProfile": "AzureCloud",
+                    "profiles": {
+                      "AzureChinaCloud": {
+                        "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                        "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                      },
+                      "AzureCloud": {
+                        "resourceManagerEndpoint": "https://management.azure.com",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                      },
+                      "AzureUSGovernment": {
+                        "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                      }
+                    },
+                    "credentialPrecedence": [
+                      "AzureCLI",
+                      "AzurePowerShell"
+                    ]
+                  },
+                  "moduleAliases": {
+                    "ts": {},
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": true,
+                      "rules": {
+                        "no-hardcoded-env-urls": {
+                          "level": "warning",
+                          "disallowedhosts": [
+                            "api.loganalytics.io",
+                            "azuredatalakeanalytics.net",
+                            "azuredatalakestore.net",
+                            "batch.core.windows.net",
+                            "core.windows.net",
+                            "database.windows.net",
+                            "datalake.azure.net",
+                            "gallery.azure.com",
+                            "graph.windows.net",
+                            "login.microsoftonline.com",
+                            "management.azure.com",
+                            "management.core.windows.net",
+                            "region.asazure.windows.net",
+                            "trafficmanager.net",
+                            "vault.azure.net"
+                          ],
+                          "excludedhosts": [
+                            "schema.management.azure.com"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "experimentalFeaturesEnabled": {
+                    "symbolicNameCodegen": false,
+                    "extensibility": false,
+                    "resourceTypedParamsAndOutputs": false,
+                    "sourceMapping": false,
+                    "userDefinedTypes": false,
+                    "userDefinedFunctions": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false
+                  },
+                  "formatting": {
+                    "indentKind": "Space",
+                    "newlineKind": "LF",
+                    "insertFinalNewline": true,
+                    "indentSize": 2,
+                    "width": 80
+                  }
+                }
+                """);
         }
 
         [TestMethod]
@@ -121,48 +131,58 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
 
             // Assert.
-            configuration.Should().HaveContents(@"{
-  ""cloud"": {
-    ""currentProfile"": ""AzureCloud"",
-    ""profiles"": {
-      ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
-        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
-      },
-      ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
-      },
-      ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
-      }
-    },
-    ""credentialPrecedence"": [
-      ""AzureCLI"",
-      ""AzurePowerShell""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {},
-    ""br"": {
-      ""public"": {
-        ""registry"": ""mcr.microsoft.com"",
-        ""modulePath"": ""bicep""
-      }
-    }
-  },
-  ""analyzers"": {},
-  ""experimentalFeaturesEnabled"": {
-    ""symbolicNameCodegen"": null,
-    ""extensibility"": null,
-    ""resourceTypedParamsAndOutputs"": null,
-    ""sourceMapping"": null,
-    ""paramsFiles"": null,
-    ""userDefinedTypes"": null,
-    ""userDefinedFunctions"": null
-  }
-}");
+            configuration.Should().HaveContents(/*lang=json,strict*/ """
+                {
+                  "cloud": {
+                    "currentProfile": "AzureCloud",
+                    "profiles": {
+                      "AzureChinaCloud": {
+                        "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                        "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                      },
+                      "AzureCloud": {
+                        "resourceManagerEndpoint": "https://management.azure.com",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                      },
+                      "AzureUSGovernment": {
+                        "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                      }
+                    },
+                    "credentialPrecedence": [
+                      "AzureCLI",
+                      "AzurePowerShell"
+                    ]
+                  },
+                  "moduleAliases": {
+                    "ts": {},
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "analyzers": {},
+                  "experimentalFeaturesEnabled": {
+                    "symbolicNameCodegen": false,
+                    "extensibility": false,
+                    "resourceTypedParamsAndOutputs": false,
+                    "sourceMapping": false,
+                    "userDefinedTypes": false,
+                    "userDefinedFunctions": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false
+                  },
+                  "formatting": {
+                    "indentKind": "Space",
+                    "newlineKind": "LF",
+                    "insertFinalNewline": true,
+                    "indentSize": 2,
+                    "width": 80
+                  }
+                }
+                """);
         }
 
         [TestMethod]
@@ -172,81 +192,91 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled("no-hardcoded-env-urls", "no-unused-vars");
 
             // Assert.
-            configuration.Should().HaveContents(@"{
-  ""cloud"": {
-    ""currentProfile"": ""AzureCloud"",
-    ""profiles"": {
-      ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
-        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
-      },
-      ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
-      },
-      ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
-      }
-    },
-    ""credentialPrecedence"": [
-      ""AzureCLI"",
-      ""AzurePowerShell""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {},
-    ""br"": {
-      ""public"": {
-        ""registry"": ""mcr.microsoft.com"",
-        ""modulePath"": ""bicep""
-      }
-    }
-  },
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-hardcoded-env-urls"": {
-          ""level"": ""off"",
-          ""disallowedhosts"": [
-            ""api.loganalytics.io"",
-            ""azuredatalakeanalytics.net"",
-            ""azuredatalakestore.net"",
-            ""batch.core.windows.net"",
-            ""core.windows.net"",
-            ""database.windows.net"",
-            ""datalake.azure.net"",
-            ""gallery.azure.com"",
-            ""graph.windows.net"",
-            ""login.microsoftonline.com"",
-            ""management.azure.com"",
-            ""management.core.windows.net"",
-            ""region.asazure.windows.net"",
-            ""trafficmanager.net"",
-            ""vault.azure.net""
-          ],
-          ""excludedhosts"": [
-            ""schema.management.azure.com""
-          ]
-        },
-        ""no-unused-vars"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  },
-  ""experimentalFeaturesEnabled"": {
-    ""symbolicNameCodegen"": null,
-    ""extensibility"": null,
-    ""resourceTypedParamsAndOutputs"": null,
-    ""sourceMapping"": null,
-    ""paramsFiles"": null,
-    ""userDefinedTypes"": null,
-    ""userDefinedFunctions"": null
-  }
-}");
+            configuration.Should().HaveContents(/*lang=json,strict*/ """
+                {
+                  "cloud": {
+                    "currentProfile": "AzureCloud",
+                    "profiles": {
+                      "AzureChinaCloud": {
+                        "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                        "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                      },
+                      "AzureCloud": {
+                        "resourceManagerEndpoint": "https://management.azure.com",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                      },
+                      "AzureUSGovernment": {
+                        "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                      }
+                    },
+                    "credentialPrecedence": [
+                      "AzureCLI",
+                      "AzurePowerShell"
+                    ]
+                  },
+                  "moduleAliases": {
+                    "ts": {},
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": true,
+                      "rules": {
+                        "no-hardcoded-env-urls": {
+                          "level": "off",
+                          "disallowedhosts": [
+                            "api.loganalytics.io",
+                            "azuredatalakeanalytics.net",
+                            "azuredatalakestore.net",
+                            "batch.core.windows.net",
+                            "core.windows.net",
+                            "database.windows.net",
+                            "datalake.azure.net",
+                            "gallery.azure.com",
+                            "graph.windows.net",
+                            "login.microsoftonline.com",
+                            "management.azure.com",
+                            "management.core.windows.net",
+                            "region.asazure.windows.net",
+                            "trafficmanager.net",
+                            "vault.azure.net"
+                          ],
+                          "excludedhosts": [
+                            "schema.management.azure.com"
+                          ]
+                        },
+                        "no-unused-vars": {
+                          "level": "off"
+                        }
+                      }
+                    }
+                  },
+                  "experimentalFeaturesEnabled": {
+                    "symbolicNameCodegen": false,
+                    "extensibility": false,
+                    "resourceTypedParamsAndOutputs": false,
+                    "sourceMapping": false,
+                    "userDefinedTypes": false,
+                    "userDefinedFunctions": false,
+                    "prettyPrinting": false,
+                    "testFramework": false
+                  },
+                  "formatting": {
+                    "indentKind": "Space",
+                    "newlineKind": "LF",
+                    "insertFinalNewline": true,
+                    "indentSize": 2,
+                    "width": 80
+                  }
+                }
+                """);
         }
 
         [TestMethod]
@@ -407,61 +437,70 @@ namespace Bicep.Core.UnitTests.Configuration
             {
                 [CreatePath("repo")] = new MockDirectoryData(),
                 [CreatePath("repo/modules")] = new MockDirectoryData(),
-                [CreatePath("repo/bicepconfig.json")] = @"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud"",
-    ""profiles"": {
-      ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""https://bicep.example.com"",
-        ""activeDirectoryAuthority"": ""https://login.bicep.example.com""
-      }
-    },
-    ""credentialPrecedence"": [
-        ""AzurePowerShell"",
-        ""VisualStudioCode""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {
-      ""mySpecPath"": {
-        ""subscription"": ""B34C8680-F688-48C2-A44F-E1EFF5E01173""
-      }
-    },
-    ""br"": {
-      ""myRegistry"": {
-        ""registry"": ""localhost:8000""
-      },
-      ""myModulePath"": {
-        ""registry"": ""test.invalid"",
-        ""modulePath"": ""root/modules""
-      }
-    }
-  },
-  ""analyzers"": {
-    ""core"": {
-      ""enabled"": false,
-      ""rules"": {
-        ""no-hardcoded-env-urls"": {
-          ""level"": ""warning"",
-          ""disallowedhosts"": [
-            ""datalake.azure.net"",
-            ""azuredatalakestore.net"",
-            ""azuredatalakeanalytics.net"",
-            ""vault.azure.net"",
-            ""api.loganalytics.io"",
-            ""asazure.windows.net"",
-            ""region.asazure.windows.net"",
-            ""batch.core.windows.net""
-          ]
-        }
-      }
-    }
-  },
-  ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
-  ""experimentalFeaturesEnabled"": {
-    ""extensibility"": true
-  }
-}"
+                [CreatePath("repo/bicepconfig.json")] = /*lang=json,strict*/ """
+                {
+                  "cloud": {
+                    "currentProfile": "MyCloud",
+                    "profiles": {
+                      "MyCloud": {
+                        "resourceManagerEndpoint": "https://bicep.example.com",
+                        "activeDirectoryAuthority": "https://login.bicep.example.com"
+                      }
+                    },
+                    "credentialPrecedence": [
+                        "AzurePowerShell",
+                        "VisualStudioCode"
+                    ]
+                  },
+                  "moduleAliases": {
+                    "ts": {
+                      "mySpecPath": {
+                        "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173"
+                      }
+                    },
+                    "br": {
+                      "myRegistry": {
+                        "registry": "localhost:8000"
+                      },
+                      "myModulePath": {
+                        "registry": "test.invalid",
+                        "modulePath": "root/modules"
+                      }
+                    }
+                  },
+                  "analyzers": {
+                    "core": {
+                      "enabled": false,
+                      "rules": {
+                        "no-hardcoded-env-urls": {
+                          "level": "warning",
+                          "disallowedhosts": [
+                            "datalake.azure.net",
+                            "azuredatalakestore.net",
+                            "azuredatalakeanalytics.net",
+                            "vault.azure.net",
+                            "api.loganalytics.io",
+                            "asazure.windows.net",
+                            "region.asazure.windows.net",
+                            "batch.core.windows.net"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "cacheRootDirectory": "/home/username/.bicep/cache",
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true
+                  },
+                  "formatting": {
+                    "indentKind": "Space",
+                    "newlineKind": "LF",
+                    "insertFinalNewline": true,
+                    "indentSize": 2,
+                    "width": 80
+                  }
+                }
+                """
             });
 
             // Act.
@@ -470,89 +509,99 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Assert.
-            configuration.Should().HaveContents(@"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud"",
-    ""profiles"": {
-      ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
-        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
-      },
-      ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
-      },
-      ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
-      },
-      ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""https://bicep.example.com"",
-        ""activeDirectoryAuthority"": ""https://login.bicep.example.com""
-      }
-    },
-    ""credentialPrecedence"": [
-      ""AzurePowerShell"",
-      ""VisualStudioCode""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {
-      ""mySpecPath"": {
-        ""subscription"": ""B34C8680-F688-48C2-A44F-E1EFF5E01173"",
-        ""resourceGroup"": null
-      }
-    },
-    ""br"": {
-      ""myModulePath"": {
-        ""registry"": ""test.invalid"",
-        ""modulePath"": ""root/modules""
-      },
-      ""myRegistry"": {
-        ""registry"": ""localhost:8000"",
-        ""modulePath"": null
-      },
-      ""public"": {
-        ""registry"": ""mcr.microsoft.com"",
-        ""modulePath"": ""bicep""
-      }
-    }
-  },
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-hardcoded-env-urls"": {
-          ""level"": ""warning"",
-          ""disallowedhosts"": [
-            ""datalake.azure.net"",
-            ""azuredatalakestore.net"",
-            ""azuredatalakeanalytics.net"",
-            ""vault.azure.net"",
-            ""api.loganalytics.io"",
-            ""asazure.windows.net"",
-            ""region.asazure.windows.net"",
-            ""batch.core.windows.net""
-          ],
-          ""excludedhosts"": [
-            ""schema.management.azure.com""
-          ]
-        }
-      }
-    }
-  },
-  ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
-  ""experimentalFeaturesEnabled"": {
-    ""symbolicNameCodegen"": null,
-    ""extensibility"": true,
-    ""resourceTypedParamsAndOutputs"": null,
-    ""sourceMapping"": null,
-    ""paramsFiles"": null,
-    ""userDefinedTypes"": null,
-    ""userDefinedFunctions"": null
-  }
-}");
+            configuration.Should().HaveContents(/*lang=json,strict*/ """
+                {
+                  "cloud": {
+                    "currentProfile": "MyCloud",
+                    "profiles": {
+                      "AzureChinaCloud": {
+                        "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                        "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                      },
+                      "AzureCloud": {
+                        "resourceManagerEndpoint": "https://management.azure.com",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                      },
+                      "AzureUSGovernment": {
+                        "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                      },
+                      "MyCloud": {
+                        "resourceManagerEndpoint": "https://bicep.example.com",
+                        "activeDirectoryAuthority": "https://login.bicep.example.com"
+                      }
+                    },
+                    "credentialPrecedence": [
+                      "AzurePowerShell",
+                      "VisualStudioCode"
+                    ]
+                  },
+                  "moduleAliases": {
+                    "ts": {
+                      "mySpecPath": {
+                        "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173",
+                        "resourceGroup": null
+                      }
+                    },
+                    "br": {
+                      "myModulePath": {
+                        "registry": "test.invalid",
+                        "modulePath": "root/modules"
+                      },
+                      "myRegistry": {
+                        "registry": "localhost:8000",
+                        "modulePath": null
+                      },
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": false,
+                      "rules": {
+                        "no-hardcoded-env-urls": {
+                          "level": "warning",
+                          "disallowedhosts": [
+                            "datalake.azure.net",
+                            "azuredatalakestore.net",
+                            "azuredatalakeanalytics.net",
+                            "vault.azure.net",
+                            "api.loganalytics.io",
+                            "asazure.windows.net",
+                            "region.asazure.windows.net",
+                            "batch.core.windows.net"
+                          ],
+                          "excludedhosts": [
+                            "schema.management.azure.com"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "cacheRootDirectory": "/home/username/.bicep/cache",
+                  "experimentalFeaturesEnabled": {
+                    "symbolicNameCodegen": false,
+                    "extensibility": true,
+                    "resourceTypedParamsAndOutputs": false,
+                    "sourceMapping": false,
+                    "userDefinedTypes": false,
+                    "userDefinedFunctions": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false
+                  },
+                  "formatting": {
+                    "indentKind": "Space",
+                    "newlineKind": "LF",
+                    "insertFinalNewline": true,
+                    "indentSize": 2,
+                    "width": 80
+                  }
+                }
+                """);
         }
 
         private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory!, path.Replace('/', Path.DirectorySeparatorChar));

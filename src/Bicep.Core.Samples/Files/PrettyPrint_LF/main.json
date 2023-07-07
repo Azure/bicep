@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6864853691422863785"
+      "templateHash": "14256732481575079209"
     }
   },
   "variables": {
@@ -63,6 +63,11 @@
     "w40__": "[concat('xxxxxx', 'xxxxxxxx')]",
     "w41__": "[concat('xxxxx')]",
     "w42__": "[concat('xxxxx', 'xxxxxxxxxxx')]",
+    "w38___": "[if(true(), 'xxxxx', 'xxxxxx')]",
+    "w39___": "[if(true(), 'xxxxxx', 'xxxxxx')]",
+    "w40___": "[if(true(), 'xxxxxx', 'xxxxxxx')]",
+    "w41___": "[if(true(), 'xxxxxxx', 'xxxxxxx')]",
+    "w42___": "[if(true(), 'xxxxxxx', 'xxxxxxxx')]",
     "w78": [
       true,
       {
@@ -139,6 +144,11 @@
     "w80__": "[union(createObject('foo', 'xxxxxx'), createObject('bar', 'xxxxxx'), createObject('baz', 'xxxxxxxxxxxxx'))]",
     "w81__": "[union(createObject('foo', 'x'), createObject('baz', 'func call length: 38  '))]",
     "w82__": "[union(createObject('foo', 'x', 'bar', 'x'), createObject('baz', 'func call length: 39   '))]",
+    "w78___": "[if(true(), 1234567890, 1234567890)]",
+    "w79___": "[if(true(), createObject('foo', 1), createArray(12345678))]",
+    "w80___": "[if(true(), createObject('foo', true(), 'bar', false()), createArray(123, 234, 456, createObject('xyz', 'xxxx')))]",
+    "w81___": "[if(true(), 1234567890, 1234567890)]",
+    "w82___": "[if(true(), 1234567890, 1234567890)]",
     "forceBreak1": {
       "foo": true
     },
@@ -187,7 +197,12 @@
       1,
       2,
       "[intersection(createObject('foo', true(), 'bar', false()), createObject('foo', true()))]"
-    ]
+    ],
+    "forceBreak11": "[if(true(), true(), false())]",
+    "forceBreak12": "[if(true(), true(), false())]",
+    "forceBreak13": "[if(true(), true(), false())]",
+    "forceBreak14": "[if(true(), createObject('foo', 42), false())]",
+    "forceBreak15": "[if(true(), createObject('foo', 0), createObject('bar', 1))]"
   },
   "resources": []
 }

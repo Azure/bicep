@@ -76,7 +76,7 @@ namespace Bicep.Core.Syntax
             // to it has leading comment stickiness.
             // The NewLine token is included because there may
             // exists dangling comments that are not attached
-            // to a statment or an expression.
+            // to a statement or an expression.
             TokenType.NewLine or
             TokenType.At or
             TokenType.Minus or
@@ -116,5 +116,7 @@ namespace Bicep.Core.Syntax
             // to have comments attached to them.
             _ => CommentStickiness.None,
         };
+
+        public static bool IsOf(this SyntaxTrivia trivia, SyntaxTriviaType type) => trivia.Type == type;
     }
 }

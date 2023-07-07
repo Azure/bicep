@@ -36,6 +36,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private readonly Lazy<string> lazyTemplateHash;
 
+        private readonly Lazy<string?> lazyNameMetadata;
+        private readonly Lazy<string?> lazyOwnerMetadata;
+        private readonly Lazy<string?> lazyDescriptionMetadata;
+
         public MainArmTemplateFile(string path, string content)
             : base(path)
         {
@@ -51,6 +55,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 ? Enumerable.Empty<MainArmTemplateOutput>()
                 : outputsElement.EnumerateObject().Select(ToOutput));
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
+            this.lazyNameMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleNameMetadataName}")?.ToNonNullString());
+            this.lazyOwnerMetadata= new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleOwnerMetadataName}")?.ToNonNullString());
+            this.lazyDescriptionMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleDescriptionMetadataName}")?.ToNonNullString());
         }
 
         private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch {
@@ -79,13 +86,19 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string TemplateHash => this.lazyTemplateHash.Value;
 
-        public static MainArmTemplateFile Generate(IFileSystem fileSystem, BicepCliProxy bicepCliProxy, MainBicepFile mainBicepFile)
+        public string? NameMetadata => this.lazyNameMetadata.Value;
+
+        public string? OwnerMetadata => this.lazyOwnerMetadata.Value;
+
+        public string? DescriptionMetadata => this.lazyDescriptionMetadata.Value;
+
+        public static MainArmTemplateFile Generate(IFileSystem fileSystem, BicepCliProxy bicepCliProxy, MainBicepFile mainBicepFile, bool ignoreWarnings = false)
         {
             var tempFilePath = fileSystem.Path.GetTempFileName();
 
             try
             {
-                bicepCliProxy.Build(mainBicepFile.Path, tempFilePath);
+                bicepCliProxy.Build(mainBicepFile.Path, tempFilePath, ignoreWarnings);
             }
             catch (Exception)
             {

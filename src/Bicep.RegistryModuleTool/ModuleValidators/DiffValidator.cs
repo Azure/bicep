@@ -28,8 +28,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
 
         public void Validate(ReadmeFile file)
         {
-            var latestMetadataFile = MetadataFile.ReadFromFileSystem(this.fileSystem);
-            var latestReadmeFile = ReadmeFile.Generate(this.fileSystem, latestMetadataFile, latestMainArmTemplateFile);
+            var latestReadmeFile = ReadmeFile.Generate(this.fileSystem, latestMainArmTemplateFile);
 
             this.Validate(file.Path, file.Contents, latestReadmeFile.Contents);
         }
@@ -43,11 +42,11 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
 
         private void Validate(string filePath, string newContent, string oldContent)
         {
-            this.logger.LogInformation("Making sure the content of \"{FilePath}\" is up-to-date...", filePath);
+            this.logger.LogInformation("Making sure the content of \"{FilePath}\" is up to date...", filePath);
 
             if (DiffLines(newContent, oldContent))
             {
-                throw new InvalidModuleException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.");
+                throw new InvalidModuleException(@$"The file ""{filePath}"" is modified or outdated. Please run ""brm generate"" to regenerate it.");
             }
         }
 

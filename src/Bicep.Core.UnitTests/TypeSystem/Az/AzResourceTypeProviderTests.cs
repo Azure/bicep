@@ -19,6 +19,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Namespaces;
 using System.Reflection;
 using Bicep.Core.Resources;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -38,7 +39,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var nsProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
-            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features)!;
+            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
         }
 
         private static IEnumerable<object[]> GetDeserializeTestData()
@@ -91,7 +92,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(string providerName, string apiVersion, ResourceTypeGenerationFlags flags, IReadOnlyList<string> resourceTypes)
         {
             // We deliberately load a new instance here for each test iteration rather than re-using an instance.
-            // This is becase there are various internal caches which will consume too much memory and crash in CI if allowed to grow unrestricted.
+            // This is because there are various internal caches which will consume too much memory and crash in CI if allowed to grow unrestricted.
             var azNamespaceType = GetAzNamespaceType();
             var resourceTypeProvider = azNamespaceType.ResourceTypeProvider;
 

@@ -57,6 +57,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
+                    .WithHandler<BicepBuildParamsCommandHandler>()
                     .WithHandler<BicepDeploymentStartCommandHandler>()
                     // Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
                     // To avoid the above issue, we'll change the RequestProcessType to parallel
@@ -64,6 +65,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDecompileCommandHandler>()
                     .WithHandler<BicepDecompileSaveCommandHandler>()
                     .WithHandler<BicepDecompileForPasteCommandHandler>()
+                    .WithHandler<BicepDecompileParamsCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()
@@ -104,6 +106,7 @@ namespace Bicep.LanguageServer
             services
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddBicepparamDecompiler()
                 .AddSingleton<IWorkspace, Workspace>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
@@ -123,7 +126,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IArmClientProvider, ArmClientProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
-                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCache: true));
+                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCacheInBackground: true));
         }
 
         public void Dispose()

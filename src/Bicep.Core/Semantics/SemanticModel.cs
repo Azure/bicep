@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -41,7 +42,7 @@ namespace Bicep.Core.Semantics
 
         public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features, IApiVersionProvider apiVersionProvider)
         {
-            Trace.WriteLine($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind})");
+            TraceBuildOperation(sourceFile, configuration);
 
             Compilation = compilation;
             SourceFile = sourceFile;
@@ -131,6 +132,63 @@ namespace Bicep.Core.Semantics
 
                 return outputs.ToImmutableArray();
             });
+        }
+
+        private static void TraceBuildOperation(BicepSourceFile sourceFile, RootConfiguration configuration)
+        {
+            static IEnumerable<string> getExperimentalFeatures(RootConfiguration configuration)
+            {
+                var features = configuration.ExperimentalFeaturesEnabled;
+
+                if (features.SymbolicNameCodegen)
+                {
+                    yield return nameof(features.SymbolicNameCodegen);
+                }
+                if (features.Extensibility)
+                {
+                    yield return nameof(features.Extensibility);
+                }
+                if (features.ResourceTypedParamsAndOutputs)
+                {
+                    yield return nameof(features.ResourceTypedParamsAndOutputs);
+                }
+                if (features.SourceMapping)
+                {
+                    yield return nameof(features.SourceMapping);
+                }
+                if (features.UserDefinedTypes)
+                {
+                    yield return nameof(features.UserDefinedTypes);
+                }
+                if (features.PrettyPrinting)
+                {
+                    yield return nameof(features.PrettyPrinting);
+                }
+                if (features.TestFramework)
+                {
+                    yield return nameof(features.TestFramework);
+                }
+            }
+
+            var sb = new StringBuilder();
+
+            sb.Append($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind}). ");
+            var experimentalFeatures = getExperimentalFeatures(configuration).ToImmutableArray();
+            if (experimentalFeatures.Any())
+            {
+                sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
+            }
+
+            if (configuration.ConfigurationPath is {} configPath)
+            {
+                sb.Append($"Using bicepConfig from path {configPath}.");
+            }
+            else
+            {
+                sb.Append($"Using default built-in bicepconfig.");
+            }
+
+            Trace.WriteLine(sb.ToString());
         }
 
         public BicepSourceFile SourceFile { get; }
@@ -426,13 +484,6 @@ namespace Bicep.Core.Semantics
             {
                 // not a param file - no additional diagnostics
                 return Enumerable.Empty<IDiagnostic>();
-            }
-
-            if (!this.Features.ParamsFilesEnabled)
-            {
-                // prompt the user to enable the experimental feature before showing any other diagnostics
-                var paramsFileUnsupportedDiag = DiagnosticBuilder.ForDocumentStart().ParametersFileUnsupported();
-                return paramsFileUnsupportedDiag.AsEnumerable();
             }
 
             // try to get the bicep file's semantic model

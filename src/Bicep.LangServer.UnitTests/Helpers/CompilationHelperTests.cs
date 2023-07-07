@@ -38,7 +38,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
 
             compilationContext.Should().BeNull();
 
-            var compilation = await new CompilationHelper(bicepCompiler, bicepCompilationManager).GetCompilation(documentUri);
+            var compilation = await new CompilationHelper(bicepCompiler, bicepCompilationManager).GetRefreshedCompilation(documentUri);
 
             compilation.Should().NotBeNull();
         }
@@ -57,7 +57,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
             // Upsert compilation. This will cause CompilationContext to be non null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true);
 
-            var compilation = await new CompilationHelper(bicepCompiler, bicepCompilationManager).GetCompilation(documentUri);
+            var compilation = await new CompilationHelper(bicepCompiler, bicepCompilationManager).GetRefreshedCompilation(documentUri);
 
             compilation.Should().NotBeNull();
             compilation.Should().BeSameAs(bicepCompilationManager.GetCompilation(documentUri)!.Compilation);

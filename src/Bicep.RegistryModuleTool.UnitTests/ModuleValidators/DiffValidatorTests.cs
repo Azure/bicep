@@ -48,7 +48,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please run \"brm generate\" to regenerate it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -68,7 +68,20 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetReadmeWithDescriptionSectionData), DynamicDataSourceType.Method)]
+        public void Validate_ReadmeFileWithDescriptionInsteadOfDetails_ThrowsException(string readmeFileContents)
+        {
+            this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(ReadmeFile.FileName), readmeFileContents);
+
+            var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
+
+            Invoking(() => this.sut.Validate(fileToValidate)).Should()
+                .Throw<InvalidModuleException>()
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         [DataTestMethod]
@@ -81,7 +94,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -107,7 +120,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         private static IEnumerable<object[]> GetEmptyExamplesSectionData()
@@ -129,6 +142,29 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
                 yield return new object[]
                 {
                     Regex.Replace(validReadmeFile.Contents, "## Examples.+", section, RegexOptions.Singleline)
+                };
+            }
+        }
+
+        private static IEnumerable<object[]> GetReadmeWithDescriptionSectionData()
+        {
+            var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
+            var validReadmeFile = ReadmeFile.ReadFromFileSystem(fileSystem);
+
+            var emptyExamplesSections = new string[]
+            {
+                "## Description",
+                "## Description\r\n\r\n",
+                "## Description\r\n\t   ",
+                "## Description\n  \n",
+            };
+
+
+            foreach (var section in emptyExamplesSections)
+            {
+                yield return new object[]
+                {
+                    Regex.Replace(validReadmeFile.Contents, "## Details.+", section, RegexOptions.Singleline)
                 };
             }
         }

@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Microsoft.Extensions.Logging;
 using System.IO;
 
@@ -15,17 +18,27 @@ namespace Bicep.Cli.Commands;
 public class FormatCommand : ICommand
 {
     private readonly ILogger logger;
+
     private readonly IOContext io;
+
     private readonly IFileResolver fileResolver;
+
+    private readonly IConfigurationManager configurationManager;
+
+    private readonly IFeatureProviderFactory featureProviderFactory;
 
     public FormatCommand(
         ILogger logger,
         IOContext io,
-        IFileResolver fileResolver)
+        IFileResolver fileResolver,
+        IConfigurationManager configurationManager,
+        IFeatureProviderFactory featureProviderFactory)
     {
         this.logger = logger;
         this.io = io;
         this.fileResolver = fileResolver;
+        this.configurationManager = configurationManager;
+        this.featureProviderFactory = featureProviderFactory;
     }
 
     public int Run(FormatArguments args)
@@ -47,6 +60,29 @@ public class FormatCommand : ICommand
         }
 
         BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);
+        var program = parser.Program();
+        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
+
+        if (featureProvider.PrettyPrintingEnabled)
+        {
+            var v2Options = this.configurationManager.GetConfiguration(inputUri).Formatting.Data;
+            var printerV2Context = PrettyPrinterV2Context.Create(program, v2Options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+
+            if (args.OutputToStdOut)
+            {
+                PrettyPrinterV2.PrintTo(io.Output, printerV2Context);
+                io.Output.Flush();
+            }
+            else
+            {
+                var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, path => path);
+                using var writer = new StreamWriter(outputPath);
+
+                PrettyPrinterV2.PrintTo(writer, printerV2Context);
+            }
+
+            return 0;
+        }
 
         var options = new PrettyPrintOptions(
             args.Newline            ?? NewlineOption.Auto,
@@ -55,7 +91,7 @@ public class FormatCommand : ICommand
             args.InsertFinalNewline ?? false
         );
 
-        var output = PrettyPrinter.PrintProgram(parser.Program(), options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+        var output = PrettyPrinter.PrintProgram(program, options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         if (args.OutputToStdOut)
         {
             io.Output.Write(output);
