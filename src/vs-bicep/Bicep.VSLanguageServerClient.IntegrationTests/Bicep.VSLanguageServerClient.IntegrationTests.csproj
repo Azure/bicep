@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
@@ -29,7 +29,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
