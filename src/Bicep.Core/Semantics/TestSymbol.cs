@@ -59,10 +59,5 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        // public bool IsCollection => this.Type is ArrayType;
-
-        // public TestType? TryGetModuleType() => TestType.TryUnwrap(this.Type);
-
-        // public ObjectType? TryGetBodyObjectType() => this.TryGetModuleType()?.Body.Type as ObjectType;
     }
 }

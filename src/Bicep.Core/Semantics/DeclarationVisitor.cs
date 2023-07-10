@@ -132,13 +132,9 @@ namespace Bicep.Core.Semantics
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             base.VisitTestDeclarationSyntax(syntax);
-            // TypeSymbol declaredType;
-            // declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
-    
-            var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
-            DeclareSymbol(symbol);
 
-            
+            var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);            
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
