@@ -611,7 +611,8 @@ namespace Bicep.Core.TypeSystem
         private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, TypeSymbol? typeDeclarationDeclaredType, IDiagnosticWriter diagnostics)
         {
             var isObjectUnion = keystoneType is ObjectType;
-            // NOTE(kylealbert): Discriminated object unions are validated by the decorator validator
+            // NOTE(kylealbert): High level validation for discriminated object unions happens in the discriminator decorator validator.
+            // Member validation is done here
             var isDiscriminatedObjectUnion = false;
             string? discriminatorPropertyName = null;
             HashSet<string>? memberDiscriminatorValues = null;

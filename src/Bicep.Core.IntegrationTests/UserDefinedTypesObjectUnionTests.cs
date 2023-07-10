@@ -156,16 +156,19 @@ type typeD = {
 @discriminator('type')
 type typeUnion1 = typeA | typeB
 @discriminator('type')
-type typeUnion2 = typeC | typeUnion1 | typeD
+type typeUnion2 = typeC | typeUnion1
+@discriminator('type')
+type typeUnion3 = typeD | (typeUnion2)
 """);
 
             result.ExcludingLinterDiagnostics()
                 .Should()
                 .NotHaveAnyDiagnostics();
 
-            var unionToken = result.Template!.SelectToken(".definitions.typeUnion2");
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion3");
             unionToken.Should().NotBeNull();
 
+            // TODO(k.a): should these be $refs??
             var expectedTypeUnionToken = JToken.Parse(
                 """
 {
@@ -173,6 +176,20 @@ type typeUnion2 = typeC | typeUnion1 | typeD
   "discriminator": {
     "propertyName": "type",
     "mapping": {
+      "d": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      },
+      "c": {
+        "properties": {
+          "config": {
+            "type": "string"
+          }
+        }
+      },
       "a": {
         "properties": {
           "value": {
@@ -182,8 +199,8 @@ type typeUnion2 = typeC | typeUnion1 | typeD
       },
       "b": {
         "properties": {
-          "value": {
-            "type": "int"
+          "config": {
+            "type": "string"
           }
         }
       }
@@ -397,8 +414,8 @@ type typeB = {
 type typeUnion = (typeA | typeB)[]
 """);
 
-            // TODO(k.a): right diagnostic
-            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "msg");
+            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+            result.Should().ContainDiagnostic("BCP344", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types.");
         }
     }
 }
