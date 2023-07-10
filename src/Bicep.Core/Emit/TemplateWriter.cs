@@ -416,10 +416,13 @@ namespace Bicep.Core.Emit
 
             var discriminatorPropertyName = unionType.DiscriminatorPropertyName!;
             objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(discriminatorPropertyName)));
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(GetDiscriminatedUnionMappingEntries(syntax, discriminatorPropertyName))));
 
-            // TODO(k.a): check more complex cases here
-            var mappingPropertyExpressions = new List<ObjectPropertyExpression>();
+            return ExpressionFactory.CreateObject(properties: objectProperties);
+        }
 
+        private IEnumerable<ObjectPropertyExpression> GetDiscriminatedUnionMappingEntries(UnionTypeSyntax syntax, string discriminatorPropertyName)
+        {
             foreach (var unionMemberSyntax in syntax.Members)
             {
                 var memberSyntax = unionMemberSyntax.Value;
@@ -454,12 +457,8 @@ namespace Bicep.Core.Emit
                 var objectExpression = GetTypePropertiesForObjectType(objectTypeSyntaxBase, new HashSet<string> { discriminatorPropertyName });
                 objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
 
-                mappingPropertyExpressions.Add(ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression));
+                yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
             }
-
-            objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(mappingPropertyExpressions)));
-
-            return ExpressionFactory.CreateObject(properties: objectProperties);
         }
 
         private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax, HashSet<string>? excludedObjectProperties = null)
