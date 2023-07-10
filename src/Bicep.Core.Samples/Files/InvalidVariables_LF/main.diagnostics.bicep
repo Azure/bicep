@@ -1,7 +1,7 @@
 
 // unknown declaration
 bad
-//@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration. (CodeDescription: none) |bad|
+//@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
 
 // incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
@@ -14,10 +14,10 @@ var
 // incomplete keyword
 // #completionTest(0,1) -> declarations
 v
-//@[00:01) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration. (CodeDescription: none) |v|
+//@[00:01) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |v|
 // #completionTest(0,1,2) -> declarations
 va
-//@[00:02) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration. (CodeDescription: none) |va|
+//@[00:02) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |va|
 
 // unassigned variable
 var foo

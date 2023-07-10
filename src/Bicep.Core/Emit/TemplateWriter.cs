@@ -109,6 +109,8 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
 
+            // Both 1.10-experimental and 1.11-experimental language versions support symbolic names, but only the 1.11-experimental
+            // version supports 'assert' statements. 
             if (Context.Settings.EnableSymbolicNames && !Context.Settings.EnableAsserts)
             {
                 emitter.EmitProperty("languageVersion", "1.10-experimental");

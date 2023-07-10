@@ -1,7 +1,7 @@
 
 // wrong declaration
 bad
-//@[000:003) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration. (CodeDescription: none) |bad|
+//@[000:003) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
 
 // incomplete #completionTest(9) -> empty
 resource 
