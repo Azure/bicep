@@ -122,12 +122,12 @@ param accountName string = 'testAccount'
                 /input.bicep(1,12) : Error BCP018: Expected the "=" character at this location.
                 /input.bicep(1,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
                 /input.bicep(3,2) : Error BCP001: The following token is not recognized: "#".
-                /input.bicep(3,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
+                /input.bicep(3,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration.
                 /input.bicep(4,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
                 /input.bicep(4,12) : Error BCP018: Expected the "=" character at this location.
                 /input.bicep(4,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
                 /input.bicep(6,2) : Error BCP001: The following token is not recognized: "#".
-                /input.bicep(6,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
+                /input.bicep(6,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, output, or assert declaration.
                 /input.bicep(7,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
                 /input.bicep(7,14) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
                 /input.bicep(10,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file.
