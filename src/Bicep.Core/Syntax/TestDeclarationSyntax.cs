@@ -20,7 +20,7 @@ namespace Bicep.Core.Syntax
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
-            AssertSyntaxType(value, nameof(value), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax), typeof(IfConditionSyntax), typeof(ForSyntax));
+            AssertSyntaxType(value, nameof(value), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
 
             this.Keyword = keyword;
             this.Name = name;
