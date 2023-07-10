@@ -229,6 +229,19 @@
         "resolved": "17.5.0",
         "contentHash": "6FQo0O6LKDqbCiIgVQhJAf810HSjFlOj7FunWaeOGDKxy8DAbpHzPk4SfBTXz9ytaaceuIIeR6hZgplt09m+ig=="
       },
+      "Microsoft.Diagnostics.Tracing.EventRegister": {
+        "type": "Transitive",
+        "resolved": "1.1.28",
+        "contentHash": "VXTPYySeOmpMFejW2t4uau3t5h92LYKT9zM3kR06qeUNM9vQxG3S5nB6EhuKyf+F7Ze92Y6614MvjkxH14NJkQ=="
+      },
+      "Microsoft.Diagnostics.Tracing.TraceEvent": {
+        "type": "Transitive",
+        "resolved": "3.1.3",
+        "contentHash": "0i45LzMkHfWKcDZxzyGbE0TiRVRNvr8k+Snrgf1OT/8txwBi6opm3G8rCB7OAM6G4m61Jzd+ZaJ6YAyRGlE9TQ==",
+        "dependencies": {
+          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
+        }
+      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "7.0.0",
@@ -722,9 +735,11 @@
       },
       "Sarif.Sdk": {
         "type": "Transitive",
-        "resolved": "4.1.0",
-        "contentHash": "+wws/czP6/gGhFeLyHTtBIQ3V6rg7K8c5aGeGMnLvbUTQybAV0j25sQ9DF5t+qgRA4XxBRJGGKN4lRB1Q+tUdA==",
+        "resolved": "4.2.2",
+        "contentHash": "RDy2tPNUiU3C5FeUXr6wLcnsE3Gv2Ter1L1kTI5Zidb0uvyOwFsO/LQsm12WqLHOoMqCvrpcTSF97g0ZIAgVXw==",
         "dependencies": {
+          "Microsoft.Diagnostics.Tracing.EventRegister": "1.1.28",
+          "Microsoft.Diagnostics.Tracing.TraceEvent": "3.1.3",
           "Newtonsoft.Json": "9.0.1",
           "System.Collections.Immutable": "1.5.0"
         }
@@ -1850,7 +1865,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[7.0.0, )",
-          "Sarif.Sdk": "[4.1.0, )"
+          "Sarif.Sdk": "[4.2.2, )"
         }
       }
     },
