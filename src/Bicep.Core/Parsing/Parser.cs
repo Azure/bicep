@@ -275,7 +275,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+            return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
         private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {

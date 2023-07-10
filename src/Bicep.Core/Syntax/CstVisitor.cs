@@ -112,7 +112,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
             this.Visit(syntax.Assignment);
-            this.VisitNodes(syntax.Newlines);
             this.Visit(syntax.Value);
         }
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)

@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class TestDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public TestDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
+        public TestDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.TestKeyword);
@@ -26,7 +26,6 @@ namespace Bicep.Core.Syntax
             this.Name = name;
             this.Path = path;
             this.Assignment = assignment;
-            this.Newlines = newlines;
             this.Value = value;
         }
 
@@ -37,8 +36,6 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Path { get; }
 
         public SyntaxBase Assignment { get; }
-
-        public ImmutableArray<Token> Newlines { get; }
 
         public SyntaxBase Value { get; }
 
