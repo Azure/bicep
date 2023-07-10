@@ -613,10 +613,14 @@ namespace Bicep.Core.TypeSystem
             var isObjectUnion = keystoneType is ObjectType;
             // NOTE(kylealbert): Discriminated object unions are validated by the decorator validator
             var isDiscriminatedObjectUnion = false;
+            string? discriminatorPropertyName = null;
+            HashSet<string>? memberDiscriminatorValues = null;
 
             if (isObjectUnion && (typeDeclarationDeclaredType is TypeType typeType ? typeType.Unwrapped : typeDeclarationDeclaredType) is UnionType unionType)
             {
-                isDiscriminatedObjectUnion = !string.IsNullOrEmpty(unionType.DiscriminatorPropertyName);
+                discriminatorPropertyName = unionType.DiscriminatorPropertyName;
+                isDiscriminatedObjectUnion = !string.IsNullOrEmpty(discriminatorPropertyName);
+                memberDiscriminatorValues = isDiscriminatedObjectUnion ? new HashSet<string>() : null;
             }
 
             foreach (var (memberType, memberSyntax) in memberTypes)
@@ -628,6 +632,35 @@ namespace Bicep.Core.TypeSystem
                 else if (!TypeValidator.AreTypesAssignable(memberType, keystoneType))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).InvalidUnionTypeMember(keystoneType.Name));
+                }
+                else if (isDiscriminatedObjectUnion)
+                {
+                    var objectType = memberType as ObjectType;
+
+                    if (!objectType!.Properties.TryGetValue(discriminatorPropertyName!, out var discriminatorTypeProperty))
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!, objectType.Name));
+                        continue;
+                    }
+
+                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+                    {
+                        // TODO(k.a): write diagnostic for invalid discriminator property type
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!, objectType.Name));
+                        continue;
+                    }
+
+                    var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
+                    var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
+
+                    if (memberDiscriminatorValues!.Contains(discriminatorMemberValue))
+                    {
+                        // TODO(k.a): write diagnostic for overlapping discriminator literal value
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName!, discriminatorMemberValue, "t1", "t2"));
+                        continue;
+                    }
+
+                    memberDiscriminatorValues.Add(discriminatorMemberValue);
                 }
             }
         }

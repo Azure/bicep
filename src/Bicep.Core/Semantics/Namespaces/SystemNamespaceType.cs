@@ -1586,43 +1586,6 @@ namespace Bicep.Core.Semantics.Namespaces
             if (targetType is not UnionType unionType || !unionType.Members.All(m => m is ObjectType))
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
-
-                return;
-            }
-
-            var discriminatorPropertyName = unionType.DiscriminatorPropertyName!;
-            var discriminatorMemberValues = new HashSet<string>();
-
-            foreach (var memberType in unionType.Members)
-            {
-                var objectType = memberType as ObjectType;
-                if (!objectType!.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
-                {
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName, objectType.Name));
-
-                    continue;
-                }
-
-                if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
-                {
-                    // TODO(k.a): write diagnostic for invalid discriminator property type
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName, objectType.Name));
-
-                    continue;
-                }
-
-                var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
-                var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
-
-                if (discriminatorMemberValues.Contains(discriminatorMemberValue))
-                {
-                    // TODO(k.a): write diagnostic for overlapping discriminator literal value
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, discriminatorMemberValue, "t1", "t2"));
-
-                    continue;
-                }
-
-                discriminatorMemberValues.Add(discriminatorMemberValue);
             }
         }
 
