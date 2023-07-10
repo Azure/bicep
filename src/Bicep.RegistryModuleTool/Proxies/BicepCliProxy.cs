@@ -21,7 +21,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             @"^([^\s].*)\((\d+)(?:,\d+|,\d+,\d+)?\)\s+:\s+(Warning)\s+([a-zA-Z-\d]+):\s*(.*?)\s+\[(.*?)\]$",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private readonly static string[] LineSeperators = new[] { "\r", "\n", "\r\n" };
+        private readonly static string[] LineSeparators = new[] { "\r", "\n", "\r\n" };
 
         private readonly IEnvironmentProxy environmentProxy;
 
@@ -42,7 +42,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             this.console = console;
         }
 
-        public void Build(string bicepFilePath, string outputFilePath)
+        public void Build(string bicepFilePath, string outputFilePath, bool ignoreWarnings = false)
         {
             this.logger.LogInformation("Building \"{BicepFilePath}\"...", bicepFilePath);
 
@@ -50,13 +50,14 @@ namespace Bicep.RegistryModuleTool.Proxies
             var command = $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
             this.logger.LogInformation("Running Bicep CLI command: {Command}", command);
-            var (exitCode, _, standardError) = this.processProxy.Start(bicepCliPath, command);
+            var (exitCode, stdOutput, standardError) = this.processProxy.Start(bicepCliPath, command);
+            this.logger.LogInformation(stdOutput);
 
             if (exitCode is 0)
             {
-                if (standardError.Length > 0)
+                if (standardError.Length > 0 && !ignoreWarnings)
                 {
-                    foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                    foreach (var warning in standardError.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries))
                     {
                         console.WriteWarning(warning);
                     }
@@ -68,7 +69,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             }
 
             // Exit code is not 0. There exists errors.
-            foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var line in standardError.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries))
             {
                 if (BicepBuildWarningRegex.IsMatch(line))
                 {

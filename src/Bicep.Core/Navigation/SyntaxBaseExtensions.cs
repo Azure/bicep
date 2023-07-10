@@ -68,7 +68,7 @@ namespace Bicep.Core.Navigation
         }
 
         /// <summary>
-        /// Generate a string that represents this Syntax element
+        /// Generate/format/print a string that represents this Syntax element
         /// </summary>
         public static string ToText(this SyntaxBase syntax, string indent = "", string? newLineSequence = null)
         {
@@ -80,7 +80,7 @@ namespace Bicep.Core.Navigation
         }
 
         /// <summary>
-        /// Generate a string that represents this Syntax element.
+        /// Generate/format/print a string that represents this Syntax element.
         /// </summary>
         public static string ToTextPreserveFormatting(this SyntaxBase syntax)
         {

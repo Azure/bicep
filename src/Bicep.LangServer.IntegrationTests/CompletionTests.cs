@@ -3905,7 +3905,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetModuleNames()).ReturnsAsync(new List<string> { "app/dapr-containerapp", "app/dapr-containerapp-env" });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetModules()).ReturnsAsync(new List<PublicRegistryModule> { new("app/dapr-containerapp", "d1", "contoso.com/help1"), new("app/dapr-containerapp-env", "d2", "contoso.com/help2") });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3918,8 +3918,8 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "app/dapr-containerapp" && x.Kind == CompletionItemKind.Snippet);
-            completions.Should().Contain(x => x.Label == "app/dapr-containerapp-env" && x.Kind == CompletionItemKind.Snippet);
+            completions.Should().Contain(x => x.Label == "app/dapr-containerapp" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
+            completions.Should().Contain(x => x.Label == "app/dapr-containerapp-env" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d2" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help2)");
         }
 
         [DataTestMethod]
@@ -3939,7 +3939,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<string> { "1.0.2", "1.0.1" });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", "d1", "contoso.com/help1"), new("1.0.1", null, null) });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -3952,8 +3952,8 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet);
-            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet);
+            completions.Should().Contain(x => x.Label == "1.0.1" && x.SortText == "1_1.0.1" && x.Kind == CompletionItemKind.Snippet && x.Detail == null && x.Documentation == null);
+            completions.Should().Contain(x => x.Label == "1.0.2" && x.SortText == "0_1.0.2" && x.Kind == CompletionItemKind.Snippet && x.Detail == "d1" && x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help1)");
         }
 
         [DataTestMethod]
