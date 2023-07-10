@@ -305,7 +305,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+            result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
         [TestMethod]
@@ -328,7 +328,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+            result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
         [TestMethod]
@@ -351,7 +351,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+            result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
         [TestMethod]
@@ -374,7 +374,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
+            result.Should().ContainDiagnostic("BCP346", DiagnosticLevel.Error, $"The value \"a\" for discriminator property \"type\" exists on multiple union member types. The value must be unique across all union member types.");
         }
 
         [TestMethod]

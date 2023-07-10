@@ -1936,15 +1936,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP344",
                 $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName, string offendingType) => new(
+            public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => new(
                 TextSpan,
                 "BCP345",
-                $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types. Type \"{offendingType}\" does not meet this criteria.");
+                $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue, string offendingType1, string offendingType2) => new(
+            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
                 TextSpan,
                 "BCP346",
-                $"The property \"{discriminatorPropertyName}\" must have a unique value across all union member types. Type \"{offendingType1}\" and \"{offendingType2}\" both have value \"{discriminatorPropertyValue}\".");
+                $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" exists on multiple union member types. The value must be unique across all union member types.");
 
         }
 

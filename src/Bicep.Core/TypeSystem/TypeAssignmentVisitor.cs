@@ -639,14 +639,14 @@ namespace Bicep.Core.TypeSystem
 
                     if (!objectType!.Properties.TryGetValue(discriminatorPropertyName!, out var discriminatorTypeProperty))
                     {
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!, objectType.Name));
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!));
                         continue;
                     }
 
                     if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
                     {
                         // TODO(k.a): write diagnostic for invalid discriminator property type
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!, objectType.Name));
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!));
                         continue;
                     }
 
@@ -656,7 +656,7 @@ namespace Bicep.Core.TypeSystem
                     if (memberDiscriminatorValues!.Contains(discriminatorMemberValue))
                     {
                         // TODO(k.a): write diagnostic for overlapping discriminator literal value
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName!, discriminatorMemberValue, "t1", "t2"));
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName!, discriminatorMemberValue));
                         continue;
                     }
 
