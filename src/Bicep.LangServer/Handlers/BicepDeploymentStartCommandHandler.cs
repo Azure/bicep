@@ -86,7 +86,8 @@ namespace Bicep.LanguageServer.Handlers
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = armClientProvider.createArmClient(credential, default, options);
-
+            
+            //starting with empty valid json (that can be parsed) for deployments with no parameters 
             string parametersFileJson = "{}";
             
             if(request.parametersFilePath is { })

@@ -369,9 +369,9 @@ export class DeployCommand implements Command {
       let updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
       let parametersFileUpdateOption = ParametersFileUpdateOption.None;
 
-      //if no parameter file or bicepparam file is provided then we don't do the  
-      //prerequisite steps for updating the parameter file on the disk 
-      if (parametersFilePath === undefined || parametersFilePath.endsWith(".bicepparam")) {
+      //if no parameter file or bicepparam file is provided then we don't do the
+      //prerequisite steps for updating the parameter file on the disk
+      if (!parametersFilePath || parametersFilePath.endsWith(".bicepparam")) {
         parametersFileName = undefined;
         updatedDeploymentParameters = [];
       } else {
@@ -429,8 +429,8 @@ export class DeployCommand implements Command {
       // open it in vscode.
       if (
         parametersFileUpdateOption !== ParametersFileUpdateOption.None &&
-        parametersFileName !== undefined &&
-        parametersFilePath !== undefined
+        parametersFileName &&
+        parametersFilePath
       ) {
         if (
           parametersFileUpdateOption === ParametersFileUpdateOption.Create ||
