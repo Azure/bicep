@@ -1185,10 +1185,12 @@ namespace Bicep.LanguageServer.Completions
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
 
-        private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) =>
-            type is ObjectType objectType
-                ? objectType.MethodResolver.GetKnownFunctions().Values
-                : Enumerable.Empty<FunctionSymbol>();
+        private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) => type switch
+        {
+            ObjectType objectType => objectType.MethodResolver.GetKnownFunctions().Values,
+            ResourceType resourceType => GetMethods(resourceType.Body.Type),
+            _ => Enumerable.Empty<FunctionSymbol>(),
+        };
 
         private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null
             ? null
@@ -1576,7 +1578,7 @@ namespace Bicep.LanguageServer.Completions
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
                 var edit = new StringBuilder("[");
-                if (propertyAccess.SafeAccessMarker is not null)
+                if (propertyAccess.IsSafeAccess)
                 {
                     edit.Append('?');
                 }

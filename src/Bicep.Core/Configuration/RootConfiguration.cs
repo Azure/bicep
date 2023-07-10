@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -33,11 +34,11 @@ namespace Bicep.Core.Configuration
             FormattingConfiguration formatting,
             string? configurationPath,
             IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
-        {
+            {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
             this.Analyzers = analyzers;
-            this.CacheRootDirectory = cacheRootDirectory;
+            this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
             this.ConfigurationPath = configurationPath;
@@ -105,6 +106,34 @@ namespace Bicep.Core.Configuration
             }
 
             return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
+        }
+
+        private static string? ExpandCacheRootDirectory(string? cacheRootDirectory)
+        {
+            /*
+             Note: the method is a simple workaround for https://github.com/Azure/bicep/issues/10935. To reduce
+             complexity, it does not handle all cross-platform edge cases, such as "~username" on Unix based systems.
+             In the future, we may want to read CacheRootDirectory from a environment variable instead whose value
+             must be a full path.
+            */
+            if (string.IsNullOrEmpty(cacheRootDirectory) || cacheRootDirectory[0] != '~')
+            {
+                return cacheRootDirectory;
+            }
+
+            var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            if (cacheRootDirectory.Length == 1)
+            {
+                return homeDirectory;
+            }
+
+            if (cacheRootDirectory[1] is '/' or '\\')
+            {
+                return $"{homeDirectory}{cacheRootDirectory[1..]}";
+            }
+
+            return cacheRootDirectory;
         }
     }
 }

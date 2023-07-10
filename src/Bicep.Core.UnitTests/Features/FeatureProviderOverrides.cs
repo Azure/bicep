@@ -17,6 +17,7 @@ public record FeatureProviderOverrides(
     bool? UserDefinedTypesEnabled = default,
     bool? UserDefinedFunctionsEnabled = default,
     bool? PrettyPrintingEnabled = default,
+    bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
@@ -31,6 +32,7 @@ public record FeatureProviderOverrides(
         bool? UserDefinedTypesEnabled = default,
         bool? UserDefinedFunctionsEnabled = default,
         bool? PrettyPrintingEnabled = default,
+        bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
@@ -44,6 +46,7 @@ public record FeatureProviderOverrides(
         UserDefinedTypesEnabled,
         UserDefinedFunctionsEnabled,
         PrettyPrintingEnabled,
+        TestFrameworkEnabled,
         AssertsEnabled,
         AssemblyVersion) {}
 }

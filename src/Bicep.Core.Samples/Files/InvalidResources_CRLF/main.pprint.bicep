@@ -1590,11 +1590,13 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
   properties: {
     description: dataCollectionRule.description
     destinations: union(
-      empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
-        azureMonitorMetrics: {
-          name: dataCollectionRule.destinations.azureMonitorMetrics.name
-        }
-      },
+      empty(dataCollectionRule.destinations.azureMonitorMetrics.name)
+        ? {}
+        : {
+            azureMonitorMetrics: {
+              name: dataCollectionRule.destinations.azureMonitorMetrics.name
+            }
+          },
       {
         logAnalytics: [
           for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {

@@ -6,7 +6,10 @@
       "name": "bicep",
       "version": "0.4.1008.15138",
       "templateHash": "12386469280856413464"
-    }
+    },
+    "name": "Test module",
+    "description": "",
+    "owner": "42"
   },
   "parameters": {
     "dnsPrefix": {

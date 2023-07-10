@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parsing;
 
@@ -8,11 +9,12 @@ namespace Bicep.Core.Syntax;
 
 public class TypedLambdaSyntax : ExpressionSyntax
 {
-    public TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase returnType, SyntaxBase arrow, SyntaxBase body)
+    public TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase returnType, SyntaxBase arrow, ImmutableArray<Token> newlinesBeforeBody, SyntaxBase body)
     {
         this.VariableSection = variableSection;
         this.ReturnType = returnType;
         this.Arrow = arrow;
+        this.NewlinesBeforeBody = newlinesBeforeBody;
         this.Body = body;
     }
 
@@ -21,6 +23,8 @@ public class TypedLambdaSyntax : ExpressionSyntax
     public SyntaxBase ReturnType { get; }
 
     public SyntaxBase Arrow { get; }
+
+    public ImmutableArray<Token> NewlinesBeforeBody { get; }
 
     public SyntaxBase Body { get; }
 

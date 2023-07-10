@@ -33,6 +33,8 @@ namespace Bicep.Core.Features
         public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
         public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
+        
+        public bool TestFrameworkEnabled => this.configuration.ExperimentalFeaturesEnabled.TestFramework;
 
         public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
 

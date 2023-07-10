@@ -210,6 +210,59 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[41:42) RightParen |)|
 //@[42:44) NewLine |\n\n|
 
+var w38___ = true? 'xxxxx' : 'xxxxxx'
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w38___|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[17:18) Question |?|
+//@[19:26) StringComplete |'xxxxx'|
+//@[27:28) Colon |:|
+//@[29:37) StringComplete |'xxxxxx'|
+//@[37:38) NewLine |\n|
+var w39___ = true
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w39___|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[17:18) NewLine |\n|
+? 'xxxxxx' : 'xxxxxx' // suffix
+//@[00:01) Question |?|
+//@[02:10) StringComplete |'xxxxxx'|
+//@[11:12) Colon |:|
+//@[13:21) StringComplete |'xxxxxx'|
+//@[31:32) NewLine |\n|
+var w40___ = true ?'xxxxxx' : 'xxxxxxx'
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w40___|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[18:19) Question |?|
+//@[19:27) StringComplete |'xxxxxx'|
+//@[28:29) Colon |:|
+//@[30:39) StringComplete |'xxxxxxx'|
+//@[39:40) NewLine |\n|
+var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w41___|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[18:19) Question |?|
+//@[20:29) StringComplete |'xxxxxxx'|
+//@[30:31) Colon |:|
+//@[40:49) StringComplete |'xxxxxxx'|
+//@[49:50) NewLine |\n|
+var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w42___|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[18:19) Question |?|
+//@[20:29) StringComplete |'xxxxxxx'|
+//@[29:30) Colon |:|
+//@[30:40) StringComplete |'xxxxxxxx'|
+//@[40:42) NewLine |\n\n|
+
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:81) NewLine |\n|
 //////////////////////////// Baselines for width 80 ////////////////////////////
@@ -542,6 +595,87 @@ var w82__ = union({ foo: 'x', bar: 'x' }, any({ baz: 'func call length: 39   ' }
 //@[81:82) RightParen |)|
 //@[82:84) NewLine |\n\n|
 
+var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w78___|
+//@[11:12) Assignment |=|
+//@[48:52) TrueKeyword |true|
+//@[52:53) NewLine |\n|
+? 1234567890
+//@[00:01) Question |?|
+//@[02:12) Integer |1234567890|
+//@[12:13) NewLine |\n|
+: 1234567890
+//@[00:01) Colon |:|
+//@[02:12) Integer |1234567890|
+//@[12:13) NewLine |\n|
+var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w79___|
+//@[11:12) Assignment |=|
+//@[49:53) TrueKeyword |true|
+//@[54:55) Question |?|
+//@[56:57) LeftBrace |{|
+//@[58:61) Identifier |foo|
+//@[61:62) Colon |:|
+//@[63:64) Integer |1|
+//@[65:66) RightBrace |}|
+//@[67:68) Colon |:|
+//@[69:70) LeftSquare |[|
+//@[70:78) Integer |12345678|
+//@[78:79) RightSquare |]|
+//@[79:80) NewLine |\n|
+var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w80___|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[18:19) Question |?|
+//@[20:21) LeftBrace |{|
+//@[22:25) Identifier |foo|
+//@[25:26) Colon |:|
+//@[27:31) TrueKeyword |true|
+//@[31:32) Comma |,|
+//@[33:36) Identifier |bar|
+//@[36:37) Colon |:|
+//@[38:43) FalseKeyword |false|
+//@[44:45) RightBrace |}|
+//@[46:47) Colon |:|
+//@[48:49) LeftSquare |[|
+//@[49:52) Integer |123|
+//@[52:53) Comma |,|
+//@[54:57) Integer |234|
+//@[57:58) Comma |,|
+//@[59:62) Integer |456|
+//@[62:63) Comma |,|
+//@[64:65) LeftBrace |{|
+//@[66:69) Identifier |xyz|
+//@[69:70) Colon |:|
+//@[71:77) StringComplete |'xxxx'|
+//@[78:79) RightBrace |}|
+//@[79:80) RightSquare |]|
+//@[80:81) NewLine |\n|
+var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w81___|
+//@[11:12) Assignment |=|
+//@[51:55) TrueKeyword |true|
+//@[56:57) Question |?|
+//@[58:68) Integer |1234567890|
+//@[69:70) Colon |:|
+//@[71:81) Integer |1234567890|
+//@[81:82) NewLine |\n|
+var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |w82___|
+//@[11:12) Assignment |=|
+//@[52:56) TrueKeyword |true|
+//@[57:58) Question |?|
+//@[59:69) Integer |1234567890|
+//@[70:71) Colon |:|
+//@[72:82) Integer |1234567890|
+//@[82:84) NewLine |\n\n|
+
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:81) NewLine |\n|
 ////////////////////////// Baselines for line breakers /////////////////////////
@@ -731,6 +865,86 @@ var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
 //@[11:12) RightBrace |}|
 //@[12:13) RightParen |)|
 //@[13:14) RightSquare |]|
-//@[14:15) NewLine |\n|
+//@[14:16) NewLine |\n\n|
+
+var forceBreak11 = true // comment
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |forceBreak11|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[34:35) NewLine |\n|
+    ? true
+//@[04:05) Question |?|
+//@[06:10) TrueKeyword |true|
+//@[10:11) NewLine |\n|
+    : false
+//@[04:05) Colon |:|
+//@[06:11) FalseKeyword |false|
+//@[11:12) NewLine |\n|
+var forceBreak12 = true ? true // comment
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |forceBreak12|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[24:25) Question |?|
+//@[26:30) TrueKeyword |true|
+//@[41:42) NewLine |\n|
+    : false
+//@[04:05) Colon |:|
+//@[06:11) FalseKeyword |false|
+//@[11:12) NewLine |\n|
+var forceBreak13 = true
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |forceBreak13|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[23:24) NewLine |\n|
+    ? true // comment
+//@[04:05) Question |?|
+//@[06:10) TrueKeyword |true|
+//@[21:22) NewLine |\n|
+    : false
+//@[04:05) Colon |:|
+//@[06:11) FalseKeyword |false|
+//@[11:12) NewLine |\n|
+var forceBreak14 = true ? {
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |forceBreak14|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[24:25) Question |?|
+//@[26:27) LeftBrace |{|
+//@[27:28) NewLine |\n|
+    foo: 42
+//@[04:07) Identifier |foo|
+//@[07:08) Colon |:|
+//@[09:11) Integer |42|
+//@[11:12) NewLine |\n|
+} : false
+//@[00:01) RightBrace |}|
+//@[02:03) Colon |:|
+//@[04:09) FalseKeyword |false|
+//@[09:10) NewLine |\n|
+var forceBreak15 = true ? { foo: 0 } : {
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |forceBreak15|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[24:25) Question |?|
+//@[26:27) LeftBrace |{|
+//@[28:31) Identifier |foo|
+//@[31:32) Colon |:|
+//@[33:34) Integer |0|
+//@[35:36) RightBrace |}|
+//@[37:38) Colon |:|
+//@[39:40) LeftBrace |{|
+//@[40:41) NewLine |\n|
+    bar: 1}
+//@[04:07) Identifier |bar|
+//@[07:08) Colon |:|
+//@[09:10) Integer |1|
+//@[10:11) RightBrace |}|
+//@[11:13) NewLine |\n\n|
+
 
 //@[00:00) EndOfFile ||
