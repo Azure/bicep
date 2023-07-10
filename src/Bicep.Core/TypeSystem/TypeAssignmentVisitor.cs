@@ -645,7 +645,6 @@ namespace Bicep.Core.TypeSystem
 
                     if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
                     {
-                        // TODO(k.a): write diagnostic for invalid discriminator property type
                         diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName!));
                         continue;
                     }
@@ -655,7 +654,6 @@ namespace Bicep.Core.TypeSystem
 
                     if (memberDiscriminatorValues!.Contains(discriminatorMemberValue))
                     {
-                        // TODO(k.a): write diagnostic for overlapping discriminator literal value
                         diagnostics.Write(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName!, discriminatorMemberValue));
                         continue;
                     }
