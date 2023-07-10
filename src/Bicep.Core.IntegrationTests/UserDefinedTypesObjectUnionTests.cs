@@ -242,17 +242,17 @@ type typeUnion2 = typeC | typeD
   "discriminator": {
     "propertyName": "type",
     "mapping": {
-      "a": {
+      "c": {
         "properties": {
-          "value": {
-            "type": "string"
+          "config": {
+            "$ref": "#/definitions/typeUnion1"
           }
         }
       },
-      "b": {
+      "d": {
         "properties": {
           "value": {
-            "type": "int"
+            "$ref": "#/definitions/typeUnion1"
           }
         }
       }
