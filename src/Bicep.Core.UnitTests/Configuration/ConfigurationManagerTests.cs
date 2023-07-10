@@ -105,7 +105,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "prettyPrinting": false, 
                     "testFramework": false,
                     "assertions": false
-
                   },
                   "formatting": {
                     "indentKind": "Space",
