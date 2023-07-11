@@ -538,7 +538,9 @@ namespace Bicep.Core.TypeSystem
         public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declarationDeclaredType = typeManager.GetDeclaredType(this.currentTypeDeclarationSyntax!);
+                var declarationDeclaredType = this.currentTypeDeclarationSyntax != null
+                    ? typeManager.GetDeclaredType(this.currentTypeDeclarationSyntax)
+                    : null;
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
