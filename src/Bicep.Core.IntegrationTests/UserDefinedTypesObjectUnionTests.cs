@@ -402,5 +402,36 @@ type typeTest = {{typeTest}}
 
             result.Should().OnlyContainDiagnostic("BCP344", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types with unique member types.");
         }
+
+        [DataTestMethod]
+        [DataRow("", "BCP071")]
+        [DataRow("0", "BCP070")]
+        public void ObjectTypeUnions_Error_Discriminator_InvalidArgument(string decoratorArgument, string expectedDiagnosticCode)
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                $$"""
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'a'
+  value: int
+}
+
+@discriminator({{decoratorArgument}})
+type typeUnion = typeA | typeB
+""");
+
+            var expectedDiagnosticMessage = expectedDiagnosticCode switch
+            {
+                "BCP071" => "Expected 1 argument, but got 0.",
+                "BCP070" => "Argument of type \"0\" is not assignable to parameter of type \"string\".",
+                _ => ""
+            };
+            result.Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+        }
     }
 }

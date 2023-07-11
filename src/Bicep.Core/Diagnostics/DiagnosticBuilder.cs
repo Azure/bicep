@@ -1941,10 +1941,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP345",
                 $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string? discriminatorPropertyValue = null) => new(
+            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
                 TextSpan,
                 "BCP346",
-                $"The {(discriminatorPropertyValue != null ? $"value \"{discriminatorPropertyValue}\"" : "value type")} for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
+                $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
