@@ -32,7 +32,6 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
         private readonly BicepSourceFileKind fileKind;
-        private TypeDeclarationSyntax? currentTypeDeclarationSyntax = null;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, Workspaces.BicepSourceFileKind fileKind)
         {
@@ -534,8 +533,9 @@ namespace Bicep.Core.TypeSystem
         public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declarationDeclaredType = this.currentTypeDeclarationSyntax != null && this.currentTypeDeclarationSyntax.Value == syntax
-                    ? typeManager.GetDeclaredType(this.currentTypeDeclarationSyntax)
+                var parentSyntax = binder.GetParent(syntax);
+                var declarationDeclaredType = parentSyntax is TypeDeclarationSyntax
+                    ? typeManager.GetDeclaredType(parentSyntax)
                     : null;
 
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
