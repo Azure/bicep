@@ -212,7 +212,6 @@ type typeUnion3 = typeD | (typeUnion2)
             unionToken.Should().DeepEqual(expectedTypeUnionToken);
         }
 
-        // TODO(k.a): is this an error/restricted?
         [TestMethod]
         public void ObjectTypeUnions_Nested()
         {
@@ -391,7 +390,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().ContainDiagnostic("BCP346", DiagnosticLevel.Error, $"The value \"a\" for discriminator property \"type\" exists on multiple union member types. The value must be unique across all union member types.");
+            result.Should().ContainDiagnostic("BCP346", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" exists on multiple union member types. The value must be unique across all union member types.");
         }
 
         [TestMethod]
