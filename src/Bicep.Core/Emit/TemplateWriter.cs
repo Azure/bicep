@@ -428,7 +428,7 @@ namespace Bicep.Core.Emit
                 var memberSyntax = unionMemberSyntax.Value;
                 var memberType = Context.SemanticModel.GetDeclaredType(unionMemberSyntax);
                 var memberDeclaredTypeAssignment = Context.SemanticModel.GetDeclaredTypeAssignment(unionMemberSyntax);
-                ObjectTypeSyntax? objectTypeSyntaxBase = null;
+                ObjectTypeSyntax? objectTypeSyntaxBase;
 
                 if (memberType is ObjectType memberObjectType)
                 {

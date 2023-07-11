@@ -351,14 +351,12 @@ type typeUnion = typeA | typeB
             result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
-        [DataTestMethod]
-        [DataRow("typeA | typeB")]
-        [DataRow("typeA | typeA")]
-        public void ObjectTypeUnions_Error_Discriminator_DuplicatedAcrossMembers(string typeTest)
+        [TestMethod]
+        public void ObjectTypeUnions_Error_Discriminator_DuplicatedAcrossMembers()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
-                $$"""
+                """
 type typeA = {
   type: 'a'
   value: string
@@ -370,10 +368,10 @@ type typeB = {
 }
 
 @discriminator('type')
-type typeUnion = {{typeTest}}
+type typeUnion = typeA | typeB
 """);
 
-            result.Should().ContainDiagnostic("BCP346", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" exists on multiple union member types. The value must be unique across all union member types.");
+            result.Should().ContainDiagnostic("BCP346", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" is duplicated across multiple union member types. The value must be unique across all union member types.");
         }
 
         [DataTestMethod]
@@ -381,6 +379,7 @@ type typeUnion = {{typeTest}}
         [DataRow("object")]
         [DataRow("'a' | 'b'")]
         [DataRow("typeA")]
+        [DataRow("typeA | typeA")]
         [DataRow("(typeA | typeB)[]")]
         public void ObjectTypeUnions_Error_DiscriminatorAppliedToNonObjectOnlyUnion(string typeTest)
         {
@@ -401,7 +400,7 @@ type typeB = {
 type typeTest = {{typeTest}}
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP344", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types.");
+            result.Should().OnlyContainDiagnostic("BCP344", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types with unique member types.");
         }
     }
 }

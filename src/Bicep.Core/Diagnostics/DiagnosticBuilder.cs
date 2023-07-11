@@ -1934,18 +1934,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
                 TextSpan,
                 "BCP344",
-                $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types.");
+                $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types with unique member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => new(
                 TextSpan,
                 "BCP345",
                 $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
 
-            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
+            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string? discriminatorPropertyValue = null) => new(
                 TextSpan,
                 "BCP346",
-                $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" exists on multiple union member types. The value must be unique across all union member types.");
-
+                $"The {(discriminatorPropertyValue != null ? $"value \"{discriminatorPropertyValue}\"" : "value type")} for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

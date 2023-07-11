@@ -473,11 +473,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
-                this.currentTypeDeclarationSyntax = syntax;
-
                 base.VisitTypeDeclarationSyntax(syntax);
-
-                this.currentTypeDeclarationSyntax = null;
 
                 diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
 
@@ -538,9 +534,10 @@ namespace Bicep.Core.TypeSystem
         public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declarationDeclaredType = this.currentTypeDeclarationSyntax != null
+                var declarationDeclaredType = this.currentTypeDeclarationSyntax != null && this.currentTypeDeclarationSyntax.Value == syntax
                     ? typeManager.GetDeclaredType(this.currentTypeDeclarationSyntax)
                     : null;
+
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
@@ -553,7 +550,7 @@ namespace Bicep.Core.TypeSystem
                 switch (nonLiteralUnion)
                 {
                     case UnionType union when TypeHelper.TryRemoveNullability(union) is {} nonNullable && LanguageConstants.DeclarationTypes.ContainsValue(nonNullable):
-                        ValidateAllowedValuesUnion(union, memberTypes, declarationDeclaredType, diagnostics);
+                        ValidateUnionMembers(union, memberTypes, declarationDeclaredType, diagnostics);
                         break;
 
                     case UnionType union when MightBeArrayAny(syntax) &&
@@ -563,7 +560,7 @@ namespace Bicep.Core.TypeSystem
                         break;
 
                     case TypeSymbol ts when LanguageConstants.DeclarationTypes.ContainsValue(ts):
-                        ValidateAllowedValuesUnion(ts, memberTypes, declarationDeclaredType, diagnostics);
+                        ValidateUnionMembers(ts, memberTypes, declarationDeclaredType, diagnostics);
                         break;
 
                     default:
@@ -610,9 +607,9 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private static void ValidateAllowedValuesUnion(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, TypeSymbol? typeDeclarationDeclaredType, IDiagnosticWriter diagnostics)
+        private static void ValidateUnionMembers(TypeSymbol keystoneType, ImmutableArray<(TypeSymbol, UnionTypeMemberSyntax)> memberTypes, TypeSymbol? typeDeclarationDeclaredType, IDiagnosticWriter diagnostics)
         {
-            var isObjectUnion = keystoneType is ObjectType;
+            var isObjectUnion = keystoneType is ObjectType && memberTypes.Length > 1;
             // NOTE(kylealbert): High level validation for discriminated object unions happens in the discriminator decorator validator.
             // Member validation is done here
             var isDiscriminatedObjectUnion = false;
