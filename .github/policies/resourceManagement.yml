@@ -40,9 +40,10 @@ configuration:
       - addLabel:
           label: 'Status: No Recent Activity'
       - addReply:
-          reply: 'Hi ${issueAuthor}, this issue has been marked as stale because it was labeled as requiring author feedback but has not had any activity for **4 days**. It will be closed if no further activity occurs **within 3 days of this comment**. Thanks for contributing to bicep! :smile: :mechanical_arm:'
+          reply: 'Hi @${issueAuthor}, this issue has been marked as stale because it was labeled as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 3 days of this comment**. Thanks for contributing to bicep! :smile: :mechanical_arm:'
     eventResponderTasks:
-    - if:
+    - description: "Replace 'Needs: Author Feedback' with 'Needs: Attention' label when author comments"
+      if:
       - payloadType: Issue_Comment
       - isAction:
           action: Created
@@ -56,8 +57,8 @@ configuration:
           label: 'Needs: Attention :wave:'
       - removeLabel:
           label: awaiting response
-      description: "Replace 'Needs: Author Feedback' with 'Needs: Attention' label when author comments"
-    - if:
+    - description: "[Closed Issues] Remove 'Status: No Recent Activity' label from issues and add Needs: Triage"
+      if:
       - payloadType: Issues
       - not:
           isAction:
@@ -69,8 +70,8 @@ configuration:
           label: 'Status: No Recent Activity'
       - addLabel:
           label: 'Needs: Triage :mag:'
-      description: "[Closed Issues] Remove 'Status: No Recent Activity' label from issues and add Needs: Triage"
-    - if:
+    - description: "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
+      if:
       - payloadType: Issue_Comment
       - hasLabel:
           label: 'Status: No Recent Activity'
@@ -84,8 +85,8 @@ configuration:
           action: Opened
       then:
       - addCodeFlowLink
-      description: "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
-    - if:
+    - description: "Approve and apply 'auto-merge' label to dependabot PRs"
+      if:
       - payloadType: Pull_Request
       - hasLabel:
           label: dependencies
@@ -100,21 +101,20 @@ configuration:
           comment: ':shipit:'
       - addLabel:
           label: auto-merge
-      description: "Approve and apply 'auto-merge' label to dependabot PRs"
-    - if:
+    - description: "Auto merge PRs"
+      if:
       - payloadType: Pull_Request
       - hasLabel:
           label: auto-merge
       then:
       - enableAutoMerge:
           mergeMethod: Squash
-      description: "Auto merge PRs"
-    - if:
+    - description: "Disable PR auto merge"
+      if:
       - payloadType: Pull_Request
       - labelRemoved:
           label: auto-merge
       then:
       - disableAutoMerge
-      description: "Disable PR auto merge"
 onFailure: 
 onSuccess: 
