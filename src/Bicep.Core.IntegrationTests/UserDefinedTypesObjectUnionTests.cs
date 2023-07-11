@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -324,14 +325,17 @@ type typeUnion = typeA | typeB
             result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
-        [TestMethod]
-        public void ObjectTypeUnions_Error_Discriminator_NonStringLiteral()
+        [DataTestMethod]
+        [DataRow("0")]
+        [DataRow("true")]
+        [DataRow("'a'?")]
+        public void ObjectTypeUnions_Error_Discriminator_PropertyTypeViolation(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
-                """
+                $$"""
 type typeA = {
-  type: 0
+  type: {{typeTest}}
   value: string
 }
 
@@ -347,35 +351,14 @@ type typeUnion = typeA | typeB
             result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
-        [TestMethod]
-        public void ObjectTypeUnions_Error_Discriminator_OptionalProperty()
+        [DataTestMethod]
+        [DataRow("typeA | typeB")]
+        [DataRow("typeA | typeA")]
+        public void ObjectTypeUnions_Error_Discriminator_DuplicatedAcrossMembers(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
-                """
-type typeA = {
-  type: 'a'?
-  value: string
-}
-
-type typeB = {
-  type: 'b'
-  value: int
-}
-
-@discriminator('type')
-type typeUnion = typeA | typeB
-""");
-
-            result.Should().ContainDiagnostic("BCP345", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
-        }
-
-        [TestMethod]
-        public void ObjectTypeUnions_Error_Discriminator_DuplicatedAcrossMembers()
-        {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+                $$"""
 type typeA = {
   type: 'a'
   value: string
@@ -387,18 +370,23 @@ type typeB = {
 }
 
 @discriminator('type')
-type typeUnion = typeA | typeB
+type typeUnion = {{typeTest}}
 """);
 
             result.Should().ContainDiagnostic("BCP346", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" exists on multiple union member types. The value must be unique across all union member types.");
         }
 
-        [TestMethod]
-        public void ObjectTypeUnions_Error_DiscriminatorAppliedToMixedArray()
+        [DataTestMethod]
+        [DataRow("string")]
+        [DataRow("object")]
+        [DataRow("'a' | 'b'")]
+        [DataRow("typeA")]
+        [DataRow("(typeA | typeB)[]")]
+        public void ObjectTypeUnions_Error_DiscriminatorAppliedToNonObjectOnlyUnion(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
-                """
+                $$"""
 type typeA = {
   type: 'a'
   value: string
@@ -410,11 +398,10 @@ type typeB = {
 }
 
 @discriminator('type')
-type typeUnion = (typeA | typeB)[]
+type typeTest = {{typeTest}}
 """);
 
-            result.Should().ContainDiagnostic("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values.");
-            result.Should().ContainDiagnostic("BCP344", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types.");
+            result.Should().OnlyContainDiagnostic("BCP344", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types.");
         }
     }
 }
