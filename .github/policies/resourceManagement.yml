@@ -70,7 +70,7 @@ configuration:
           label: 'Status: No Recent Activity'
       - addLabel:
           label: 'Needs: Triage :mag:'
-    - description: "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
+    - description: "Remove 'Status: No Recent Activity' label when an issue is commented on"
       if:
       - payloadType: Issue_Comment
       - hasLabel:
@@ -78,8 +78,8 @@ configuration:
       then:
       - removeLabel:
           label: 'Status: No Recent Activity'
-      description: "Remove 'Status: No Recent Activity' label when an issue is commented on"
-    - if:
+    - description: "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
+      if:
       - payloadType: Pull_Request
       - isAction:
           action: Opened
