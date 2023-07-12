@@ -52,7 +52,6 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-            // var (output, error, result) = await Bicep(settings, "test");
             var (output, error, result) = await Bicep(settings, "test", "/dev/zero");
 
             using (new AssertionScope())
