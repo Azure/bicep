@@ -437,5 +437,59 @@ type typeUnion = typeA | typeB
             };
             result.Should().OnlyContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Error_InnerCycle()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion1 = typeA | { type: 'c', value: typeUnion2 }
+
+@discriminator('type')
+type typeUnion2 = typeB | typeUnion1
+""");
+
+            result.Should().ContainDiagnostic("BCP299", DiagnosticLevel.Error, "This type definition includes itself as a required component via a cycle (\"typeUnion1\" -> \"typeUnion2\").");
+            result.Should().ContainDiagnostic("BCP299", DiagnosticLevel.Error, "This type definition includes itself as a required component via a cycle (\"typeUnion2\" -> \"typeUnion1\").");
+        }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Error_TopLevelCycle()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion1 = typeUnion2 | typeA
+
+@discriminator('type')
+type typeUnion2 = typeB | typeUnion1
+""");
+
+            result.Should().ContainDiagnostic("BCP299", DiagnosticLevel.Error, "This type definition includes itself as a required component via a cycle (\"typeUnion1\" -> \"typeUnion2\").");
+            result.Should().ContainDiagnostic("BCP299", DiagnosticLevel.Error, "This type definition includes itself as a required component via a cycle (\"typeUnion2\" -> \"typeUnion1\").");
+        }
     }
 }

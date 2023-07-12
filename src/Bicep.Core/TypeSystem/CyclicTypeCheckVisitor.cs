@@ -88,6 +88,12 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
     public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
         => VisitContainedTypeSyntax(syntax, base.VisitTupleTypeItemSyntax);
 
+    public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
+    {
+        enteredTypeContainer = true;
+        base.VisitUnionTypeSyntax(syntax);
+    }
+
     private void VisitContainedTypeSyntax<TSyntax>(TSyntax syntax, Action<TSyntax> visitBaseFunc) where TSyntax : SyntaxBase
     {
         var containedType = model.GetTypeInfo(syntax);
