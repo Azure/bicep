@@ -91,6 +91,15 @@ namespace Bicep.Cli.Services
             var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
             var semantic_model = compilation.GetEntrypointSemanticModel();
 
+            var declarations = semantic_model.Root.TestDeclarations;
+
+            foreach(var declaration in declarations)
+            {
+                declaration.TryGetSemanticModel(out var declarationSemanticModel, out var declarationDiagnostics);
+                var parameters = declaration.DeclaringTest.GetParameters();
+                
+            }
+
             LogDiagnostics(compilation);
 
             return compilation;
