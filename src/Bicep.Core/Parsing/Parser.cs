@@ -266,7 +266,7 @@ namespace Bicep.Core.Parsing
                     return current.Type switch
                     {
                         TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
-                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStart())
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{"))
                     };
                 },
                 GetSuppressionFlag(assignment),
