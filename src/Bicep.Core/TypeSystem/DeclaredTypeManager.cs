@@ -418,13 +418,36 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetModifiedUnion(UnionType unionType, DecorableSyntax syntax)
         {
-            if (TryGetSystemDecorator(syntax, LanguageConstants.TypeDiscriminatorDecoratorName) is not DecoratorSyntax discriminatorDecorator)
+            if (TryGetSystemDecorator(syntax, LanguageConstants.TypeDiscriminatorDecoratorName) is not { } discriminatorDecorator
+                || discriminatorDecorator.Arguments.FirstOrDefault()?.Expression is not StringSyntax discriminatorPropertyExpr)
             {
                 return unionType;
             }
 
-            var discriminatorPropertyExpr = discriminatorDecorator.Arguments.FirstOrDefault()?.Expression as StringSyntax;
-            return discriminatorPropertyExpr != null ? UnionType.GetModifiedUnionType(unionType, discriminatorPropertyExpr.TryGetLiteralValue()) : unionType;
+            var discriminatorPropertyName = discriminatorPropertyExpr.TryGetLiteralValue();
+
+            if (discriminatorPropertyName == null)
+            {
+                return unionType;
+            }
+
+            var discriminatorValueTypes = new List<StringLiteralType>();
+            foreach (var member in unionType.Members)
+            {
+                var memberType = member.Type;
+
+                if (memberType is not ObjectType objectType
+                    || !objectType.Properties.TryGetValue(discriminatorPropertyName, out var objectDiscriminatorProperty)
+                    || objectDiscriminatorProperty.TypeReference.Type is not StringLiteralType objectDiscriminatorPropertyType)
+                {
+                    continue;
+                }
+
+                discriminatorValueTypes.Add(objectDiscriminatorPropertyType);
+            }
+
+            var discriminatorTypeProperty = new TypeProperty(discriminatorPropertyName, TypeHelper.CreateTypeUnion(discriminatorValueTypes), TypePropertyFlags.Required);
+            return UnionType.GetModifiedUnionType(unionType, discriminatorTypeProperty);
         }
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)

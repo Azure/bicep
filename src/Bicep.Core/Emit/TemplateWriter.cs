@@ -414,7 +414,7 @@ namespace Bicep.Core.Emit
         {
             var objectProperties = new List<ObjectPropertyExpression>();
 
-            var discriminatorPropertyName = unionType.DiscriminatorPropertyName!;
+            var discriminatorPropertyName = unionType.DiscriminatorProperty!.Name;
             objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(discriminatorPropertyName)));
             objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(GetDiscriminatedUnionMappingEntries(syntax, discriminatorPropertyName))));
 
@@ -454,8 +454,8 @@ namespace Bicep.Core.Emit
                 }
                 else if (memberType is UnionType nestedUnion)
                 {
-                    if (string.IsNullOrEmpty(nestedUnion.DiscriminatorPropertyName)
-                        || nestedUnion.DiscriminatorPropertyName != discriminatorPropertyName
+                    if (nestedUnion.DiscriminatorProperty == null
+                        || nestedUnion.DiscriminatorProperty.Name != discriminatorPropertyName
                         || memberDeclaredTypeAssignment is not { DeclaringSyntax: not null })
                     {
                         // This should have been caught during type checking
@@ -603,7 +603,7 @@ namespace Bicep.Core.Emit
                 TypeProperty(nonLiteralTypeName),
             };
 
-            if (typeDeclarationType is UnionType typeDeclarationUnionType && !string.IsNullOrEmpty(typeDeclarationUnionType.DiscriminatorPropertyName))
+            if (typeDeclarationType is UnionType { DiscriminatorProperty: not null } typeDeclarationUnionType)
             {
                 properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetUnionDiscriminatorExpression(syntax, typeDeclarationUnionType)));
             }

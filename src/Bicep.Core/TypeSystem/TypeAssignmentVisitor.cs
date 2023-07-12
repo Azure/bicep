@@ -616,9 +616,9 @@ namespace Bicep.Core.TypeSystem
             string? discriminatorPropertyName = null;
             HashSet<string>? memberDiscriminatorValues = null;
 
-            if (isObjectUnion && (typeDeclarationDeclaredType is TypeType typeType ? typeType.Unwrapped : typeDeclarationDeclaredType) is UnionType unionType)
+            if (isObjectUnion && (typeDeclarationDeclaredType is TypeType typeType ? typeType.Unwrapped : typeDeclarationDeclaredType) is UnionType { DiscriminatorProperty: not null} unionType)
             {
-                discriminatorPropertyName = unionType.DiscriminatorPropertyName;
+                discriminatorPropertyName = unionType.DiscriminatorProperty.Name;
                 isDiscriminatedObjectUnion = !string.IsNullOrEmpty(discriminatorPropertyName);
                 memberDiscriminatorValues = isDiscriminatedObjectUnion ? new HashSet<string>() : null;
             }
