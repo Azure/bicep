@@ -22,5 +22,7 @@ namespace Bicep.Core.Features
         bool UserDefinedFunctionsEnabled { get; }
 
         bool PrettyPrintingEnabled { get; }
+
+        bool TestFrameworkEnabled { get; }
     }
 }

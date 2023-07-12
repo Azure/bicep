@@ -28,7 +28,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().Contain("## Description");
             ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().NotContain("## Details");
 
-            var generatedFile = ReadmeFile.Generate(fileSystem, MetadataFile.ReadFromFileSystem(fileSystem), MainArmTemplateFile.ReadFromFileSystem(fileSystem));
+            var generatedFile = ReadmeFile.Generate(fileSystem, MainArmTemplateFile.ReadFromFileSystem(fileSystem));
 
             generatedFile.Contents.Should().Contain("## Details");
             generatedFile.Contents.Should().NotContain("## Description");
@@ -43,7 +43,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().Contain("## Description");
             ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().Contain("## Details");
 
-            FluentActions.Invoking(() => ReadmeFile.Generate(fileSystem, MetadataFile.ReadFromFileSystem(fileSystem), MainArmTemplateFile.ReadFromFileSystem(fileSystem))).Should()
+            FluentActions.Invoking(() => ReadmeFile.Generate(fileSystem, MainArmTemplateFile.ReadFromFileSystem(fileSystem))).Should()
                 .Throw<BicepException>()
                 .WithMessage("The readme file *README.md must not contain both a Description and a Details section.");
         }

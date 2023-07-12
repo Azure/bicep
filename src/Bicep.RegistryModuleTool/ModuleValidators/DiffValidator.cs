@@ -28,8 +28,7 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
 
         public void Validate(ReadmeFile file)
         {
-            var latestMetadataFile = MetadataFile.ReadFromFileSystem(this.fileSystem);
-            var latestReadmeFile = ReadmeFile.Generate(this.fileSystem, latestMetadataFile, latestMainArmTemplateFile);
+            var latestReadmeFile = ReadmeFile.Generate(this.fileSystem, latestMainArmTemplateFile);
 
             this.Validate(file.Path, file.Contents, latestReadmeFile.Contents);
         }

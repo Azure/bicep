@@ -514,7 +514,7 @@
                       "description": "Use recent API versions. See https://aka.ms/bicep/linter/use-recent-api-versions",
                       "type": "object",
                       "properties": {
-                        "maxAllowedAgeInDays": {
+                        "maxAgeInDays": {
                           "description": "Maximum age in days before an API version is considered old (default is 730 days = 2 years)",
                           "type": "integer",
                           "default": 730,
@@ -600,6 +600,9 @@
           "type": "boolean"
         },
         "prettyPrinting": {
+          "type": "boolean"
+        },
+        "testFramework": {
           "type": "boolean"
         }
       }

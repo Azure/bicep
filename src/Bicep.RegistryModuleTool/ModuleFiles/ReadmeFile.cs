@@ -43,37 +43,21 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string Contents { get; }
 
-        public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
+        public static ReadmeFile Generate(IFileSystem fileSystem, MainArmTemplateFile mainArmTemplateFile)
         {
             string? detailsSection = DetailsSectionTemplate;
             var examplesSection = ExamplesSectionTemplate;
 
-            var moduleName = mainArmTemplateFile.NameMetadata ?? metadataFile.Name ?? "MISSING Name";
-            var moduleOwner = mainArmTemplateFile.OwnerMetadata ?? metadataFile.Owner ?? "MISSING Owner";
-            // TODO: rename to "Description"
-            var moduleSummary = mainArmTemplateFile.DescriptionMetadata ?? metadataFile.Summary ?? "MISSING Summary";
-
-            // TODO: remove support for metadata.json
-            if (!moduleName.Equals(metadataFile.Name, StringComparison.InvariantCulture))
-            {
-                throw new ArgumentException(@"The ""name"" property in metadata.json does not match ""metadata name"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
-            }
-            if (!moduleOwner.Equals(metadataFile.Owner, StringComparison.InvariantCulture))
-            {
-                throw new ArgumentException(@"The ""owner"" property in metadata.json does not match ""metadata owner"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
-            }
-            if (!moduleSummary.Equals(metadataFile.Summary, StringComparison.InvariantCulture))
-            {
-                throw new ArgumentException(@"The ""summary"" property in metadata.json does not match ""metadata description"" in the bicep file. If both are specified, they must be the same (metadata.json will be deprecated in a future release).");
-            }
+            var moduleName = mainArmTemplateFile.NameMetadata ?? "TODO: MISSING Name";
+            var moduleDescription = mainArmTemplateFile.DescriptionMetadata ?? "TODO: MISSING Description";
 
             try
             {
                 var existingFile = ReadFromFileSystem(fileSystem);
 
                 // Details section
-                string? existingDetailsSection = GetExistingSection(existingFile, DetailsSectionHeader);
-                string? existingDescriptionSection = GetExistingSection(existingFile, ObsoleteDetailsSectionHeader);
+                string? existingDetailsSection = TryGetExistingSection(existingFile, DetailsSectionHeader);
+                string? existingDescriptionSection = TryGetExistingSection(existingFile, ObsoleteDetailsSectionHeader);
                 if (existingDetailsSection is not null && existingDescriptionSection is not null)
                 {
                     throw new BicepException($"The readme file {existingFile.Path} must not contain both a Description and a Details section.");
@@ -89,7 +73,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 }
 
                 // Examples section
-                if (GetExistingSection(existingFile, "## Examples") is string existingExamplesSection)
+                if (TryGetExistingSection(existingFile, "## Examples") is string existingExamplesSection)
                 {
                     examplesSection = existingExamplesSection;
                 }
@@ -104,7 +88,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             builder.AppendLine($"# {moduleName}");
             builder.AppendLine();
 
-            builder.AppendLine(moduleSummary);
+            builder.AppendLine(moduleDescription);
             builder.AppendLine();
 
             builder.AppendLine(detailsSection);
@@ -203,7 +187,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return Markdown.Normalize(section);
         }
 
-        private static string? GetExistingSection(ReadmeFile existingFile, string sectionTitle)
+        private static string? TryGetExistingSection(ReadmeFile existingFile, string sectionTitle)
         {
             var existingSection = TryReadSection(existingFile.Contents, sectionTitle);
 

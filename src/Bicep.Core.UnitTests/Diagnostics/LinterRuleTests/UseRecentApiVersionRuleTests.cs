@@ -727,29 +727,29 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             public class TestData
             {
-                public TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateTime today, int maxAllowedDaysAge)
+                public TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateTime today, int maxAgeInDays)
                 {
                     ResourceScope = resourceScope;
                     FullyQualifiedResourceType = fullyQualifiedResourceType;
-                    MaxAllowedAgeDays = maxAllowedDaysAge;
+                    MaxAgeInDays = maxAgeInDays;
                     Today = today;
                 }
 
                 public string FullyQualifiedResourceType { get; }
                 public ResourceScope ResourceScope { get; }
-                public int MaxAllowedAgeDays { get; }
+                public int MaxAgeInDays { get; }
                 public DateTime Today { get; }
 
                 public static string GetDisplayName(MethodInfo _, object[] data)
                 {
                     var me = ((TestData)data[0]);
-                    return $"{me.ResourceScope}:{me.FullyQualifiedResourceType} (max={me.MaxAllowedAgeDays} days)";
+                    return $"{me.ResourceScope}:{me.FullyQualifiedResourceType} (max={me.MaxAgeInDays} days)";
                 }
             }
 
             private static IEnumerable<object[]> GetTestData()
             {
-                const int maxAllowedAgeDays = 2 * 365;
+                const int maxAgeInDays = 2 * 365;
                 const int maxResourcesToTest = 500; // test is slow
 
                 foreach (ResourceScope scope in new ResourceScope[]
@@ -776,24 +776,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             }
                         }
 
-                        datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAllowedAgeDays - 1)));
+                        datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAgeInDays - 1)));
                         if (Exhaustive)
                         {
-                            datesToTest.Add(apiVersionDates.Min().AddDays(-maxAllowedAgeDays));
-                            datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAllowedAgeDays + 1)));
+                            datesToTest.Add(apiVersionDates.Min().AddDays(-maxAgeInDays));
+                            datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAgeInDays + 1)));
                         }
 
-                        datesToTest.Add(apiVersionDates.Max().AddDays(maxAllowedAgeDays - 1));
+                        datesToTest.Add(apiVersionDates.Max().AddDays(maxAgeInDays - 1));
                         if (Exhaustive)
                         {
-                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAllowedAgeDays));
-                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAllowedAgeDays + 1));
+                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAgeInDays));
+                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAgeInDays + 1));
                         }
 
                         datesToTest = datesToTest.Distinct().ToList();
                         foreach (var today in datesToTest)
                         {
-                            yield return new object[] { new TestData(scope, typeName, today, maxAllowedAgeDays) };
+                            yield return new object[] { new TestData(scope, typeName, today, maxAgeInDays) };
                         }
                     }
                 }
@@ -833,7 +833,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void Invariants(TestData data)
             {
-                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAllowedAgeDays, data.ResourceScope, data.FullyQualifiedResourceType);
+                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, data.ResourceScope, data.FullyQualifiedResourceType);
 
                 allVersions.Should().NotBeNull();
                 allowedVersions.Should().NotBeNull();
@@ -842,10 +842,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 allowedVersions.Should().NotBeEmpty();
 
                 var stableVersions = allVersions.Where(v => v.IsStable).ToArray();
-                var recentStableVersions = stableVersions.Where(v => DateIsRecent(v.Date, data.Today, data.MaxAllowedAgeDays)).ToArray();
+                var recentStableVersions = stableVersions.Where(v => DateIsRecent(v.Date, data.Today, data.MaxAgeInDays)).ToArray();
 
                 var previewVersions = allVersions.Where(v => v.IsPreview).ToArray();
-                var recentPreviewVersions = previewVersions.Where(v => DateIsRecent(v.Date, data.Today, data.MaxAllowedAgeDays)).ToArray();
+                var recentPreviewVersions = previewVersions.Where(v => DateIsRecent(v.Date, data.Today, data.MaxAgeInDays)).ToArray();
 
                 // if there are any stable versions available...
                 if (stableVersions.Any())
@@ -866,7 +866,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         var previewDate = preview.Date;
 
                         // Any preview version more recent than the most recent stable version and < 2 years old is allowed
-                        if (DateIsRecent(preview.Date, data.Today, data.MaxAllowedAgeDays))
+                        if (DateIsRecent(preview.Date, data.Today, data.MaxAgeInDays))
                         {
                             if (DateIsMoreRecentThan(previewDate, mostRecentStable.Date))
                             {
@@ -894,7 +894,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 // If the most recent version is a preview version that’s > 2 years old, only that one preview version is allowed
                 var mostRecent = allVersions.OrderBy(v => v.Date).Last();
-                if (mostRecent.IsPreview && DateIsOld(mostRecent.Date, data.Today, data.MaxAllowedAgeDays))
+                if (mostRecent.IsPreview && DateIsOld(mostRecent.Date, data.Today, data.MaxAgeInDays))
                 {
                     allowedVersions.Where(v => v.IsPreview).Select(v => v.Formatted).Should().BeEquivalentTo(new string[] { mostRecent.Formatted }, "if the most recent version is a preview version that’s > 2 years old, that one preview version is allowed");
                 }
@@ -902,7 +902,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // If there are no stable versions, all recent preview versions are allowed
                 if (!stableVersions.Any())
                 {
-                    allowedVersions.Should().BeEquivalentTo(previewVersions.Where(v => DateIsRecent(v.Date, data.Today, data.MaxAllowedAgeDays)));
+                    allowedVersions.Should().BeEquivalentTo(previewVersions.Where(v => DateIsRecent(v.Date, data.Today, data.MaxAgeInDays)));
                 }
             }
         }
