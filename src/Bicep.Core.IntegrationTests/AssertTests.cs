@@ -146,14 +146,14 @@ namespace Bicep.Core.IntegrationTests
             result.Template.Should().DeepEqual(JToken.Parse(@"
                 {
                     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-                    ""languageVersion"": ""1.11-experimental"",
+                    ""languageVersion"": ""1.10-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
                         ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""7560528332789115725""
+                            ""templateHash"": ""2524536890773058281""
                         }
                     },
                     ""parameters"": {
