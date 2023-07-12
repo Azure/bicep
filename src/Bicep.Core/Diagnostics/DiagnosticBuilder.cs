@@ -1930,6 +1930,25 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
+        
+            public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
+                TextSpan,
+                "BCP345",
+                "A test declaration can only reference a Bicep File");
+
+            public ErrorDiagnostic ExpectedTestIdentifier() => new(
+                TextSpan,
+                "BCP0346",
+                "Expected a test identifier at this location.");
+
+            public ErrorDiagnostic ExpectedTestPathString() => new(
+                TextSpan,
+                "BCP0347",
+                "Expected a test path string at this location.");
+            public ErrorDiagnostic TestDeclarationStatementsUnsupported() => new(
+                TextSpan,
+                "BCP348",
+                $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

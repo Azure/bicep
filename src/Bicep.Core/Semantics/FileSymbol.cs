@@ -47,7 +47,7 @@ namespace Bicep.Core.Semantics
             this.ModuleDeclarations = fileScope.Declarations.OfType<ModuleSymbol>().ToImmutableArray();
             this.OutputDeclarations = fileScope.Declarations.OfType<OutputSymbol>().ToImmutableArray();
             this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
-
+            this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
 
             this.usingDeclarationLazy = new Lazy<UsingDeclarationSyntax?>(() => this.Syntax.Children.OfType<UsingDeclarationSyntax>().FirstOrDefault());
@@ -102,6 +102,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
+
+        public ImmutableArray<TestSymbol> TestDeclarations { get; }
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
 
