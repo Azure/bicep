@@ -758,23 +758,109 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol FinalizeUnionType(UnionTypeSyntax syntax)
         {
-            var unionMembers = syntax.Members.Select(m => GetTypeFromTypeSyntax(m, allowNamespaceReferences: false));
+            var unionMembers = syntax.Members.Select(m => (m, GetTypeFromTypeSyntax(m, allowNamespaceReferences: false)));
 
-            TypeSymbol? finalType = null;
             if (binder.GetParent(syntax) is TypeDeclarationSyntax typeDeclarationSyntax
                 && TryGetSystemDecorator(typeDeclarationSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
             {
-                // TODO(k.a): validate members here and if invalid, create the error type
-                var discriminatorPropertyExpr = discriminatorDecorator.Arguments.FirstOrDefault()?.Expression as StringSyntax;
-                var discriminatorPropertyName = discriminatorPropertyExpr?.TryGetLiteralValue();
+                return FinalizeDiscriminatedObjectType(unionMembers.ToArray(), discriminatorDecorator);
+            }
 
-                if (discriminatorPropertyName != null)
+            return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
+        }
+
+        private TypeSymbol FinalizeDiscriminatedObjectType(
+            (UnionTypeMemberSyntax syntax, ITypeReference type)[] unionMembers, DecoratorSyntax discriminatorDecorator)
+        {
+            var discriminatorPropertyExpr = discriminatorDecorator.Arguments.FirstOrDefault()?.Expression as StringSyntax;
+            var discriminatorPropertyName = discriminatorPropertyExpr?.TryGetLiteralValue();
+
+            if (discriminatorPropertyName == null)
+            {
+                return ErrorType.Empty(); // the decorator validator handles this case
+            }
+
+            List<ErrorDiagnostic>? errorDiagnostics = null;
+
+            void AddMemberErrorDiagnostic(ErrorDiagnostic errorDiagnostic)
+            {
+                if (errorDiagnostics == null)
                 {
-                    finalType = new DiscriminatedObjectType(TypeHelper.GetNormalizedTypeListUnionName(unionMembers), TypeSymbolValidationFlags.Default, discriminatorPropertyName, unionMembers);
+                    errorDiagnostics = new List<ErrorDiagnostic>();
+                }
+
+                errorDiagnostics.Add(errorDiagnostic);
+            }
+
+            var memberDiscriminatorValues = new HashSet<string>();
+            var finalMemberTypes = new List<ObjectType>();
+            foreach (var (memberSyntax, memberType) in unionMembers)
+            {
+                var memberTypeEvaluated = memberType.Type;
+
+                if (memberTypeEvaluated is ObjectType objectType)
+                {
+                    // validate the member has the discriminator property defined
+                    if (!objectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
+                    {
+                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
+
+                        continue;
+                    }
+
+                    // validate the discriminator property is of the right type
+                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+                    {
+                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
+
+                        continue;
+                    }
+
+                    // validate the discriminator property value does not overlap with other members
+                    var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
+                    var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
+
+                    if (memberDiscriminatorValues.Contains(discriminatorMemberValue))
+                    {
+                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, discriminatorMemberValue));
+
+                        continue;
+                    }
+
+                    memberDiscriminatorValues.Add(discriminatorMemberValue);
+                    finalMemberTypes.Add(objectType);
+                }
+                else if (memberType is DiscriminatedObjectType memberDiscriminatedObjectType)
+                {
+                    // validate it has the same discriminator property
+                    if (memberDiscriminatedObjectType.DiscriminatorProperty.Name != discriminatorPropertyName)
+                    {
+                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
+
+                        continue;
+                    }
+
+                    // validate there's not value overlap
+                    foreach (var nestedDiscriminatorValue in memberDiscriminatedObjectType.UnionMembersByKey.Keys)
+                    {
+                        if (memberDiscriminatorValues.Contains(nestedDiscriminatorValue))
+                        {
+                            AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, nestedDiscriminatorValue));
+                        }
+
+                        memberDiscriminatorValues.Add(nestedDiscriminatorValue);
+                    }
+
+                    finalMemberTypes.AddRange(memberDiscriminatedObjectType.UnionMembersByKey.Values);
                 }
             }
 
-            return finalType ?? TypeHelper.CreateTypeUnion(unionMembers);
+            if (errorDiagnostics?.Any() ?? false)
+            {
+                return ErrorType.Create(errorDiagnostics);
+            }
+
+            return new DiscriminatedObjectType(TypeHelper.GetNormalizedTypeListUnionName(finalMemberTypes), TypeSymbolValidationFlags.Default, discriminatorPropertyName, finalMemberTypes);
         }
 
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)

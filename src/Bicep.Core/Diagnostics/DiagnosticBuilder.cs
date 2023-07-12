@@ -1945,6 +1945,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP346",
                 $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
+
+            public ErrorDiagnostic DiscriminatorPropertyNameMustMatch(string acceptablePropertyName) => new(
+                TextSpan,
+                "BCP347",
+                $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
