@@ -1943,7 +1943,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedTestIdentifier() => new(
                 TextSpan,
                 "BCP0347",
-                "Expected a Test identifier at this location.");
+                "Expected a test identifier at this location.");
 
             public ErrorDiagnostic ExpectedTestPathString() => new(
                 TextSpan,
