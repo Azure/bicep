@@ -64,8 +64,9 @@ namespace Bicep.LanguageServer.Handlers
         private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
         private readonly IArmClientProvider armClientProvider;
+        private readonly IDeploymentHelper deploymentHelper;
 
-        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer, ITelemetryProvider telemetryProvider, IArmClientProvider armClientProvider)
+        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer, ITelemetryProvider telemetryProvider, IArmClientProvider armClientProvider, IDeploymentHelper deploymentHelper)
             : base(LangServerConstants.DeployStartCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
@@ -74,6 +75,7 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepCompiler = bicepCompiler;
             this.compilationManager = compilationManager;
             this.armClientProvider = armClientProvider;
+            this.deploymentHelper = deploymentHelper;
         }
 
         public override async Task<BicepDeploymentStartResponse> Handle(BicepDeploymentStartParams request, CancellationToken cancellationToken)
@@ -144,9 +146,8 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
             
-
             //stringified json for params passed here 
-            var bicepDeploymentStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeploymentStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,

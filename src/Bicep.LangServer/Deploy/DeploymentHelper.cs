@@ -17,7 +17,8 @@ using Bicep.LanguageServer.Handlers;
 
 namespace Bicep.LanguageServer.Deploy
 {
-    public class DeploymentHelper
+
+    public class DeploymentHelper : IDeploymentHelper
     {
         /// <summary>
         /// Starts a deployment at provided target scope and returns <see cref="BicepDeploymentStartResponse"/>.
@@ -35,7 +36,7 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="parametersFileContents">contents of parameter file used in deployment</param>
         /// <param name="deploymentOperationsCache">deployment operations cache that needs to be updated</param>
         /// <returns><see cref="BicepDeploymentStartResponse"/></returns>
-        public static async Task<BicepDeploymentStartResponse> StartDeploymentAsync(
+        public async Task<BicepDeploymentStartResponse> StartDeploymentAsync(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
             string documentPath,
