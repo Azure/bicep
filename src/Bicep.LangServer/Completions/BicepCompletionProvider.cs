@@ -731,10 +731,9 @@ namespace Bicep.LanguageServer.Completions
 
                 // Prioritize .bicep files higher than other files.
                 var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
                 var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
 
-                return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
+                return bicepFileItems;
             }
             catch (DirectoryNotFoundException)
             {
@@ -743,36 +742,7 @@ namespace Bicep.LanguageServer.Completions
 
             // Local functions.
 
-            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
-
-            bool IsArmTemplateFileLike(Uri fileUri)
-            {
-                if (PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
-                {
-                    return true;
-                }
-
-                if (model.Compilation.SourceFileGrouping.SourceFiles.Any(sourceFile =>
-                        sourceFile is ArmTemplateFile &&
-                        sourceFile.FileUri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
-                {
-                    return true;
-                }
-
-                if (!PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) &&
-                    !PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension))
-                {
-                    return false;
-                }
-
-                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000, out var fileContents) &&
-                    LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
-                {
-                    return true;
-                }
-
-                return false;
-            }
+            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);      
         }
 
         private bool IsOciModuleRegistryReference(BicepCompletionContext context)
