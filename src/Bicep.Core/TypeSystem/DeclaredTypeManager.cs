@@ -760,7 +760,7 @@ namespace Bicep.Core.TypeSystem
         {
             var unionMembers = syntax.Members.Select(m => (m, GetTypeFromTypeSyntax(m, allowNamespaceReferences: false)));
 
-            if (binder.GetParent(syntax) is TypeDeclarationSyntax typeDeclarationSyntax
+            if (TryResolveImmediateTypeDeclarationSyntax(syntax) is { } typeDeclarationSyntax
                 && TryGetSystemDecorator(typeDeclarationSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
             {
                 return FinalizeDiscriminatedObjectType(unionMembers.ToArray(), discriminatorDecorator);
@@ -768,6 +768,14 @@ namespace Bicep.Core.TypeSystem
 
             return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
         }
+
+        private TypeDeclarationSyntax? TryResolveImmediateTypeDeclarationSyntax(SyntaxBase? syntaxBase) =>
+            syntaxBase switch
+            {
+                TypeDeclarationSyntax typeDeclarationSyntax => typeDeclarationSyntax,
+                ParenthesizedExpressionSyntax or UnionTypeSyntax => TryResolveImmediateTypeDeclarationSyntax(binder.GetParent(syntaxBase)),
+                _ => null
+            };
 
         private TypeSymbol FinalizeDiscriminatedObjectType(
             (UnionTypeMemberSyntax syntax, ITypeReference type)[] unionMembers, DecoratorSyntax discriminatorDecorator)
@@ -782,7 +790,7 @@ namespace Bicep.Core.TypeSystem
 
             List<ErrorDiagnostic>? errorDiagnostics = null;
 
-            void AddMemberErrorDiagnostic(ErrorDiagnostic errorDiagnostic)
+            void AddErrorDiagnostic(ErrorDiagnostic errorDiagnostic)
             {
                 if (errorDiagnostics == null)
                 {
@@ -793,7 +801,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var memberDiscriminatorValues = new HashSet<string>();
-            var finalMemberTypes = new List<ObjectType>();
+            var expandedMemberTypes = new List<ObjectType>();
             foreach (var (memberSyntax, memberType) in unionMembers)
             {
                 var memberTypeEvaluated = memberType.Type;
@@ -803,15 +811,18 @@ namespace Bicep.Core.TypeSystem
                     // validate the member has the discriminator property defined
                     if (!objectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
                     {
-                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
+                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                            .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
 
                         continue;
                     }
 
                     // validate the discriminator property is of the right type
-                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
+                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral
+                        || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
                     {
-                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
+                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                            .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
 
                         continue;
                     }
@@ -822,20 +833,21 @@ namespace Bicep.Core.TypeSystem
 
                     if (memberDiscriminatorValues.Contains(discriminatorMemberValue))
                     {
-                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, discriminatorMemberValue));
+                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                            .DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, discriminatorMemberValue));
 
                         continue;
                     }
 
                     memberDiscriminatorValues.Add(discriminatorMemberValue);
-                    finalMemberTypes.Add(objectType);
+                    expandedMemberTypes.Add(objectType);
                 }
-                else if (memberType is DiscriminatedObjectType memberDiscriminatedObjectType)
+                else if (memberTypeEvaluated is DiscriminatedObjectType memberDiscriminatedObjectType)
                 {
                     // validate it has the same discriminator property
                     if (memberDiscriminatedObjectType.DiscriminatorProperty.Name != discriminatorPropertyName)
                     {
-                        AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
+                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
 
                         continue;
                     }
@@ -845,13 +857,20 @@ namespace Bicep.Core.TypeSystem
                     {
                         if (memberDiscriminatorValues.Contains(nestedDiscriminatorValue))
                         {
-                            AddMemberErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, nestedDiscriminatorValue));
+                            AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                                .DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, nestedDiscriminatorValue));
                         }
 
                         memberDiscriminatorValues.Add(nestedDiscriminatorValue);
                     }
 
-                    finalMemberTypes.AddRange(memberDiscriminatedObjectType.UnionMembersByKey.Values);
+                    expandedMemberTypes.AddRange(memberDiscriminatedObjectType.UnionMembersByKey.Values);
+                }
+                else
+                {
+                    return ErrorType.Create(
+                        DiagnosticBuilder.ForPosition(discriminatorDecorator)
+                            .DiscriminatorDecoratorOnlySupportedForObjectUnions());
                 }
             }
 
@@ -860,7 +879,11 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(errorDiagnostics);
             }
 
-            return new DiscriminatedObjectType(TypeHelper.GetNormalizedTypeListUnionName(finalMemberTypes), TypeSymbolValidationFlags.Default, discriminatorPropertyName, finalMemberTypes);
+            return new DiscriminatedObjectType(
+                TypeHelper.GetNormalizedTypeListUnionName(expandedMemberTypes),
+                TypeSymbolValidationFlags.Default,
+                discriminatorPropertyName,
+                expandedMemberTypes);
         }
 
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)

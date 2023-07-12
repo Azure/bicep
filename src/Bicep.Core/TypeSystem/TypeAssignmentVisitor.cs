@@ -534,7 +534,11 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
-                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                if (declaredType is not ErrorType)
+                {
+                    diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+                }
 
                 base.VisitUnionTypeSyntax(syntax);
 
