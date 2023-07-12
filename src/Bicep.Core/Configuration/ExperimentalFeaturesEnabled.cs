@@ -15,6 +15,7 @@ public record ExperimentalFeaturesEnabled(
     bool UserDefinedTypes,
     bool UserDefinedFunctions,
     bool PrettyPrinting,
+    bool TestFramework,
     bool Assertions)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)

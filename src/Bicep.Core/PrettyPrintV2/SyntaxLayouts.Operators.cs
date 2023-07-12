@@ -29,16 +29,26 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Spread();
 
-        private Document Group(Func<IEnumerable<Document>> itemsLayoutSpecifier)
+        private Document IndentTail(Func<IEnumerable<Document>> layoutSpecifier)
         {
             var lineBreakerCountBefore = this.lineBreakerCount;
-            var items = itemsLayoutSpecifier();
-            var lineBreakerCountAfter = this.lineBreakerCount;
+            var indented = layoutSpecifier()
+                .Where(x => x is not LineDocument)
+                .SeparateBy(DocumentOperators.LineOrSpace)
+                .Indent();
 
-            return lineBreakerCountAfter > lineBreakerCountBefore
-                ? DocumentOperators.Glue(items)
-                : DocumentOperators.Group(items);
+            if (indented.HasSuffix())
+            {
+                this.lineBreakerCount--;
+            }
+
+            return this.lineBreakerCount > lineBreakerCountBefore
+                ? DocumentOperators.Glue(indented)
+                : DocumentOperators.Group(indented);
         }
+
+        private Document IndentTail(IEnumerable<SyntaxBase> syntaxes) =>
+            this.IndentTail(() => this.LayoutMany(syntaxes));
 
         private Document Bracket(SyntaxBase openSyntax, Func<IEnumerable<Document>> itemsLayoutSpecifier, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
         {

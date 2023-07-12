@@ -272,7 +272,7 @@ namespace Bicep.Core.Emit
             else if (resource is ModuleOutputResourceMetadata output)
             {
                 // there are some slight variations if a safe dereference operator was used on the output itself, e.g., `mod.outputs.?myResource.<prop>`
-                var shortCircuitableResourceRef = reference.SourceSyntax is AccessExpressionSyntax accessExpression && accessExpression.SafeAccessMarker is not null;
+                var shortCircuitableResourceRef = reference.SourceSyntax is AccessExpressionSyntax accessExpression && accessExpression.IsSafeAccess;
                 switch (propertyName)
                 {
                     case "id" when shortCircuitableResourceRef:

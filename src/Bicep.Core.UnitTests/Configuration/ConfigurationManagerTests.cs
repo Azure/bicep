@@ -102,7 +102,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false,
                     "assertions": false
                   },
                   "formatting": {
@@ -171,7 +172,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false,
                     "assertions": false
                   },
                   "formatting": {
@@ -265,7 +267,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false,
                     "assertions": false
                   },
                   "formatting": {
@@ -590,7 +593,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false,
+                    "prettyPrinting": false, 
+                    "testFramework": false,
                     "assertions": false
                   },
                   "formatting": {

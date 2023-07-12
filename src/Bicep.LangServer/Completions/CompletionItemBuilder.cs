@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -51,7 +54,7 @@ namespace Bicep.LanguageServer.Completions
                 InsertTextMode = this.insertTextMode,
                 SortText = this.sortText,
                 Preselect = this.preselect,
-                Command = this.command
+                Command = this.command,
             };
         }
 
@@ -67,19 +70,39 @@ namespace Bicep.LanguageServer.Completions
             return this;
         }
 
-        public CompletionItemBuilder WithDetail(string detail)
+        // This shows up in the completion dialog to the right of the label when an item is selected
+        //   (or in a popup if the user clicks the "Read More" button)
+        //
+        //    [ my completion item 1   my detail 1 ]
+        //    [ my completion item 2   my detail 2 ]
+        //    [ my completion item 3   my detail 3 ]
+        public CompletionItemBuilder WithDetail(string? detail)
         {
             this.detail = detail;
             return this;
         }
 
-        public CompletionItemBuilder WithDocumentation(string markdown)
+        // This shows up in the completion dialog only if the user clicks the "Read More" button to the right of
+        // the label when an item is selected.  In that case, a popup shows up next to the completion dialog with
+        // the Detail at the top and this markdown at the bottom.
+        //
+        //    [ my completion item 1             ]
+        //    [ my completion item 2 (selected)  ]  +--------------------+
+        //    [ my completion item 3             ]  | my detail 2        |
+        //                                          |                    |
+        //                                          | my documentation 2 |
+        //                                          +--------------------+
+        public CompletionItemBuilder WithDocumentation(string? markdown)
         {
-            this.documentation = new StringOrMarkupContent(new MarkupContent
+            if (markdown is not null)
             {
-                Kind = MarkupKind.Markdown,
-                Value = markdown
-            });
+                this.documentation = new StringOrMarkupContent(new MarkupContent
+                {
+                    Kind = MarkupKind.Markdown,
+                    Value = markdown
+                });
+            }
+
             return this;
         }
 

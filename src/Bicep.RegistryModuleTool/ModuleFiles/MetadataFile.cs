@@ -12,17 +12,10 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
+    // metadata.json is now obsolete, but we will read it if there and convert it to Bicep metadata on generate
     public sealed class MetadataFile : ModuleFile
     {
         public const string FileName = "metadata.json";
-
-        private static readonly JsonElement EmptyFileElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
-        {
-            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-file-schema-v2#",
-            ["name"] = "",
-            ["summary"] = "",
-            ["owner"] = "",
-        });
 
         public MetadataFile(string path, JsonElement rootElement)
             : base(path)
@@ -34,36 +27,20 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string? Name => this.RootElement.TryGetProperty("name", out var element) ? element.GetString() : null;
 
-        public string? Summary => this.RootElement.TryGetProperty("summary", out var element) ? element.GetString() : null;
+        public string? Summary => this.RootElement.TryGetProperty("summary", out var element) ? element.GetString() :
+            //  Some older metadata.json files have "description" instead of "metadata"
+            this.RootElement.TryGetProperty("description", out var elementDescription) ? elementDescription.GetString() : null;
 
         public string? Owner => this.RootElement.TryGetProperty("owner", out var element) ? element.GetString() : null;
 
-        public static MetadataFile EnsureInFileSystem(IFileSystem fileSystem)
+        public static MetadataFile? TryReadFromFileSystem(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
-            var rootElement = EmptyFileElement;
 
-            try
+            if (!fileSystem.Path.Exists(path))
             {
-                var existingFile = ReadFromFileSystem(fileSystem);
-                rootElement = rootElement.Merge(existingFile.RootElement);
+                return null;
             }
-            catch (FileNotFoundException)
-            {
-                // Nothing to do.
-            }
-
-            using var writeStream = fileSystem.FileStream.New(path, FileMode.Create, FileAccess.Write);
-            using var writer = new Utf8JsonWriter(writeStream, new JsonWriterOptions { Indented = true });
-
-            rootElement.WriteTo(writer);
-
-            return new(path, rootElement);
-        }
-
-        public static MetadataFile ReadFromFileSystem(IFileSystem fileSystem)
-        {
-            var path = fileSystem.Path.GetFullPath(FileName);
 
             try
             {
@@ -80,6 +57,14 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             catch (JsonException jsonException)
             {
                 throw new BicepException($"The metadata file \"{path}\" is not a valid JSON file. {jsonException.Message}");
+            }
+        }
+
+        public void DeleteFile(IFileSystem fileSystem)
+        {
+            if (fileSystem.File.Exists(this.Path))
+            {
+                fileSystem.File.Delete(this.Path);
             }
         }
 

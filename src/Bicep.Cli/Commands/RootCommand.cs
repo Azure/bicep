@@ -192,7 +192,7 @@ Usage:
       --third-party-notices       Prints third-party notices
 
   {exeName} build-params <file>
-    Builds .bicepparam file.
+    Builds a .json file from a .bicepparam file.
 
     Arguments:
       <file>        The input Bicepparam file

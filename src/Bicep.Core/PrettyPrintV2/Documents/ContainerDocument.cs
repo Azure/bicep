@@ -25,5 +25,12 @@ namespace Bicep.Core.PrettyPrintV2.Documents
         public ImmutableArray<Document> Documents { get; }
 
         public override IEnumerable<TextDocument> Flatten() => this.Documents.SelectMany(x => x.Flatten());
+
+        public bool HasSuffix() => this.Documents[^1] switch
+        {
+            SuffixDocument => true,
+            ContainerDocument container => container.HasSuffix(),
+            _ => false,
+        };
     }
 }

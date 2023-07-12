@@ -66,7 +66,7 @@ namespace Bicep.Core.Syntax
             Stack<AccessExpressionSyntax> chainedAccesses = new();
             chainedAccesses.Push(syntax);
 
-            while (chainedAccesses.TryPeek(out var current) && current.SafeAccessMarker is null && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
+            while (chainedAccesses.TryPeek(out var current) && !current.IsSafeAccess && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
             {
                 chainedAccesses.Push(baseAccessExpression);
             }

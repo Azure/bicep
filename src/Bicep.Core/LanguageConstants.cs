@@ -83,7 +83,19 @@ namespace Bicep.Core
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
-        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { MetadataKeyword, ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword, TypeKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static readonly ImmutableSortedSet<string> DeclarationKeywords = ImmutableSortedSet.Create(
+            StringComparer.Ordinal,
+            new[]
+            {
+                ImportKeyword,
+                MetadataKeyword,
+                ParameterKeyword,
+                VariableKeyword,
+                ResourceKeyword,
+                OutputKeyword,
+                ModuleKeyword,
+                TypeKeyword
+            });
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)
@@ -97,7 +109,6 @@ namespace Bicep.Core
 
         public const string ListFunctionPrefix = "list";
 
-        public const string McrRegistry = "mcr.microsoft.com";
         public const string McrRepositoryPrefix = "bicep/";
         public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
         public const string OciOpenContainerImageDescriptionAnnotation = "org.opencontainers.image.description";

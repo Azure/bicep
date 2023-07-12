@@ -1,14 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -63,98 +66,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Span, foundMessage));
                 }
 
-                var visitor = new OutputValueVisitor(this.parent, diagnostics, model, diagnosticLevel);
-                visitor.Visit(syntax);
+                diagnostics.AddRange(FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, syntax)
+                    .Select(possibleSecret => parent.CreateDiagnosticForSpan(diagnosticLevel, possibleSecret.Syntax.Span, possibleSecret.FoundMessage)));
 
                 // Note: No need to navigate deeper, don't call base
-            }
-        }
-
-        private class OutputValueVisitor : AstVisitor
-        {
-            private readonly List<IDiagnostic> diagnostics;
-
-            private readonly OutputsShouldNotContainSecretsRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public OutputValueVisitor(OutputsShouldNotContainSecretsRule parent, List<IDiagnostic> diagnostics, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnostics = diagnostics;
-                this.diagnosticLevel = diagnosticLevel;
-            }
-
-            public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-            {
-                // Look for references of secure parameters, e.g.:
-                //
-                //   @secure()
-                //   param secureParam string
-                //   output badResult string = 'this is the value ${secureParam}'
-
-                Symbol? symbol = model.GetSymbolInfo(syntax);
-                if (symbol is ParameterSymbol param)
-                {
-                    if (param.IsSecure())
-                    {
-                        string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.Name.IdentifierName);
-                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Name.Span, foundMessage));
-                    }
-                }
-
-                base.VisitVariableAccessSyntax(syntax);
-            }
-
-            public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
-            {
-                // Look for usage of list*() stand-alone function, e.g.:
-                //
-                //   output badResult object = listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
-                //
-
-                if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction
-                    && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
-                {
-                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Span, foundMessage));
-                }
-
-                base.VisitFunctionCallSyntax(syntax);
-            }
-
-            public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
-            {
-                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
-                {
-                    bool isFailure = false;
-
-                    if (model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { })
-                    {
-                        // It's a usage of a list*() member function for a resource value, e.g.:
-                        //
-                        //   output badResult object = stg.listKeys().keys[0].value
-                        //
-                        isFailure = true;
-                    }
-                    else if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction)
-                    {
-                        // It's a usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
-                        //
-                        //   output badResult object = az.listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
-                        //
-                        isFailure = true;
-                    }
-
-                    if (isFailure)
-                    {
-                        string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
-                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Span, foundMessage));
-                    }
-                }
-
-                base.VisitInstanceFunctionCallSyntax(syntax);
             }
         }
     }

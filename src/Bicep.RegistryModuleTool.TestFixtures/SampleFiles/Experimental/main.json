@@ -8,7 +8,10 @@
       "name": "bicep",
       "version": "0.16.1.55165",
       "templateHash": "15984918200177464288"
-    }
+    },
+    "name": "Sample module",
+    "description": "Sample summary",
+    "owner": "test"
   },
   "definitions": {
     "MinDiskSizeGB": {

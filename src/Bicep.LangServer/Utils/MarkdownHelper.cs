@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+
 namespace Bicep.LanguageServer.Utils
 {
     public static class MarkdownHelper
@@ -19,5 +21,10 @@ namespace Bicep.LanguageServer.Utils
 
         // Markdown needs two leading whitespaces before newline to insert a line break
         public static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? DescriptionFormatting(description) : string.Empty);
+
+        public static string? GetDocumentationLink(string? documentationUri)
+        {
+            return documentationUri is null ? null : $"[View Documentation]({Uri.UnescapeDataString(documentationUri)})";
+        }
     }
 }

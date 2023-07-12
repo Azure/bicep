@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
 
             output badResult string = 'this is the value ${secureParam}'
         ",
-            "secure parameter 'secureParam'"
+            "secure value 'secureParam'"
         )]
         [DataRow(@"
             @secure()
@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                 }
             }
         ",
-            "secure parameter 'secureParam'"
+            "secure value 'secureParam'"
         )]
         [DataRow(@"
             @secure()
@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
 
             output test string = 'this is the value ${secureParam.value}'
         ",
-            "secure parameter 'secureParam'"
+            "secure value 'secureParam'"
         )]
         [DataRow(@"
             param nonSecureParam object = {

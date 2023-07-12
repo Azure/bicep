@@ -6,7 +6,10 @@
       "name": "bicep",
       "version": "0.4.1008.15138",
       "templateHash": "14669053462841078328"
-    }
+    },
+    "name": "",
+    "description": "",
+    "owner": ""
   },
   "functions": [],
   "resources": []

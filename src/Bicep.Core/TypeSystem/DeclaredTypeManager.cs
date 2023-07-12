@@ -284,8 +284,8 @@ namespace Bicep.Core.TypeSystem
             var validationFlags = declaredType switch
             {
                 BooleanType or IntegerType or StringType when allowLooseAssignment
-                    => TypeSymbolValidationFlags.AllowLooseAssignment,
-                _ => TypeSymbolValidationFlags.Default,
+                    => TypeSymbolValidationFlags.AllowLooseAssignment | declaredType.ValidationFlags,
+                _ => declaredType.ValidationFlags,
             };
 
             if (HasSecureDecorator(syntax))
@@ -1054,7 +1054,7 @@ namespace Bicep.Core.TypeSystem
                     break;
                 }
 
-                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
+                if (prevAccess?.IsSafeAccess is true || nextAccess.IsSafeAccess)
                 {
                     // if the first access definitely returns null, short-circuit the whole chain
                     if (ReferenceEquals(baseAssignment.Reference.Type, LanguageConstants.Null))
@@ -1099,6 +1099,10 @@ namespace Bicep.Core.TypeSystem
                     // the declared type should be the same as the array and we should propagate the flags
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
+                    return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
+                case ParameterAssignmentSyntax:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
@@ -1413,6 +1417,13 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignment.Reference.Type, syntax), syntax, parameterAssignment.Flags);
+                case ParameterAssignmentSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
+                    {
+                        return null;
+                    };
+
+                    return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
             }
 
             return null;
