@@ -35,35 +35,35 @@ namespace Bicep.Core.IntegrationTests
 test test1 'test1.bicep' = {}
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP349", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
+                ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
             });
             result = CompilationHelper.Compile(@"
 test test1 'test1.bicep' =
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP349", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP345", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
+                ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
             result = CompilationHelper.Compile(@"
 test test1 'test1.bicep'
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP349", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
+                ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
             });
             result = CompilationHelper.Compile(@"
 test test1
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP349", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP0348", DiagnosticLevel.Error,  "Expected a Test Path String at this location."),
+                ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
+                ("BCP0347", DiagnosticLevel.Error,  "Expected a Test Path String at this location."),
             });
             result = CompilationHelper.Compile(@"
 test
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP349", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP0347", DiagnosticLevel.Error,  "Expected a Test identifier at this location."),
+                ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
+                ("BCP0346", DiagnosticLevel.Error,  "Expected a test identifier at this location."),
             });
         }
 
@@ -74,14 +74,14 @@ test
 test
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP0347", DiagnosticLevel.Error,  "Expected a Test identifier at this location."),
+                ("BCP0346", DiagnosticLevel.Error,  "Expected a test identifier at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"
 test test1
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP0348", DiagnosticLevel.Error,  "Expected a Test Path String at this location."),
+                ("BCP0347", DiagnosticLevel.Error,  "Expected a Test Path String at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"

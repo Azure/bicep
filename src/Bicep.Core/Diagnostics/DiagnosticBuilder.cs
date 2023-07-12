@@ -1934,7 +1934,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
                 "BCP345",
-                "A Test declaration can only reference a Bicep File, an ARM template, a registry reference or a template spec reference.");
+                "A Test declaration can only reference a Bicep File");
 
             public ErrorDiagnostic ExpectedTestIdentifier() => new(
                 TextSpan,

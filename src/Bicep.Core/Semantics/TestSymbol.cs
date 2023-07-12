@@ -39,7 +39,7 @@ namespace Bicep.Core.Semantics
             // when we inevitably add a third language ID,
             // the inclusion list style below will prevent the new language ID from being
             // automatically allowed to be referenced via module declarations
-            if (sourceFile is not BicepFile and not ArmTemplateFile and not TemplateSpecFile)
+            if (sourceFile is not BicepFile)
             {
                 semanticModel = null;
                 failureDiagnostic = DiagnosticBuilder.ForPosition(DeclaringTest.Path).TestDeclarationMustReferenceBicepTest();
