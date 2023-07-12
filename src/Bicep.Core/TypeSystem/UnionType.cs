@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -9,18 +10,15 @@ namespace Bicep.Core.TypeSystem
 {
     public class UnionType : TypeSymbol
     {
-        public UnionType(string name, ImmutableArray<ITypeReference> members, TypeProperty? discriminatorProperty = null)
+        public UnionType(string name, ImmutableArray<ITypeReference> members)
             : base(name)
         {
             this.Members = members;
-            this.DiscriminatorProperty = discriminatorProperty;
         }
 
         public override TypeKind TypeKind => this.Members.IsEmpty ? TypeKind.Never : TypeKind.Union;
 
         public ImmutableArray<ITypeReference> Members { get; }
-
-        public TypeProperty? DiscriminatorProperty { get; }
 
         public override string FormatNameForCompoundTypes() => TypeKind == TypeKind.Never ? Name : WrapTypeName();
 
@@ -39,7 +37,5 @@ namespace Bicep.Core.TypeSystem
 
             return hashCode.ToHashCode();
         }
-
-        public static UnionType GetModifiedUnionType(UnionType inputType, TypeProperty? discriminatorProperty) => new(inputType.Name, inputType.Members, discriminatorProperty);
     }
 }

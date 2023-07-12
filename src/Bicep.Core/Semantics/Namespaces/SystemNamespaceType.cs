@@ -1583,7 +1583,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {
-            if (targetType is not UnionType unionType || !unionType.Members.All(m => m is ObjectType))
+            if (targetType is not DiscriminatedObjectType)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
             }

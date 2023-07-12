@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -57,6 +59,7 @@ namespace Bicep.Core.TypeSystem
         public string DiscriminatorKey => this.DiscriminatorProperty.Name;
 
         public TypeSymbol DiscriminatorKeysUnionType { get; }
+
 
         /// <summary>
         /// Returns the discriminator property if the given property key matches the discriminator key.

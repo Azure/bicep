@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -302,7 +303,6 @@ namespace Bicep.Core.TypeSystem
                 StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
                 BooleanType declaredBoolean => TypeFactory.CreateBooleanType(validationFlags),
                 ObjectType declaredObject => GetModifiedObject(declaredObject, syntax, validationFlags),
-                UnionType declaredUnion => GetModifiedUnion(declaredUnion, syntax),
                 _ => declaredType,
             };
         }
@@ -414,40 +414,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
-        }
-
-        private TypeSymbol GetModifiedUnion(UnionType unionType, DecorableSyntax syntax)
-        {
-            if (TryGetSystemDecorator(syntax, LanguageConstants.TypeDiscriminatorDecoratorName) is not { } discriminatorDecorator
-                || discriminatorDecorator.Arguments.FirstOrDefault()?.Expression is not StringSyntax discriminatorPropertyExpr)
-            {
-                return unionType;
-            }
-
-            var discriminatorPropertyName = discriminatorPropertyExpr.TryGetLiteralValue();
-
-            if (discriminatorPropertyName == null)
-            {
-                return unionType;
-            }
-
-            var discriminatorValueTypes = new List<StringLiteralType>();
-            foreach (var member in unionType.Members)
-            {
-                var memberType = member.Type;
-
-                if (memberType is not ObjectType objectType
-                    || !objectType.Properties.TryGetValue(discriminatorPropertyName, out var objectDiscriminatorProperty)
-                    || objectDiscriminatorProperty.TypeReference.Type is not StringLiteralType objectDiscriminatorPropertyType)
-                {
-                    continue;
-                }
-
-                discriminatorValueTypes.Add(objectDiscriminatorPropertyType);
-            }
-
-            var discriminatorTypeProperty = new TypeProperty(discriminatorPropertyName, TypeHelper.CreateTypeUnion(discriminatorValueTypes), TypePropertyFlags.Required);
-            return UnionType.GetModifiedUnionType(unionType, discriminatorTypeProperty);
         }
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
@@ -791,7 +757,25 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol FinalizeUnionType(UnionTypeSyntax syntax)
-            => TypeHelper.CreateTypeUnion(syntax.Members.Select(m => GetTypeFromTypeSyntax(m, allowNamespaceReferences: false)));
+        {
+            var unionMembers = syntax.Members.Select(m => GetTypeFromTypeSyntax(m, allowNamespaceReferences: false));
+
+            TypeSymbol? finalType = null;
+            if (binder.GetParent(syntax) is TypeDeclarationSyntax typeDeclarationSyntax
+                && TryGetSystemDecorator(typeDeclarationSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
+            {
+                // TODO(k.a): validate members here and if invalid, create the error type
+                var discriminatorPropertyExpr = discriminatorDecorator.Arguments.FirstOrDefault()?.Expression as StringSyntax;
+                var discriminatorPropertyName = discriminatorPropertyExpr?.TryGetLiteralValue();
+
+                if (discriminatorPropertyName != null)
+                {
+                    finalType = new DiscriminatedObjectType(TypeHelper.GetNormalizedTypeListUnionName(unionMembers), TypeSymbolValidationFlags.Default, discriminatorPropertyName, unionMembers);
+                }
+            }
+
+            return finalType ?? TypeHelper.CreateTypeUnion(unionMembers);
+        }
 
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
             => GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences);

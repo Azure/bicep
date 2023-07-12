@@ -44,6 +44,12 @@ namespace Bicep.Core.TypeSystem
         }
 
         /// <summary>
+        /// Returns the formatted name for a normalize list of union members.
+        /// </summary>
+        public static string GetNormalizedTypeListUnionName(IEnumerable<ITypeReference> unionMembers)
+            => FormatName(NormalizeTypeList(unionMembers));
+
+        /// <summary>
         /// Collapses multiple types into either:
         /// * The 'never' type, if there are no types in the source list.
         /// * A single type, if the source types can be collapsed into a single type.

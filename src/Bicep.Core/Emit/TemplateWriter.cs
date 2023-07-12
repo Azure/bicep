@@ -291,13 +291,13 @@ namespace Bicep.Core.Emit
                 emitter,
                 AddDecoratorsToBody(
                     declaredTypeSymbol.DeclaringType,
-                    TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value, declaredTypeSymbol.UnwrapType()),
+                    TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value),
                     declaredTypeSymbol.Type));
 
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectExpression TypePropertiesForTypeExpression(SyntaxBase typeExpressionSyntax, TypeSymbol? declaredType = null) => typeExpressionSyntax switch
+        private ObjectExpression TypePropertiesForTypeExpression(SyntaxBase typeExpressionSyntax) => typeExpressionSyntax switch
         {
             VariableAccessSyntax variableAccess => TypePropertiesForUnqualifedReference(variableAccess),
             PropertyAccessSyntax propertyAccess => TypePropertiesForQualifiedReference(propertyAccess),
@@ -309,8 +309,8 @@ namespace Bicep.Core.Emit
             IntegerLiteralSyntax integerLiteral => GetTypePropertiesForIntegerLiteralSyntax(integerLiteral),
             BooleanLiteralSyntax booleanLiteral => GetTypePropertiesForBooleanLiteralSyntax(booleanLiteral),
             UnaryOperationSyntax unaryOperation => GetTypePropertiesForUnaryOperationSyntax(unaryOperation),
-            UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType, declaredType),
-            ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression, declaredType),
+            UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType),
+            ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression),
             NullableTypeSyntax nullableType => GetTypePropertiesForNullableTypeSyntax(nullableType),
             NonNullAssertionSyntax nonNullableType => GetTypePropertiesForNonNullableTypeSyntax(nonNullableType),
             // this should have been caught by the parser
@@ -410,11 +410,11 @@ namespace Bicep.Core.Emit
         private ArrayExpression GetAllowedValuesForUnionType(UnionType unionType)
             => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue));
 
-        private ObjectExpression GetUnionDiscriminatorExpression(UnionTypeSyntax syntax, UnionType unionType)
+        private ObjectExpression GetDiscriminatedObjectExpression(UnionTypeSyntax syntax, DiscriminatedObjectType declaredType)
         {
             var objectProperties = new List<ObjectPropertyExpression>();
 
-            var discriminatorPropertyName = unionType.DiscriminatorProperty!.Name;
+            var discriminatorPropertyName = declaredType.DiscriminatorProperty.Name;
             objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(discriminatorPropertyName)));
             objectProperties.Add(ExpressionFactory.CreateObjectProperty("mapping", ExpressionFactory.CreateObject(GetDiscriminatedUnionMappingEntries(syntax, discriminatorPropertyName))));
 
@@ -452,10 +452,10 @@ namespace Bicep.Core.Emit
 
                     yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
                 }
-                else if (memberType is UnionType nestedUnion)
+                else if (memberType is DiscriminatedObjectType nestedDiscriminatedType)
                 {
-                    if (nestedUnion.DiscriminatorProperty == null
-                        || nestedUnion.DiscriminatorProperty.Name != discriminatorPropertyName
+                    if (nestedDiscriminatedType.DiscriminatorProperty == null
+                        || nestedDiscriminatedType.DiscriminatorProperty.Name != discriminatorPropertyName
                         || memberDeclaredTypeAssignment is not { DeclaringSyntax: not null })
                     {
                         // This should have been caught during type checking
@@ -582,20 +582,29 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private ObjectExpression GetTypePropertiesForUnionTypeSyntax(UnionTypeSyntax syntax, TypeSymbol? typeDeclarationType)
+        private ObjectExpression GetTypePropertiesForUnionTypeSyntax(UnionTypeSyntax syntax)
         {
             // Union types permit symbolic references, unary operations, and literals, so long as the whole expression embodied in the UnionTypeSyntax can be
             // reduced to a flat union of literal types. If this didn't happen during type checking, the syntax will resolve to an ErrorType instead of a UnionType
-            if (Context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
+            var declaredType = Context.SemanticModel.GetDeclaredType(syntax);
+
+            if (declaredType is not UnionType and not DiscriminatedObjectType)
             {
                 throw new ArgumentException("Invalid union encountered during template serialization");
             }
 
-            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(unionType) switch
+            IEnumerable<ITypeReference> unionMembers = declaredType switch
+            {
+                UnionType memberProvider => memberProvider.Members,
+                DiscriminatedObjectType memberProvider => memberProvider.UnionMembersByKey.Values, // TODO(k.a): stable sort?
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(declaredType) switch
             {
                 UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
                 TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-                _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
+                _ => (false, GetNonLiteralTypeName(unionMembers.First().Type)),
             };
 
             var properties = new List<ObjectPropertyExpression>
@@ -603,11 +612,11 @@ namespace Bicep.Core.Emit
                 TypeProperty(nonLiteralTypeName),
             };
 
-            if (typeDeclarationType is UnionType { DiscriminatorProperty: not null } typeDeclarationUnionType)
+            if (declaredType is DiscriminatedObjectType discriminatedObjectType)
             {
-                properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetUnionDiscriminatorExpression(syntax, typeDeclarationUnionType)));
+                properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetDiscriminatedObjectExpression(syntax, discriminatedObjectType)));
             }
-            else
+            else if (declaredType is UnionType unionType)
             {
                 properties.Add(ExpressionFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)));
             }
