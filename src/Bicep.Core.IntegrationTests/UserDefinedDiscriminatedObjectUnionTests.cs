@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class UserDefinedTypesObjectUnionTests
+    public class UserDefinedDiscriminatedObjectUnionTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -24,7 +24,7 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DataRow("typeA | typeB")]
         [DataRow("(typeA | typeB)")]
-        public void ObjectTypeUnions_Basic(string typeTest)
+        public void DiscriminatedObjectUnions_Basic(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -80,7 +80,7 @@ type typeB = {
         }
 
         [TestMethod]
-        public void ObjectTypeUnions_MixedTypedAliasAndLiteral()
+        public void DiscriminatedObjectUnions_MixedTypedAliasAndLiteral()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -131,7 +131,7 @@ type typeUnion = typeA | { type: 'b', value: int }
         }
 
         [TestMethod]
-        public void ObjectTypeUnions_Combination()
+        public void DiscriminatedObjectUnions_Combination()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -216,7 +216,7 @@ type typeUnion3 = typeD | (typeUnion2)
         }
 
         [TestMethod]
-        public void ObjectTypeUnions_Nested()
+        public void DiscriminatedObjectUnions_Nested()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -284,7 +284,7 @@ type typeUnion2 = typeC | typeD
         }
 
         [TestMethod]
-        public void ObjectTypeUnions_Error_NonLiteralObjectTypes_NoDiscriminatorDecorator()
+        public void DiscriminatedObjectUnions_Error_NonLiteralObjectTypes_NoDiscriminatorDecorator()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -306,7 +306,7 @@ type typeUnion = typeA | typeB
         }
 
         [TestMethod]
-        public void ObjectTypeUnions_Error_Discriminator_MissingOnMember()
+        public void DiscriminatedObjectUnions_Error_Discriminator_MissingOnMember()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -331,7 +331,7 @@ type typeUnion = typeA | typeB
         [DataRow("0")]
         [DataRow("true")]
         [DataRow("'a'?")]
-        public void ObjectTypeUnions_Error_Discriminator_PropertyTypeViolation(string typeTest)
+        public void DiscriminatedObjectUnions_Error_Discriminator_PropertyTypeViolation(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -356,7 +356,7 @@ type typeUnion = typeA | typeB
         [DataTestMethod]
         [DataRow("typeA | typeB")]
         [DataRow("typeA | typeA")]
-        public void ObjectTypeUnions_Error_Discriminator_DuplicatedAcrossMembers(string typeTest)
+        public void DiscriminatedObjectUnions_Error_Discriminator_DuplicatedAcrossMembers(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -382,9 +382,10 @@ type typeUnion = {{typeTest}}
         [DataRow("string")]
         [DataRow("object")]
         [DataRow("'a' | 'b'")]
+        [DataRow("typeA | 'b'")]
         [DataRow("typeA")]
         [DataRow("(typeA | typeB)[]")]
-        public void ObjectTypeUnions_Error_DiscriminatorAppliedToNonObjectOnlyUnion(string typeTest)
+        public void DiscriminatedObjectUnions_Error_DiscriminatorAppliedToNonObjectOnlyUnion(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -409,7 +410,7 @@ type typeTest = {{typeTest}}
         [DataTestMethod]
         [DataRow("", "BCP071")]
         [DataRow("0", "BCP070")]
-        public void ObjectTypeUnions_Error_Discriminator_InvalidArgument(string decoratorArgument, string expectedDiagnosticCode)
+        public void DiscriminatedObjectUnions_Error_Discriminator_InvalidArgument(string decoratorArgument, string expectedDiagnosticCode)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
