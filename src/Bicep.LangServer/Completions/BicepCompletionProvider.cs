@@ -937,7 +937,7 @@ namespace Bicep.LanguageServer.Completions
             // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
             // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference)
-                && symbol is ResourceSymbol or ModuleSymbol or TestSymbol)
+                && symbol is ResourceSymbol or ModuleSymbol)
             {
                 // parent resource symbols of the current resource should not be prioritized but are still provided for use in expressions
                 var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
