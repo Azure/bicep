@@ -1934,7 +1934,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
                 "BCP345",
-                "A Test declaration can only reference a Bicep File");
+                "A test declaration can only reference a Bicep File");
 
             public ErrorDiagnostic ExpectedTestIdentifier() => new(
                 TextSpan,
@@ -1944,7 +1944,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedTestPathString() => new(
                 TextSpan,
                 "BCP0347",
-                "Expected a Test Path String at this location.");
+                "Expected a test path string at this location.");
             public ErrorDiagnostic TestDeclarationStatementsUnsupported() => new(
                 TextSpan,
                 "BCP348",

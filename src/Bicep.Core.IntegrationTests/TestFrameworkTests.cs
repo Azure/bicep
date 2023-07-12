@@ -56,7 +56,7 @@ test test1
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP0347", DiagnosticLevel.Error,  "Expected a Test Path String at this location."),
+                ("BCP0347", DiagnosticLevel.Error,  "Expected a test path string at this location."),
             });
             result = CompilationHelper.Compile(@"
 test
@@ -81,7 +81,7 @@ test
 test test1
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP0347", DiagnosticLevel.Error,  "Expected a Test Path String at this location."),
+                ("BCP0347", DiagnosticLevel.Error,  "Expected a test path string at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"
