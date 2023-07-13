@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -22,9 +21,24 @@ namespace Bicep.Core.IntegrationTests
             .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
 
         [DataTestMethod]
-        [DataRow("typeA | typeB")]
-        [DataRow("(typeA | typeB)")]
-        public void DiscriminatedObjectUnions_Basic(string typeTest)
+        [DataRow("typeA | typeB | typeC | typeD")]
+        [DataRow("(typeA | typeB | typeC | typeD)")]
+        [DataRow("(typeA) | typeB | typeC | typeD")]
+        [DataRow("(typeA | typeB) | typeC | typeD")]
+        [DataRow("(typeA | typeB) | (typeC | typeD)")]
+        [DataRow("((typeA | typeB) | ((typeC | (typeD))))")]
+        [DataRow("typeUnionAB | typeC | typeD")]
+        [DataRow("typeUnionAB | typeUnionCD")]
+        [DataRow("(typeUnionAB) | typeUnionCD")]
+        [DataRow("(typeUnionAB | typeUnionCD)")]
+        [DataRow("typeUnionABC | typeD")]
+        [DataRow("typeA | { type: 'b', value: int } | typeC | { type: 'd', value: object }")]
+        [DataRow("{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: bool } | { type: 'd', value: object }")]
+        [DataRow("({ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: bool } | { type: 'd', value: object })")]
+        [DataRow("({ type: 'a', value: string } | { type: 'b', value: int }) | ({ type: 'c', value: bool } | { type: 'd', value: object })")]
+        [DataRow("({ type: 'a', value: string } | typeB) | (typeC | { type: 'd', value: object })")]
+        [DataRow("typeUnionAB | typeC | { type: 'd', value: object }")]
+        public void DiscriminatedObjectUnions_AliasedAndLiteralMembers(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -41,57 +55,25 @@ type typeB = {
   type: 'b'
   value: int
 }
-""");
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
-
-            var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
-            unionToken.Should().NotBeNull();
-
-            var expectedTypeUnionToken = JToken.Parse(
-                """
-{
-  "type": "object",
-  "discriminator": {
-    "propertyName": "type",
-    "mapping": {
-      "a": {
-        "properties": {
-          "value": {
-            "type": "string"
-          }
-        }
-      },
-      "b": {
-        "properties": {
-          "value": {
-            "type": "int"
-          }
-        }
-      }
-    }
-  }
+type typeC = {
+  type: 'c'
+  value: bool
 }
-""");
 
-            unionToken.Should().DeepEqual(expectedTypeUnionToken);
-        }
-
-        [TestMethod]
-        public void DiscriminatedObjectUnions_MixedTypedAliasAndLiteral()
-        {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
-type typeA = {
-  type: 'a'
-  value: string
+type typeD = {
+  type: 'd'
+  value: object
 }
 
 @discriminator('type')
-type typeUnion = typeA | { type: 'b', value: int }
+type typeUnionAB = typeA | typeB
+
+@discriminator('type')
+type typeUnionCD = typeC | typeD
+
+@discriminator('type')
+type typeUnionABC = typeUnionAB | typeC
 """);
 
             result.ExcludingLinterDiagnostics()
@@ -119,6 +101,20 @@ type typeUnion = typeA | { type: 'b', value: int }
         "properties": {
           "value": {
             "type": "int"
+          }
+        }
+      },
+      "c": {
+        "properties": {
+          "value": {
+            "type": "bool"
+          }
+        }
+      },
+      "d": {
+        "properties": {
+          "value": {
+            "type": "object"
           }
         }
       }

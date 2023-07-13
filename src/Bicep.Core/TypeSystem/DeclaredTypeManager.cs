@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -773,7 +772,7 @@ namespace Bicep.Core.TypeSystem
             syntaxBase switch
             {
                 TypeDeclarationSyntax typeDeclarationSyntax => typeDeclarationSyntax,
-                ParenthesizedExpressionSyntax or UnionTypeSyntax => TryResolveImmediateTypeDeclarationSyntax(binder.GetParent(syntaxBase)),
+                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax => TryResolveImmediateTypeDeclarationSyntax(binder.GetParent(syntaxBase)),
                 _ => null
             };
 
@@ -802,6 +801,7 @@ namespace Bicep.Core.TypeSystem
 
             var memberDiscriminatorValues = new HashSet<string>();
             var expandedMemberTypes = new List<ObjectType>();
+
             foreach (var (memberSyntax, memberType) in unionMembers)
             {
                 var memberTypeEvaluated = memberType.Type;
