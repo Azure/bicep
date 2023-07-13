@@ -1931,24 +1931,43 @@ namespace Bicep.Core.Diagnostics
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
 
+            public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
+                TextSpan,
+                "BCP345",
+                "A test declaration can only reference a Bicep File");
+
+            public ErrorDiagnostic ExpectedTestIdentifier() => new(
+                TextSpan,
+                "BCP0346",
+                "Expected a test identifier at this location.");
+
+            public ErrorDiagnostic ExpectedTestPathString() => new(
+                TextSpan,
+                "BCP0347",
+                "Expected a test path string at this location.");
+            public ErrorDiagnostic TestDeclarationStatementsUnsupported() => new(
+                TextSpan,
+                "BCP348",
+                $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
+
             public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
                 TextSpan,
-                "BCP344",
+                "BCP349",
                 $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types with unique member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => new(
                 TextSpan,
-                "BCP345",
+                "BCP350",
                 $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
                 TextSpan,
-                "BCP346",
+                "BCP351",
                 $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyNameMustMatch(string acceptablePropertyName) => new(
                 TextSpan,
-                "BCP347",
+                "BCP352",
                 $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
         }
 

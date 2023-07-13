@@ -283,6 +283,24 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Path, out var path);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+        }
+        void ISyntaxVisitor.VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceTestDeclarationSyntax);
+        
         protected virtual SyntaxBase ReplaceOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

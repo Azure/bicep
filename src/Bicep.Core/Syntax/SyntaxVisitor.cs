@@ -57,6 +57,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
+        public abstract void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);
+
         public abstract void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax);
 
         public abstract void VisitNullableTypeSyntax(NullableTypeSyntax syntax);
