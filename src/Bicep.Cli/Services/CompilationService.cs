@@ -84,6 +84,18 @@ namespace Bicep.Cli.Services
             return compilation;
         }
 
+        public async Task<Compilation> TestAsync(string inputPath, bool skipRestore)
+        {
+            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+
+            var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
+            var semantic_model = compilation.GetEntrypointSemanticModel();
+
+            LogDiagnostics(compilation);
+
+            return compilation;
+        }
+
         public async Task<DecompileResult> DecompileAsync(string inputPath, string outputPath)
         {
             inputPath = PathHelper.ResolvePath(inputPath);
