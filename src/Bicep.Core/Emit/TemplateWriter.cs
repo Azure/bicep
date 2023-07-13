@@ -427,8 +427,6 @@ namespace Bicep.Core.Emit
             {
                 var memberSyntax = unionMemberSyntax.Value;
                 var memberType = Context.SemanticModel.GetDeclaredType(unionMemberSyntax);
-                var memberDeclaredTypeAssignment = Context.SemanticModel.GetDeclaredTypeAssignment(unionMemberSyntax);
-                ObjectTypeSyntax? objectTypeSyntaxBase;
 
                 if (memberType is ObjectType memberObjectType)
                 {
@@ -439,24 +437,22 @@ namespace Bicep.Core.Emit
                         throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
                     }
 
-                    objectTypeSyntaxBase = TryResolveTypeSyntaxOfType<ObjectTypeSyntax>(memberSyntax);
+                    var objectTypeSyntax = TryResolveTypeSyntaxOfType<ObjectTypeSyntax>(memberSyntax);
 
-                    if (objectTypeSyntaxBase == null)
+                    if (objectTypeSyntax == null)
                     {
                         // This should have been caught during type checking
                         throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
                     }
 
-                    var objectExpression = GetTypePropertiesForObjectType(objectTypeSyntaxBase, new HashSet<string> { discriminatorPropertyName });
+                    var objectExpression = GetTypePropertiesForObjectType(objectTypeSyntax, new HashSet<string> { discriminatorPropertyName });
                     objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
 
                     yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
                 }
                 else if (memberType is DiscriminatedObjectType nestedDiscriminatedType)
                 {
-                    if (nestedDiscriminatedType.DiscriminatorProperty == null
-                        || nestedDiscriminatedType.DiscriminatorProperty.Name != discriminatorPropertyName
-                        || memberDeclaredTypeAssignment is not { DeclaringSyntax: not null })
+                    if (nestedDiscriminatedType.DiscriminatorProperty.Name != discriminatorPropertyName)
                     {
                         // This should have been caught during type checking
                         throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
@@ -596,7 +592,7 @@ namespace Bicep.Core.Emit
             IEnumerable<ITypeReference> unionMembers = declaredType switch
             {
                 UnionType memberProvider => memberProvider.Members,
-                DiscriminatedObjectType memberProvider => memberProvider.UnionMembersByKey.Values, // TODO(k.a): stable sort?
+                DiscriminatedObjectType memberProvider => memberProvider.UnionMembersByKey.Values,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
