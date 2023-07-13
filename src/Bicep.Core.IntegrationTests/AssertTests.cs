@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP345", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Assertions\".")
+                ("BCP349", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Assertions\".")
             });
 
             result = CompilationHelper.Compile(ServicesWithAsserts, @"
@@ -107,12 +107,12 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"1\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"3\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"null\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"[1, 2, 3]\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"object\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
-                ("BCP346", DiagnosticLevel.Error, "Value of type \"string\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP350", DiagnosticLevel.Error, "Value of type \"1\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP350", DiagnosticLevel.Error, "Value of type \"3\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP350", DiagnosticLevel.Error, "Value of type \"null\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP350", DiagnosticLevel.Error, "Value of type \"[1, 2, 3]\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP350", DiagnosticLevel.Error, "Value of type \"object\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
+                ("BCP350", DiagnosticLevel.Error, "Value of type \"string\" cannot be assigned to an assert. Asserts can take values of type 'bool' only."),
             });
         }
 
@@ -153,7 +153,7 @@ namespace Bicep.Core.IntegrationTests
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""2524536890773058281""
+                            ""templateHash"": ""17284967353931057894""
                         }
                     },
                     ""parameters"": {
