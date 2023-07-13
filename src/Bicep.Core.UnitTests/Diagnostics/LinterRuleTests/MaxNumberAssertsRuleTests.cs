@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 if (tooManyAsserts)
                 {
                     var rule = new MaxNumberAssertsRule();
-                    diags.Should().ContainSingleDiagnostic("BCP350", DiagnosticLevel.Error, rule.GetMessage(MaxNumberAssertsRule.MaxNumber));
+                    diags.Should().ContainSingleDiagnostic("max-asserts", DiagnosticLevel.Error, rule.GetMessage(MaxNumberAssertsRule.MaxNumber));
                 }
                 else
                 {
@@ -116,5 +116,3 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
     }
 }
-
-
