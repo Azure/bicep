@@ -353,6 +353,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
 //@[000:0068) └─DeclaredOutputExpression { Name = doggoGreetings }
+//@[022:0027)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[030:0068)   └─ForLoopExpression
 //@[043:0052)     ├─VariableReferenceExpression { Variable = mapObject }
 //@[054:0067)     └─PropertyAccessExpression { PropertyName = greeting }

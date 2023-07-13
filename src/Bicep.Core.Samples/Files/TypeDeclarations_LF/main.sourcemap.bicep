@@ -1,47 +1,12 @@
 @description('The foo type')
 //@        "description": "The foo type"
 @sealed()
+//@      "additionalProperties": false,
 type foo = {
 //@    "foo": {
 //@      "type": "object",
 //@      "properties": {
-//@        "stringProp": {
-//@          "type": "string",
-//@          "metadata": {
-//@          },
-//@        },
-//@        "objectProp": {
-//@          "type": "object",
-//@          "properties": {
-//@            "intProp": {
-//@              "type": "int",
-//@            },
-//@            "intArrayArrayProp": {
-//@              "type": "array",
-//@              "items": {
-//@                "type": "array",
-//@                "items": {
-//@                  "type": "int"
-//@                }
-//@              },
-//@              "nullable": true
-//@            }
-//@          }
-//@        },
-//@        "typeRefProp": {
-//@          "$ref": "#/definitions/bar"
-//@        },
-//@        "literalProp": {
-//@          "type": "string",
-//@          "allowedValues": [
-//@          ]
-//@        },
-//@        "recursion": {
-//@          "$ref": "#/definitions/foo",
-//@          "nullable": true
-//@        }
 //@      },
-//@      "additionalProperties": false,
 //@      "metadata": {
 //@      }
 //@    },
@@ -52,21 +17,56 @@ type foo = {
   @description('A string property')
 //@            "description": "A string property"
   stringProp: string
+//@        "stringProp": {
+//@          "type": "string",
+//@          "metadata": {
+//@          },
+//@        },
 
   objectProp: {
+//@        "objectProp": {
+//@          "type": "object",
+//@          "properties": {
+//@          }
+//@        },
     @minValue(1)
 //@              "minValue": 1
     intProp: int
+//@            "intProp": {
+//@              "type": "int",
+//@            },
 
     intArrayArrayProp: int [] [] ?
+//@            "intArrayArrayProp": {
+//@              "type": "array",
+//@              "items": {
+//@                "type": "array",
+//@                "items": {
+//@                  "type": "int"
+//@                }
+//@              },
+//@              "nullable": true
+//@            }
   }
 
   typeRefProp: bar
+//@        "typeRefProp": {
+//@          "$ref": "#/definitions/bar"
+//@        },
 
   literalProp: 'literal'
+//@        "literalProp": {
+//@          "type": "string",
+//@          "allowedValues": [
 //@            "literal"
+//@          ]
+//@        },
 
   recursion: foo?
+//@        "recursion": {
+//@          "$ref": "#/definitions/foo",
+//@          "nullable": true
+//@        }
 }
 
 @minLength(3)
@@ -194,9 +194,13 @@ param inlineObjectParam {
 //@    "inlineObjectParam": {
 //@      "type": "object",
 //@      "properties": {
+//@      },
+//@    },
+  foo: string
 //@        "foo": {
 //@          "type": "string"
 //@        },
+  bar: 100|200|300|400|500
 //@        "bar": {
 //@          "type": "int",
 //@          "allowedValues": [
@@ -207,14 +211,10 @@ param inlineObjectParam {
 //@            500
 //@          ]
 //@        },
+  baz: sys.bool
 //@        "baz": {
 //@          "type": "bool"
 //@        }
-//@      },
-//@    },
-  foo: string
-  bar: 100|200|300|400|500
-  baz: sys.bool
 } = {
 //@      "defaultValue": {
 //@      }
@@ -257,36 +257,36 @@ type tuple = [
 //@    "tuple": {
 //@      "type": "array",
 //@      "prefixItems": [
-//@        {
-//@          "type": "string",
-//@          "metadata": {
-//@          }
-//@        },
-//@        {
-//@          "$ref": "#/definitions/bar",
-//@          "metadata": {
-//@          }
-//@        }
 //@      ],
 //@      "items": false
 //@    },
     @description('A leading string')
 //@            "description": "A leading string"
     string
+//@        {
+//@          "type": "string",
+//@          "metadata": {
+//@          }
+//@        },
 
     @description('A second element using a type alias')
 //@            "description": "A second element using a type alias"
     bar
+//@        {
+//@          "$ref": "#/definitions/bar",
+//@          "metadata": {
+//@          }
+//@        }
 ]
 
 type stringStringDictionary = {
 //@    "stringStringDictionary": {
 //@      "type": "object",
+//@    },
+    *: string
 //@      "additionalProperties": {
 //@        "type": "string"
 //@      }
-//@    },
-    *: string
 }
 
 @minValue(1)

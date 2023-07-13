@@ -10,10 +10,13 @@ this is my multi line
 description for my myString
 ''')
 param myString string
+//@[015:0021) | └─AmbientTypeReferenceExpression { Name = string }
 param myInt int
 //@[000:0015) ├─DeclaredParameterExpression { Name = myInt }
+//@[012:0015) | └─AmbientTypeReferenceExpression { Name = int }
 param myBool bool
 //@[000:0017) ├─DeclaredParameterExpression { Name = myBool }
+//@[013:0017) | └─AmbientTypeReferenceExpression { Name = bool }
 
 // parameters with default value
 @sys.description('this is myString2')
@@ -22,18 +25,23 @@ param myBool bool
   description: 'overwrite but still valid'
 })
 param myString2 string = 'string value'
+//@[016:0022) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[025:0039) | └─StringLiteralExpression { Value = string value }
 param myInt2 int = 42
 //@[000:0021) ├─DeclaredParameterExpression { Name = myInt2 }
+//@[013:0016) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[019:0021) | └─IntegerLiteralExpression { Value = 42 }
 param myTruth bool = true
 //@[000:0025) ├─DeclaredParameterExpression { Name = myTruth }
+//@[014:0018) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[021:0025) | └─BooleanLiteralExpression { Value = True }
 param myFalsehood bool = false
 //@[000:0030) ├─DeclaredParameterExpression { Name = myFalsehood }
+//@[018:0022) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[025:0030) | └─BooleanLiteralExpression { Value = False }
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[000:0067) ├─DeclaredParameterExpression { Name = myEscapedString }
+//@[022:0028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:0067) | └─StringLiteralExpression { Value = First line\r\nSecond\ttabbed\tline }
 
 // object default value
@@ -44,6 +52,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
   another: 'just for fun'
 })
 param foo object = {
+//@[010:0016) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[019:0232) | └─ObjectExpression
   enabled: true
 //@[002:0015) |   ├─ObjectPropertyExpression
@@ -101,6 +110,7 @@ param foo object = {
 // array default value
 param myArrayParam array = [
 //@[000:0048) ├─DeclaredParameterExpression { Name = myArrayParam }
+//@[019:0024) | ├─AmbientTypeReferenceExpression { Name = array }
 //@[027:0048) | └─ArrayExpression
   'a'
 //@[002:0005) |   ├─StringLiteralExpression { Value = a }
@@ -114,11 +124,13 @@ param myArrayParam array = [
 @secure()
 //@[000:0031) ├─DeclaredParameterExpression { Name = password }
 param password string
+//@[015:0021) | └─AmbientTypeReferenceExpression { Name = string }
 
 // secure object
 @secure()
 //@[000:0035) ├─DeclaredParameterExpression { Name = secretObject }
 param secretObject object
+//@[019:0025) | └─AmbientTypeReferenceExpression { Name = object }
 
 // enum parameter
 @allowed([
@@ -127,6 +139,7 @@ param secretObject object
   'Standard_GRS'
 ])
 param storageSku string
+//@[017:0023) | └─AmbientTypeReferenceExpression { Name = string }
 
 @allowed([
 //@[000:0043) ├─DeclaredParameterExpression { Name = intEnum }
@@ -135,23 +148,27 @@ param storageSku string
   3
 ])
 param intEnum int
+//@[014:0017) | └─AmbientTypeReferenceExpression { Name = int }
 
 // length constraint on a string
 @minLength(3)
 //@[000:0053) ├─DeclaredParameterExpression { Name = storageName }
 @maxLength(24)
 param storageName string
+//@[018:0024) | └─AmbientTypeReferenceExpression { Name = string }
 
 // length constraint on an array
 @minLength(3)
 //@[000:0050) ├─DeclaredParameterExpression { Name = someArray }
 @maxLength(24)
 param someArray array
+//@[016:0021) | └─AmbientTypeReferenceExpression { Name = array }
 
 // empty metadata
 @metadata({})
 //@[000:0040) ├─DeclaredParameterExpression { Name = emptyMetadata }
 param emptyMetadata string
+//@[020:0026) | └─AmbientTypeReferenceExpression { Name = string }
 
 // description
 @metadata({
@@ -159,10 +176,12 @@ param emptyMetadata string
   description: 'my description'
 })
 param description string
+//@[018:0024) | └─AmbientTypeReferenceExpression { Name = string }
 
 @sys.description('my description')
 //@[000:0060) ├─DeclaredParameterExpression { Name = description2 }
 param description2 string
+//@[019:0025) | └─AmbientTypeReferenceExpression { Name = string }
 
 // random extra metadata
 @metadata({
@@ -177,6 +196,7 @@ param description2 string
   }
 })
 param additionalMetadata string
+//@[025:0031) | └─AmbientTypeReferenceExpression { Name = string }
 
 // all modifiers together
 @secure()
@@ -192,9 +212,11 @@ param additionalMetadata string
   description: 'Name of the storage account'
 })
 param someParameter string
+//@[020:0026) | └─AmbientTypeReferenceExpression { Name = string }
 
 param defaultExpression bool = 18 != (true || false)
 //@[000:0052) ├─DeclaredParameterExpression { Name = defaultExpression }
+//@[024:0028) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[031:0052) | └─BinaryExpression { Operator = NotEquals }
 //@[031:0033) |   ├─IntegerLiteralExpression { Value = 18 }
 //@[038:0051) |   └─BinaryExpression { Operator = LogicalOr }
@@ -207,6 +229,7 @@ param defaultExpression bool = 18 != (true || false)
   'def'
 ])
 param stringLiteral string
+//@[020:0026) | └─AmbientTypeReferenceExpression { Name = string }
 
 @allowed([
 //@[000:0105) ├─DeclaredParameterExpression { Name = stringLiteralWithAllowedValuesSuperset }
@@ -215,6 +238,7 @@ param stringLiteral string
   'ghi'
 ])
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
+//@[045:0051) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[054:0067) | └─ParametersReferenceExpression { Parameter = stringLiteral }
 
 @secure()
@@ -226,10 +250,12 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
   'Banana'
 ])
 param decoratedString string
+//@[022:0028) | └─AmbientTypeReferenceExpression { Name = string }
 
 @minValue(100)
 //@[000:0043) ├─DeclaredParameterExpression { Name = decoratedInt }
 param decoratedInt int = 123
+//@[019:0022) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[025:0028) | └─IntegerLiteralExpression { Value = 123 }
 
 // negative integer literals are allowed as decorator values
@@ -237,6 +263,7 @@ param decoratedInt int = 123
 //@[000:0053) ├─DeclaredParameterExpression { Name = negativeValues }
 @maxValue(-3)
 param negativeValues int
+//@[021:0024) | └─AmbientTypeReferenceExpression { Name = int }
 
 @sys.description('A boolean.')
 //@[000:0283) ├─DeclaredParameterExpression { Name = decoratedBool }
@@ -250,6 +277,7 @@ param negativeValues int
     ]
 })
 param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* comment4 */ (true && false) != true
+//@[020:0024) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[091:0114) | └─BinaryExpression { Operator = NotEquals }
 //@[092:0105) |   ├─BinaryExpression { Operator = LogicalAnd }
 //@[092:0096) |   | ├─BooleanLiteralExpression { Value = True }
@@ -259,6 +287,7 @@ param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* c
 @secure()
 //@[000:0254) ├─DeclaredParameterExpression { Name = decoratedObject }
 param decoratedObject object = {
+//@[022:0028) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[031:0244) | └─ObjectExpression
   enabled: true
 //@[002:0015) |   ├─ObjectPropertyExpression
@@ -320,6 +349,7 @@ param decoratedObject object = {
 @sys.maxLength(20)
 @sys.description('I will be overrode.')
 param decoratedArray array = [
+//@[021:0026)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[029:0059)   └─ArrayExpression
     utcNow()
 //@[004:0012)     ├─FunctionCallExpression { Name = utcNow }

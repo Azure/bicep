@@ -137,6 +137,7 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 
 output managementGroupIds array = [for i in range(0, length(managementGroups)): {
 //@[000:0172) └─DeclaredOutputExpression { Name = managementGroupIds }
+//@[026:0031)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[034:0172)   └─ForLoopExpression
 //@[044:0078)     ├─FunctionCallExpression { Name = range }
 //@[050:0051)     | ├─IntegerLiteralExpression { Value = 0 }

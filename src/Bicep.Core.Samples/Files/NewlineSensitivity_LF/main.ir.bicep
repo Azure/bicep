@@ -2,6 +2,7 @@
 //@[00:1053) ProgramExpression
 //@[00:0048) ├─DeclaredParameterExpression { Name = foo }
 param foo string
+//@[10:0016) | └─AmbientTypeReferenceExpression { Name = string }
 
 var singleLineFunction = concat('abc', 'def')
 //@[00:0045) ├─DeclaredVariableExpression { Name = singleLineFunction }

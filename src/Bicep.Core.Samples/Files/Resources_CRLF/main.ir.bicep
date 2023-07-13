@@ -230,6 +230,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 //@[000:00077) ├─DeclaredParameterExpression { Name = applicationName }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00077) | └─InterpolatedStringExpression
 //@[043:00075) |   └─FunctionCallExpression { Name = uniqueString }
 //@[056:00074) |     └─PropertyAccessExpression { PropertyName = id }
@@ -240,8 +241,10 @@ var hostingPlanName = applicationName // why not just use the param directly?
 
 param appServicePlanTier string
 //@[000:00031) ├─DeclaredParameterExpression { Name = appServicePlanTier }
+//@[025:00031) | └─AmbientTypeReferenceExpression { Name = string }
 param appServicePlanInstances int
 //@[000:00033) ├─DeclaredParameterExpression { Name = appServicePlanInstances }
+//@[030:00033) | └─AmbientTypeReferenceExpression { Name = int }
 
 var location = resourceGroup().location
 //@[000:00039) ├─DeclaredVariableExpression { Name = location }
@@ -295,8 +298,10 @@ var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
 
 param webSiteName string
 //@[000:00024) ├─DeclaredParameterExpression { Name = webSiteName }
+//@[018:00024) | └─AmbientTypeReferenceExpression { Name = string }
 param cosmosDb object
 //@[000:00021) ├─DeclaredParameterExpression { Name = cosmosDb }
+//@[015:00021) | └─AmbientTypeReferenceExpression { Name = object }
 resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[000:00689) ├─DeclaredResourceExpression
 //@[049:00689) | └─ObjectExpression
@@ -385,10 +390,12 @@ var _siteType = site.type
 
 output siteApiVersion string = site.apiVersion
 //@[000:00046) ├─DeclaredOutputExpression { Name = siteApiVersion }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = apiVersion }
 //@[031:00035) |   └─ResourceReferenceExpression
 output siteType string = site.type
 //@[000:00034) ├─DeclaredOutputExpression { Name = siteType }
+//@[016:00022) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[025:00034) | └─PropertyAccessExpression { PropertyName = type }
 //@[025:00029) |   └─ResourceReferenceExpression
 
@@ -631,6 +638,7 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 
 param shouldDeployVm bool = true
 //@[000:00032) ├─DeclaredParameterExpression { Name = shouldDeployVm }
+//@[021:00025) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[028:00032) | └─BooleanLiteralExpression { Value = True }
 
 @sys.description('this is vmWithCondition')
@@ -1168,20 +1176,24 @@ resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 
 output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[000:00068) ├─DeclaredOutputExpression { Name = p1_subnet1prefix }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00068) | └─AccessChainExpression
 //@[033:00054) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[033:00043) |   | └─ResourceReferenceExpression
 //@[055:00068) |   └─StringLiteralExpression { Value = addressPrefix }
 output p1_subnet1name string = p1_subnet1.name
 //@[000:00046) ├─DeclaredOutputExpression { Name = p1_subnet1name }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = name }
 //@[031:00041) |   └─ResourceReferenceExpression
 output p1_subnet1type string = p1_subnet1.type
 //@[000:00046) ├─DeclaredOutputExpression { Name = p1_subnet1type }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = type }
 //@[031:00041) |   └─ResourceReferenceExpression
 output p1_subnet1id string = p1_subnet1.id
 //@[000:00042) ├─DeclaredOutputExpression { Name = p1_subnet1id }
+//@[020:00026) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[029:00042) | └─PropertyAccessExpression { PropertyName = id }
 //@[029:00039) |   └─ResourceReferenceExpression
 
@@ -1215,20 +1227,24 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 
 output p2_res2childprop string = p2_res2child.properties.someProp
 //@[000:00065) ├─DeclaredOutputExpression { Name = p2_res2childprop }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00065) | └─AccessChainExpression
 //@[033:00056) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[033:00045) |   | └─ResourceReferenceExpression
 //@[057:00065) |   └─StringLiteralExpression { Value = someProp }
 output p2_res2childname string = p2_res2child.name
 //@[000:00050) ├─DeclaredOutputExpression { Name = p2_res2childname }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00050) | └─PropertyAccessExpression { PropertyName = name }
 //@[033:00045) |   └─ResourceReferenceExpression
 output p2_res2childtype string = p2_res2child.type
 //@[000:00050) ├─DeclaredOutputExpression { Name = p2_res2childtype }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00050) | └─PropertyAccessExpression { PropertyName = type }
 //@[033:00045) |   └─ResourceReferenceExpression
 output p2_res2childid string = p2_res2child.id
 //@[000:00046) ├─DeclaredOutputExpression { Name = p2_res2childid }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00046) | └─PropertyAccessExpression { PropertyName = id }
 //@[031:00043) |   └─ResourceReferenceExpression
 
@@ -1248,20 +1264,24 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 
 output p3_res1childprop string = p3_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p3_res1childprop }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00062) | └─AccessChainExpression
 //@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[033:00042) |   | └─ResourceReferenceExpression
 //@[054:00062) |   └─StringLiteralExpression { Value = someProp }
 output p3_res1childname string = p3_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p3_res1childname }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = name }
 //@[033:00042) |   └─ResourceReferenceExpression
 output p3_res1childtype string = p3_child1.type
 //@[000:00047) ├─DeclaredOutputExpression { Name = p3_res1childtype }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = type }
 //@[033:00042) |   └─ResourceReferenceExpression
 output p3_res1childid string = p3_child1.id
 //@[000:00043) ├─DeclaredOutputExpression { Name = p3_res1childid }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00043) | └─PropertyAccessExpression { PropertyName = id }
 //@[031:00040) |   └─ResourceReferenceExpression
 
@@ -1282,20 +1302,24 @@ resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
 
 output p4_res1childprop string = p4_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p4_res1childprop }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00062) | └─AccessChainExpression
 //@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[033:00042) |   | └─ResourceReferenceExpression
 //@[054:00062) |   └─StringLiteralExpression { Value = someProp }
 output p4_res1childname string = p4_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p4_res1childname }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = name }
 //@[033:00042) |   └─ResourceReferenceExpression
 output p4_res1childtype string = p4_child1.type
 //@[000:00047) ├─DeclaredOutputExpression { Name = p4_res1childtype }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = type }
 //@[033:00042) |   └─ResourceReferenceExpression
 output p4_res1childid string = p4_child1.id
 //@[000:00043) └─DeclaredOutputExpression { Name = p4_res1childid }
+//@[022:00028)   ├─AmbientTypeReferenceExpression { Name = string }
 //@[031:00043)   └─PropertyAccessExpression { PropertyName = id }
 //@[031:00040)     └─ResourceReferenceExpression
 

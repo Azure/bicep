@@ -102,6 +102,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 // #completionTest(50) -> childResources
 output referenceBasicChild string = basicParent::basicChild.properties.size
 //@[00:0075) ├─DeclaredOutputExpression { Name = referenceBasicChild }
+//@[27:0033) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[36:0075) | └─AccessChainExpression
 //@[36:0070) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[36:0059) |   | └─ResourceReferenceExpression
@@ -109,6 +110,7 @@ output referenceBasicChild string = basicParent::basicChild.properties.size
 // #completionTest(67) -> grandChildResources
 output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
 //@[00:0098) ├─DeclaredOutputExpression { Name = referenceBasicGrandchild }
+//@[32:0038) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[41:0098) | └─AccessChainExpression
 //@[41:0092) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[41:0081) |   | └─ResourceReferenceExpression
@@ -153,10 +155,13 @@ resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
 
 param createParent bool
 //@[00:0023) ├─DeclaredParameterExpression { Name = createParent }
+//@[19:0023) | └─AmbientTypeReferenceExpression { Name = bool }
 param createChild bool
 //@[00:0022) ├─DeclaredParameterExpression { Name = createChild }
+//@[18:0022) | └─AmbientTypeReferenceExpression { Name = bool }
 param createGrandchild bool
 //@[00:0027) ├─DeclaredParameterExpression { Name = createGrandchild }
+//@[23:0027) | └─AmbientTypeReferenceExpression { Name = bool }
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 //@[61:0073) | | | | ├─ParametersReferenceExpression { Parameter = createParent }
 //@[61:0073) | | | ├─ParametersReferenceExpression { Parameter = createParent }
@@ -230,5 +235,6 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
 
 output loopChildOutput string = loopParent::loopChild[0].name
 //@[00:0061) └─DeclaredOutputExpression { Name = loopChildOutput }
+//@[23:0029)   ├─AmbientTypeReferenceExpression { Name = string }
 //@[32:0061)   └─PropertyAccessExpression { PropertyName = name }
 //@[32:0056)     └─ResourceReferenceExpression

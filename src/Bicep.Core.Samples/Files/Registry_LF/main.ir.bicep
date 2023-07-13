@@ -283,6 +283,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
 //@[000:0082) └─DeclaredOutputExpression { Name = siteUrls }
+//@[016:0021)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[024:0082)   └─ForLoopExpression
 //@[042:0050)     ├─VariableReferenceExpression { Variable = websites }
 //@[052:0081)     └─ModuleOutputPropertyAccessExpression { PropertyName = siteUrl }
