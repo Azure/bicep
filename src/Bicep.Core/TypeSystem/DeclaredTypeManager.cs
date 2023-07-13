@@ -759,8 +759,8 @@ namespace Bicep.Core.TypeSystem
         {
             var unionMembers = syntax.Members.Select(m => (m, GetTypeFromTypeSyntax(m, allowNamespaceReferences: false)));
 
-            if (TryResolveImmediateTypeDeclarationSyntax(syntax) is { } typeDeclarationSyntax
-                && TryGetSystemDecorator(typeDeclarationSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
+            if (TryResolveUnionImmediateDecorableSyntax(syntax) is { } decorableSyntax
+                && TryGetSystemDecorator(decorableSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
             {
                 return FinalizeDiscriminatedObjectType(unionMembers.ToArray(), discriminatorDecorator);
             }
@@ -768,11 +768,12 @@ namespace Bicep.Core.TypeSystem
             return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
         }
 
-        private TypeDeclarationSyntax? TryResolveImmediateTypeDeclarationSyntax(SyntaxBase? syntaxBase) =>
+        private DecorableSyntax? TryResolveUnionImmediateDecorableSyntax(SyntaxBase? syntaxBase) =>
             syntaxBase switch
             {
-                TypeDeclarationSyntax typeDeclarationSyntax => typeDeclarationSyntax,
-                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax => TryResolveImmediateTypeDeclarationSyntax(binder.GetParent(syntaxBase)),
+                TypeDeclarationSyntax or ObjectTypePropertySyntax => syntaxBase as DecorableSyntax,
+                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax =>
+                    TryResolveUnionImmediateDecorableSyntax(binder.GetParent(syntaxBase)),
                 _ => null
             };
 

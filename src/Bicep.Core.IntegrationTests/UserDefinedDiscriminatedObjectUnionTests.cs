@@ -127,91 +127,6 @@ type typeUnionABC = typeUnionAB | typeC
         }
 
         [TestMethod]
-        public void DiscriminatedObjectUnions_Combination()
-        {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
-type typeA = {
-  type: 'a'
-  value: string
-}
-
-type typeB = {
-  type: 'b'
-  config: string
-}
-
-type typeC = {
-  type: 'c'
-  config: string
-}
-
-type typeD = {
-  type: 'd'
-  value: int
-}
-
-@discriminator('type')
-type typeUnion1 = typeA | typeB
-@discriminator('type')
-type typeUnion2 = typeC | typeUnion1
-@discriminator('type')
-type typeUnion3 = typeD | (typeUnion2)
-""");
-
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
-
-            var unionToken = result.Template!.SelectToken(".definitions.typeUnion3");
-            unionToken.Should().NotBeNull();
-
-            // TODO(k.a): should these be $refs??
-            var expectedTypeUnionToken = JToken.Parse(
-                """
-{
-  "type": "object",
-  "discriminator": {
-    "propertyName": "type",
-    "mapping": {
-      "d": {
-        "properties": {
-          "value": {
-            "type": "int"
-          }
-        }
-      },
-      "c": {
-        "properties": {
-          "config": {
-            "type": "string"
-          }
-        }
-      },
-      "a": {
-        "properties": {
-          "value": {
-            "type": "string"
-          }
-        }
-      },
-      "b": {
-        "properties": {
-          "config": {
-            "type": "string"
-          }
-        }
-      }
-    }
-  }
-}
-""");
-
-            unionToken.Should().DeepEqual(expectedTypeUnionToken);
-        }
-
-        [TestMethod]
         public void DiscriminatedObjectUnions_Nested()
         {
             var result = CompilationHelper.Compile(
@@ -268,6 +183,115 @@ type typeUnion2 = typeC | typeD
         "properties": {
           "value": {
             "$ref": "#/definitions/typeUnion1"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Nested_Inlined()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: bool
+}
+
+type typeB = {
+  type: 'b'
+  config: string
+}
+
+type typeC = {
+  type: 'c'
+  @discriminator('type')
+  config: typeA | {
+    type: 'b'
+    value: object
+  }
+}
+
+type typeD = {
+  type: 'd'
+  @discriminator('type')
+  value: typeA | typeB
+}
+
+@discriminator('type')
+type typeUnion1 = typeC | typeD
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion1");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "c": {
+        "properties": {
+          "config": {
+            "type": "object",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "a": {
+                  "properties": {
+                    "value": {
+                      "type": "bool"
+                    }
+                  }
+                },
+                "b": {
+                  "properties": {
+                    "value": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "d": {
+        "properties": {
+          "value": {
+            "type": "object",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "a": {
+                  "properties": {
+                    "value": {
+                      "type": "bool"
+                    }
+                  }
+                },
+                "b": {
+                  "properties": {
+                    "config": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
