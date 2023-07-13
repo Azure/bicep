@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -25,7 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 if (tooManyAsserts)
                 {
                     var rule = new MaxNumberAssertsRule();
-                    diags.Should().ContainSingleDiagnostic("BCP350", DiagnosticLevel.Error, rule.GetMessage(MaxNumberAssertsRule.MaxNumber)));
+                    diags.Should().ContainSingleDiagnostic("BCP350", DiagnosticLevel.Error, rule.GetMessage(MaxNumberAssertsRule.MaxNumber));
                 }
                 else
                 {
@@ -111,7 +112,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void TestRule(string text, bool tooManyAsserts)
         {
-            CompileAndTest(text, unusedParams);
+            CompileAndTest(text, tooManyAsserts);
         }
     }
 }
