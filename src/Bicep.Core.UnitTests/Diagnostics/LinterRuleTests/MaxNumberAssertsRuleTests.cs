@@ -18,17 +18,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ruleToTest.GetMessage(1).Should().Be("Too many predeployment conditions. Number of 'assert' statements is limited to 1.");
         }
 
-        private void CompileAndTest(string text, params string[] unusedParams)
+        private void CompileAndTest(string text, bool tooManyAsserts)
         {
             AssertLinterRuleDiagnostics(MaxNumberAssertsRule.Code, text, diags =>
             {
-                if (unusedParams.Any())
+                if (tooManyAsserts)
                 {
-                    diags.Should().HaveCount(unusedParams.Count());
-
                     var rule = new MaxNumberAssertsRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberAssertsRule.MaxNumber)).ToArray();
-                    diags.Select(e => e.Message).Should().Contain(expectedMessages);
+                    diags.Should().ContainSingleDiagnostic("BCP350", DiagnosticLevel.Error, rule.GetMessage(MaxNumberAssertsRule.MaxNumber)));
                 }
                 else
                 {
@@ -112,7 +109,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
 
         [DataTestMethod]
-        public void TestRule(string text, params string[] unusedParams)
+        public void TestRule(string text, bool tooManyAsserts)
         {
             CompileAndTest(text, unusedParams);
         }
