@@ -511,5 +511,28 @@ type typeUnion2 = typeB | typeUnion1
             result.Should().ContainDiagnostic("BCP299", DiagnosticLevel.Error, "This type definition includes itself as a required component via a cycle (\"typeUnion1\" -> \"typeUnion2\").");
             result.Should().ContainDiagnostic("BCP299", DiagnosticLevel.Error, "This type definition includes itself as a required component via a cycle (\"typeUnion2\" -> \"typeUnion1\").");
         }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Error_SelfCycle()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion1 = typeUnion1 | typeA
+""");
+
+            result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+        }
     }
 }

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -90,9 +91,16 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
 
     public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
     {
-        enteredTypeContainer = true;
+        if (model.GetDeclaredType(syntax) is DiscriminatedObjectType)
+        {
+            // cycle detection for unions that are not discriminated is currently handled by CyclicCheckVisitor.
+            enteredTypeContainer = true;
+        }
         base.VisitUnionTypeSyntax(syntax);
     }
+
+    public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
+        => VisitContainedTypeSyntax(syntax, base.VisitUnionTypeMemberSyntax);
 
     private void VisitContainedTypeSyntax<TSyntax>(TSyntax syntax, Action<TSyntax> visitBaseFunc) where TSyntax : SyntaxBase
     {
