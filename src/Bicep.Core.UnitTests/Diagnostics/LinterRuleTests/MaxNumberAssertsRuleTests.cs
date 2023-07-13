@@ -68,8 +68,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             assert a29 = true
             assert a30 = true
             assert a31 = true
-            assert a32 = true
-        ")]
+            assert a32 = true",
+            false
+        )]
 
         [DataRow(@"
             assert a1 = true
@@ -104,9 +105,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             assert a30 = true
             assert a31 = true
             assert a32 = true
-            assert a33 = true
-            ",
-            "a1"
+            assert a33 = true",
+            true
         )]
 
         [DataTestMethod]
