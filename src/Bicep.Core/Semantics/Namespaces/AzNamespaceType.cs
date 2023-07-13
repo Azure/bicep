@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -28,7 +29,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
-            return (binder, fileResolver, diagnostics, functionCall, argumentTypes) => {
+            return (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+            {
                 diagnostics.Write(functionCall.Name, writeDiagnostic);
 
                 return new(returnType);
@@ -305,22 +307,48 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
-                    .WithEvaluator(expression =>
+                    .WithReturnResultBuilder((_, _, _, func, _) =>
                     {
-                        var subscriptionIdParameter = (expression.Parameters[0] as StringLiteralExpression)?.Value;
-                        var resourceGroupNameParameter = (expression.Parameters[1] as StringLiteralExpression)?.Value;
-                        var keyVaultNameParameter = (expression.Parameters[2] as StringLiteralExpression)?.Value;
-                        var secretNameParameter = (expression.Parameters[3] as StringLiteralExpression)?.Value;
-                        var idExpression = ExpressionFactory.CreateObjectProperty("id", ExpressionFactory.CreateStringLiteral($"/subscriptions/{subscriptionIdParameter}/resourceGroups/{resourceGroupNameParameter}/providers/Microsoft.KeyVault/vaults/{keyVaultNameParameter}"));
-                        var keyVaultExpression = ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] { idExpression }));
-                        var secretNameExpression = ExpressionFactory.CreateObjectProperty("secretName", ExpressionFactory.CreateStringLiteral($"{secretNameParameter}"));
-                        var referenceList = new List<ObjectPropertyExpression>() { keyVaultExpression, secretNameExpression };
-                        if (expression.Parameters.Length > 4)
+                        if ((func.Arguments[0].Expression as StringSyntax)?.TryGetLiteralValue() is not { } subscriptionId)
                         {
-                            referenceList.Add(ExpressionFactory.CreateObjectProperty("secretVersion", ExpressionFactory.CreateStringLiteral($"{(expression.Parameters[4] as StringLiteralExpression)?.Value}")));
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[0]).CompileTimeConstantRequired()));
                         }
-                        return ExpressionFactory.CreateObject(new[] { ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(referenceList), expression.SourceSyntax) });
-                    })
+                        if ((func.Arguments[1].Expression as StringSyntax)?.TryGetLiteralValue() is not { } resourceGroupName)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[1]).CompileTimeConstantRequired()));
+                        }
+                        if ((func.Arguments[2].Expression as StringSyntax)?.TryGetLiteralValue() is not { } keyVaultName)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[2]).CompileTimeConstantRequired()));
+                        }
+                        if ((func.Arguments[3].Expression as StringSyntax)?.TryGetLiteralValue() is not { } secretName)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[3]).CompileTimeConstantRequired()));
+                        }
+
+                        var kvResourceId = ResourceGroupLevelResourceId.Create(subscriptionId, resourceGroupName, "Microsoft.KeyVault", new[] { "vaults" }, new[] { keyVaultName });
+
+                        var referenceList = new List<ObjectPropertyExpression>() {
+                            ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] { ExpressionFactory.CreateObjectProperty("id", ExpressionFactory.CreateStringLiteral(kvResourceId.FullyQualifiedId)) })),
+                            ExpressionFactory.CreateObjectProperty("secretName", ExpressionFactory.CreateStringLiteral(secretName))
+                        };
+
+                        if (func.Arguments.Length > 4)
+                        {
+                            if ((func.Arguments[4].Expression as StringSyntax)?.TryGetLiteralValue() is not { } secretVersion)
+                            {
+                                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[4]).CompileTimeConstantRequired()));
+                            }
+
+                            referenceList.Add(ExpressionFactory.CreateObjectProperty("secretVersion", ExpressionFactory.CreateStringLiteral(secretVersion)));
+                        }
+
+                        var expression = ExpressionFactory.CreateObject(new[] {
+                            ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(referenceList), func),
+                        }, func);
+
+                        return new(LanguageConstants.SecureString, expression);
+                    }, LanguageConstants.SecureString)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "Id of the Subscription that has the target KeyVault")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "Name of the Resource Group that has the target KeyVault")
                     .WithRequiredParameter("keyVaultName", LanguageConstants.String, "Name of the target KeyVault")
