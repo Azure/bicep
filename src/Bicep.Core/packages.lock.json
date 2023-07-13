@@ -47,11 +47,11 @@
       },
       "Azure.Deployments.Core": {
         "type": "Direct",
-        "requested": "[1.0.1003, )",
-        "resolved": "1.0.1003",
-        "contentHash": "RreRcPj9Vr5VMHfyejhRpkKWse5YByWWSVTfWyNSUCV/BZARGcUcM8U+rlSJ4NGiixLgk+kD2R1O2yKEGEEUwg==",
+        "requested": "[1.0.1010, )",
+        "resolved": "1.0.1010",
+        "contentHash": "HtAYoJh3yEng8/YdF5RcwESQf/M4bcgDf0iO4Y7bjdZjZIetguP2yestidQ+a3Ffs/V2Fp2poIfYbJ1mUt2kHg==",
         "dependencies": {
-          "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1454",
+          "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1457",
           "Newtonsoft.Json": "13.0.2",
           "System.Collections.Immutable": "5.0.0",
           "System.Reflection.Emit.Lightweight": "4.7.0"
@@ -59,11 +59,11 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Direct",
-        "requested": "[1.0.1003, )",
-        "resolved": "1.0.1003",
-        "contentHash": "saCd1Za3SsAwlw/86OkAGw3xVsyHqvS2L145n15+VnNlsbASrZgz4hpbOLIhXRuDqqJmYr7EUcXMDs+yigTFTw==",
+        "requested": "[1.0.1010, )",
+        "resolved": "1.0.1010",
+        "contentHash": "hamcVBIzrITSrom/BG8luwyzGY2ztzV8Ak2lKoaho4ICWY3AnFy1ErLfbxfC7JD9gh03zcWVP8fSCYb2dxF9bA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.1003",
+          "Azure.Deployments.Core": "1.0.1010",
           "IPNetwork2": "2.6.548",
           "Newtonsoft.Json": "13.0.2"
         }
@@ -76,12 +76,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Direct",
-        "requested": "[1.0.1003, )",
-        "resolved": "1.0.1003",
-        "contentHash": "QJv9paxPjBXoedgF+rTQUJ8wxwYPh9xOc88+r75ff7+1IPkbEs5/iQnmXoXQ7wW0qAkOqKDhMpaTxIJipJQfyw==",
+        "requested": "[1.0.1010, )",
+        "resolved": "1.0.1010",
+        "contentHash": "wwaU8fMnNXaK/lMBIUNbt5rnVdVhRJS2xlGjBwKVFyJLA4g1Sua9MmaiHRWoU+N4k+gbhPcB6xX9p8bIe5uhRw==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.1003",
-          "Azure.Deployments.Expression": "1.0.1003",
+          "Azure.Deployments.Core": "1.0.1010",
+          "Azure.Deployments.Expression": "1.0.1010",
           "Microsoft.Automata.SRM": "1.2.2",
           "Newtonsoft.Json": "13.0.2"
         }
