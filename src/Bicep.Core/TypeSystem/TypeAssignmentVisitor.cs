@@ -542,7 +542,7 @@ namespace Bicep.Core.TypeSystem
 
                 base.VisitUnionTypeSyntax(syntax);
 
-                if (declaredType is DiscriminatedObjectType)
+                if (declaredType is DiscriminatedObjectType or ErrorType)
                 {
                     return declaredType;
                 }
