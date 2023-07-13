@@ -118,7 +118,7 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(emitter, program.Metadata);
 
-            this.EmitTypeDefinitionsIfPresent(jsonWriter, emitter);
+            this.EmitTypeDefinitionsIfPresent(emitter, program.Types);
 
             this.EmitUserDefinedFunctions(emitter, program.Functions);
 
@@ -138,25 +138,19 @@ namespace Bicep.Core.Emit
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
-        private void EmitTypeDefinitionsIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitTypeDefinitionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredTypeExpression> types)
         {
-            if (Context.SemanticModel.Root.TypeDeclarations.Length == 0)
+            if (!types.Any())
             {
                 return;
             }
 
-            jsonWriter.WritePropertyName("definitions");
-            jsonWriter.WriteStartObject();
-
-            foreach (var declaredTypeSymbol in Context.SemanticModel.Root.TypeDeclarations)
-            {
-                jsonWriter.WritePropertyWithPosition(
-                    declaredTypeSymbol.DeclaringType,
-                    declaredTypeSymbol.Name,
-                    () => EmitTypeDeclaration(jsonWriter, declaredTypeSymbol, emitter));
-            }
-
-            jsonWriter.WriteEndObject();
+            emitter.EmitObjectProperty("definitions", () => {
+                foreach (var type in types)
+                {
+                    EmitTypeDeclaration(emitter, type);
+                }
+            });
         }
 
         private void EmitUserDefinedFunctions(ExpressionEmitter emitter, ImmutableArray<DeclaredFunctionExpression> functions)
@@ -231,15 +225,14 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObjectProperty(parameter.Name, () =>
             {
-                var declaringParameter = parameter.Symbol.DeclaringParameter;
-                var parameterObject = TypePropertiesForTypeExpression(declaringParameter.Type);
+                var parameterObject = TypePropertiesForTypeExpression(parameter.Type);
 
                 if (parameter.DefaultValue is not null)
                 {
                     parameterObject = parameterObject.MergeProperty("defaultValue", parameter.DefaultValue);
                 }
 
-                EmitProperties(emitter, AddDecoratorsToBody(declaringParameter, parameterObject, parameter.Symbol.Type));
+                EmitProperties(emitter, AddDecoratorsToBody(parameter.Symbol.DeclaringParameter, parameterObject, parameter.Symbol.Type));
             }, parameter.SourceSyntax);
         }
 
@@ -284,241 +277,214 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        private void EmitTypeDeclaration(ExpressionEmitter emitter, DeclaredTypeExpression declaredType)
         {
-            jsonWriter.WriteStartObject();
-
-            EmitProperties(emitter, AddDecoratorsToBody(declaredTypeSymbol.DeclaringType,
-                TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value),
-                declaredTypeSymbol.Type));
-
-            jsonWriter.WriteEndObject();
+            emitter.EmitObjectProperty(declaredType.Name,
+                () =>
+                {
+                    EmitProperties(emitter, AddDecoratorsToBody(declaredType.Symbol.DeclaringType, TypePropertiesForTypeExpression(declaredType.Value), declaredType.Symbol.Type));
+                },
+                declaredType.SourceSyntax);
         }
 
-        private ObjectExpression TypePropertiesForTypeExpression(SyntaxBase typeExpressionSyntax) => typeExpressionSyntax switch
+        private ObjectExpression TypePropertiesForTypeExpression(TypeExpression typeExpression) => typeExpression switch
         {
-            VariableAccessSyntax variableAccess => TypePropertiesForUnqualifedReference(variableAccess),
-            PropertyAccessSyntax propertyAccess => TypePropertiesForQualifiedReference(propertyAccess),
-            ResourceTypeSyntax resourceType => GetTypePropertiesForResourceType(resourceType),
-            ArrayTypeSyntax arrayType => GetTypePropertiesForArrayType(arrayType),
-            ObjectTypeSyntax objectType => GetTypePropertiesForObjectType(objectType),
-            TupleTypeSyntax tupleType => GetTypePropertiesForTupleType(tupleType),
-            StringSyntax @string => GetTypePropertiesForStringSyntax(@string),
-            IntegerLiteralSyntax integerLiteral => GetTypePropertiesForIntegerLiteralSyntax(integerLiteral),
-            BooleanLiteralSyntax booleanLiteral => GetTypePropertiesForBooleanLiteralSyntax(booleanLiteral),
-            UnaryOperationSyntax unaryOperation => GetTypePropertiesForUnaryOperationSyntax(unaryOperation),
-            UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType),
-            ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression),
-            NullableTypeSyntax nullableType => GetTypePropertiesForNullableTypeSyntax(nullableType),
-            NonNullAssertionSyntax nonNullableType => GetTypePropertiesForNonNullableTypeSyntax(nonNullableType),
+            // references
+            AmbientTypeReferenceExpression ambientTypeReference
+                => ExpressionFactory.CreateObject(TypeProperty(ambientTypeReference.Symbol.Name, ambientTypeReference.SourceSyntax).AsEnumerable(),
+                    ambientTypeReference.SourceSyntax),
+            FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
+                => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
+            TypeAliasReferenceExpression typeAliasReference=> ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref",
+                ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Symbol.Name}")).AsEnumerable(),
+                    typeAliasReference.SourceSyntax),
+
+            // literals
+            StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
+                new[]
+                {
+                    TypeProperty(LanguageConstants.TypeNameString, @string.SourceSyntax),
+                    AllowedValuesProperty(SingleElementArray(ExpressionFactory.CreateStringLiteral(@string.Value, @string.SourceSyntax)),
+                        @string.SourceSyntax),
+                },
+                @string.SourceSyntax),
+            IntegerLiteralTypeExpression @int => ExpressionFactory.CreateObject(
+                new[]
+                {
+                    TypeProperty(LanguageConstants.TypeNameInt, @int.SourceSyntax),
+                    AllowedValuesProperty(SingleElementArray(ExpressionFactory.CreateIntegerLiteral(@int.Value, @int.SourceSyntax)),
+                        @int.SourceSyntax),
+                },
+                @int.SourceSyntax),
+            BooleanLiteralTypeExpression @bool => ExpressionFactory.CreateObject(
+                new[]
+                {
+                    TypeProperty(LanguageConstants.TypeNameBool, @bool.SourceSyntax),
+                    AllowedValuesProperty(SingleElementArray(ExpressionFactory.CreateBooleanLiteral(@bool.Value, @bool.SourceSyntax)),
+                        @bool.SourceSyntax),
+                },
+                @bool.SourceSyntax),
+            UnionTypeExpression unionType => GetTypePropertiesForUnionTypeExpression(unionType),
+
+            // resource types
+            ResourceTypeExpression resourceType => GetTypePropertiesForResourceType(resourceType),
+
+            // aggregate types
+            ArrayTypeExpression arrayType => GetTypePropertiesForArrayType(arrayType),
+            ObjectTypeExpression objectType => GetTypePropertiesForObjectType(objectType),
+            TupleTypeExpression tupleType => GetTypePropertiesForTupleType(tupleType),
+            NullableTypeExpression nullableType => TypePropertiesForTypeExpression(nullableType.BaseExpression)
+                .MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true, nullableType.SourceSyntax)),
+            NonNullableTypeExpression nonNullableType => TypePropertiesForTypeExpression(nonNullableType.BaseExpression)
+                .MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(false, nonNullableType.SourceSyntax)),
+
             // this should have been caught by the parser
-            _ => throw new ArgumentException("Invalid type syntax encountered."),
+            _ => throw new ArgumentException("Invalid type expression encountered."),
         };
 
-        private ObjectExpression TypePropertiesForUnqualifedReference(VariableAccessSyntax variableAccess) => Context.SemanticModel.GetSymbolInfo(variableAccess) switch
+        private ObjectExpression TypePropertiesForQualifiedReference(FullyQualifiedAmbientTypeReferenceExpression qualifiedAmbientType)
         {
-            AmbientTypeSymbol ambientType => ExpressionFactory.CreateObject(TypeProperty(ambientType.Name).AsEnumerable()),
-            TypeAliasSymbol typeAlias => ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref", ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAlias.Name}")).AsEnumerable()),
-            // should have been caught long ago by the type manager
-            _ => throw new ArgumentException($"The symbolic name \"{variableAccess.Name.IdentifierName}\" does not refer to a type"),
-        };
-
-        private ObjectExpression TypePropertiesForQualifiedReference(PropertyAccessSyntax propertyAccess)
-        {
-            // The only property access scenario supported at the moment is dereferencing types from a namespace
-            if (Context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is not BuiltInNamespaceSymbol builtInNamespace || builtInNamespace.Type.ProviderName != SystemNamespaceType.BuiltInName)
+            if (qualifiedAmbientType.Namespace.Type.ProviderName != SystemNamespaceType.BuiltInName)
             {
                 throw new ArgumentException("Property access base expression did not resolve to the 'sys' namespace.");
             }
 
-            return ExpressionFactory.CreateObject(TypeProperty(propertyAccess.PropertyName.IdentifierName).AsEnumerable());
+            return ExpressionFactory.CreateObject(TypeProperty(qualifiedAmbientType.NamespaceProperty.Name, qualifiedAmbientType.SourceSyntax).AsEnumerable(),
+                qualifiedAmbientType.SourceSyntax);
         }
 
-        private ObjectPropertyExpression TypeProperty(string typeName)
-            => ExpressionFactory.CreateObjectProperty("type", new StringLiteralExpression(null, typeName));
+        private ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
+            => Property("type", new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);
 
-        private ObjectExpression GetTypePropertiesForResourceType(ResourceTypeSyntax syntax)
+        private ObjectPropertyExpression AllowedValuesProperty(ArrayExpression allowedValues, SyntaxBase? sourceSyntax)
+            => Property("allowedValues", allowedValues, sourceSyntax);
+
+        private ObjectPropertyExpression Property(string name, Expression value, SyntaxBase? sourceSyntax)
+            => ExpressionFactory.CreateObjectProperty(name, value, sourceSyntax);
+
+        private ObjectExpression GetTypePropertiesForResourceType(ResourceTypeExpression expression)
         {
-            var typeString = syntax.TypeString?.TryGetLiteralValue() ?? GetResourceTypeString(syntax);
+            var typeString = expression.ExpressedResourceType.TypeReference.FormatName();
 
             return ExpressionFactory.CreateObject(new[]
             {
-                TypeProperty(LanguageConstants.TypeNameString),
+                TypeProperty(LanguageConstants.TypeNameString, expression.SourceSyntax),
                 ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
                     ExpressionFactory.CreateObject(
                         ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataResourceTypePropertyName,
-                            ExpressionFactory.CreateStringLiteral(typeString)).AsEnumerable())),
+                            ExpressionFactory.CreateStringLiteral(typeString, expression.SourceSyntax),
+                            expression.SourceSyntax).AsEnumerable(),
+                        expression.SourceSyntax),
+                    expression.SourceSyntax),
             });
         }
 
-        private string GetResourceTypeString(ResourceTypeSyntax syntax)
+        private ObjectExpression GetTypePropertiesForArrayType(ArrayTypeExpression expression)
         {
-            if (Context.SemanticModel.GetTypeInfo(syntax) is not ResourceType resourceType)
+            var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ArrayType, expression.SourceSyntax) };
+
+            if (TryGetAllowedValues(expression.BaseExpression) is {} allowedValues)
             {
-                // This should have been caught during type checking
-                throw new ArgumentException($"Unable to locate resource type.");
-            }
-
-            return resourceType.TypeReference.FormatName();
-        }
-
-        private ObjectExpression GetTypePropertiesForArrayType(ArrayTypeSyntax syntax)
-        {
-            var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ArrayType) };
-
-            if (TryGetAllowedValues(syntax.Item.Value) is {} allowedValues)
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("allowedValues", allowedValues));
+                properties.Add(ExpressionFactory.CreateObjectProperty("allowedValues", allowedValues, expression.BaseExpression.SourceSyntax));
             }
             else
             {
-                properties.Add(ExpressionFactory.CreateObjectProperty("items", TypePropertiesForTypeExpression(syntax.Item.Value)));
+                properties.Add(ExpressionFactory.CreateObjectProperty("items", TypePropertiesForTypeExpression(expression.BaseExpression)));
             }
 
-            return ExpressionFactory.CreateObject(properties);
+            return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
 
-        private ArrayExpression? TryGetAllowedValues(SyntaxBase syntax) => syntax switch
+        private ArrayExpression? TryGetAllowedValues(TypeExpression expression) => expression switch
         {
-            StringSyntax or
-            IntegerLiteralSyntax or
-            BooleanLiteralSyntax or
-            UnaryOperationSyntax or
-            NullLiteralSyntax => SingleElementArray(ExpressionBuilder.Convert(syntax)),
-            ObjectTypeSyntax objectType when Context.SemanticModel.GetDeclaredType(objectType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
-            TupleTypeSyntax tupleType when Context.SemanticModel.GetDeclaredType(tupleType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
-            UnionTypeSyntax unionType => GetAllowedValuesForUnionType(unionType),
-            ParenthesizedExpressionSyntax parenthesized => TryGetAllowedValues(parenthesized.Expression),
+            StringLiteralTypeExpression @string => SingleElementArray(ExpressionFactory.CreateStringLiteral(@string.Value, @string.SourceSyntax)),
+            IntegerLiteralTypeExpression @int => SingleElementArray(ExpressionFactory.CreateIntegerLiteral(@int.Value, @int.SourceSyntax)),
+            BooleanLiteralTypeExpression @bool => SingleElementArray(ExpressionFactory.CreateBooleanLiteral(@bool.Value, @bool.SourceSyntax)),
+            NullLiteralTypeExpression @null => SingleElementArray(new NullLiteralExpression(@null.SourceSyntax)),
+            ObjectTypeExpression @object when TypeHelper.IsLiteralType(@object.ExpressedType) => SingleElementArray(ToLiteralValue(@object.ExpressedType)),
+            TupleTypeExpression tuple when TypeHelper.IsLiteralType(tuple.ExpressedType) => SingleElementArray(ToLiteralValue(tuple.ExpressedType)),
+            UnionTypeExpression union => GetAllowedValuesForUnionType(union.ExpressedUnionType, union.SourceSyntax),
             _ => null,
         };
 
         private ArrayExpression SingleElementArray(Expression expression) => ExpressionFactory.CreateArray(expression.AsEnumerable());
 
-        private ArrayExpression GetAllowedValuesForUnionType(UnionTypeSyntax syntax)
+        private ArrayExpression GetAllowedValuesForUnionType(UnionType unionType, SyntaxBase? sourceSyntax)
+            => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue), sourceSyntax);
+
+        private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeExpression expression)
         {
-            if (Context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
-            {
-                // This should have been caught during type checking
-                throw new ArgumentException("Invalid union encountered during template serialization");
-            }
-
-            return GetAllowedValuesForUnionType(unionType);
-        }
-
-        private ArrayExpression GetAllowedValuesForUnionType(UnionType unionType)
-            => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue));
-
-        private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeSyntax syntax)
-        {
-            var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType) };
+            var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType, expression.SourceSyntax) };
             List<ObjectPropertyExpression> propertySchemata = new();
 
-            foreach (var property in syntax.Properties)
+            foreach (var property in expression.PropertyExpressions)
             {
-                if (property.TryGetKeyText() is not string keyText)
+                var propertySchema = TypePropertiesForTypeExpression(property.Value);
+                if (property.SourceSyntax is DecorableSyntax decorable)
                 {
-                    // This should have been caught during type checking
-                    throw new ArgumentException("Invalid object type key encountered during serialization.");
+                    propertySchema = AddDecoratorsToBody(decorable, propertySchema, property.Value.ExpressedType);
                 }
 
-                var propertySchema = TypePropertiesForTypeExpression(property.Value);
-                propertySchema = AddDecoratorsToBody(property, propertySchema, Context.SemanticModel.GetDeclaredType(property) ?? ErrorType.Empty());
-
-                propertySchemata.Add(ExpressionFactory.CreateObjectProperty(keyText, propertySchema));
+                propertySchemata.Add(ExpressionFactory.CreateObjectProperty(property.PropertyName, propertySchema, property.SourceSyntax));
             }
 
             if (propertySchemata.Any())
             {
-                properties.Add(ExpressionFactory.CreateObjectProperty("properties", ExpressionFactory.CreateObject(propertySchemata)));
+                properties.Add(ExpressionFactory.CreateObjectProperty("properties", ExpressionFactory.CreateObject(propertySchemata, expression.SourceSyntax)));
             }
 
-            if (syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().SingleOrDefault() is { } addlPropsType)
+            if (expression.AdditionalPropertiesExpression is { } addlPropsType)
             {
                 var addlPropertiesSchema = TypePropertiesForTypeExpression(addlPropsType.Value);
-                addlPropertiesSchema = AddDecoratorsToBody(addlPropsType, addlPropertiesSchema, Context.SemanticModel.GetDeclaredType(addlPropsType) ?? ErrorType.Empty());
+                if (addlPropsType.SourceSyntax is DecorableSyntax decorable)
+                {
+                    addlPropertiesSchema = AddDecoratorsToBody(decorable, addlPropertiesSchema, addlPropsType.Value.ExpressedType);
+                }
 
-                properties.Add(ExpressionFactory.CreateObjectProperty("additionalProperties", addlPropertiesSchema));
+                properties.Add(ExpressionFactory.CreateObjectProperty("additionalProperties", addlPropertiesSchema, addlPropsType.SourceSyntax));
             }
 
-            return ExpressionFactory.CreateObject(properties);
+            return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
 
-        private ObjectExpression GetTypePropertiesForTupleType(TupleTypeSyntax syntax) => ExpressionFactory.CreateObject(new[]
+        private ObjectExpression GetTypePropertiesForTupleType(TupleTypeExpression expression) => ExpressionFactory.CreateObject(new[]
         {
-            TypeProperty(LanguageConstants.ArrayType),
+            TypeProperty(LanguageConstants.ArrayType, expression.SourceSyntax),
             ExpressionFactory.CreateObjectProperty("prefixItems",
-                ExpressionFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
-                    item,
-                    TypePropertiesForTypeExpression(item.Value),
-                    Context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
-            ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false)),
+                ExpressionFactory.CreateArray(
+                    expression.ItemExpressions.Select(item => (item, TypePropertiesForTypeExpression(item.Value)))
+                        .Select(t => t.item.SourceSyntax is DecorableSyntax decorable
+                            ? AddDecoratorsToBody(decorable, t.Item2, t.item.Value.ExpressedType)
+                            : t.Item2),
+                    expression.SourceSyntax),
+                expression.SourceSyntax),
+            ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
         });
 
-        private ObjectExpression GetTypePropertiesForStringSyntax(StringSyntax syntax) => ExpressionFactory.CreateObject(new[]
+        private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {
-            TypeProperty(LanguageConstants.TypeNameString),
-            AllowedValuesForTypeExpression(syntax),
-        });
-
-        private ObjectExpression GetTypePropertiesForIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => ExpressionFactory.CreateObject(new[]
-        {
-            TypeProperty(LanguageConstants.TypeNameInt),
-            AllowedValuesForTypeExpression(syntax),
-        });
-
-        private ObjectExpression GetTypePropertiesForBooleanLiteralSyntax(BooleanLiteralSyntax syntax) => ExpressionFactory.CreateObject(new[]
-        {
-            TypeProperty(LanguageConstants.TypeNameBool),
-            AllowedValuesForTypeExpression(syntax),
-        });
-
-        private ObjectExpression GetTypePropertiesForUnaryOperationSyntax(UnaryOperationSyntax syntax)
-        {
-            // Within type syntax, unary operations are only permitted if they are resolvable to a literal type at compile-time
-            if (Context.SemanticModel.GetDeclaredType(syntax) is not {} type || !TypeHelper.IsLiteralType(type))
-            {
-                throw new ArgumentException("Unary operator applied to unresolvable type symbol.");
-            }
-
-            return ExpressionFactory.CreateObject(new[]
-            {
-                TypeProperty(GetNonLiteralTypeName(type)),
-                AllowedValuesForTypeExpression(syntax),
-            });
-        }
-
-        private ObjectExpression GetTypePropertiesForUnionTypeSyntax(UnionTypeSyntax syntax)
-        {
-            // Union types permit symbolic references, unary operations, and literals, so long as the whole expression embodied in the UnionTypeSyntax can be
-            // reduced to a flat union of literal types. If this didn't happen during type checking, the syntax will resolve to an ErrorType instead of a UnionType
-            if (Context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
-            {
-                throw new ArgumentException("Invalid union encountered during template serialization");
-            }
-
-            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(unionType) switch
+            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
             {
                 UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
                 TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-                _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
+                _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type)),
             };
 
             var properties = new List<ObjectPropertyExpression>
             {
-                TypeProperty(nonLiteralTypeName),
-                ExpressionFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)),
+                TypeProperty(nonLiteralTypeName, expression.SourceSyntax),
+                ExpressionFactory.CreateObjectProperty("allowedValues",
+                    GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax),
+                    expression.SourceSyntax),
             };
 
             if (nullable)
             {
-                properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true)));
+                properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true), expression.SourceSyntax));
             }
 
-            return ExpressionFactory.CreateObject(properties);
+            return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
-
-        private ObjectPropertyExpression AllowedValuesForTypeExpression(SyntaxBase syntax) => ExpressionFactory.CreateObjectProperty("allowedValues",
-            TryGetAllowedValues(syntax) ?? throw new ArgumentException("Unable to resolve allowed values during template serialization."));
 
         private Expression ToLiteralValue(ITypeReference literalType) => literalType.Type switch
         {
@@ -542,12 +508,6 @@ namespace Bicep.Core.Emit
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };
-
-        private ObjectExpression GetTypePropertiesForNullableTypeSyntax(NullableTypeSyntax syntax)
-            => TypePropertiesForTypeExpression(syntax.Base).MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true));
-
-        private ObjectExpression GetTypePropertiesForNonNullableTypeSyntax(NonNullAssertionSyntax syntax)
-            => TypePropertiesForTypeExpression(syntax.BaseExpression).MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(false));
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
         {
@@ -981,9 +941,8 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObjectProperty(output.Name, () =>
             {
-                var declaringOutput = output.Symbol.DeclaringOutput;
-                EmitProperties(emitter, AddDecoratorsToBody(declaringOutput,
-                    TypePropertiesForTypeExpression(declaringOutput.Type),
+                EmitProperties(emitter, AddDecoratorsToBody(output.Symbol.DeclaringOutput,
+                    TypePropertiesForTypeExpression(output.Type),
                     output.Symbol.Type));
 
                 if (output.Value is ForLoopExpression @for)

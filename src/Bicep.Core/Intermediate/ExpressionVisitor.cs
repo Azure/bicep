@@ -73,7 +73,9 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitLambdaExpression(LambdaExpression expression)
     {
+        Visit(expression.ParameterTypes);
         Visit(expression.Body);
+        Visit(expression.OutputType);
     }
 
     public void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression)
@@ -157,6 +159,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
     {
+        Visit(expression.Type);
         Visit(expression.DefaultValue);
     }
 
@@ -167,6 +170,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitDeclaredOutputExpression(DeclaredOutputExpression expression)
     {
+        Visit(expression.Type);
         Visit(expression.Value);
     }
 
@@ -198,10 +202,94 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Parameters);
     }
 
+    public void VisitDeclaredTypeExpression(DeclaredTypeExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitAmbientTypeReferenceExpression(AmbientTypeReferenceExpression expression)
+    {
+    }
+
+    public void VisitFullyQualifiedAmbientTypeReferenceExpression(FullyQualifiedAmbientTypeReferenceExpression expression)
+    {
+    }
+
+    public void VisitTypeAliasReferenceExpression(TypeAliasReferenceExpression expression)
+    {
+    }
+
+    public void VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression)
+    {
+    }
+
+    public void VisitIntegerLiteralTypeExpression(IntegerLiteralTypeExpression expression)
+    {
+    }
+
+    public void VisitBooleanLiteralTypeExpression(BooleanLiteralTypeExpression expression)
+    {
+    }
+
+    public void VisitNullLiteralTypeExpression(NullLiteralTypeExpression expression)
+    {
+    }
+
+    public void VisitResourceTypeExpression(ResourceTypeExpression expression)
+    {
+    }
+
+    public void VisitObjectTypePropertyExpression(ObjectTypePropertyExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitObjectTypeAdditionalPropertiesExpression(ObjectTypeAdditionalPropertiesExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitObjectTypeExpression(ObjectTypeExpression expression)
+    {
+        Visit(expression.PropertyExpressions);
+        Visit(expression.AdditionalPropertiesExpression);
+    }
+
+    public void VisitTupleTypeItemExpression(TupleTypeItemExpression expression)
+    {
+        Visit(expression.Value);
+    }
+
+    public void VisitTupleTypeExpression(TupleTypeExpression expression)
+    {
+        Visit(expression.ItemExpressions);
+    }
+
+    public void VisitArrayTypeExpression(ArrayTypeExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public void VisitNullableTypeExpression(NullableTypeExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public void VisitNonNullableTypeExpression(NonNullableTypeExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public void VisitUnionTypeExpression(UnionTypeExpression expression)
+    {
+        Visit(expression.MemberExpressions);
+    }
+
     public void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);
         Visit(expression.Imports);
+        Visit(expression.Types);
         Visit(expression.Parameters);
         Visit(expression.Variables);
         Visit(expression.Functions);

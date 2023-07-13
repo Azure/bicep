@@ -74,7 +74,7 @@ public interface IExpressionVisitor
     void VisitDeclaredModuleExpression(DeclaredModuleExpression expression);
 
     void VisitResourceDependencyExpression(ResourceDependencyExpression expression);
-    
+
     void VisitProgramExpression(ProgramExpression expression);
 
     void VisitAccessChainExpression(AccessChainExpression expression);
@@ -82,4 +82,40 @@ public interface IExpressionVisitor
     void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression);
 
     void VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression);
+
+    void VisitDeclaredTypeExpression(DeclaredTypeExpression expression);
+
+    void VisitAmbientTypeReferenceExpression(AmbientTypeReferenceExpression expression);
+
+    void VisitFullyQualifiedAmbientTypeReferenceExpression(FullyQualifiedAmbientTypeReferenceExpression expression);
+
+    void VisitTypeAliasReferenceExpression(TypeAliasReferenceExpression expression);
+
+    void VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression);
+
+    void VisitIntegerLiteralTypeExpression(IntegerLiteralTypeExpression expression);
+
+    void VisitBooleanLiteralTypeExpression(BooleanLiteralTypeExpression expression);
+
+    void VisitNullLiteralTypeExpression(NullLiteralTypeExpression expression);
+
+    void VisitResourceTypeExpression(ResourceTypeExpression expression);
+
+    void VisitObjectTypePropertyExpression(ObjectTypePropertyExpression expression);
+
+    void VisitObjectTypeAdditionalPropertiesExpression(ObjectTypeAdditionalPropertiesExpression expression);
+
+    void VisitObjectTypeExpression(ObjectTypeExpression expression);
+
+    void VisitTupleTypeItemExpression(TupleTypeItemExpression expression);
+
+    void VisitTupleTypeExpression(TupleTypeExpression expression);
+
+    void VisitArrayTypeExpression(ArrayTypeExpression expression);
+
+    void VisitNullableTypeExpression(NullableTypeExpression expression);
+
+    void VisitNonNullableTypeExpression(NonNullableTypeExpression expression);
+
+    void VisitUnionTypeExpression(UnionTypeExpression expression);
 }

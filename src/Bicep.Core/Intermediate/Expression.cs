@@ -335,9 +335,9 @@ public record ConditionExpression(
 public record LambdaExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> Parameters,
-    ImmutableArray<SyntaxBase?> ParameterTypes,
+    ImmutableArray<TypeExpression?> ParameterTypes,
     Expression Body,
-    SyntaxBase? OutputType
+    TypeExpression? OutputType
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -372,6 +372,7 @@ public record DeclaredImportExpression(
 public record DeclaredParameterExpression(
     SyntaxBase? SourceSyntax,
     string Name,
+    TypeExpression Type,
     ParameterSymbol Symbol,
     Expression? DefaultValue
 ) : Expression(SourceSyntax)
@@ -397,6 +398,7 @@ public record DeclaredVariableExpression(
 public record DeclaredOutputExpression(
     SyntaxBase? SourceSyntax,
     string Name,
+    TypeExpression Type,
     OutputSymbol Symbol,
     Expression Value
 ) : Expression(SourceSyntax)
@@ -447,6 +449,7 @@ public record ProgramExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<DeclaredMetadataExpression> Metadata,
     ImmutableArray<DeclaredImportExpression> Imports,
+    ImmutableArray<DeclaredTypeExpression> Types,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
     ImmutableArray<DeclaredFunctionExpression> Functions,
@@ -491,4 +494,197 @@ public record UserDefinedFunctionCallExpression(
         => visitor.VisitUserDefinedFunctionCallExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record DeclaredTypeExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    TypeAliasSymbol Symbol,
+    TypeExpression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredTypeExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public abstract record TypeExpression(
+    SyntaxBase? SourceSyntax,
+    TypeSymbol ExpressedType
+) : Expression(SourceSyntax)
+{
+    protected override object? GetDebugAttributes() => new { Name = ExpressedType.Name };
+}
+
+public record AmbientTypeReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    AmbientTypeSymbol Symbol
+) : TypeExpression(SourceSyntax, Symbol.Type)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitAmbientTypeReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+}
+
+public record FullyQualifiedAmbientTypeReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    BuiltInNamespaceSymbol Namespace,
+    TypeTypeProperty NamespaceProperty
+) : TypeExpression(SourceSyntax, NamespaceProperty.TypeReference.Unwrapped)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitFullyQualifiedAmbientTypeReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = $"{Namespace}.{NamespaceProperty.Name}" };
+}
+
+public record TypeAliasReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    TypeAliasSymbol Symbol
+) : TypeExpression(SourceSyntax, Symbol.Type)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeAliasReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+}
+
+public record StringLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    StringLiteralType ExpressedStringLiteralType
+) : TypeExpression(SourceSyntax, ExpressedStringLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitStringLiteralTypeExpression(this);
+
+    public string Value => ExpressedStringLiteralType.RawStringValue;
+}
+
+public record IntegerLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    IntegerLiteralType ExpressedIntegerLiteralType
+) : TypeExpression(SourceSyntax, ExpressedIntegerLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitIntegerLiteralTypeExpression(this);
+
+    public long Value => ExpressedIntegerLiteralType.Value;
+}
+
+public record BooleanLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    BooleanLiteralType ExpressedBooleanLiteralType
+) : TypeExpression(SourceSyntax, ExpressedBooleanLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitBooleanLiteralTypeExpression(this);
+
+    public bool Value => ExpressedBooleanLiteralType.Value;
+}
+
+public record NullLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    NullType ExpressedNullLiteralType
+) : TypeExpression(SourceSyntax, ExpressedNullLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNullLiteralTypeExpression(this);
+}
+
+public record ResourceTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ResourceType ExpressedResourceType
+) : TypeExpression(SourceSyntax, ExpressedResourceType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceTypeExpression(this);
+}
+
+public record ObjectTypePropertyExpression(
+    SyntaxBase? SourceSyntax,
+    string PropertyName,
+    TypeExpression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectTypePropertyExpression(this);
+}
+
+public record ObjectTypeAdditionalPropertiesExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectTypeAdditionalPropertiesExpression(this);
+}
+
+public record ObjectTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ObjectType ExpressedObjectType,
+    ImmutableArray<ObjectTypePropertyExpression> PropertyExpressions,
+    ObjectTypeAdditionalPropertiesExpression? AdditionalPropertiesExpression
+) : TypeExpression(SourceSyntax, ExpressedObjectType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectTypeExpression(this);
+}
+
+public record TupleTypeItemExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTupleTypeItemExpression(this);
+}
+
+public record TupleTypeExpression(
+    SyntaxBase? SourceSyntax,
+    TupleType ExpressedTupleType,
+    ImmutableArray<TupleTypeItemExpression> ItemExpressions
+) : TypeExpression(SourceSyntax, ExpressedTupleType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTupleTypeExpression(this);
+}
+
+public record ArrayTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ArrayType ExpressedArrayType,
+    TypeExpression BaseExpression
+) : TypeExpression(SourceSyntax, ExpressedArrayType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitArrayTypeExpression(this);
+}
+
+public record NullableTypeExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression
+) : TypeExpression(SourceSyntax, TypeHelper.CreateTypeUnion(BaseExpression.ExpressedType, LanguageConstants.Null))
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNullableTypeExpression(this);
+}
+
+public record NonNullableTypeExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression
+) : TypeExpression(SourceSyntax, TypeHelper.CreateTypeUnion(BaseExpression.ExpressedType, TypeHelper.TryRemoveNullability(BaseExpression.ExpressedType) ?? BaseExpression.ExpressedType))
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNonNullableTypeExpression(this);
+}
+
+public record UnionTypeExpression(
+    SyntaxBase? SourceSyntax,
+    UnionType ExpressedUnionType,
+    ImmutableArray<TypeExpression> MemberExpressions
+) : TypeExpression(SourceSyntax, ExpressedUnionType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitUnionTypeExpression(this);
 }

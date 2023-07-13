@@ -1437,16 +1437,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator((_, targetType, targetObject) =>
+                .WithEvaluator((functionCall, targetType, targetObject) =>
                 {
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
                     {
-                        return targetObject.MergeProperty("type", new StringLiteralExpression(null, "securestring"));
+                        return targetObject.MergeProperty("type", new StringLiteralExpression(functionCall.SourceSyntax, "securestring"));
                     }
 
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))
                     {
-                        return targetObject.MergeProperty("type", new StringLiteralExpression(null, "secureObject"));
+                        return targetObject.MergeProperty("type", new StringLiteralExpression(functionCall.SourceSyntax, "secureObject"));
                     }
 
                     return targetObject;
@@ -1573,7 +1573,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
                     .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false)))
+                    .WithEvaluator((functionCall, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, functionCall.SourceSyntax)))
                     .Build();
             }
         }
