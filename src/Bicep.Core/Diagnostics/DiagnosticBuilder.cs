@@ -1426,7 +1426,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new(
                 TextSpan,
                 "BCP244",
                 $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
@@ -1920,9 +1920,9 @@ namespace Bicep.Core.Diagnostics
                     "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-                
+
             public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
-                TextSpan, 
+                TextSpan,
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
@@ -1930,7 +1930,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
-        
+
+            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
+                TextSpan,
+                "BCP344",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
                 "BCP345",

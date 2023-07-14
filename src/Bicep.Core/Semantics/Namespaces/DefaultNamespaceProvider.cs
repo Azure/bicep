@@ -22,7 +22,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
             [SystemNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => SystemNamespaceType.Create(alias, features, sourceFileKind),
-            [AzNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => AzNamespaceType.Create(alias, scope, azResourceTypeProvider),
+            [AzNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => AzNamespaceType.Create(alias, scope, azResourceTypeProvider, sourceFileKind),
             [K8sNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind) => K8sNamespaceType.Create(alias),
         }.ToImmutableDictionary();
     }
