@@ -344,7 +344,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP350", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
+            result.Should().OnlyContainDiagnostic("BCP352", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
         [DataTestMethod]
@@ -370,7 +370,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP350", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
+            result.Should().OnlyContainDiagnostic("BCP352", DiagnosticLevel.Error, "The property \"type\" must be a required string literal on all union member types.");
         }
 
         [DataTestMethod]
@@ -395,7 +395,7 @@ type typeB = {
 type typeUnion = {{typeTest}}
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP351", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" is duplicated across multiple union member types. The value must be unique across all union member types.");
+            result.Should().OnlyContainDiagnostic("BCP353", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" is duplicated across multiple union member types. The value must be unique across all union member types.");
         }
 
         [DataTestMethod]
@@ -424,7 +424,7 @@ type typeB = {
 type typeTest = {{typeTest}}
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP349", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types with unique member types.");
+            result.Should().OnlyContainDiagnostic("BCP351", DiagnosticLevel.Error, "The \"discriminator\" decorator can only be applied to object-only union types with unique member types.");
         }
 
         [DataTestMethod]

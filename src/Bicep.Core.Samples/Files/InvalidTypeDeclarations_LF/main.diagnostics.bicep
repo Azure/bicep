@@ -158,32 +158,32 @@ type wrongDiscriminatorParamType = typeA | typeB
 
 @discriminator('nonexistent')
 type discriminatorPropertyNotExistAtAll = typeA | typeB
-//@[42:47) [BCP350 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeA|
-//@[50:55) [BCP350 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeB|
+//@[42:47) [BCP352 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeA|
+//@[50:55) [BCP352 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeB|
 
 @discriminator('type')
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
-//@[57:72) [BCP350 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |{ value: bool }|
+//@[57:72) [BCP352 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |{ value: bool }|
 
 @discriminator('type')
-//@[00:22) [BCP349 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:22) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorWithOnlyOneMember = typeA
 
 @discriminator('type')
 type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
-//@[62:67) [BCP350 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeF|
+//@[62:67) [BCP352 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeF|
 
 @discriminator('type')
 type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
-//@[62:67) [BCP350 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeG|
+//@[62:67) [BCP352 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeG|
 
 @discriminator('type')
 type discriminatorDuplicatedMember1 = typeA | typeA
-//@[46:51) [BCP351 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
+//@[46:51) [BCP353 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
-//@[46:75) [BCP351 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
+//@[46:75) [BCP353 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
 
 @discriminator('type')
 type discriminatorSelfCycle = typeA | discriminatorSelfCycle
