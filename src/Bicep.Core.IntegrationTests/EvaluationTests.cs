@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -14,6 +16,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class EvaluationTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public void Basic_arithmetic_expressions_are_evaluated_successfully()
         {
@@ -974,6 +979,54 @@ output properties object = {
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExist", JValue.CreateNull());
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.existsArrayAccess", "baz");
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExistArrayAccess", JValue.CreateNull());
+            }
+        }
+
+        [TestMethod]
+        public void Assertions_are_evaluated_correctly()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, AssertsEnabled: true));
+            var bicepFile = @"
+param accountName string
+param environment string
+param location string
+
+resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: toLower(accountName)
+  location: resourceGroup().location
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+var myInt = 24
+
+assert a1 = length(accountName) < myInt
+assert a2 = contains(location, 'us')
+assert a3 = environment == 'dev'
+";
+
+
+            var paramsFile = @"
+using 'main.bicep'
+
+// long string to trigger the assertion
+param accountName = 'asdgkbauskfabdsfibasdogbnasdognbaosdingoaisdngoisdangoinbdsaoigbsadoibgodsiabgos'
+param environment = 'dev'
+param location = 'westus'
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(services, ("parameters.bicepparam", paramsFile), ("main.bicep", bicepFile));
+            var (template, _, _) = CompilationHelper.Compile(services, bicepFile);
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+                
+                evaluated.Should().HaveValueAtPath("$.asserts['a1']", false);
+                evaluated.Should().HaveValueAtPath("$.asserts['a2']", true);
+                evaluated.Should().HaveValueAtPath("$.asserts['a3']", true);
             }
         }
     }
