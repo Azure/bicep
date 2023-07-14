@@ -145,6 +145,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            base.VisitAssertDeclarationSyntax(syntax);
+
+            var symbol = new AssertSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             base.VisitImportDeclarationSyntax(syntax);

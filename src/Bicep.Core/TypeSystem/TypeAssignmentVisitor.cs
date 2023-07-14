@@ -840,6 +840,31 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var errors = new List<ErrorDiagnostic>();
+
+                var valueType = typeManager.GetTypeInfo(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (PropagateErrorType(errors, valueType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                if (!TypeValidator.AreTypesAssignable(valueType, LanguageConstants.Bool))
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).InvalidAssertAssignment(valueType));
+                }
+
+                this.ValidateDecorators(syntax.Decorators, valueType, diagnostics);
+
+                base.VisitAssertDeclarationSyntax(syntax);
+
+                return LanguageConstants.Bool;
+            });
+
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
             => AssignType(syntax, () => syntax.Value ? LanguageConstants.True : LanguageConstants.False);
 

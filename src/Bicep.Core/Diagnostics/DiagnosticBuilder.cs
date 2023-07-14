@@ -1930,6 +1930,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
+
+            public ErrorDiagnostic ExpectedAssertIdentifier() => new(
+                TextSpan,
+                "BCP344",
+                "Expected an assert identifier at this location.");
         
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
@@ -1949,6 +1954,15 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP348",
                 $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
+            public ErrorDiagnostic AssertsUnsupported() => new(
+                TextSpan,
+                "BCP349",
+                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Assertions)}"".");
+
+            public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
+                TextSpan,
+                "BCP350",
+                $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

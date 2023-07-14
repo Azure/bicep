@@ -124,6 +124,15 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             this.Visit(syntax.Child);
