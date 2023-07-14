@@ -10,6 +10,7 @@ namespace Bicep.Core.Semantics
         Parameter,
         Variable,
         Resource,
+        Assert,
         Module,
         Test,
         Output,

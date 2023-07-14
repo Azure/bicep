@@ -227,6 +227,22 @@ namespace Bicep.Core.Syntax
         }
 
         void ISyntaxVisitor.VisitLocalVariableSyntax(LocalVariableSyntax syntax) => ReplaceCurrent(syntax, ReplaceLocalVariableSyntax);
+        protected virtual SyntaxBase ReplaceAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new AssertDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+        void ISyntaxVisitor.VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceAssertDeclarationSyntax);
 
         protected virtual SyntaxBase ReplaceTargetScopeSyntax(TargetScopeSyntax syntax)
         {

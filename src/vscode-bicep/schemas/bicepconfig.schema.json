@@ -255,6 +255,16 @@
                     }
                   ]
                 },
+                "max-asserts": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of 'assert' statements used. See https://aka.ms/bicep/linter/max-asserts"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
                 "max-outputs": {
                   "allOf": [
                     {
@@ -603,6 +613,9 @@
           "type": "boolean"
         },
         "testFramework": {
+          "type": "boolean"
+        },
+        "asserts": {
           "type": "boolean"
         }
       }

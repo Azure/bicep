@@ -106,6 +106,9 @@ namespace Bicep.Core.TypeSystem
                 case OutputDeclarationSyntax output:
                     return GetOutputType(output);
 
+                case AssertDeclarationSyntax assert:
+                    return new DeclaredTypeAssignment(TypeFactory.CreateBooleanType(), assert);
+
                 case TargetScopeSyntax targetScope:
                     return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
 

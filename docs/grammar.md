@@ -12,6 +12,7 @@ statement ->
   resourceDecl |
   moduleDecl |
   testDecl |
+  assertDel |
   outputDecl |
   functionDecl |
   NL
@@ -40,6 +41,8 @@ resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "exist
 moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object | forExpression) NL
 
 testDecl -> "test" IDENTIFIER(name) interpString(type) "=" (object) NL
+
+assertDecl -> decorator* "assert" IDENTIFIER(name) "=" expression NL
 
 outputDecl ->
   decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL

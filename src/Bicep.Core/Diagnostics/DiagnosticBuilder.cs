@@ -1931,6 +1931,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
 
+            public ErrorDiagnostic ExpectedAssertIdentifier() => new(
+                TextSpan,
+                "BCP344",
+                "Expected an assert identifier at this location.");
+
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
                 "BCP345",
@@ -1950,24 +1955,34 @@ namespace Bicep.Core.Diagnostics
                 "BCP348",
                 $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
 
-            public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
+            public ErrorDiagnostic AssertsUnsupported() => new(
                 TextSpan,
                 "BCP349",
+                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Assertions)}"".");
+
+            public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
+                TextSpan,
+                "BCP350",
+                $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
+
+            public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
+                TextSpan,
+                "BCP351",
                 $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types with unique member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => new(
                 TextSpan,
-                "BCP350",
+                "BCP352",
                 $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
                 TextSpan,
-                "BCP351",
+                "BCP353",
                 $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
 
             public ErrorDiagnostic DiscriminatorPropertyNameMustMatch(string acceptablePropertyName) => new(
                 TextSpan,
-                "BCP352",
+                "BCP354",
                 $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
         }
 

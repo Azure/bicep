@@ -189,6 +189,11 @@ namespace Bicep.LanguageServer.Completions
                                 context.ReplacementRange);
                         }
 
+                        if (model.Features.AssertsEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.AssertKeyword, "Assert keyword", context.ReplacementRange);
+                        }
+
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                         {
                             string prefix = resourceSnippet.Prefix;
