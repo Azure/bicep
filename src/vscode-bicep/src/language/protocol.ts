@@ -58,7 +58,7 @@ export interface BicepDeploymentScopeResponse {
 
 export interface BicepDeploymentStartParams {
   documentPath: string;
-  parametersFilePath: string;
+  parametersFilePath: string | undefined;
   id: string;
   deploymentScope: string;
   location: string;
@@ -68,7 +68,7 @@ export interface BicepDeploymentStartParams {
   deployId: string;
   deploymentName: string;
   portalUrl: string;
-  parametersFileName: string | null;
+  parametersFileName: string | undefined;
   parametersFileUpdateOption: ParametersFileUpdateOption;
   updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
   resourceManagerEndpointUrl: string;

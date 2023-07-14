@@ -409,6 +409,18 @@ public record DeclaredOutputExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
+public record DeclaredAssertExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    Expression Value
+    ) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredAssertExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
 public record DeclaredResourceExpression(
     SyntaxBase? SourceSyntax,
     DeclaredResourceMetadata Metadata,
@@ -455,7 +467,8 @@ public record ProgramExpression(
     ImmutableArray<DeclaredFunctionExpression> Functions,
     ImmutableArray<DeclaredResourceExpression> Resources,
     ImmutableArray<DeclaredModuleExpression> Modules,
-    ImmutableArray<DeclaredOutputExpression> Outputs
+    ImmutableArray<DeclaredOutputExpression> Outputs,
+    ImmutableArray<DeclaredAssertExpression> Asserts
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)

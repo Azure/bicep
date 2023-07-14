@@ -129,11 +129,27 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            base.VisitTestDeclarationSyntax(syntax);
+
+            var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);            
+        }
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             base.VisitOutputDeclarationSyntax(syntax);
 
             var symbol = new OutputSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            base.VisitAssertDeclarationSyntax(syntax);
+
+            var symbol = new AssertSymbol(this.context, syntax.Name.IdentifierName, syntax);
             DeclareSymbol(symbol);
         }
 

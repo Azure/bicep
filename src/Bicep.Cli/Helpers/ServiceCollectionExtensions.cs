@@ -44,6 +44,7 @@ public static class ServiceCollectionExtensions
         // this is harcoded to make the code trim-safe
         services
             .AddSingleton<BuildCommand>()
+            .AddSingleton<TestCommand>()
             .AddSingleton<BuildParamsCommand>()
             .AddSingleton<DecompileCommand>()
             .AddSingleton<DecompileParamsCommand>()

@@ -299,6 +299,15 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Value = value } : expression;
     }
 
+    void IExpressionVisitor.VisitDeclaredAssertExpression(DeclaredAssertExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredAssertExpression);
+    public virtual Expression ReplaceDeclaredAssertExpression(DeclaredAssertExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Value, out var value);
+
+        return hasChanges ? expression with { Value = value } : expression;
+    }
+
     void IExpressionVisitor.VisitDeclaredResourceExpression(DeclaredResourceExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredResourceExpression);
     public virtual Expression ReplaceDeclaredResourceExpression(DeclaredResourceExpression expression)
     {

@@ -179,6 +179,16 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
+        private IEnumerable<Document> LayoutTestDeclarationSyntax(TestDeclarationSyntax syntax){
+            return this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.Spread(
+                    syntax.Keyword,
+                    syntax.Name,
+                    syntax.Path,
+                    syntax.Assignment,
+                    syntax.Value));
+        }
+
         private IEnumerable<Document> LayoutNonNullAssertionSyntax(NonNullAssertionSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.AssertionOperator);
 
@@ -423,6 +433,14 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrEmpty);
 
         private IEnumerable<Document> LayoutVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.Spread(
+                    syntax.Keyword,
+                    syntax.Name,
+                    syntax.Assignment,
+                    syntax.Value));
+
+        private IEnumerable<Document> LayoutAssertDeclarationSyntax(AssertDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(this.Spread(
                     syntax.Keyword,

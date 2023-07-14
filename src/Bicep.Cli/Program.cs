@@ -65,12 +65,17 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args)
         {
+            Trace.WriteLine($"Bicep version: {ThisAssembly.AssemblyInformationalVersion}, CLI arguments: \"{string.Join(' ', args)}\"");
+
             try
             {
                 switch (ArgumentParser.TryParse(args))
                 {
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
+
+                    case TestArguments testArguments when testArguments.CommandName == Constants.Command.Test: // bicep test [options]
+                        return await services.GetRequiredService<TestCommand>().RunAsync(testArguments);
 
                     case BuildParamsArguments buildParamsArguments when buildParamsArguments.CommandName == Constants.Command.BuildParams: // bicep build-params [options]
                         return await services.GetRequiredService<BuildParamsCommand>().RunAsync(buildParamsArguments);

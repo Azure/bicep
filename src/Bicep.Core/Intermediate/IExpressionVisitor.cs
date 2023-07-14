@@ -69,6 +69,8 @@ public interface IExpressionVisitor
 
     void VisitDeclaredOutputExpression(DeclaredOutputExpression expression);
 
+    void VisitDeclaredAssertExpression(DeclaredAssertExpression expression);
+
     void VisitDeclaredResourceExpression(DeclaredResourceExpression expression);
 
     void VisitDeclaredModuleExpression(DeclaredModuleExpression expression);
