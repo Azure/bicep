@@ -500,7 +500,7 @@ jobs:
         working-directory: ./src/monarch
 
   test-bicep:
-    name: 'Run: ${{matrix.config.name}} (${{ matrix.runtime.rid }})'
+    name: "Run: ${{matrix.config.name}} (${{ matrix.runtime.rid }})"
     runs-on: ${{ matrix.runtime.os }}
     needs: build-cli
     strategy:
@@ -576,42 +576,12 @@ jobs:
         with:
           flags: dotnet
 
-  publish-test-results:
-    name: "Publish Tests Results (${{ matrix.rid }})"
-    needs: test-bicep
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      # only needed unless run with comment_mode: off
-      pull-requests: write
-    strategy:
-      fail-fast: false
-      matrix:
-        rid: ["win-x64", "linux-x64", "linux-musl-x64", "osx-x64"]
-    if: always()
-
-    steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.${{ matrix.rid }}
-          path: TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}
-
-      - name: List downloaded artifacts
-        run: ls -R TestResults/
-
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          check_name: "Test Results (${{ matrix.rid }})"
-          files: "TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}/**/*.trx"
-  
   can-run-live-tests:
     name: Check secret access
     runs-on: ubuntu-latest
     outputs:
       access_verified: ${{ steps.check-access.outputs.verified }}
-      
+
     steps:
       - id: check-access
         env:
@@ -716,3 +686,13 @@ jobs:
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
+
+  upload-event-file:
+    name: "Upload Event File"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Upload"
+        uses: actions/upload-artifact@v3
+        with:
+          name: Event File
+          path: ${{ github.event_path }}
