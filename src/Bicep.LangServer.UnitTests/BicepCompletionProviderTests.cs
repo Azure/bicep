@@ -140,6 +140,7 @@ var v =
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
+assert a1 = p == 'foo'
 output o int = 42
 ");
             var offset = compilation.GetEntrypointSemanticModel().Root.VariableDeclarations.Select(x => x.DeclaringVariable).Single().Value.Span.Position;
@@ -152,6 +153,8 @@ output o int = 42
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
+
+            completions.Where(c => c.Kind == SymbolKind.Assert.ToCompletionItemKind()).Should().BeEmpty();
 
             // the variable won't appear in completions because we are not suggesting cycles
             completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
@@ -192,7 +195,7 @@ output o int = 42
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-
+            completions.Where(c => c.Kind == SymbolKind.Assert.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Module.ToCompletionItemKind()).Should().BeEmpty();
@@ -211,6 +214,7 @@ var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
+assert a1 = resourceGroup
 output length int =
 ");
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Value.Span.Position;
@@ -223,7 +227,7 @@ output length int =
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-
+            completions.Where(c => c.Kind == SymbolKind.Assert.ToCompletionItemKind()).Should().BeEmpty();
             const string expectedVariable = "resourceGroup";
             var variableCompletion = completions.Single(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind());
             variableCompletion.Label.Should().Be(expectedVariable);
