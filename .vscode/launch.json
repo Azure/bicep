@@ -40,6 +40,23 @@
             "stopAtEntry": false
         },
         {
+            "name": "CLI-Test",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build CLI",
+            "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net7.0/bicep",
+            "args": [
+                "test",
+                "${file}"
+            ],
+            "env": {
+                "BICEP_TRACING_ENABLED": "true"
+            },
+            "cwd": "${workspaceFolder}/src/Bicep.Cli",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": "Playground",
             "type": "node",
             "request": "launch",
