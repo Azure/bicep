@@ -100,3 +100,116 @@ param disallowedUnionParam 'foo'|-99
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[6:37) Parameter objectWithInvalidRecursionParam. Type: { requiredAndRecursiveProp: objectWithInvalidRecursion }. Declaration start char: 0, length: 64
 
+type typeA = {
+//@[5:10) TypeAlias typeA. Type: Type<{ type: 'a', value: string }>. Declaration start char: 0, length: 44
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+//@[5:10) TypeAlias typeB. Type: Type<{ type: 'b', value: int }>. Declaration start char: 0, length: 41
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type unionAB = typeA | typeB
+//@[5:12) TypeAlias unionAB. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 51
+
+type typeC = {
+//@[5:10) TypeAlias typeC. Type: Type<{ type: 'c', value: bool, value2: string }>. Declaration start char: 0, length: 59
+  type: 'c'
+  value: bool
+  value2: string
+}
+
+type typeD = {
+//@[5:10) TypeAlias typeD. Type: Type<{ type: 'd', value: object }>. Declaration start char: 0, length: 44
+  type: 'd'
+  value: object
+}
+
+type typeE = {
+//@[5:10) TypeAlias typeE. Type: Type<{ type: 'e', *: string }>. Declaration start char: 0, length: 40
+  type: 'e'
+  *: string
+}
+
+type typeF = {
+//@[5:10) TypeAlias typeF. Type: Type<{ type: 0, value: string }>. Declaration start char: 0, length: 42
+  type: 0
+  value: string
+}
+
+type typeG = {
+//@[5:10) TypeAlias typeG. Type: Type<{ type: 'g' | null, value: string }>. Declaration start char: 0, length: 45
+  type: 'g'?
+  value: string
+}
+
+type objectUnion = typeA | typeB
+//@[5:16) TypeAlias objectUnion. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 32
+
+@discriminator()
+type noDiscriminatorParam = typeA | typeB
+//@[5:25) TypeAlias noDiscriminatorParam. Type: error. Declaration start char: 0, length: 58
+
+@discriminator(true)
+type wrongDiscriminatorParamType = typeA | typeB
+//@[5:32) TypeAlias wrongDiscriminatorParamType. Type: error. Declaration start char: 0, length: 69
+
+@discriminator('nonexistent')
+type discriminatorPropertyNotExistAtAll = typeA | typeB
+//@[5:39) TypeAlias discriminatorPropertyNotExistAtAll. Type: error. Declaration start char: 0, length: 85
+
+@discriminator('type')
+type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
+//@[5:46) TypeAlias discriminatorPropertyNotExistOnAtLeastOne. Type: error. Declaration start char: 0, length: 95
+
+@discriminator('type')
+type discriminatorWithOnlyOneMember = typeA
+//@[5:35) TypeAlias discriminatorWithOnlyOneMember. Type: Type<{ type: 'a', value: string }>. Declaration start char: 0, length: 66
+
+@discriminator('type')
+type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
+//@[5:51) TypeAlias discriminatorPropertyNotRequiredStringLiteral1. Type: error. Declaration start char: 0, length: 90
+
+@discriminator('type')
+type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
+//@[5:51) TypeAlias discriminatorPropertyNotRequiredStringLiteral2. Type: error. Declaration start char: 0, length: 90
+
+@discriminator('type')
+type discriminatorDuplicatedMember1 = typeA | typeA
+//@[5:35) TypeAlias discriminatorDuplicatedMember1. Type: error. Declaration start char: 0, length: 74
+
+@discriminator('type')
+type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
+//@[5:35) TypeAlias discriminatorDuplicatedMember2. Type: error. Declaration start char: 0, length: 98
+
+@discriminator('type')
+type discriminatorSelfCycle = typeA | discriminatorSelfCycle
+//@[5:27) TypeAlias discriminatorSelfCycle. Type: error. Declaration start char: 0, length: 83
+
+@discriminator('type')
+type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
+//@[5:32) TypeAlias discriminatorTopLevelCycleA. Type: error. Declaration start char: 0, length: 93
+@discriminator('type')
+type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
+//@[5:32) TypeAlias discriminatorTopLevelCycleB. Type: error. Declaration start char: 0, length: 93
+
+@discriminator('type')
+type discriminatorInnerSelfCycle1 = typeA | {
+//@[5:33) TypeAlias discriminatorInnerSelfCycle1. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle1 }>. Declaration start char: 0, length: 120
+  type: 'b'
+  value: discriminatorInnerSelfCycle1
+}
+
+type discriminatorInnerSelfCycle2Helper = {
+//@[5:39) TypeAlias discriminatorInnerSelfCycle2Helper. Type: Type<{ type: 'b', value: discriminatorInnerSelfCycle2 }>. Declaration start char: 0, length: 95
+  type: 'b'
+  value: discriminatorInnerSelfCycle2
+}
+@discriminator('type')
+type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
+//@[5:33) TypeAlias discriminatorInnerSelfCycle2. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle2 }>. Declaration start char: 0, length: 101
+

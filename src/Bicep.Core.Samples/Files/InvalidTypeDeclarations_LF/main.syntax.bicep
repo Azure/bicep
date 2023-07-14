@@ -1,5 +1,5 @@
 type 44
-//@[00:1285) ProgramSyntax
+//@[00:3039) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -493,6 +493,752 @@ param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[38:0064) | └─VariableAccessSyntax
 //@[38:0064) |   └─IdentifierSyntax
 //@[38:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
-//@[64:0065) ├─Token(NewLine) |\n|
+//@[64:0066) ├─Token(NewLine) |\n\n|
+
+type typeA = {
+//@[00:0044) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeA|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0044) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 'a'
+//@[02:0011) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0011) |   | └─StringSyntax
+//@[08:0011) |   |   └─Token(StringComplete) |'a'|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+  value: string
+//@[02:0015) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0015) |   | └─VariableAccessSyntax
+//@[09:0015) |   |   └─IdentifierSyntax
+//@[09:0015) |   |     └─Token(Identifier) |string|
+//@[15:0016) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type typeB = {
+//@[00:0041) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeB|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0041) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 'b'
+//@[02:0011) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0011) |   | └─StringSyntax
+//@[08:0011) |   |   └─Token(StringComplete) |'b'|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+  value: int
+//@[02:0012) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0012) |   | └─VariableAccessSyntax
+//@[09:0012) |   |   └─IdentifierSyntax
+//@[09:0012) |   |     └─Token(Identifier) |int|
+//@[12:0013) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0051) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type unionAB = typeA | typeB
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0012) | ├─IdentifierSyntax
+//@[05:0012) | | └─Token(Identifier) |unionAB|
+//@[13:0014) | ├─Token(Assignment) |=|
+//@[15:0028) | └─UnionTypeSyntax
+//@[15:0020) |   ├─UnionTypeMemberSyntax
+//@[15:0020) |   | └─VariableAccessSyntax
+//@[15:0020) |   |   └─IdentifierSyntax
+//@[15:0020) |   |     └─Token(Identifier) |typeA|
+//@[21:0022) |   ├─Token(Pipe) |||
+//@[23:0028) |   └─UnionTypeMemberSyntax
+//@[23:0028) |     └─VariableAccessSyntax
+//@[23:0028) |       └─IdentifierSyntax
+//@[23:0028) |         └─Token(Identifier) |typeB|
+//@[28:0030) ├─Token(NewLine) |\n\n|
+
+type typeC = {
+//@[00:0059) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeC|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0059) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 'c'
+//@[02:0011) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0011) |   | └─StringSyntax
+//@[08:0011) |   |   └─Token(StringComplete) |'c'|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+  value: bool
+//@[02:0013) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0013) |   | └─VariableAccessSyntax
+//@[09:0013) |   |   └─IdentifierSyntax
+//@[09:0013) |   |     └─Token(Identifier) |bool|
+//@[13:0014) |   ├─Token(NewLine) |\n|
+  value2: string
+//@[02:0016) |   ├─ObjectTypePropertySyntax
+//@[02:0008) |   | ├─IdentifierSyntax
+//@[02:0008) |   | | └─Token(Identifier) |value2|
+//@[08:0009) |   | ├─Token(Colon) |:|
+//@[10:0016) |   | └─VariableAccessSyntax
+//@[10:0016) |   |   └─IdentifierSyntax
+//@[10:0016) |   |     └─Token(Identifier) |string|
+//@[16:0017) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type typeD = {
+//@[00:0044) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeD|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0044) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 'd'
+//@[02:0011) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0011) |   | └─StringSyntax
+//@[08:0011) |   |   └─Token(StringComplete) |'d'|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+  value: object
+//@[02:0015) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0015) |   | └─VariableAccessSyntax
+//@[09:0015) |   |   └─IdentifierSyntax
+//@[09:0015) |   |     └─Token(Identifier) |object|
+//@[15:0016) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type typeE = {
+//@[00:0040) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeE|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0040) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 'e'
+//@[02:0011) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0011) |   | └─StringSyntax
+//@[08:0011) |   |   └─Token(StringComplete) |'e'|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+  *: string
+//@[02:0011) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[02:0003) |   | ├─Token(Asterisk) |*|
+//@[03:0004) |   | ├─Token(Colon) |:|
+//@[05:0011) |   | └─VariableAccessSyntax
+//@[05:0011) |   |   └─IdentifierSyntax
+//@[05:0011) |   |     └─Token(Identifier) |string|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type typeF = {
+//@[00:0042) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeF|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0042) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 0
+//@[02:0009) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0009) |   | └─IntegerLiteralSyntax
+//@[08:0009) |   |   └─Token(Integer) |0|
+//@[09:0010) |   ├─Token(NewLine) |\n|
+  value: string
+//@[02:0015) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0015) |   | └─VariableAccessSyntax
+//@[09:0015) |   |   └─IdentifierSyntax
+//@[09:0015) |   |     └─Token(Identifier) |string|
+//@[15:0016) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type typeG = {
+//@[00:0045) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0010) | ├─IdentifierSyntax
+//@[05:0010) | | └─Token(Identifier) |typeG|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0045) | └─ObjectTypeSyntax
+//@[13:0014) |   ├─Token(LeftBrace) |{|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+  type: 'g'?
+//@[02:0012) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0012) |   | └─NullableTypeSyntax
+//@[08:0011) |   |   ├─StringSyntax
+//@[08:0011) |   |   | └─Token(StringComplete) |'g'|
+//@[11:0012) |   |   └─Token(Question) |?|
+//@[12:0013) |   ├─Token(NewLine) |\n|
+  value: string
+//@[02:0015) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0015) |   | └─VariableAccessSyntax
+//@[09:0015) |   |   └─IdentifierSyntax
+//@[09:0015) |   |     └─Token(Identifier) |string|
+//@[15:0016) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type objectUnion = typeA | typeB
+//@[00:0032) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0016) | ├─IdentifierSyntax
+//@[05:0016) | | └─Token(Identifier) |objectUnion|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0032) | └─UnionTypeSyntax
+//@[19:0024) |   ├─UnionTypeMemberSyntax
+//@[19:0024) |   | └─VariableAccessSyntax
+//@[19:0024) |   |   └─IdentifierSyntax
+//@[19:0024) |   |     └─Token(Identifier) |typeA|
+//@[25:0026) |   ├─Token(Pipe) |||
+//@[27:0032) |   └─UnionTypeMemberSyntax
+//@[27:0032) |     └─VariableAccessSyntax
+//@[27:0032) |       └─IdentifierSyntax
+//@[27:0032) |         └─Token(Identifier) |typeB|
+//@[32:0034) ├─Token(NewLine) |\n\n|
+
+@discriminator()
+//@[00:0058) ├─TypeDeclarationSyntax
+//@[00:0016) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0016) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0016) | |   └─Token(RightParen) |)|
+//@[16:0017) | ├─Token(NewLine) |\n|
+type noDiscriminatorParam = typeA | typeB
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0025) | ├─IdentifierSyntax
+//@[05:0025) | | └─Token(Identifier) |noDiscriminatorParam|
+//@[26:0027) | ├─Token(Assignment) |=|
+//@[28:0041) | └─UnionTypeSyntax
+//@[28:0033) |   ├─UnionTypeMemberSyntax
+//@[28:0033) |   | └─VariableAccessSyntax
+//@[28:0033) |   |   └─IdentifierSyntax
+//@[28:0033) |   |     └─Token(Identifier) |typeA|
+//@[34:0035) |   ├─Token(Pipe) |||
+//@[36:0041) |   └─UnionTypeMemberSyntax
+//@[36:0041) |     └─VariableAccessSyntax
+//@[36:0041) |       └─IdentifierSyntax
+//@[36:0041) |         └─Token(Identifier) |typeB|
+//@[41:0043) ├─Token(NewLine) |\n\n|
+
+@discriminator(true)
+//@[00:0069) ├─TypeDeclarationSyntax
+//@[00:0020) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0020) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0019) | |   ├─FunctionArgumentSyntax
+//@[15:0019) | |   | └─BooleanLiteralSyntax
+//@[15:0019) | |   |   └─Token(TrueKeyword) |true|
+//@[19:0020) | |   └─Token(RightParen) |)|
+//@[20:0021) | ├─Token(NewLine) |\n|
+type wrongDiscriminatorParamType = typeA | typeB
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0032) | ├─IdentifierSyntax
+//@[05:0032) | | └─Token(Identifier) |wrongDiscriminatorParamType|
+//@[33:0034) | ├─Token(Assignment) |=|
+//@[35:0048) | └─UnionTypeSyntax
+//@[35:0040) |   ├─UnionTypeMemberSyntax
+//@[35:0040) |   | └─VariableAccessSyntax
+//@[35:0040) |   |   └─IdentifierSyntax
+//@[35:0040) |   |     └─Token(Identifier) |typeA|
+//@[41:0042) |   ├─Token(Pipe) |||
+//@[43:0048) |   └─UnionTypeMemberSyntax
+//@[43:0048) |     └─VariableAccessSyntax
+//@[43:0048) |       └─IdentifierSyntax
+//@[43:0048) |         └─Token(Identifier) |typeB|
+//@[48:0050) ├─Token(NewLine) |\n\n|
+
+@discriminator('nonexistent')
+//@[00:0085) ├─TypeDeclarationSyntax
+//@[00:0029) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0029) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0028) | |   ├─FunctionArgumentSyntax
+//@[15:0028) | |   | └─StringSyntax
+//@[15:0028) | |   |   └─Token(StringComplete) |'nonexistent'|
+//@[28:0029) | |   └─Token(RightParen) |)|
+//@[29:0030) | ├─Token(NewLine) |\n|
+type discriminatorPropertyNotExistAtAll = typeA | typeB
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0039) | ├─IdentifierSyntax
+//@[05:0039) | | └─Token(Identifier) |discriminatorPropertyNotExistAtAll|
+//@[40:0041) | ├─Token(Assignment) |=|
+//@[42:0055) | └─UnionTypeSyntax
+//@[42:0047) |   ├─UnionTypeMemberSyntax
+//@[42:0047) |   | └─VariableAccessSyntax
+//@[42:0047) |   |   └─IdentifierSyntax
+//@[42:0047) |   |     └─Token(Identifier) |typeA|
+//@[48:0049) |   ├─Token(Pipe) |||
+//@[50:0055) |   └─UnionTypeMemberSyntax
+//@[50:0055) |     └─VariableAccessSyntax
+//@[50:0055) |       └─IdentifierSyntax
+//@[50:0055) |         └─Token(Identifier) |typeB|
+//@[55:0057) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0095) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0046) | ├─IdentifierSyntax
+//@[05:0046) | | └─Token(Identifier) |discriminatorPropertyNotExistOnAtLeastOne|
+//@[47:0048) | ├─Token(Assignment) |=|
+//@[49:0072) | └─UnionTypeSyntax
+//@[49:0054) |   ├─UnionTypeMemberSyntax
+//@[49:0054) |   | └─VariableAccessSyntax
+//@[49:0054) |   |   └─IdentifierSyntax
+//@[49:0054) |   |     └─Token(Identifier) |typeA|
+//@[55:0056) |   ├─Token(Pipe) |||
+//@[57:0072) |   └─UnionTypeMemberSyntax
+//@[57:0072) |     └─ObjectTypeSyntax
+//@[57:0058) |       ├─Token(LeftBrace) |{|
+//@[59:0070) |       ├─ObjectTypePropertySyntax
+//@[59:0064) |       | ├─IdentifierSyntax
+//@[59:0064) |       | | └─Token(Identifier) |value|
+//@[64:0065) |       | ├─Token(Colon) |:|
+//@[66:0070) |       | └─VariableAccessSyntax
+//@[66:0070) |       |   └─IdentifierSyntax
+//@[66:0070) |       |     └─Token(Identifier) |bool|
+//@[71:0072) |       └─Token(RightBrace) |}|
+//@[72:0074) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0066) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorWithOnlyOneMember = typeA
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0035) | ├─IdentifierSyntax
+//@[05:0035) | | └─Token(Identifier) |discriminatorWithOnlyOneMember|
+//@[36:0037) | ├─Token(Assignment) |=|
+//@[38:0043) | └─VariableAccessSyntax
+//@[38:0043) |   └─IdentifierSyntax
+//@[38:0043) |     └─Token(Identifier) |typeA|
+//@[43:0045) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0090) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0051) | ├─IdentifierSyntax
+//@[05:0051) | | └─Token(Identifier) |discriminatorPropertyNotRequiredStringLiteral1|
+//@[52:0053) | ├─Token(Assignment) |=|
+//@[54:0067) | └─UnionTypeSyntax
+//@[54:0059) |   ├─UnionTypeMemberSyntax
+//@[54:0059) |   | └─VariableAccessSyntax
+//@[54:0059) |   |   └─IdentifierSyntax
+//@[54:0059) |   |     └─Token(Identifier) |typeA|
+//@[60:0061) |   ├─Token(Pipe) |||
+//@[62:0067) |   └─UnionTypeMemberSyntax
+//@[62:0067) |     └─VariableAccessSyntax
+//@[62:0067) |       └─IdentifierSyntax
+//@[62:0067) |         └─Token(Identifier) |typeF|
+//@[67:0069) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0090) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0051) | ├─IdentifierSyntax
+//@[05:0051) | | └─Token(Identifier) |discriminatorPropertyNotRequiredStringLiteral2|
+//@[52:0053) | ├─Token(Assignment) |=|
+//@[54:0067) | └─UnionTypeSyntax
+//@[54:0059) |   ├─UnionTypeMemberSyntax
+//@[54:0059) |   | └─VariableAccessSyntax
+//@[54:0059) |   |   └─IdentifierSyntax
+//@[54:0059) |   |     └─Token(Identifier) |typeA|
+//@[60:0061) |   ├─Token(Pipe) |||
+//@[62:0067) |   └─UnionTypeMemberSyntax
+//@[62:0067) |     └─VariableAccessSyntax
+//@[62:0067) |       └─IdentifierSyntax
+//@[62:0067) |         └─Token(Identifier) |typeG|
+//@[67:0069) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0074) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorDuplicatedMember1 = typeA | typeA
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0035) | ├─IdentifierSyntax
+//@[05:0035) | | └─Token(Identifier) |discriminatorDuplicatedMember1|
+//@[36:0037) | ├─Token(Assignment) |=|
+//@[38:0051) | └─UnionTypeSyntax
+//@[38:0043) |   ├─UnionTypeMemberSyntax
+//@[38:0043) |   | └─VariableAccessSyntax
+//@[38:0043) |   |   └─IdentifierSyntax
+//@[38:0043) |   |     └─Token(Identifier) |typeA|
+//@[44:0045) |   ├─Token(Pipe) |||
+//@[46:0051) |   └─UnionTypeMemberSyntax
+//@[46:0051) |     └─VariableAccessSyntax
+//@[46:0051) |       └─IdentifierSyntax
+//@[46:0051) |         └─Token(Identifier) |typeA|
+//@[51:0053) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0098) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0035) | ├─IdentifierSyntax
+//@[05:0035) | | └─Token(Identifier) |discriminatorDuplicatedMember2|
+//@[36:0037) | ├─Token(Assignment) |=|
+//@[38:0075) | └─UnionTypeSyntax
+//@[38:0043) |   ├─UnionTypeMemberSyntax
+//@[38:0043) |   | └─VariableAccessSyntax
+//@[38:0043) |   |   └─IdentifierSyntax
+//@[38:0043) |   |     └─Token(Identifier) |typeA|
+//@[44:0045) |   ├─Token(Pipe) |||
+//@[46:0075) |   └─UnionTypeMemberSyntax
+//@[46:0075) |     └─ObjectTypeSyntax
+//@[46:0047) |       ├─Token(LeftBrace) |{|
+//@[48:0057) |       ├─ObjectTypePropertySyntax
+//@[48:0052) |       | ├─IdentifierSyntax
+//@[48:0052) |       | | └─Token(Identifier) |type|
+//@[52:0053) |       | ├─Token(Colon) |:|
+//@[54:0057) |       | └─StringSyntax
+//@[54:0057) |       |   └─Token(StringComplete) |'a'|
+//@[57:0058) |       ├─Token(Comma) |,|
+//@[59:0073) |       ├─ObjectTypePropertySyntax
+//@[59:0065) |       | ├─IdentifierSyntax
+//@[59:0065) |       | | └─Token(Identifier) |config|
+//@[65:0066) |       | ├─Token(Colon) |:|
+//@[67:0073) |       | └─VariableAccessSyntax
+//@[67:0073) |       |   └─IdentifierSyntax
+//@[67:0073) |       |     └─Token(Identifier) |object|
+//@[74:0075) |       └─Token(RightBrace) |}|
+//@[75:0077) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0083) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorSelfCycle = typeA | discriminatorSelfCycle
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0027) | ├─IdentifierSyntax
+//@[05:0027) | | └─Token(Identifier) |discriminatorSelfCycle|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0060) | └─UnionTypeSyntax
+//@[30:0035) |   ├─UnionTypeMemberSyntax
+//@[30:0035) |   | └─VariableAccessSyntax
+//@[30:0035) |   |   └─IdentifierSyntax
+//@[30:0035) |   |     └─Token(Identifier) |typeA|
+//@[36:0037) |   ├─Token(Pipe) |||
+//@[38:0060) |   └─UnionTypeMemberSyntax
+//@[38:0060) |     └─VariableAccessSyntax
+//@[38:0060) |       └─IdentifierSyntax
+//@[38:0060) |         └─Token(Identifier) |discriminatorSelfCycle|
+//@[60:0062) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0093) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0032) | ├─IdentifierSyntax
+//@[05:0032) | | └─Token(Identifier) |discriminatorTopLevelCycleA|
+//@[33:0034) | ├─Token(Assignment) |=|
+//@[35:0070) | └─UnionTypeSyntax
+//@[35:0040) |   ├─UnionTypeMemberSyntax
+//@[35:0040) |   | └─VariableAccessSyntax
+//@[35:0040) |   |   └─IdentifierSyntax
+//@[35:0040) |   |     └─Token(Identifier) |typeA|
+//@[41:0042) |   ├─Token(Pipe) |||
+//@[43:0070) |   └─UnionTypeMemberSyntax
+//@[43:0070) |     └─VariableAccessSyntax
+//@[43:0070) |       └─IdentifierSyntax
+//@[43:0070) |         └─Token(Identifier) |discriminatorTopLevelCycleB|
+//@[70:0071) ├─Token(NewLine) |\n|
+@discriminator('type')
+//@[00:0093) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0032) | ├─IdentifierSyntax
+//@[05:0032) | | └─Token(Identifier) |discriminatorTopLevelCycleB|
+//@[33:0034) | ├─Token(Assignment) |=|
+//@[35:0070) | └─UnionTypeSyntax
+//@[35:0040) |   ├─UnionTypeMemberSyntax
+//@[35:0040) |   | └─VariableAccessSyntax
+//@[35:0040) |   |   └─IdentifierSyntax
+//@[35:0040) |   |     └─Token(Identifier) |typeB|
+//@[41:0042) |   ├─Token(Pipe) |||
+//@[43:0070) |   └─UnionTypeMemberSyntax
+//@[43:0070) |     └─VariableAccessSyntax
+//@[43:0070) |       └─IdentifierSyntax
+//@[43:0070) |         └─Token(Identifier) |discriminatorTopLevelCycleA|
+//@[70:0072) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0120) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorInnerSelfCycle1 = typeA | {
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0033) | ├─IdentifierSyntax
+//@[05:0033) | | └─Token(Identifier) |discriminatorInnerSelfCycle1|
+//@[34:0035) | ├─Token(Assignment) |=|
+//@[36:0097) | └─UnionTypeSyntax
+//@[36:0041) |   ├─UnionTypeMemberSyntax
+//@[36:0041) |   | └─VariableAccessSyntax
+//@[36:0041) |   |   └─IdentifierSyntax
+//@[36:0041) |   |     └─Token(Identifier) |typeA|
+//@[42:0043) |   ├─Token(Pipe) |||
+//@[44:0097) |   └─UnionTypeMemberSyntax
+//@[44:0097) |     └─ObjectTypeSyntax
+//@[44:0045) |       ├─Token(LeftBrace) |{|
+//@[45:0046) |       ├─Token(NewLine) |\n|
+  type: 'b'
+//@[02:0011) |       ├─ObjectTypePropertySyntax
+//@[02:0006) |       | ├─IdentifierSyntax
+//@[02:0006) |       | | └─Token(Identifier) |type|
+//@[06:0007) |       | ├─Token(Colon) |:|
+//@[08:0011) |       | └─StringSyntax
+//@[08:0011) |       |   └─Token(StringComplete) |'b'|
+//@[11:0012) |       ├─Token(NewLine) |\n|
+  value: discriminatorInnerSelfCycle1
+//@[02:0037) |       ├─ObjectTypePropertySyntax
+//@[02:0007) |       | ├─IdentifierSyntax
+//@[02:0007) |       | | └─Token(Identifier) |value|
+//@[07:0008) |       | ├─Token(Colon) |:|
+//@[09:0037) |       | └─VariableAccessSyntax
+//@[09:0037) |       |   └─IdentifierSyntax
+//@[09:0037) |       |     └─Token(Identifier) |discriminatorInnerSelfCycle1|
+//@[37:0038) |       ├─Token(NewLine) |\n|
+}
+//@[00:0001) |       └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
+
+type discriminatorInnerSelfCycle2Helper = {
+//@[00:0095) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0039) | ├─IdentifierSyntax
+//@[05:0039) | | └─Token(Identifier) |discriminatorInnerSelfCycle2Helper|
+//@[40:0041) | ├─Token(Assignment) |=|
+//@[42:0095) | └─ObjectTypeSyntax
+//@[42:0043) |   ├─Token(LeftBrace) |{|
+//@[43:0044) |   ├─Token(NewLine) |\n|
+  type: 'b'
+//@[02:0011) |   ├─ObjectTypePropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |type|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0011) |   | └─StringSyntax
+//@[08:0011) |   |   └─Token(StringComplete) |'b'|
+//@[11:0012) |   ├─Token(NewLine) |\n|
+  value: discriminatorInnerSelfCycle2
+//@[02:0037) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0037) |   | └─VariableAccessSyntax
+//@[09:0037) |   |   └─IdentifierSyntax
+//@[09:0037) |   |     └─Token(Identifier) |discriminatorInnerSelfCycle2|
+//@[37:0038) |   ├─Token(NewLine) |\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0002) ├─Token(NewLine) |\n|
+@discriminator('type')
+//@[00:0101) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0033) | ├─IdentifierSyntax
+//@[05:0033) | | └─Token(Identifier) |discriminatorInnerSelfCycle2|
+//@[34:0035) | ├─Token(Assignment) |=|
+//@[36:0078) | └─UnionTypeSyntax
+//@[36:0041) |   ├─UnionTypeMemberSyntax
+//@[36:0041) |   | └─VariableAccessSyntax
+//@[36:0041) |   |   └─IdentifierSyntax
+//@[36:0041) |   |     └─Token(Identifier) |typeA|
+//@[42:0043) |   ├─Token(Pipe) |||
+//@[44:0078) |   └─UnionTypeMemberSyntax
+//@[44:0078) |     └─VariableAccessSyntax
+//@[44:0078) |       └─IdentifierSyntax
+//@[44:0078) |         └─Token(Identifier) |discriminatorInnerSelfCycle2Helper|
+//@[78:0079) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

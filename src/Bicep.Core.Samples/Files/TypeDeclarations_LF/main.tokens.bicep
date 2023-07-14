@@ -499,6 +499,377 @@ type nonNullable = nullable!
 //@[17:18) Assignment |=|
 //@[19:27) Identifier |nullable|
 //@[27:28) Exclamation |!|
-//@[28:29) NewLine |\n|
+//@[28:30) NewLine |\n\n|
 
-//@[00:00) EndOfFile ||
+type typeA = {
+//@[00:04) Identifier |type|
+//@[05:10) Identifier |typeA|
+//@[11:12) Assignment |=|
+//@[13:14) LeftBrace |{|
+//@[14:15) NewLine |\n|
+  type: 'a'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'a'|
+//@[11:12) NewLine |\n|
+  value: string
+//@[02:07) Identifier |value|
+//@[07:08) Colon |:|
+//@[09:15) Identifier |string|
+//@[15:16) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type typeB = {
+//@[00:04) Identifier |type|
+//@[05:10) Identifier |typeB|
+//@[11:12) Assignment |=|
+//@[13:14) LeftBrace |{|
+//@[14:15) NewLine |\n|
+  type: 'b'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'b'|
+//@[11:12) NewLine |\n|
+  value: int
+//@[02:07) Identifier |value|
+//@[07:08) Colon |:|
+//@[09:12) Identifier |int|
+//@[12:13) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type typeC = {
+//@[00:04) Identifier |type|
+//@[05:10) Identifier |typeC|
+//@[11:12) Assignment |=|
+//@[13:14) LeftBrace |{|
+//@[14:15) NewLine |\n|
+  type: 'c'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'c'|
+//@[11:12) NewLine |\n|
+  value: bool
+//@[02:07) Identifier |value|
+//@[07:08) Colon |:|
+//@[09:13) Identifier |bool|
+//@[13:14) NewLine |\n|
+  value2: string
+//@[02:08) Identifier |value2|
+//@[08:09) Colon |:|
+//@[10:16) Identifier |string|
+//@[16:17) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type typeD = {
+//@[00:04) Identifier |type|
+//@[05:10) Identifier |typeD|
+//@[11:12) Assignment |=|
+//@[13:14) LeftBrace |{|
+//@[14:15) NewLine |\n|
+  type: 'd'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'d'|
+//@[11:12) NewLine |\n|
+  value: object
+//@[02:07) Identifier |value|
+//@[07:08) Colon |:|
+//@[09:15) Identifier |object|
+//@[15:16) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type typeE = {
+//@[00:04) Identifier |type|
+//@[05:10) Identifier |typeE|
+//@[11:12) Assignment |=|
+//@[13:14) LeftBrace |{|
+//@[14:15) NewLine |\n|
+  type: 'e'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'e'|
+//@[11:12) NewLine |\n|
+  *: string
+//@[02:03) Asterisk |*|
+//@[03:04) Colon |:|
+//@[05:11) Identifier |string|
+//@[11:12) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatedUnion1 = typeA | typeB
+//@[00:04) Identifier |type|
+//@[05:24) Identifier |discriminatedUnion1|
+//@[25:26) Assignment |=|
+//@[27:32) Identifier |typeA|
+//@[33:34) Pipe |||
+//@[35:40) Identifier |typeB|
+//@[40:42) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
+//@[00:04) Identifier |type|
+//@[05:24) Identifier |discriminatedUnion2|
+//@[25:26) Assignment |=|
+//@[27:28) LeftBrace |{|
+//@[29:33) Identifier |type|
+//@[33:34) Colon |:|
+//@[35:38) StringComplete |'c'|
+//@[38:39) Comma |,|
+//@[40:45) Identifier |value|
+//@[45:46) Colon |:|
+//@[47:53) Identifier |string|
+//@[54:55) RightBrace |}|
+//@[56:57) Pipe |||
+//@[58:59) LeftBrace |{|
+//@[60:64) Identifier |type|
+//@[64:65) Colon |:|
+//@[66:69) StringComplete |'d'|
+//@[69:70) Comma |,|
+//@[71:76) Identifier |value|
+//@[76:77) Colon |:|
+//@[78:82) Identifier |bool|
+//@[83:84) RightBrace |}|
+//@[84:86) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
+//@[00:04) Identifier |type|
+//@[05:24) Identifier |discriminatedUnion3|
+//@[25:26) Assignment |=|
+//@[27:46) Identifier |discriminatedUnion1|
+//@[47:48) Pipe |||
+//@[49:68) Identifier |discriminatedUnion2|
+//@[69:70) Pipe |||
+//@[71:72) LeftBrace |{|
+//@[73:77) Identifier |type|
+//@[77:78) Colon |:|
+//@[79:82) StringComplete |'e'|
+//@[82:83) Comma |,|
+//@[84:85) Asterisk |*|
+//@[85:86) Colon |:|
+//@[87:93) Identifier |string|
+//@[94:95) RightBrace |}|
+//@[95:97) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
+//@[00:04) Identifier |type|
+//@[05:24) Identifier |discriminatedUnion4|
+//@[25:26) Assignment |=|
+//@[27:46) Identifier |discriminatedUnion1|
+//@[47:48) Pipe |||
+//@[49:50) LeftParen |(|
+//@[50:69) Identifier |discriminatedUnion2|
+//@[70:71) Pipe |||
+//@[72:77) Identifier |typeE|
+//@[77:78) RightParen |)|
+//@[78:80) NewLine |\n\n|
+
+type inlineDiscriminatedUnion1 = {
+//@[00:04) Identifier |type|
+//@[05:30) Identifier |inlineDiscriminatedUnion1|
+//@[31:32) Assignment |=|
+//@[33:34) LeftBrace |{|
+//@[34:35) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  prop: typeA | typeC
+//@[02:06) Identifier |prop|
+//@[06:07) Colon |:|
+//@[08:13) Identifier |typeA|
+//@[14:15) Pipe |||
+//@[16:21) Identifier |typeC|
+//@[21:22) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type inlineDiscriminatedUnion2 = {
+//@[00:04) Identifier |type|
+//@[05:30) Identifier |inlineDiscriminatedUnion2|
+//@[31:32) Assignment |=|
+//@[33:34) LeftBrace |{|
+//@[34:35) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  prop: { type: 'a', value: bool } | typeB
+//@[02:06) Identifier |prop|
+//@[06:07) Colon |:|
+//@[08:09) LeftBrace |{|
+//@[10:14) Identifier |type|
+//@[14:15) Colon |:|
+//@[16:19) StringComplete |'a'|
+//@[19:20) Comma |,|
+//@[21:26) Identifier |value|
+//@[26:27) Colon |:|
+//@[28:32) Identifier |bool|
+//@[33:34) RightBrace |}|
+//@[35:36) Pipe |||
+//@[37:42) Identifier |typeB|
+//@[42:43) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type inlineDiscriminatedUnion3 = {
+//@[00:04) Identifier |type|
+//@[05:30) Identifier |inlineDiscriminatedUnion3|
+//@[31:32) Assignment |=|
+//@[33:34) LeftBrace |{|
+//@[34:35) NewLine |\n|
+  type: 'a'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'a'|
+//@[11:12) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  prop: { type: 'a', value: bool } | typeB
+//@[02:06) Identifier |prop|
+//@[06:07) Colon |:|
+//@[08:09) LeftBrace |{|
+//@[10:14) Identifier |type|
+//@[14:15) Colon |:|
+//@[16:19) StringComplete |'a'|
+//@[19:20) Comma |,|
+//@[21:26) Identifier |value|
+//@[26:27) Colon |:|
+//@[28:32) Identifier |bool|
+//@[33:34) RightBrace |}|
+//@[35:36) Pipe |||
+//@[37:42) Identifier |typeB|
+//@[42:43) NewLine |\n|
+} | {
+//@[00:01) RightBrace |}|
+//@[02:03) Pipe |||
+//@[04:05) LeftBrace |{|
+//@[05:06) NewLine |\n|
+  type: 'b'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'b'|
+//@[11:12) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  prop: discriminatedUnion1 | discriminatedUnion2
+//@[02:06) Identifier |prop|
+//@[06:07) Colon |:|
+//@[08:27) Identifier |discriminatedUnion1|
+//@[28:29) Pipe |||
+//@[30:49) Identifier |discriminatedUnion2|
+//@[49:50) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type discriminatorUnionAsPropertyType = {
+//@[00:04) Identifier |type|
+//@[05:37) Identifier |discriminatorUnionAsPropertyType|
+//@[38:39) Assignment |=|
+//@[40:41) LeftBrace |{|
+//@[41:42) NewLine |\n|
+  prop1: discriminatedUnion1
+//@[02:07) Identifier |prop1|
+//@[07:08) Colon |:|
+//@[09:28) Identifier |discriminatedUnion1|
+//@[28:29) NewLine |\n|
+  prop2: discriminatedUnion3
+//@[02:07) Identifier |prop2|
+//@[07:08) Colon |:|
+//@[09:28) Identifier |discriminatedUnion3|
+//@[28:29) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+//@[00:04) Identifier |type|
+//@[05:41) Identifier |discriminatorInnerSelfOptionalCycle1|
+//@[42:43) Assignment |=|
+//@[44:49) Identifier |typeA|
+//@[50:51) Pipe |||
+//@[52:53) LeftBrace |{|
+//@[53:54) NewLine |\n|
+  type: 'b'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'b'|
+//@[11:12) NewLine |\n|
+  value: discriminatorInnerSelfOptionalCycle1?
+//@[02:07) Identifier |value|
+//@[07:08) Colon |:|
+//@[09:45) Identifier |discriminatorInnerSelfOptionalCycle1|
+//@[45:46) Question |?|
+//@[46:47) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:01) EndOfFile ||

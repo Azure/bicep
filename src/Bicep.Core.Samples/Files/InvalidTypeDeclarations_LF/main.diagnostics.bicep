@@ -105,3 +105,110 @@ param disallowedUnionParam 'foo'|-99
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
 //@[06:37) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectWithInvalidRecursionParam|
 
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type unionAB = typeA | typeB
+
+type typeC = {
+  type: 'c'
+  value: bool
+  value2: string
+}
+
+type typeD = {
+  type: 'd'
+  value: object
+}
+
+type typeE = {
+  type: 'e'
+  *: string
+}
+
+type typeF = {
+  type: 0
+  value: string
+}
+
+type typeG = {
+  type: 'g'?
+  value: string
+}
+
+type objectUnion = typeA | typeB
+//@[19:24) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeA|
+//@[27:32) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
+
+@discriminator()
+//@[14:16) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
+type noDiscriminatorParam = typeA | typeB
+
+@discriminator(true)
+//@[15:19) [BCP070 (Error)] Argument of type "true" is not assignable to parameter of type "string". (CodeDescription: none) |true|
+type wrongDiscriminatorParamType = typeA | typeB
+
+@discriminator('nonexistent')
+type discriminatorPropertyNotExistAtAll = typeA | typeB
+//@[42:47) [BCP350 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeA|
+//@[50:55) [BCP350 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeB|
+
+@discriminator('type')
+type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
+//@[57:72) [BCP350 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |{ value: bool }|
+
+@discriminator('type')
+//@[00:22) [BCP349 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+type discriminatorWithOnlyOneMember = typeA
+
+@discriminator('type')
+type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
+//@[62:67) [BCP350 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeF|
+
+@discriminator('type')
+type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
+//@[62:67) [BCP350 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeG|
+
+@discriminator('type')
+type discriminatorDuplicatedMember1 = typeA | typeA
+//@[46:51) [BCP351 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
+
+@discriminator('type')
+type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
+//@[46:75) [BCP351 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
+
+@discriminator('type')
+type discriminatorSelfCycle = typeA | discriminatorSelfCycle
+//@[05:27) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle|
+
+@discriminator('type')
+type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
+//@[05:32) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleA" -> "discriminatorTopLevelCycleB"). (CodeDescription: none) |discriminatorTopLevelCycleA|
+@discriminator('type')
+type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
+//@[05:32) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleB" -> "discriminatorTopLevelCycleA"). (CodeDescription: none) |discriminatorTopLevelCycleB|
+
+@discriminator('type')
+type discriminatorInnerSelfCycle1 = typeA | {
+//@[05:33) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorInnerSelfCycle1|
+  type: 'b'
+  value: discriminatorInnerSelfCycle1
+}
+
+type discriminatorInnerSelfCycle2Helper = {
+//@[05:39) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorInnerSelfCycle2Helper" -> "discriminatorInnerSelfCycle2"). (CodeDescription: none) |discriminatorInnerSelfCycle2Helper|
+  type: 'b'
+  value: discriminatorInnerSelfCycle2
+}
+@discriminator('type')
+type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
+//@[05:33) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorInnerSelfCycle2" -> "discriminatorInnerSelfCycle2Helper"). (CodeDescription: none) |discriminatorInnerSelfCycle2|
+

@@ -89,3 +89,72 @@ type nullable = string?
 
 type nonNullable = nullable!
 
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+type typeC = {
+  type: 'c'
+  value: bool
+  value2: string
+}
+
+type typeD = {
+  type: 'd'
+  value: object
+}
+
+type typeE = {
+  type: 'e'
+  *: string
+}
+
+@discriminator('type')
+type discriminatedUnion1 = typeA | typeB
+
+@discriminator('type')
+type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
+
+@discriminator('type')
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
+
+@discriminator('type')
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
+
+type inlineDiscriminatedUnion1 = {
+  @discriminator('type')
+  prop: typeA | typeC
+}
+
+type inlineDiscriminatedUnion2 = {
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+}
+
+@discriminator('type')
+type inlineDiscriminatedUnion3 = {
+  type: 'a'
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+} | {
+  type: 'b'
+  @discriminator('type')
+  prop: discriminatedUnion1 | discriminatedUnion2
+}
+
+type discriminatorUnionAsPropertyType = {
+  prop1: discriminatedUnion1
+  prop2: discriminatedUnion3
+}
+
+@discriminator('type')
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+}

@@ -338,5 +338,438 @@ type nonNullable = nullable!
 //@    "nonNullable": {
 //@      "$ref": "#/definitions/nullable",
 //@      "nullable": false
-//@    }
+//@    },
 
+type typeA = {
+//@    "typeA": {
+//@      "type": "object",
+//@      "properties": {
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@          ]
+//@        },
+//@        "value": {
+//@          "type": "string"
+//@        }
+//@      }
+//@    },
+  type: 'a'
+//@            "a"
+  value: string
+}
+
+type typeB = {
+//@    "typeB": {
+//@      "type": "object",
+//@      "properties": {
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@          ]
+//@        },
+//@        "value": {
+//@          "type": "int"
+//@        }
+//@      }
+//@    },
+  type: 'b'
+//@            "b"
+  value: int
+}
+
+type typeC = {
+//@    "typeC": {
+//@      "type": "object",
+//@      "properties": {
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@          ]
+//@        },
+//@        "value": {
+//@          "$ref": "#/definitions/bool"
+//@        },
+//@        "value2": {
+//@          "type": "string"
+//@        }
+//@      }
+//@    },
+  type: 'c'
+//@            "c"
+  value: bool
+  value2: string
+}
+
+type typeD = {
+//@    "typeD": {
+//@      "type": "object",
+//@      "properties": {
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@          ]
+//@        },
+//@        "value": {
+//@          "type": "object"
+//@        }
+//@      }
+//@    },
+  type: 'd'
+//@            "d"
+  value: object
+}
+
+type typeE = {
+//@    "typeE": {
+//@      "type": "object",
+//@      "properties": {
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@          ]
+//@        }
+//@      },
+//@      "additionalProperties": {
+//@        "type": "string"
+//@      }
+//@    },
+  type: 'e'
+//@            "e"
+  *: string
+}
+
+@discriminator('type')
+type discriminatedUnion1 = typeA | typeB
+//@    "discriminatedUnion1": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "a": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "b": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "int"
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+
+@discriminator('type')
+type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
+//@    "discriminatedUnion2": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "c": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "d": {
+//@            "properties": {
+//@              "value": {
+//@                "$ref": "#/definitions/bool"
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+
+@discriminator('type')
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
+//@    "discriminatedUnion3": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "a": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "b": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "int"
+//@              }
+//@            }
+//@          },
+//@          "c": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "d": {
+//@            "properties": {
+//@              "value": {
+//@                "$ref": "#/definitions/bool"
+//@              }
+//@            }
+//@          },
+//@          "e": {
+//@            "additionalProperties": {
+//@              "type": "string"
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+
+@discriminator('type')
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
+//@    "discriminatedUnion4": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "a": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "b": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "int"
+//@              }
+//@            }
+//@          },
+//@          "c": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "d": {
+//@            "properties": {
+//@              "value": {
+//@                "$ref": "#/definitions/bool"
+//@              }
+//@            }
+//@          },
+//@          "e": {
+//@            "additionalProperties": {
+//@              "type": "string"
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+
+type inlineDiscriminatedUnion1 = {
+//@    "inlineDiscriminatedUnion1": {
+//@      "type": "object",
+//@      "properties": {
+//@        "prop": {
+//@          "type": "object",
+//@          "discriminator": {
+//@            "propertyName": "type",
+//@            "mapping": {
+//@              "a": {
+//@                "properties": {
+//@                  "value": {
+//@                    "type": "string"
+//@                  }
+//@                }
+//@              },
+//@              "c": {
+//@                "properties": {
+//@                  "value": {
+//@                    "$ref": "#/definitions/bool"
+//@                  },
+//@                  "value2": {
+//@                    "type": "string"
+//@                  }
+//@                }
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+  @discriminator('type')
+  prop: typeA | typeC
+}
+
+type inlineDiscriminatedUnion2 = {
+//@    "inlineDiscriminatedUnion2": {
+//@      "type": "object",
+//@      "properties": {
+//@        "prop": {
+//@          "type": "object",
+//@          "discriminator": {
+//@            "propertyName": "type",
+//@            "mapping": {
+//@              "a": {
+//@                "properties": {
+//@                  "value": {
+//@                    "$ref": "#/definitions/bool"
+//@                  }
+//@                }
+//@              },
+//@              "b": {
+//@                "properties": {
+//@                  "value": {
+//@                    "type": "int"
+//@                  }
+//@                }
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+}
+
+@discriminator('type')
+type inlineDiscriminatedUnion3 = {
+//@    "inlineDiscriminatedUnion3": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "a": {
+//@            "properties": {
+//@              "prop": {
+//@                "type": "object",
+//@                "discriminator": {
+//@                  "propertyName": "type",
+//@                  "mapping": {
+//@                    "a": {
+//@                      "properties": {
+//@                        "value": {
+//@                          "$ref": "#/definitions/bool"
+//@                        }
+//@                      }
+//@                    },
+//@                    "b": {
+//@                      "properties": {
+//@                        "value": {
+//@                          "type": "int"
+//@                        }
+//@                      }
+//@                    }
+//@                  }
+//@                }
+//@              }
+//@            }
+//@          },
+//@          "b": {
+//@            "properties": {
+//@              "prop": {
+//@                "type": "object",
+//@                "discriminator": {
+//@                  "propertyName": "type",
+//@                  "mapping": {
+//@                    "a": {
+//@                      "properties": {
+//@                        "value": {
+//@                          "type": "string"
+//@                        }
+//@                      }
+//@                    },
+//@                    "b": {
+//@                      "properties": {
+//@                        "value": {
+//@                          "type": "int"
+//@                        }
+//@                      }
+//@                    },
+//@                    "c": {
+//@                      "properties": {
+//@                        "value": {
+//@                          "type": "string"
+//@                        }
+//@                      }
+//@                    },
+//@                    "d": {
+//@                      "properties": {
+//@                        "value": {
+//@                          "$ref": "#/definitions/bool"
+//@                        }
+//@                      }
+//@                    }
+//@                  }
+//@                }
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+  type: 'a'
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+} | {
+  type: 'b'
+  @discriminator('type')
+  prop: discriminatedUnion1 | discriminatedUnion2
+}
+
+type discriminatorUnionAsPropertyType = {
+//@    "discriminatorUnionAsPropertyType": {
+//@      "type": "object",
+//@      "properties": {
+//@        "prop1": {
+//@          "$ref": "#/definitions/discriminatedUnion1"
+//@        },
+//@        "prop2": {
+//@          "$ref": "#/definitions/discriminatedUnion3"
+//@        }
+//@      }
+//@    },
+  prop1: discriminatedUnion1
+  prop2: discriminatedUnion3
+}
+
+@discriminator('type')
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+//@    "discriminatorInnerSelfOptionalCycle1": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "a": {
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
+//@            }
+//@          },
+//@          "b": {
+//@            "properties": {
+//@              "value": {
+//@                "$ref": "#/definitions/discriminatorInnerSelfOptionalCycle1",
+//@                "nullable": true
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    }
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+}

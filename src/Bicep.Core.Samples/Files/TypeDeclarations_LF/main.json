@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1177824650649973853"
+      "templateHash": "7964024551029073228"
     }
   },
   "definitions": {
@@ -196,6 +196,370 @@
     "nonNullable": {
       "$ref": "#/definitions/nullable",
       "nullable": false
+    },
+    "typeA": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "a"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "typeB": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "b"
+          ]
+        },
+        "value": {
+          "type": "int"
+        }
+      }
+    },
+    "typeC": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "c"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/bool"
+        },
+        "value2": {
+          "type": "string"
+        }
+      }
+    },
+    "typeD": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "d"
+          ]
+        },
+        "value": {
+          "type": "object"
+        }
+      }
+    },
+    "typeE": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "e"
+          ]
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "discriminatedUnion1": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "b": {
+            "properties": {
+              "value": {
+                "type": "int"
+              }
+            }
+          }
+        }
+      }
+    },
+    "discriminatedUnion2": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "c": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "d": {
+            "properties": {
+              "value": {
+                "$ref": "#/definitions/bool"
+              }
+            }
+          }
+        }
+      }
+    },
+    "discriminatedUnion3": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "b": {
+            "properties": {
+              "value": {
+                "type": "int"
+              }
+            }
+          },
+          "c": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "d": {
+            "properties": {
+              "value": {
+                "$ref": "#/definitions/bool"
+              }
+            }
+          },
+          "e": {
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "discriminatedUnion4": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "b": {
+            "properties": {
+              "value": {
+                "type": "int"
+              }
+            }
+          },
+          "c": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "d": {
+            "properties": {
+              "value": {
+                "$ref": "#/definitions/bool"
+              }
+            }
+          },
+          "e": {
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "inlineDiscriminatedUnion1": {
+      "type": "object",
+      "properties": {
+        "prop": {
+          "type": "object",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "a": {
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              },
+              "c": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/definitions/bool"
+                  },
+                  "value2": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "inlineDiscriminatedUnion2": {
+      "type": "object",
+      "properties": {
+        "prop": {
+          "type": "object",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "a": {
+                "properties": {
+                  "value": {
+                    "$ref": "#/definitions/bool"
+                  }
+                }
+              },
+              "b": {
+                "properties": {
+                  "value": {
+                    "type": "int"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "inlineDiscriminatedUnion3": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "properties": {
+              "prop": {
+                "type": "object",
+                "discriminator": {
+                  "propertyName": "type",
+                  "mapping": {
+                    "a": {
+                      "properties": {
+                        "value": {
+                          "$ref": "#/definitions/bool"
+                        }
+                      }
+                    },
+                    "b": {
+                      "properties": {
+                        "value": {
+                          "type": "int"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "b": {
+            "properties": {
+              "prop": {
+                "type": "object",
+                "discriminator": {
+                  "propertyName": "type",
+                  "mapping": {
+                    "a": {
+                      "properties": {
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "b": {
+                      "properties": {
+                        "value": {
+                          "type": "int"
+                        }
+                      }
+                    },
+                    "c": {
+                      "properties": {
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "d": {
+                      "properties": {
+                        "value": {
+                          "$ref": "#/definitions/bool"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "discriminatorUnionAsPropertyType": {
+      "type": "object",
+      "properties": {
+        "prop1": {
+          "$ref": "#/definitions/discriminatedUnion1"
+        },
+        "prop2": {
+          "$ref": "#/definitions/discriminatedUnion3"
+        }
+      }
+    },
+    "discriminatorInnerSelfOptionalCycle1": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          "b": {
+            "properties": {
+              "value": {
+                "$ref": "#/definitions/discriminatorInnerSelfOptionalCycle1",
+                "nullable": true
+              }
+            }
+          }
+        }
+      }
     }
   },
   "parameters": {

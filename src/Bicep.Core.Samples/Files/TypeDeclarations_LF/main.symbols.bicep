@@ -108,3 +108,86 @@ type nullable = string?
 type nonNullable = nullable!
 //@[5:16) TypeAlias nonNullable. Type: Type<string>. Declaration start char: 0, length: 28
 
+type typeA = {
+//@[5:10) TypeAlias typeA. Type: Type<{ type: 'a', value: string }>. Declaration start char: 0, length: 44
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+//@[5:10) TypeAlias typeB. Type: Type<{ type: 'b', value: int }>. Declaration start char: 0, length: 41
+  type: 'b'
+  value: int
+}
+
+type typeC = {
+//@[5:10) TypeAlias typeC. Type: Type<{ type: 'c', value: bool, value2: string }>. Declaration start char: 0, length: 59
+  type: 'c'
+  value: bool
+  value2: string
+}
+
+type typeD = {
+//@[5:10) TypeAlias typeD. Type: Type<{ type: 'd', value: object }>. Declaration start char: 0, length: 44
+  type: 'd'
+  value: object
+}
+
+type typeE = {
+//@[5:10) TypeAlias typeE. Type: Type<{ type: 'e', *: string }>. Declaration start char: 0, length: 40
+  type: 'e'
+  *: string
+}
+
+@discriminator('type')
+type discriminatedUnion1 = typeA | typeB
+//@[5:24) TypeAlias discriminatedUnion1. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 63
+
+@discriminator('type')
+type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
+//@[5:24) TypeAlias discriminatedUnion2. Type: Type<{ type: 'c', value: string } | { type: 'd', value: bool }>. Declaration start char: 0, length: 107
+
+@discriminator('type')
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
+//@[5:24) TypeAlias discriminatedUnion3. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: string } | { type: 'd', value: bool } | { type: 'e', *: string }>. Declaration start char: 0, length: 118
+
+@discriminator('type')
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
+//@[5:24) TypeAlias discriminatedUnion4. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: string } | { type: 'd', value: bool } | { type: 'e', *: string }>. Declaration start char: 0, length: 101
+
+type inlineDiscriminatedUnion1 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion1. Type: Type<{ prop: typeA | typeC }>. Declaration start char: 0, length: 83
+  @discriminator('type')
+  prop: typeA | typeC
+}
+
+type inlineDiscriminatedUnion2 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion2. Type: Type<{ prop: { type: 'a', value: bool } | typeB }>. Declaration start char: 0, length: 104
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+}
+
+@discriminator('type')
+type inlineDiscriminatedUnion3 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion3. Type: Type<{ type: 'a', prop: { type: 'a', value: bool } | typeB } | { type: 'b', prop: discriminatedUnion1 | discriminatedUnion2 }>. Declaration start char: 0, length: 232
+  type: 'a'
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+} | {
+  type: 'b'
+  @discriminator('type')
+  prop: discriminatedUnion1 | discriminatedUnion2
+}
+
+type discriminatorUnionAsPropertyType = {
+//@[5:37) TypeAlias discriminatorUnionAsPropertyType. Type: Type<{ prop1: discriminatedUnion1, prop2: discriminatedUnion3 }>. Declaration start char: 0, length: 101
+  prop1: discriminatedUnion1
+  prop2: discriminatedUnion3
+}
+
+@discriminator('type')
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+//@[5:41) TypeAlias discriminatorInnerSelfOptionalCycle1. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfOptionalCycle1? }>. Declaration start char: 0, length: 137
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+}
