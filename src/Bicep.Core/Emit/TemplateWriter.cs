@@ -9,10 +9,8 @@ using System.IO;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -21,7 +19,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -35,18 +32,6 @@ namespace Bicep.Core.Emit
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2022-09-01";
-
-        private static readonly ImmutableHashSet<string> DecoratorsToEmitAsResourceProperties = new[] {
-            LanguageConstants.ParameterSecurePropertyName,
-            LanguageConstants.ParameterAllowedPropertyName,
-            LanguageConstants.ParameterMinValuePropertyName,
-            LanguageConstants.ParameterMaxValuePropertyName,
-            LanguageConstants.ParameterMinLengthPropertyName,
-            LanguageConstants.ParameterMaxLengthPropertyName,
-            LanguageConstants.ParameterMetadataPropertyName,
-            LanguageConstants.MetadataDescriptionPropertyName,
-            LanguageConstants.ParameterSealedPropertyName,
-        }.ToImmutableHashSet();
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
@@ -108,7 +93,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
- 
+
             if (Context.Settings.EnableSymbolicNames || Context.Settings.EnableAsserts)
             {
                 emitter.EmitProperty("languageVersion", "1.10-experimental");
@@ -191,37 +176,47 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private ObjectExpression AddDecoratorsToBody(DecorableSyntax decorated, ObjectExpression input, TypeSymbol targetType)
+        private ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
         {
-            var result = input;
-            foreach (var decoratorSyntax in decorated.Decorators.Reverse())
+            var result = ApplyMetadata(expression, input);
+
+            if (expression.Secure is {} secure)
             {
-                var symbol = this.Context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
-
-                if (symbol is FunctionSymbol decoratorSymbol &&
-                    decoratorSymbol.DeclaringObject is NamespaceType namespaceType &&
-                    DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
+                switch (input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value)
                 {
-                    var argumentTypes = decoratorSyntax.Arguments
-                        .Select(argument => this.Context.SemanticModel.TypeManager.GetTypeInfo(argument))
-                        .ToArray();
+                    case StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString:
+                        result = result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", expression.Secure?.SourceSyntax));
+                        break;
+                    case StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.ObjectType:
+                        result = result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", expression.Secure?.SourceSyntax));
+                        break;
+                }
+            }
 
-                    // There should be exact one matching decorator since there's no errors.
-                    var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
+            if (expression.Sealed is {} @sealed)
+            {
+                result = result.MergeProperty("additionalProperties", @sealed);
+            }
 
-                    var functionCall = ExpressionBuilder.Convert(decoratorSyntax.Expression) as FunctionCallExpression
-                        ?? throw new InvalidOperationException($"Failed to convert decorator expression {decoratorSyntax.Expression.GetType()}");
-
-                    var evaluated = decorator.Evaluate(functionCall, targetType, result);
-                    if (evaluated is not null)
-                    {
-                        result = evaluated;
-                    }
+            foreach (var (modifier, propertyName) in new[]
+            {
+                (expression.MinLength, LanguageConstants.ParameterMinLengthPropertyName),
+                (expression.MaxLength, LanguageConstants.ParameterMaxLengthPropertyName),
+                (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
+                (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
+            }) {
+                if (modifier is not null)
+                {
+                    result = result.MergeProperty(propertyName, modifier);
                 }
             }
 
             return result;
         }
+
+        private ObjectExpression ApplyMetadata(MetadataBearingExpression expression, ObjectExpression input) => expression.Metadata is {} metadata
+            ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, metadata)
+            : input;
 
         private void EmitParameter(ExpressionEmitter emitter, DeclaredParameterExpression parameter)
         {
@@ -234,7 +229,12 @@ namespace Bicep.Core.Emit
                     parameterObject = parameterObject.MergeProperty("defaultValue", parameter.DefaultValue);
                 }
 
-                EmitProperties(emitter, AddDecoratorsToBody(parameter.Symbol.DeclaringParameter, parameterObject, parameter.Symbol.Type));
+                if (parameter.AllowedValues is not null)
+                {
+                    parameterObject = parameterObject.MergeProperty("allowedValues", parameter.AllowedValues);
+                }
+
+                EmitProperties(emitter, ApplyTypeModifiers(parameter, parameterObject));
             }, parameter.SourceSyntax);
         }
 
@@ -284,7 +284,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperty(declaredType.Name,
                 () =>
                 {
-                    EmitProperties(emitter, AddDecoratorsToBody(declaredType.Symbol.DeclaringType, TypePropertiesForTypeExpression(declaredType.Value), declaredType.Symbol.Type));
+                    EmitProperties(emitter, ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value)));
                 },
                 declaredType.SourceSyntax);
         }
@@ -421,11 +421,7 @@ namespace Bicep.Core.Emit
 
             foreach (var property in expression.PropertyExpressions)
             {
-                var propertySchema = TypePropertiesForTypeExpression(property.Value);
-                if (property.SourceSyntax is DecorableSyntax decorable)
-                {
-                    propertySchema = AddDecoratorsToBody(decorable, propertySchema, property.Value.ExpressedType);
-                }
+                var propertySchema = ApplyTypeModifiers(property, TypePropertiesForTypeExpression(property.Value));
 
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(property.PropertyName, propertySchema, property.SourceSyntax));
             }
@@ -437,11 +433,7 @@ namespace Bicep.Core.Emit
 
             if (expression.AdditionalPropertiesExpression is { } addlPropsType)
             {
-                var addlPropertiesSchema = TypePropertiesForTypeExpression(addlPropsType.Value);
-                if (addlPropsType.SourceSyntax is DecorableSyntax decorable)
-                {
-                    addlPropertiesSchema = AddDecoratorsToBody(decorable, addlPropertiesSchema, addlPropsType.Value.ExpressedType);
-                }
+                var addlPropertiesSchema = ApplyTypeModifiers(addlPropsType, TypePropertiesForTypeExpression(addlPropsType.Value));
 
                 properties.Add(ExpressionFactory.CreateObjectProperty("additionalProperties", addlPropertiesSchema, addlPropsType.SourceSyntax));
             }
@@ -454,10 +446,7 @@ namespace Bicep.Core.Emit
             TypeProperty(LanguageConstants.ArrayType, expression.SourceSyntax),
             ExpressionFactory.CreateObjectProperty("prefixItems",
                 ExpressionFactory.CreateArray(
-                    expression.ItemExpressions.Select(item => (item, TypePropertiesForTypeExpression(item.Value)))
-                        .Select(t => t.item.SourceSyntax is DecorableSyntax decorable
-                            ? AddDecoratorsToBody(decorable, t.Item2, t.item.Value.ExpressedType)
-                            : t.Item2),
+                    expression.ItemExpressions.Select(item => ApplyTypeModifiers(item, TypePropertiesForTypeExpression(item.Value))),
                     expression.SourceSyntax),
                 expression.SourceSyntax),
             ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
@@ -578,7 +567,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitArrayProperty("resources", () => {
                     foreach (var resource in resources)
                     {
-                        if (resource.Metadata.IsExistingResource)
+                        if (resource.ResourceMetadata.IsExistingResource)
                         {
                             continue;
                         }
@@ -598,7 +587,7 @@ namespace Bicep.Core.Emit
                     foreach (var resource in resources)
                     {
                         emitter.EmitProperty(
-                            emitter.GetSymbolicName(resource.Metadata),
+                            emitter.GetSymbolicName(resource.ResourceMetadata),
                             () => EmitResource(emitter, resource),
                             resource.SourceSyntax);
                     }
@@ -616,7 +605,7 @@ namespace Bicep.Core.Emit
 
         private void EmitResource(ExpressionEmitter emitter, DeclaredResourceExpression resource)
         {
-            var metadata = resource.Metadata;
+            var metadata = resource.ResourceMetadata;
 
             emitter.EmitObject(() => {
                 var body = resource.Body;
@@ -673,10 +662,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in AddDecoratorsToBody(
-                    metadata.Symbol.DeclaringResource,
-                    ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty),
-                    metadata.Symbol.Type).Properties)
+                foreach (var property in ApplyMetadata(resource, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -815,10 +801,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in AddDecoratorsToBody(
-                    moduleSymbol.DeclaringModule,
-                    ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty),
-                    moduleSymbol.Type).Properties)
+                foreach (var property in ApplyMetadata(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -943,9 +926,7 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObjectProperty(output.Name, () =>
             {
-                EmitProperties(emitter, AddDecoratorsToBody(output.Symbol.DeclaringOutput,
-                    TypePropertiesForTypeExpression(output.Type),
-                    output.Symbol.Type));
+                EmitProperties(emitter, ApplyTypeModifiers(output, TypePropertiesForTypeExpression(output.Type)));
 
                 if (output.Value is ForLoopExpression @for)
                 {

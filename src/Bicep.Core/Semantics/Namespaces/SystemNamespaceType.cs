@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -17,15 +16,12 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SharpYaml.Serialization;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -1363,13 +1359,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider)
         {
-            static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<FunctionCallExpression, Expression> propertyValueSelector) =>
-                (functionCall, _, targetObject) =>
-                    targetObject.MergeProperty(propertyName, propertyValueSelector(functionCall));
-
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
-
-            static Expression SingleParameterSelector(FunctionCallExpression functionCall) => functionCall.Parameters.Single();
 
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
@@ -1437,19 +1427,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator((functionCall, targetType, targetObject) =>
+                .WithEvaluator((functionCall, decorated) =>
                 {
-                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression)
                     {
-                        return targetObject.MergeProperty("type", new StringLiteralExpression(functionCall.SourceSyntax, "securestring"));
+                        return typeDeclaringExpression with { Secure = ExpressionFactory.CreateBooleanLiteral(true, functionCall.SourceSyntax) };
                     }
 
-                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))
-                    {
-                        return targetObject.MergeProperty("type", new StringLiteralExpression(functionCall.SourceSyntax, "secureObject"));
-                    }
-
-                    return targetObject;
+                    return decorated;
                 })
                 .Build();
 
@@ -1484,7 +1469,16 @@ namespace Bicep.Core.Semantics.Namespaces
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
                 })
-                .WithEvaluator(MergeToTargetObject("allowedValues", SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is DeclaredParameterExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} allowedValues)
+                    {
+                        return typeDeclaringExpression with { AllowedValues = allowedValues };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
@@ -1493,7 +1487,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} minValue)
+                    {
+                        return typeDeclaringExpression with { MinValue = minValue };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxValuePropertyName)
@@ -1502,7 +1505,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} maxValue)
+                    {
+                        return typeDeclaringExpression with { MaxValue = maxValue };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinLengthPropertyName)
@@ -1511,7 +1523,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} minLength)
+                    {
+                        return typeDeclaringExpression with { MinLength = minLength };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxLengthPropertyName)
@@ -1520,7 +1541,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} maxLength)
+                    {
+                        return typeDeclaringExpression with { MaxLength = maxLength };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMetadataPropertyName)
@@ -1529,15 +1559,33 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator((_, decoratorSyntax, _, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} metadata)
+                    {
+                        return typeDeclaringExpression with { Metadata = metadata };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
                 .WithDescription("Describes the parameter.")
                 .WithRequiredParameter("text", LanguageConstants.String, "The description.")
                 .WithFlags(FunctionFlags.AnyDecorator)
-                .WithEvaluator(MergeToTargetObject("metadata", functionCall => ExpressionFactory.CreateObject(
-                    ExpressionFactory.CreateObjectProperty("description", SingleParameterSelector(functionCall), functionCall.SourceSyntax).AsEnumerable())))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is MetadataBearingExpression metadataBearer &&
+                        functionCall.Parameters.FirstOrDefault() is {} description)
+                    {
+                        var metadata = metadataBearer.Metadata is ObjectExpression metadataObject ? metadataObject : ExpressionFactory.CreateObject(Enumerable.Empty<ObjectPropertyExpression>(), description.SourceSyntax);
+                        return metadataBearer with { Metadata = metadata.MergeProperty(LanguageConstants.MetadataDescriptionPropertyName, description) };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.BatchSizePropertyName)
@@ -1563,7 +1611,6 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, minimumBatchSize));
                     }
                 })
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleParameterSelector))
                 .Build();
 
             if (featureProvider.UserDefinedTypesEnabled)
@@ -1573,7 +1620,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
                     .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((functionCall, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, functionCall.SourceSyntax)))
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is TypeDeclaringExpression typeDeclaringExpression)
+                        {
+                            return typeDeclaringExpression with { Sealed = ExpressionFactory.CreateBooleanLiteral(false, functionCall.SourceSyntax) };
+                        }
+
+                        return decorated;
+                    })
                     .Build();
             }
         }

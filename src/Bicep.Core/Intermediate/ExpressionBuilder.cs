@@ -160,76 +160,76 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(conditionSyntax.Body));
 
             case MetadataDeclarationSyntax metadata:
-                return new DeclaredMetadataExpression(
+                return EvaluateDecorators(metadata, new DeclaredMetadataExpression(
                     metadata,
                     metadata.Name.IdentifierName,
-                    ConvertWithoutLowering(metadata.Value));
+                    ConvertWithoutLowering(metadata.Value)));
 
             case ImportDeclarationSyntax import:
                 var symbol = GetDeclaredSymbol<ImportedNamespaceSymbol>(import);
-                return new DeclaredImportExpression(
+                return EvaluateDecorators(import, new DeclaredImportExpression(
                     import,
                     symbol.Name,
                     GetTypeInfo<NamespaceType>(import),
-                    import.Config is not null ? ConvertWithoutLowering(import.Config) : null);
+                    import.Config is not null ? ConvertWithoutLowering(import.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
-                return new DeclaredParameterExpression(
+                return EvaluateDecorators(parameter, new DeclaredParameterExpression(
                     parameter,
                     parameter.Name.IdentifierName,
                     ConvertTypeWithoutLowering(parameter.Type),
                     GetDeclaredSymbol<ParameterSymbol>(parameter),
-                    parameter.Modifier is ParameterDefaultValueSyntax defaultValue ? ConvertWithoutLowering(defaultValue.DefaultValue) : null);
+                    parameter.Modifier is ParameterDefaultValueSyntax defaultValue ? ConvertWithoutLowering(defaultValue.DefaultValue) : null));
 
             case VariableDeclarationSyntax variable:
-                return new DeclaredVariableExpression(
+                return EvaluateDecorators(variable, new DeclaredVariableExpression(
                     variable,
                     variable.Name.IdentifierName,
-                    ConvertWithoutLowering(variable.Value));
+                    ConvertWithoutLowering(variable.Value)));
 
             case FunctionDeclarationSyntax function:
-                return new DeclaredFunctionExpression(
+                return EvaluateDecorators(function, new DeclaredFunctionExpression(
                     function,
                     function.Name.IdentifierName,
-                    ConvertWithoutLowering(function.Lambda));
+                    ConvertWithoutLowering(function.Lambda)));
 
             case OutputDeclarationSyntax output:
-                return new DeclaredOutputExpression(
+                return EvaluateDecorators(output, new DeclaredOutputExpression(
                     output,
                     output.Name.IdentifierName,
                     ConvertTypeWithoutLowering(output.Type),
                     GetDeclaredSymbol<OutputSymbol>(output),
-                    ConvertWithoutLowering(output.Value));
+                    ConvertWithoutLowering(output.Value)));
 
             case AssertDeclarationSyntax assert:
-                return new DeclaredAssertExpression(
+                return EvaluateDecorators(assert, new DeclaredAssertExpression(
                     assert,
                     assert.Name.IdentifierName,
-                    ConvertWithoutLowering(assert.Value));
+                    ConvertWithoutLowering(assert.Value)));
 
             case ResourceDeclarationSyntax resource:
-                return ConvertResource(resource);
+                return EvaluateDecorators(resource, ConvertResource(resource));
 
             case ModuleDeclarationSyntax module:
-                return ConvertModule(module);
+                return EvaluateDecorators(module, ConvertModule(module));
 
             case TypeDeclarationSyntax typeDeclaration:
-                return new DeclaredTypeExpression(typeDeclaration,
+                return EvaluateDecorators(typeDeclaration, new DeclaredTypeExpression(typeDeclaration,
                     typeDeclaration.Name.IdentifierName,
                     GetDeclaredSymbol<TypeAliasSymbol>(typeDeclaration),
-                    ConvertTypeWithoutLowering(typeDeclaration.Value));
+                    ConvertTypeWithoutLowering(typeDeclaration.Value)));
 
             case ObjectTypePropertySyntax typeProperty:
-                return new ObjectTypePropertyExpression(typeProperty,
+                return EvaluateDecorators(typeProperty, new ObjectTypePropertyExpression(typeProperty,
                     typeProperty.TryGetKeyText() ?? throw new ArgumentException("Unable to resolve name of object type property"),
-                    ConvertTypeWithoutLowering(typeProperty.Value));
+                    ConvertTypeWithoutLowering(typeProperty.Value)));
 
             case ObjectTypeAdditionalPropertiesSyntax typeAdditionalProperties:
-                return new ObjectTypeAdditionalPropertiesExpression(typeAdditionalProperties,
-                    ConvertTypeWithoutLowering(typeAdditionalProperties.Value));
+                return EvaluateDecorators(typeAdditionalProperties, new ObjectTypeAdditionalPropertiesExpression(typeAdditionalProperties,
+                    ConvertTypeWithoutLowering(typeAdditionalProperties.Value)));
 
             case TupleTypeItemSyntax tupleItem:
-                return new TupleTypeItemExpression(tupleItem, ConvertTypeWithoutLowering(tupleItem.Value));
+                return EvaluateDecorators(tupleItem, new TupleTypeItemExpression(tupleItem, ConvertTypeWithoutLowering(tupleItem.Value)));
 
             case ProgramSyntax program:
                 return ConvertProgram(program);
@@ -327,6 +327,29 @@ public class ExpressionBuilder
         }
 
         return typeSymbol;
+    }
+
+    private Expression EvaluateDecorators(DecorableSyntax decorable, Expression target)
+    {
+        var result = target;
+        foreach (var decoratorSyntax in decorable.Decorators.Reverse())
+        {
+            var symbol = Context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
+
+            if (symbol is FunctionSymbol decoratorSymbol && decoratorSymbol.DeclaringObject is NamespaceType namespaceType)
+            {
+                var argumentTypes = decoratorSyntax.Arguments
+                    .Select(argument => Context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                    .ToArray();
+
+                // There should be exact one matching decorator since there's no errors.
+                var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
+
+                result = decorator.Evaluate(ConvertWithoutLowering<FunctionCallExpression>(decoratorSyntax.Expression), result);
+            }
+        }
+
+        return result;
     }
 
     private ProgramExpression ConvertProgram(ProgramSyntax syntax)
