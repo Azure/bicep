@@ -37,9 +37,9 @@ param location string = resourceGroup().location
 //@    },
 
 @minValue(0)
-//@      "minValue": 0
+//@      "minValue": 0,
 @maxValue(1023)
-//@      "maxValue": 1023,
+//@      "maxValue": 1023
 param osDiskSizeGB int = 0
 //@    "osDiskSizeGB": {
 //@      "type": "int",
@@ -47,9 +47,9 @@ param osDiskSizeGB int = 0
 //@    },
 
 @minValue(1)
-//@      "minValue": 1
+//@      "minValue": 1,
 @maxValue(50)
-//@      "maxValue": 50,
+//@      "maxValue": 50
 param agentCount int = 3
 //@    "agentCount": {
 //@      "type": "int",

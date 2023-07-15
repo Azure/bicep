@@ -1,26 +1,26 @@
 @description('The foo type')
+//@      "metadata": {
 //@        "description": "The foo type"
+//@      },
 @sealed()
-//@      "additionalProperties": false,
+//@      "additionalProperties": false
 type foo = {
 //@    "foo": {
 //@      "type": "object",
 //@      "properties": {
 //@      },
-//@      "metadata": {
-//@      }
 //@    },
   @minLength(3)
-//@          "minLength": 3
+//@          "minLength": 3,
   @maxLength(10)
-//@          "maxLength": 10,
+//@          "maxLength": 10
   @description('A string property')
+//@          "metadata": {
 //@            "description": "A string property"
+//@          },
   stringProp: string
 //@        "stringProp": {
 //@          "type": "string",
-//@          "metadata": {
-//@          },
 //@        },
 
   objectProp: {
@@ -261,21 +261,21 @@ type tuple = [
 //@      "items": false
 //@    },
     @description('A leading string')
+//@          "metadata": {
 //@            "description": "A leading string"
+//@          }
     string
 //@        {
 //@          "type": "string",
-//@          "metadata": {
-//@          }
 //@        },
 
     @description('A second element using a type alias')
+//@          "metadata": {
 //@            "description": "A second element using a type alias"
+//@          }
     bar
 //@        {
 //@          "$ref": "#/definitions/bar",
-//@          "metadata": {
-//@          }
 //@        }
 ]
 
@@ -290,9 +290,9 @@ type stringStringDictionary = {
 }
 
 @minValue(1)
-//@      "minValue": 1
+//@      "minValue": 1,
 @maxValue(10)
-//@      "maxValue": 10,
+//@      "maxValue": 10
 type constrainedInt = int
 //@    "constrainedInt": {
 //@      "type": "int",

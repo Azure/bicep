@@ -136,9 +136,9 @@ param storageSku string
 
 // length constraint on a string
 @minLength(3)
-//@      "minLength": 3
+//@      "minLength": 3,
 @maxLength(24)
-//@      "maxLength": 24,
+//@      "maxLength": 24
 param storageName string
 //@    "storageName": {
 //@      "type": "string",
@@ -146,9 +146,9 @@ param storageName string
 
 // length constraint on an array
 @minLength(3)
-//@      "minLength": 3
+//@      "minLength": 3,
 @maxLength(24)
-//@      "maxLength": 24,
+//@      "maxLength": 24
 param someArray array
 //@    "someArray": {
 //@      "type": "array",
@@ -175,12 +175,12 @@ param description string
 //@    },
 
 @sys.description('my description')
+//@      "metadata": {
 //@        "description": "my description"
+//@      }
 param description2 string
 //@    "description2": {
 //@      "type": "string",
-//@      "metadata": {
-//@      }
 //@    },
 
 // random extra metadata
@@ -212,9 +212,9 @@ param additionalMetadata string
 @secure()
 //@      "type": "securestring",
 @minLength(3)
-//@      "minLength": 3
+//@      "minLength": 3,
 @maxLength(24)
-//@      "maxLength": 24,
+//@      "maxLength": 24
 @allowed([
 //@      "allowedValues": [
 //@      ],
@@ -273,9 +273,9 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 @secure()
 //@      "type": "securestring",
 @minLength(2)
-//@      "minLength": 2
+//@      "minLength": 2,
   @maxLength(10)
-//@      "maxLength": 10,
+//@      "maxLength": 10
 @allowed([
 //@      "allowedValues": [
 //@      ],
@@ -298,9 +298,9 @@ param decoratedInt int = 123
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)
-//@      "minValue": -10
+//@      "minValue": -10,
 @maxValue(-3)
-//@      "maxValue": -3,
+//@      "maxValue": -3
 param negativeValues int
 //@    "negativeValues": {
 //@      "type": "int",
@@ -380,6 +380,8 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
+//@      "metadata": {
+//@      },
     description: 'An array.'
 //@        "description": "An array."
 })
@@ -391,8 +393,6 @@ param decoratedArray array = [
 //@      "type": "array",
 //@      "defaultValue": [
 //@      ],
-//@      "metadata": {
-//@      },
 //@    }
     utcNow()
 //@        "[utcNow()]",

@@ -19,8 +19,8 @@
           "metadata": {
             "description": "A string property"
           },
-          "maxLength": 10,
-          "minLength": 3
+          "minLength": 3,
+          "maxLength": 10
         },
         "objectProp": {
           "type": "object",
@@ -55,10 +55,10 @@
           "nullable": true
         }
       },
-      "additionalProperties": false,
       "metadata": {
         "description": "The foo type"
-      }
+      },
+      "additionalProperties": false
     },
     "bar": {
       "type": "array",
@@ -186,8 +186,8 @@
     },
     "constrainedInt": {
       "type": "int",
-      "maxValue": 10,
-      "minValue": 1
+      "minValue": 1,
+      "maxValue": 10
     },
     "nullable": {
       "type": "string",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3234558960987152966"
+      "templateHash": "15588598543835310659"
     }
   },
   "parameters": {
@@ -43,24 +43,24 @@
     "aksClusterNetworkPlugin": {
       "type": "string",
       "defaultValue": "azure",
-      "metadata": {
-        "description": "Specifies the network plugin used for building Kubernetes network. - azure or kubenet."
-      },
       "allowedValues": [
         "azure",
         "kubenet"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the network plugin used for building Kubernetes network. - azure or kubenet."
+      }
     },
     "aksClusterNetworkPolicy": {
       "type": "string",
       "defaultValue": "azure",
-      "metadata": {
-        "description": "Specifies the network policy used for building Kubernetes network. - calico or azure"
-      },
       "allowedValues": [
         "azure",
         "calico"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the network policy used for building Kubernetes network. - calico or azure"
+      }
     },
     "aksClusterPodCidr": {
       "type": "string",
@@ -93,24 +93,24 @@
     "aksClusterLoadBalancerSku": {
       "type": "string",
       "defaultValue": "standard",
-      "metadata": {
-        "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools."
-      },
       "allowedValues": [
         "basic",
         "standard"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools."
+      }
     },
     "aksClusterSkuTier": {
       "type": "string",
       "defaultValue": "Paid",
-      "metadata": {
-        "description": "Specifies the tier of a managed cluster SKU: Paid or Free"
-      },
       "allowedValues": [
         "Paid",
         "Free"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the tier of a managed cluster SKU: Paid or Free"
+      }
     },
     "aksClusterKubernetesVersion": {
       "type": "string",
@@ -204,13 +204,13 @@
     "nodePoolOsType": {
       "type": "string",
       "defaultValue": "Linux",
-      "metadata": {
-        "description": "Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux."
-      },
       "allowedValues": [
         "Linux",
         "Windows"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux."
+      }
     },
     "nodePoolMaxPods": {
       "type": "int",
@@ -243,13 +243,13 @@
     "nodePoolScaleSetPriority": {
       "type": "string",
       "defaultValue": "Regular",
-      "metadata": {
-        "description": "Specifies the virtual machine scale set priority: Spot or Regular."
-      },
       "allowedValues": [
         "Spot",
         "Regular"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the virtual machine scale set priority: Spot or Regular."
+      }
     },
     "nodePoolNodeLabels": {
       "type": "object",
@@ -268,24 +268,24 @@
     "nodePoolMode": {
       "type": "string",
       "defaultValue": "System",
-      "metadata": {
-        "description": "Specifies the mode of an agent pool: System or User"
-      },
       "allowedValues": [
         "System",
         "User"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the mode of an agent pool: System or User"
+      }
     },
     "nodePoolType": {
       "type": "string",
       "defaultValue": "VirtualMachineScaleSets",
-      "metadata": {
-        "description": "Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet"
-      },
       "allowedValues": [
         "VirtualMachineScaleSets",
         "AvailabilitySet"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet"
+      }
     },
     "nodePoolAvailabilityZones": {
       "type": "array",
@@ -331,15 +331,15 @@
     "logAnalyticsSku": {
       "type": "string",
       "defaultValue": "PerGB2018",
-      "metadata": {
-        "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
-      },
       "allowedValues": [
         "Free",
         "Standalone",
         "PerNode",
         "PerGB2018"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
+      }
     },
     "logAnalyticsRetentionInDays": {
       "type": "int",
@@ -412,15 +412,15 @@
     "diskStorageAccounType": {
       "type": "string",
       "defaultValue": "Premium_LRS",
-      "metadata": {
-        "description": "Specifies the storage account type for OS and data disk."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS",
         "UltraSSD_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the storage account type for OS and data disk."
+      }
     },
     "numDataDisks": {
       "type": "int",
@@ -428,8 +428,8 @@
       "metadata": {
         "description": "Specifies the number of data disks of the virtual machine."
       },
-      "maxValue": 64,
-      "minValue": 0
+      "minValue": 0,
+      "maxValue": 64
     },
     "osDiskSize": {
       "type": "int",
@@ -965,15 +965,15 @@
             "logAnalyticsSku": {
               "type": "string",
               "defaultValue": "PerGB2018",
-              "metadata": {
-                "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
-              },
               "allowedValues": [
                 "Free",
                 "Standalone",
                 "PerNode",
                 "PerGB2018"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
+              }
             },
             "logAnalyticsRetentionInDays": {
               "type": "int",
@@ -1151,15 +1151,15 @@
             "diskStorageAccounType": {
               "type": "string",
               "defaultValue": "Premium_LRS",
-              "metadata": {
-                "description": "Specifies the storage account type for OS and data disk."
-              },
               "allowedValues": [
                 "Premium_LRS",
                 "StandardSSD_LRS",
                 "Standard_LRS",
                 "UltraSSD_LRS"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the storage account type for OS and data disk."
+              }
             },
             "numDataDisks": {
               "type": "int",
@@ -1167,8 +1167,8 @@
               "metadata": {
                 "description": "Specifies the number of data disks of the virtual machine."
               },
-              "maxValue": 64,
-              "minValue": 0
+              "minValue": 0,
+              "maxValue": 64
             },
             "osDiskSize": {
               "type": "int",
@@ -1618,24 +1618,24 @@
             "aksClusterNetworkPlugin": {
               "type": "string",
               "defaultValue": "azure",
-              "metadata": {
-                "description": "Specifies the network plugin used for building Kubernetes network. - azure or kubenet."
-              },
               "allowedValues": [
                 "azure",
                 "kubenet"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the network plugin used for building Kubernetes network. - azure or kubenet."
+              }
             },
             "aksClusterNetworkPolicy": {
               "type": "string",
               "defaultValue": "azure",
-              "metadata": {
-                "description": "Specifies the network policy used for building Kubernetes network. - calico or azure"
-              },
               "allowedValues": [
                 "azure",
                 "calico"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the network policy used for building Kubernetes network. - calico or azure"
+              }
             },
             "aksClusterPodCidr": {
               "type": "string",
@@ -1668,24 +1668,24 @@
             "aksClusterLoadBalancerSku": {
               "type": "string",
               "defaultValue": "standard",
-              "metadata": {
-                "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools."
-              },
               "allowedValues": [
                 "basic",
                 "standard"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools."
+              }
             },
             "aksClusterSkuTier": {
               "type": "string",
               "defaultValue": "Paid",
-              "metadata": {
-                "description": "Specifies the tier of a managed cluster SKU: Paid or Free"
-              },
               "allowedValues": [
                 "Paid",
                 "Free"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the tier of a managed cluster SKU: Paid or Free"
+              }
             },
             "aksClusterKubernetesVersion": {
               "type": "string",
@@ -1779,13 +1779,13 @@
             "nodePoolOsType": {
               "type": "string",
               "defaultValue": "Linux",
-              "metadata": {
-                "description": "Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux."
-              },
               "allowedValues": [
                 "Linux",
                 "Windows"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux."
+              }
             },
             "nodePoolMaxPods": {
               "type": "int",
@@ -1818,13 +1818,13 @@
             "nodePoolScaleSetPriority": {
               "type": "string",
               "defaultValue": "Regular",
-              "metadata": {
-                "description": "Specifies the virtual machine scale set priority: Spot or Regular."
-              },
               "allowedValues": [
                 "Spot",
                 "Regular"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the virtual machine scale set priority: Spot or Regular."
+              }
             },
             "nodePoolNodeLabels": {
               "type": "object",
@@ -1843,24 +1843,24 @@
             "nodePoolMode": {
               "type": "string",
               "defaultValue": "System",
-              "metadata": {
-                "description": "Specifies the mode of an agent pool: System or User"
-              },
               "allowedValues": [
                 "System",
                 "User"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the mode of an agent pool: System or User"
+              }
             },
             "nodePoolType": {
               "type": "string",
               "defaultValue": "VirtualMachineScaleSets",
-              "metadata": {
-                "description": "Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet"
-              },
               "allowedValues": [
                 "VirtualMachineScaleSets",
                 "AvailabilitySet"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet"
+              }
             },
             "nodePoolAvailabilityZones": {
               "type": "array",
