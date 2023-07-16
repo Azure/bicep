@@ -1577,11 +1577,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.AnyDecorator)
                 .WithEvaluator((functionCall, decorated) =>
                 {
-                    if (decorated is MetadataBearingExpression metadataBearer &&
+                    if (decorated is DescribableExpression describable &&
                         functionCall.Parameters.FirstOrDefault() is {} description)
                     {
-                        var metadata = metadataBearer.Metadata is ObjectExpression metadataObject ? metadataObject : ExpressionFactory.CreateObject(Enumerable.Empty<ObjectPropertyExpression>(), description.SourceSyntax);
-                        return metadataBearer with { Metadata = metadata.MergeProperty(LanguageConstants.MetadataDescriptionPropertyName, description) };
+                        return describable with { Description = description };
                     }
 
                     return decorated;
@@ -1624,7 +1623,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         if (decorated is TypeDeclaringExpression typeDeclaringExpression)
                         {
-                            return typeDeclaringExpression with { Sealed = ExpressionFactory.CreateBooleanLiteral(false, functionCall.SourceSyntax) };
+                            return typeDeclaringExpression with { Sealed = functionCall };
                         }
 
                         return decorated;

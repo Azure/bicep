@@ -344,17 +344,17 @@ public record LambdaExpression(
         => visitor.VisitLambdaExpression(this);
 }
 
-public abstract record MetadataBearingExpression(
+public abstract record DescribableExpression(
     SyntaxBase? SourceSyntax,
-    Expression? Metadata
+    Expression? Description
 ) : Expression(SourceSyntax) {}
 
 public record DeclaredMetadataExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     Expression Value,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredMetadataExpression(this);
@@ -367,8 +367,8 @@ public record DeclaredImportExpression(
     string Name,
     NamespaceType NamespaceType,
     Expression? Config,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredImportExpression(this);
@@ -378,6 +378,7 @@ public record DeclaredImportExpression(
 
 public abstract record TypeDeclaringExpression(
     SyntaxBase? SourceSyntax,
+    Expression? Description,
     Expression? Metadata,
     Expression? Secure,
     Expression? MinLength,
@@ -385,7 +386,7 @@ public abstract record TypeDeclaringExpression(
     Expression? MinValue,
     Expression? MaxValue,
     Expression? Sealed
-) : MetadataBearingExpression(SourceSyntax, Metadata) {}
+) : DescribableExpression(SourceSyntax, Description) {}
 
 public record DeclaredParameterExpression(
     SyntaxBase? SourceSyntax,
@@ -393,6 +394,7 @@ public record DeclaredParameterExpression(
     TypeExpression Type,
     ParameterSymbol Symbol,
     Expression? DefaultValue,
+    Expression? Description = null,
     Expression? Metadata = null,
     Expression? Secure = null,
     Expression? MinLength = null,
@@ -401,7 +403,7 @@ public record DeclaredParameterExpression(
     Expression? MaxValue = null,
     Expression? Sealed = null,
     Expression? AllowedValues = null
-) : TypeDeclaringExpression(SourceSyntax, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredParameterExpression(this);
@@ -413,8 +415,8 @@ public record DeclaredVariableExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     Expression Value,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredVariableExpression(this);
@@ -428,6 +430,7 @@ public record DeclaredOutputExpression(
     TypeExpression Type,
     OutputSymbol Symbol,
     Expression Value,
+    Expression? Description = null,
     Expression? Metadata = null,
     Expression? Secure = null,
     Expression? MinLength = null,
@@ -435,7 +438,7 @@ public record DeclaredOutputExpression(
     Expression? MinValue = null,
     Expression? MaxValue = null,
     Expression? Sealed = null
-) : TypeDeclaringExpression(SourceSyntax, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredOutputExpression(this);
@@ -447,8 +450,8 @@ public record DeclaredAssertExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     Expression Value,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredAssertExpression(this);
@@ -463,8 +466,8 @@ public record DeclaredResourceExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredResourceExpression(this);
@@ -478,8 +481,8 @@ public record DeclaredModuleExpression(
     Expression Body,
     Expression? Parameters,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredModuleExpression(this);
@@ -526,8 +529,8 @@ public record DeclaredFunctionExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     Expression Lambda,
-    Expression? Metadata = null
-) : MetadataBearingExpression(SourceSyntax, Metadata)
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredFunctionExpression(this);
@@ -552,6 +555,7 @@ public record DeclaredTypeExpression(
     string Name,
     TypeAliasSymbol Symbol,
     TypeExpression Value,
+    Expression? Description = null,
     Expression? Metadata = null,
     Expression? Secure = null,
     Expression? MinLength = null,
@@ -559,7 +563,7 @@ public record DeclaredTypeExpression(
     Expression? MinValue = null,
     Expression? MaxValue = null,
     Expression? Sealed = null
-) : TypeDeclaringExpression(SourceSyntax, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredTypeExpression(this);
@@ -664,6 +668,7 @@ public record ObjectTypePropertyExpression(
     SyntaxBase? SourceSyntax,
     string PropertyName,
     TypeExpression Value,
+    Expression? Description = null,
     Expression? Metadata = null,
     Expression? Secure = null,
     Expression? MinLength = null,
@@ -671,7 +676,7 @@ public record ObjectTypePropertyExpression(
     Expression? MinValue = null,
     Expression? MaxValue = null,
     Expression? Sealed = null
-) : TypeDeclaringExpression(SourceSyntax, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitObjectTypePropertyExpression(this);
@@ -680,6 +685,7 @@ public record ObjectTypePropertyExpression(
 public record ObjectTypeAdditionalPropertiesExpression(
     SyntaxBase? SourceSyntax,
     TypeExpression Value,
+    Expression? Description = null,
     Expression? Metadata = null,
     Expression? Secure = null,
     Expression? MinLength = null,
@@ -687,7 +693,7 @@ public record ObjectTypeAdditionalPropertiesExpression(
     Expression? MinValue = null,
     Expression? MaxValue = null,
     Expression? Sealed = null
-) : TypeDeclaringExpression(SourceSyntax, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitObjectTypeAdditionalPropertiesExpression(this);
@@ -707,6 +713,7 @@ public record ObjectTypeExpression(
 public record TupleTypeItemExpression(
     SyntaxBase? SourceSyntax,
     TypeExpression Value,
+    Expression? Description = null,
     Expression? Metadata = null,
     Expression? Secure = null,
     Expression? MinLength = null,
@@ -714,7 +721,7 @@ public record TupleTypeItemExpression(
     Expression? MinValue = null,
     Expression? MaxValue = null,
     Expression? Sealed = null
-) : TypeDeclaringExpression(SourceSyntax, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitTupleTypeItemExpression(this);

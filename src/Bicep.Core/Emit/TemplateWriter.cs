@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -178,28 +179,31 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
         {
-            var result = ApplyMetadata(expression, input);
+            List<(Expression source, Func<ObjectExpression, ObjectExpression> modifyFunc)> modifications = new();
 
             if (expression.Secure is {} secure)
             {
-                switch (input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value)
+                modifications.Add((secure, result =>
                 {
-                    case StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString:
-                        result = result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", expression.Secure?.SourceSyntax));
-                        break;
-                    case StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.ObjectType:
-                        result = result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", expression.Secure?.SourceSyntax));
-                        break;
-                }
+                    return input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
+                    {
+                        StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString
+                            => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", expression.Secure?.SourceSyntax)),
+                        StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.ObjectType
+                            => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", expression.Secure?.SourceSyntax)),
+                        _ => result,
+                    };
+                }));
             }
 
             if (expression.Sealed is {} @sealed)
             {
-                result = result.MergeProperty("additionalProperties", @sealed);
+                modifications.Add((@sealed, result => result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax))));
             }
 
             foreach (var (modifier, propertyName) in new[]
             {
+                (expression.Metadata, LanguageConstants.ParameterMetadataPropertyName),
                 (expression.MinLength, LanguageConstants.ParameterMinLengthPropertyName),
                 (expression.MaxLength, LanguageConstants.ParameterMaxLengthPropertyName),
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
@@ -207,15 +211,55 @@ namespace Bicep.Core.Emit
             }) {
                 if (modifier is not null)
                 {
-                    result = result.MergeProperty(propertyName, modifier);
+                    modifications.Add((modifier, result => result.MergeProperty(propertyName, modifier)));
                 }
+            }
+
+            if (expression.Description is {} description)
+            {
+                modifications.Add((description, result => ApplyDescription(expression, result)));
+            }
+
+            // Whether one decorator overrides another is determined by their order in the syntax tree
+            // TODO should we change this?
+            if (expression.SourceSyntax is DecorableSyntax decorable)
+            {
+                ConcurrentDictionary<(Expression, Func<ObjectExpression, ObjectExpression>), int> modificationIndices = new();
+                int GetIndex((Expression, Func<ObjectExpression, ObjectExpression>) modification)
+                {
+                    if (modification.Item1.SourceSyntax is {} sourceSyntax)
+                    {
+                        int idx = 0;
+                        foreach (var decorator in decorable.Decorators)
+                        {
+                            if (Context.SemanticModel.Binder.IsDescendant(sourceSyntax, decorator))
+                            {
+                                return idx;
+                            }
+
+                            idx++;
+                        }
+                    }
+
+                    return int.MaxValue;
+                }
+
+                modifications.Sort((a, b) => modificationIndices.GetOrAdd(b, GetIndex) - modificationIndices.GetOrAdd(a, GetIndex));
+            }
+
+            var result = input;
+            foreach (var modification in modifications)
+            {
+                result = modification.modifyFunc(result);
             }
 
             return result;
         }
 
-        private ObjectExpression ApplyMetadata(MetadataBearingExpression expression, ObjectExpression input) => expression.Metadata is {} metadata
-            ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, metadata)
+        private ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input) => expression.Description is {} description
+            ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, ExpressionFactory.CreateObject(
+                ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataDescriptionPropertyName, description, description.SourceSyntax).AsEnumerable(),
+                description.SourceSyntax))
             : input;
 
         private void EmitParameter(ExpressionEmitter emitter, DeclaredParameterExpression parameter)
@@ -662,7 +706,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyMetadata(resource, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyDescription(resource, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }
@@ -801,7 +845,7 @@ namespace Bicep.Core.Emit
 
                 // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
                 // and emit its properties to merge decorator properties.
-                foreach (var property in ApplyMetadata(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                foreach (var property in ApplyDescription(module, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
                 {
                     emitter.EmitProperty(property);
                 }

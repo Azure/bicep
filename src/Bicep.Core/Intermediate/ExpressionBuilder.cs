@@ -332,7 +332,7 @@ public class ExpressionBuilder
     private Expression EvaluateDecorators(DecorableSyntax decorable, Expression target)
     {
         var result = target;
-        foreach (var decoratorSyntax in decorable.Decorators.Reverse())
+        foreach (var decoratorSyntax in decorable.Decorators)
         {
             var symbol = Context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
