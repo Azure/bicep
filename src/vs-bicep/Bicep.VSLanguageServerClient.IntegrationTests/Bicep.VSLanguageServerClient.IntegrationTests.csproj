@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
@@ -25,7 +25,7 @@
 		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.5.0-2.final" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
 		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.6.33619.290" />
-		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.2.41" />
+		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.6.17" />
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
