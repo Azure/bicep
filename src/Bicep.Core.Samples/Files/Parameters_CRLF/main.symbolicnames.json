@@ -87,13 +87,13 @@
     },
     "storageName": {
       "type": "string",
-      "minLength": 3,
-      "maxLength": 24
+      "maxLength": 24,
+      "minLength": 3
     },
     "someArray": {
       "type": "array",
-      "minLength": 3,
-      "maxLength": 24
+      "maxLength": 24,
+      "minLength": 3
     },
     "emptyMetadata": {
       "type": "string",
@@ -133,8 +133,8 @@
       "metadata": {
         "description": "Name of the storage account"
       },
-      "minLength": 3,
-      "maxLength": 24
+      "maxLength": 24,
+      "minLength": 3
     },
     "defaultExpression": {
       "type": "bool",
@@ -162,8 +162,8 @@
         "Apple",
         "Banana"
       ],
-      "minLength": 2,
-      "maxLength": 10
+      "maxLength": 10,
+      "minLength": 2
     },
     "decoratedInt": {
       "type": "int",
@@ -172,8 +172,8 @@
     },
     "negativeValues": {
       "type": "int",
-      "minValue": -10,
-      "maxValue": -3
+      "maxValue": -3,
+      "minValue": -10
     },
     "decoratedBool": {
       "type": "bool",
