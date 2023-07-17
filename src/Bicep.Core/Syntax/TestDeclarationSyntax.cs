@@ -6,6 +6,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Syntax
 {
@@ -53,20 +56,60 @@ namespace Bicep.Core.Syntax
                 // blocked by assert in the constructor
                 _ => throw new NotImplementedException($"Unexpected type of test value '{this.Value.GetType().Name}'.")
             };
-            
+
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid test body is not available on this test due to errors. Use {nameof(TryGetBody)}() instead.");
 
-        public ObjectSyntax? TryGetParameters(){
+        public JToken? TryGetParameters(){
             var body = this.GetBody();
             foreach (var property in body.Properties) {
                 if (property.TryGetKeyText() == "params" && property.Value is ObjectSyntax paramsObject) 
                 {
-                    return paramsObject;
+                    var parameters = new JObject();
+                    foreach (var parameter in paramsObject.Properties){
+                        var propertyName = parameter.TryGetKeyText();
+                        if (propertyName is null)
+                        {
+                            throw new NotImplementedException($"Error reading the parameter key");
+                        }
+                        else
+                        {
+                            switch (parameter.Value)
+                            {
+                                case StringSyntax stringSyntax:
+                                    parameters.Add(new JProperty(propertyName, stringSyntax.TryGetLiteralValue()));
+                                    break;
+
+                                case IntegerLiteralSyntax numericSyntax:
+                                    parameters[propertyName] = numericSyntax.Value;
+                                    break;
+
+                                case BooleanLiteralSyntax booleanSyntax:
+                                    parameters[propertyName] = booleanSyntax.Value;
+                                    break;
+                                
+                                case null:
+                                    parameters[propertyName] = JValue.CreateNull();
+                                    break;
+
+                                case ObjectSyntax objectSyntax:
+                                    throw new NotImplementedException($"Type of parameter value '{parameter.Value.GetType().Name}' is not yet implemented.");
+
+                                case ArraySyntax arraySyntax:
+                                    throw new NotImplementedException($"Type of parameter value '{parameter.Value.GetType().Name}' is not yet implemented.");
+
+                                default:
+                                    throw new NotImplementedException($"Unexpected type of parameter value '{parameter.Value.GetType().Name}'.");
+                            }
+                        }
+                    }
+                    
+                    return parameters;
                 }
             }
             return null;
         }
+
 
 
     }

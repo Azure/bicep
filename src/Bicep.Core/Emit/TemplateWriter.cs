@@ -100,6 +100,12 @@ namespace Bicep.Core.Emit
             writer.ProcessSourceMap(templateJToken);
         }
 
+        public (Template, JToken) GetTemplate(SourceAwareJsonTextWriter writer)
+        {
+            return GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
+        }
+       
+
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
