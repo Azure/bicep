@@ -68,7 +68,7 @@ namespace Bicep.Core.Syntax
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid test body is not available on this test due to errors. Use {nameof(TryGetBody)}() instead.");
 
-        public ObjectSyntax GetParameters(){
+        public ObjectSyntax? TryGetParameters(){
             var body = this.GetBody();
             foreach (var property in body.Properties) {
                 if (property.TryGetKeyText() == "params" && property.Value is ObjectSyntax paramsObject) 
