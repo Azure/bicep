@@ -29,6 +29,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
+        private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
 
         // needed to support param file go to def
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>> declarationsByAssignment;
@@ -54,7 +55,7 @@ namespace Bicep.Core.Semantics
             var symbolContext = new SymbolContext(compilation, this);
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
-            this.LazyApiVersionProvider = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
+            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
             this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
             // name binding is done, allow type queries now
@@ -138,9 +139,8 @@ namespace Bicep.Core.Semantics
 
         public IFeatureProvider Features { get; }
 
-        private Lazy<IApiVersionProvider> LazyApiVersionProvider;
-        
-        public IApiVersionProvider ApiVersionProvider { get => this.LazyApiVersionProvider.Value; }
+        public IApiVersionProvider ApiVersionProvider =>
+            this.apiVersionProviderLazy.Value;
 
         public IBinder Binder { get; }
 
