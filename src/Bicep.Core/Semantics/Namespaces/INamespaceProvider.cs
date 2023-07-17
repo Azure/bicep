@@ -10,7 +10,14 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public interface INamespaceProvider
 {
-    NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind);
+    NamespaceType? TryGetNamespace(
+        string providerName,
+        string aliasName,
+        ResourceScope resourceScope,
+        IFeatureProvider features,
+        BicepSourceFileKind sourceFileKind,
+        string? providerVersion = null
+    );
 
     IEnumerable<string> AvailableNamespaces { get; }
 }

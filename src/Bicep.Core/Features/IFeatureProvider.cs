@@ -16,11 +16,13 @@ namespace Bicep.Core.Features
         bool ResourceTypedParamsAndOutputsEnabled { get; }
 
         bool SourceMappingEnabled { get; }
-        
+
         bool UserDefinedTypesEnabled { get; }
 
         bool UserDefinedFunctionsEnabled { get; }
 
+        bool DynamicTypeLoading { get; }
+        
         bool PrettyPrintingEnabled { get; }
 
         bool TestFrameworkEnabled { get; }

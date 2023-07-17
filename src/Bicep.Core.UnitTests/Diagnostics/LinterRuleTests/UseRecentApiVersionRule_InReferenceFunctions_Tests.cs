@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Navigation;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
@@ -29,16 +31,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 // Test with the linter using the fake resource types from FakeResourceTypes (to guard against failures due to Azure changes)
                 // Note: The compiler does not know about these fake types, only the linter.
-                apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.AzResourceTypeLoader);
-                apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
+                apiVersionProvider = new ApiVersionProvider(
+                    BicepTestConstants.Features,
+                    Enumerable.Empty<ResourceTypeReference>());
+                apiVersionProvider.InjectTypeReferences(
+                    ResourceScope.ResourceGroup,
+                    FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             }
 
             private static void TestGetFunctionCallInfo(string bicep, string expectedFunctionCall, string? expectedResourceType, string? expectedApiVerion)
             {
                 ExpectedFunctionInfo typedExpected = new(expectedFunctionCall, expectedResourceType, expectedApiVerion);
-
+                var mockTypeLoader = FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(FakeResourceTypes.ResourceScopeTypes).Object;
                 var result = CompilationHelper.Compile(
-                    new ServiceBuilder().WithApiVersionProvider(apiVersionProvider),
+                    new ServiceBuilder().WithAzResourceTypeLoader(mockTypeLoader),
                     bicep);
                 using (new AssertionScope().WithFullSource(result.BicepFile))
                 {
@@ -644,9 +650,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ";
                 CompileAndTestWithFakeDateAndTypes(bicep,
                     ResourceScope.ResourceGroup,
-                    FakeResourceTypes.ResourceScopeTypes,
+                    Array.Empty<string>(),
                     "2422-07-04",
-                    new string[] { });
+                    Array.Empty<string>());
             }
 
             [TestMethod]

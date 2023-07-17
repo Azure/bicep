@@ -37,4 +37,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;
     
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
+    
+    public bool DynamicTypeLoading => overrides.DynamicTypeLoading ?? features.DynamicTypeLoading;
 }

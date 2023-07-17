@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <RunSettings>
   <RunConfiguration>
-    <!-- Break builds when no tests are discovered. -->
+    <!-- Add a total session timeout of 30min -->
+    <TestSessionTimeout>1800000 </TestSessionTimeout>
     <TreatNoTestsAsError>false</TreatNoTestsAsError>
   </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <!-- "Code Coverage" settings documented in https://learn.microsoft.com/en-us/visualstudio/test/customizing-code-coverage-analysis?view=vs-2022 -->
+      <!-- "Code Coverage" settings documented in
+      https://learn.microsoft.com/en-us/visualstudio/test/customizing-code-coverage-analysis?view=vs-2022 -->
       <DataCollector friendlyName="Code Coverage">
         <Configuration>
           <Format>cobertura</Format>

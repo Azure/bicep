@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
 using System.Linq;
+using Bicep.Core.TypeSystem.Az;
+using Moq;
+using Bicep.Core.TypeSystem;
 
-namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
+namespace Bicep.Core.UnitTests.Mock
 {
     internal static class FakeResourceTypes
     {
@@ -6333,5 +6336,23 @@ Fake.Support/supportTickets@2420-04-01
 Fake.Support/supportTickets/communications@2419-05-01-preview
 Fake.Support/supportTickets/communications@2420-04-01
 Fake.Web/publishingCredentials@2415-08-01";
+
+        public static Mock<IAzResourceTypeLoader> GetAzResourceTypeLoaderWithInjectedTypes(string[] resourceTypes)
+        {
+            var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes);
+            var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
+            typesLoader.Setup(m => m.LoadType(It.IsAny<ResourceTypeReference>()))
+                .Returns<ResourceTypeReference>((tr) => new ResourceTypeComponents(
+                    tr,
+                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                    ResourceScope.None,
+                    ResourceFlags.None,
+                    new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any)));
+
+            typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
+            return typesLoader;
+        }
+
+
     }
 }

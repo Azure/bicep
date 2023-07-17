@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
@@ -16,41 +17,45 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class OutputsTests
     {
-        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
+        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder()
+            .WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
 
         [TestMethod]
         public void Output_can_have_inferred_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
-resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'test'
-  location: 'eastus'
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties:{
-    accessTier: 'Cool'
-  }
-}
-output out resource = resource
-");
+                resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+                  name: 'test'
+                  location: 'eastus'
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  identity: {
+                    type: 'SystemAssigned'
+                  }
+                  properties:{
+                    accessTier: 'Cool'
+                  }
+                }
+                output out resource = resource
+            ");
+
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var model = result.Compilation.GetEntrypointSemanticModel();
             var @out = model.Root.OutputDeclarations.Should().ContainSingle().Subject;
             var typeInfo = model.GetTypeInfo(@out.DeclaringSyntax);
-            typeInfo.Should().BeOfType<ResourceType>().Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
+
+            typeInfo.Should().BeOfType<ResourceType>()
+                .Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
 
             result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
             {
@@ -67,28 +72,31 @@ output out resource = resource
         public void Output_can_have_specified_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
-resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'test'
-  location: 'eastus'
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties:{
-    accessTier: 'Cool'
-  }
-}
-output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
-");
+                resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+                  name: 'test'
+                  location: 'eastus'
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  identity: {
+                    type: 'SystemAssigned'
+                  }
+                  properties:{
+                    accessTier: 'Cool'
+                  }
+                }
+                output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
+            ");
+
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var model = result.Compilation.GetEntrypointSemanticModel();
             var @out = model.Root.OutputDeclarations.Should().ContainSingle().Subject;
             var typeInfo = model.GetTypeInfo(@out.DeclaringSyntax);
-            typeInfo.Should().BeOfType<ResourceType>().Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
+
+            typeInfo.Should().BeOfType<ResourceType>()
+                .Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
 
             result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
             {
@@ -109,22 +117,23 @@ output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
         {
             var services = enableResourceTypeParameters ? ServicesWithResourceTyped : new ServiceBuilder();
             var result = CompilationHelper.Compile(services, @"
-resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'test'
-  location: 'eastus'
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties:{
-    accessTier: 'Cool'
-  }
-}
-output out object = resource
-");
+                resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+                  name: 'test'
+                  location: 'eastus'
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  identity: {
+                    type: 'SystemAssigned'
+                  }
+                  properties:{
+                    accessTier: 'Cool'
+                  }
+                }
+                output out object = resource
+            ");
+
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
@@ -138,24 +147,25 @@ output out object = resource
         public void Output_can_have_decorators()
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
-resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'test'
-  location: 'eastus'
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties:{
-    accessTier: 'Cool'
-  }
-}
+                resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+                  name: 'test'
+                  location: 'eastus'
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  identity: {
+                    type: 'SystemAssigned'
+                  }
+                  properties:{
+                    accessTier: 'Cool'
+                  }
+                }
 
-@description('cool beans')
-output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
-");
+                @description('cool beans')
+                output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
+            ");
+
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
@@ -174,12 +184,13 @@ output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
         public void Output_can_have_warnings_for_missing_type()
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
-resource resource 'Some.Fake/Type@2019-06-01' = {
-  name: 'test'
-}
-output out resource 'Some.Fake/Type@2019-06-01' = resource
-");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+                resource resource 'Some.Fake/Type@2019-06-01' = {
+                  name: 'test'
+                }
+                output out resource 'Some.Fake/Type@2019-06-01' = resource
+            ");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 // There are two warnings because there are two places in code to correct the missing type.
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
@@ -193,12 +204,13 @@ output out resource 'Some.Fake/Type@2019-06-01' = resource
             // As a special case we don't show a warning on the output when the type is inferred
             // the user only has one location in code to correct.
             var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
-resource resource 'Some.Fake/Type@2019-06-01' = {
-  name: 'test'
-}
-output out resource = resource
-");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+                resource resource 'Some.Fake/Type@2019-06-01' = {
+                  name: 'test'
+                }
+                output out resource = resource
+            ");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
             });
@@ -208,16 +220,18 @@ output out resource = resource
         public void Output_cannot_use_extensibility_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility, @"
-import 'storage@1.0.0' with {
-  connectionString: 'asdf'
-} as stg
+                import 'storage@1.0.0' with {
+                  connectionString: 'asdf'
+                } as stg
 
-resource container 'stg:container' = {
-  name: 'myblob'
-}
-output out resource = container
-");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+                resource container 'stg:container' = {
+                  name: 'myblob'
+                }
+
+                output out resource = container
+            ");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
             });
