@@ -117,18 +117,16 @@ export class PasteAsBicepCommand implements Command {
         );
       }
 
-      if (!result.pasteType) {
-        throw new Error(
-          `The clipboard text does not appear to be valid JSON or is not in a format that can be pasted as Bicep.`
-        );
-      }
-
       if (result.errorMessage) {
         context.errorHandling.issueProperties.clipboardText = clipboardText;
         throw new Error(
           `Could not paste clipboard text as Bicep: ${result.errorMessage}`
         );
       }
+
+      // Note that unlike the copy/paste case, we *do* want to paste the Bicep even if the original
+      //   clipboard text was already valid Bicep (pasteType == "bicep"), because the user is explicitly asking
+      //   to paste as Bicep
 
       finalPastedBicep = result.bicep;
       await editor.edit((builder) => {
