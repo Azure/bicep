@@ -392,7 +392,6 @@ public record DeclaredParameterExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     TypeExpression Type,
-    ParameterSymbol Symbol,
     Expression? DefaultValue,
     Expression? Description = null,
     Expression? Metadata = null,
@@ -428,7 +427,6 @@ public record DeclaredOutputExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     TypeExpression Type,
-    OutputSymbol Symbol,
     Expression Value,
     Expression? Description = null,
     Expression? Metadata = null,
@@ -581,36 +579,39 @@ public abstract record TypeExpression(
 
 public record AmbientTypeReferenceExpression(
     SyntaxBase? SourceSyntax,
-    AmbientTypeSymbol Symbol
-) : TypeExpression(SourceSyntax, Symbol.Type)
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitAmbientTypeReferenceExpression(this);
 
-    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record FullyQualifiedAmbientTypeReferenceExpression(
     SyntaxBase? SourceSyntax,
-    BuiltInNamespaceSymbol Namespace,
-    TypeTypeProperty NamespaceProperty
-) : TypeExpression(SourceSyntax, NamespaceProperty.TypeReference.Unwrapped)
+    string ProviderName,
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitFullyQualifiedAmbientTypeReferenceExpression(this);
 
-    protected override object? GetDebugAttributes() => new { Name = $"{Namespace}.{NamespaceProperty.Name}" };
+    protected override object? GetDebugAttributes() => new { Name = $"{ProviderName}.{Name}" };
 }
 
 public record TypeAliasReferenceExpression(
     SyntaxBase? SourceSyntax,
-    TypeAliasSymbol Symbol
-) : TypeExpression(SourceSyntax, Symbol.Type)
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitTypeAliasReferenceExpression(this);
 
-    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+    protected override object? GetDebugAttributes() => new { Name };
 }
 
 public record StringLiteralTypeExpression(

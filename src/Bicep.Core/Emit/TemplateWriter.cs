@@ -337,12 +337,12 @@ namespace Bicep.Core.Emit
         {
             // references
             AmbientTypeReferenceExpression ambientTypeReference
-                => ExpressionFactory.CreateObject(TypeProperty(ambientTypeReference.Symbol.Name, ambientTypeReference.SourceSyntax).AsEnumerable(),
+                => ExpressionFactory.CreateObject(TypeProperty(ambientTypeReference.Name, ambientTypeReference.SourceSyntax).AsEnumerable(),
                     ambientTypeReference.SourceSyntax),
             FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
             TypeAliasReferenceExpression typeAliasReference=> ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref",
-                ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Symbol.Name}")).AsEnumerable(),
+                ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Name}")).AsEnumerable(),
                     typeAliasReference.SourceSyntax),
 
             // literals
@@ -390,12 +390,12 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression TypePropertiesForQualifiedReference(FullyQualifiedAmbientTypeReferenceExpression qualifiedAmbientType)
         {
-            if (qualifiedAmbientType.Namespace.Type.ProviderName != SystemNamespaceType.BuiltInName)
+            if (qualifiedAmbientType.ProviderName != SystemNamespaceType.BuiltInName)
             {
                 throw new ArgumentException("Property access base expression did not resolve to the 'sys' namespace.");
             }
 
-            return ExpressionFactory.CreateObject(TypeProperty(qualifiedAmbientType.NamespaceProperty.Name, qualifiedAmbientType.SourceSyntax).AsEnumerable(),
+            return ExpressionFactory.CreateObject(TypeProperty(qualifiedAmbientType.Name, qualifiedAmbientType.SourceSyntax).AsEnumerable(),
                 qualifiedAmbientType.SourceSyntax);
         }
 
@@ -976,7 +976,7 @@ namespace Bicep.Core.Emit
                 {
                     emitter.EmitCopyProperty(() => emitter.EmitCopyObject(name: null, @for.Expression, @for.Body));
                 }
-                else if (output.Symbol.Type is ResourceType)
+                else if (output.Type.ExpressedType is ResourceType)
                 {
                     // Resource-typed outputs are serialized using the resource id.
                     var value = new PropertyAccessExpression(output.SourceSyntax, output.Value, "id", AccessExpressionFlags.None);

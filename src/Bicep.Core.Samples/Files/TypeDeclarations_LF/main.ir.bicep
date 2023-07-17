@@ -133,7 +133,7 @@ param inlineObjectParam {
 //@[23:0026) | | |   └─IntegerLiteralTypeExpression { Name = 500 }
   baz: sys.bool
 //@[02:0015) | | └─ObjectTypePropertyExpression
-//@[07:0015) | |   └─FullyQualifiedAmbientTypeReferenceExpression { Name = Bicep.Core.Semantics.BuiltInNamespaceSymbol.bool }
+//@[07:0015) | |   └─FullyQualifiedAmbientTypeReferenceExpression { Name = sys.bool }
 } = {
 //@[04:0044) | └─ObjectExpression
   foo: 'foo'

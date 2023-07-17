@@ -178,7 +178,6 @@ public class ExpressionBuilder
                     parameter,
                     parameter.Name.IdentifierName,
                     ConvertTypeWithoutLowering(parameter.Type),
-                    GetDeclaredSymbol<ParameterSymbol>(parameter),
                     parameter.Modifier is ParameterDefaultValueSyntax defaultValue ? ConvertWithoutLowering(defaultValue.DefaultValue) : null));
 
             case VariableDeclarationSyntax variable:
@@ -198,7 +197,6 @@ public class ExpressionBuilder
                     output,
                     output.Name.IdentifierName,
                     ConvertTypeWithoutLowering(output.Type),
-                    GetDeclaredSymbol<OutputSymbol>(output),
                     ConvertWithoutLowering(output.Value)));
 
             case AssertDeclarationSyntax assert:
@@ -244,9 +242,9 @@ public class ExpressionBuilder
         switch (Context.SemanticModel.Binder.GetSymbolInfo(syntax))
         {
             case AmbientTypeSymbol ambientType:
-                return new AmbientTypeReferenceExpression(syntax, ambientType);
+                return new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type);
             case TypeAliasSymbol typeAlias:
-                return new TypeAliasReferenceExpression(syntax, typeAlias);
+                return new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type);
             case Symbol otherwise:
                 throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression.");
         }
@@ -290,7 +288,7 @@ public class ExpressionBuilder
             PropertyAccessSyntax propertyAccess when Context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is BuiltInNamespaceSymbol namespaceSymbol &&
                 namespaceSymbol.TryGetNamespaceType() is NamespaceType namespaceType &&
                 namespaceType.TryGetTypeProperty(propertyAccess.PropertyName.IdentifierName) is {} property
-                => new FullyQualifiedAmbientTypeReferenceExpression(propertyAccess, namespaceSymbol, property),
+                => new FullyQualifiedAmbientTypeReferenceExpression(propertyAccess, namespaceSymbol.Type.ProviderName, property.Name, property.TypeReference.Type),
             _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
         };
     }
