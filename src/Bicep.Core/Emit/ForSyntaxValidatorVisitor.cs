@@ -116,7 +116,7 @@ namespace Bicep.Core.Emit
             this.currentDependsOnProperty = TryGetDependsOnProperty(resourceBodySyntax);
 
             var previousPropertiesProperty = this.currentPropertiesProperty;
-            this.currentPropertiesProperty = TryGetPropertiesProperty(resourceBodySyntax, false);
+            this.currentPropertiesProperty = TryGetResourcePropertiesProperty(resourceBodySyntax);
 
             base.VisitResourceDeclarationSyntax(syntax);
 
@@ -133,7 +133,7 @@ namespace Bicep.Core.Emit
             // stash the body (handles loops and conditions as well)
             var moduleBodySyntax = syntax.TryGetBody();
             this.currentDependsOnProperty = TryGetDependsOnProperty(moduleBodySyntax);
-            this.currentPropertiesProperty = TryGetPropertiesProperty(moduleBodySyntax, true);
+            this.currentPropertiesProperty = TryGetModuleParamsProperty(moduleBodySyntax);
 
             base.VisitModuleDeclarationSyntax(syntax);
 
@@ -351,10 +351,10 @@ namespace Bicep.Core.Emit
             this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).DirectAccessToCollectionNotSupported(accessChain));
 
         private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
-        private static ObjectPropertySyntax? TryGetPropertiesProperty(ObjectSyntax? body, bool isModule) =>
-            isModule
-                ? body?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)
-                : body?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName);
+
+        private static ObjectPropertySyntax? TryGetResourcePropertiesProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ResourcePropertiesPropertyName);
+
+        private static ObjectPropertySyntax? TryGetModuleParamsProperty(ObjectSyntax? body) => body?.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
 
         private bool? IsLoopAllowedHere(ForSyntax syntax)
         {
