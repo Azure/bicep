@@ -187,7 +187,7 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
-//@[58:63) [BCP355 (Error)] Discriminated object unions with additional properties declarations is currently not supported. (CodeDescription: none) |typeE|
+//@[58:63) [BCP355 (Error)] Tagged unions with additional properties declarations is currently not supported. (CodeDescription: none) |typeE|
 
 @discriminator('type')
 type discriminatorSelfCycle = typeA | discriminatorSelfCycle

@@ -1988,7 +1988,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic DiscriminatedUnionMemberAdditionalPropertiesUnsupported() => new(
                 TextSpan,
                 "BCP355",
-                "Discriminated object unions with additional properties declarations is currently not supported.");
+                "Tagged unions with additional properties declarations is currently not supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

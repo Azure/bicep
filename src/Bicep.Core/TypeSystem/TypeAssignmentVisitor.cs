@@ -535,11 +535,6 @@ namespace Bicep.Core.TypeSystem
             {
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
 
-                if (declaredType is not ErrorType)
-                {
-                    diagnostics.WriteMultiple(declaredType.GetDiagnostics());
-                }
-
                 base.VisitUnionTypeSyntax(syntax);
 
                 if (declaredType is DiscriminatedObjectType or ErrorType)

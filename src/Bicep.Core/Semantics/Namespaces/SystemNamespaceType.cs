@@ -1573,7 +1573,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
-                    .WithDescription("Defines the discriminator property to use for a union of object types that is shared between all union members")
+                    .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
                     .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
                     .WithFlags(FunctionFlags.TypeDecorator)
                     .WithValidator(ValidateTypeDiscriminator)
@@ -1583,7 +1583,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {
-            if (targetType is not DiscriminatedObjectType)
+            if (targetType is not DiscriminatedObjectType && targetType is not ErrorType)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
             }

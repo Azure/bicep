@@ -765,7 +765,7 @@ namespace Bicep.Core.TypeSystem
             if (TryResolveUnionImmediateDecorableSyntax(syntax) is { } decorableSyntax
                 && TryGetSystemDecorator(decorableSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
             {
-                return FinalizeDiscriminatedObjectType(unionMembers.ToArray(), discriminatorDecorator);
+                return FinalizeDiscriminatedObjectType(unionMembers, discriminatorDecorator);
             }
 
             return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
@@ -781,7 +781,8 @@ namespace Bicep.Core.TypeSystem
             };
 
         private TypeSymbol FinalizeDiscriminatedObjectType(
-            (UnionTypeMemberSyntax syntax, ITypeReference type)[] unionMembers, DecoratorSyntax discriminatorDecorator)
+            IEnumerable<(UnionTypeMemberSyntax syntax, ITypeReference type)> unionMembers,
+            DecoratorSyntax discriminatorDecorator)
         {
             var discriminatorPropertyExpr = discriminatorDecorator.Arguments.FirstOrDefault()?.Expression as StringSyntax;
             var discriminatorPropertyName = discriminatorPropertyExpr?.TryGetLiteralValue();
@@ -791,18 +792,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty(); // the decorator validator handles this case
             }
 
-            List<ErrorDiagnostic>? errorDiagnostics = null;
-
-            void AddErrorDiagnostic(ErrorDiagnostic errorDiagnostic)
-            {
-                if (errorDiagnostics == null)
-                {
-                    errorDiagnostics = new List<ErrorDiagnostic>();
-                }
-
-                errorDiagnostics.Add(errorDiagnostic);
-            }
-
+            var errorDiagnostics = new List<ErrorDiagnostic>();
             var memberDiscriminatorValues = new HashSet<string>();
             var expandedMemberTypes = new List<ObjectType>();
 
@@ -815,17 +805,19 @@ namespace Bicep.Core.TypeSystem
                     // validate the member has the discriminator property defined
                     if (!objectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
                     {
-                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
-                            .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
+                        errorDiagnostics.Add(
+                            DiagnosticBuilder.ForPosition(memberSyntax)
+                                .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
 
                         continue;
                     }
 
                     // validate the discriminator property is of the right type
-                    if (discriminatorTypeProperty.TypeReference.Type.TypeKind != TypeKind.StringLiteral
+                    if (discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorMemberLiteral
                         || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
                     {
-                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                        errorDiagnostics.Add(
+                            DiagnosticBuilder.ForPosition(memberSyntax)
                             .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
 
                         continue;
@@ -834,7 +826,7 @@ namespace Bicep.Core.TypeSystem
                     // validate "additional properties" is not used
                     if (objectType.HasAdditionalPropertiesType)
                     {
-                        AddErrorDiagnostic(
+                        errorDiagnostics.Add(
                             DiagnosticBuilder.ForPosition(memberSyntax)
                                 .DiscriminatedUnionMemberAdditionalPropertiesUnsupported());
 
@@ -842,12 +834,12 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // validate the discriminator property value does not overlap with other members
-                    var discriminatorMemberLiteral = discriminatorTypeProperty.TypeReference.Type as StringLiteralType;
-                    var discriminatorMemberValue = discriminatorMemberLiteral!.RawStringValue;
+                    var discriminatorMemberValue = discriminatorMemberLiteral.RawStringValue;
 
                     if (memberDiscriminatorValues.Contains(discriminatorMemberValue))
                     {
-                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                        errorDiagnostics.Add(
+                            DiagnosticBuilder.ForPosition(memberSyntax)
                             .DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, discriminatorMemberValue));
 
                         continue;
@@ -861,7 +853,9 @@ namespace Bicep.Core.TypeSystem
                     // validate it has the same discriminator property
                     if (memberDiscriminatedObjectType.DiscriminatorProperty.Name != discriminatorPropertyName)
                     {
-                        AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
+                        errorDiagnostics.Add(
+                            DiagnosticBuilder.ForPosition(memberSyntax)
+                                .DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
 
                         continue;
                     }
@@ -871,7 +865,8 @@ namespace Bicep.Core.TypeSystem
                     {
                         if (memberDiscriminatorValues.Contains(nestedDiscriminatorValue))
                         {
-                            AddErrorDiagnostic(DiagnosticBuilder.ForPosition(memberSyntax)
+                            errorDiagnostics.Add(
+                                DiagnosticBuilder.ForPosition(memberSyntax)
                                 .DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, nestedDiscriminatorValue));
                         }
 
@@ -888,13 +883,13 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            if (errorDiagnostics?.Any() ?? false)
+            if (errorDiagnostics.Any())
             {
                 return ErrorType.Create(errorDiagnostics);
             }
 
             return new DiscriminatedObjectType(
-                TypeHelper.GetNormalizedTypeListUnionName(expandedMemberTypes),
+                string.Join(" | ", TypeHelper.GetOrderedTypeNames(expandedMemberTypes)),
                 TypeSymbolValidationFlags.Default,
                 discriminatorPropertyName,
                 expandedMemberTypes);
