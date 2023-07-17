@@ -4,7 +4,7 @@
   "devDependencies": {
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^29.5.2",
-    "@types/node": "^20.3.1",
+    "@types/node": "^20.4.2",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.44.0",
