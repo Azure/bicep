@@ -95,8 +95,7 @@ namespace Bicep.Cli.Services
 
             foreach(var declaration in declarations)
             {
-                declaration.TryGetSemanticModel(out var declarationSemanticModel, out var declarationDiagnostics);
-                var parameters = declaration.DeclaringTest.TryGetParameters();
+                // Evaluate the test declaration
             }
 
             LogDiagnostics(compilation);
