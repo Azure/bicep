@@ -70,12 +70,13 @@ namespace Bicep.Core.Syntax
 
         public ObjectSyntax GetParameters(){
             var body = this.GetBody();
-            foreach(var property in body.Properties){
-                if(property.TryGetKeyText() == "params"){
-                    return this.TryGetParameters(property) ??  throw new InvalidOperationException($"A valid parameters body is not available on this test due to errors. Use {nameof(TryGetParameters)}() instead."); ;
+            foreach (var property in body.Properties) {
+                if (property.TryGetKeyText() == "params" && property.Value is ObjectSyntax paramsObject) 
+                {
+                    return paramsObject;
                 }
             }
-            return body;
+            return null;
         }
 
 
