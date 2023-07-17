@@ -49,7 +49,9 @@ namespace Bicep.Core.Emit
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
             BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
+            BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
+            BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -533,6 +535,17 @@ namespace Bicep.Core.Emit
             }
         }
 
+        private static void BlockTestFrameworkWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var test in model.Root.TestDeclarations)
+            {
+                if (!model.Features.TestFrameworkEnabled)
+                {
+                    diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
+                }
+            }
+        }
+
         private static void BlockUserDefinedTypesWithUserDefinedFunctions(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             foreach (var function in model.Root.FunctionDeclarations)
@@ -555,6 +568,17 @@ namespace Bicep.Core.Emit
                 if (outputTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
                 {
                     diagnostics.Write(lambda.ReturnType, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                }
+            }
+        }
+
+        private static void BlockAssertsWithoutExperimentalFeatures(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var assert in model.Root.AssertDeclarations)
+            {
+                if (!model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(assert.DeclaringAssert, x => x.AssertsUnsupported());
                 }
             }
         }

@@ -77,6 +77,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutModuleDeclarationSyntax);
 
+        public void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutTestDeclarationSyntax);
+
         public void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax) => this.Apply(syntax, this.LayoutNonNullAssertionSyntax);
 
         public void VisitNullableTypeSyntax(NullableTypeSyntax syntax) => this.Apply(syntax, this.LayoutNullableTypeSyntax);
@@ -152,6 +154,8 @@ namespace Bicep.Core.PrettyPrintV2
         public void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax) => this.Apply(syntax, this.LayoutTypedLambdaSyntax);
 
         public void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutFunctionDeclarationSyntax);
+
+        public void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutAssertDeclarationSyntax);
 
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {

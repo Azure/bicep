@@ -214,6 +214,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum number of &apos;assert&apos; statements used..
+        /// </summary>
+        internal static string MaxNumberAssertsRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberAssertsRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many predeployment conditions. Number of &apos;assert&apos; statements is limited to {0}..
+        /// </summary>
+        internal static string MaxNumberAssertsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberAssertsRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maximum number of outputs used..
         /// </summary>
         internal static string MaxNumberOutputsRuleDescription {

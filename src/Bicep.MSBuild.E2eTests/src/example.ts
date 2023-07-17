@@ -11,12 +11,12 @@ export class Example {
 
   constructor(projectName: string, projectFile?: string) {
     const projectDir = path.normalize(
-      path.join(__dirname, `../examples/${projectName}/`)
+      path.join(__dirname, `../examples/${projectName}/`),
     );
     this.projectDir = projectDir;
     this.projectFile = path.join(
       projectDir,
-      projectFile ?? `${projectName}.proj`
+      projectFile ?? `${projectName}.proj`,
     );
   }
 
@@ -42,7 +42,7 @@ export class Example {
 
   public publish(
     targetFramework: string | null,
-    expectSuccess = true
+    expectSuccess = true,
   ): SpawnSyncReturns<string> {
     return this.runMsBuild("publish", targetFramework, expectSuccess);
   }
@@ -76,12 +76,12 @@ export class Example {
   private runMsBuild(
     verb: string,
     targetFramework: string | null,
-    expectSuccess: boolean
+    expectSuccess: boolean,
   ): SpawnSyncReturns<string> {
     const runtimeSuffix = process.env.RuntimeSuffix;
     if (!runtimeSuffix) {
       throw new Error(
-        "Please set the RuntimeSuffix environment variable to a .net runtime ID to run these tests. Possible values: win-x64, linux-x64, osx-x64"
+        "Please set the RuntimeSuffix environment variable to a .net runtime ID to run these tests. Possible values: win-x64, linux-x64, osx-x64",
       );
     }
     const result = spawn.sync(
@@ -98,7 +98,7 @@ export class Example {
         cwd: this.projectDir,
         stdio: "pipe",
         encoding: "utf-8",
-      }
+      },
     );
 
     if (expectSuccess && result.status !== 0) {

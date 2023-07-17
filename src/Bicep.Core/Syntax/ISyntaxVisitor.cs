@@ -28,6 +28,8 @@ namespace Bicep.Core.Syntax
 
         void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
+        void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);
+
         void VisitNullableTypeSyntax(NullableTypeSyntax syntax);
 
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
@@ -98,6 +100,8 @@ namespace Bicep.Core.Syntax
 
         void VisitLocalVariableSyntax(LocalVariableSyntax syntax);
 
+        void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax);
+        
         void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
         void VisitForSyntax(ForSyntax syntax);

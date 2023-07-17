@@ -74,6 +74,9 @@ namespace Bicep.Cli
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
 
+                    case TestArguments testArguments when testArguments.CommandName == Constants.Command.Test: // bicep test [options]
+                        return await services.GetRequiredService<TestCommand>().RunAsync(testArguments);
+
                     case BuildParamsArguments buildParamsArguments when buildParamsArguments.CommandName == Constants.Command.BuildParams: // bicep build-params [options]
                         return await services.GetRequiredService<BuildParamsCommand>().RunAsync(buildParamsArguments);
 
