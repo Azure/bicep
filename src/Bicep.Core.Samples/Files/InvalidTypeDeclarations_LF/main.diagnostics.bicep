@@ -186,6 +186,10 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[46:75) [BCP353 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
 
 @discriminator('type')
+type discriminatorMemberHasAdditionalProperties = typeA | typeE
+//@[58:63) [BCP355 (Error)] Discriminated object unions with additional properties declarations is currently not supported. (CodeDescription: none) |typeE|
+
+@discriminator('type')
 type discriminatorSelfCycle = typeA | discriminatorSelfCycle
 //@[05:27) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle|
 

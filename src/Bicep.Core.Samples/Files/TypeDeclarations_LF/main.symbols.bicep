@@ -134,9 +134,9 @@ type typeD = {
 }
 
 type typeE = {
-//@[5:10) TypeAlias typeE. Type: Type<{ type: 'e', *: string }>. Declaration start char: 0, length: 40
+//@[5:10) TypeAlias typeE. Type: Type<{ type: 'e', value: 'a' | 'b' }>. Declaration start char: 0, length: 47
   type: 'e'
-  *: string
+  value: 'a' | 'b'
 }
 
 @discriminator('type')
@@ -148,12 +148,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@[5:24) TypeAlias discriminatedUnion2. Type: Type<{ type: 'c', value: string } | { type: 'd', value: bool }>. Declaration start char: 0, length: 107
 
 @discriminator('type')
-type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
-//@[5:24) TypeAlias discriminatedUnion3. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: string } | { type: 'd', value: bool } | { type: 'e', *: string }>. Declaration start char: 0, length: 118
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }
+//@[5:24) TypeAlias discriminatedUnion3. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: string } | { type: 'd', value: bool } | { type: 'e', value: string }>. Declaration start char: 0, length: 122
 
 @discriminator('type')
 type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
-//@[5:24) TypeAlias discriminatedUnion4. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: string } | { type: 'd', value: bool } | { type: 'e', *: string }>. Declaration start char: 0, length: 101
+//@[5:24) TypeAlias discriminatedUnion4. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: string } | { type: 'd', value: bool } | { type: 'e', value: 'a' | 'b' }>. Declaration start char: 0, length: 101
 
 type inlineDiscriminatedUnion1 = {
 //@[5:30) TypeAlias inlineDiscriminatedUnion1. Type: Type<{ prop: typeA | typeC }>. Declaration start char: 0, length: 83

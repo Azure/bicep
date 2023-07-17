@@ -187,6 +187,10 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[5:35) TypeAlias discriminatorDuplicatedMember2. Type: error. Declaration start char: 0, length: 98
 
 @discriminator('type')
+type discriminatorMemberHasAdditionalProperties = typeA | typeE
+//@[5:47) TypeAlias discriminatorMemberHasAdditionalProperties. Type: error. Declaration start char: 0, length: 86
+
+@discriminator('type')
 type discriminatorSelfCycle = typeA | discriminatorSelfCycle
 //@[5:27) TypeAlias discriminatorSelfCycle. Type: error. Declaration start char: 0, length: 83
 

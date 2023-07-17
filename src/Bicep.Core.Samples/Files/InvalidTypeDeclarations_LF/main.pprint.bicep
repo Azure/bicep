@@ -141,6 +141,9 @@ type discriminatorDuplicatedMember1 = typeA | typeA
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 
 @discriminator('type')
+type discriminatorMemberHasAdditionalProperties = typeA | typeE
+
+@discriminator('type')
 type discriminatorSelfCycle = typeA | discriminatorSelfCycle
 
 @discriminator('type')

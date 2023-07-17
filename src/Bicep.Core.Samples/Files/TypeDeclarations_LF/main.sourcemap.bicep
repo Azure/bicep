@@ -428,15 +428,19 @@ type typeE = {
 //@          "type": "string",
 //@          "allowedValues": [
 //@          ]
+//@        },
+//@        "value": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@            "a",
+//@            "b"
+//@          ]
 //@        }
-//@      },
-//@      "additionalProperties": {
-//@        "type": "string"
 //@      }
 //@    },
   type: 'e'
 //@            "e"
-  *: string
+  value: 'a' | 'b'
 }
 
 @discriminator('type')
@@ -490,7 +494,7 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@    },
 
 @discriminator('type')
-type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }
 //@    "discriminatedUnion3": {
 //@      "type": "object",
 //@      "discriminator": {
@@ -525,8 +529,10 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: '
 //@            }
 //@          },
 //@          "e": {
-//@            "additionalProperties": {
-//@              "type": "string"
+//@            "properties": {
+//@              "value": {
+//@                "type": "string"
+//@              }
 //@            }
 //@          }
 //@        }
@@ -569,8 +575,14 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
 //@            }
 //@          },
 //@          "e": {
-//@            "additionalProperties": {
-//@              "type": "string"
+//@            "properties": {
+//@              "value": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "a",
+//@                  "b"
+//@                ]
+//@              }
 //@            }
 //@          }
 //@        }

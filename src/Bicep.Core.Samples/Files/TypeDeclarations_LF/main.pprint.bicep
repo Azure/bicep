@@ -112,7 +112,7 @@ type typeD = {
 
 type typeE = {
   type: 'e'
-  *: string
+  value: 'a' | 'b'
 }
 
 @discriminator('type')
@@ -127,7 +127,7 @@ type discriminatedUnion2 = { type: 'c', value: string } | {
 @discriminator('type')
 type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | {
   type: 'e'
-  *: string
+  value: string
 }
 
 @discriminator('type')

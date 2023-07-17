@@ -1,5 +1,5 @@
 type 44
-//@[00:3039) ProgramSyntax
+//@[00:3127) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -1043,6 +1043,36 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[67:0073) |       |     └─Token(Identifier) |object|
 //@[74:0075) |       └─Token(RightBrace) |}|
 //@[75:0077) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[00:0086) ├─TypeDeclarationSyntax
+//@[00:0022) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0022) | | └─FunctionCallSyntax
+//@[01:0014) | |   ├─IdentifierSyntax
+//@[01:0014) | |   | └─Token(Identifier) |discriminator|
+//@[14:0015) | |   ├─Token(LeftParen) |(|
+//@[15:0021) | |   ├─FunctionArgumentSyntax
+//@[15:0021) | |   | └─StringSyntax
+//@[15:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[21:0022) | |   └─Token(RightParen) |)|
+//@[22:0023) | ├─Token(NewLine) |\n|
+type discriminatorMemberHasAdditionalProperties = typeA | typeE
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0047) | ├─IdentifierSyntax
+//@[05:0047) | | └─Token(Identifier) |discriminatorMemberHasAdditionalProperties|
+//@[48:0049) | ├─Token(Assignment) |=|
+//@[50:0063) | └─UnionTypeSyntax
+//@[50:0055) |   ├─UnionTypeMemberSyntax
+//@[50:0055) |   | └─VariableAccessSyntax
+//@[50:0055) |   |   └─IdentifierSyntax
+//@[50:0055) |   |     └─Token(Identifier) |typeA|
+//@[56:0057) |   ├─Token(Pipe) |||
+//@[58:0063) |   └─UnionTypeMemberSyntax
+//@[58:0063) |     └─VariableAccessSyntax
+//@[58:0063) |       └─IdentifierSyntax
+//@[58:0063) |         └─Token(Identifier) |typeE|
+//@[63:0065) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
 //@[00:0083) ├─TypeDeclarationSyntax

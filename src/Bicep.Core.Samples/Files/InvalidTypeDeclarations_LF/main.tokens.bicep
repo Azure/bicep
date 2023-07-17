@@ -631,6 +631,22 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[15:21) StringComplete |'type'|
 //@[21:22) RightParen |)|
 //@[22:23) NewLine |\n|
+type discriminatorMemberHasAdditionalProperties = typeA | typeE
+//@[00:04) Identifier |type|
+//@[05:47) Identifier |discriminatorMemberHasAdditionalProperties|
+//@[48:49) Assignment |=|
+//@[50:55) Identifier |typeA|
+//@[56:57) Pipe |||
+//@[58:63) Identifier |typeE|
+//@[63:65) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
 type discriminatorSelfCycle = typeA | discriminatorSelfCycle
 //@[00:04) Identifier |type|
 //@[05:27) Identifier |discriminatorSelfCycle|

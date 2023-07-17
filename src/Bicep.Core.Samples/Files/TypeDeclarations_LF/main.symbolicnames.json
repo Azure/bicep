@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7964024551029073228"
+      "templateHash": "14562014477887955678"
     }
   },
   "definitions": {
@@ -264,10 +264,14 @@
           "allowedValues": [
             "e"
           ]
+        },
+        "value": {
+          "type": "string",
+          "allowedValues": [
+            "a",
+            "b"
+          ]
         }
-      },
-      "additionalProperties": {
-        "type": "string"
       }
     },
     "discriminatedUnion1": {
@@ -348,8 +352,10 @@
             }
           },
           "e": {
-            "additionalProperties": {
-              "type": "string"
+            "properties": {
+              "value": {
+                "type": "string"
+              }
             }
           }
         }
@@ -389,8 +395,14 @@
             }
           },
           "e": {
-            "additionalProperties": {
-              "type": "string"
+            "properties": {
+              "value": {
+                "type": "string",
+                "allowedValues": [
+                  "a",
+                  "b"
+                ]
+              }
             }
           }
         }

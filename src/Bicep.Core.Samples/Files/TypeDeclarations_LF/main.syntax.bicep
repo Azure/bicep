@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:2835) ProgramSyntax
+//@[00:2846) ProgramSyntax
 //@[00:0299) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -988,12 +988,12 @@ type typeD = {
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
 type typeE = {
-//@[00:0040) ├─TypeDeclarationSyntax
+//@[00:0047) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0010) | ├─IdentifierSyntax
 //@[05:0010) | | └─Token(Identifier) |typeE|
 //@[11:0012) | ├─Token(Assignment) |=|
-//@[13:0040) | └─ObjectTypeSyntax
+//@[13:0047) | └─ObjectTypeSyntax
 //@[13:0014) |   ├─Token(LeftBrace) |{|
 //@[14:0015) |   ├─Token(NewLine) |\n|
   type: 'e'
@@ -1004,14 +1004,20 @@ type typeE = {
 //@[08:0011) |   | └─StringSyntax
 //@[08:0011) |   |   └─Token(StringComplete) |'e'|
 //@[11:0012) |   ├─Token(NewLine) |\n|
-  *: string
-//@[02:0011) |   ├─ObjectTypeAdditionalPropertiesSyntax
-//@[02:0003) |   | ├─Token(Asterisk) |*|
-//@[03:0004) |   | ├─Token(Colon) |:|
-//@[05:0011) |   | └─VariableAccessSyntax
-//@[05:0011) |   |   └─IdentifierSyntax
-//@[05:0011) |   |     └─Token(Identifier) |string|
-//@[11:0012) |   ├─Token(NewLine) |\n|
+  value: 'a' | 'b'
+//@[02:0018) |   ├─ObjectTypePropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |value|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0018) |   | └─UnionTypeSyntax
+//@[09:0012) |   |   ├─UnionTypeMemberSyntax
+//@[09:0012) |   |   | └─StringSyntax
+//@[09:0012) |   |   |   └─Token(StringComplete) |'a'|
+//@[13:0014) |   |   ├─Token(Pipe) |||
+//@[15:0018) |   |   └─UnionTypeMemberSyntax
+//@[15:0018) |   |     └─StringSyntax
+//@[15:0018) |   |       └─Token(StringComplete) |'b'|
+//@[18:0019) |   ├─Token(NewLine) |\n|
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
@@ -1105,7 +1111,7 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@[84:0086) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
-//@[00:0118) ├─TypeDeclarationSyntax
+//@[00:0122) ├─TypeDeclarationSyntax
 //@[00:0022) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
 //@[01:0022) | | └─FunctionCallSyntax
@@ -1117,12 +1123,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@[15:0021) | |   |   └─Token(StringComplete) |'type'|
 //@[21:0022) | |   └─Token(RightParen) |)|
 //@[22:0023) | ├─Token(NewLine) |\n|
-type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', *: string }
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0024) | ├─IdentifierSyntax
 //@[05:0024) | | └─Token(Identifier) |discriminatedUnion3|
 //@[25:0026) | ├─Token(Assignment) |=|
-//@[27:0095) | └─UnionTypeSyntax
+//@[27:0099) | └─UnionTypeSyntax
 //@[27:0046) |   ├─UnionTypeMemberSyntax
 //@[27:0046) |   | └─VariableAccessSyntax
 //@[27:0046) |   |   └─IdentifierSyntax
@@ -1133,8 +1139,8 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: '
 //@[49:0068) |   |   └─IdentifierSyntax
 //@[49:0068) |   |     └─Token(Identifier) |discriminatedUnion2|
 //@[69:0070) |   ├─Token(Pipe) |||
-//@[71:0095) |   └─UnionTypeMemberSyntax
-//@[71:0095) |     └─ObjectTypeSyntax
+//@[71:0099) |   └─UnionTypeMemberSyntax
+//@[71:0099) |     └─ObjectTypeSyntax
 //@[71:0072) |       ├─Token(LeftBrace) |{|
 //@[73:0082) |       ├─ObjectTypePropertySyntax
 //@[73:0077) |       | ├─IdentifierSyntax
@@ -1143,14 +1149,15 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: '
 //@[79:0082) |       | └─StringSyntax
 //@[79:0082) |       |   └─Token(StringComplete) |'e'|
 //@[82:0083) |       ├─Token(Comma) |,|
-//@[84:0093) |       ├─ObjectTypeAdditionalPropertiesSyntax
-//@[84:0085) |       | ├─Token(Asterisk) |*|
-//@[85:0086) |       | ├─Token(Colon) |:|
-//@[87:0093) |       | └─VariableAccessSyntax
-//@[87:0093) |       |   └─IdentifierSyntax
-//@[87:0093) |       |     └─Token(Identifier) |string|
-//@[94:0095) |       └─Token(RightBrace) |}|
-//@[95:0097) ├─Token(NewLine) |\n\n|
+//@[84:0097) |       ├─ObjectTypePropertySyntax
+//@[84:0089) |       | ├─IdentifierSyntax
+//@[84:0089) |       | | └─Token(Identifier) |value|
+//@[89:0090) |       | ├─Token(Colon) |:|
+//@[91:0097) |       | └─VariableAccessSyntax
+//@[91:0097) |       |   └─IdentifierSyntax
+//@[91:0097) |       |     └─Token(Identifier) |string|
+//@[98:0099) |       └─Token(RightBrace) |}|
+//@[99:0101) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
 //@[00:0101) ├─TypeDeclarationSyntax
