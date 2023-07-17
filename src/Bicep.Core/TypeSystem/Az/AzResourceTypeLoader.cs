@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Azure.Bicep.Types;
+using Azure.Bicep.Types.Az;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -16,6 +17,10 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
+
+        private static TypeLoader defaultAzTypeLoader = new AzTypeLoader();
+
+        public AzResourceTypeLoader() : this(AzResourceTypeLoader.defaultAzTypeLoader) { }
 
         public AzResourceTypeLoader(TypeLoader typeLoader)
         {
@@ -37,6 +42,9 @@ namespace Bicep.Core.TypeSystem.Az
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableTypes.Keys;
 
+        public bool HasType(ResourceTypeReference reference)
+            => availableTypes.ContainsKey(reference);
+        
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {
             var typeLocation = availableTypes[reference];

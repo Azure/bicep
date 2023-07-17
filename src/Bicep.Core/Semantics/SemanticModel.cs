@@ -13,9 +13,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -56,7 +54,7 @@ namespace Bicep.Core.Semantics
             var symbolContext = new SymbolContext(compilation, this);
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
-            this.ApiVersionProvider = new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes());
+            this.LazyApiVersionProvider = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
             this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
 
             // name binding is done, allow type queries now
@@ -140,7 +138,9 @@ namespace Bicep.Core.Semantics
 
         public IFeatureProvider Features { get; }
 
-        public IApiVersionProvider ApiVersionProvider { get; }
+        private Lazy<IApiVersionProvider> LazyApiVersionProvider;
+        
+        public IApiVersionProvider ApiVersionProvider { get => this.LazyApiVersionProvider.Value; }
 
         public IBinder Binder { get; }
 

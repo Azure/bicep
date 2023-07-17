@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
         private static NamespaceType GetAzNamespaceType()
         {
-            var nsProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory);
+            var nsProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory, BicepTestConstants.BuiltinAzResourceTypeLoader);
 
             return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile, null)!;
         }

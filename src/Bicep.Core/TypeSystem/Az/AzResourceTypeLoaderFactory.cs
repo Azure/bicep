@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Azure.Bicep.Types.Az;
 using System.IO;
 using Bicep.Core.Registry.Oci;
 using Newtonsoft.Json;
@@ -13,16 +12,17 @@ namespace Bicep.Core.TypeSystem.Az
     public class AzResourceTypeLoaderFactory : IAzResourceTypeLoaderFactory
     {
         private const string typesArtifactFilename = "types.tgz";
+        
         private readonly IFeatureProviderFactory featureProviderFactory;
+        
+        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders;
 
-        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders = new()
-        {
-            {"builtin", new AzResourceTypeLoader(new AzTypeLoader())},
-        };
-
-        public AzResourceTypeLoaderFactory(IFeatureProviderFactory featureProviderFactory)
+        public AzResourceTypeLoaderFactory(IFeatureProviderFactory featureProviderFactory, IAzResourceTypeLoader defaultAzResourceTypeLoader)
         {
             this.featureProviderFactory = featureProviderFactory;
+            this.resourceTypeLoaders = new() {
+                {"builtin", defaultAzResourceTypeLoader},
+            };
         }
 
         public IAzResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features)

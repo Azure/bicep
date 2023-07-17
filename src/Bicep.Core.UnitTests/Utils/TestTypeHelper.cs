@@ -8,7 +8,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
@@ -51,7 +50,9 @@ namespace Bicep.Core.UnitTests.Utils
             => new DefaultNamespaceProvider(
                 CreateAzResourceTypeLoaderFactory(
                     CreateAzResourceTypeLoaderWithTypes(
-                        Enumerable.Empty<ResourceTypeComponents>())));
+                        Enumerable.Empty<ResourceTypeComponents>())),
+                         CreateAzResourceTypeLoaderWithTypes(
+                        Enumerable.Empty<ResourceTypeComponents>()));
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, customProperties);

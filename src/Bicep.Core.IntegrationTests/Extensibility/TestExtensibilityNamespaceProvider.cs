@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
         public TestExtensibilityNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
         {
-            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
+            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory, new AzResourceTypeLoader());
         }
 
         public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new[] {

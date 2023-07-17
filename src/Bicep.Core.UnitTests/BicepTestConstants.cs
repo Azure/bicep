@@ -36,9 +36,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
-        public static readonly IAzResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(FeatureProviderFactory);
+        public static readonly IAzResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(FeatureProviderFactory, new AzResourceTypeLoader());
 
-        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoaderFactory);
+        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoaderFactory, new AzResourceTypeLoader());
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 

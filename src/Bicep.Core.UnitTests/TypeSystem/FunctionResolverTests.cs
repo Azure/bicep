@@ -1033,7 +1033,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaceProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory);
+            var namespaceProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory, BicepTestConstants.BuiltinAzResourceTypeLoader);
 
             var namespaces = new[] {
                 namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,

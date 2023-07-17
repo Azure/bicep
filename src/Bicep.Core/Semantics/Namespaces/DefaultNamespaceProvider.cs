@@ -20,27 +20,38 @@ public class DefaultNamespaceProvider : INamespaceProvider
         BicepSourceFileKind sourceFileKind,
         string? version = null);
     private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
+
     private readonly IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory;
 
-    public DefaultNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public DefaultNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory, IAzResourceTypeLoader builtInAzResourceTypeLoader)
     {
+        var builtInAzResourceTypeLoaderVersion = "1.0.0";
+        var builtInAzResourceTypeProvider = new AzResourceTypeProvider(builtInAzResourceTypeLoader, builtInAzResourceTypeLoaderVersion);
+
         this.azResourceTypeLoaderFactory = azResourceTypeLoaderFactory;
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
             [SystemNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => SystemNamespaceType.Create(alias, features, sourceFileKind),
             [AzNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) =>
             {
-                var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(version, features);
-                if (loader is null)
+                AzResourceTypeProvider? provider = builtInAzResourceTypeProvider;
+                if (features.DynamicTypeLoading && version is not null)
                 {
-                    return null;
+                    // TODO(asilverman): Current implementation of dynamic type loading needs to be refactored to handle caching of the provider to optimize 
+                    // performance hit as a result of recreating the provider for each call to TryGetNamespace.
+                    // Tracked by: 
+                    var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(version, features);
+                    if (loader is null)
+                    {
+                        return null;
+                    }
+                    var overriddenProviderVersion = builtInAzResourceTypeLoaderVersion;
+                    if (features.DynamicTypeLoading)
+                    {
+                        overriddenProviderVersion = version ?? overriddenProviderVersion;
+                    }
+                    provider = new AzResourceTypeProvider(loader, overriddenProviderVersion);
                 }
-                var overriddenProviderVersion = "1.0.0"; //builtin version
-                if (features.DynamicTypeLoading)
-                {
-                    overriddenProviderVersion = version ?? overriddenProviderVersion;
-                }
-                var provider = new AzResourceTypeProvider(loader, overriddenProviderVersion);
                 return AzNamespaceType.Create(alias, scope, provider);
             },
             [K8sNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => K8sNamespaceType.Create(alias),
