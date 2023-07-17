@@ -44,13 +44,14 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        public static bool TryGetSemanticModelForForeignTemplateReference(Compilation compilation,
+        public static bool TryGetSemanticModelForForeignTemplateReference(ISourceFileLookup sourceFileLookup,
             IForeignTemplateReference reference,
             DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
+            ISemanticModelLookup semanticModelLookup,
             [NotNullWhen(true)] out ISemanticModel? semanticModel,
             [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
         {
-            if (compilation.SourceFileGrouping.TryGetErrorDiagnostic(reference) is {} errorBuilder)
+            if (sourceFileLookup.TryGetErrorDiagnostic(reference) is {} errorBuilder)
             {
                 semanticModel = null;
                 failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(reference.ReferenceSourceSyntax));
@@ -59,7 +60,7 @@ namespace Bicep.Core.Semantics
 
             // SourceFileGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
             // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var sourceFile = compilation.SourceFileGrouping.TryGetSourceFile(reference) ?? throw new InvalidOperationException($"Failed to find source file for module");
+            var sourceFile = sourceFileLookup.TryGetSourceFile(reference) ?? throw new InvalidOperationException($"Failed to find source file for module");
 
             // when we inevitably add a third language ID,
             // the inclusion list style below will prevent the new language ID from being
@@ -72,7 +73,7 @@ namespace Bicep.Core.Semantics
             }
 
             failureDiagnostic = null;
-            semanticModel = compilation.GetSemanticModel(sourceFile);
+            semanticModel = semanticModelLookup.GetSemanticModel(sourceFile);
             return true;
         }
     }

@@ -22,9 +22,10 @@ namespace Bicep.Core.Semantics
         public override SymbolKind Kind => SymbolKind.Module;
 
         public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
-            => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation,
+            => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
                 DeclaringModule,
                 b => b.ModuleDeclarationMustReferenceBicepModule(),
+                Context.Compilation,
                 out semanticModel,
                 out failureDiagnostic);
 

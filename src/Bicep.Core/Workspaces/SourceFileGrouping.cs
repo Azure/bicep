@@ -31,7 +31,7 @@ namespace Bicep.Core.Workspaces
         Uri EntryFileUri,
         ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
         ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignTemplateReference, UriResolutionResult>> UriResultByModule,
-        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup)
+        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
     {
         public IEnumerable<ModuleSourceResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(

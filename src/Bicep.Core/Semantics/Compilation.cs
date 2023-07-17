@@ -13,7 +13,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public class Compilation
+    public class Compilation : ISemanticModelLookup
     {
         // Stores semantic model for each source file (map exists for all source files, but semantic model created only when indexed)
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;

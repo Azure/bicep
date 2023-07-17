@@ -59,7 +59,7 @@ namespace Bicep.Core.Semantics
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind, Compilation);
+            this.TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
 
             // name binding is done
             // allow type queries now

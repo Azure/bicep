@@ -28,26 +28,26 @@ namespace Bicep.Core.TypeSystem
         private readonly IBinder binder;
         private readonly IFileResolver fileResolver;
         private readonly IDiagnosticLookup parsingErrorLookup;
+        private readonly ISourceFileLookup sourceFileLookup;
+        private readonly ISemanticModelLookup semanticModelLookup;
+        private readonly BicepSourceFileKind fileKind;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
-        private readonly ConcurrentDictionary<CompileTimeImportDeclarationSyntax, ISemanticModel?> importedModels;
-        private readonly BicepSourceFileKind fileKind;
-        private readonly Compilation compilation;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, Workspaces.BicepSourceFileKind fileKind, Compilation compilation)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, ISourceFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup, Workspaces.BicepSourceFileKind fileKind)
         {
             this.typeManager = typeManager;
             this.features = features;
             this.binder = binder;
             this.fileResolver = fileResolver;
             this.parsingErrorLookup = parsingErrorLookup;
+            this.sourceFileLookup = sourceFileLookup;
+            this.semanticModelLookup = semanticModelLookup;
+            this.fileKind = fileKind;
             assignedTypes = new();
             matchedFunctionOverloads = new();
             matchedFunctionResultValues = new();
-            importedModels = new();
-            this.fileKind = fileKind;
-            this.compilation = compilation;
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -908,9 +908,10 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                if (!SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(compilation,
+                if (!SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(sourceFileLookup,
                     syntax,
                     b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                    semanticModelLookup,
                     out var semanticModel,
                     out var failureDiagnostic))
                 {

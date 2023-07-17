@@ -1,12 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -24,32 +21,12 @@ namespace Bicep.Core.Semantics
         public override SymbolKind Kind => SymbolKind.Test;
 
         public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
-        {
-            if (Context.Compilation.SourceFileGrouping.TryGetErrorDiagnostic(this.DeclaringTest) is {} errorBuilder)
-            {
-                semanticModel = null;
-                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(DeclaringTest.Path));
-                return false;
-            }
-
-            // SourceFileGroupingBuilder should have already visited every test declaration and either recorded a failure or mapped it to a syntax tree.
-            // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var sourceFile = Context.Compilation.SourceFileGrouping.TryGetSourceFile(this.DeclaringTest) ?? throw new InvalidOperationException($"Failed to find source file for Test");
-
-            // when we inevitably add a third language ID,
-            // the inclusion list style below will prevent the new language ID from being
-            // automatically allowed to be referenced via module declarations
-            if (sourceFile is not BicepFile)
-            {
-                semanticModel = null;
-                failureDiagnostic = DiagnosticBuilder.ForPosition(DeclaringTest.Path).TestDeclarationMustReferenceBicepTest();
-                return false;
-            }
-
-            failureDiagnostic = null;
-            semanticModel = Context.Compilation.GetSemanticModel(sourceFile);
-            return true;
-        }
+            => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+                DeclaringTest,
+                b => b.ModuleDeclarationMustReferenceBicepModule(),
+                Context.Compilation,
+                out semanticModel,
+                out failureDiagnostic);
 
         public override IEnumerable<Symbol> Descendants
         {
