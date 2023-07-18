@@ -149,22 +149,43 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Value);
+    }
+
+    private void VisitDescribableExpression(DescribableExpression expression)
+    {
+        Visit(expression.Description);
     }
 
     public void VisitDeclaredImportExpression(DeclaredImportExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Config);
     }
 
     public void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
         Visit(expression.Type);
         Visit(expression.DefaultValue);
     }
 
+    private void VisitTypeDeclaringExpression(TypeDeclaringExpression expression)
+    {
+        VisitDescribableExpression(expression);
+        Visit(expression.Metadata);
+        Visit(expression.Secure);
+        Visit(expression.MinLength);
+        Visit(expression.MaxLength);
+        Visit(expression.MinValue);
+        Visit(expression.MaxValue);
+        Visit(expression.Sealed);
+    }
+
     public void VisitDeclaredVariableExpression(DeclaredVariableExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Value);
     }
 
@@ -176,17 +197,20 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitDeclaredResourceExpression(DeclaredResourceExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Body);
         Visit(expression.DependsOn);
     }
 
     public void VisitDeclaredAssertExpression(DeclaredAssertExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Value);
     }
 
     public void VisitDeclaredModuleExpression(DeclaredModuleExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Body);
         Visit(expression.Parameters);
         Visit(expression.DependsOn);
@@ -199,6 +223,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Lambda);
     }
 
@@ -209,6 +234,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitDeclaredTypeExpression(DeclaredTypeExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
         Visit(expression.Value);
     }
 
@@ -246,11 +272,13 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitObjectTypePropertyExpression(ObjectTypePropertyExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
         Visit(expression.Value);
     }
 
     public void VisitObjectTypeAdditionalPropertiesExpression(ObjectTypeAdditionalPropertiesExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
         Visit(expression.Value);
     }
 
@@ -262,6 +290,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitTupleTypeItemExpression(TupleTypeItemExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
         Visit(expression.Value);
     }
 

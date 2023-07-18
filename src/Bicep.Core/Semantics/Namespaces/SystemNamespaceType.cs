@@ -1471,10 +1471,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .WithEvaluator((functionCall, decorated) =>
                 {
-                    if (decorated is DeclaredParameterExpression typeDeclaringExpression &&
+                    if (decorated is DeclaredParameterExpression declaredParameterExpression &&
                         functionCall.Parameters.FirstOrDefault() is {} allowedValues)
                     {
-                        return typeDeclaringExpression with { AllowedValues = allowedValues };
+                        return declaredParameterExpression with { AllowedValues = allowedValues };
                     }
 
                     return decorated;
