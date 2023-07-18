@@ -765,7 +765,7 @@ namespace Bicep.Core.TypeSystem
             if (TryResolveUnionImmediateDecorableSyntax(syntax) is { } decorableSyntax
                 && TryGetSystemDecorator(decorableSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
             {
-                return FinalizeDiscriminatedObjectType(unionMembers, discriminatorDecorator);
+                return FinalizeDiscriminatedObjectType(syntax, unionMembers, discriminatorDecorator);
             }
 
             return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
@@ -775,12 +775,17 @@ namespace Bicep.Core.TypeSystem
             syntaxBase switch
             {
                 DecorableSyntax decorableSyntax => decorableSyntax,
-                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax =>
+                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax or NullableTypeSyntax =>
                     TryResolveUnionImmediateDecorableSyntax(binder.GetParent(syntaxBase)),
                 _ => null
             };
 
+        private bool IsNullableUnion(UnionTypeSyntax unionTypeSyntax) =>
+            binder.GetParent(unionTypeSyntax) is ParenthesizedExpressionSyntax parenthesizedExpressionSyntax
+            && binder.GetParent(parenthesizedExpressionSyntax) is NullableTypeSyntax;
+
         private TypeSymbol FinalizeDiscriminatedObjectType(
+            UnionTypeSyntax unionTypeSyntax,
             IEnumerable<(UnionTypeMemberSyntax syntax, ITypeReference type)> unionMembers,
             DecoratorSyntax discriminatorDecorator)
         {
@@ -888,11 +893,15 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(errorDiagnostics);
             }
 
-            return new DiscriminatedObjectType(
-                string.Join(" | ", TypeHelper.GetOrderedTypeNames(expandedMemberTypes)),
-                TypeSymbolValidationFlags.Default,
-                discriminatorPropertyName,
-                expandedMemberTypes);
+            var discriminatedObjectType = new DiscriminatedObjectType(
+                name: string.Join(" | ", TypeHelper.GetOrderedTypeNames(expandedMemberTypes)),
+                validationFlags: TypeSymbolValidationFlags.Default,
+                discriminatorKey: discriminatorPropertyName,
+                unionMembers: expandedMemberTypes);
+
+            return IsNullableUnion(unionTypeSyntax)
+                ? TypeHelper.CreateTypeUnion(discriminatedObjectType, LanguageConstants.Null)
+                : discriminatedObjectType;
         }
 
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)

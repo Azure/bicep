@@ -107,7 +107,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
- 
+
             if (Context.Settings.EnableSymbolicNames || Context.Settings.EnableAsserts)
             {
                 emitter.EmitProperty("languageVersion", "1.10-experimental");
@@ -598,7 +598,8 @@ namespace Bicep.Core.Emit
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(declaredType) switch
+            var nonNullableType = TypeHelper.TryRemoveNullability(declaredType);
+            (var nullable, var nonLiteralTypeName) = nonNullableType switch
             {
                 UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
                 TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
@@ -610,7 +611,9 @@ namespace Bicep.Core.Emit
                 TypeProperty(nonLiteralTypeName),
             };
 
-            if (declaredType is DiscriminatedObjectType discriminatedObjectType)
+            var discriminatedObjectType = declaredType as DiscriminatedObjectType ?? nonNullableType as DiscriminatedObjectType;
+
+            if (discriminatedObjectType != null)
             {
                 properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetDiscriminatedObjectExpression(syntax, discriminatedObjectType)));
             }
@@ -647,7 +650,7 @@ namespace Bicep.Core.Emit
             StringLiteralType or StringType => "string",
             IntegerLiteralType or IntegerType => "int",
             BooleanLiteralType or BooleanType => "bool",
-            ObjectType => "object",
+            ObjectType or DiscriminatedObjectType => "object",
             ArrayType => "array",
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),

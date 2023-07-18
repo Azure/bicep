@@ -126,6 +126,96 @@ type typeUnionABC = typeUnionAB | typeC
             unionToken.Should().DeepEqual(expectedTypeUnionToken);
         }
 
+        [DataTestMethod]
+        [DataRow("(typeA | typeB | typeC | typeD)?")]
+        [DataRow("(typeUnionAB | typeUnionCD)?")]
+        [DataRow("(typeA | { type: 'b', value: int } | typeC | { type: 'd', value: object })?")]
+        public void DiscriminatedObjectUnions_Nullable(string typeTest)
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                $$"""
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+type typeC = {
+  type: 'c'
+  value: bool
+}
+
+type typeD = {
+  type: 'd'
+  value: object
+}
+
+@discriminator('type')
+type typeUnionAB = typeA | typeB
+
+@discriminator('type')
+type typeUnionCD = typeC | typeD
+
+@discriminator('type')
+type typeUnion = {{typeTest}}
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "nullable": true,
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "b": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      },
+      "c": {
+        "properties": {
+          "value": {
+            "type": "bool"
+          }
+        }
+      },
+      "d": {
+        "properties": {
+          "value": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
         [TestMethod]
         public void DiscriminatedObjectUnions_Nested()
         {
@@ -529,10 +619,11 @@ type typeB = {
 }
 
 @discriminator('type')
-type typeUnion1 = typeUnion1 | typeA
+type typeUnion = (typeA | typeB)?
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+            result.Should().NotHaveAnyDiagnostics();
+            //result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
         }
     }
 }

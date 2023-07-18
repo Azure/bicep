@@ -537,7 +537,8 @@ namespace Bicep.Core.TypeSystem
 
                 base.VisitUnionTypeSyntax(syntax);
 
-                if (declaredType is DiscriminatedObjectType or ErrorType)
+                if (declaredType is DiscriminatedObjectType or ErrorType
+                    || (declaredType is UnionType unionType && TypeHelper.TryRemoveNullability(unionType) is DiscriminatedObjectType))
                 {
                     return declaredType;
                 }
