@@ -13,15 +13,15 @@ param sshRSAPublicKey string
 //@    },
 
 @secure()
+//@      "type": "securestring"
 param servcePrincipalClientId string
 //@    "servcePrincipalClientId": {
-//@      "type": "securestring"
 //@    },
 
 @secure()
+//@      "type": "securestring"
 param servicePrincipalClientSecret string
 //@    "servicePrincipalClientSecret": {
-//@      "type": "securestring"
 //@    },
 
 // optional params

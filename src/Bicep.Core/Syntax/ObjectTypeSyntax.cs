@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
@@ -30,6 +31,8 @@ public class ObjectTypeSyntax : TypeSyntax
     /// Gets the object property types. May return duplicate property types.
     /// </summary>
     public IEnumerable<ObjectTypePropertySyntax> Properties => this.Children.OfType<ObjectTypePropertySyntax>();
+
+    public ObjectTypeAdditionalPropertiesSyntax? AdditionalProperties => Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().FirstOrDefault();
 
     public Token CloseBrace { get; }
 

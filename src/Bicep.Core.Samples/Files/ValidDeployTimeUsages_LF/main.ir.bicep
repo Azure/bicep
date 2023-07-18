@@ -63,6 +63,7 @@ resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 
 param cond bool = false
 //@[00:0023) ├─DeclaredParameterExpression { Name = cond }
+//@[11:0015) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[18:0023) | └─BooleanLiteralExpression { Value = False }
 
 var zeroIndex = 0
