@@ -177,29 +177,26 @@ namespace Bicep.Core.Emit
             });
         }
 
+        private record TypeModification(Expression? Modifier, Func<ObjectExpression, Expression, ObjectExpression> ModifyFunc) {}
+
         private ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
         {
-            List<(Expression source, Func<ObjectExpression, ObjectExpression> modifyFunc)> modifications = new();
+            List<TypeModification> modifications = new();
 
-            if (expression.Secure is {} secure)
+            modifications.Add(new(expression.Secure, (result, secure) =>
             {
-                modifications.Add((secure, result =>
+                return input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
                 {
-                    return input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
-                    {
-                        StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString
-                            => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", expression.Secure?.SourceSyntax)),
-                        StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.ObjectType
-                            => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", expression.Secure?.SourceSyntax)),
-                        _ => result,
-                    };
-                }));
-            }
+                    StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString
+                        => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", secure.SourceSyntax)),
+                    StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.ObjectType
+                        => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", secure.SourceSyntax)),
+                    _ => result,
+                };
+            }));
 
-            if (expression.Sealed is {} @sealed)
-            {
-                modifications.Add((@sealed, result => result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax))));
-            }
+            modifications.Add(new(expression.Sealed,
+                (result, @sealed) => result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax))));
 
             foreach (var (modifier, propertyName) in new[]
             {
@@ -209,25 +206,19 @@ namespace Bicep.Core.Emit
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
                 (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
             }) {
-                if (modifier is not null)
-                {
-                    modifications.Add((modifier, result => result.MergeProperty(propertyName, modifier)));
-                }
+                modifications.Add(new(modifier, (result, nonNullModifier) => result.MergeProperty(propertyName, nonNullModifier)));
             }
 
-            if (expression.Description is {} description)
-            {
-                modifications.Add((description, result => ApplyDescription(expression, result)));
-            }
+            modifications.Add(new(expression.Description, (result, _) => ApplyDescription(expression, result)));
 
             // Whether one decorator overrides another is determined by their order in the syntax tree
             // TODO should we change this?
             if (expression.SourceSyntax is DecorableSyntax decorable)
             {
-                ConcurrentDictionary<(Expression, Func<ObjectExpression, ObjectExpression>), int> modificationIndices = new();
-                int GetIndex((Expression, Func<ObjectExpression, ObjectExpression>) modification)
+                ConcurrentDictionary<TypeModification, int> modificationIndices = new();
+                int GetIndex(TypeModification modification)
                 {
-                    if (modification.Item1.SourceSyntax is {} sourceSyntax)
+                    if (modification.Modifier?.SourceSyntax is {} sourceSyntax)
                     {
                         int idx = 0;
                         foreach (var decorator in decorable.Decorators)
@@ -250,13 +241,16 @@ namespace Bicep.Core.Emit
             var result = input;
             foreach (var modification in modifications)
             {
-                result = modification.modifyFunc(result);
+                if (modification.Modifier is not null)
+                {
+                    result = modification.ModifyFunc(result, modification.Modifier);
+                }
             }
 
             return result;
         }
 
-        private ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input) => expression.Description is {} description
+        private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input) => expression.Description is {} description
             ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, ExpressionFactory.CreateObject(
                 ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataDescriptionPropertyName, description, description.SourceSyntax).AsEnumerable(),
                 description.SourceSyntax))
@@ -388,7 +382,7 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Invalid type expression encountered."),
         };
 
-        private ObjectExpression TypePropertiesForQualifiedReference(FullyQualifiedAmbientTypeReferenceExpression qualifiedAmbientType)
+        private static ObjectExpression TypePropertiesForQualifiedReference(FullyQualifiedAmbientTypeReferenceExpression qualifiedAmbientType)
         {
             if (qualifiedAmbientType.ProviderName != SystemNamespaceType.BuiltInName)
             {
@@ -399,16 +393,16 @@ namespace Bicep.Core.Emit
                 qualifiedAmbientType.SourceSyntax);
         }
 
-        private ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
+        private static ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
             => Property("type", new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);
 
-        private ObjectPropertyExpression AllowedValuesProperty(ArrayExpression allowedValues, SyntaxBase? sourceSyntax)
+        private static ObjectPropertyExpression AllowedValuesProperty(ArrayExpression allowedValues, SyntaxBase? sourceSyntax)
             => Property("allowedValues", allowedValues, sourceSyntax);
 
-        private ObjectPropertyExpression Property(string name, Expression value, SyntaxBase? sourceSyntax)
+        private static ObjectPropertyExpression Property(string name, Expression value, SyntaxBase? sourceSyntax)
             => ExpressionFactory.CreateObjectProperty(name, value, sourceSyntax);
 
-        private ObjectExpression GetTypePropertiesForResourceType(ResourceTypeExpression expression)
+        private static ObjectExpression GetTypePropertiesForResourceType(ResourceTypeExpression expression)
         {
             var typeString = expression.ExpressedResourceType.TypeReference.FormatName();
 
@@ -441,7 +435,7 @@ namespace Bicep.Core.Emit
             return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
 
-        private ArrayExpression? TryGetAllowedValues(TypeExpression expression) => expression switch
+        private static ArrayExpression? TryGetAllowedValues(TypeExpression expression) => expression switch
         {
             StringLiteralTypeExpression @string => SingleElementArray(ExpressionFactory.CreateStringLiteral(@string.Value, @string.SourceSyntax)),
             IntegerLiteralTypeExpression @int => SingleElementArray(ExpressionFactory.CreateIntegerLiteral(@int.Value, @int.SourceSyntax)),
@@ -453,9 +447,9 @@ namespace Bicep.Core.Emit
             _ => null,
         };
 
-        private ArrayExpression SingleElementArray(Expression expression) => ExpressionFactory.CreateArray(expression.AsEnumerable());
+        private static ArrayExpression SingleElementArray(Expression expression) => ExpressionFactory.CreateArray(expression.AsEnumerable());
 
-        private ArrayExpression GetAllowedValuesForUnionType(UnionType unionType, SyntaxBase? sourceSyntax)
+        private static ArrayExpression GetAllowedValuesForUnionType(UnionType unionType, SyntaxBase? sourceSyntax)
             => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue), sourceSyntax);
 
         private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeExpression expression)
@@ -496,7 +490,7 @@ namespace Bicep.Core.Emit
             ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
         });
 
-        private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
+        private static ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {
             (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
             {
@@ -521,7 +515,7 @@ namespace Bicep.Core.Emit
             return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
 
-        private Expression ToLiteralValue(ITypeReference literalType) => literalType.Type switch
+        private static Expression ToLiteralValue(ITypeReference literalType) => literalType.Type switch
         {
             StringLiteralType @string => ExpressionFactory.CreateStringLiteral(@string.RawStringValue),
             IntegerLiteralType @int => new IntegerLiteralExpression(null, @int.Value),
@@ -533,7 +527,7 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
         };
 
-        private string GetNonLiteralTypeName(TypeSymbol? type) => type switch
+        private static string GetNonLiteralTypeName(TypeSymbol? type) => type switch
         {
             StringLiteralType or StringType => "string",
             IntegerLiteralType or IntegerType => "int",

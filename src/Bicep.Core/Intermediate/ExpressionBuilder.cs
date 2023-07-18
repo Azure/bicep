@@ -362,7 +362,7 @@ public class ExpressionBuilder
             .OfType<DeclaredImportExpression>()
             .ToImmutableArray();
 
-        var typeDefintions = Context.SemanticModel.Root.TypeDeclarations
+        var typeDefinitions = Context.SemanticModel.Root.TypeDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
             .OfType<DeclaredTypeExpression>()
             .ToImmutableArray();
@@ -412,7 +412,7 @@ public class ExpressionBuilder
             syntax,
             metadataArray,
             imports,
-            typeDefintions,
+            typeDefinitions,
             parameters,
             functionVariables.AddRange(variables),
             functions,
