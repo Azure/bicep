@@ -1,13 +1,18 @@
 @description('The foo type')
 //@[00:1534) ProgramExpression
 //@[00:0299) ├─DeclaredTypeExpression { Name = foo }
+//@[13:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
+//@[01:0009) | ├─FunctionCallExpression { Name = sealed }
 type foo = {
 //@[11:0260) | └─ObjectTypeExpression { Name = { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? } }
   @minLength(3)
 //@[02:0089) |   ├─ObjectTypePropertyExpression
+//@[13:0014) |   | ├─IntegerLiteralExpression { Value = 3 }
   @maxLength(10)
+//@[13:0015) |   | ├─IntegerLiteralExpression { Value = 10 }
   @description('A string property')
+//@[15:0034) |   | ├─StringLiteralExpression { Value = A string property }
   stringProp: string
 //@[14:0020) |   | └─AmbientTypeReferenceExpression { Name = string }
 
@@ -16,6 +21,7 @@ type foo = {
 //@[14:0089) |   | └─ObjectTypeExpression { Name = { intProp: int, intArrayArrayProp: int[][] | null } }
     @minValue(1)
 //@[04:0033) |   |   ├─ObjectTypePropertyExpression
+//@[14:0015) |   |   | ├─IntegerLiteralExpression { Value = 1 }
     intProp: int
 //@[13:0016) |   |   | └─AmbientTypeReferenceExpression { Name = int }
 
@@ -43,10 +49,29 @@ type foo = {
 
 @minLength(3)
 //@[00:0163) ├─DeclaredTypeExpression { Name = bar }
+//@[11:0012) | ├─IntegerLiteralExpression { Value = 3 }
 @description('An array of array of arrays of arrays of ints')
+//@[13:0060) | ├─StringLiteralExpression { Value = An array of array of arrays of arrays of ints }
 @metadata({
+//@[10:0063) | ├─ObjectExpression
   examples: [
+//@[02:0049) | | └─ObjectPropertyExpression
+//@[02:0010) | |   ├─StringLiteralExpression { Value = examples }
+//@[12:0049) | |   └─ArrayExpression
     [[[[1]]], [[[2]]], [[[3]]]]
+//@[04:0031) | |     └─ArrayExpression
+//@[05:0012) | |       ├─ArrayExpression
+//@[06:0011) | |       | └─ArrayExpression
+//@[07:0010) | |       |   └─ArrayExpression
+//@[08:0009) | |       |     └─IntegerLiteralExpression { Value = 1 }
+//@[14:0021) | |       ├─ArrayExpression
+//@[15:0020) | |       | └─ArrayExpression
+//@[16:0019) | |       |   └─ArrayExpression
+//@[17:0018) | |       |     └─IntegerLiteralExpression { Value = 2 }
+//@[23:0030) | |       └─ArrayExpression
+//@[24:0029) | |         └─ArrayExpression
+//@[25:0028) | |           └─ArrayExpression
+//@[26:0027) | |             └─IntegerLiteralExpression { Value = 3 }
   ]
 })
 type bar = int[][][][]
@@ -178,11 +203,13 @@ type tuple = [
 //@[13:0129) | └─TupleTypeExpression { Name = [string, bar] }
     @description('A leading string')
 //@[04:0047) |   ├─TupleTypeItemExpression
+//@[17:0035) |   | ├─StringLiteralExpression { Value = A leading string }
     string
 //@[04:0010) |   | └─AmbientTypeReferenceExpression { Name = string }
 
     @description('A second element using a type alias')
 //@[04:0063) |   └─TupleTypeItemExpression
+//@[17:0054) |     ├─StringLiteralExpression { Value = A second element using a type alias }
     bar
 //@[04:0007) |     └─TypeAliasReferenceExpression { Name = bar }
 ]
@@ -197,7 +224,9 @@ type stringStringDictionary = {
 
 @minValue(1)
 //@[00:0052) ├─DeclaredTypeExpression { Name = constrainedInt }
+//@[10:0011) | ├─IntegerLiteralExpression { Value = 1 }
 @maxValue(10)
+//@[10:0012) | ├─IntegerLiteralExpression { Value = 10 }
 type constrainedInt = int
 //@[22:0025) | └─AmbientTypeReferenceExpression { Name = int }
 

@@ -6,6 +6,7 @@
 // parameters without default value
 @sys.description('''
 //@[000:0097) ├─DeclaredParameterExpression { Name = myString }
+//@[017:0074) | ├─StringLiteralExpression { Value = this is my multi line\ndescription for my myString\n }
 this is my multi line
 description for my myString
 ''')
@@ -21,8 +22,13 @@ param myBool bool
 // parameters with default value
 @sys.description('this is myString2')
 //@[000:0135) ├─DeclaredParameterExpression { Name = myString2 }
+//@[017:0036) | ├─StringLiteralExpression { Value = this is myString2 }
 @metadata({
+//@[010:0056) | ├─ObjectExpression
   description: 'overwrite but still valid'
+//@[002:0042) | | └─ObjectPropertyExpression
+//@[002:0013) | |   ├─StringLiteralExpression { Value = description }
+//@[015:0042) | |   └─StringLiteralExpression { Value = overwrite but still valid }
 })
 param myString2 string = 'string value'
 //@[016:0022) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -47,9 +53,17 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 // object default value
 @sys.description('this is foo')
 //@[000:0348) ├─DeclaredParameterExpression { Name = foo }
+//@[017:0030) | ├─StringLiteralExpression { Value = this is foo }
 @metadata({
+//@[010:0082) | ├─ObjectExpression
   description: 'overwrite but still valid'
+//@[002:0042) | | ├─ObjectPropertyExpression
+//@[002:0013) | | | ├─StringLiteralExpression { Value = description }
+//@[015:0042) | | | └─StringLiteralExpression { Value = overwrite but still valid }
   another: 'just for fun'
+//@[002:0025) | | └─ObjectPropertyExpression
+//@[002:0009) | |   ├─StringLiteralExpression { Value = another }
+//@[011:0025) | |   └─StringLiteralExpression { Value = just for fun }
 })
 param foo object = {
 //@[010:0016) | ├─AmbientTypeReferenceExpression { Name = object }
@@ -123,12 +137,14 @@ param myArrayParam array = [
 // secure string
 @secure()
 //@[000:0031) ├─DeclaredParameterExpression { Name = password }
+//@[001:0009) | ├─FunctionCallExpression { Name = secure }
 param password string
 //@[015:0021) | └─AmbientTypeReferenceExpression { Name = string }
 
 // secure object
 @secure()
 //@[000:0035) ├─DeclaredParameterExpression { Name = secretObject }
+//@[001:0009) | ├─FunctionCallExpression { Name = secure }
 param secretObject object
 //@[019:0025) | └─AmbientTypeReferenceExpression { Name = object }
 
@@ -153,46 +169,75 @@ param intEnum int
 // length constraint on a string
 @minLength(3)
 //@[000:0053) ├─DeclaredParameterExpression { Name = storageName }
+//@[011:0012) | ├─IntegerLiteralExpression { Value = 3 }
 @maxLength(24)
+//@[011:0013) | ├─IntegerLiteralExpression { Value = 24 }
 param storageName string
 //@[018:0024) | └─AmbientTypeReferenceExpression { Name = string }
 
 // length constraint on an array
 @minLength(3)
 //@[000:0050) ├─DeclaredParameterExpression { Name = someArray }
+//@[011:0012) | ├─IntegerLiteralExpression { Value = 3 }
 @maxLength(24)
+//@[011:0013) | ├─IntegerLiteralExpression { Value = 24 }
 param someArray array
 //@[016:0021) | └─AmbientTypeReferenceExpression { Name = array }
 
 // empty metadata
 @metadata({})
 //@[000:0040) ├─DeclaredParameterExpression { Name = emptyMetadata }
+//@[010:0012) | ├─ObjectExpression
 param emptyMetadata string
 //@[020:0026) | └─AmbientTypeReferenceExpression { Name = string }
 
 // description
 @metadata({
 //@[000:0071) ├─DeclaredParameterExpression { Name = description }
+//@[010:0045) | ├─ObjectExpression
   description: 'my description'
+//@[002:0031) | | └─ObjectPropertyExpression
+//@[002:0013) | |   ├─StringLiteralExpression { Value = description }
+//@[015:0031) | |   └─StringLiteralExpression { Value = my description }
 })
 param description string
 //@[018:0024) | └─AmbientTypeReferenceExpression { Name = string }
 
 @sys.description('my description')
 //@[000:0060) ├─DeclaredParameterExpression { Name = description2 }
+//@[017:0033) | ├─StringLiteralExpression { Value = my description }
 param description2 string
 //@[019:0025) | └─AmbientTypeReferenceExpression { Name = string }
 
 // random extra metadata
 @metadata({
 //@[000:0133) ├─DeclaredParameterExpression { Name = additionalMetadata }
+//@[010:0100) | ├─ObjectExpression
   description: 'my description'
+//@[002:0031) | | ├─ObjectPropertyExpression
+//@[002:0013) | | | ├─StringLiteralExpression { Value = description }
+//@[015:0031) | | | └─StringLiteralExpression { Value = my description }
   a: 1
+//@[002:0006) | | ├─ObjectPropertyExpression
+//@[002:0003) | | | ├─StringLiteralExpression { Value = a }
+//@[005:0006) | | | └─IntegerLiteralExpression { Value = 1 }
   b: true
+//@[002:0009) | | ├─ObjectPropertyExpression
+//@[002:0003) | | | ├─StringLiteralExpression { Value = b }
+//@[005:0009) | | | └─BooleanLiteralExpression { Value = True }
   c: [
+//@[002:0010) | | ├─ObjectPropertyExpression
+//@[002:0003) | | | ├─StringLiteralExpression { Value = c }
+//@[005:0010) | | | └─ArrayExpression
   ]
   d: {
+//@[002:0026) | | └─ObjectPropertyExpression
+//@[002:0003) | |   ├─StringLiteralExpression { Value = d }
+//@[005:0026) | |   └─ObjectExpression
     test: 'abc'
+//@[004:0015) | |     └─ObjectPropertyExpression
+//@[004:0008) | |       ├─StringLiteralExpression { Value = test }
+//@[010:0015) | |       └─StringLiteralExpression { Value = abc }
   }
 })
 param additionalMetadata string
@@ -201,15 +246,22 @@ param additionalMetadata string
 // all modifiers together
 @secure()
 //@[000:0165) ├─DeclaredParameterExpression { Name = someParameter }
+//@[001:0009) | ├─FunctionCallExpression { Name = secure }
 @minLength(3)
+//@[011:0012) | ├─IntegerLiteralExpression { Value = 3 }
 @maxLength(24)
+//@[011:0013) | ├─IntegerLiteralExpression { Value = 24 }
 @allowed([
   'one'
   'two'
   'three'
 ])
 @metadata({
+//@[010:0058) | ├─ObjectExpression
   description: 'Name of the storage account'
+//@[002:0044) | | └─ObjectPropertyExpression
+//@[002:0013) | |   ├─StringLiteralExpression { Value = description }
+//@[015:0044) | |   └─StringLiteralExpression { Value = Name of the storage account }
 })
 param someParameter string
 //@[020:0026) | └─AmbientTypeReferenceExpression { Name = string }
@@ -243,8 +295,11 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 
 @secure()
 //@[000:0104) ├─DeclaredParameterExpression { Name = decoratedString }
+//@[001:0009) | ├─FunctionCallExpression { Name = secure }
 @minLength(2)
+//@[011:0012) | ├─IntegerLiteralExpression { Value = 2 }
   @maxLength(10)
+//@[013:0015) | ├─IntegerLiteralExpression { Value = 10 }
 @allowed([
   'Apple'
   'Banana'
@@ -254,6 +309,7 @@ param decoratedString string
 
 @minValue(100)
 //@[000:0043) ├─DeclaredParameterExpression { Name = decoratedInt }
+//@[010:0013) | ├─IntegerLiteralExpression { Value = 100 }
 param decoratedInt int = 123
 //@[019:0022) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[025:0028) | └─IntegerLiteralExpression { Value = 123 }
@@ -261,19 +317,35 @@ param decoratedInt int = 123
 // negative integer literals are allowed as decorator values
 @minValue(-10)
 //@[000:0053) ├─DeclaredParameterExpression { Name = negativeValues }
+//@[010:0013) | ├─IntegerLiteralExpression { Value = -10 }
 @maxValue(-3)
+//@[010:0012) | ├─IntegerLiteralExpression { Value = -3 }
 param negativeValues int
 //@[021:0024) | └─AmbientTypeReferenceExpression { Name = int }
 
 @sys.description('A boolean.')
 //@[000:0283) ├─DeclaredParameterExpression { Name = decoratedBool }
+//@[017:0029) | ├─StringLiteralExpression { Value = A boolean. }
 @metadata({
+//@[010:0136) | ├─ObjectExpression
     description: 'I will be overrode.'
+//@[004:0038) | | ├─ObjectPropertyExpression
+//@[004:0015) | | | ├─StringLiteralExpression { Value = description }
+//@[017:0038) | | | └─StringLiteralExpression { Value = I will be overrode. }
     foo: 'something'
+//@[004:0020) | | ├─ObjectPropertyExpression
+//@[004:0007) | | | ├─StringLiteralExpression { Value = foo }
+//@[009:0020) | | | └─StringLiteralExpression { Value = something }
     bar: [
+//@[004:0062) | | └─ObjectPropertyExpression
+//@[004:0007) | |   ├─StringLiteralExpression { Value = bar }
+//@[009:0062) | |   └─ArrayExpression
         {          }
+//@[008:0020) | |     ├─ObjectExpression
         true
+//@[008:0012) | |     ├─BooleanLiteralExpression { Value = True }
         123
+//@[008:0011) | |     └─IntegerLiteralExpression { Value = 123 }
     ]
 })
 param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* comment4 */ (true && false) != true
@@ -286,6 +358,7 @@ param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* c
 
 @secure()
 //@[000:0254) ├─DeclaredParameterExpression { Name = decoratedObject }
+//@[001:0009) | ├─FunctionCallExpression { Name = secure }
 param decoratedObject object = {
 //@[022:0028) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[031:0244) | └─ObjectExpression
@@ -344,10 +417,16 @@ param decoratedObject object = {
 
 @sys.metadata({
 //@[000:0166) └─DeclaredParameterExpression { Name = decoratedArray }
+//@[014:0046)   ├─ObjectExpression
     description: 'An array.'
+//@[004:0028)   | └─ObjectPropertyExpression
+//@[004:0015)   |   ├─StringLiteralExpression { Value = description }
+//@[017:0028)   |   └─StringLiteralExpression { Value = An array. }
 })
 @sys.maxLength(20)
+//@[015:0017)   ├─IntegerLiteralExpression { Value = 20 }
 @sys.description('I will be overrode.')
+//@[017:0038)   ├─StringLiteralExpression { Value = I will be overrode. }
 param decoratedArray array = [
 //@[021:0026)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[029:0059)   └─ArrayExpression

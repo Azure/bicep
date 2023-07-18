@@ -24,12 +24,14 @@
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─DeclaredParameterExpression { Name = deployTimeSuffix }
+//@[017:0049) | ├─StringLiteralExpression { Value = this is deployTimeSuffix param }
 param deployTimeSuffix string = newGuid()
 //@[023:0029) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[032:0041) | └─FunctionCallExpression { Name = newGuid }
 
 @sys.description('this module a')
 //@[000:0252) ├─DeclaredModuleExpression
+//@[017:0032) | ├─StringLiteralExpression { Value = this module a }
 module modATest './modulea.bicep' = {
 //@[036:0217) | ├─ObjectExpression
   name: 'modATest'
@@ -71,6 +73,7 @@ module modATest './modulea.bicep' = {
 
 @sys.description('this module b')
 //@[000:0136) ├─DeclaredModuleExpression
+//@[017:0032) | ├─StringLiteralExpression { Value = this module b }
 module modB './child/moduleb.bicep' = {
 //@[038:0101) | ├─ObjectExpression
   name: 'modB'
@@ -88,6 +91,7 @@ module modB './child/moduleb.bicep' = {
 
 @sys.description('this is just module b with a condition')
 //@[000:0203) ├─DeclaredModuleExpression
+//@[017:0057) | ├─StringLiteralExpression { Value = this is just module b with a condition }
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[055:0065) | ├─ConditionExpression
 //@[055:0065) | | ├─BinaryExpression { Operator = Equals }
@@ -378,6 +382,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 
 @sys.description('this is myModules')
 //@[000:0162) ├─DeclaredVariableExpression { Name = myModules }
+//@[017:0036) | ├─StringLiteralExpression { Value = this is myModules }
 var myModules = [
 //@[016:0123) | └─ArrayExpression
   {

@@ -50,6 +50,7 @@
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 @sys.description('this is basicStorage')
 //@[000:00225) ├─DeclaredResourceExpression
+//@[017:00039) | ├─StringLiteralExpression { Value = this is basicStorage }
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[071:00183) | └─ObjectExpression
   name: 'basicblobs'
@@ -74,6 +75,7 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 @sys.description('this is dnsZone')
 //@[000:00140) ├─DeclaredResourceExpression
+//@[017:00034) | ├─StringLiteralExpression { Value = this is dnsZone }
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 //@[059:00103) | └─ObjectExpression
   name: 'myZone'
@@ -643,6 +645,7 @@ param shouldDeployVm bool = true
 
 @sys.description('this is vmWithCondition')
 //@[000:00308) ├─DeclaredResourceExpression
+//@[017:00042) | ├─StringLiteralExpression { Value = this is vmWithCondition }
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
 //@[078:00092) | └─ConditionExpression
 //@[078:00092) |   ├─ParametersReferenceExpression { Parameter = shouldDeployVm }
@@ -675,6 +678,7 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 
 @sys.description('this is another vmWithCondition')
 //@[000:00339) ├─DeclaredResourceExpression
+//@[017:00050) | ├─StringLiteralExpression { Value = this is another vmWithCondition }
 resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
                     if (shouldDeployVm) {
 //@[024:00038) | └─ConditionExpression
@@ -769,6 +773,7 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 
 @sys.description('this is existing1')
 //@[000:00162) ├─DeclaredResourceExpression
+//@[017:00036) | ├─StringLiteralExpression { Value = this is existing1 }
 resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 //@[077:00123) | ├─ObjectExpression
   name: 'existing1'
@@ -822,6 +827,7 @@ var storageAccounts = [
 // just a storage account loop
 @sys.description('this is just a storage account loop')
 //@[000:00284) ├─DeclaredResourceExpression
+//@[017:00054) | ├─StringLiteralExpression { Value = this is just a storage account loop }
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[075:00227) | └─ForLoopExpression
 //@[091:00106) |   ├─VariableReferenceExpression { Variable = storageAccounts }
@@ -852,6 +858,7 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 // storage account loop with index
 @sys.description('this is just a storage account loop with index')
 //@[000:00318) ├─DeclaredResourceExpression
+//@[017:00065) | ├─StringLiteralExpression { Value = this is just a storage account loop with index }
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
 //@[084:00250) | └─ForLoopExpression
 //@[105:00120) |   ├─VariableReferenceExpression { Variable = storageAccounts }
@@ -882,6 +889,7 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 @sys.description('this is just a basic nested loop')
 //@[000:00399) ├─DeclaredResourceExpression
+//@[017:00051) | ├─StringLiteralExpression { Value = this is just a basic nested loop }
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[063:00345) | └─ForLoopExpression
 //@[073:00084) |   ├─FunctionCallExpression { Name = range }

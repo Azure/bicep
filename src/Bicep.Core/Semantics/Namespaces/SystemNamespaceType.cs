@@ -1431,7 +1431,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression)
                     {
-                        return typeDeclaringExpression with { Secure = ExpressionFactory.CreateBooleanLiteral(true, functionCall.SourceSyntax) };
+                        return typeDeclaringExpression with { Secure = functionCall };
                     }
 
                     return decorated;
