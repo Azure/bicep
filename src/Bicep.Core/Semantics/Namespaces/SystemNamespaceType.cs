@@ -1587,6 +1587,18 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
             }
+
+            if (targetType is DiscriminatedObjectType discriminatedObjectType)
+            {
+                var discriminatorPropertyName = (decoratorSyntax.Arguments.FirstOrDefault()?.Expression as StringSyntax)?.TryGetLiteralValue();
+
+                if (discriminatorPropertyName != null &&
+                    discriminatorPropertyName != discriminatedObjectType.DiscriminatorKey)
+                {
+                    // case when a decorator is applied to type that is already a valid discriminated union
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
+                }
+            }
         }
 
         private static SyntaxBase? GetDeclaredTypeSyntaxOfParent(DecoratorSyntax syntax, IBinder binder) => binder.GetParent(syntax) switch
