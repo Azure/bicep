@@ -774,7 +774,7 @@ namespace Bicep.Core.TypeSystem
         private DecorableSyntax? TryResolveUnionImmediateDecorableSyntax(SyntaxBase? syntaxBase) =>
             syntaxBase switch
             {
-                TypeDeclarationSyntax or ObjectTypePropertySyntax => syntaxBase as DecorableSyntax,
+                DecorableSyntax decorableSyntax => decorableSyntax,
                 ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax =>
                     TryResolveUnionImmediateDecorableSyntax(binder.GetParent(syntaxBase)),
                 _ => null
@@ -824,7 +824,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // validate "additional properties" is not used
-                    if (objectType.HasAdditionalPropertiesType)
+                    if (objectType.HasExplicitAdditionalPropertiesType)
                     {
                         errorDiagnostics.Add(
                             DiagnosticBuilder.ForPosition(memberSyntax)

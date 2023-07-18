@@ -38,8 +38,8 @@ namespace Bicep.Core.TypeSystem
 
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
 
-        public bool HasAdditionalPropertiesType =>
-            !(AdditionalPropertiesType == null || AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty));
+        public bool HasExplicitAdditionalPropertiesType =>
+            AdditionalPropertiesType != null && !AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty);
 
         public FunctionResolver MethodResolver { get; }
 

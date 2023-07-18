@@ -1108,7 +1108,7 @@ namespace Bicep.Core.TypeSystem
             var extraProperties = expression.Properties
                 .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
 
-            if (!targetType.HasAdditionalPropertiesType)
+            if (!targetType.HasExplicitAdditionalPropertiesType)
             {
                 // extra properties are not allowed by the type
 

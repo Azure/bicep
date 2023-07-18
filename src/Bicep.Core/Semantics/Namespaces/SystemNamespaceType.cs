@@ -1575,7 +1575,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
                     .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
                     .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
-                    .WithFlags(FunctionFlags.TypeDecorator)
+                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithValidator(ValidateTypeDiscriminator)
                     .Build();
             }
