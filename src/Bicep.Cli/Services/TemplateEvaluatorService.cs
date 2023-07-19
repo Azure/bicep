@@ -15,6 +15,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using System.Collections.Immutable;
 using Bicep.Core;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Services
 {
@@ -142,7 +143,7 @@ namespace Bicep.Cli.Services
             }
         }
 
-        public static JToken Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
+        public static (JToken?, InvalidOperationException?) Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
@@ -154,7 +155,7 @@ namespace Bicep.Cli.Services
             return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
         }
 
-        private static JToken EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
+        private static (JToken?, InvalidOperationException?) EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
@@ -176,15 +177,33 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
-                return template.ToJToken();
+                if (template.Asserts?.Count() > 0)
+                {
+                    var falseAsserts = template.Asserts
+                        .Where(assert => !Convert.ToBoolean(assert.Value.Value))
+                        .ToArray();
+
+                    if (falseAsserts.Any())
+                    {
+                        var listOfFalseAssertsNames = string.Join("\n ", falseAsserts.Select(assert => $"\t[✗] {assert.Key}").ToArray());
+                        var error = new InvalidOperationException($"Failed: {falseAsserts.Count()} / {template.Asserts.Count()}\n" + listOfFalseAssertsNames);
+
+                        return (null, error); 
+                    }
+                }
+
+
+                return (template.ToJToken(), null);
             }
             catch (Exception exception)
             {
-                throw new InvalidOperationException(
+                var error = new InvalidOperationException(
                     $"Evaluating template failed: {exception.Message}." +
                     $"\nTemplate file: {templateJtoken}" +
                     (parametersJToken is null ? "" : $"\nParameters file: {parametersJToken}"),
                     exception);
+
+                return (null, error);
             }
         }
 
@@ -214,3 +233,4 @@ namespace Bicep.Cli.Services
         }
     }
 }
+

@@ -9,6 +9,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
@@ -18,16 +19,16 @@ namespace Bicep.Cli.Services
 {
     public class ValidationService
     {
-        public static void Validate(ImmutableArray<TestSymbol> testDeclarations)
+        public static void Validate(ImmutableArray<TestSymbol> testDeclarations, ILogger logger)
         {
             var templateOutputBuffer = new StringBuilder();
             using var textWriter = new StringWriter();
 
-            EvaluateTemplates(testDeclarations, textWriter);
+            EvaluateTemplates(testDeclarations, textWriter, logger);
 
             
         }
-        private static void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
+        private static void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter, ILogger logger)
         {
             var evaluatedTemplates =  new InsensitiveDictionary<JToken>();
 
@@ -39,9 +40,18 @@ namespace Bicep.Cli.Services
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
                     var template = GetTemplate(testSemanticModel, testDeclaration);
 
-                    var evaluatedTemplate = TemplateEvaluatorService.Evaluate(template, parameters);
-
-                    evaluatedTemplates.Add(testDeclaration.Name, evaluatedTemplate);
+                    var (evaluatedTemplate, error) = TemplateEvaluatorService.Evaluate(template, parameters);
+                    
+                    if (evaluatedTemplate != null)
+                    {
+                        evaluatedTemplates.Add(testDeclaration.Name, evaluatedTemplate);
+                        logger.LogInformation($"[✓] Evaluated template for {testDeclaration.Name} successfully.");
+                    }
+                    
+                    if (error!= null)
+                    {
+                        logger.LogError($"[✗] Error evaluating template for {testDeclaration.Name} : {error.Message}");
+                    }
                 
                 }
                 

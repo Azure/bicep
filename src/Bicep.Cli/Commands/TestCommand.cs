@@ -62,7 +62,7 @@ namespace Bicep.Cli.Commands
             if (IsBicepFile(inputPath))
             {
                 diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
-                var test = await compilationService.TestAsync(inputPath, args.NoRestore);
+                var test = await compilationService.TestAsync(inputPath, args.NoRestore, logger);
 
                 diagnosticLogger.FlushLog();
 
