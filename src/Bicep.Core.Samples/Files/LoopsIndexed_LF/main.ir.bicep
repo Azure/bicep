@@ -1,6 +1,7 @@
 param name string
 //@[000:11469) ProgramExpression
 //@[000:00017) ├─DeclaredParameterExpression { Name = name }
+//@[011:00017) | └─AmbientTypeReferenceExpression { Name = string }
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -59,8 +60,10 @@ param name string
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 param accounts array
 //@[000:00020) ├─DeclaredParameterExpression { Name = accounts }
+//@[015:00020) | └─AmbientTypeReferenceExpression { Name = array }
 param index int
 //@[000:00015) ├─DeclaredParameterExpression { Name = index }
+//@[012:00015) | └─AmbientTypeReferenceExpression { Name = int }
 
 // single resource
 resource singleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -243,6 +246,7 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) 
 // special case property access
 output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.primaryEndpoints.blob
 //@[000:00101) ├─DeclaredOutputExpression { Name = indexedCollectionBlobEndpoint }
+//@[037:00043) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[046:00101) | └─AccessChainExpression
 //@[046:00079) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[046:00068) |   | └─ResourceReferenceExpression
@@ -250,30 +254,36 @@ output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.
 //@[097:00101) |   └─StringLiteralExpression { Value = blob }
 output indexedCollectionName string = storageAccounts[index].name
 //@[000:00065) ├─DeclaredOutputExpression { Name = indexedCollectionName }
+//@[029:00035) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[038:00065) | └─PropertyAccessExpression { PropertyName = name }
 //@[038:00060) |   └─ResourceReferenceExpression
 output indexedCollectionId string = storageAccounts[index].id
 //@[000:00061) ├─DeclaredOutputExpression { Name = indexedCollectionId }
+//@[027:00033) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[036:00061) | └─PropertyAccessExpression { PropertyName = id }
 //@[036:00058) |   └─ResourceReferenceExpression
 output indexedCollectionType string = storageAccounts[index].type
 //@[000:00065) ├─DeclaredOutputExpression { Name = indexedCollectionType }
+//@[029:00035) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[038:00065) | └─PropertyAccessExpression { PropertyName = type }
 //@[038:00060) |   └─ResourceReferenceExpression
 output indexedCollectionVersion string = storageAccounts[index].apiVersion
 //@[000:00074) ├─DeclaredOutputExpression { Name = indexedCollectionVersion }
+//@[032:00038) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[041:00074) | └─PropertyAccessExpression { PropertyName = apiVersion }
 //@[041:00063) |   └─ResourceReferenceExpression
 
 // general case property access
 output indexedCollectionIdentity object = storageAccounts[index].identity
 //@[000:00073) ├─DeclaredOutputExpression { Name = indexedCollectionIdentity }
+//@[033:00039) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[042:00073) | └─PropertyAccessExpression { PropertyName = identity }
 //@[042:00064) |   └─ResourceReferenceExpression
 
 // indexed access of two properties
 output indexedEndpointPair object = {
 //@[000:00181) ├─DeclaredOutputExpression { Name = indexedEndpointPair }
+//@[027:00033) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[036:00181) | └─ObjectExpression
   primary: storageAccounts[index].properties.primaryEndpoints.blob
 //@[002:00066) |   ├─ObjectPropertyExpression
@@ -296,6 +306,7 @@ output indexedEndpointPair object = {
 // nested indexer?
 output indexViaReference string = storageAccounts[int(storageAccounts[index].properties.creationTime)].properties.accessTier
 //@[000:00124) ├─DeclaredOutputExpression { Name = indexViaReference }
+//@[025:00031) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[034:00124) | └─AccessChainExpression
 //@[034:00113) |   ├─PropertyAccessExpression { PropertyName = properties }
 //@[034:00102) |   | └─ResourceReferenceExpression
@@ -692,10 +703,12 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 
 output indexedModulesName string = moduleCollectionWithSingleDependency[index].name
 //@[000:00083) ├─DeclaredOutputExpression { Name = indexedModulesName }
+//@[026:00032) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[035:00083) | └─PropertyAccessExpression { PropertyName = name }
 //@[035:00078) |   └─ModuleReferenceExpression
 output indexedModuleOutput string = moduleCollectionWithSingleDependency[index * 1].outputs.myOutput
 //@[000:00100) ├─DeclaredOutputExpression { Name = indexedModuleOutput }
+//@[027:00033) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[036:00100) | └─ModuleOutputPropertyAccessExpression { PropertyName = myOutput }
 //@[036:00091) |   └─PropertyAccessExpression { PropertyName = outputs }
 //@[036:00083) |     └─ModuleReferenceExpression
@@ -711,26 +724,32 @@ resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' 
 
 output existingIndexedResourceName string = existingStorageAccounts[index * 0].name
 //@[000:00083) ├─DeclaredOutputExpression { Name = existingIndexedResourceName }
+//@[035:00041) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[044:00083) | └─PropertyAccessExpression { PropertyName = name }
 //@[044:00078) |   └─ResourceReferenceExpression
 output existingIndexedResourceId string = existingStorageAccounts[index * 1].id
 //@[000:00079) ├─DeclaredOutputExpression { Name = existingIndexedResourceId }
+//@[033:00039) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[042:00079) | └─PropertyAccessExpression { PropertyName = id }
 //@[042:00076) |   └─ResourceReferenceExpression
 output existingIndexedResourceType string = existingStorageAccounts[index+2].type
 //@[000:00081) ├─DeclaredOutputExpression { Name = existingIndexedResourceType }
+//@[035:00041) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[044:00081) | └─PropertyAccessExpression { PropertyName = type }
 //@[044:00076) |   └─ResourceReferenceExpression
 output existingIndexedResourceApiVersion string = existingStorageAccounts[index-7].apiVersion
 //@[000:00093) ├─DeclaredOutputExpression { Name = existingIndexedResourceApiVersion }
+//@[041:00047) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[050:00093) | └─PropertyAccessExpression { PropertyName = apiVersion }
 //@[050:00082) |   └─ResourceReferenceExpression
 output existingIndexedResourceLocation string = existingStorageAccounts[index/2].location
 //@[000:00089) ├─DeclaredOutputExpression { Name = existingIndexedResourceLocation }
+//@[039:00045) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[048:00089) | └─PropertyAccessExpression { PropertyName = location }
 //@[048:00080) |   └─ResourceReferenceExpression
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 //@[000:00104) └─DeclaredOutputExpression { Name = existingIndexedResourceAccessTier }
+//@[041:00047)   ├─AmbientTypeReferenceExpression { Name = string }
 //@[050:00104)   └─AccessChainExpression
 //@[050:00093)     ├─PropertyAccessExpression { PropertyName = properties }
 //@[050:00082)     | └─ResourceReferenceExpression

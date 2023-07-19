@@ -31,19 +31,19 @@ describe("pasteAsBicep", (): void => {
     await getBicepConfiguration().update(
       bicepConfigurationKeys.decompileOnPaste,
       true,
-      ConfigurationTarget.Global
+      ConfigurationTarget.Global,
     );
 
     // Make sure decompile on paste warning is on
     await getBicepConfiguration().update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
       [],
-      ConfigurationTarget.Global
+      ConfigurationTarget.Global,
     );
   }
 
   function getTextAndMarkers(
-    s: string
+    s: string,
   ): [text: string, markerOffset: number, markerLength: number] {
     const offset = s.indexOf("|");
     assert(offset >= 0, "Couldn't find marker in text");
@@ -65,7 +65,7 @@ describe("pasteAsBicep", (): void => {
   function setSelection(
     document: TextDocument,
     offsetStart: number,
-    offsetLength: number
+    offsetLength: number,
   ): void {
     const start = document.positionAt(offsetStart);
     const end = document.positionAt(offsetStart + offsetLength);
@@ -81,7 +81,7 @@ describe("pasteAsBicep", (): void => {
     expected: {
       bicep?: string;
       error?: string;
-    }
+    },
   ): Promise<{ log: string }> {
     const initialLogContentsLength = fse
       .readFileSync(extensionLogPath)
@@ -90,7 +90,7 @@ describe("pasteAsBicep", (): void => {
     await configureSettings();
 
     const [initialBicep, offsetStart, offsetLength] = getTextAndMarkers(
-      initialBicepWithMarker
+      initialBicepWithMarker,
     );
     const textDocument = await vscode.workspace.openTextDocument({
       language: "bicep",
@@ -115,7 +115,7 @@ describe("pasteAsBicep", (): void => {
     }
     if (expected.error) {
       const match = new RegExp(
-        `Exception occurred: .*${escapeRegexReplacement(expected.error)}`
+        `Exception occurred: .*${escapeRegexReplacement(expected.error)}`,
       );
       expect(getRecentLogContents()).toMatch(match);
     } else {
@@ -126,7 +126,7 @@ describe("pasteAsBicep", (): void => {
 
     if (typeof expected.bicep === "string") {
       expect(normalizeMultilineString(buffer)).toBe(
-        normalizeMultilineString(expected.bicep)
+        normalizeMultilineString(expected.bicep),
       );
     }
 
@@ -141,7 +141,7 @@ describe("pasteAsBicep", (): void => {
     }
 
     async function waitForPasteAsBicep(
-      expectedSubstring: string
+      expectedSubstring: string,
     ): Promise<void> {
       await until(() => isReady(), {
         interval: 100,
@@ -149,7 +149,7 @@ describe("pasteAsBicep", (): void => {
       });
       if (!isReady()) {
         throw new Error(
-          `Expected paste as bicep command to complete. Expected following string in log: "${expectedSubstring}".\nRecent log contents: ${getRecentLogContents()}`
+          `Expected paste as bicep command to complete. Expected following string in log: "${expectedSubstring}".\nRecent log contents: ${getRecentLogContents()}`,
         );
       }
 

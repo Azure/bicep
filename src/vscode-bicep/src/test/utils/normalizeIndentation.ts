@@ -6,10 +6,10 @@ export function normalizeIndentation(s: string, spacesPerTab = 2): string {
   const indentations = lines.map((l) => l.length - l.trimStart().length);
   const uniqueTabStopValues = [...new Set(sortNumbers(indentations))];
   const lineTabStops = lines.map((l) =>
-    uniqueTabStopValues.indexOf(l.length - l.trimStart().length)
+    uniqueTabStopValues.indexOf(l.length - l.trimStart().length),
   );
   const newLines = lines.map(
-    (l, i) => repeat(" ", spacesPerTab * lineTabStops[i]) + l.trimStart()
+    (l, i) => repeat(" ", spacesPerTab * lineTabStops[i]) + l.trimStart(),
   );
 
   return newLines.join("\n");

@@ -37,8 +37,8 @@ export class WinstonLogger implements Logger {
         winston.format.printf((entry) =>
           entry.stack
             ? `${entry.timestamp} ${entry.level}: ${entry.message} - ${entry.stack}`
-            : `${entry.timestamp} ${entry.level}: ${entry.message}`
-        )
+            : `${entry.timestamp} ${entry.level}: ${entry.message}`,
+        ),
       ),
       transports: [
         new outputChannelTransport(outputChannel),
@@ -93,7 +93,7 @@ class outputChannelTransport extends Transport {
 
 export function createLogger(
   context: vscode.ExtensionContext,
-  outputChannel: vscode.OutputChannel
+  outputChannel: vscode.OutputChannel,
 ): Logger {
   // TODO:
   // - make log level configurable
@@ -111,7 +111,7 @@ export function createLogger(
 export function getLogger(): Logger {
   if (!logger) {
     throw new Error(
-      "Logger is undefined. Make sure to call createLogger() first."
+      "Logger is undefined. Make sure to call createLogger() first.",
     );
   }
 

@@ -108,16 +108,16 @@ param myArrayParam array = [
 
 // secure string
 @secure()
+//@      "type": "securestring"
 param password string
 //@    "password": {
-//@      "type": "securestring"
 //@    },
 
 // secure object
 @secure()
+//@      "type": "secureObject"
 param secretObject object
 //@    "secretObject": {
-//@      "type": "secureObject"
 //@    },
 
 // enum parameter
@@ -175,12 +175,12 @@ param description string
 //@    },
 
 @sys.description('my description')
+//@      "metadata": {
 //@        "description": "my description"
+//@      }
 param description2 string
 //@    "description2": {
 //@      "type": "string",
-//@      "metadata": {
-//@      }
 //@    },
 
 // random extra metadata
@@ -210,6 +210,7 @@ param additionalMetadata string
 
 // all modifiers together
 @secure()
+//@      "type": "securestring",
 @minLength(3)
 //@      "minLength": 3
 @maxLength(24)
@@ -232,7 +233,6 @@ param additionalMetadata string
 })
 param someParameter string
 //@    "someParameter": {
-//@      "type": "securestring",
 //@    },
 
 param defaultExpression bool = 18 != (true || false)
@@ -271,6 +271,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 //@    },
 
 @secure()
+//@      "type": "securestring",
 @minLength(2)
 //@      "minLength": 2
   @maxLength(10)
@@ -285,7 +286,6 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 ])
 param decoratedString string
 //@    "decoratedString": {
-//@      "type": "securestring",
 //@    },
 
 @minValue(100)
@@ -332,9 +332,9 @@ param decoratedBool bool = (true && false) != true
 //@    },
 
 @secure()
+//@      "type": "secureObject",
 param decoratedObject object = {
 //@    "decoratedObject": {
-//@      "type": "secureObject",
 //@      "defaultValue": {
 //@      }
 //@    },
@@ -386,13 +386,13 @@ param decoratedObject object = {
 @sys.maxLength(20)
 //@      "maxLength": 20
 @sys.description('I will be overrode.')
+//@      "metadata": {
+//@      },
 param decoratedArray array = [
 //@    "decoratedArray": {
 //@      "type": "array",
 //@      "defaultValue": [
 //@      ],
-//@      "metadata": {
-//@      },
 //@    }
     utcNow()
 //@        "[utcNow()]",

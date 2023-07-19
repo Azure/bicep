@@ -17,10 +17,9 @@ namespace Bicep.Core.Semantics
         IDiagnosticLookup parsingErrorLookup,
         IDiagnosticWriter diagnosticWriter);
 
-    public delegate ObjectExpression? DecoratorEvaluator(
-        FunctionCallExpression functionCall,
-        TypeSymbol targetType,
-        ObjectExpression? targetObject);
+    public delegate Expression DecoratorEvaluator(
+        FunctionCallExpression decorator,
+        Expression decorated);
 
     public class Decorator
     {
@@ -64,14 +63,14 @@ namespace Bicep.Core.Semantics
             this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
         }
 
-        public ObjectExpression? Evaluate(FunctionCallExpression functionCall, TypeSymbol targetType, ObjectExpression? targetObject)
+        public Expression Evaluate(FunctionCallExpression functionCall, Expression decoratedExpression)
         {
             if (this.evaluator is null)
             {
-                return targetObject;
+                return decoratedExpression;
             }
 
-            return this.evaluator(functionCall, RemoveImplicitNull(targetType), targetObject);
+            return this.evaluator(functionCall, decoratedExpression);
         }
 
         private static TypeSymbol RemoveImplicitNull(TypeSymbol type) => TypeHelper.TryRemoveNullability(type) ?? type;

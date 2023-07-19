@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "656388433720155968"
+      "templateHash": "15324481904347043092"
     }
   },
   "parameters": {
@@ -694,15 +694,15 @@
             "ipprefixlength": {
               "type": "int",
               "defaultValue": 31,
-              "metadata": {
-                "description": "Specifies the size of the Public IP Prefix"
-              },
               "allowedValues": [
                 28,
                 29,
                 30,
                 31
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the size of the Public IP Prefix"
+              }
             }
           },
           "resources": {
@@ -803,13 +803,13 @@
             },
             "fwtype": {
               "type": "string",
-              "metadata": {
-                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
-              },
               "allowedValues": [
                 "VNet",
                 "vWAN"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+              }
             },
             "fwpolicyid": {
               "type": "string",
@@ -953,13 +953,13 @@
             "wantype": {
               "type": "string",
               "defaultValue": "Standard",
-              "metadata": {
-                "description": "Specifies the type of Virtual WAN."
-              },
               "allowedValues": [
                 "Standard",
                 "Basic"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the type of Virtual WAN."
+              }
             }
           },
           "resources": {
@@ -1303,13 +1303,13 @@
             },
             "fwtype": {
               "type": "string",
-              "metadata": {
-                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
-              },
               "allowedValues": [
                 "VNet",
                 "vWAN"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+              }
             },
             "fwpolicyid": {
               "type": "string",

@@ -50,7 +50,7 @@ export async function createChildlessNodeBackgroundUri(
   symbol: string,
   type: string,
   isCollection: boolean,
-  theme: DefaultTheme
+  theme: DefaultTheme,
 ): Promise<string> {
   const icon =
     type !== "<module>" ? await importResourceIconInline(type) : moduleIcon;
@@ -85,7 +85,7 @@ export async function createChildlessNodeBackgroundUri(
 export function createContainerNodeBackgroundUri(
   symbol: string,
   isCollection: boolean,
-  theme: DefaultTheme
+  theme: DefaultTheme,
 ): string {
   symbol += isCollection ? " <collection>" : "";
 

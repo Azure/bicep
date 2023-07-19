@@ -1701,15 +1701,15 @@
       },
       "System.Text.Encodings.Web": {
         "type": "Transitive",
-        "resolved": "8.0.0-preview.5.23280.8",
-        "contentHash": "g4I3rXyyQj4AmsooE1z1nCYjXY712foWowYdCep13QajdgNiVOXSBTij2CbqR6+gryMj/x/cInk2TGcBS79ubw=="
+        "resolved": "8.0.0-preview.6.23329.7",
+        "contentHash": "ASJoRslgMbjlWf3f3qCfSYGbMXaK5oGQluB132d9D9ngs0fGKz+BGYA1vzYqfPACEEhCyDjy9cxQNXpSYt3rKQ=="
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "8.0.0-preview.5.23280.8",
-        "contentHash": "pIbWMzNEuUrO0DAe2T17rloNfrYsHg8MHhmxLOlyPHZgrAXEr3smeZvHaxNGkrJHYPoO7hgmWI9tuTI/kiJT8Q==",
+        "resolved": "8.0.0-preview.6.23329.7",
+        "contentHash": "RcSTwbvgPfb8qC+hwKTdsBl6qbdnd9k7ilOPwNXLw8QZD8S88ZFPZSb6aIcNuDhrzVlLDQJnbI0zbEupyC0ySg==",
         "dependencies": {
-          "System.Text.Encodings.Web": "8.0.0-preview.5.23280.8"
+          "System.Text.Encodings.Web": "8.0.0-preview.6.23329.7"
         }
       },
       "System.Text.RegularExpressions": {
@@ -1869,7 +1869,7 @@
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",
           "System.IO.Abstractions": "[19.2.29, )",
-          "System.Text.Json": "[8.0.0-preview.5.23280.8, )"
+          "System.Text.Json": "[8.0.0-preview.6.23329.7, )"
         }
       },
       "Azure.Bicep.Decompiler": {
@@ -2637,8 +2637,8 @@
       },
       "System.Text.Encodings.Web": {
         "type": "Transitive",
-        "resolved": "8.0.0-preview.5.23280.8",
-        "contentHash": "g4I3rXyyQj4AmsooE1z1nCYjXY712foWowYdCep13QajdgNiVOXSBTij2CbqR6+gryMj/x/cInk2TGcBS79ubw=="
+        "resolved": "8.0.0-preview.6.23329.7",
+        "contentHash": "ASJoRslgMbjlWf3f3qCfSYGbMXaK5oGQluB132d9D9ngs0fGKz+BGYA1vzYqfPACEEhCyDjy9cxQNXpSYt3rKQ=="
       },
       "System.Threading.AccessControl": {
         "type": "Transitive",

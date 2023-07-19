@@ -12,7 +12,7 @@ describe("surveys-e2etests", () => {
       const isAvailable = await Survey.getIsSurveyAvailable(
         context,
         // This test depends on this aka.ms link existing and being active (can point to https://github.com/Azure/bicep/)
-        "https://aka.ms/bicep/tests/surveytests/active"
+        "https://aka.ms/bicep/tests/surveytests/active",
       );
 
       expect(isAvailable).toBeTruthy();
@@ -25,7 +25,7 @@ describe("surveys-e2etests", () => {
       const isAvailable = await Survey.getIsSurveyAvailable(
         context,
         // This test depends on this aka.ms link existing and being set to inactive (can point to https://github.com/Azure/bicep/)
-        "https://aka.ms/bicep/tests/surveytests/inactive"
+        "https://aka.ms/bicep/tests/surveytests/inactive",
       );
 
       expect(isAvailable).toBeFalsy();
@@ -37,7 +37,7 @@ describe("surveys-e2etests", () => {
 
       const isAvailable = await Survey.getIsSurveyAvailable(
         context,
-        "https://aka.ms/bicep/tests/surveytests/this/link/does/not/exist"
+        "https://aka.ms/bicep/tests/surveytests/this/link/does/not/exist",
       );
 
       expect(isAvailable).toBeFalsy();
@@ -50,7 +50,7 @@ describe("surveys-e2etests", () => {
       // This test depends on this aka.ms link existing and being active
       const isAvailable = await Survey.getIsSurveyAvailable(
         context,
-        "https://whoops.misspelled.aka.ms/bicep/tests/surveytests/active"
+        "https://whoops.misspelled.aka.ms/bicep/tests/surveytests/active",
       );
 
       expect(isAvailable).toBeFalsy();
@@ -63,12 +63,12 @@ describe("surveys-e2etests", () => {
 
       const isAvailable = await Survey.getIsSurveyAvailable(
         context,
-        "foo://aka.ms/bicep/tests/surveytests/active"
+        "foo://aka.ms/bicep/tests/surveytests/active",
       );
 
       expect(isAvailable).toBeFalsy();
       expect(context.telemetry.properties.surveyLinkStatus).toBe(
-        "ERR_INVALID_PROTOCOL"
+        "ERR_INVALID_PROTOCOL",
       );
     });
 
@@ -77,7 +77,7 @@ describe("surveys-e2etests", () => {
 
       const isAvailable = await Survey.getIsSurveyAvailable(
         context,
-        "https://github.com/Azure/bicep"
+        "https://github.com/Azure/bicep",
       );
 
       expect(isAvailable).toBeFalsy();

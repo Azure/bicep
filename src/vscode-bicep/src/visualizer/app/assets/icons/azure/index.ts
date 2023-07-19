@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 export async function importResourceIconInline(
-  resourceType: string
+  resourceType: string,
 ): Promise<string> {
   switch (resourceType.toLowerCase()) {
     // Microsoft.Compute

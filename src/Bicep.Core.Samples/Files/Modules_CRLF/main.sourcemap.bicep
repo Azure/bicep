@@ -1,12 +1,12 @@
 
 @sys.description('this is deployTimeSuffix param')
+//@      "metadata": {
 //@        "description": "this is deployTimeSuffix param"
+//@      }
 param deployTimeSuffix string = newGuid()
 //@    "deployTimeSuffix": {
 //@      "type": "string",
 //@      "defaultValue": "[newGuid()]",
-//@      "metadata": {
-//@      }
 //@    }
 
 @sys.description('this module a')

@@ -32,6 +32,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
@@ -45,8 +46,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
                 .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope)));
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 armClient,
                 documentPath,
@@ -77,8 +79,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
         {
             var armClient = CreateMockArmClient();
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
@@ -107,8 +110,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
         {
             var armClient = CreateMockArmClient();
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
@@ -138,8 +142,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeTenant))
                 .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant)));
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 armClient,
                 documentPath,
@@ -186,8 +191,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
             var deployId = "bicep_deployment";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -230,8 +236,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Returns<ArmDeploymentCollection>(null);
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -273,8 +280,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Throws(new Exception(errorMessage));
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -324,8 +332,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Returns(deploymentCollection.Object);
             var documentPath = "some_path";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -379,8 +388,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
 
             var deploymentOperationsCache = new DeploymentOperationsCache();
             var deployId = "bicep_deployment1";
+            var deploymentHelper = new DeploymentHelper();
 
-            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeployStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 "some_path",
