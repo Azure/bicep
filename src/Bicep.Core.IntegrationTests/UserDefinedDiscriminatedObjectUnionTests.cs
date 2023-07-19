@@ -619,11 +619,10 @@ type typeB = {
 }
 
 @discriminator('type')
-type typeUnion = (typeA | typeB)?
+type typeUnion1 = typeUnion1 | typeA
 """);
 
-            result.Should().NotHaveAnyDiagnostics();
-            //result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+            result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
         }
     }
 }
