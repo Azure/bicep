@@ -6,7 +6,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -21,7 +21,7 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class BuildParamsCommandTests : TestBase
     {
-        
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -63,7 +63,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Build_Params_Bicep_File_Reference_Mismatch_And_Other_Diagnostics_ShouldFail_WithAllExpectedErrorMessages()
         {
-            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", 
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam",
             @"
             using './main.bicep'
 
@@ -111,7 +111,7 @@ namespace Bicep.Cli.IntegrationTests
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
-        {   
+        {
             var data = baselineData.GetData(TestContext);
 
             var settings = new InvocationSettings(new (), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);

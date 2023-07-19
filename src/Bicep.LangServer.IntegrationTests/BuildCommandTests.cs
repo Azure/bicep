@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests

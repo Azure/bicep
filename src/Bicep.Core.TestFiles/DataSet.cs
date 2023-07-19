@@ -14,7 +14,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     [DebuggerDisplay("{" + nameof(DisplayName) + "}")]
     public class DataSet
@@ -160,7 +160,7 @@ namespace Bicep.Core.Samples
             => OutputHelper.AddDiagsToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, item => item.Span, diagsFunc);
 
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
-            => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
+            => Path.Combine("src", "Bicep.Core.TestFiles", "Files", dataSet.Name, fileName);
 
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadPublishData(string streamNamePrefix) =>
             ReadExternalModuleData(streamNamePrefix, LanguageConstants.LanguageFileExtension);

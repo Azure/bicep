@@ -18,6 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Cli.UnitTests\Bicep.Cli.UnitTests.csproj" />
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
-    <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
+    <ProjectReference Include="..\Bicep.Core.TestFiles\Bicep.Core.TestFiles.csproj" />
   </ItemGroup>
 </Project>

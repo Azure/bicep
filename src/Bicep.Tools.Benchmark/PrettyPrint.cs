@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using BenchmarkDotNet.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
@@ -46,7 +46,7 @@ public class PrettyPrint
     public void GlobalSetup()
     {
         this.benchmarkData = CreateBenchmarkData();
-        this.printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, true); 
+        this.printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, true);
     }
 
     [Benchmark(Description = "Pretty-print the main file of each valid dataset")]

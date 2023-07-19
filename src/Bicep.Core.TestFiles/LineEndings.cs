@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     /// <summary>
     /// Controls how data set treats line endings in source files.
@@ -8,7 +8,7 @@ namespace Bicep.Core.Samples
     public enum LineEndings
     {
         /// <summary>
-        /// Line endings are replaced with the runtime default line endings. 
+        /// Line endings are replaced with the runtime default line endings.
         /// </summary>
         Auto,
 

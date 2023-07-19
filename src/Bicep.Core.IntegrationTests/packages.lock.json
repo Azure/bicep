@@ -2053,7 +2053,7 @@
           "Sarif.Sdk": "[4.2.2, )"
         }
       },
-      "bicep.core.samples": {
+      "Bicep.Core.TestFiles": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",

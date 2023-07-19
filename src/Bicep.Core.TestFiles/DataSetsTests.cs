@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     [TestClass]
     public class DataSetsTests

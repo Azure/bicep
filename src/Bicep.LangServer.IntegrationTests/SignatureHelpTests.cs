@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;

@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Extensions;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
@@ -48,7 +48,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             }
 
             var expected = JToken.Parse(expectedStr);
-            var expectedPath = Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestFunctionsDirectory, fileName);
+            var expectedPath = Path.Combine("src", "Bicep.Core.TestFiles", "Files", DataSet.TestFunctionsDirectory, fileName);
             actual.Should().EqualWithJsonDiffOutput(TestContext, expected, expectedPath, actualLocation);
         }
 

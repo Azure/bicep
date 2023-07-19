@@ -5,7 +5,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -24,7 +24,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DataSet = Bicep.Core.Samples.DataSet;
+using DataSet = Bicep.Core.TestFiles.DataSet;
 
 namespace Bicep.Cli.IntegrationTests
 {

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31815.197
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli", "src\Bicep.Cli\Bicep.Cli.csproj", "{58F20140-729B-41E0-91F0-7004C4E0CB1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Cli", "src\Bicep.Cli\Bicep.Cli.csproj", "{58F20140-729B-41E0-91F0-7004C4E0CB1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Wasm", "src\Bicep.Wasm\Bicep.Wasm.csproj", "{6679B13D-BA2B-43C8-A548-6C6D22E19BE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Wasm", "src\Bicep.Wasm\Bicep.Wasm.csproj", "{6679B13D-BA2B-43C8-A548-6C6D22E19BE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core", "src\Bicep.Core\Bicep.Core.csproj", "{D72C8232-24ED-4EDD-ABDB-16194681D9F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Core", "src\Bicep.Core\Bicep.Core.csproj", "{D72C8232-24ED-4EDD-ABDB-16194681D9F2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer", "src\Bicep.LangServer\Bicep.LangServer.csproj", "{F4AF2603-C020-4A57-A428-AF3EFED21544}"
 EndProject
@@ -19,27 +19,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LanguageServer", "LanguageS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{9EBF2BF0-C968-4029-B21D-214D195EA148}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core.IntegrationTests", "src\Bicep.Core.IntegrationTests\Bicep.Core.IntegrationTests.csproj", "{087ADE61-3D39-4884-8258-40D7A7DD833F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Core.IntegrationTests", "src\Bicep.Core.IntegrationTests\Bicep.Core.IntegrationTests.csproj", "{087ADE61-3D39-4884-8258-40D7A7DD833F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core.UnitTests", "src\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj", "{166B8503-54F0-452F-88C5-1430BF05A604}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Core.UnitTests", "src\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj", "{166B8503-54F0-452F-88C5-1430BF05A604}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer.UnitTests", "src\Bicep.LangServer.UnitTests\Bicep.LangServer.UnitTests.csproj", "{F7B0F06D-56CE-4F4A-8EF9-ED6EC3D77EE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.LangServer.UnitTests", "src\Bicep.LangServer.UnitTests\Bicep.LangServer.UnitTests.csproj", "{F7B0F06D-56CE-4F4A-8EF9-ED6EC3D77EE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core.Samples", "src\Bicep.Core.Samples\Bicep.Core.Samples.csproj", "{A2E4B91C-3B7F-4CB1-B482-BE40F7709EB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Core.TestFiles", "src\Bicep.Core.TestFiles\Bicep.Core.TestFiles.csproj", "{A2E4B91C-3B7F-4CB1-B482-BE40F7709EB5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli.UnitTests", "src\Bicep.Cli.UnitTests\Bicep.Cli.UnitTests.csproj", "{29A1AE2B-D47D-41DD-9824-279475D9B6C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Cli.UnitTests", "src\Bicep.Cli.UnitTests\Bicep.Cli.UnitTests.csproj", "{29A1AE2B-D47D-41DD-9824-279475D9B6C2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer.IntegrationTests", "src\Bicep.LangServer.IntegrationTests\Bicep.LangServer.IntegrationTests.csproj", "{0DE47D02-2BBE-4352-9E38-79A374F9C41E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.LangServer.IntegrationTests", "src\Bicep.LangServer.IntegrationTests\Bicep.LangServer.IntegrationTests.csproj", "{0DE47D02-2BBE-4352-9E38-79A374F9C41E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli.IntegrationTests", "src\Bicep.Cli.IntegrationTests\Bicep.Cli.IntegrationTests.csproj", "{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Cli.IntegrationTests", "src\Bicep.Cli.IntegrationTests\Bicep.Cli.IntegrationTests.csproj", "{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Decompiler", "Decompiler", "{61643BA1-BE82-4430-A3D3-CB7A16E747E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler", "src\Bicep.Decompiler\Bicep.Decompiler.csproj", "{4CD48B4A-6297-49FC-90AC-5DF9213C1527}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler.IntegrationTests", "src\Bicep.Decompiler.IntegrationTests\Bicep.Decompiler.IntegrationTests.csproj", "{695560CE-C6C3-4FCD-A488-09F06E608297}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler.IntegrationTests", "src\Bicep.Decompiler.IntegrationTests\Bicep.Decompiler.IntegrationTests.csproj", "{695560CE-C6C3-4FCD-A488-09F06E608297}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler.UnitTests", "src\Bicep.Decompiler.UnitTests\Bicep.Decompiler.UnitTests.csproj", "{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler.UnitTests", "src\Bicep.Decompiler.UnitTests\Bicep.Decompiler.UnitTests.csproj", "{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionItems", "_SolutionItems", "{594DDE3F-3A55-47BD-84AF-BAF8B2F8B4C3}"
 	ProjectSection(SolutionItems) = preProject
@@ -73,13 +73,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.MSBuild", "src\Bicep.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RegistryModuleTool", "RegistryModuleTool", "{90126655-7A34-4F5B-A41A-50A468F4632D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.RegistryModuleTool", "src\Bicep.RegistryModuleTool\Bicep.RegistryModuleTool.csproj", "{DA24CBE9-E85F-4F0D-88D0-0EE5681B91D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RegistryModuleTool", "src\Bicep.RegistryModuleTool\Bicep.RegistryModuleTool.csproj", "{DA24CBE9-E85F-4F0D-88D0-0EE5681B91D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.RegistryModuleTool.UnitTests", "src\Bicep.RegistryModuleTool.UnitTests\Bicep.RegistryModuleTool.UnitTests.csproj", "{58E2E0C3-059A-4B00-BCC1-66FE78946A9E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RegistryModuleTool.UnitTests", "src\Bicep.RegistryModuleTool.UnitTests\Bicep.RegistryModuleTool.UnitTests.csproj", "{58E2E0C3-059A-4B00-BCC1-66FE78946A9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.RegistryModuleTool.IntegrationTests", "src\Bicep.RegistryModuleTool.IntegrationTests\Bicep.RegistryModuleTool.IntegrationTests.csproj", "{8C2280F2-1E08-4022-B26B-59622DD8B126}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RegistryModuleTool.IntegrationTests", "src\Bicep.RegistryModuleTool.IntegrationTests\Bicep.RegistryModuleTool.IntegrationTests.csproj", "{8C2280F2-1E08-4022-B26B-59622DD8B126}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.RegistryModuleTool.TestFixtures", "src\Bicep.RegistryModuleTool.TestFixtures\Bicep.RegistryModuleTool.TestFixtures.csproj", "{9F596D8D-5CDB-4830-B73C-26C33C0227D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RegistryModuleTool.TestFixtures", "src\Bicep.RegistryModuleTool.TestFixtures\Bicep.RegistryModuleTool.TestFixtures.csproj", "{9F596D8D-5CDB-4830-B73C-26C33C0227D7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{C6CAFEE8-7779-4F48-BEA1-D59D3CD91A56}"
 EndProject

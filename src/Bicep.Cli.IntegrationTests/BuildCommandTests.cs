@@ -11,7 +11,7 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -98,7 +98,7 @@ namespace Bicep.Cli.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: Path.Combine("src", "Bicep.Core.TestFiles", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -136,7 +136,7 @@ namespace Bicep.Cli.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: Path.Combine("src", "Bicep.Core.TestFiles", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -178,7 +178,7 @@ namespace Bicep.Cli.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: Path.Combine("src", "Bicep.Core.TestFiles", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 

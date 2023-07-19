@@ -3,7 +3,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     [TestClass]
     public static class AssemblyInitializer

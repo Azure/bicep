@@ -2187,7 +2187,7 @@
       "bicep.langserver.integrationtests": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core.Samples": "[1.0.0, )",
+          "Bicep.Core.TestFiles": "[1.0.0, )",
           "Bicep.Core.UnitTests": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
           "FluentAssertions": "[6.11.0, )",

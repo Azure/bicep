@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
