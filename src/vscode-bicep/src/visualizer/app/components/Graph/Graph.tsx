@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { useRef, VFC, memo, useCallback, useMemo } from "react";
+import {
+  useRef,
+  FC,
+  memo,
+  useCallback,
+  useMemo,
+  NamedExoticComponent,
+} from "react";
 import cytoscape from "cytoscape";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 
@@ -55,7 +62,7 @@ const GraphContainer = styled.div`
   background-position: 12px 12px;
 `;
 
-const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
+const GraphComponent: FC<GraphProps> = ({ elements, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const styleSheet = useMemo(() => createStylesheet(theme), [theme]);
   const [cytoscapeRef, layoutRef] = useCytoscape(elements, styleSheet, {
@@ -110,7 +117,7 @@ const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
 };
 
 export const Graph = memo(
-  withTheme(GraphComponent),
+  withTheme(GraphComponent) as typeof GraphComponent,
   (prevProps, nextProps) =>
     prevProps.theme === nextProps.theme &&
     prevProps.elements.length === nextProps.elements.length &&
@@ -131,4 +138,5 @@ export const Graph = memo(
         prevData.target === nextData.target
       );
     })
-);
+// Workaround for https://github.com/styled-components/styled-components/issues/4082.
+) as NamedExoticComponent<Omit<GraphProps, "theme">>;
