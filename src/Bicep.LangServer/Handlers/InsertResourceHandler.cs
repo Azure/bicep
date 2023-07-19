@@ -86,19 +86,11 @@ namespace Bicep.LanguageServer.Handlers
                         BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"),
                         Unit.Value);
                 }
-                var azProviderDeclaration = context.ProgramSyntax.Declarations
-                    .OfType<ImportDeclarationSyntax>()
-                    .FirstOrDefault(x => x.Specification.Name.Equals(AzNamespaceType.BuiltInName, LanguageConstants.IdentifierComparison));
 
-                var resourceTypeLoader = azResourceTypeLoaderFactory.GetResourceTypeLoader(azProviderDeclaration?.Specification.Version, model.Features);
-                if (resourceTypeLoader is null)
-                {
-                    throw helper.CreateException(
-                        $"Failed to find a Bicep type definitions for provider \"{azProviderDeclaration}\".",
-                        BicepTelemetryEvent.InsertResourceFailure($"UnknownProvider({azProviderDeclaration})"),
-                        Unit.Value);
-                }
-                var matchedType = resourceTypeLoader.GetAvailableTypes()
+                var nsResolver = model.Binder.NamespaceResolver;
+                var azNamespace = nsResolver.GetNamespaceNames().Select(nsResolver.TryGetNamespace).First((ns) => ns?.ProviderName == AzNamespaceType.BuiltInName);
+                // Note(asilverman): I coerce azNamespace since there will always be an 'az' namespace defined in the compilation (either the builtin or the imported one). 
+                var matchedType = azNamespace!.ResourceTypeProvider.GetAvailableTypes()
                     .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
                     .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
                     .FirstOrDefault();
