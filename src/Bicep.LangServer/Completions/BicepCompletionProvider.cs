@@ -81,7 +81,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetOutputTypeFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetImportCompletions(model, context))
+                .Concat(GetProviderImportCompletions(model, context))
+                .Concat(GetCompileTimeImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetExpressionCompletions(model, context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
@@ -171,7 +172,7 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
 
-                        if (model.Features.ExtensibilityEnabled)
+                        if (model.Features.ExtensibilityEnabled || model.Features.CompileTimeImportsEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
@@ -193,6 +194,11 @@ namespace Bicep.LanguageServer.Completions
                         if (model.Features.AssertsEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.AssertKeyword, "Assert keyword", context.ReplacementRange);
+                        }
+
+                        if (model.Features.UserDefinedTypesEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
                         }
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
@@ -748,7 +754,7 @@ namespace Bicep.LanguageServer.Completions
 
             // Local functions.
 
-            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);      
+            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
 
         private bool IsOciModuleRegistryReference(BicepCompletionContext context)
@@ -1864,7 +1870,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private IEnumerable<CompletionItem> GetImportCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetProviderImportCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
@@ -1910,6 +1916,59 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetCompileTimeImportCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportIdentifier))
+            {
+                yield return CompletionItemBuilder.Create(CompletionItemKind.Value, "{}")
+                    .WithSortText(GetSortText("{}", CompletionPriority.High))
+                    .WithDetail("Import symbols individually from another template")
+                    .WithPlainTextEdit(context.ReplacementRange, "{}")
+                    .Build();
+
+                yield return CompletionItemBuilder.Create(CompletionItemKind.Value, "* as")
+                    .WithSortText(GetSortText("* as", CompletionPriority.High))
+                    .WithDetail("Import all symbols from another template under a new namespace")
+                    .WithPlainTextEdit(context.ReplacementRange, "* as")
+                    .Build();
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportFromKeyword))
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.FromKeyword, "From keyword", context.ReplacementRange);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportedSymbolIdentifier))
+            {
+                if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
+                    compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
+                {
+                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(model.Compilation.SourceFileGrouping,
+                        compileTimeImportDeclaration,
+                        b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                        model.Compilation,
+                        out var importedModel,
+                        out _))
+                    {
+                        var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
+
+                        foreach (var exported in importedModel.ExportedTypes)
+                        {
+                            var edit = claimedNames.Contains(exported.Key)
+                                ? $"{exported.Key} as "
+                                : exported.Key;
+
+                            yield return CompletionItemBuilder.Create(CompletionItemKind.Variable, exported.Key)
+                                .WithSortText(GetSortText(exported.Key, CompletionPriority.High))
+                                .WithDetail(exported.Value.Description)
+                                .WithPlainTextEdit(context.ReplacementRange, edit)
+                                .Build();
+                        }
+                    }
+                }
             }
         }
 

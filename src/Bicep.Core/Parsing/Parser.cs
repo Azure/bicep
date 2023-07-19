@@ -304,9 +304,10 @@ namespace Bicep.Core.Parsing
                 _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
             };
 
-            var fromClause = CompileTimeImportFromClause();
-
-            return new(leadingNodes, keyword, importExpression, fromClause);
+            return new(leadingNodes,
+                keyword,
+                importExpression,
+                WithRecovery(CompileTimeImportFromClause, GetSuppressionFlag(keyword), TokenType.NewLine));
         }
 
         private ImportedSymbolsListSyntax ImportedSymbolsList()
