@@ -67,6 +67,7 @@ namespace Bicep.Core.Emit
 
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
+        private ExpressionTypeAliasLookupVisitor? TypeAliasLookupVisitor;
 
         public TemplateWriter(SemanticModel semanticModel)
         {
@@ -105,7 +106,13 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(emitter, program.Metadata);
 
-            this.EmitTypeDefinitionsIfPresent(emitter, program.Types);
+            if (program.Types.Any())
+            {
+                TypeAliasLookupVisitor = new ExpressionTypeAliasLookupVisitor();
+                TypeAliasLookupVisitor.Visit(program);
+
+                this.EmitTypeDefinitionsIfPresent(emitter, program.Types);
+            }
 
             this.EmitUserDefinedFunctions(emitter, program.Functions);
 
@@ -617,48 +624,48 @@ namespace Bicep.Core.Emit
         {
             var discriminatorPropertyName = discriminatedObjectTypeExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
 
-            foreach (var unionMemberExpression in discriminatedObjectTypeExpr.MemberExpressions)
+            foreach (var memberExpression in discriminatedObjectTypeExpr.MemberExpressions)
             {
-                var unionMemberType = unionMemberExpression.ExpressedType;
+                var resolvedMemberExpression = memberExpression;
 
-                if (unionMemberExpression is TypeAliasReferenceExpression memberTypeAliasExpr)
+                if (memberExpression is TypeAliasReferenceExpression memberTypeAliasExpr
+                    && TypeAliasLookupVisitor!.GetDeclaredTypeExpression(memberTypeAliasExpr.Name) is { } declaredTypeExpression)
                 {
-                    // TODO(k.a): this needs to resolve the type aliases to expressions
+                    resolvedMemberExpression = declaredTypeExpression.Value;
                 }
 
-                // if (unionMemberExpression is ObjectTypeExpression objectUnionMemberExpr)
-                // {
-                //     var memberObjectType = objectUnionMemberExpr.ExpressedObjectType;
-                //
-                //     if (!memberObjectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
-                //         || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
-                //     {
-                //         // This should have been caught during type checking
-                //         throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
-                //     }
-                //
-                //     var objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr, new HashSet<string> { discriminatorPropertyName });
-                //     objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
-                //
-                //     yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
-                // }
-                // else if (unionMemberExpression is DiscriminatedObjectTypeExpression nestedDiscriminatedMemberExpr)
-                // {
-                //     var nestedDiscriminatorPropertyName = nestedDiscriminatedMemberExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
-                //     if (nestedDiscriminatorPropertyName != discriminatorPropertyName)
-                //     {
-                //         // This should have been caught during type checking
-                //         throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
-                //     }
-                //
-                //     foreach (var nestedPropertyExpr in GetDiscriminatedUnionMappingEntries(nestedDiscriminatedMemberExpr))
-                //     {
-                //         yield return nestedPropertyExpr;
-                //     }
-                // }
-            }
+                if (resolvedMemberExpression is ObjectTypeExpression objectUnionMemberExpr)
+                {
+                    var memberObjectType = objectUnionMemberExpr.ExpressedObjectType;
 
-            yield break;
+                    if (!memberObjectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
+                        || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
+                    {
+                        // This should have been caught during type checking
+                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                    }
+
+                    var objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr, new HashSet<string> { discriminatorPropertyName });
+                    objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
+
+                    yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
+                }
+                else if (resolvedMemberExpression is DiscriminatedObjectTypeExpression nestedDiscriminatedMemberExpr)
+                {
+                    var nestedDiscriminatorPropertyName = nestedDiscriminatedMemberExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
+
+                    if (nestedDiscriminatorPropertyName != discriminatorPropertyName)
+                    {
+                        // This should have been caught during type checking
+                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                    }
+
+                    foreach (var nestedPropertyExpr in GetDiscriminatedUnionMappingEntries(nestedDiscriminatedMemberExpr))
+                    {
+                        yield return nestedPropertyExpr;
+                    }
+                }
+            }
         }
 
         private static Expression ToLiteralValue(ITypeReference literalType) => literalType.Type switch
