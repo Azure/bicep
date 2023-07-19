@@ -35,7 +35,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
             [AzNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) =>
             {
                 AzResourceTypeProvider? provider = builtInAzResourceTypeProvider;
-                if (features.DynamicTypeLoading && version is not null)
+                if (features.DynamicTypeLoadingEnabled && version is not null)
                 {
                     // TODO(asilverman): Current implementation of dynamic type loading needs to be refactored to handle caching of the provider to optimize 
                     // performance hit as a result of recreating the provider for each call to TryGetNamespace.
@@ -46,7 +46,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
                         return null;
                     }
                     var overriddenProviderVersion = builtInAzResourceTypeLoaderVersion;
-                    if (features.DynamicTypeLoading)
+                    if (features.DynamicTypeLoadingEnabled)
                     {
                         overriddenProviderVersion = version ?? overriddenProviderVersion;
                     }

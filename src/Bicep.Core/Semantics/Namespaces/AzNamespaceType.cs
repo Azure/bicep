@@ -446,7 +446,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName,
-                 new NamespaceSettings(
+                new NamespaceSettings(
                     IsSingleton: true,
                     BicepProviderName: BuiltInName,
                     ConfigurationType: null,

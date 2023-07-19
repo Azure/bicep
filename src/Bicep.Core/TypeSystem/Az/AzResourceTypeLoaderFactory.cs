@@ -32,7 +32,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IAzResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features)
         {
-            if (!features.DynamicTypeLoading || version is null)
+            if (!features.DynamicTypeLoadingEnabled || version is null)
             {
                 return resourceTypeLoaders["builtin"];
             }

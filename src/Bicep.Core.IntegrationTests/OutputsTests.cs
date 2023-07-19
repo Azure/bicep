@@ -32,22 +32,22 @@ namespace Bicep.Core.IntegrationTests
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped,
             """
-            resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-              name: 'test'
-                location: 'eastus'
-                kind: 'StorageV2'
-                sku: {
-                    name: 'Standard_LRS'
-                }
-                identity: {
-                  type: 'SystemAssigned'
-                }
-                properties:{
-                  accessTier: 'Cool'
-                }
-            }
-            output out resource = resource
-            """);
+resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties:{
+    accessTier: 'Cool'
+  }
+}
+output out resource = resource
+""");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -55,8 +55,7 @@ namespace Bicep.Core.IntegrationTests
             var @out = model.Root.OutputDeclarations.Should().ContainSingle().Subject;
             var typeInfo = model.GetTypeInfo(@out.DeclaringSyntax);
 
-            typeInfo.Should().BeOfType<ResourceType>()
-                .Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
+            typeInfo.Should().BeOfType<ResourceType>().Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
 
             result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
             {
@@ -74,22 +73,22 @@ namespace Bicep.Core.IntegrationTests
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped,
             """
-            resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-              name: 'test'
-              location: 'eastus'
-              kind: 'StorageV2'
-              sku: {
-                name: 'Standard_LRS'
-              }
-              identity: {
-                type: 'SystemAssigned'
-              }
-              properties:{
-                accessTier: 'Cool'
-              }
-            }
-            output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
-            """);
+resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties:{
+    accessTier: 'Cool'
+  }
+}
+output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
+""");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -97,8 +96,7 @@ namespace Bicep.Core.IntegrationTests
             var @out = model.Root.OutputDeclarations.Should().ContainSingle().Subject;
             var typeInfo = model.GetTypeInfo(@out.DeclaringSyntax);
 
-            typeInfo.Should().BeOfType<ResourceType>()
-                .Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
+            typeInfo.Should().BeOfType<ResourceType>().Which.TypeReference.FormatName().Should().BeEquivalentTo("Microsoft.Storage/storageAccounts@2019-06-01");
 
             result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
             {
@@ -120,22 +118,22 @@ namespace Bicep.Core.IntegrationTests
             var services = enableResourceTypeParameters ? ServicesWithResourceTyped : new ServiceBuilder();
             var result = CompilationHelper.Compile(services,
             """
-            resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-              name: 'test'
-              location: 'eastus'
-              kind: 'StorageV2'
-              sku: {
-                name: 'Standard_LRS'
-              }
-              identity: {
-                type: 'SystemAssigned'
-              }
-              properties:{
-                accessTier: 'Cool'
-              }
-            }
-            output out object = resource
-            """);
+resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties:{
+    accessTier: 'Cool'
+  }
+}
+output out object = resource
+""");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -151,24 +149,24 @@ namespace Bicep.Core.IntegrationTests
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped,
             """
-            resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-              name: 'test'
-              location: 'eastus'
-              kind: 'StorageV2'
-              sku: {
-                name: 'Standard_LRS'
-              }
-              identity: {
-                type: 'SystemAssigned'
-              }
-              properties:{
-                accessTier: 'Cool'
-              }
-            }
+resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties:{
+    accessTier: 'Cool'
+  }
+}
 
-            @description('cool beans')
-            output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
-            """);
+@description('cool beans')
+output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
+""");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -189,11 +187,11 @@ namespace Bicep.Core.IntegrationTests
         {
             var result = CompilationHelper.Compile(ServicesWithResourceTyped,
             """
-            resource resource 'Some.Fake/Type@2019-06-01' = {
-              name: 'test'
-            }
-            output out resource 'Some.Fake/Type@2019-06-01' = resource
-            """);
+resource resource 'Some.Fake/Type@2019-06-01' = {
+  name: 'test'
+}
+output out resource 'Some.Fake/Type@2019-06-01' = resource
+""");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
@@ -210,11 +208,11 @@ namespace Bicep.Core.IntegrationTests
             // the user only has one location in code to correct.
             var result = CompilationHelper.Compile(ServicesWithResourceTyped,
             """
-            resource resource 'Some.Fake/Type@2019-06-01' = {
-              name: 'test'
-            }
-            output out resource = resource
-            """);
+resource resource 'Some.Fake/Type@2019-06-01' = {
+  name: 'test'
+}
+output out resource = resource
+""");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
@@ -227,16 +225,16 @@ namespace Bicep.Core.IntegrationTests
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility,
             """
-            import 'storage@1.0.0' with {
-              connectionString: 'asdf'
-            } as stg
+import 'storage@1.0.0' with {
+  connectionString: 'asdf'
+} as stg
 
-            resource container 'stg:container' = {
-              name: 'myblob'
-            }
+resource container 'stg:container' = {
+  name: 'myblob'
+}
 
-            output out resource = container
-            """);
+output out resource = container
+""");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {

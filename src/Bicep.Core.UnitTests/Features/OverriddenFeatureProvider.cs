@@ -38,5 +38,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
     
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
     
-    public bool DynamicTypeLoading => overrides.DynamicTypeLoading ?? features.DynamicTypeLoading;
+    public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoading ?? features.DynamicTypeLoadingEnabled;
 }
