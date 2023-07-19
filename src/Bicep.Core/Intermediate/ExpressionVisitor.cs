@@ -319,6 +319,11 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.MemberExpressions);
     }
 
+    public void VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression)
+    {
+        Visit(expression.MemberExpressions);
+    }
+
     public void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);

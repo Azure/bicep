@@ -20,6 +20,62 @@ namespace Bicep.Core.IntegrationTests
         private ServiceBuilder ServicesWithUserDefinedTypes => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
 
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Basic()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeB = {
+  type: 'b'
+  value: int
+}
+
+@discriminator('type')
+type typeUnion = typeA | typeB
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "b": {
+        "properties": {
+          "value": {
+            "type": "int"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
         [DataTestMethod]
         [DataRow("typeA | typeB | typeC | typeD")]
         [DataRow("(typeA | typeB | typeC | typeD)")]

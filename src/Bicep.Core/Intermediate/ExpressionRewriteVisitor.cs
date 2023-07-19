@@ -479,6 +479,16 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { MemberExpressions = memberExpressions } : expression;
     }
 
+    void IExpressionVisitor.VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression) => ReplaceCurrent(expression, ReplaceDiscriminatedObjectTypeExpression);
+
+    public virtual Expression ReplaceDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression)
+    {
+        var hasChanges =
+            TryRewriteStrict(expression.MemberExpressions, out var memberExpressions);
+
+        return hasChanges ? expression with { MemberExpressions = memberExpressions } : expression;
+    }
+
     void IExpressionVisitor.VisitProgramExpression(ProgramExpression expression) => ReplaceCurrent(expression, ReplaceProgramExpression);
     public virtual Expression ReplaceProgramExpression(ProgramExpression expression)
     {

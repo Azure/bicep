@@ -120,4 +120,6 @@ public interface IExpressionVisitor
     void VisitNonNullableTypeExpression(NonNullableTypeExpression expression);
 
     void VisitUnionTypeExpression(UnionTypeExpression expression);
+
+    void VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression);
 }

@@ -239,7 +239,9 @@ public class ExpressionBuilder
 
     private TypeExpression ConvertTypeWithoutLowering(SyntaxBase syntax)
     {
-        switch (Context.SemanticModel.Binder.GetSymbolInfo(syntax))
+        var symbolInfo = Context.SemanticModel.Binder.GetSymbolInfo(syntax);
+
+        switch (symbolInfo)
         {
             case AmbientTypeSymbol ambientType:
                 return new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type);
@@ -249,7 +251,9 @@ public class ExpressionBuilder
                 throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression.");
         }
 
-        switch (Context.SemanticModel.GetTypeInfo(syntax))
+        var typeInfo = Context.SemanticModel.GetTypeInfo(syntax);
+
+        switch (typeInfo)
         {
             case StringLiteralType @string:
                 return new StringLiteralTypeExpression(syntax, @string);
@@ -262,8 +266,6 @@ public class ExpressionBuilder
             case ResourceType resource:
                 return new ResourceTypeExpression(syntax, resource);
         }
-        var symbol = Context.SemanticModel.GetSymbolInfo(syntax);
-        var typeInfo = Context.SemanticModel.GetTypeInfo(syntax);
 
         return syntax switch
         {
@@ -280,6 +282,11 @@ public class ExpressionBuilder
                 GetTypeInfo<ArrayType>(syntax),
                 ConvertTypeWithoutLowering(arrayTypeSyntax.Item.Value)),
             NullableTypeSyntax nullableTypeSyntax => new NullableTypeExpression(syntax, ConvertTypeWithoutLowering(nullableTypeSyntax.Base)),
+            UnionTypeSyntax unionTypeSyntax when typeInfo is DiscriminatedObjectType discriminatedObjectType =>
+                new DiscriminatedObjectTypeExpression(
+                    syntax,
+                    discriminatedObjectType,
+                    unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
             UnionTypeSyntax unionTypeSyntax => new UnionTypeExpression(syntax,
                 GetTypeInfo<UnionType>(syntax),
                 unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
