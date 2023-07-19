@@ -1,297 +1,277 @@
 @description('The foo type')
-//@[000:4407) ProgramExpression
+//@[00:1534) ProgramExpression
+//@[00:0299) ├─DeclaredTypeExpression { Name = foo }
+//@[13:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
+//@[01:0009) | ├─FunctionCallExpression { Name = sealed }
 type foo = {
+//@[11:0260) | └─ObjectTypeExpression { Name = { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? } }
   @minLength(3)
+//@[02:0089) |   ├─ObjectTypePropertyExpression
+//@[13:0014) |   | ├─IntegerLiteralExpression { Value = 3 }
   @maxLength(10)
+//@[13:0015) |   | ├─IntegerLiteralExpression { Value = 10 }
   @description('A string property')
+//@[15:0034) |   | ├─StringLiteralExpression { Value = A string property }
   stringProp: string
+//@[14:0020) |   | └─AmbientTypeReferenceExpression { Name = string }
 
   objectProp: {
+//@[02:0089) |   ├─ObjectTypePropertyExpression
+//@[14:0089) |   | └─ObjectTypeExpression { Name = { intProp: int, intArrayArrayProp: int[][] | null } }
     @minValue(1)
+//@[04:0033) |   |   ├─ObjectTypePropertyExpression
+//@[14:0015) |   |   | ├─IntegerLiteralExpression { Value = 1 }
     intProp: int
+//@[13:0016) |   |   | └─AmbientTypeReferenceExpression { Name = int }
 
     intArrayArrayProp: int [] [] ?
+//@[04:0034) |   |   └─ObjectTypePropertyExpression
+//@[23:0034) |   |     └─NullableTypeExpression { Name = int[][] | null }
+//@[23:0032) |   |       └─ArrayTypeExpression { Name = int[][] }
+//@[23:0029) |   |         └─ArrayTypeExpression { Name = int[] }
+//@[23:0026) |   |           └─AmbientTypeReferenceExpression { Name = int }
   }
 
   typeRefProp: bar
+//@[02:0018) |   ├─ObjectTypePropertyExpression
+//@[15:0018) |   | └─TypeAliasReferenceExpression { Name = bar }
 
   literalProp: 'literal'
+//@[02:0024) |   ├─ObjectTypePropertyExpression
+//@[15:0024) |   | └─StringLiteralTypeExpression { Name = 'literal' }
 
   recursion: foo?
+//@[02:0017) |   └─ObjectTypePropertyExpression
+//@[13:0017) |     └─NullableTypeExpression { Name = Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? }> | null }
+//@[13:0016) |       └─TypeAliasReferenceExpression { Name = foo }
 }
 
 @minLength(3)
+//@[00:0163) ├─DeclaredTypeExpression { Name = bar }
+//@[11:0012) | ├─IntegerLiteralExpression { Value = 3 }
 @description('An array of array of arrays of arrays of ints')
+//@[13:0060) | ├─StringLiteralExpression { Value = An array of array of arrays of arrays of ints }
 @metadata({
+//@[10:0063) | ├─ObjectExpression
   examples: [
+//@[02:0049) | | └─ObjectPropertyExpression
+//@[02:0010) | |   ├─StringLiteralExpression { Value = examples }
+//@[12:0049) | |   └─ArrayExpression
     [[[[1]]], [[[2]]], [[[3]]]]
+//@[04:0031) | |     └─ArrayExpression
+//@[05:0012) | |       ├─ArrayExpression
+//@[06:0011) | |       | └─ArrayExpression
+//@[07:0010) | |       |   └─ArrayExpression
+//@[08:0009) | |       |     └─IntegerLiteralExpression { Value = 1 }
+//@[14:0021) | |       ├─ArrayExpression
+//@[15:0020) | |       | └─ArrayExpression
+//@[16:0019) | |       |   └─ArrayExpression
+//@[17:0018) | |       |     └─IntegerLiteralExpression { Value = 2 }
+//@[23:0030) | |       └─ArrayExpression
+//@[24:0029) | |         └─ArrayExpression
+//@[25:0028) | |           └─ArrayExpression
+//@[26:0027) | |             └─IntegerLiteralExpression { Value = 3 }
   ]
 })
 type bar = int[][][][]
+//@[11:0022) | └─ArrayTypeExpression { Name = int[][][][] }
+//@[11:0020) |   └─ArrayTypeExpression { Name = int[][][] }
+//@[11:0018) |     └─ArrayTypeExpression { Name = int[][] }
+//@[11:0016) |       └─ArrayTypeExpression { Name = int[] }
+//@[11:0014) |         └─AmbientTypeReferenceExpression { Name = int }
 
 type aUnion = 'snap'|'crackle'|'pop'
+//@[00:0036) ├─DeclaredTypeExpression { Name = aUnion }
+//@[14:0036) | └─UnionTypeExpression { Name = 'crackle' | 'pop' | 'snap' }
+//@[14:0020) |   ├─StringLiteralTypeExpression { Name = 'snap' }
+//@[21:0030) |   ├─StringLiteralTypeExpression { Name = 'crackle' }
+//@[31:0036) |   └─StringLiteralTypeExpression { Name = 'pop' }
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
+//@[00:0047) ├─DeclaredTypeExpression { Name = expandedUnion }
+//@[21:0047) | └─UnionTypeExpression { Name = 'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap' }
+//@[21:0027) |   ├─TypeAliasReferenceExpression { Name = aUnion }
+//@[28:0034) |   ├─StringLiteralTypeExpression { Name = 'fizz' }
+//@[35:0041) |   ├─StringLiteralTypeExpression { Name = 'buzz' }
+//@[42:0047) |   └─StringLiteralTypeExpression { Name = 'pop' }
 
 type tupleUnion = ['foo', 'bar', 'baz']
+//@[00:0085) ├─DeclaredTypeExpression { Name = tupleUnion }
+//@[18:0085) | └─UnionTypeExpression { Name = ['fizz', 'buzz'] | ['foo', 'bar', 'baz'] | ['snap', 'crackle', 'pop'] }
+//@[18:0039) |   ├─TupleTypeExpression { Name = ['foo', 'bar', 'baz'] }
+//@[19:0024) |   | ├─TupleTypeItemExpression
+//@[19:0024) |   | | └─StringLiteralTypeExpression { Name = 'foo' }
+//@[26:0031) |   | ├─TupleTypeItemExpression
+//@[26:0031) |   | | └─StringLiteralTypeExpression { Name = 'bar' }
+//@[33:0038) |   | └─TupleTypeItemExpression
+//@[33:0038) |   |   └─StringLiteralTypeExpression { Name = 'baz' }
 |['fizz', 'buzz']
+//@[01:0017) |   ├─TupleTypeExpression { Name = ['fizz', 'buzz'] }
+//@[02:0008) |   | ├─TupleTypeItemExpression
+//@[02:0008) |   | | └─StringLiteralTypeExpression { Name = 'fizz' }
+//@[10:0016) |   | └─TupleTypeItemExpression
+//@[10:0016) |   |   └─StringLiteralTypeExpression { Name = 'buzz' }
 |['snap', 'crackle', 'pop']
+//@[01:0027) |   └─TupleTypeExpression { Name = ['snap', 'crackle', 'pop'] }
+//@[02:0008) |     ├─TupleTypeItemExpression
+//@[02:0008) |     | └─StringLiteralTypeExpression { Name = 'snap' }
+//@[10:0019) |     ├─TupleTypeItemExpression
+//@[10:0019) |     | └─StringLiteralTypeExpression { Name = 'crackle' }
+//@[21:0026) |     └─TupleTypeItemExpression
+//@[21:0026) |       └─StringLiteralTypeExpression { Name = 'pop' }
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
+//@[00:0090) ├─DeclaredTypeExpression { Name = mixedArray }
+//@[18:0090) | └─ArrayTypeExpression { Name = ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[] }
+//@[19:0087) |   └─UnionTypeExpression { Name = 'heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' } }
+//@[19:0030) |     ├─StringLiteralTypeExpression { Name = 'heffalump' }
+//@[31:0039) |     ├─StringLiteralTypeExpression { Name = 'woozle' }
+//@[40:0064) |     ├─ObjectTypeExpression { Name = { shape: '*', size: '*' } }
+//@[42:0052) |     | ├─ObjectTypePropertyExpression
+//@[49:0052) |     | | └─StringLiteralTypeExpression { Name = '*' }
+//@[54:0063) |     | └─ObjectTypePropertyExpression
+//@[60:0063) |     |   └─StringLiteralTypeExpression { Name = '*' }
+//@[65:0067) |     ├─IntegerLiteralTypeExpression { Name = 10 }
+//@[68:0071) |     ├─IntegerLiteralTypeExpression { Name = -10 }
+//@[72:0076) |     ├─BooleanLiteralTypeExpression { Name = true }
+//@[77:0082) |     ├─BooleanLiteralTypeExpression { Name = false }
+//@[83:0087) |     └─NullLiteralTypeExpression { Name = null }
 
 type bool = string
+//@[00:0018) ├─DeclaredTypeExpression { Name = bool }
+//@[12:0018) | └─AmbientTypeReferenceExpression { Name = string }
 
 param inlineObjectParam {
-//@[000:0127) ├─DeclaredParameterExpression { Name = inlineObjectParam }
+//@[00:0127) ├─DeclaredParameterExpression { Name = inlineObjectParam }
+//@[24:0084) | ├─ObjectTypeExpression { Name = { foo: string, bar: 100 | 200 | 300 | 400 | 500, baz: bool } }
   foo: string
+//@[02:0013) | | ├─ObjectTypePropertyExpression
+//@[07:0013) | | | └─AmbientTypeReferenceExpression { Name = string }
   bar: 100|200|300|400|500
+//@[02:0026) | | ├─ObjectTypePropertyExpression
+//@[07:0026) | | | └─UnionTypeExpression { Name = 100 | 200 | 300 | 400 | 500 }
+//@[07:0010) | | |   ├─IntegerLiteralTypeExpression { Name = 100 }
+//@[11:0014) | | |   ├─IntegerLiteralTypeExpression { Name = 200 }
+//@[15:0018) | | |   ├─IntegerLiteralTypeExpression { Name = 300 }
+//@[19:0022) | | |   ├─IntegerLiteralTypeExpression { Name = 400 }
+//@[23:0026) | | |   └─IntegerLiteralTypeExpression { Name = 500 }
   baz: sys.bool
+//@[02:0015) | | └─ObjectTypePropertyExpression
+//@[07:0015) | |   └─FullyQualifiedAmbientTypeReferenceExpression { Name = sys.bool }
 } = {
-//@[004:0044) | └─ObjectExpression
+//@[04:0044) | └─ObjectExpression
   foo: 'foo'
-//@[002:0012) |   ├─ObjectPropertyExpression
-//@[002:0005) |   | ├─StringLiteralExpression { Value = foo }
-//@[007:0012) |   | └─StringLiteralExpression { Value = foo }
+//@[02:0012) |   ├─ObjectPropertyExpression
+//@[02:0005) |   | ├─StringLiteralExpression { Value = foo }
+//@[07:0012) |   | └─StringLiteralExpression { Value = foo }
   bar: 300
-//@[002:0010) |   ├─ObjectPropertyExpression
-//@[002:0005) |   | ├─StringLiteralExpression { Value = bar }
-//@[007:0010) |   | └─IntegerLiteralExpression { Value = 300 }
+//@[02:0010) |   ├─ObjectPropertyExpression
+//@[02:0005) |   | ├─StringLiteralExpression { Value = bar }
+//@[07:0010) |   | └─IntegerLiteralExpression { Value = 300 }
   baz: false
-//@[002:0012) |   └─ObjectPropertyExpression
-//@[002:0005) |     ├─StringLiteralExpression { Value = baz }
-//@[007:0012) |     └─BooleanLiteralExpression { Value = False }
+//@[02:0012) |   └─ObjectPropertyExpression
+//@[02:0005) |     ├─StringLiteralExpression { Value = baz }
+//@[07:0012) |     └─BooleanLiteralExpression { Value = False }
 }
 
 param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
-//@[000:0075) ├─DeclaredParameterExpression { Name = unionParam }
-//@[057:0075) | └─ObjectExpression
-//@[058:0074) |   └─ObjectPropertyExpression
-//@[058:0066) |     ├─StringLiteralExpression { Value = property }
-//@[068:0074) |     └─StringLiteralExpression { Value = pong }
+//@[00:0075) ├─DeclaredParameterExpression { Name = unionParam }
+//@[17:0054) | ├─UnionTypeExpression { Name = { property: 'ping' } | { property: 'pong' } }
+//@[17:0035) | | ├─ObjectTypeExpression { Name = { property: 'ping' } }
+//@[18:0034) | | | └─ObjectTypePropertyExpression
+//@[28:0034) | | |   └─StringLiteralTypeExpression { Name = 'ping' }
+//@[36:0054) | | └─ObjectTypeExpression { Name = { property: 'pong' } }
+//@[37:0053) | |   └─ObjectTypePropertyExpression
+//@[47:0053) | |     └─StringLiteralTypeExpression { Name = 'pong' }
+//@[57:0075) | └─ObjectExpression
+//@[58:0074) |   └─ObjectPropertyExpression
+//@[58:0066) |     ├─StringLiteralExpression { Value = property }
+//@[68:0074) |     └─StringLiteralExpression { Value = pong }
 
 param paramUsingType mixedArray
-//@[000:0031) ├─DeclaredParameterExpression { Name = paramUsingType }
+//@[00:0031) ├─DeclaredParameterExpression { Name = paramUsingType }
+//@[21:0031) | └─TypeAliasReferenceExpression { Name = mixedArray }
 
 output outputUsingType mixedArray = paramUsingType
-//@[000:0050) ├─DeclaredOutputExpression { Name = outputUsingType }
-//@[036:0050) | └─ParametersReferenceExpression { Parameter = paramUsingType }
+//@[00:0050) ├─DeclaredOutputExpression { Name = outputUsingType }
+//@[23:0033) | ├─TypeAliasReferenceExpression { Name = mixedArray }
+//@[36:0050) | └─ParametersReferenceExpression { Parameter = paramUsingType }
 
 type tuple = [
+//@[00:0129) ├─DeclaredTypeExpression { Name = tuple }
+//@[13:0129) | └─TupleTypeExpression { Name = [string, bar] }
     @description('A leading string')
+//@[04:0047) |   ├─TupleTypeItemExpression
+//@[17:0035) |   | ├─StringLiteralExpression { Value = A leading string }
     string
+//@[04:0010) |   | └─AmbientTypeReferenceExpression { Name = string }
 
     @description('A second element using a type alias')
+//@[04:0063) |   └─TupleTypeItemExpression
+//@[17:0054) |     ├─StringLiteralExpression { Value = A second element using a type alias }
     bar
+//@[04:0007) |     └─TypeAliasReferenceExpression { Name = bar }
 ]
 
 type stringStringDictionary = {
+//@[00:0047) ├─DeclaredTypeExpression { Name = stringStringDictionary }
+//@[30:0047) | └─ObjectTypeExpression { Name = { *: string } }
     *: string
+//@[04:0013) |   └─ObjectTypeAdditionalPropertiesExpression
+//@[07:0013) |     └─AmbientTypeReferenceExpression { Name = string }
 }
 
 @minValue(1)
+//@[00:0052) ├─DeclaredTypeExpression { Name = constrainedInt }
+//@[10:0011) | ├─IntegerLiteralExpression { Value = 1 }
 @maxValue(10)
+//@[10:0012) | ├─IntegerLiteralExpression { Value = 10 }
 type constrainedInt = int
+//@[22:0025) | └─AmbientTypeReferenceExpression { Name = int }
 
 param mightIncludeNull ({key: 'value'} | null)[]
-//@[000:0048) ├─DeclaredParameterExpression { Name = mightIncludeNull }
+//@[00:0048) ├─DeclaredParameterExpression { Name = mightIncludeNull }
+//@[23:0048) | └─ArrayTypeExpression { Name = (null | { key: 'value' })[] }
+//@[24:0045) |   └─UnionTypeExpression { Name = null | { key: 'value' } }
+//@[24:0038) |     ├─ObjectTypeExpression { Name = { key: 'value' } }
+//@[25:0037) |     | └─ObjectTypePropertyExpression
+//@[30:0037) |     |   └─StringLiteralTypeExpression { Name = 'value' }
+//@[41:0045) |     └─NullLiteralTypeExpression { Name = null }
 
 var nonNull = mightIncludeNull[0]!.key
-//@[000:0038) ├─DeclaredVariableExpression { Name = nonNull }
-//@[014:0038) | └─AccessChainExpression
-//@[014:0033) |   ├─ArrayAccessExpression
-//@[031:0032) |   | ├─IntegerLiteralExpression { Value = 0 }
-//@[014:0030) |   | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
-//@[035:0038) |   └─StringLiteralExpression { Value = key }
+//@[00:0038) ├─DeclaredVariableExpression { Name = nonNull }
+//@[14:0038) | └─AccessChainExpression
+//@[14:0033) |   ├─ArrayAccessExpression
+//@[31:0032) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[14:0030) |   | └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+//@[35:0038) |   └─StringLiteralExpression { Value = key }
 
 output nonNull string = nonNull
-//@[000:0031) ├─DeclaredOutputExpression { Name = nonNull }
-//@[024:0031) | └─VariableReferenceExpression { Variable = nonNull }
+//@[00:0031) ├─DeclaredOutputExpression { Name = nonNull }
+//@[15:0021) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[24:0031) | └─VariableReferenceExpression { Variable = nonNull }
 
 var maybeNull = mightIncludeNull[0].?key
-//@[000:0040) ├─DeclaredVariableExpression { Name = maybeNull }
-//@[016:0040) | └─PropertyAccessExpression { PropertyName = key }
-//@[016:0035) |   └─ArrayAccessExpression
-//@[033:0034) |     ├─IntegerLiteralExpression { Value = 0 }
-//@[016:0032) |     └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+//@[00:0040) ├─DeclaredVariableExpression { Name = maybeNull }
+//@[16:0040) | └─PropertyAccessExpression { PropertyName = key }
+//@[16:0035) |   └─ArrayAccessExpression
+//@[33:0034) |     ├─IntegerLiteralExpression { Value = 0 }
+//@[16:0032) |     └─ParametersReferenceExpression { Parameter = mightIncludeNull }
 
 output maybeNull string? = maybeNull
-//@[000:0036) ├─DeclaredOutputExpression { Name = maybeNull }
-//@[027:0036) | └─VariableReferenceExpression { Variable = maybeNull }
+//@[00:0036) └─DeclaredOutputExpression { Name = maybeNull }
+//@[17:0024)   ├─NullableTypeExpression { Name = Type<string> | null }
+//@[17:0023)   | └─AmbientTypeReferenceExpression { Name = string }
+//@[27:0036)   └─VariableReferenceExpression { Variable = maybeNull }
 
 type nullable = string?
+//@[00:0023) ├─DeclaredTypeExpression { Name = nullable }
+//@[16:0023) | └─NullableTypeExpression { Name = Type<string> | null }
+//@[16:0022) |   └─AmbientTypeReferenceExpression { Name = string }
 
 type nonNullable = nullable!
-
-type typeA = {
-  type: 'a'
-  value: string
-}
-
-type typeB = {
-  type: 'b'
-  value: int
-}
-
-type typeC = {
-  type: 'c'
-  value: bool
-  value2: string
-}
-
-type typeD = {
-  type: 'd'
-  value: object
-}
-
-type typeE = {
-  type: 'e'
-  value: 'a' | 'b'
-}
-
-@discriminator('type')
-type discriminatedUnion1 = typeA | typeB
-
-@discriminator('type')
-type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
-
-@discriminator('type')
-type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }
-
-@discriminator('type')
-type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
-
-@discriminator('type')
-type discriminatedUnion5 = (typeA | typeB)?
-
-type inlineDiscriminatedUnion1 = {
-  @discriminator('type')
-  prop: typeA | typeC
-}
-
-type inlineDiscriminatedUnion2 = {
-  @discriminator('type')
-  prop: { type: 'a', value: bool } | typeB
-}
-
-@discriminator('type')
-type inlineDiscriminatedUnion3 = {
-  type: 'a'
-  @discriminator('type')
-  prop: { type: 'a', value: bool } | typeB
-} | {
-  type: 'b'
-  @discriminator('type')
-  prop: discriminatedUnion1 | discriminatedUnion2
-}
-
-type inlineDiscriminatedUnion4 = {
-  @discriminator('type')
-  prop: (typeA | typeC)?
-}
-
-type discriminatorUnionAsPropertyType = {
-  prop1: discriminatedUnion1
-  prop2: discriminatedUnion3
-}
-
-@discriminator('type')
-type discriminatorInnerSelfOptionalCycle1 = typeA | {
-  type: 'b'
-  value: discriminatorInnerSelfOptionalCycle1?
-}
-
-type discriminatedUnionInlineAdditionalProps1 = {
-  @discriminator('type')
-  *: typeA | typeB
-}
-
-type discriminatedUnionInlineAdditionalProps2 = {
-  @discriminator('type')
-  *: (typeA | typeB)?
-}
-
-type discriminatedUnionCycle1 = {
-  type: 'b'
-  @discriminator('type')
-  prop: (typeA | discriminatedUnionCycle1)?
-}
-
-param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
-//@[000:0059) ├─DeclaredParameterExpression { Name = paramDiscriminatedUnionTypeAlias1 }
-param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
-//@[000:0059) ├─DeclaredParameterExpression { Name = paramDiscriminatedUnionTypeAlias2 }
-
-@discriminator('type')
-//@[000:0073) ├─DeclaredParameterExpression { Name = paramInlineDiscriminatedUnion1 }
-param paramInlineDiscriminatedUnion1 typeA | typeB
-
-@discriminator('type')
-//@[000:0101) ├─DeclaredParameterExpression { Name = paramInlineDiscriminatedUnion2 }
-param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
-//@[055:0078) | └─ObjectExpression
-//@[057:0066) |   ├─ObjectPropertyExpression
-//@[057:0061) |   | ├─StringLiteralExpression { Value = type }
-//@[063:0066) |   | └─StringLiteralExpression { Value = b }
-//@[068:0076) |   └─ObjectPropertyExpression
-//@[068:0073) |     ├─StringLiteralExpression { Value = value }
-//@[075:0076) |     └─IntegerLiteralExpression { Value = 0 }
-
-@discriminator('type')
-//@[000:0080) ├─DeclaredParameterExpression { Name = paramInlineDiscriminatedUnion3 }
-param paramInlineDiscriminatedUnion3 typeA | typeB | null
-
-@discriminator('type')
-//@[000:0076) ├─DeclaredParameterExpression { Name = paramInlineDiscriminatedUnion4 }
-param paramInlineDiscriminatedUnion4 (typeA | typeB)?
-
-output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
-//@[000:0091) ├─DeclaredOutputExpression { Name = outputDiscriminatedUnionTypeAlias1 }
-//@[064:0091) | └─ObjectExpression
-//@[066:0075) |   ├─ObjectPropertyExpression
-//@[066:0070) |   | ├─StringLiteralExpression { Value = type }
-//@[072:0075) |   | └─StringLiteralExpression { Value = a }
-//@[077:0089) |   └─ObjectPropertyExpression
-//@[077:0082) |     ├─StringLiteralExpression { Value = value }
-//@[084:0089) |     └─StringLiteralExpression { Value = str }
-@discriminator('type')
-//@[000:0114) ├─DeclaredOutputExpression { Name = outputDiscriminatedUnionTypeAlias2 }
-output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = { type: 'a', value: 'str' }
-//@[064:0091) | └─ObjectExpression
-//@[066:0075) |   ├─ObjectPropertyExpression
-//@[066:0070) |   | ├─StringLiteralExpression { Value = type }
-//@[072:0075) |   | └─StringLiteralExpression { Value = a }
-//@[077:0089) |   └─ObjectPropertyExpression
-//@[077:0082) |     ├─StringLiteralExpression { Value = value }
-//@[084:0089) |     └─StringLiteralExpression { Value = str }
-output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
-//@[000:0068) ├─DeclaredOutputExpression { Name = outputDiscriminatedUnionTypeAlias3 }
-//@[064:0068) | └─NullLiteralExpression
-
-@discriminator('type')
-//@[000:0131) ├─DeclaredOutputExpression { Name = outputInlineDiscriminatedUnion1 }
-output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }
-//@[083:0108) | └─ObjectExpression
-//@[085:0094) |   ├─ObjectPropertyExpression
-//@[085:0089) |   | ├─StringLiteralExpression { Value = type }
-//@[091:0094) |   | └─StringLiteralExpression { Value = a }
-//@[096:0106) |   └─ObjectPropertyExpression
-//@[096:0101) |     ├─StringLiteralExpression { Value = value }
-//@[103:0106) |     └─StringLiteralExpression { Value = a }
-
-@discriminator('type')
-//@[000:0131) ├─DeclaredOutputExpression { Name = outputInlineDiscriminatedUnion2 }
-output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int }) = { type: 'c', value: 1 }
-//@[085:0108) | └─ObjectExpression
-//@[087:0096) |   ├─ObjectPropertyExpression
-//@[087:0091) |   | ├─StringLiteralExpression { Value = type }
-//@[093:0096) |   | └─StringLiteralExpression { Value = c }
-//@[098:0106) |   └─ObjectPropertyExpression
-//@[098:0103) |     ├─StringLiteralExpression { Value = value }
-//@[105:0106) |     └─IntegerLiteralExpression { Value = 1 }
-
-@discriminator('type')
-//@[000:0085) └─DeclaredOutputExpression { Name = outputInlineDiscriminatedUnion3 }
-output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
-//@[058:0062)   └─NullLiteralExpression
+//@[00:0028) ├─DeclaredTypeExpression { Name = nonNullable }
+//@[19:0028) | └─NonNullableTypeExpression { Name = Type<null | string> }
+//@[19:0027) |   └─TypeAliasReferenceExpression { Name = nullable }
 

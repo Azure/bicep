@@ -13,7 +13,7 @@ export class SuppressedWarningsManager {
   };
 
   public constructor(
-    private readonly provideBicepConfiguration: () => WorkspaceConfiguration = getBicepConfiguration // override for unit testing
+    private readonly provideBicepConfiguration: () => WorkspaceConfiguration = getBicepConfiguration, // override for unit testing
   ) {
     // noop
   }
@@ -32,7 +32,7 @@ export class SuppressedWarningsManager {
     await this.provideBicepConfiguration().update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
       suppressedWarnings,
-      ConfigurationTarget.Global
+      ConfigurationTarget.Global,
     );
   }
 
@@ -43,13 +43,13 @@ export class SuppressedWarningsManager {
     await this.provideBicepConfiguration().update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
       suppressedWarnings,
-      ConfigurationTarget.Global
+      ConfigurationTarget.Global,
     );
   }
 
   private getSuppressedWarnings(): string[] {
     const currentSuppressedKeys = this.provideBicepConfiguration().get(
-      SuppressedWarningsManager.suppressedWarningsConfigurationKey
+      SuppressedWarningsManager.suppressedWarningsConfigurationKey,
     );
 
     return Array.isArray(currentSuppressedKeys) ? currentSuppressedKeys : [];

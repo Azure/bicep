@@ -82,6 +82,9 @@ namespace Bicep.Core.TypeSystem
                 case TupleTypeItemSyntax tupleTypeItem:
                     return GetTupleTypeItemType(tupleTypeItem);
 
+                case ArrayTypeSyntax arrayType:
+                    return new(GetArrayTypeType(arrayType), arrayType);
+
                 case ArrayTypeMemberSyntax typeMember:
                     return GetTypeMemberType(typeMember);
 
@@ -241,7 +244,7 @@ namespace Bicep.Core.TypeSystem
             {
                 TypeAliasSymbol declaredType => userDefinedTypeReferences.GetOrAdd(declaredType, GetUserDefinedTypeType),
                 ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
-                // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
+                // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a TypeAliasSymbol or an error, but just in case...
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
             var typeRefType = type switch
@@ -453,7 +456,7 @@ namespace Bicep.Core.TypeSystem
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
-                ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
+                ArrayTypeSyntax array => GetDeclaredTypeAssignment(array)?.Reference,
                 ObjectTypeSyntax @object => GetDeclaredType(@object),
                 TupleTypeSyntax tuple => GetDeclaredType(tuple),
                 StringSyntax @string => ConvertTypeExpressionToType(@string),
@@ -530,7 +533,7 @@ namespace Bicep.Core.TypeSystem
             return signifiedType;
         });
 
-        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
+        private TypeSymbol GetArrayTypeType(ArrayTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {

@@ -20,7 +20,7 @@ import { removeWhitespace } from "./removeWhitespace";
 export function getTextAfterFormattingChanges(
   textToMatch: string,
   editorText: string,
-  editorOffsetStart: number
+  editorOffsetStart: number,
 ): string | undefined {
   let textOffset = 0;
   let editorOffset = editorOffsetStart;
@@ -41,7 +41,7 @@ export function getTextAfterFormattingChanges(
       // Matched successfully to the end of textToMatchNoWhitespace
       const formattedText = editorText.substring(
         editorOffsetStart,
-        editorOffset
+        editorOffset,
       );
 
       // Trim all whitespace at the end except for the number of newlines that were
@@ -50,7 +50,7 @@ export function getTextAfterFormattingChanges(
       const newLinesAtEndOfOriginalText = countNewlines(textToMatchEnding);
       const trimmedFormattedText = trimWhitespaceAtEnd(
         formattedText,
-        newLinesAtEndOfOriginalText
+        newLinesAtEndOfOriginalText,
       );
 
       assert(areEqualIgnoringWhitespace(trimmedFormattedText, textToMatch));
@@ -74,11 +74,11 @@ export function getTextAfterFormattingChanges(
 
     const endingWhitespaceWithAllowedNewlines: string =
       new RegExp(`^([ \t]*(\\r\\n|\\n)){0,${maxAllowedNewlines}}`).exec(
-        endingWhitespace
+        endingWhitespace,
       )?.[0] ?? "";
 
     assert(
-      countNewlines(endingWhitespaceWithAllowedNewlines) <= maxAllowedNewlines
+      countNewlines(endingWhitespaceWithAllowedNewlines) <= maxAllowedNewlines,
     );
     return firstPartOfString + endingWhitespaceWithAllowedNewlines;
   }

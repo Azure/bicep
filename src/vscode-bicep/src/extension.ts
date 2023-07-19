@@ -70,12 +70,12 @@ class BicepExtension extends Disposable {
 }
 
 export async function activate(
-  extensionContext: ExtensionContext
+  extensionContext: ExtensionContext,
 ): Promise<void> {
   const extension = BicepExtension.create(extensionContext);
   const outputChannel = createAzExtOutputChannel(
     "Bicep",
-    bicepConfigurationPrefix
+    bicepConfigurationPrefix,
   );
 
   extension.register(outputChannel);
@@ -97,7 +97,7 @@ export async function activate(
       async (progress) => {
         progress.report({ message: "Acquiring dotnet runtime" });
         const dotnetCommandPath = await ensureDotnetRuntimeInstalled(
-          actionContext
+          actionContext,
         );
 
         progress.report({ message: "Launching language service" });
@@ -105,7 +105,7 @@ export async function activate(
           actionContext,
           extensionContext,
           outputChannel,
-          dotnetCommandPath
+          dotnetCommandPath,
         );
 
         progress.report({ message: "Registering commands" });
@@ -115,8 +115,8 @@ export async function activate(
         extension.register(
           workspace.registerTextDocumentContentProvider(
             "bicep-cache",
-            new BicepCacheContentProvider(languageClient)
-          )
+            new BicepCacheContentProvider(languageClient),
+          ),
         );
 
         setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
@@ -125,15 +125,21 @@ export async function activate(
         surveys.showSurveys(extensionContext.globalState);
 
         const viewManager = extension.register(
-          new BicepVisualizerViewManager(extension.extensionUri, languageClient)
+          new BicepVisualizerViewManager(
+            extension.extensionUri,
+            languageClient,
+          ),
         );
 
         const outputChannelManager = extension.register(
-          new OutputChannelManager("Bicep Operations", bicepConfigurationPrefix)
+          new OutputChannelManager(
+            "Bicep Operations",
+            bicepConfigurationPrefix,
+          ),
         );
 
         const treeManager = extension.register(
-          new TreeManager(outputChannelManager)
+          new TreeManager(outputChannelManager),
         );
 
         const suppressedWarningsManager = new SuppressedWarningsManager();
@@ -142,7 +148,7 @@ export async function activate(
         const pasteAsBicepCommand = new PasteAsBicepCommand(
           languageClient,
           outputChannelManager,
-          suppressedWarningsManager
+          suppressedWarningsManager,
         );
         await extension
           .register(new CommandManager(extensionContext))
@@ -154,13 +160,13 @@ export async function activate(
             new DeployCommand(
               languageClient,
               outputChannelManager,
-              treeManager
+              treeManager,
             ),
             new DecompileCommand(languageClient, outputChannelManager),
             new DecompileParamsCommand(languageClient, outputChannelManager),
             new ForceModulesRestoreCommand(
               languageClient,
-              outputChannelManager
+              outputChannelManager,
             ),
             new InsertResourceCommand(languageClient),
             pasteAsBicepCommand,
@@ -170,7 +176,7 @@ export async function activate(
             new WalkthroughCopyToClipboardCommand(),
             new WalkthroughCreateBicepFileCommand(),
             new WalkthroughOpenBicepFileCommand(),
-            new ImportKubernetesManifestCommand(languageClient)
+            new ImportKubernetesManifestCommand(languageClient),
           );
 
         // Register events
@@ -181,29 +187,29 @@ export async function activate(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             async (editor: TextEditor | undefined) => {
               await updateUiContext(editor?.document);
-            }
-          )
+            },
+          ),
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidCloseTextDocument(async (_d: TextDocument) => {
             await updateUiContext(window.activeTextEditor?.document);
-          })
+          }),
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidOpenTextDocument(async (_d: TextDocument) => {
             await updateUiContext(window.activeTextEditor?.document);
-          })
+          }),
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           workspace.onDidSaveTextDocument(async (_d: TextDocument) => {
             await updateUiContext(window.activeTextEditor?.document);
-          })
+          }),
         );
 
         await languageClient.start();
@@ -211,7 +217,7 @@ export async function activate(
 
         // Set initial UI context
         await updateUiContext(window.activeTextEditor?.document);
-      }
+      },
     );
   });
 }

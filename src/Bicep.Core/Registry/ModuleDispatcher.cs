@@ -101,6 +101,19 @@ namespace Bicep.Core.Registry
 
             return this.TryGetModuleReference(moduleReferenceString, parentModuleUri, out moduleReference, out failureBuilder);
         }
+        
+        public bool TryGetModuleReference(TestDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
+            if (moduleReferenceString is null)
+            {
+                failureBuilder = getModulePathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(SyntaxHelper.TryGetModulePath)} to provide failure diagnostics.");
+                moduleReference = null;
+                return false;
+            }
+
+            return this.TryGetModuleReference(moduleReferenceString, parentModuleUri, out moduleReference, out failureBuilder);
+        }
 
         public RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference)
         {

@@ -13,7 +13,7 @@ export class ImportKubernetesManifestCommand implements Command {
   public async execute(
     context: IActionContext,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<void> {
     const manifestPath = await context.ui.showOpenDialog({
       canSelectMany: false,
@@ -26,11 +26,11 @@ export class ImportKubernetesManifestCommand implements Command {
         importKubernetesManifestRequestType,
         {
           manifestFilePath: manifestPath[0].fsPath,
-        }
+        },
       );
 
       const document = await vscode.workspace.openTextDocument(
-        response.bicepFilePath
+        response.bicepFilePath,
       );
 
       await vscode.window.showTextDocument(document, ViewColumn.Active);

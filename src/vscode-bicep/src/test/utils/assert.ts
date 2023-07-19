@@ -11,7 +11,7 @@ export function expectRange(
   startLine: number,
   startCharacter: number,
   endLine: number,
-  endCharacter: number
+  endCharacter: number,
 ): void {
   const range = {
     startLine: start.line,

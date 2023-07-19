@@ -9,11 +9,14 @@ targetScope = 'subscription'
 
 param ownerPrincipalId string
 //@[000:0029) ├─DeclaredParameterExpression { Name = ownerPrincipalId }
+//@[023:0029) | └─AmbientTypeReferenceExpression { Name = string }
 
 param contributorPrincipals array
 //@[000:0033) ├─DeclaredParameterExpression { Name = contributorPrincipals }
+//@[028:0033) | └─AmbientTypeReferenceExpression { Name = array }
 param readerPrincipals array
 //@[000:0028) ├─DeclaredParameterExpression { Name = readerPrincipals }
+//@[023:0028) | └─AmbientTypeReferenceExpression { Name = array }
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
 //@[000:0242) ├─DeclaredResourceExpression

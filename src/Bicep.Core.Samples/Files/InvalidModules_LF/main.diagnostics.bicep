@@ -608,14 +608,14 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
 }]
 
 output directRefToCollectionViaOutput array = nonexistentArrays
-//@[046:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
+//@[046:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
 
 module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   name: 'hello'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
+//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
+//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -625,8 +625,8 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
   name: 'hello2'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
+//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
+//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -637,8 +637,8 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
   name: 'hello3'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
+//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
+//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -649,14 +649,14 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
   name: 'hello4'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
+//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |wrongModuleParameterInLoop|
+//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
     dependsOn: [
 //@[004:013) [BCP037 (Error)] The property "dependsOn" is not allowed on objects of type "params". Permissible properties include "stringParamA". (CodeDescription: none) |dependsOn|
       nonexistentArrays
-//@[006:023) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
+//@[006:023) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |nonexistentArrays|
     ]
   }
   dependsOn: [

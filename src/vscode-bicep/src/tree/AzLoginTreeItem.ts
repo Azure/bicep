@@ -18,7 +18,7 @@ import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");
 const createAccountLabel: string = localize(
   "createAccountLabel",
-  "Create a Free Azure Account..."
+  "Create a Free Azure Account...",
 );
 const signInCommandId = "azure-account.login";
 const createAccountCommandId = "azure-account.createAccount";
@@ -64,12 +64,12 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
         azureAccount === "notInstalled"
           ? localize(
               "installAzureAccount",
-              "$(warning) The Azure Account Extension is required for Deploy. Click here to install, then try again."
+              "$(warning) The Azure Account Extension is required for Deploy. Click here to install, then try again.",
             )
           : localize(
               "updateAzureAccount",
               '$(warning) Please update the Azure Account Extension to at least version "{0}"',
-              minAccountExtensionVersion
+              minAccountExtensionVersion,
             );
       const result: AzExtTreeItem = new GenericTreeItem(this, {
         label,
@@ -114,7 +114,7 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
 
   public compareChildrenImpl(
     item1: AzExtTreeItem,
-    item2: AzExtTreeItem
+    item2: AzExtTreeItem,
   ): number {
     if (item1 instanceof GenericTreeItem && item2 instanceof GenericTreeItem) {
       return 0; // already sorted
@@ -124,7 +124,7 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
   }
 
   private async loadAzureAccount(
-    azureAccount: AzureAccount | undefined
+    azureAccount: AzureAccount | undefined,
   ): Promise<AzureAccountResult> {
     if (!azureAccount) {
       const extension: Extension<AzureAccount> | undefined =
@@ -155,12 +155,12 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
           if (status !== "LoggedIn") {
             await this.refresh(context);
           }
-        }
+        },
       );
       await commands.executeCommand(
         "setContext",
         "isAzureAccountInstalled",
-        true
+        true,
       );
       return azureAccount;
     } else {

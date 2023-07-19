@@ -9,8 +9,8 @@ export type WithProgress<TResult> = (
   options: ProgressOptions,
   task: (
     progress: Progress<{ message?: string; increment?: number }>,
-    token: CancellationToken
-  ) => Thenable<TResult>
+    token: CancellationToken,
+  ) => Thenable<TResult>,
 ) => Thenable<TResult>;
 
 /**
@@ -23,7 +23,7 @@ export async function withProgressAfterDelay<T>(
       withProgress?: WithProgress<T>;
     };
   },
-  task: () => Promise<T>
+  task: () => Promise<T>,
 ): Promise<T> {
   const withProgress = options.inject?.withProgress ?? window.withProgress;
   const delayBeforeShowingMs =
@@ -44,7 +44,7 @@ export async function withProgressAfterDelay<T>(
         },
         () => {
           /* ignore (will be handled below) */
-        }
+        },
       );
     }
   }

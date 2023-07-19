@@ -40,7 +40,7 @@ describe("empty config file snippets", (): void => {
       await testScope("Find available completions", async () => {
         const completions = await executeCompletionItemProvider(
           doc.uri,
-          new vscode.Position(0, 0)
+          new vscode.Position(0, 0),
         );
         expect(true).toBe(true);
         expect(completions).toBeDefined();
@@ -51,7 +51,7 @@ describe("empty config file snippets", (): void => {
       let scaffoldSnippet: CompletionItem | undefined;
       await testScope("Find the snippet of interest", async () => {
         scaffoldSnippet = items.find(
-          (i) => getCompletionLabelText(i) === "Default Bicep Configuration"
+          (i) => getCompletionLabelText(i) === "Default Bicep Configuration",
         );
         expect(scaffoldSnippet).toBeDefined();
       });
@@ -62,7 +62,7 @@ describe("empty config file snippets", (): void => {
       await testScope("Verify inserted snippet", () => {
         const textAfterInsertion = editor.document.getText();
         expect(normalizeLineEndings(textAfterInsertion)).toBe(
-          normalizeLineEndings(expectedAfterInsertion)
+          normalizeLineEndings(expectedAfterInsertion),
         );
       });
 

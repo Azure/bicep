@@ -897,10 +897,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP143",
                 "For-expressions cannot be used with properties whose names are also expressions.");
 
-            public ErrorDiagnostic DirectAccessToCollectionNotSupported() => new(
-                TextSpan,
-                "BCP144",
-                "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+            public ErrorDiagnostic DirectAccessToCollectionNotSupported(IEnumerable<string>? accessChain = null)
+            {
+                var accessChainClause = accessChain?.Any() ?? false
+                    ? $"The collection was accessed by the chain of \"{string.Join("\" -> \"", accessChain)}\". "
+                    : "";
+
+                return new(
+                    TextSpan,
+                    "BCP144",
+                    $"Directly referencing a resource or module collection is not currently supported here. {accessChainClause}Apply an array indexer to the expression.");
+            }
 
             public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
                 TextSpan,

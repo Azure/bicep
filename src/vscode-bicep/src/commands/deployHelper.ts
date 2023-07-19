@@ -6,7 +6,7 @@ import { OutputChannelManager } from "../utils/OutputChannelManager";
 let _outputChannelManager: OutputChannelManager;
 
 export async function writeDeploymentOutputMessageToBicepOperationsOutputChannel(
-  outputMessage: string
+  outputMessage: string,
 ) {
   if (_outputChannelManager) {
     _outputChannelManager.appendToOutputChannel(outputMessage);
@@ -14,7 +14,7 @@ export async function writeDeploymentOutputMessageToBicepOperationsOutputChannel
 }
 
 export function setOutputChannelManagerAtTheStartOfDeployment(
-  outputChannelManager: OutputChannelManager
+  outputChannelManager: OutputChannelManager,
 ) {
   _outputChannelManager = outputChannelManager;
 }
