@@ -14,12 +14,12 @@ export class InsertResourceCommand implements Command {
 
   public async execute(
     context: IActionContext,
-    documentUri?: Uri
+    documentUri?: Uri,
   ): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
       context,
       documentUri,
-      "Choose which Bicep file to insert a resource into"
+      "Choose which Bicep file to insert a resource into",
     );
 
     const document = await workspace.openTextDocument(documentUri);
@@ -37,7 +37,7 @@ export class InsertResourceCommand implements Command {
       textDocument:
         this.client.code2ProtocolConverter.asTextDocumentIdentifier(document),
       position: this.client.code2ProtocolConverter.asPosition(
-        editor.selection.start
+        editor.selection.start,
       ),
       resourceId: resourceId,
     });

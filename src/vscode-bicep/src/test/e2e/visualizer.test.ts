@@ -36,7 +36,7 @@ describe("visualizer", (): void => {
     });
     if (!visualizerIsReady(document.uri)) {
       throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
+        `Expected visualizer to be ready for ${document.uri.toString()}`,
       );
     }
     expectDefined(viewColumn);
@@ -56,7 +56,7 @@ describe("visualizer", (): void => {
     });
     if (!visualizerIsReady(document.uri)) {
       throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
+        `Expected visualizer to be ready for ${document.uri.toString()}`,
       );
     }
     expectDefined(viewColumn);
@@ -77,7 +77,7 @@ describe("visualizer", (): void => {
 
     if (!visualizerIsReady(document.uri)) {
       throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
+        `Expected visualizer to be ready for ${document.uri.toString()}`,
       );
     }
 

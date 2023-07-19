@@ -44,7 +44,7 @@ type Properties = TelemetryProperties & { targetFile: TargetFile };
 export async function findOrCreateActiveBicepFile(
   context: IActionContext,
   documentUri: Uri | undefined,
-  prompt: string
+  prompt: string,
 ): Promise<Uri> {
   const properties = <Properties>context.telemetry.properties;
   const ui = context.ui;
@@ -108,7 +108,7 @@ export async function findOrCreateActiveBicepFile(
 export async function findOrCreateActiveBicepParamFile(
   context: IActionContext,
   documentUri: Uri | undefined,
-  prompt: string
+  prompt: string,
 ): Promise<Uri> {
   const properties = <Properties>context.telemetry.properties;
   const ui = context.ui;
@@ -190,14 +190,14 @@ function addFileQuickPick(items: IAzureQuickPickItem<Uri>[], uri: Uri): void {
 
 async function queryCreateBicepFile(
   ui: IAzureUserInput,
-  properties: Properties
+  properties: Properties,
 ): Promise<Uri> {
   properties.targetFile = "new";
 
   await ui.showWarningMessage(
     "Couldn't find any Bicep files in your workspace. Would you like to create a Bicep file?",
     DialogResponses.yes,
-    DialogResponses.cancel
+    DialogResponses.cancel,
   );
 
   // User said yes (otherwise would have thrown user cancel error)
@@ -222,7 +222,7 @@ async function queryCreateBicepFile(
   await fse.writeFile(
     path,
     "@description('Location of all resources')\nparam location string = resourceGroup().location\n",
-    { encoding: "utf-8" }
+    { encoding: "utf-8" },
   );
 
   const document: TextDocument = await workspace.openTextDocument(uri);

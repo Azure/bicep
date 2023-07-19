@@ -37,25 +37,25 @@ describe("completion", (): void => {
 
   it("should provide completion while typing an identifier", async () => {
     await editor.edit((editBuilder) =>
-      editBuilder.insert(new Position(17, 0), "var foo = data")
+      editBuilder.insert(new Position(17, 0), "var foo = data"),
     );
 
     const completionList = await retryWhile(
       async () =>
         await executeCompletionItemProvider(
           document.uri,
-          new vscode.Position(17, 14)
+          new vscode.Position(17, 14),
         ),
       (completionList) =>
         completionList === undefined ||
-        !completionList.items.map((item) => item.label).includes("dataUri")
+        !completionList.items.map((item) => item.label).includes("dataUri"),
     );
 
     expectDefined(completionList);
     expect(completionList.items.map((item) => item.label)).toContain("dataUri");
 
     await editor.edit((editBuilder) =>
-      editBuilder.delete(new Range(new Position(17, 0), new Position(17, 14)))
+      editBuilder.delete(new Range(new Position(17, 0), new Position(17, 14))),
     );
   });
 });

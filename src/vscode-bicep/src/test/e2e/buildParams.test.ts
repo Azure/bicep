@@ -25,7 +25,7 @@ describe("buildParams", (): void => {
     const folderContainingSourceFile = path.dirname(examplePath);
     const compiledFilePath = path.join(
       folderContainingSourceFile,
-      "main.parameters.json"
+      "main.parameters.json",
     );
 
     expect(fs.existsSync(compiledFilePath)).toBe(true);

@@ -49,12 +49,12 @@ describe("removePropertiesWithPossibleUserInfoInDeployParams()", () => {
       .fill(null)
       .map(() =>
         "    ======\"'{}()!@#$%^&*()_+][|;':,abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(
-          Math.random() * 62
-        )
+          Math.random() * 62,
+        ),
       )
       .join("");
     const string10MB = (string10K + withToken).repeat(
-      Math.ceil(10000000 / (string10K.length + withToken.length))
+      Math.ceil(10000000 / (string10K.length + withToken.length)),
     );
 
     const start = Date.now();

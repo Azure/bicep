@@ -10,7 +10,7 @@ import { removePropertiesWithPossibleUserInfoInDeployParams } from "./removeProp
 // TODO: revisit this when https://github.com/Azure/azure-sdk-for-net/issues/27263 is resolved.
 export function createAzExtOutputChannel(
   name: string,
-  extensionConfigurationPrefix: string
+  extensionConfigurationPrefix: string,
 ): IAzExtOutputChannel {
   return new AzExtOutputChannel(name, extensionConfigurationPrefix);
 }
@@ -42,11 +42,11 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
 
   public appendLog(
     value: string,
-    options?: { resourceName?: string; date?: Date }
+    options?: { resourceName?: string; date?: Date },
   ): void {
     const enableOutputTimestampsSetting = "enableOutputTimestamps";
     const result: boolean | undefined = getBicepConfiguration().get<boolean>(
-      enableOutputTimestampsSetting
+      enableOutputTimestampsSetting,
     );
 
     if (!result) {
@@ -57,7 +57,7 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
       this.appendLine(
         `${date.toLocaleTimeString()}${
           options.resourceName ? " ".concat(options.resourceName) : ""
-        }: ${value}`
+        }: ${value}`,
       );
     }
   }
@@ -69,7 +69,7 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
   public show(preserveFocus?: boolean | undefined): void;
   public show(
     column?: ViewColumn | undefined,
-    preserveFocus?: boolean | undefined
+    preserveFocus?: boolean | undefined,
   ): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public show(_column?: any, preserveFocus?: boolean | undefined): void {

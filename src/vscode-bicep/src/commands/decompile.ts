@@ -51,28 +51,28 @@ export class DecompileCommand implements Command {
   public readonly id = "bicep.decompile";
   public constructor(
     private readonly client: LanguageClient,
-    private readonly outputChannelManager: OutputChannelManager
+    private readonly outputChannelManager: OutputChannelManager,
   ) {
     // nothing to do
   }
 
   public async execute(
     context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<void> {
     documentUri = documentUri ?? window.activeTextEditor?.document.uri;
     if (!documentUri) {
       throw new Error(
-        "Please open a JSON ARM Template file before running this command"
+        "Please open a JSON ARM Template file before running this command",
       );
     }
 
     const canDecompile = await DecompileCommand.mightBeArmTemplateNoThrow(
-      documentUri
+      documentUri,
     );
     if (!canDecompile) {
       this.outputChannelManager.appendToOutputChannel(
-        `Cannot decompile "${documentUri.fsPath}" into Bicep because it does not appear to be an ARM template.`
+        `Cannot decompile "${documentUri.fsPath}" into Bicep because it does not appear to be an ARM template.`,
       );
       throw new UserCancelledError("Can't decompile because not ARM template");
     }
@@ -87,16 +87,16 @@ export class DecompileCommand implements Command {
       });
 
     this.outputChannelManager.appendToOutputChannel(
-      decompileResult.output.trimEnd()
+      decompileResult.output.trimEnd(),
     );
     context.telemetry.properties.decompileStatus = decompileResult.errorMessage
       ? "failed"
       : "success";
     context.telemetry.properties.countOutputFiles = String(
-      decompileResult.outputFiles.length
+      decompileResult.outputFiles.length,
     );
     context.telemetry.properties.countConflictFiles = String(
-      decompileResult.conflictingOutputPaths.length
+      decompileResult.conflictingOutputPaths.length,
     );
 
     if (decompileResult.errorMessage) {
@@ -109,7 +109,7 @@ export class DecompileCommand implements Command {
     const overwrite = await this.queryOverwrite(
       context,
       decompileResult.outputFiles,
-      decompileResult.conflictingOutputPaths
+      decompileResult.conflictingOutputPaths,
     );
 
     // Save the output files
@@ -128,12 +128,12 @@ export class DecompileCommand implements Command {
       : "success";
 
     this.outputChannelManager.appendToOutputChannel(
-      saveResult.output.trimEnd()
+      saveResult.output.trimEnd(),
     );
   }
 
   public static async mightBeArmTemplateNoThrow(
-    documentUri: Uri
+    documentUri: Uri,
   ): Promise<boolean> {
     try {
       const contents = await (
@@ -150,7 +150,7 @@ export class DecompileCommand implements Command {
   private async queryOverwrite(
     context: IActionContext,
     outputFiles: DecompiledFile[],
-    conflictingOutputPaths: DocumentUri[]
+    conflictingOutputPaths: DocumentUri[],
   ): Promise<boolean> {
     let overwrite: boolean;
     const isSingleFileDecompilation = outputFiles.length === 1;
@@ -182,7 +182,7 @@ export class DecompileCommand implements Command {
         message,
         overwriteAction,
         createCopyAction,
-        cancelAction
+        cancelAction,
       );
       if (result === cancelAction) {
         this.outputChannelManager.appendToOutputChannel("Canceled.");
@@ -192,7 +192,7 @@ export class DecompileCommand implements Command {
       assert(result === overwriteAction || result === createCopyAction);
       overwrite = result === overwriteAction;
       this.outputChannelManager.appendToOutputChannel(
-        `Response: ${result.title}`
+        `Response: ${result.title}`,
       );
       context.telemetry.properties.conflictResolution = overwrite
         ? "overwrite"
