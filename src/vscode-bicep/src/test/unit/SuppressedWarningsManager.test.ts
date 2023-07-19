@@ -39,7 +39,7 @@ describe("suppressedWarningsManager", () => {
     await config.update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
       123456,
-      ConfigurationTarget.Global
+      ConfigurationTarget.Global,
     );
 
     expect(manager.isWarningSuppressed("test")).toBeFalsy();

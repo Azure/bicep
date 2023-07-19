@@ -20,10 +20,15 @@ export interface CreationOptions {
 export function useCytoscape(
   elements: cytoscape.ElementDefinition[],
   stylesheets: Stylesheet[],
-  { containerRef, layoutOptions, zoomOptions, onNodeDoubleTap }: CreationOptions
+  {
+    containerRef,
+    layoutOptions,
+    zoomOptions,
+    onNodeDoubleTap,
+  }: CreationOptions,
 ): [
   React.MutableRefObject<Core | undefined>,
-  React.MutableRefObject<Layouts | undefined>
+  React.MutableRefObject<Layouts | undefined>,
 ] {
   const cytoscapeRef = useRef<Core>();
   const layoutRef = useRef<Layouts>();
@@ -69,5 +74,5 @@ export function useCytoscape(
 }
 
 export const cytoscapeContext = createContext<cytoscape.Core | undefined>(
-  undefined
+  undefined,
 );

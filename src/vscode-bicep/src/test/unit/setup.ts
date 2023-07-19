@@ -71,5 +71,5 @@ jest.mock(
       t: jest.fn(),
     },
   }),
-  { virtual: true }
+  { virtual: true },
 );

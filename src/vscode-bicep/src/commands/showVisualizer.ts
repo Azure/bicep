@@ -11,12 +11,12 @@ async function showVisualizer(
   context: IActionContext,
   viewManager: BicepVisualizerViewManager,
   documentUri: vscode.Uri | undefined,
-  sideBySide = false
+  sideBySide = false,
 ) {
   documentUri = await findOrCreateActiveBicepFile(
     context,
     documentUri,
-    "Choose which Bicep file to visualize"
+    "Choose which Bicep file to visualize",
   );
 
   const viewColumn = sideBySide
@@ -32,12 +32,12 @@ export class ShowVisualizerCommand implements Command {
   public readonly id = "bicep.showVisualizer";
 
   public constructor(
-    private readonly viewManager: BicepVisualizerViewManager
+    private readonly viewManager: BicepVisualizerViewManager,
   ) {}
 
   public async execute(
     context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<vscode.ViewColumn | undefined> {
     return await showVisualizer(context, this.viewManager, documentUri);
   }
@@ -47,12 +47,12 @@ export class ShowVisualizerToSideCommand implements Command {
   public readonly id = "bicep.showVisualizerToSide";
 
   public constructor(
-    private readonly viewManager: BicepVisualizerViewManager
+    private readonly viewManager: BicepVisualizerViewManager,
   ) {}
 
   public async execute(
     context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<vscode.ViewColumn | undefined> {
     return await showVisualizer(context, this.viewManager, documentUri, true);
   }

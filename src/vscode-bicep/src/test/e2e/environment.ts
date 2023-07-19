@@ -8,7 +8,7 @@ class VSCodeEnvironment extends NodeEnvironment {
     await super.setup();
 
     const bicepExtension = vscode.extensions.getExtension(
-      "ms-azuretools.vscode-bicep"
+      "ms-azuretools.vscode-bicep",
     );
 
     if (!bicepExtension) {

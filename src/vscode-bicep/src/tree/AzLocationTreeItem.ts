@@ -8,7 +8,7 @@ import { LocationTreeItem } from "./LocationTreeItem";
 // The root of treeview used in subscription scope deployment. Represents an Azure account
 export class AzLocationTreeItem extends AzureAccountTreeItemBase {
   public createSubscriptionTreeItem(
-    root: ISubscriptionContext
+    root: ISubscriptionContext,
   ): LocationTreeItem {
     return new LocationTreeItem(this, root);
   }

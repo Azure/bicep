@@ -17,7 +17,7 @@ export type GlobalState = Memento & {
  * Call this once on activation to set the keys that should be synced between machines.
  */
 export function setGlobalStateKeysToSyncBetweenMachines(
-  globalState: GlobalState
+  globalState: GlobalState,
 ) {
   // Any keys not in this list will remain separate for each local machine.
   globalState.setKeysForSync([GlobalStateKeys.annualSurveyStateKey]);
