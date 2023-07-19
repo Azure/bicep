@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new());
 
-            string fileContent = @"
+            string fileContent = """
                 param appServicePlanInstanceCount int
                 param appServicePlanSku object
                 param location string = 'westus3'
@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
                         ra1: false
                       } 
                 }
-            ";
+            """;
 
             var result = CompilationHelper.Compile(services, fileContent);
 
@@ -54,35 +54,35 @@ namespace Bicep.Core.IntegrationTests
 
             result.Should().NotHaveAnyDiagnostics();
 
-            result = CompilationHelper.Compile(services, @"
+            result = CompilationHelper.Compile(services, """
                 assert a1 = true
-            ");
+            """);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP349", DiagnosticLevel.Error, "Using an assert declaration requires enabling EXPERIMENTAL feature \"Assertions\".")
             });
 
-            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert a1 = true
-            ");
+            """);
 
             result.Should().NotHaveAnyDiagnostics();
 
-            result = CompilationHelper.Compile(services, @"
+            result = CompilationHelper.Compile(services, """
                 param location string = 'westus3'
 
                 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
                       name: 'test-solution-plan'
                       location: location
                 }
-            ");
+            """);
             result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Asserts_are_parsed_with_diagnostics()
         {
-            var result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            var result = CompilationHelper.Compile(ServicesWithAsserts, """
                 param location string
 
                 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
@@ -97,12 +97,12 @@ namespace Bicep.Core.IntegrationTests
                         missingColon
                     }
                 }
-            ");
+            """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \":\" character at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            result = CompilationHelper.Compile(ServicesWithAsserts, """
                 param location string
 
                 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
@@ -117,28 +117,28 @@ namespace Bicep.Core.IntegrationTests
                         missingCondition:
                     }
                 }
-            ");
+            """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert
-            ");
+            """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP344", DiagnosticLevel.Error, "Expected an assert identifier at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert a1
-            ");
+            """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            result = CompilationHelper.Compile(ServicesWithAsserts, """
                 assert a1 =
-            ");
+            """);
             result.Should().HaveDiagnostics(new[] {
                 ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
             });
@@ -147,7 +147,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void Assert_symbolic_names_must_be_unique()
         {
-            var result = CompilationHelper.Compile(ServicesWithAsserts, @"
+            var result = CompilationHelper.Compile(ServicesWithAsserts, """
                 param location string
 
                 resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
@@ -164,7 +164,7 @@ namespace Bicep.Core.IntegrationTests
                 }
 
                 assert location = contains(location, 'west')
-            ");
+            """);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"location\" is declared multiple times. Remove or rename the duplicates."),
@@ -178,7 +178,7 @@ namespace Bicep.Core.IntegrationTests
         public void Asserts_only_take_bool()
         {
             var result = CompilationHelper.Compile(ServicesWithAsserts,
-                ("main.bicep", @"
+                ("main.bicep", """
                     param accountName string
                     param environment string
 
@@ -214,7 +214,7 @@ namespace Bicep.Core.IntegrationTests
                         x: 'y'
                     }
                     assert a9 = concat('a', 'b')
-                "));
+                """));
 
             result.Should().NotGenerateATemplate();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
@@ -238,7 +238,7 @@ namespace Bicep.Core.IntegrationTests
         public void Assert_end_to_end_test()
         {
             var result = CompilationHelper.Compile(ServicesWithAsserts,
-                ("main.bicep", @"
+                ("main.bicep", """
                     param accountName string
                     param environment string
                     param location string
@@ -257,7 +257,7 @@ namespace Bicep.Core.IntegrationTests
                     assert a1 = length(accountName) < myInt
                     assert a2 = contains(location, 'us')
                     assert a3 = environment == 'dev'
-                "));
+                """));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -309,7 +309,7 @@ namespace Bicep.Core.IntegrationTests
             "));
 
             result = CompilationHelper.Compile(ServicesWithAsserts,
-                ("main.bicep", @"
+                ("main.bicep", """
                     param accountName string
                     param environment string
                     param location string
@@ -329,7 +329,7 @@ namespace Bicep.Core.IntegrationTests
                     }
 
                     var myInt = 24
-                "));
+                """));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 

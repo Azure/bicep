@@ -22,8 +22,8 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
-            var assertsProperty = new TypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.Asserts);
-
+            var assertsProperty = new TypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.ResourceAsserts);
+            // DeclaredResourceMetadata.TypeReference.FormatType()
             if (bodyType is ObjectType objectType)
             {
                 var properties = objectType.Properties.SetItem(LanguageConstants.ResourceAssertPropertyName, assertsProperty);

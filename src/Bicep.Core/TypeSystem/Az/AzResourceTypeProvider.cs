@@ -66,7 +66,7 @@ namespace Bicep.Core.TypeSystem.Az
         };
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
-        public static readonly TypeSymbol Asserts = new ObjectType(nameof(Asserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.None);
+        public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
         private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
@@ -118,7 +118,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             yield return new TypeProperty("tags", Tags);
 
-            yield return new TypeProperty("asserts", Asserts);
+            yield return new TypeProperty("asserts", ResourceAsserts);
 
             yield return new TypeProperty("properties", LanguageConstants.Object);
 

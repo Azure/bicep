@@ -5,7 +5,7 @@
     "detail": "asserts",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Asserts`  \n"
+      "value": "Type: `ResourceAsserts`  \n"
     },
     "deprecated": false,
     "preselect": false,
