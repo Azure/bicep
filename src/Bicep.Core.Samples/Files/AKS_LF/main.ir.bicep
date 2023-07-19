@@ -2,42 +2,58 @@
 //@[00:1520) ProgramExpression
 param dnsPrefix string
 //@[00:0022) ├─DeclaredParameterExpression { Name = dnsPrefix }
+//@[16:0022) | └─AmbientTypeReferenceExpression { Name = string }
 param linuxAdminUsername string
 //@[00:0031) ├─DeclaredParameterExpression { Name = linuxAdminUsername }
+//@[25:0031) | └─AmbientTypeReferenceExpression { Name = string }
 param sshRSAPublicKey string
 //@[00:0028) ├─DeclaredParameterExpression { Name = sshRSAPublicKey }
+//@[22:0028) | └─AmbientTypeReferenceExpression { Name = string }
 
 @secure()
 //@[00:0046) ├─DeclaredParameterExpression { Name = servcePrincipalClientId }
+//@[01:0009) | ├─FunctionCallExpression { Name = secure }
 param servcePrincipalClientId string
+//@[30:0036) | └─AmbientTypeReferenceExpression { Name = string }
 
 @secure()
 //@[00:0051) ├─DeclaredParameterExpression { Name = servicePrincipalClientSecret }
+//@[01:0009) | ├─FunctionCallExpression { Name = secure }
 param servicePrincipalClientSecret string
+//@[35:0041) | └─AmbientTypeReferenceExpression { Name = string }
 
 // optional params
 param clusterName string = 'aks101cluster'
 //@[00:0042) ├─DeclaredParameterExpression { Name = clusterName }
+//@[18:0024) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[27:0042) | └─StringLiteralExpression { Value = aks101cluster }
 param location string = resourceGroup().location
 //@[00:0048) ├─DeclaredParameterExpression { Name = location }
+//@[15:0021) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[24:0048) | └─PropertyAccessExpression { PropertyName = location }
 //@[24:0039) |   └─FunctionCallExpression { Name = resourceGroup }
 
 @minValue(0)
 //@[00:0055) ├─DeclaredParameterExpression { Name = osDiskSizeGB }
+//@[10:0011) | ├─IntegerLiteralExpression { Value = 0 }
 @maxValue(1023)
+//@[10:0014) | ├─IntegerLiteralExpression { Value = 1023 }
 param osDiskSizeGB int = 0
+//@[19:0022) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[25:0026) | └─IntegerLiteralExpression { Value = 0 }
 
 @minValue(1)
 //@[00:0051) ├─DeclaredParameterExpression { Name = agentCount }
+//@[10:0011) | ├─IntegerLiteralExpression { Value = 1 }
 @maxValue(50)
+//@[10:0012) | ├─IntegerLiteralExpression { Value = 50 }
 param agentCount int = 3
+//@[17:0020) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[23:0024) | └─IntegerLiteralExpression { Value = 3 }
 
 param agentVMSize string = 'Standard_DS2_v2'
 //@[00:0044) ├─DeclaredParameterExpression { Name = agentVMSize }
+//@[18:0024) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[27:0044) | └─StringLiteralExpression { Value = Standard_DS2_v2 }
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 

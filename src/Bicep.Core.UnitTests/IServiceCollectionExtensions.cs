@@ -22,6 +22,7 @@ using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -108,6 +109,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithArmClientProvider(this IServiceCollection services, IArmClientProvider armClientProvider)
         => Register(services, armClientProvider);
+
+    public static IServiceCollection WithDeploymentHelper(this IServiceCollection services, IDeploymentHelper deploymentHelper)
+        => Register(services, deploymentHelper);
 
     public static IServiceCollection WithEmptyAzResources(this IServiceCollection services)
         => services.WithAzResources(Enumerable.Empty<ResourceTypeComponents>());

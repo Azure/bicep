@@ -114,7 +114,7 @@ and
     const result = getTextAfterFormattingChanges(
       textToMatch,
       editorText,
-      editorText.indexOf("\r\n\tThis has")
+      editorText.indexOf("\r\n\tThis has"),
     );
     expect(result).toBe(expected);
   });
@@ -136,7 +136,7 @@ This is text that won't match
     const result = getTextAfterFormattingChanges(
       textToMatch,
       editorText,
-      editorText.indexOf("This is text that")
+      editorText.indexOf("This is text that"),
     );
     expect(result).toBeUndefined();
   });
@@ -153,7 +153,7 @@ This is text`;
     const result = getTextAfterFormattingChanges(
       textToMatch,
       editorText,
-      editorText.indexOf("This is text")
+      editorText.indexOf("This is text"),
     );
     expect(result).toBeUndefined();
   });

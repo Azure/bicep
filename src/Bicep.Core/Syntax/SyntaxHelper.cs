@@ -49,7 +49,25 @@ namespace Bicep.Core.Syntax
             failureBuilder = null;
             return pathValue;
         }
+        public static string? TryGetModulePath(TestDeclarationSyntax moduleDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            var pathSyntax = moduleDeclarationSyntax.TryGetPath();
+            if (pathSyntax == null)
+            {
+                failureBuilder = x => x.ModulePathHasNotBeenSpecified();
+                return null;
+            }
 
+            var pathValue = pathSyntax.TryGetLiteralValue();
+            if (pathValue == null)
+            {
+                failureBuilder = x => x.FilePathInterpolationUnsupported();
+                return null;
+            }
+
+            failureBuilder = null;
+            return pathValue;
+        }
         public static string? TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var pathSyntax = usingDeclarationSyntax.TryGetPath();

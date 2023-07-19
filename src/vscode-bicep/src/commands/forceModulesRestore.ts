@@ -10,12 +10,12 @@ export class ForceModulesRestoreCommand implements Command {
   public readonly id = "bicep.forceModulesRestore";
   public constructor(
     private readonly client: LanguageClient,
-    private readonly outputChannelManager: OutputChannelManager
+    private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
   public async execute(
     _context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<void> {
     documentUri ??= vscode.window.activeTextEditor?.document.uri;
 
@@ -30,7 +30,7 @@ export class ForceModulesRestoreCommand implements Command {
 
       // Don't wait
       void vscode.window.showInformationMessage(
-        "We are unable to get restore modules in a Bicep file when the output panel is focused. Please focus a text editor first when running the command."
+        "We are unable to get restore modules in a Bicep file when the output panel is focused. Please focus a text editor first when running the command.",
       );
 
       return;
@@ -40,7 +40,7 @@ export class ForceModulesRestoreCommand implements Command {
       this.outputChannelManager.appendToOutputChannel(
         `Force restoring modules in ${
           documentUri.fsPath ?? documentUri.toString()
-        }...`
+        }...`,
       );
 
       const forceModulesRestoreOutput: string = await this.client.sendRequest(
@@ -48,16 +48,16 @@ export class ForceModulesRestoreCommand implements Command {
         {
           command: "forceModulesRestore",
           arguments: [documentUri.fsPath],
-        }
+        },
       );
       this.outputChannelManager.appendToOutputChannel(
-        forceModulesRestoreOutput
+        forceModulesRestoreOutput,
       );
     } catch (err) {
       this.client.error(
         "Restore (force) failed",
         parseError(err).message,
-        true
+        true,
       );
     }
   }

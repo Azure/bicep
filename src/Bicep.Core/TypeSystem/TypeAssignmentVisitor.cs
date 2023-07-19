@@ -486,6 +486,16 @@ namespace Bicep.Core.TypeSystem
                 return declaredType ?? ErrorType.Empty();
             });
 
+        public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+
+                base.VisitObjectTypeSyntax(syntax);
+
+                return declaredType ?? ErrorType.Empty();
+            });
+
         public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -508,6 +518,16 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
+        public override void VisitTupleTypeSyntax(TupleTypeSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+
+                base.VisitTupleTypeSyntax(syntax);
+
+                return declaredType ?? ErrorType.Empty();
+            });
+
         public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -517,6 +537,16 @@ namespace Bicep.Core.TypeSystem
                 base.VisitTupleTypeItemSyntax(syntax);
 
                 return declaredType;
+            });
+
+        public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+
+                base.VisitArrayTypeSyntax(syntax);
+
+                return declaredType ?? ErrorType.Empty();
             });
 
         public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)

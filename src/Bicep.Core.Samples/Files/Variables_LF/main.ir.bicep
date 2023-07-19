@@ -3,12 +3,14 @@
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
+//@[017:0034) | ├─StringLiteralExpression { Value = an int variable }
 var myInt = 42
 //@[012:0014) | └─IntegerLiteralExpression { Value = 42 }
 
 // string
 @sys.description('a string variable')
 //@[000:0055) ├─DeclaredVariableExpression { Name = myStr }
+//@[017:0036) | ├─StringLiteralExpression { Value = a string variable }
 var myStr = 'str'
 //@[012:0017) | └─StringLiteralExpression { Value = str }
 var curliesWithNoInterp = '}{1}{'
@@ -84,6 +86,7 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 // booleans
 @sys.description('a bool variable')
 //@[000:0054) ├─DeclaredVariableExpression { Name = myTruth }
+//@[017:0034) | ├─StringLiteralExpression { Value = a bool variable }
 var myTruth = true
 //@[014:0018) | └─BooleanLiteralExpression { Value = True }
 var myFalsehood = false
@@ -100,6 +103,7 @@ var myEmptyArray = [ ]
 // object
 @sys.description('a object variable')
 //@[000:0242) ├─DeclaredVariableExpression { Name = myObj }
+//@[017:0036) | ├─StringLiteralExpression { Value = a object variable }
 var myObj = {
 //@[012:0204) | └─ObjectExpression
   a: 'a'
@@ -167,6 +171,7 @@ var myObj = {
 
 @sys.description('a object with interp')
 //@[000:0157) ├─DeclaredVariableExpression { Name = objWithInterp }
+//@[017:0039) | ├─StringLiteralExpression { Value = a object with interp }
 var objWithInterp = {
 //@[020:0116) | └─ObjectExpression
   '${myStr}': 1
@@ -538,6 +543,7 @@ var variables = true
 //@[016:0020) | └─BooleanLiteralExpression { Value = True }
 param parameters bool = true
 //@[000:0028) ├─DeclaredParameterExpression { Name = parameters }
+//@[017:0021) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[024:0028) | └─BooleanLiteralExpression { Value = True }
 var if = true
 //@[000:0013) ├─DeclaredVariableExpression { Name = if }
@@ -562,6 +568,7 @@ var div = true
 //@[010:0014) | └─BooleanLiteralExpression { Value = True }
 param mod bool = true
 //@[000:0021) ├─DeclaredParameterExpression { Name = mod }
+//@[010:0014) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[017:0021) | └─BooleanLiteralExpression { Value = True }
 var less = true
 //@[000:0015) ├─DeclaredVariableExpression { Name = less }
@@ -577,6 +584,7 @@ var greaterOrEquals = true
 //@[022:0026) | └─BooleanLiteralExpression { Value = True }
 param equals bool = true
 //@[000:0024) ├─DeclaredParameterExpression { Name = equals }
+//@[013:0017) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[020:0024) | └─BooleanLiteralExpression { Value = True }
 var not = true
 //@[000:0014) ├─DeclaredVariableExpression { Name = not }

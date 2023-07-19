@@ -36,7 +36,7 @@ export class WalkthroughCopyToClipboardCommand implements Command {
   public async execute(
     context: IActionContext,
     _documentUri: Uri,
-    args: { step: "params" | "resources" }
+    args: { step: "params" | "resources" },
   ): Promise<void> {
     const step = args.step;
     context.telemetry.properties.step = step;

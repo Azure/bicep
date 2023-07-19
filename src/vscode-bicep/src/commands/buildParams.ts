@@ -11,17 +11,17 @@ export class BuildParamsCommand implements Command {
   public readonly id = "bicep.buildParams";
   public constructor(
     private readonly client: LanguageClient,
-    private readonly outputChannelManager: OutputChannelManager
+    private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
   public async execute(
     context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<void> {
     documentUri = await findOrCreateActiveBicepParamFile(
       context,
       documentUri,
-      "Choose which Bicep file to build into an ARM template"
+      "Choose which Bicep file to build into an ARM template",
     );
 
     try {
@@ -30,7 +30,7 @@ export class BuildParamsCommand implements Command {
         {
           command: "buildParams",
           arguments: [documentUri.fsPath],
-        }
+        },
       );
       this.outputChannelManager.appendToOutputChannel(buildOutput);
     } catch (err) {

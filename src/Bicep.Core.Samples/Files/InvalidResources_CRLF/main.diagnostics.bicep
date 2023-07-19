@@ -726,7 +726,7 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
 //@[004:035) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource|
-//@[038:070) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for|
+//@[038:070) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for|
 //@[071:075) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (CodeDescription: none) |kind|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
@@ -754,7 +754,7 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
 //@[004:038) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource_if|
-//@[041:076) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for_if|
+//@[041:076) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for_if|
 //@[077:081) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (CodeDescription: none) |kind|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
@@ -1768,17 +1768,17 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 
 var directRefViaVar = premiumStorages
 //@[004:019) [no-unused-vars (Warning)] Variable "directRefViaVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |directRefViaVar|
-//@[022:037) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[022:037) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
 output directRefViaOutput array = union(premiumStorages, stuffs)
-//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
-//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
+//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone2'
   location: 'global'
   properties: {
     registrationVirtualNetworks: premiumStorages
-//@[033:048) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[033:048) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
   }
 }
 
@@ -1787,8 +1787,8 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   location: 'global'
   properties: {
     registrationVirtualNetworks: concat(premiumStorages, stuffs)
-//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
-//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
+//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
   }
 }
 
@@ -1798,7 +1798,7 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
-//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
   }
 }]
 
@@ -1808,11 +1808,11 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
-//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
     dependsOn: [
 //@[004:013) [BCP037 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |dependsOn|
       premiumStorages
-//@[006:021) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[006:021) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
     ]
   }
   dependsOn: [
