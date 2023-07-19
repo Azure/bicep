@@ -518,6 +518,20 @@ type discriminatorPropertyNotExistAtAll = typeA | typeB
 //@[50:55) Identifier |typeB|
 //@[55:57) NewLine |\n\n|
 
+@discriminator('nonexistent')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:28) StringComplete |'nonexistent'|
+//@[28:29) RightParen |)|
+//@[29:30) NewLine |\n|
+type discriminatorPropertyMismatch = unionAB
+//@[00:04) Identifier |type|
+//@[05:34) Identifier |discriminatorPropertyMismatch|
+//@[35:36) Assignment |=|
+//@[37:44) Identifier |unionAB|
+//@[44:46) NewLine |\n\n|
+
 @discriminator('type')
 //@[00:01) At |@|
 //@[01:14) Identifier |discriminator|
@@ -623,6 +637,39 @@ type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[67:73) Identifier |object|
 //@[74:75) RightBrace |}|
 //@[75:77) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatorOnlyOneNonNullMember1 = typeA | null
+//@[00:04) Identifier |type|
+//@[05:39) Identifier |discriminatorOnlyOneNonNullMember1|
+//@[40:41) Assignment |=|
+//@[42:47) Identifier |typeA|
+//@[48:49) Pipe |||
+//@[50:54) NullKeyword |null|
+//@[54:56) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatorOnlyOneNonNullMember2 = (typeA)?
+//@[00:04) Identifier |type|
+//@[05:39) Identifier |discriminatorOnlyOneNonNullMember2|
+//@[40:41) Assignment |=|
+//@[42:43) LeftParen |(|
+//@[43:48) Identifier |typeA|
+//@[48:49) RightParen |)|
+//@[49:50) Question |?|
+//@[50:52) NewLine |\n\n|
 
 @discriminator('type')
 //@[00:01) At |@|
@@ -749,6 +796,231 @@ type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 //@[36:41) Identifier |typeA|
 //@[42:43) Pipe |||
 //@[44:78) Identifier |discriminatorInnerSelfCycle2Helper|
-//@[78:79) NewLine |\n|
+//@[78:80) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatorTupleBadType1 = [typeA, typeB]
+//@[00:04) Identifier |type|
+//@[05:31) Identifier |discriminatorTupleBadType1|
+//@[32:33) Assignment |=|
+//@[34:35) LeftSquare |[|
+//@[35:40) Identifier |typeA|
+//@[40:41) Comma |,|
+//@[42:47) Identifier |typeB|
+//@[47:48) RightSquare |]|
+//@[48:50) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatorTupleBadType2 = [typeA | typeB]
+//@[00:04) Identifier |type|
+//@[05:31) Identifier |discriminatorTupleBadType2|
+//@[32:33) Assignment |=|
+//@[34:35) LeftSquare |[|
+//@[35:40) Identifier |typeA|
+//@[41:42) Pipe |||
+//@[43:48) Identifier |typeB|
+//@[48:49) RightSquare |]|
+//@[49:51) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
+//@[00:04) Identifier |type|
+//@[05:31) Identifier |discriminatorTupleBadType3|
+//@[32:33) Assignment |=|
+//@[34:35) LeftSquare |[|
+//@[35:40) Identifier |typeA|
+//@[41:42) Pipe |||
+//@[43:48) Identifier |typeB|
+//@[48:49) Comma |,|
+//@[50:55) Identifier |typeC|
+//@[56:57) Pipe |||
+//@[58:63) Identifier |typeD|
+//@[63:64) RightSquare |]|
+//@[64:66) NewLine |\n\n|
+
+type discriminatorInlineAdditionalPropsBadType1 = {
+//@[00:04) Identifier |type|
+//@[05:47) Identifier |discriminatorInlineAdditionalPropsBadType1|
+//@[48:49) Assignment |=|
+//@[50:51) LeftBrace |{|
+//@[51:52) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  *: typeA
+//@[02:03) Asterisk |*|
+//@[03:04) Colon |:|
+//@[05:10) Identifier |typeA|
+//@[10:11) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type discriminatorInlineAdditionalPropsBadType2 = {
+//@[00:04) Identifier |type|
+//@[05:47) Identifier |discriminatorInlineAdditionalPropsBadType2|
+//@[48:49) Assignment |=|
+//@[50:51) LeftBrace |{|
+//@[51:52) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  *: typeA | typeA
+//@[02:03) Asterisk |*|
+//@[03:04) Colon |:|
+//@[05:10) Identifier |typeA|
+//@[11:12) Pipe |||
+//@[13:18) Identifier |typeA|
+//@[18:19) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type discriminatorInlineAdditionalPropsBadType3 = {
+//@[00:04) Identifier |type|
+//@[05:47) Identifier |discriminatorInlineAdditionalPropsBadType3|
+//@[48:49) Assignment |=|
+//@[50:51) LeftBrace |{|
+//@[51:52) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  *: string
+//@[02:03) Asterisk |*|
+//@[03:04) Colon |:|
+//@[05:11) Identifier |string|
+//@[11:12) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+type discriminatorInlineAdditionalPropsCycle1 = {
+//@[00:04) Identifier |type|
+//@[05:45) Identifier |discriminatorInlineAdditionalPropsCycle1|
+//@[46:47) Assignment |=|
+//@[48:49) LeftBrace |{|
+//@[49:50) NewLine |\n|
+  type: 'b'
+//@[02:06) Identifier |type|
+//@[06:07) Colon |:|
+//@[08:11) StringComplete |'b'|
+//@[11:12) NewLine |\n|
+  @discriminator('type')
+//@[02:03) At |@|
+//@[03:16) Identifier |discriminator|
+//@[16:17) LeftParen |(|
+//@[17:23) StringComplete |'type'|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+  *: typeA | discriminatorInlineAdditionalPropsCycle1
+//@[02:03) Asterisk |*|
+//@[03:04) Colon |:|
+//@[05:10) Identifier |typeA|
+//@[11:12) Pipe |||
+//@[13:53) Identifier |discriminatorInlineAdditionalPropsCycle1|
+//@[53:54) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+param discriminatorParamBadType1 typeA
+//@[00:05) Identifier |param|
+//@[06:32) Identifier |discriminatorParamBadType1|
+//@[33:38) Identifier |typeA|
+//@[38:40) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+param discriminatorParamBadType2 'a' | 'b'
+//@[00:05) Identifier |param|
+//@[06:32) Identifier |discriminatorParamBadType2|
+//@[33:36) StringComplete |'a'|
+//@[37:38) Pipe |||
+//@[39:42) StringComplete |'b'|
+//@[42:44) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
+//@[00:06) Identifier |output|
+//@[07:34) Identifier |discriminatorOutputBadType1|
+//@[35:40) Identifier |typeA|
+//@[41:42) Assignment |=|
+//@[43:44) LeftBrace |{|
+//@[45:49) Identifier |type|
+//@[49:50) Colon |:|
+//@[51:54) StringComplete |'a'|
+//@[54:55) Comma |,|
+//@[56:61) Identifier |value|
+//@[61:62) Colon |:|
+//@[63:66) StringComplete |'a'|
+//@[67:68) RightBrace |}|
+//@[68:70) NewLine |\n\n|
+
+@discriminator('type')
+//@[00:01) At |@|
+//@[01:14) Identifier |discriminator|
+//@[14:15) LeftParen |(|
+//@[15:21) StringComplete |'type'|
+//@[21:22) RightParen |)|
+//@[22:23) NewLine |\n|
+output discriminatorOutputBadType2 object = { prop: 'value' }
+//@[00:06) Identifier |output|
+//@[07:34) Identifier |discriminatorOutputBadType2|
+//@[35:41) Identifier |object|
+//@[42:43) Assignment |=|
+//@[44:45) LeftBrace |{|
+//@[46:50) Identifier |prop|
+//@[50:51) Colon |:|
+//@[52:59) StringComplete |'value'|
+//@[60:61) RightBrace |}|
+//@[61:62) NewLine |\n|
 
 //@[00:00) EndOfFile ||

@@ -122,6 +122,9 @@ type wrongDiscriminatorParamType = typeA | typeB
 @discriminator('nonexistent')
 type discriminatorPropertyNotExistAtAll = typeA | typeB
 
+@discriminator('nonexistent')
+type discriminatorPropertyMismatch = unionAB
+
 @discriminator('type')
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
 
@@ -139,6 +142,12 @@ type discriminatorDuplicatedMember1 = typeA | typeA
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
+
+@discriminator('type')
+type discriminatorOnlyOneNonNullMember1 = typeA | null
+
+@discriminator('type')
+type discriminatorOnlyOneNonNullMember2 = (typeA)?
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
@@ -163,3 +172,45 @@ type discriminatorInnerSelfCycle2Helper = {
 }
 @discriminator('type')
 type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
+
+@discriminator('type')
+type discriminatorTupleBadType1 = [typeA, typeB]
+
+@discriminator('type')
+type discriminatorTupleBadType2 = [typeA | typeB]
+
+@discriminator('type')
+type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
+
+type discriminatorInlineAdditionalPropsBadType1 = {
+  @discriminator('type')
+  *: typeA
+}
+
+type discriminatorInlineAdditionalPropsBadType2 = {
+  @discriminator('type')
+  *: typeA | typeA
+}
+
+type discriminatorInlineAdditionalPropsBadType3 = {
+  @discriminator('type')
+  *: string
+}
+
+type discriminatorInlineAdditionalPropsCycle1 = {
+  type: 'b'
+  @discriminator('type')
+  *: typeA | discriminatorInlineAdditionalPropsCycle1
+}
+
+@discriminator('type')
+param discriminatorParamBadType1 typeA
+
+@discriminator('type')
+param discriminatorParamBadType2 'a' | 'b'
+
+@discriminator('type')
+output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
+
+@discriminator('type')
+output discriminatorOutputBadType2 object = { prop: 'value' }

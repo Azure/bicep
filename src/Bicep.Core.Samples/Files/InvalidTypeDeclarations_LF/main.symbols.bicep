@@ -162,6 +162,10 @@ type wrongDiscriminatorParamType = typeA | typeB
 type discriminatorPropertyNotExistAtAll = typeA | typeB
 //@[5:39) TypeAlias discriminatorPropertyNotExistAtAll. Type: error. Declaration start char: 0, length: 85
 
+@discriminator('nonexistent')
+type discriminatorPropertyMismatch = unionAB
+//@[5:34) TypeAlias discriminatorPropertyMismatch. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 74
+
 @discriminator('type')
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
 //@[5:46) TypeAlias discriminatorPropertyNotExistOnAtLeastOne. Type: error. Declaration start char: 0, length: 95
@@ -185,6 +189,14 @@ type discriminatorDuplicatedMember1 = typeA | typeA
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[5:35) TypeAlias discriminatorDuplicatedMember2. Type: error. Declaration start char: 0, length: 98
+
+@discriminator('type')
+type discriminatorOnlyOneNonNullMember1 = typeA | null
+//@[5:39) TypeAlias discriminatorOnlyOneNonNullMember1. Type: error. Declaration start char: 0, length: 77
+
+@discriminator('type')
+type discriminatorOnlyOneNonNullMember2 = (typeA)?
+//@[5:39) TypeAlias discriminatorOnlyOneNonNullMember2. Type: Type<null | { type: 'a', value: string }>. Declaration start char: 0, length: 73
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
@@ -216,4 +228,57 @@ type discriminatorInnerSelfCycle2Helper = {
 @discriminator('type')
 type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 //@[5:33) TypeAlias discriminatorInnerSelfCycle2. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle2 }>. Declaration start char: 0, length: 101
+
+@discriminator('type')
+type discriminatorTupleBadType1 = [typeA, typeB]
+//@[5:31) TypeAlias discriminatorTupleBadType1. Type: Type<[typeA, typeB]>. Declaration start char: 0, length: 71
+
+@discriminator('type')
+type discriminatorTupleBadType2 = [typeA | typeB]
+//@[5:31) TypeAlias discriminatorTupleBadType2. Type: Type<[typeA | typeB]>. Declaration start char: 0, length: 72
+
+@discriminator('type')
+type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
+//@[5:31) TypeAlias discriminatorTupleBadType3. Type: Type<[typeA | typeB, typeC | typeD]>. Declaration start char: 0, length: 87
+
+type discriminatorInlineAdditionalPropsBadType1 = {
+//@[5:47) TypeAlias discriminatorInlineAdditionalPropsBadType1. Type: Type<{ *: typeA }>. Declaration start char: 0, length: 89
+  @discriminator('type')
+  *: typeA
+}
+
+type discriminatorInlineAdditionalPropsBadType2 = {
+//@[5:47) TypeAlias discriminatorInlineAdditionalPropsBadType2. Type: Type<{ *: typeA | typeA }>. Declaration start char: 0, length: 97
+  @discriminator('type')
+  *: typeA | typeA
+}
+
+type discriminatorInlineAdditionalPropsBadType3 = {
+//@[5:47) TypeAlias discriminatorInlineAdditionalPropsBadType3. Type: Type<{ *: string }>. Declaration start char: 0, length: 90
+  @discriminator('type')
+  *: string
+}
+
+type discriminatorInlineAdditionalPropsCycle1 = {
+//@[5:45) TypeAlias discriminatorInlineAdditionalPropsCycle1. Type: error. Declaration start char: 0, length: 142
+  type: 'b'
+  @discriminator('type')
+  *: typeA | discriminatorInlineAdditionalPropsCycle1
+}
+
+@discriminator('type')
+param discriminatorParamBadType1 typeA
+//@[6:32) Parameter discriminatorParamBadType1. Type: { type: 'a', value: string }. Declaration start char: 0, length: 61
+
+@discriminator('type')
+param discriminatorParamBadType2 'a' | 'b'
+//@[6:32) Parameter discriminatorParamBadType2. Type: error. Declaration start char: 0, length: 65
+
+@discriminator('type')
+output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
+//@[7:34) Output discriminatorOutputBadType1. Type: { type: 'a', value: string }. Declaration start char: 0, length: 91
+
+@discriminator('type')
+output discriminatorOutputBadType2 object = { prop: 'value' }
+//@[7:34) Output discriminatorOutputBadType2. Type: object. Declaration start char: 0, length: 84
 

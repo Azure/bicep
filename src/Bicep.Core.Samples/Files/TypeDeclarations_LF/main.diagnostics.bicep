@@ -127,6 +127,9 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: '
 @discriminator('type')
 type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
 
+@discriminator('type')
+type discriminatedUnion5 = (typeA | typeB)?
+
 type inlineDiscriminatedUnion1 = {
   @discriminator('type')
   prop: typeA | typeC
@@ -148,6 +151,11 @@ type inlineDiscriminatedUnion3 = {
   prop: discriminatedUnion1 | discriminatedUnion2
 }
 
+type inlineDiscriminatedUnion4 = {
+  @discriminator('type')
+  prop: (typeA | typeC)?
+}
+
 type discriminatorUnionAsPropertyType = {
   prop1: discriminatedUnion1
   prop2: discriminatedUnion3
@@ -158,3 +166,56 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
   type: 'b'
   value: discriminatorInnerSelfOptionalCycle1?
 }
+
+type discriminatedUnionInlineAdditionalProps1 = {
+  @discriminator('type')
+  *: typeA | typeB
+}
+
+type discriminatedUnionInlineAdditionalProps2 = {
+  @discriminator('type')
+  *: (typeA | typeB)?
+}
+
+type discriminatedUnionCycle1 = {
+  type: 'b'
+  @discriminator('type')
+  prop: (typeA | discriminatedUnionCycle1)?
+}
+
+param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
+//@[6:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias1|
+param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
+//@[6:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias2|
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion1 typeA | typeB
+//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion1|
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
+//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion2|
+
+@discriminator('type')
+//@[0:22) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+param paramInlineDiscriminatedUnion3 typeA | typeB | null
+//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion3|
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion4 (typeA | typeB)?
+//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion4|
+
+output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
+@discriminator('type')
+output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = { type: 'a', value: 'str' }
+output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int }) = { type: 'c', value: 1 }
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
+

@@ -133,6 +133,9 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | {
 @discriminator('type')
 type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
 
+@discriminator('type')
+type discriminatedUnion5 = (typeA | typeB)?
+
 type inlineDiscriminatedUnion1 = {
   @discriminator('type')
   prop: typeA | typeC
@@ -154,6 +157,11 @@ type inlineDiscriminatedUnion3 = {
   prop: discriminatedUnion1 | discriminatedUnion2
 }
 
+type inlineDiscriminatedUnion4 = {
+  @discriminator('type')
+  prop: (typeA | typeC)?
+}
+
 type discriminatorUnionAsPropertyType = {
   prop1: discriminatedUnion1
   prop2: discriminatedUnion3
@@ -164,3 +172,60 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
   type: 'b'
   value: discriminatorInnerSelfOptionalCycle1?
 }
+
+type discriminatedUnionInlineAdditionalProps1 = {
+  @discriminator('type')
+  *: typeA | typeB
+}
+
+type discriminatedUnionInlineAdditionalProps2 = {
+  @discriminator('type')
+  *: (typeA | typeB)?
+}
+
+type discriminatedUnionCycle1 = {
+  type: 'b'
+  @discriminator('type')
+  prop: (typeA | discriminatedUnionCycle1)?
+}
+
+param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
+param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion1 typeA | typeB
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion3 typeA | typeB | null
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion4 (typeA | typeB)?
+
+output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = {
+  type: 'a'
+  value: 'str'
+}
+@discriminator('type')
+output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = {
+  type: 'a'
+  value: 'str'
+}
+output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = {
+  type: 'a'
+  value: 'a'
+}
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion2 typeA | typeB | ({
+  type: 'c'
+  value: int
+}) = { type: 'c', value: 1 }
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
