@@ -1,33 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Templates.Engines;
 using Bicep.Cli.Logging;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
+
 
 namespace Bicep.Cli.Services
 {
@@ -99,12 +90,7 @@ namespace Bicep.Cli.Services
             var semantic_model = compilation.GetEntrypointSemanticModel();
 
             var declarations = semantic_model.Root.TestDeclarations;
-            var templateOutputBuffer = new StringBuilder();
-            using var textWriter = new StringWriter(templateOutputBuffer);
-            foreach(var declaration in declarations)
-            {
-                // Evaluate the test declaration
-            }
+            ValidationService.Validate(declarations);
 
             LogDiagnostics(compilation);
 

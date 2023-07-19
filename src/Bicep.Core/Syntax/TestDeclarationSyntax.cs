@@ -93,11 +93,12 @@ namespace Bicep.Core.Syntax
                                     break;
 
                                 case ObjectSyntax objectSyntax:
-                                    throw new NotImplementedException($"Type of parameter value '{parameter.Value.GetType().Name}' is not yet implemented.");
+                                    parameters[propertyName] = ParseObjectSyntax(objectSyntax);
+                                    break;
 
                                 case ArraySyntax arraySyntax:
-                                    throw new NotImplementedException($"Type of parameter value '{parameter.Value.GetType().Name}' is not yet implemented.");
-
+                                    parameters[propertyName] = ParseArraySyntax(arraySyntax);
+                                    break;
                                 default:
                                     throw new NotImplementedException($"Unexpected type of parameter value '{parameter.Value.GetType().Name}'.");
                             }
@@ -109,6 +110,96 @@ namespace Bicep.Core.Syntax
             }
             return null;
         }
+        private static JArray ParseArraySyntax(ArraySyntax arraySyntax)
+        {
+            var array = new JArray();
+
+            foreach (var item in arraySyntax.Items)
+            {
+                switch (item.Value)
+                {
+                    case StringSyntax stringSyntax:
+                        array.Add(stringSyntax.TryGetLiteralValue());
+                        break;
+
+                    case IntegerLiteralSyntax numericSyntax:
+                        array.Add(numericSyntax.Value);
+                        break;
+
+                    case BooleanLiteralSyntax booleanSyntax:
+                        array.Add(booleanSyntax.Value);
+                        break;
+
+                    case null:
+                        array.Add(JValue.CreateNull());
+                        break;
+
+                    case ObjectSyntax objectSyntax:
+                        array.Add(ParseObjectSyntax(objectSyntax));
+                        break;
+
+                    case ArraySyntax nestedArraySyntax:
+                        array.Add(ParseArraySyntax(nestedArraySyntax));
+                        break;
+
+                    default:
+                        throw new NotImplementedException($"Unexpected type of array item '{item.GetType().Name}'.");
+                }
+            }
+
+            return array;
+        }
+
+        private static JObject ParseObjectSyntax(ObjectSyntax objectSyntax)
+        {
+            var obj = new JObject();
+
+            foreach (var property in objectSyntax.Properties)
+            {
+                var propertyName = property.TryGetKeyText();
+                var propertyValue = property.Value;
+                if (propertyName is null)
+                {
+                    throw new NotImplementedException($"Error reading the object property key");
+                }
+                
+                switch (propertyValue)
+                {
+                    case StringSyntax stringSyntax:
+                        obj.Add(propertyName, stringSyntax.TryGetLiteralValue());
+                        break;
+
+                    case IntegerLiteralSyntax numericSyntax:
+                        obj[propertyName] = numericSyntax.Value;
+                        break;
+
+                    case BooleanLiteralSyntax booleanSyntax:
+                        obj[propertyName] = booleanSyntax.Value;
+                        break;
+
+                    case null:
+                        obj[propertyName] = JValue.CreateNull();
+                        break;
+
+                    case ObjectSyntax nestedObjectSyntax:
+                        obj[propertyName] = ParseObjectSyntax(nestedObjectSyntax);
+                        break;
+
+                    case ArraySyntax nestedArraySyntax:
+                        obj[propertyName] = ParseArraySyntax(nestedArraySyntax);
+                        break;
+
+                    default:
+                        throw new NotImplementedException($"Unexpected type of object property value '{propertyValue.GetType().Name}'.");
+                }
+            }
+
+            return obj;
+        }
+
+
+        
+        
 
 
 

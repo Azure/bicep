@@ -195,10 +195,9 @@ namespace Bicep.Cli.Services
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
                 var parameters = ParseParametersFile(parametersJToken);
-                // var parameters = new InsensitiveDictionary<JToken>();
-
+                
                 TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
-                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, null, new InsensitiveDictionary<JToken>());
+                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), new InsensitiveDictionary<JToken>(), null, new InsensitiveDictionary<JToken>());
 
                 TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01", null);
 
