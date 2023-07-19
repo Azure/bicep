@@ -22,10 +22,19 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
+            var assertsProperty = new TypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.Asserts);
 
-            if (bodyType is ObjectType objectType && resourceFunctions.Any())
+            if (bodyType is ObjectType objectType)
             {
-                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+                var properties = objectType.Properties.SetItem(LanguageConstants.ResourceAssertPropertyName, assertsProperty);
+                if (resourceFunctions.Any())
+                {
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+                }
+                else
+                {
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags);
+                }
             }
 
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);

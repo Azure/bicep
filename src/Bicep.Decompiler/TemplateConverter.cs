@@ -1579,6 +1579,7 @@ namespace Bicep.Decompiler
                 "comments",
                 "scope",
                 "metadata",
+                "asserts",
             }, StringComparer.OrdinalIgnoreCase);
 
             var resourcePropsToOmit = new HashSet<string>(new[]

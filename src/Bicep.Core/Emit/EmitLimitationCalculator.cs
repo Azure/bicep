@@ -581,6 +581,16 @@ namespace Bicep.Core.Emit
                     diagnostics.Write(assert.DeclaringAssert, x => x.AssertsUnsupported());
                 }
             }
+            foreach (var resourceDeclarationSymbol in model.Root.ResourceDeclarations)
+            {
+                if (resourceDeclarationSymbol.TryGetBodyProperty(LanguageConstants.ResourceAssertPropertyName)?.Value != null)
+                {
+                    if (!model.Features.AssertsEnabled)
+                    {
+                        diagnostics.Write(resourceDeclarationSymbol.TryGetBodyProperty(LanguageConstants.ResourceAssertPropertyName)!.Value, x => x.AssertsUnsupported());
+                    }
+                }
+            }
         }
     }
 }
