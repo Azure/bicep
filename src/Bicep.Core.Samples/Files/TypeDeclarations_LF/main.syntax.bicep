@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4407) ProgramSyntax
+//@[000:4527) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1527,57 +1527,6 @@ type discriminatorUnionAsPropertyType = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-@discriminator('type')
-//@[000:0137) ├─TypeDeclarationSyntax
-//@[000:0022) | ├─DecoratorSyntax
-//@[000:0001) | | ├─Token(At) |@|
-//@[001:0022) | | └─FunctionCallSyntax
-//@[001:0014) | |   ├─IdentifierSyntax
-//@[001:0014) | |   | └─Token(Identifier) |discriminator|
-//@[014:0015) | |   ├─Token(LeftParen) |(|
-//@[015:0021) | |   ├─FunctionArgumentSyntax
-//@[015:0021) | |   | └─StringSyntax
-//@[015:0021) | |   |   └─Token(StringComplete) |'type'|
-//@[021:0022) | |   └─Token(RightParen) |)|
-//@[022:0023) | ├─Token(NewLine) |\n|
-type discriminatorInnerSelfOptionalCycle1 = typeA | {
-//@[000:0004) | ├─Token(Identifier) |type|
-//@[005:0041) | ├─IdentifierSyntax
-//@[005:0041) | | └─Token(Identifier) |discriminatorInnerSelfOptionalCycle1|
-//@[042:0043) | ├─Token(Assignment) |=|
-//@[044:0114) | └─UnionTypeSyntax
-//@[044:0049) |   ├─UnionTypeMemberSyntax
-//@[044:0049) |   | └─VariableAccessSyntax
-//@[044:0049) |   |   └─IdentifierSyntax
-//@[044:0049) |   |     └─Token(Identifier) |typeA|
-//@[050:0051) |   ├─Token(Pipe) |||
-//@[052:0114) |   └─UnionTypeMemberSyntax
-//@[052:0114) |     └─ObjectTypeSyntax
-//@[052:0053) |       ├─Token(LeftBrace) |{|
-//@[053:0054) |       ├─Token(NewLine) |\n|
-  type: 'b'
-//@[002:0011) |       ├─ObjectTypePropertySyntax
-//@[002:0006) |       | ├─IdentifierSyntax
-//@[002:0006) |       | | └─Token(Identifier) |type|
-//@[006:0007) |       | ├─Token(Colon) |:|
-//@[008:0011) |       | └─StringSyntax
-//@[008:0011) |       |   └─Token(StringComplete) |'b'|
-//@[011:0012) |       ├─Token(NewLine) |\n|
-  value: discriminatorInnerSelfOptionalCycle1?
-//@[002:0046) |       ├─ObjectTypePropertySyntax
-//@[002:0007) |       | ├─IdentifierSyntax
-//@[002:0007) |       | | └─Token(Identifier) |value|
-//@[007:0008) |       | ├─Token(Colon) |:|
-//@[009:0046) |       | └─NullableTypeSyntax
-//@[009:0045) |       |   ├─VariableAccessSyntax
-//@[009:0045) |       |   | └─IdentifierSyntax
-//@[009:0045) |       |   |   └─Token(Identifier) |discriminatorInnerSelfOptionalCycle1|
-//@[045:0046) |       |   └─Token(Question) |?|
-//@[046:0047) |       ├─Token(NewLine) |\n|
-}
-//@[000:0001) |       └─Token(RightBrace) |}|
-//@[001:0003) ├─Token(NewLine) |\n\n|
-
 type discriminatedUnionInlineAdditionalProps1 = {
 //@[000:0095) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
@@ -1663,15 +1612,66 @@ type discriminatedUnionInlineAdditionalProps2 = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-type discriminatedUnionCycle1 = {
-//@[000:0116) ├─TypeDeclarationSyntax
+@discriminator('type')
+//@[000:0137) ├─TypeDeclarationSyntax
+//@[000:0022) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0022) | | └─FunctionCallSyntax
+//@[001:0014) | |   ├─IdentifierSyntax
+//@[001:0014) | |   | └─Token(Identifier) |discriminator|
+//@[014:0015) | |   ├─Token(LeftParen) |(|
+//@[015:0021) | |   ├─FunctionArgumentSyntax
+//@[015:0021) | |   | └─StringSyntax
+//@[015:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[021:0022) | |   └─Token(RightParen) |)|
+//@[022:0023) | ├─Token(NewLine) |\n|
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[000:0004) | ├─Token(Identifier) |type|
-//@[005:0029) | ├─IdentifierSyntax
-//@[005:0029) | | └─Token(Identifier) |discriminatedUnionCycle1|
-//@[030:0031) | ├─Token(Assignment) |=|
-//@[032:0116) | └─ObjectTypeSyntax
-//@[032:0033) |   ├─Token(LeftBrace) |{|
-//@[033:0034) |   ├─Token(NewLine) |\n|
+//@[005:0041) | ├─IdentifierSyntax
+//@[005:0041) | | └─Token(Identifier) |discriminatorInnerSelfOptionalCycle1|
+//@[042:0043) | ├─Token(Assignment) |=|
+//@[044:0114) | └─UnionTypeSyntax
+//@[044:0049) |   ├─UnionTypeMemberSyntax
+//@[044:0049) |   | └─VariableAccessSyntax
+//@[044:0049) |   |   └─IdentifierSyntax
+//@[044:0049) |   |     └─Token(Identifier) |typeA|
+//@[050:0051) |   ├─Token(Pipe) |||
+//@[052:0114) |   └─UnionTypeMemberSyntax
+//@[052:0114) |     └─ObjectTypeSyntax
+//@[052:0053) |       ├─Token(LeftBrace) |{|
+//@[053:0054) |       ├─Token(NewLine) |\n|
+  type: 'b'
+//@[002:0011) |       ├─ObjectTypePropertySyntax
+//@[002:0006) |       | ├─IdentifierSyntax
+//@[002:0006) |       | | └─Token(Identifier) |type|
+//@[006:0007) |       | ├─Token(Colon) |:|
+//@[008:0011) |       | └─StringSyntax
+//@[008:0011) |       |   └─Token(StringComplete) |'b'|
+//@[011:0012) |       ├─Token(NewLine) |\n|
+  value: discriminatorInnerSelfOptionalCycle1?
+//@[002:0046) |       ├─ObjectTypePropertySyntax
+//@[002:0007) |       | ├─IdentifierSyntax
+//@[002:0007) |       | | └─Token(Identifier) |value|
+//@[007:0008) |       | ├─Token(Colon) |:|
+//@[009:0046) |       | └─NullableTypeSyntax
+//@[009:0045) |       |   ├─VariableAccessSyntax
+//@[009:0045) |       |   | └─IdentifierSyntax
+//@[009:0045) |       |   |   └─Token(Identifier) |discriminatorInnerSelfOptionalCycle1|
+//@[045:0046) |       |   └─Token(Question) |?|
+//@[046:0047) |       ├─Token(NewLine) |\n|
+}
+//@[000:0001) |       └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type discriminatedSelfInlineCycle1 = {
+//@[000:0126) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0034) | ├─IdentifierSyntax
+//@[005:0034) | | └─Token(Identifier) |discriminatedSelfInlineCycle1|
+//@[035:0036) | ├─Token(Assignment) |=|
+//@[037:0126) | └─ObjectTypeSyntax
+//@[037:0038) |   ├─Token(LeftBrace) |{|
+//@[038:0039) |   ├─Token(NewLine) |\n|
   type: 'b'
 //@[002:0011) |   ├─ObjectTypePropertySyntax
 //@[002:0006) |   | ├─IdentifierSyntax
@@ -1681,7 +1681,7 @@ type discriminatedUnionCycle1 = {
 //@[008:0011) |   |   └─Token(StringComplete) |'b'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   @discriminator('type')
-//@[002:0068) |   ├─ObjectTypePropertySyntax
+//@[002:0073) |   ├─ObjectTypePropertySyntax
 //@[002:0024) |   | ├─DecoratorSyntax
 //@[002:0003) |   | | ├─Token(At) |@|
 //@[003:0024) |   | | └─FunctionCallSyntax
@@ -1693,28 +1693,116 @@ type discriminatedUnionCycle1 = {
 //@[017:0023) |   | |   |   └─Token(StringComplete) |'type'|
 //@[023:0024) |   | |   └─Token(RightParen) |)|
 //@[024:0025) |   | ├─Token(NewLine) |\n|
-  prop: (typeA | discriminatedUnionCycle1)?
+  prop: (typeA | discriminatedSelfInlineCycle1)?
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |prop|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0043) |   | └─NullableTypeSyntax
-//@[008:0042) |   |   ├─ParenthesizedExpressionSyntax
+//@[008:0048) |   | └─NullableTypeSyntax
+//@[008:0047) |   |   ├─ParenthesizedExpressionSyntax
 //@[008:0009) |   |   | ├─Token(LeftParen) |(|
-//@[009:0041) |   |   | ├─UnionTypeSyntax
+//@[009:0046) |   |   | ├─UnionTypeSyntax
 //@[009:0014) |   |   | | ├─UnionTypeMemberSyntax
 //@[009:0014) |   |   | | | └─VariableAccessSyntax
 //@[009:0014) |   |   | | |   └─IdentifierSyntax
 //@[009:0014) |   |   | | |     └─Token(Identifier) |typeA|
 //@[015:0016) |   |   | | ├─Token(Pipe) |||
-//@[017:0041) |   |   | | └─UnionTypeMemberSyntax
-//@[017:0041) |   |   | |   └─VariableAccessSyntax
-//@[017:0041) |   |   | |     └─IdentifierSyntax
-//@[017:0041) |   |   | |       └─Token(Identifier) |discriminatedUnionCycle1|
-//@[041:0042) |   |   | └─Token(RightParen) |)|
-//@[042:0043) |   |   └─Token(Question) |?|
-//@[043:0044) |   ├─Token(NewLine) |\n|
+//@[017:0046) |   |   | | └─UnionTypeMemberSyntax
+//@[017:0046) |   |   | |   └─VariableAccessSyntax
+//@[017:0046) |   |   | |     └─IdentifierSyntax
+//@[017:0046) |   |   | |       └─Token(Identifier) |discriminatedSelfInlineCycle1|
+//@[046:0047) |   |   | └─Token(RightParen) |)|
+//@[047:0048) |   |   └─Token(Question) |?|
+//@[048:0049) |   ├─Token(NewLine) |\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type discriminatedUnionTuple1 = [
+//@[000:0066) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0029) | ├─IdentifierSyntax
+//@[005:0029) | | └─Token(Identifier) |discriminatedUnionTuple1|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0066) | └─TupleTypeSyntax
+//@[032:0033) |   ├─Token(LeftSquare) |[|
+//@[033:0034) |   ├─Token(NewLine) |\n|
+  discriminatedUnion1
+//@[002:0021) |   ├─TupleTypeItemSyntax
+//@[002:0021) |   | └─VariableAccessSyntax
+//@[002:0021) |   |   └─IdentifierSyntax
+//@[002:0021) |   |     └─Token(Identifier) |discriminatedUnion1|
+//@[021:0022) |   ├─Token(NewLine) |\n|
+  string
+//@[002:0008) |   ├─TupleTypeItemSyntax
+//@[002:0008) |   | └─VariableAccessSyntax
+//@[002:0008) |   |   └─IdentifierSyntax
+//@[002:0008) |   |     └─Token(Identifier) |string|
+//@[008:0009) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type discriminatedUnionInlineTuple1 = [
+//@[000:0122) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0035) | ├─IdentifierSyntax
+//@[005:0035) | | └─Token(Identifier) |discriminatedUnionInlineTuple1|
+//@[036:0037) | ├─Token(Assignment) |=|
+//@[038:0122) | └─TupleTypeSyntax
+//@[038:0039) |   ├─Token(LeftSquare) |[|
+//@[039:0040) |   ├─Token(NewLine) |\n|
+  @discriminator('type')
+//@[002:0071) |   ├─TupleTypeItemSyntax
+//@[002:0024) |   | ├─DecoratorSyntax
+//@[002:0003) |   | | ├─Token(At) |@|
+//@[003:0024) |   | | └─FunctionCallSyntax
+//@[003:0016) |   | |   ├─IdentifierSyntax
+//@[003:0016) |   | |   | └─Token(Identifier) |discriminator|
+//@[016:0017) |   | |   ├─Token(LeftParen) |(|
+//@[017:0023) |   | |   ├─FunctionArgumentSyntax
+//@[017:0023) |   | |   | └─StringSyntax
+//@[017:0023) |   | |   |   └─Token(StringComplete) |'type'|
+//@[023:0024) |   | |   └─Token(RightParen) |)|
+//@[024:0025) |   | ├─Token(NewLine) |\n|
+  typeA | typeB | { type: 'c', value: object }
+//@[002:0046) |   | └─UnionTypeSyntax
+//@[002:0007) |   |   ├─UnionTypeMemberSyntax
+//@[002:0007) |   |   | └─VariableAccessSyntax
+//@[002:0007) |   |   |   └─IdentifierSyntax
+//@[002:0007) |   |   |     └─Token(Identifier) |typeA|
+//@[008:0009) |   |   ├─Token(Pipe) |||
+//@[010:0015) |   |   ├─UnionTypeMemberSyntax
+//@[010:0015) |   |   | └─VariableAccessSyntax
+//@[010:0015) |   |   |   └─IdentifierSyntax
+//@[010:0015) |   |   |     └─Token(Identifier) |typeB|
+//@[016:0017) |   |   ├─Token(Pipe) |||
+//@[018:0046) |   |   └─UnionTypeMemberSyntax
+//@[018:0046) |   |     └─ObjectTypeSyntax
+//@[018:0019) |   |       ├─Token(LeftBrace) |{|
+//@[020:0029) |   |       ├─ObjectTypePropertySyntax
+//@[020:0024) |   |       | ├─IdentifierSyntax
+//@[020:0024) |   |       | | └─Token(Identifier) |type|
+//@[024:0025) |   |       | ├─Token(Colon) |:|
+//@[026:0029) |   |       | └─StringSyntax
+//@[026:0029) |   |       |   └─Token(StringComplete) |'c'|
+//@[029:0030) |   |       ├─Token(Comma) |,|
+//@[031:0044) |   |       ├─ObjectTypePropertySyntax
+//@[031:0036) |   |       | ├─IdentifierSyntax
+//@[031:0036) |   |       | | └─Token(Identifier) |value|
+//@[036:0037) |   |       | ├─Token(Colon) |:|
+//@[038:0044) |   |       | └─VariableAccessSyntax
+//@[038:0044) |   |       |   └─IdentifierSyntax
+//@[038:0044) |   |       |     └─Token(Identifier) |object|
+//@[045:0046) |   |       └─Token(RightBrace) |}|
+//@[046:0047) |   ├─Token(NewLine) |\n|
+  string
+//@[002:0008) |   ├─TupleTypeItemSyntax
+//@[002:0008) |   | └─VariableAccessSyntax
+//@[002:0008) |   |   └─IdentifierSyntax
+//@[002:0008) |   |     └─Token(Identifier) |string|
+//@[008:0009) |   ├─Token(NewLine) |\n|
+]
+//@[000:0001) |   └─Token(RightSquare) |]|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
 param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
@@ -1816,39 +1904,6 @@ param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
 //@[078:0080) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
-//@[000:0080) ├─ParameterDeclarationSyntax
-//@[000:0022) | ├─DecoratorSyntax
-//@[000:0001) | | ├─Token(At) |@|
-//@[001:0022) | | └─FunctionCallSyntax
-//@[001:0014) | |   ├─IdentifierSyntax
-//@[001:0014) | |   | └─Token(Identifier) |discriminator|
-//@[014:0015) | |   ├─Token(LeftParen) |(|
-//@[015:0021) | |   ├─FunctionArgumentSyntax
-//@[015:0021) | |   | └─StringSyntax
-//@[015:0021) | |   |   └─Token(StringComplete) |'type'|
-//@[021:0022) | |   └─Token(RightParen) |)|
-//@[022:0023) | ├─Token(NewLine) |\n|
-param paramInlineDiscriminatedUnion3 typeA | typeB | null
-//@[000:0005) | ├─Token(Identifier) |param|
-//@[006:0036) | ├─IdentifierSyntax
-//@[006:0036) | | └─Token(Identifier) |paramInlineDiscriminatedUnion3|
-//@[037:0057) | └─UnionTypeSyntax
-//@[037:0042) |   ├─UnionTypeMemberSyntax
-//@[037:0042) |   | └─VariableAccessSyntax
-//@[037:0042) |   |   └─IdentifierSyntax
-//@[037:0042) |   |     └─Token(Identifier) |typeA|
-//@[043:0044) |   ├─Token(Pipe) |||
-//@[045:0050) |   ├─UnionTypeMemberSyntax
-//@[045:0050) |   | └─VariableAccessSyntax
-//@[045:0050) |   |   └─IdentifierSyntax
-//@[045:0050) |   |     └─Token(Identifier) |typeB|
-//@[051:0052) |   ├─Token(Pipe) |||
-//@[053:0057) |   └─UnionTypeMemberSyntax
-//@[053:0057) |     └─NullLiteralSyntax
-//@[053:0057) |       └─Token(NullKeyword) |null|
-//@[057:0059) ├─Token(NewLine) |\n\n|
-
-@discriminator('type')
 //@[000:0076) ├─ParameterDeclarationSyntax
 //@[000:0022) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1861,10 +1916,10 @@ param paramInlineDiscriminatedUnion3 typeA | typeB | null
 //@[015:0021) | |   |   └─Token(StringComplete) |'type'|
 //@[021:0022) | |   └─Token(RightParen) |)|
 //@[022:0023) | ├─Token(NewLine) |\n|
-param paramInlineDiscriminatedUnion4 (typeA | typeB)?
+param paramInlineDiscriminatedUnion3 (typeA | typeB)?
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0036) | ├─IdentifierSyntax
-//@[006:0036) | | └─Token(Identifier) |paramInlineDiscriminatedUnion4|
+//@[006:0036) | | └─Token(Identifier) |paramInlineDiscriminatedUnion3|
 //@[037:0053) | └─NullableTypeSyntax
 //@[037:0052) |   ├─ParenthesizedExpressionSyntax
 //@[037:0038) |   | ├─Token(LeftParen) |(|

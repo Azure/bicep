@@ -892,36 +892,6 @@ type discriminatorUnionAsPropertyType = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-@discriminator('type')
-//@[000:001) At |@|
-//@[001:014) Identifier |discriminator|
-//@[014:015) LeftParen |(|
-//@[015:021) StringComplete |'type'|
-//@[021:022) RightParen |)|
-//@[022:023) NewLine |\n|
-type discriminatorInnerSelfOptionalCycle1 = typeA | {
-//@[000:004) Identifier |type|
-//@[005:041) Identifier |discriminatorInnerSelfOptionalCycle1|
-//@[042:043) Assignment |=|
-//@[044:049) Identifier |typeA|
-//@[050:051) Pipe |||
-//@[052:053) LeftBrace |{|
-//@[053:054) NewLine |\n|
-  type: 'b'
-//@[002:006) Identifier |type|
-//@[006:007) Colon |:|
-//@[008:011) StringComplete |'b'|
-//@[011:012) NewLine |\n|
-  value: discriminatorInnerSelfOptionalCycle1?
-//@[002:007) Identifier |value|
-//@[007:008) Colon |:|
-//@[009:045) Identifier |discriminatorInnerSelfOptionalCycle1|
-//@[045:046) Question |?|
-//@[046:047) NewLine |\n|
-}
-//@[000:001) RightBrace |}|
-//@[001:003) NewLine |\n\n|
-
 type discriminatedUnionInlineAdditionalProps1 = {
 //@[000:004) Identifier |type|
 //@[005:045) Identifier |discriminatedUnionInlineAdditionalProps1|
@@ -973,12 +943,42 @@ type discriminatedUnionInlineAdditionalProps2 = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-type discriminatedUnionCycle1 = {
+@discriminator('type')
+//@[000:001) At |@|
+//@[001:014) Identifier |discriminator|
+//@[014:015) LeftParen |(|
+//@[015:021) StringComplete |'type'|
+//@[021:022) RightParen |)|
+//@[022:023) NewLine |\n|
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[000:004) Identifier |type|
-//@[005:029) Identifier |discriminatedUnionCycle1|
-//@[030:031) Assignment |=|
-//@[032:033) LeftBrace |{|
-//@[033:034) NewLine |\n|
+//@[005:041) Identifier |discriminatorInnerSelfOptionalCycle1|
+//@[042:043) Assignment |=|
+//@[044:049) Identifier |typeA|
+//@[050:051) Pipe |||
+//@[052:053) LeftBrace |{|
+//@[053:054) NewLine |\n|
+  type: 'b'
+//@[002:006) Identifier |type|
+//@[006:007) Colon |:|
+//@[008:011) StringComplete |'b'|
+//@[011:012) NewLine |\n|
+  value: discriminatorInnerSelfOptionalCycle1?
+//@[002:007) Identifier |value|
+//@[007:008) Colon |:|
+//@[009:045) Identifier |discriminatorInnerSelfOptionalCycle1|
+//@[045:046) Question |?|
+//@[046:047) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+type discriminatedSelfInlineCycle1 = {
+//@[000:004) Identifier |type|
+//@[005:034) Identifier |discriminatedSelfInlineCycle1|
+//@[035:036) Assignment |=|
+//@[037:038) LeftBrace |{|
+//@[038:039) NewLine |\n|
   type: 'b'
 //@[002:006) Identifier |type|
 //@[006:007) Colon |:|
@@ -991,18 +991,69 @@ type discriminatedUnionCycle1 = {
 //@[017:023) StringComplete |'type'|
 //@[023:024) RightParen |)|
 //@[024:025) NewLine |\n|
-  prop: (typeA | discriminatedUnionCycle1)?
+  prop: (typeA | discriminatedSelfInlineCycle1)?
 //@[002:006) Identifier |prop|
 //@[006:007) Colon |:|
 //@[008:009) LeftParen |(|
 //@[009:014) Identifier |typeA|
 //@[015:016) Pipe |||
-//@[017:041) Identifier |discriminatedUnionCycle1|
-//@[041:042) RightParen |)|
-//@[042:043) Question |?|
-//@[043:044) NewLine |\n|
+//@[017:046) Identifier |discriminatedSelfInlineCycle1|
+//@[046:047) RightParen |)|
+//@[047:048) Question |?|
+//@[048:049) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+type discriminatedUnionTuple1 = [
+//@[000:004) Identifier |type|
+//@[005:029) Identifier |discriminatedUnionTuple1|
+//@[030:031) Assignment |=|
+//@[032:033) LeftSquare |[|
+//@[033:034) NewLine |\n|
+  discriminatedUnion1
+//@[002:021) Identifier |discriminatedUnion1|
+//@[021:022) NewLine |\n|
+  string
+//@[002:008) Identifier |string|
+//@[008:009) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
+
+type discriminatedUnionInlineTuple1 = [
+//@[000:004) Identifier |type|
+//@[005:035) Identifier |discriminatedUnionInlineTuple1|
+//@[036:037) Assignment |=|
+//@[038:039) LeftSquare |[|
+//@[039:040) NewLine |\n|
+  @discriminator('type')
+//@[002:003) At |@|
+//@[003:016) Identifier |discriminator|
+//@[016:017) LeftParen |(|
+//@[017:023) StringComplete |'type'|
+//@[023:024) RightParen |)|
+//@[024:025) NewLine |\n|
+  typeA | typeB | { type: 'c', value: object }
+//@[002:007) Identifier |typeA|
+//@[008:009) Pipe |||
+//@[010:015) Identifier |typeB|
+//@[016:017) Pipe |||
+//@[018:019) LeftBrace |{|
+//@[020:024) Identifier |type|
+//@[024:025) Colon |:|
+//@[026:029) StringComplete |'c'|
+//@[029:030) Comma |,|
+//@[031:036) Identifier |value|
+//@[036:037) Colon |:|
+//@[038:044) Identifier |object|
+//@[045:046) RightBrace |}|
+//@[046:047) NewLine |\n|
+  string
+//@[002:008) Identifier |string|
+//@[008:009) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
 //@[001:003) NewLine |\n\n|
 
 param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
@@ -1065,26 +1116,9 @@ param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
 //@[015:021) StringComplete |'type'|
 //@[021:022) RightParen |)|
 //@[022:023) NewLine |\n|
-param paramInlineDiscriminatedUnion3 typeA | typeB | null
+param paramInlineDiscriminatedUnion3 (typeA | typeB)?
 //@[000:005) Identifier |param|
 //@[006:036) Identifier |paramInlineDiscriminatedUnion3|
-//@[037:042) Identifier |typeA|
-//@[043:044) Pipe |||
-//@[045:050) Identifier |typeB|
-//@[051:052) Pipe |||
-//@[053:057) NullKeyword |null|
-//@[057:059) NewLine |\n\n|
-
-@discriminator('type')
-//@[000:001) At |@|
-//@[001:014) Identifier |discriminator|
-//@[014:015) LeftParen |(|
-//@[015:021) StringComplete |'type'|
-//@[021:022) RightParen |)|
-//@[022:023) NewLine |\n|
-param paramInlineDiscriminatedUnion4 (typeA | typeB)?
-//@[000:005) Identifier |param|
-//@[006:036) Identifier |paramInlineDiscriminatedUnion4|
 //@[037:038) LeftParen |(|
 //@[038:043) Identifier |typeA|
 //@[044:045) Pipe |||

@@ -267,6 +267,14 @@ type discriminatorInlineAdditionalPropsCycle1 = {
 }
 
 @discriminator('type')
+type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
+//@[5:49) TypeAlias discriminatedUnionDuplicateMemberInsensitive. Type: error. Declaration start char: 0, length: 131
+
+@discriminator('TYPE')
+type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }
+//@[5:49) TypeAlias discriminatedUnionCaseSensitiveDiscriminator. Type: error. Declaration start char: 0, length: 131
+
+@discriminator('type')
 param discriminatorParamBadType1 typeA
 //@[6:32) Parameter discriminatorParamBadType1. Type: { type: 'a', value: string }. Declaration start char: 0, length: 61
 

@@ -167,12 +167,6 @@ type discriminatorUnionAsPropertyType = {
   prop2: discriminatedUnion3
 }
 
-@discriminator('type')
-type discriminatorInnerSelfOptionalCycle1 = typeA | {
-  type: 'b'
-  value: discriminatorInnerSelfOptionalCycle1?
-}
-
 type discriminatedUnionInlineAdditionalProps1 = {
   @discriminator('type')
   *: typeA | typeB
@@ -183,11 +177,25 @@ type discriminatedUnionInlineAdditionalProps2 = {
   *: (typeA | typeB)?
 }
 
-type discriminatedUnionCycle1 = {
+@discriminator('type')
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+}
+
+type discriminatedSelfInlineCycle1 = {
   type: 'b'
   @discriminator('type')
-  prop: (typeA | discriminatedUnionCycle1)?
+  prop: (typeA | discriminatedSelfInlineCycle1)?
 }
+
+type discriminatedUnionTuple1 = [discriminatedUnion1, string]
+
+type discriminatedUnionInlineTuple1 = [
+  @discriminator('type')
+  typeA | typeB | { type: 'c', value: object }
+  string
+]
 
 param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
 param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
@@ -199,10 +207,7 @@ param paramInlineDiscriminatedUnion1 typeA | typeB
 param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
 
 @discriminator('type')
-param paramInlineDiscriminatedUnion3 typeA | typeB | null
-
-@discriminator('type')
-param paramInlineDiscriminatedUnion4 (typeA | typeB)?
+param paramInlineDiscriminatedUnion3 (typeA | typeB)?
 
 output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = {
   type: 'a'
