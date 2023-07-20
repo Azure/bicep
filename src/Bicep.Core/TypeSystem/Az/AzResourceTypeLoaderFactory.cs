@@ -12,6 +12,7 @@ namespace Bicep.Core.TypeSystem.Az
     public class AzResourceTypeLoaderFactory : IAzResourceTypeLoaderFactory
     {
         private const string typesArtifactFilename = "types.tgz";
+        private const string BuiltInLoaderKey = "builtin";
 
         private readonly IFeatureProviderFactory featureProviderFactory;
 
@@ -21,20 +22,20 @@ namespace Bicep.Core.TypeSystem.Az
         {
             this.featureProviderFactory = featureProviderFactory;
             this.resourceTypeLoaders = new() {
-                {"builtin", defaultAzResourceTypeLoader},
+                {BuiltInLoaderKey, defaultAzResourceTypeLoader},
             };
         }
 
         public IAzResourceTypeLoader GetBuiltInTypeLoader()
         {
-            return resourceTypeLoaders["builtin"];
+            return resourceTypeLoaders[BuiltInLoaderKey];
         }
 
         public IAzResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features)
         {
             if (!features.DynamicTypeLoadingEnabled || version is null)
             {
-                return resourceTypeLoaders["builtin"];
+                return resourceTypeLoaders[BuiltInLoaderKey];
             }
 
             //TODO(asilverman): The magic strings below are temporary and will be changed to use variables fetched at restore time
