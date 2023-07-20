@@ -372,7 +372,8 @@ namespace Bicep.Core.Emit
                         @bool.SourceSyntax),
                 },
                 @bool.SourceSyntax),
-            UnionTypeExpression unionType => GetTypePropertiesForUnionTypeExpression(unionType),
+            UnionTypeExpression unionType when TypeHelper.TryRemoveNullability(unionType.ExpressedUnionType) is not DiscriminatedObjectType
+                => GetTypePropertiesForUnionTypeExpression(unionType),
 
             // resource types
             ResourceTypeExpression resourceType => GetTypePropertiesForResourceType(resourceType),
@@ -504,14 +505,17 @@ namespace Bicep.Core.Emit
             ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
         });
 
-        private static ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
-        {
-            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
+        private static (bool Nullable, string NonLiteralTypeName) GetUnionTypeNullabilityAndType(UnionType unionType) =>
+            TypeHelper.TryRemoveNullability(unionType) switch
             {
                 UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
                 TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-                _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type)),
+                _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
             };
+
+        private static ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
+        {
+            (var nullable, var nonLiteralTypeName) = GetUnionTypeNullabilityAndType(expression.ExpressedUnionType);
 
             var properties = new List<ObjectPropertyExpression>
             {
@@ -532,74 +536,29 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression GetTypePropertiesForDiscriminatedObjectExpression(DiscriminatedObjectTypeExpression expression)
         {
-            // TODO(k.a): rewrite code
-            /*
-            var declaredType = Context.SemanticModel.GetDeclaredType(syntax);
+            var nullable = false;
+            var nonLiteralTypeName = "object";
 
-            if (declaredType is not UnionType and not DiscriminatedObjectType)
+            if (TypeHelper.CreateTypeUnion(expression.MemberExpressions.Select(exp => exp.ExpressedType)) is UnionType unionType)
             {
-                throw new ArgumentException("Invalid union encountered during template serialization");
+                var unionTypeInfo = GetUnionTypeNullabilityAndType(unionType);
+                nullable = unionTypeInfo.Nullable;
+                nonLiteralTypeName = unionTypeInfo.NonLiteralTypeName;
             }
-
-            IEnumerable<ITypeReference> unionMembers = declaredType switch
-            {
-                UnionType memberProvider => memberProvider.Members,
-                DiscriminatedObjectType memberProvider => memberProvider.UnionMembersByKey.Values,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-            var nonNullableType = TypeHelper.TryRemoveNullability(declaredType);
-            (var nullable, var nonLiteralTypeName) = nonNullableType switch
-            {
-                UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
-                TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-                _ => (false, GetNonLiteralTypeName(unionMembers.First().Type)),
-            };
 
             var properties = new List<ObjectPropertyExpression>
             {
-                TypeProperty(nonLiteralTypeName),
-            };
-
-            var discriminatedObjectType = declaredType as DiscriminatedObjectType ?? nonNullableType as DiscriminatedObjectType;
-
-            if (discriminatedObjectType != null)
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("discriminator", GetDiscriminatedObjectExpression(syntax, discriminatedObjectType)));
-            }
-            else if (declaredType is UnionType unionType)
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)));
-            }
-
-            if (nullable)
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true)));
-            }
-
-            return ExpressionFactory.CreateObject(properties);
-             */
-            // (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
-            // {
-            //     UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
-            //     TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-            //     _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type)),
-            // };
-
-            var properties = new List<ObjectPropertyExpression>
-            {
-                TypeProperty("object", expression.SourceSyntax),
+                TypeProperty(nonLiteralTypeName, expression.SourceSyntax),
                 ExpressionFactory.CreateObjectProperty(
                     "discriminator",
                     GetTypePropertiesForDiscriminator(expression),
                     expression.SourceSyntax),
             };
 
-            // TODO(k.a): reimplement nullable
-            // if (nullable)
-            // {
-            //     properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true), expression.SourceSyntax));
-            // }
+            if (nullable)
+            {
+                properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true), expression.SourceSyntax));
+            }
 
             return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
@@ -693,6 +652,7 @@ namespace Bicep.Core.Emit
             BooleanLiteralType or BooleanType => "bool",
             ObjectType or DiscriminatedObjectType => "object",
             ArrayType => "array",
+            TypeType typeType => GetNonLiteralTypeName(typeType.Unwrapped),
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };

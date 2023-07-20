@@ -282,7 +282,7 @@ public class ExpressionBuilder
                 GetTypeInfo<ArrayType>(syntax),
                 ConvertTypeWithoutLowering(arrayTypeSyntax.Item.Value)),
             NullableTypeSyntax nullableTypeSyntax => new NullableTypeExpression(syntax, ConvertTypeWithoutLowering(nullableTypeSyntax.Base)),
-            UnionTypeSyntax unionTypeSyntax when typeInfo is DiscriminatedObjectType discriminatedObjectType =>
+            UnionTypeSyntax unionTypeSyntax when GetDiscriminatedObjectUnionFromTypeInfo(typeInfo) is { } discriminatedObjectType =>
                 new DiscriminatedObjectTypeExpression(
                     syntax,
                     discriminatedObjectType,
@@ -1080,6 +1080,21 @@ public class ExpressionBuilder
             default:
                 throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
         }
+    }
+
+    private static DiscriminatedObjectType? GetDiscriminatedObjectUnionFromTypeInfo(TypeSymbol typeInfo)
+    {
+        if (typeInfo is DiscriminatedObjectType discriminatedObjectType)
+        {
+            return discriminatedObjectType;
+        }
+
+        if (TypeHelper.TryRemoveNullability(typeInfo) is DiscriminatedObjectType nullableDiscriminatedObjectType)
+        {
+            return nullableDiscriminatedObjectType;
+        }
+
+        return null;
     }
 
     /// <summary>
