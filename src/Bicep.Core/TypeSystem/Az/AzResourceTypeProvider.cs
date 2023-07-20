@@ -62,9 +62,11 @@ namespace Bicep.Core.TypeSystem.Az
             "identity",
             "managedByExtended",
             "tags",
+            "asserts",
         };
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
+        public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
         private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
@@ -115,6 +117,8 @@ namespace Bicep.Core.TypeSystem.Az
             yield return new TypeProperty("location", LanguageConstants.String);
 
             yield return new TypeProperty("tags", Tags);
+
+            yield return new TypeProperty("asserts", ResourceAsserts);
 
             yield return new TypeProperty("properties", LanguageConstants.Object);
 
