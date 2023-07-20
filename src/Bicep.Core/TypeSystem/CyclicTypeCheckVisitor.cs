@@ -111,10 +111,14 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
             return;
         }
 
-        if (TypeHelper.TryRemoveNullability(containedType) is not null)
+        if (TypeHelper.TryRemoveNullability(containedType) is { } nonNullableType)
         {
-            // if the contained type is nullable, any cycle would be *recursive*, not cyclic
-            return;
+            // TODO: handle discriminated object union cycle cases later when serialization format changes
+            if (nonNullableType is not DiscriminatedObjectType)
+            {
+                // if the contained type is nullable, any cycle would be *recursive*, not cyclic
+                return;
+            }
         }
 
         visitBaseFunc(syntax);

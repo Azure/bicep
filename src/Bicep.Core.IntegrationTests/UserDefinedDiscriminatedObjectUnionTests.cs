@@ -450,6 +450,27 @@ type typeUnion1 = typeC | typeD
         }
 
         [TestMethod]
+        public void DiscriminatedObjectUnions_Error_OptionalSelfCycle()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+@discriminator('type')
+type discriminatorInnerSelfRefOptionalCycle1 = typeA | {
+  type: 'b'
+  value: discriminatorInnerSelfRefOptionalCycle1?
+}
+""");
+
+            result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+        }
+
+        [TestMethod]
         public void DiscriminatedObjectUnions_Error_NonLiteralObjectTypes_NoDiscriminatorDecorator()
         {
             var result = CompilationHelper.Compile(
@@ -676,6 +697,27 @@ type typeB = {
 
 @discriminator('type')
 type typeUnion1 = typeUnion1 | typeA
+""");
+
+            result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+        }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Error_InlineSelfCycle()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeTest = {
+  type: 'b'
+  @discriminator('type')
+  prop: (typeA | typeTest)?
+}
 """);
 
             result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
