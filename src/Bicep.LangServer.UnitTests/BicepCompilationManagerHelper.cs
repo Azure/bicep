@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
@@ -47,7 +46,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
-                .AddSingleton<IAzResourceTypeLoader>(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
+                .WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
                 .AddSingleton(CreateMockScheduler().Object)
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()

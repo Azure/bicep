@@ -104,7 +104,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
                     "testFramework": false,
-                    "assertions": false
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -174,7 +175,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
                     "testFramework": false,
-                    "assertions": false
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -269,7 +271,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
                     "testFramework": false,
-                    "assertions": false
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -595,7 +598,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
                     "testFramework": false,
-                    "assertions": false
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
