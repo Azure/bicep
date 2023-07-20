@@ -158,38 +158,7 @@ namespace Bicep.Cli.Services
 
             var deploymentScope = GetDeploymentScope(templateJtoken["$schema"]!.ToString());
 
-            var metadata = new InsensitiveDictionary<JToken>(config.Metadata);
-            if (deploymentScope == TemplateDeploymentScope.Subscription || deploymentScope == TemplateDeploymentScope.ResourceGroup)
-            {
-                metadata["subscription"] = new JObject
-                {
-                    ["id"] = $"/subscriptions/{config.SubscriptionId}",
-                    ["subscriptionId"] = config.SubscriptionId,
-                    ["tenantId"] = config.TenantId,
-                };
-            }
-            if (deploymentScope == TemplateDeploymentScope.ResourceGroup)
-            {
-                metadata["resourceGroup"] = new JObject
-                {
-                    ["id"] = $"/subscriptions/{config.SubscriptionId}/resourceGroups/{config.ResourceGroup}",
-                    ["location"] = config.RgLocation,
-                };
-            };
-            if (deploymentScope == TemplateDeploymentScope.ManagementGroup)
-            {
-                metadata["managementGroup"] = new JObject
-                {
-                    ["id"] = $"/providers/Microsoft.Management/managementGroups/{config.ManagementGroup}",
-                    ["name"] = config.ManagementGroup,
-                    ["type"] = "Microsoft.Management/managementGroups",
-                };
-            };
-            // tenant() function is available at all scopes
-            metadata["tenant"] = new JObject
-            {
-                ["tenantId"] = config.TenantId,
-            };
+            var metadata = new InsensitiveDictionary<JToken>();
 
             try
             {
@@ -197,7 +166,7 @@ namespace Bicep.Cli.Services
                 var parameters = ParseParametersFile(parametersJToken);
                 
                 TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
-                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), new InsensitiveDictionary<JToken>(), null, new InsensitiveDictionary<JToken>());
+                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, null, new InsensitiveDictionary<JToken>());
 
                 TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01", null);
 
