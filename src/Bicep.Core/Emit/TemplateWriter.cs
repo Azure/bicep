@@ -632,6 +632,12 @@ namespace Bicep.Core.Emit
                     && TypeAliasLookupVisitor!.GetDeclaredTypeExpression(memberTypeAliasExpr.Name) is { } declaredTypeExpression)
                 {
                     resolvedMemberExpression = declaredTypeExpression.Value;
+
+                    if (resolvedMemberExpression is not ObjectTypeExpression and not DiscriminatedObjectTypeExpression)
+                    {
+                        // This should have been caught during type checking
+                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                    }
                 }
 
                 if (resolvedMemberExpression is ObjectTypeExpression objectUnionMemberExpr)

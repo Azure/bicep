@@ -18,7 +18,13 @@ namespace Bicep.Core.Intermediate
         }
 
         public DeclaredTypeExpression? GetDeclaredTypeExpression(string name)
-            => typeAliasToTypeExpression.GetValueOrDefault(name);
+        {
+            var declaredTypeExpression = typeAliasToTypeExpression.GetValueOrDefault(name);
+
+            return declaredTypeExpression is { Value: TypeAliasReferenceExpression nextAlias }
+                ? GetDeclaredTypeExpression(nextAlias.Name)
+                : declaredTypeExpression;
+        }
 
         public override void VisitDeclaredTypeExpression(DeclaredTypeExpression expression)
         {
