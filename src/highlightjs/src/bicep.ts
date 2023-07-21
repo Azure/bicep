@@ -37,6 +37,7 @@ const KEYWORDS = {
     'with',
     'using',
     'func',
+    'assert',
   ],
   literal: [
     "true",
