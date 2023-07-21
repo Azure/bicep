@@ -2063,7 +2063,7 @@
           "bicep": "[1.0.0, )"
         }
       },
-      "bicep.core.samples": {
+      "bicep.core.testfiles": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
