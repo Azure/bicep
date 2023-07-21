@@ -11,7 +11,7 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;

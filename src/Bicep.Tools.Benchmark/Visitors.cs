@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using BenchmarkDotNet.Attributes;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;

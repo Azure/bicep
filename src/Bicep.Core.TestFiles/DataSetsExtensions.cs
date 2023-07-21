@@ -29,7 +29,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
 
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     public static class DataSetsExtensions
     {

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;

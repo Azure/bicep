@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core.UnitTests", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer.UnitTests", "src\Bicep.LangServer.UnitTests\Bicep.LangServer.UnitTests.csproj", "{F7B0F06D-56CE-4F4A-8EF9-ED6EC3D77EE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core.Samples", "src\Bicep.Core.Samples\Bicep.Core.Samples.csproj", "{A2E4B91C-3B7F-4CB1-B482-BE40F7709EB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core.TestFiles", "src\Bicep.Core.TestFiles\Bicep.Core.TestFiles.csproj", "{A2E4B91C-3B7F-4CB1-B482-BE40F7709EB5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli.UnitTests", "src\Bicep.Cli.UnitTests\Bicep.Cli.UnitTests.csproj", "{29A1AE2B-D47D-41DD-9824-279475D9B6C2}"
 EndProject

@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <ProjectReference Include="../Bicep.Core.Samples/Bicep.Core.Samples.csproj" />
+    <ProjectReference Include="../Bicep.Core.TestFiles/Bicep.Core.TestFiles.csproj" />
     <ProjectReference Include="../Bicep.LangServer.IntegrationTests/Bicep.LangServer.IntegrationTests.csproj" />
   </ItemGroup>
 </Project>

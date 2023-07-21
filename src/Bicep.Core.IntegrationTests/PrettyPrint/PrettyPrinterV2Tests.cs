@@ -5,7 +5,7 @@ using Bicep.Cli.Logging;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;

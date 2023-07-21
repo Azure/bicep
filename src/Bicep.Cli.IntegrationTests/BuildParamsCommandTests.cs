@@ -6,7 +6,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
-using Bicep.Core.Samples;
+using Bicep.Core.TestFiles;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;

@@ -2146,7 +2146,7 @@
           "Sarif.Sdk": "[4.2.2, )"
         }
       },
-      "bicep.core.samples": {
+      "bicep.core.testfiles": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
@@ -2187,7 +2187,7 @@
       "bicep.langserver.integrationtests": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core.Samples": "[1.0.0, )",
+          "Bicep.Core.TestFiles": "[1.0.0, )",
           "Bicep.Core.UnitTests": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
           "FluentAssertions": "[6.11.0, )",

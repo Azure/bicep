@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     public class BaselineData_Bicepparam
     {

@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     public static class DataSets
     {

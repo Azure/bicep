@@ -152,7 +152,7 @@ namespace Bicep.Core.IntegrationTests
             public static IEnumerable<ExampleData> GetAllExampleData()
             {
                 var embeddedFiles = EmbeddedFile.LoadAll(
-                    typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly,
+                    typeof(Bicep.Core.TestFiles.AssemblyInitializer).Assembly,
                     "user_submitted",
                     streamName => Path.GetExtension(streamName) == ".bicep");
 

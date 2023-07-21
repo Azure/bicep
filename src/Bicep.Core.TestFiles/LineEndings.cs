@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-namespace Bicep.Core.Samples
+namespace Bicep.Core.TestFiles
 {
     /// <summary>
     /// Controls how data set treats line endings in source files.
