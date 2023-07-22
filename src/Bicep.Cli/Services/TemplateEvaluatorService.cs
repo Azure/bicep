@@ -92,7 +92,7 @@ namespace Bicep.Cli.Services
                 {
                     var resourceId = parameters[0].Token.ToString();
                     var apiVersion = parameters.Length > 1 ? parameters[1].Token.ToString() : null;
-                    var fullBody = parameters.Length > 2 ? parameters[2].Token.ToString().EqualsOrdinalInsensitively("Full") : false;
+                    var fullBody = parameters.Length > 2 && parameters[2].Token.ToString().EqualsOrdinalInsensitively("Full");
 
                     if (apiVersion is not null && config.OnReferenceFunc is not null)
                     {
