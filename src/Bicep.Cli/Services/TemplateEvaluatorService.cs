@@ -19,11 +19,11 @@ namespace Bicep.Cli.Services
 {
     public class TemplateEvaluatorService
     {
-        const string TestTenantId = "d4c73686-f7cd-458e-b377-67adcd46b624";
-        const string TestManagementGroupName = "3fc9f36e-8699-43af-b038-1c103980942f";
-        const string TestSubscriptionId = "f91a30fd-f403-4999-ae9f-ec37a6d81e13";
-        const string TestResourceGroupName = "testResourceGroup";
-        const string TestLocation = "West US";
+        private const string TestTenantId = "";
+        private const string TestManagementGroupName = "";
+        private const string TestSubscriptionId = "";
+        private const string TestResourceGroupName = "";
+        private const string TestLocation = "";
 
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
