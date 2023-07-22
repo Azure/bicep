@@ -17,7 +17,7 @@ namespace Bicep.Cli.Services
         public static void Validate(ImmutableArray<TestSymbol> testDeclarations)
         {
             var templateOutputBuffer = new StringBuilder();
-            using var textWriter = new StringWriter(templateOutputBuffer);
+            using var textWriter = new StringWriter();
 
             EvaluateTemplates(testDeclarations, textWriter);
 
