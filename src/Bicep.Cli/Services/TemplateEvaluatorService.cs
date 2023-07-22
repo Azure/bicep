@@ -19,11 +19,11 @@ namespace Bicep.Cli.Services
 {
     public class TemplateEvaluatorService
     {
-        private const string TestTenantId = "";
-        private const string TestManagementGroupName = "";
-        private const string TestSubscriptionId = "";
-        private const string TestResourceGroupName = "";
-        private const string TestLocation = "";
+        private const string DummyTenantId = "";
+        private const string DummyManagementGroupName = "";
+        private const string DummySubscriptionId = "";
+        private const string DummyResourceGroupName = "";
+        private const string DummyLocation = "";
 
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
@@ -40,11 +40,11 @@ namespace Bicep.Cli.Services
             OnReferenceDelegate? OnReferenceFunc)
         {
             public static EvaluationConfiguration Default = new(
-                TestTenantId,
-                TestManagementGroupName,
-                TestSubscriptionId,
-                TestResourceGroupName,
-                TestLocation,
+                DummyTenantId,
+                DummyManagementGroupName,
+                DummySubscriptionId,
+                DummyResourceGroupName,
+                DummyLocation,
                 new(),
                 null,
                 null
