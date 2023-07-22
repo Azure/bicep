@@ -14,6 +14,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using System.Collections.Immutable;
 using Bicep.Core;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Cli.Services
 {
@@ -24,6 +25,7 @@ namespace Bicep.Cli.Services
         private const string DummySubscriptionId = "";
         private const string DummyResourceGroupName = "";
         private const string DummyLocation = "";
+        private static readonly Regex templateSchemaPattern = new Regex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.Compiled);
 
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
@@ -195,14 +197,20 @@ namespace Bicep.Cli.Services
 
             return parametersJToken.Cast<JProperty>().ToImmutableDictionary(x => x.Name, x => x.Value!);
         }
+        
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
-            => templateSchema switch
+        {
+            var templateSchemaMatch = templateSchemaPattern.Match(templateSchema);
+            var templateType = templateSchemaMatch.Groups["templateType"].Value.ToLowerInvariant();
+
+            return templateType switch 
             {
-                "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#" => TemplateDeploymentScope.Tenant,
-                "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#" => TemplateDeploymentScope.ManagementGroup,
-                "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#" => TemplateDeploymentScope.Subscription,
-                "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#" => TemplateDeploymentScope.ResourceGroup,
+                "deployment" => TemplateDeploymentScope.ResourceGroup,
+                "subscriptiondeployment" => TemplateDeploymentScope.Subscription,
+                "managementgroupdeployment" =>TemplateDeploymentScope.ManagementGroup,
+                "tenantdeployment" => TemplateDeploymentScope.Tenant,
                 _ => throw new InvalidOperationException($"Unrecognized schema: {templateSchema}"),
             };
+        }
     }
 }
