@@ -25,7 +25,6 @@ namespace Bicep.Cli.Services
         }
         private static void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
         {
-
             var evaluatedTemplates =  new InsensitiveDictionary<JToken>();
 
             foreach(var testDeclaration  in testDeclarations)

@@ -18,7 +18,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 namespace Bicep.Cli.Services
 {
     public class CompilationService

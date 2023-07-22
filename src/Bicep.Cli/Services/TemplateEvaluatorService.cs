@@ -133,7 +133,7 @@ namespace Bicep.Cli.Services
             {
                 foreach (var outputKey in template.Outputs.Keys.ToList())
                 {
-                    template.Outputs[outputKey].Value.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
+                    template.Outputs[outputKey].Value.Value = ExpressionsEngine.EvaluateLanguageExpressionsOptimistically(
                         root: template.Outputs[outputKey].Value.Value,
                         evaluationContext: evaluationContext);
                 }
