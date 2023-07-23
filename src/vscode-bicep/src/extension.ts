@@ -58,6 +58,7 @@ import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
 import * as surveys from "./feedback/surveys";
 import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployPaneViewManager } from "./panes/deploy";
+import { createTestController } from "./utils/validation";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -78,6 +79,7 @@ export async function activate(
   extensionContext: ExtensionContext,
 ): Promise<void> {
   const extension = BicepExtension.create(extensionContext);
+
   const outputChannel = createAzExtOutputChannel(
     "Bicep",
     bicepConfigurationPrefix,
@@ -228,6 +230,8 @@ export async function activate(
             await updateUiContext(window.activeTextEditor?.document);
           }),
         );
+
+        extension.register(createTestController(languageClient));
 
         await languageClient.start();
         getLogger().info("Bicep language service started.");

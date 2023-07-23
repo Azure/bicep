@@ -74,6 +74,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
+                    .WithHandler<RunTestHandler>()
                     .WithServices(RegisterServices);
 
                 onOptionsFunc(options);

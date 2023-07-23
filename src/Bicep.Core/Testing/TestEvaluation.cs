@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using Azure.Deployments.Core.Definitions.Schema;
 
 
-namespace Bicep.Cli.Services;
+namespace Bicep.Core.Tests;
 
 public record TestEvaluation(
     Template? Template,

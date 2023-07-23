@@ -16,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
@@ -239,6 +240,8 @@ namespace Bicep.LanguageServer
                 return ImmutableArray<ISourceFile>.Empty;
             }
 
+            PublishTestsDiscovery(documentUri, removedContext.Compilation.GetEntrypointSemanticModel(), isClose: true);
+
             var closedFiles = removedContext.Compilation.SourceFileGrouping.SourceFiles.ToHashSet();
             foreach (var (_, context) in GetAllSafeActiveContexts())
             {
@@ -345,6 +348,7 @@ namespace Bicep.LanguageServer
 
                         // publish all the diagnostics
                         this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
+                        PublishTestsDiscovery(documentUri, context.Compilation.GetEntrypointSemanticModel(), isClose: false);
 
                         return output;
 
@@ -537,6 +541,24 @@ namespace Bicep.LanguageServer
                 Version = version,
                 Diagnostics = new Container<Diagnostic>(diagnostics)
             });
+        }
+
+        private void PublishTestsDiscovery(DocumentUri uri, ISemanticModel model, bool isClose)
+        {
+            if (model is not SemanticModel bicepModel || !bicepModel.Root.TestDeclarations.Any())
+            {
+                return;
+            }
+            
+            var testEntries = isClose ? 
+                ImmutableArray<TestEntry>.Empty : 
+                bicepModel.Root.TestDeclarations
+                    .Select(x => new TestEntry(x.Name, x.DeclaringTest.ToRange(bicepModel.SourceFile.LineStarts)))
+                    .ToImmutableArray();
+
+            server.SendNotification(
+                "bicep/testsDiscovered",
+                new TestsDiscoveredNotification(uri, testEntries));
         }
     }
 }
