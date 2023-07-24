@@ -335,6 +335,11 @@ namespace Bicep.Core.Emit
                 declaredType.SourceSyntax);
         }
 
+        private static ObjectExpression CreateTypeAliasReferenceObjectExpression(TypeAliasReferenceExpression typeAliasReference)
+            => ExpressionFactory.CreateObject(
+                ExpressionFactory.CreateObjectProperty("$ref", ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Name}")).AsEnumerable(),
+                typeAliasReference.SourceSyntax);
+
         private ObjectExpression TypePropertiesForTypeExpression(TypeExpression typeExpression) => typeExpression switch
         {
             // references
@@ -343,9 +348,7 @@ namespace Bicep.Core.Emit
                     ambientTypeReference.SourceSyntax),
             FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
-            TypeAliasReferenceExpression typeAliasReference=> ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref",
-                ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Name}")).AsEnumerable(),
-                    typeAliasReference.SourceSyntax),
+            TypeAliasReferenceExpression typeAliasReference => CreateTypeAliasReferenceObjectExpression(typeAliasReference),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
@@ -586,17 +589,12 @@ namespace Bicep.Core.Emit
             foreach (var memberExpression in discriminatedObjectTypeExpr.MemberExpressions)
             {
                 var resolvedMemberExpression = memberExpression;
-
+                TypeAliasReferenceExpression? typeAliasReferenceExpr = null;
                 if (memberExpression is TypeAliasReferenceExpression memberTypeAliasExpr
                     && TypeAliasLookupVisitor!.GetDeclaredTypeExpression(memberTypeAliasExpr.Name) is { } declaredTypeExpression)
                 {
                     resolvedMemberExpression = declaredTypeExpression.Value;
-
-                    if (resolvedMemberExpression is not ObjectTypeExpression and not DiscriminatedObjectTypeExpression)
-                    {
-                        // This should have been caught during type checking
-                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
-                    }
+                    typeAliasReferenceExpr = memberTypeAliasExpr;
                 }
 
                 if (resolvedMemberExpression is ObjectTypeExpression objectUnionMemberExpr)
@@ -610,8 +608,17 @@ namespace Bicep.Core.Emit
                         throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
                     }
 
-                    var objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr, new HashSet<string> { discriminatorPropertyName });
-                    objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
+                    ObjectExpression objectExpression;
+
+                    if (typeAliasReferenceExpr != null)
+                    {
+                        objectExpression = TypePropertiesForTypeExpression(typeAliasReferenceExpr);
+                    }
+                    else
+                    {
+                        objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr, new HashSet<string> { discriminatorPropertyName });
+                        objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
+                    }
 
                     yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
                 }
@@ -629,6 +636,11 @@ namespace Bicep.Core.Emit
                     {
                         yield return nestedPropertyExpr;
                     }
+                }
+                else
+                {
+                    // This should have been caught during type checking
+                    throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
                 }
             }
         }

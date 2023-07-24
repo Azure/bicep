@@ -48,6 +48,7 @@ type typeUnion = typeA | typeB
             unionToken.Should().NotBeNull();
 
             var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
                 """
 {
   "type": "object",
@@ -55,18 +56,10 @@ type typeUnion = typeA | typeB
     "propertyName": "type",
     "mapping": {
       "a": {
-        "properties": {
-          "value": {
-            "type": "string"
-          }
-        }
+        "$ref": "#/definitions/typeA"
       },
       "b": {
-        "properties": {
-          "value": {
-            "type": "int"
-          }
-        }
+        "$ref": "#/definitions/typeB"
       }
     }
   }
@@ -88,13 +81,7 @@ type typeUnion = typeA | typeB
         [DataRow("(typeUnionAB) | typeUnionCD")]
         [DataRow("(typeUnionAB | typeUnionCD)")]
         [DataRow("typeUnionABC | typeD")]
-        [DataRow("typeA | { type: 'b', value: int } | typeC | { type: 'd', value: object }")]
-        [DataRow("{ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: bool } | { type: 'd', value: object }")]
-        [DataRow("({ type: 'a', value: string } | { type: 'b', value: int } | { type: 'c', value: bool } | { type: 'd', value: object })")]
-        [DataRow("({ type: 'a', value: string } | { type: 'b', value: int }) | ({ type: 'c', value: bool } | { type: 'd', value: object })")]
-        [DataRow("({ type: 'a', value: string } | typeB) | (typeC | { type: 'd', value: object })")]
-        [DataRow("typeUnionAB | typeC | { type: 'd', value: object }")]
-        public void DiscriminatedObjectUnions_AliasedAndLiteralMembers(string typeTest)
+        public void DiscriminatedObjectUnions_AliasedMembers(string typeTest)
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -140,6 +127,52 @@ type typeUnionABC = typeUnionAB | typeC
             unionToken.Should().NotBeNull();
 
             var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "$ref": "#/definitions/typeA"
+      },
+      "b": {
+        "$ref": "#/definitions/typeB"
+      },
+      "c": {
+        "$ref": "#/definitions/typeC"
+      },
+      "d": {
+        "$ref": "#/definitions/typeD"
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
+        }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_LiteralTypes()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+@discriminator('type')
+type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
                 """
 {
   "type": "object",
@@ -149,28 +182,14 @@ type typeUnionABC = typeUnionAB | typeC
       "a": {
         "properties": {
           "value": {
-            "type": "string"
+            "type": "int"
           }
         }
       },
       "b": {
         "properties": {
           "value": {
-            "type": "int"
-          }
-        }
-      },
-      "c": {
-        "properties": {
-          "value": {
-            "type": "bool"
-          }
-        }
-      },
-      "d": {
-        "properties": {
-          "value": {
-            "type": "object"
+            "type": "string"
           }
         }
       }
@@ -182,15 +201,12 @@ type typeUnionABC = typeUnionAB | typeC
             unionToken.Should().DeepEqual(expectedTypeUnionToken);
         }
 
-        [DataTestMethod]
-        [DataRow("(typeA | typeB | typeC | typeD)?")]
-        [DataRow("(typeUnionAB | typeUnionCD)?")]
-        [DataRow("(typeA | { type: 'b', value: int } | typeC | { type: 'd', value: object })?")]
-        public void DiscriminatedObjectUnions_Nullable(string typeTest)
+        [TestMethod]
+        public void DiscriminatedObjectUnions_Nullable()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
-                $$"""
+                """
 type typeA = {
   type: 'a'
   value: string
@@ -212,13 +228,7 @@ type typeD = {
 }
 
 @discriminator('type')
-type typeUnionAB = typeA | typeB
-
-@discriminator('type')
-type typeUnionCD = typeC | typeD
-
-@discriminator('type')
-type typeUnion = {{typeTest}}
+type typeUnion = (typeA | typeB | typeC | typeD)?
 """);
 
             result.ExcludingLinterDiagnostics()
@@ -229,6 +239,7 @@ type typeUnion = {{typeTest}}
             unionToken.Should().NotBeNull();
 
             var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
                 """
 {
   "type": "object",
@@ -237,32 +248,16 @@ type typeUnion = {{typeTest}}
     "propertyName": "type",
     "mapping": {
       "a": {
-        "properties": {
-          "value": {
-            "type": "string"
-          }
-        }
+        "$ref": "#/definitions/typeA"
       },
       "b": {
-        "properties": {
-          "value": {
-            "type": "int"
-          }
-        }
+        "$ref": "#/definitions/typeB"
       },
       "c": {
-        "properties": {
-          "value": {
-            "type": "bool"
-          }
-        }
+        "$ref": "#/definitions/typeC"
       },
       "d": {
-        "properties": {
-          "value": {
-            "type": "object"
-          }
-        }
+        "$ref": "#/definitions/typeD"
       }
     }
   }
@@ -312,6 +307,7 @@ type typeUnion2 = typeC | typeD
             unionToken.Should().NotBeNull();
 
             var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
                 """
 {
   "type": "object",
@@ -319,18 +315,10 @@ type typeUnion2 = typeC | typeD
     "propertyName": "type",
     "mapping": {
       "c": {
-        "properties": {
-          "config": {
-            "$ref": "#/definitions/typeUnion1"
-          }
-        }
+        "$ref": "#/definitions/typeC"
       },
       "d": {
-        "properties": {
-          "value": {
-            "$ref": "#/definitions/typeUnion1"
-          }
-        }
+        "$ref": "#/definitions/typeD"
       }
     }
   }
@@ -341,116 +329,7 @@ type typeUnion2 = typeC | typeD
         }
 
         [TestMethod]
-        public void DiscriminatedObjectUnions_Nested_Inlined()
-        {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
-type typeA = {
-  type: 'a'
-  value: bool
-}
-
-type typeB = {
-  type: 'b'
-  config: string
-}
-
-type typeC = {
-  type: 'c'
-  @discriminator('type')
-  config: typeA | {
-    type: 'b'
-    value: object
-  }
-}
-
-type typeD = {
-  type: 'd'
-  @discriminator('type')
-  value: typeA | typeB
-}
-
-@discriminator('type')
-type typeUnion1 = typeC | typeD
-""");
-
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
-
-            var unionToken = result.Template!.SelectToken(".definitions.typeUnion1");
-            unionToken.Should().NotBeNull();
-
-            var expectedTypeUnionToken = JToken.Parse(
-                """
-{
-  "type": "object",
-  "discriminator": {
-    "propertyName": "type",
-    "mapping": {
-      "c": {
-        "properties": {
-          "config": {
-            "type": "object",
-            "discriminator": {
-              "propertyName": "type",
-              "mapping": {
-                "a": {
-                  "properties": {
-                    "value": {
-                      "type": "bool"
-                    }
-                  }
-                },
-                "b": {
-                  "properties": {
-                    "value": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "d": {
-        "properties": {
-          "value": {
-            "type": "object",
-            "discriminator": {
-              "propertyName": "type",
-              "mapping": {
-                "a": {
-                  "properties": {
-                    "value": {
-                      "type": "bool"
-                    }
-                  }
-                },
-                "b": {
-                  "properties": {
-                    "config": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-""");
-
-            unionToken.Should().DeepEqual(expectedTypeUnionToken);
-        }
-
-        [TestMethod]
-        public void DiscriminatedObjectUnions_Error_OptionalSelfCycle()
+        public void DiscriminatedObjectUnions_OptionalSelfCycle()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -716,11 +595,34 @@ type typeA = {
 type typeTest = {
   type: 'b'
   @discriminator('type')
-  prop: (typeA | typeTest)?
+  prop: typeA | typeTest
 }
 """);
 
             result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+        }
+
+        [TestMethod]
+        public void DiscriminatedObjectUnions_InlineSelfCycle_Optional()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithUserDefinedTypes,
+                """
+type typeA = {
+  type: 'a'
+  value: string
+}
+
+type typeTest = {
+  type: 'b'
+  @discriminator('type')
+  prop: (typeA | typeTest)?
+}
+""");
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .NotHaveAnyDiagnostics();
         }
     }
 }
