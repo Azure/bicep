@@ -729,6 +729,28 @@ namespace Bicep.Core.Emit
             }, resource.SourceSyntax);
         }
 
+        public void EmitTestParameters(ExpressionEmitter emitter, Expression parameters)
+        {
+            if (parameters is not ObjectExpression paramsObject)
+            {
+                // 'params' is optional if the module has no required params
+                return;
+            }
+
+            emitter.EmitObject(() => {
+                foreach (var property in paramsObject.Properties)
+                {
+                    if (property.TryGetKeyText() is not {} keyName)
+                    {
+                        // should have been caught by earlier validation
+                        throw new ArgumentException("Disallowed interpolation in test parameter");
+                    }
+                    
+                    emitter.EmitProperty(keyName, property.Value);
+                }
+            }, paramsObject.SourceSyntax);
+        }
+        
         private void EmitModuleParameters(ExpressionEmitter emitter, DeclaredModuleExpression module)
         {
             if (module.Parameters is not ObjectExpression paramsObject)
