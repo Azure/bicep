@@ -551,7 +551,6 @@ public record UserDefinedFunctionCallExpression(
 public record DeclaredTypeExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    TypeAliasSymbol Symbol,
     TypeExpression Value,
     Expression? Description = null,
     Expression? Metadata = null,
@@ -613,6 +612,31 @@ public record TypeAliasReferenceExpression(
         => visitor.VisitTypeAliasReferenceExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record ImportedTypeReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ImportedTypeSymbol Symbol,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitImportedTypeReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+}
+
+public record WildcardImportPropertyReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    WildcardImportSymbol ImportSymbol,
+    string PropertyName,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitWildcardImportPropertyReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = $"{ImportSymbol.Name}.{PropertyName}" };
 }
 
 public record StringLiteralTypeExpression(

@@ -319,6 +319,14 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.MemberExpressions);
     }
 
+    public void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
+    {
+    }
+
+    public void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    {
+    }
+
     public void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);

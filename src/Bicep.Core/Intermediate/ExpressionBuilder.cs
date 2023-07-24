@@ -214,7 +214,6 @@ public class ExpressionBuilder
             case TypeDeclarationSyntax typeDeclaration:
                 return EvaluateDecorators(typeDeclaration, new DeclaredTypeExpression(typeDeclaration,
                     typeDeclaration.Name.IdentifierName,
-                    GetDeclaredSymbol<TypeAliasSymbol>(typeDeclaration),
                     ConvertTypeWithoutLowering(typeDeclaration.Value)));
 
             case ObjectTypePropertySyntax typeProperty:
@@ -245,6 +244,8 @@ public class ExpressionBuilder
                 return new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type);
             case TypeAliasSymbol typeAlias:
                 return new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type);
+            case ImportedTypeSymbol importedType:
+                return new ImportedTypeReferenceExpression(syntax, importedType, importedType.Type);
             case Symbol otherwise:
                 throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression.");
         }
@@ -285,13 +286,34 @@ public class ExpressionBuilder
                 unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
             ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
-            PropertyAccessSyntax propertyAccess when Context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is BuiltInNamespaceSymbol namespaceSymbol &&
-                namespaceSymbol.TryGetNamespaceType() is NamespaceType namespaceType &&
-                namespaceType.TryGetTypeProperty(propertyAccess.PropertyName.IdentifierName) is {} property
-                => new FullyQualifiedAmbientTypeReferenceExpression(propertyAccess, namespaceSymbol.Type.ProviderName, property.Name, property.TypeReference.Type),
+            PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
+            ArrayAccessSyntax arrayAccess => ConvertPropertyAccessInTypeExpression(arrayAccess),
             _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
         };
     }
+
+    private TypeExpression ConvertPropertyAccessInTypeExpression(PropertyAccessSyntax syntax)
+        => ConvertPropertyAccessInTypeExpression(syntax, syntax.PropertyName.IdentifierName);
+
+    private TypeExpression ConvertPropertyAccessInTypeExpression(ArrayAccessSyntax syntax)
+        => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) is StringLiteralType @string
+            ? ConvertPropertyAccessInTypeExpression(syntax, @string.RawStringValue)
+            : throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string at compile time.");
+
+    private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
+        => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
+        {
+            BuiltInNamespaceSymbol builtIn when TryGetTypeProperty(builtIn, propertyName) is {} property
+                => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, property.TypeReference.Type),
+            WildcardImportSymbol wildcardImport when TryGetTypeProperty(wildcardImport, propertyName) is {} property
+                => new WildcardImportPropertyReferenceExpression(syntax, wildcardImport, propertyName, property.TypeReference.Type),
+            var otherwise => throw new ArgumentException($"Failed to convert property access on symbol of type {otherwise?.GetType()}"),
+        };
+
+    private TypeTypeProperty? TryGetTypeProperty(INamespaceSymbol namespaceSymbol, string propertyName)
+        => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.TryGetTypeProperty(propertyName) is {} property
+            ? property
+            : null;
 
     private TExpression ConvertWithoutLowering<TExpression>(SyntaxBase syntax)
         where TExpression : Expression

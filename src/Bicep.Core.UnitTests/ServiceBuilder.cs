@@ -30,6 +30,7 @@ public static class IDependencyHelperExtensions
             sourceFileGrouping,
             helper.Construct<IConfigurationManager>(),
             helper.Construct<IBicepAnalyzer>(),
+            helper.Construct<IModuleDispatcher>(),
             modelLookup);
 
     public static SourceFileGrouping BuildSourceFileGrouping(this IDependencyHelper helper, Uri entryFileUri, bool forceModulesRestore = false)

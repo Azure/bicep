@@ -272,12 +272,12 @@ namespace Bicep.Core.Semantics
             switch (syntax.ImportExpression)
             {
                 case WildcardImportSyntax wildcardImport:
-                    DeclareSymbol(new WildcardImportSymbol(context, wildcardImport));
+                    DeclareSymbol(new WildcardImportSymbol(context, wildcardImport, syntax));
                     break;
                 case ImportedSymbolsListSyntax importedSymbolsList:
                     foreach (var item in importedSymbolsList.ImportedSymbols)
                     {
-                        DeclareSymbol(new ImportedTypeSymbol(context, item));
+                        DeclareSymbol(new ImportedTypeSymbol(context, item, syntax));
                     }
                     break;
             }

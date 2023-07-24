@@ -479,6 +479,18 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { MemberExpressions = memberExpressions } : expression;
     }
 
+    void IExpressionVisitor.VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression) => ReplaceCurrent(expression, ReplaceImportedTypeReferenceExpression);
+    public virtual Expression ReplaceImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
+    {
+        return expression;
+    }
+
+    void IExpressionVisitor.VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression) => ReplaceCurrent(expression, ReplaceWildcardImportPropertyReferenceExpression);
+    public virtual Expression ReplaceWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitProgramExpression(ProgramExpression expression) => ReplaceCurrent(expression, ReplaceProgramExpression);
     public virtual Expression ReplaceProgramExpression(ProgramExpression expression)
     {
@@ -495,7 +507,9 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Metadata = metadata, Providers = providers, Parameters = parameters, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
     }
 
-    protected Expression Replace(Expression expression)
+    protected virtual Expression Replace(Expression expression) => ReplaceInternal(expression);
+
+    private Expression ReplaceInternal(Expression expression)
     {
         RuntimeHelpers.EnsureSufficientExecutionStack();
 

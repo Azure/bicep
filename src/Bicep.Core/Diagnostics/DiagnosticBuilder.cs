@@ -1989,7 +1989,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
                 TextSpan,
                 "BCP354",
-                $@"Using compile-time imports requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
+                $@"Using compile-time import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
 
             public ErrorDiagnostic PathHasNotBeenSpecified() => new(
                 TextSpan,
@@ -2004,7 +2004,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
                 TextSpan,
                 "BCP357",
-                $"The '{symbolName}' symbol was not found in the imported template.");
+                $"The '{symbolName}' symbol was not found in (or was not exported by) the imported template.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

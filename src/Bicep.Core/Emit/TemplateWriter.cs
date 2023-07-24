@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
@@ -66,10 +67,12 @@ namespace Bicep.Core.Emit
 
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
+        private ImportClosureInfo ImportClosureInfo { get; }
 
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
+            ImportClosureInfo = ImportClosureInfo.Calculate(semanticModel);
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -104,7 +107,7 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(emitter, program.Metadata);
 
-            this.EmitTypeDefinitionsIfPresent(emitter, program.Types);
+            this.EmitTypeDefinitionsIfPresent(emitter, program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure));
 
             this.EmitUserDefinedFunctions(emitter, program.Functions);
 
@@ -126,7 +129,7 @@ namespace Bicep.Core.Emit
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
-        private void EmitTypeDefinitionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredTypeExpression> types)
+        private void EmitTypeDefinitionsIfPresent(ExpressionEmitter emitter, IEnumerable<DeclaredTypeExpression> types)
         {
             if (!types.Any())
             {
@@ -211,6 +214,13 @@ namespace Bicep.Core.Emit
 
             modifications.Add(new(expression.Description, (result, _) => ApplyDescription(expression, result)));
 
+            if (expression is DeclaredTypeExpression declaredTypeExpression)
+            {
+                modifications.Add(new(declaredTypeExpression.Exported, (result, exported) => ApplyMetadataProperty(result,
+                    LanguageConstants.MetadataExportedPropertyName,
+                    ExpressionFactory.CreateBooleanLiteral(true, exported.SourceSyntax))));
+            }
+
             // Whether one decorator overrides another is determined by their order in the syntax tree
             // TODO should we change this?
             if (expression.SourceSyntax is DecorableSyntax decorable)
@@ -250,10 +260,13 @@ namespace Bicep.Core.Emit
             return result;
         }
 
-        private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input) => expression.Description is {} description
+        private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input)
+            => ApplyMetadataProperty(input, LanguageConstants.MetadataDescriptionPropertyName, expression.Description);
+
+        private static ObjectExpression ApplyMetadataProperty(ObjectExpression input, string propertyName, Expression? propertyValue) => propertyValue is not null
             ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, ExpressionFactory.CreateObject(
-                ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataDescriptionPropertyName, description, description.SourceSyntax).AsEnumerable(),
-                description.SourceSyntax))
+                ExpressionFactory.CreateObjectProperty(propertyName, propertyValue, propertyValue.SourceSyntax).AsEnumerable(),
+                propertyValue.SourceSyntax))
             : input;
 
         private void EmitParameter(ExpressionEmitter emitter, DeclaredParameterExpression parameter)
@@ -335,9 +348,11 @@ namespace Bicep.Core.Emit
                     ambientTypeReference.SourceSyntax),
             FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
-            TypeAliasReferenceExpression typeAliasReference=> ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref",
-                ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Name}")).AsEnumerable(),
-                    typeAliasReference.SourceSyntax),
+            TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
+            ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(importedTypeReference.Symbol.Name, importedTypeReference.SourceSyntax),
+            WildcardImportPropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
+                ImportClosureInfo.WildcardPropertyReferenceToImportedTypeName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
+                wildcardProperty.SourceSyntax),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
@@ -392,6 +407,10 @@ namespace Bicep.Core.Emit
             return ExpressionFactory.CreateObject(TypeProperty(qualifiedAmbientType.Name, qualifiedAmbientType.SourceSyntax).AsEnumerable(),
                 qualifiedAmbientType.SourceSyntax);
         }
+
+        private static ObjectExpression CreateRefSchemaNode(string typeName, SyntaxBase? sourceSyntax) => ExpressionFactory.CreateObject(
+            ExpressionFactory.CreateObjectProperty("$ref", ExpressionFactory.CreateStringLiteral($"#/definitions/{typeName}", sourceSyntax), sourceSyntax).AsEnumerable(),
+            sourceSyntax);
 
         private static ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
             => Property("type", new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);

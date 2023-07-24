@@ -120,4 +120,8 @@ public interface IExpressionVisitor
     void VisitNonNullableTypeExpression(NonNullableTypeExpression expression);
 
     void VisitUnionTypeExpression(UnionTypeExpression expression);
+
+    void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression);
+
+    void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression);
 }
