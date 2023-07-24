@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 
 namespace Bicep.Core.Intermediate
@@ -14,7 +15,7 @@ namespace Bicep.Core.Intermediate
 
         public ExpressionTypeAliasLookupVisitor()
         {
-            typeAliasToTypeExpression = new();
+            typeAliasToTypeExpression = new(StringComparer.Ordinal);
         }
 
         public DeclaredTypeExpression? GetDeclaredTypeExpression(string name)
