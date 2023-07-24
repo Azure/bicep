@@ -40,9 +40,7 @@ type typeB = {
 type typeUnion = typeA | typeB
 """);
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
             unionToken.Should().NotBeNull();
@@ -119,9 +117,7 @@ type typeUnionCD = typeC | typeD
 type typeUnionABC = typeUnionAB | typeC
 """);
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
             unionToken.Should().NotBeNull();
@@ -164,9 +160,7 @@ type typeUnionABC = typeUnionAB | typeC
 type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
 """);
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
             unionToken.Should().NotBeNull();
@@ -180,6 +174,7 @@ type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
     "propertyName": "type",
     "mapping": {
       "a": {
+        "type": "object",
         "properties": {
           "value": {
             "type": "int"
@@ -187,6 +182,7 @@ type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
         }
       },
       "b": {
+        "type": "object",
         "properties": {
           "value": {
             "type": "string"
@@ -231,9 +227,7 @@ type typeD = {
 type typeUnion = (typeA | typeB | typeC | typeD)?
 """);
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var unionToken = result.Template!.SelectToken(".definitions.typeUnion");
             unionToken.Should().NotBeNull();
@@ -299,9 +293,7 @@ type typeD = {
 type typeUnion2 = typeC | typeD
 """);
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var unionToken = result.Template!.SelectToken(".definitions.typeUnion2");
             unionToken.Should().NotBeNull();
@@ -329,7 +321,7 @@ type typeUnion2 = typeC | typeD
         }
 
         [TestMethod]
-        public void DiscriminatedObjectUnions_OptionalSelfCycle()
+        public void DiscriminatedObjectUnions_SelfCycle_Optional()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -346,7 +338,37 @@ type discriminatorInnerSelfRefOptionalCycle1 = typeA | {
 }
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            var unionToken = result.Template!.SelectToken(".definitions.discriminatorInnerSelfRefOptionalCycle1");
+            unionToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
+                """
+{
+  "type": "object",
+  "discriminator": {
+    "propertyName": "type",
+    "mapping": {
+      "a": {
+        "$ref": "#/definitions/typeA"
+      },
+      "b": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "$ref": "#/definitions/discriminatorInnerSelfRefOptionalCycle1",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            unionToken.Should().DeepEqual(expectedTypeUnionToken);
         }
 
         [TestMethod]
@@ -603,7 +625,7 @@ type typeTest = {
         }
 
         [TestMethod]
-        public void DiscriminatedObjectUnions_InlineSelfCycle_Optional()
+        public void DiscriminatedObjectUnions_SelfCycle_Inline_Optional()
         {
             var result = CompilationHelper.Compile(
                 ServicesWithUserDefinedTypes,
@@ -620,14 +642,12 @@ type typeTest = {
 }
 """);
 
-            result.ExcludingLinterDiagnostics()
-                .Should()
-                .NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var typeTestToken = result.Template!.SelectToken(".definitions.typeTest");
             typeTestToken.Should().NotBeNull();
 
-            var expectedTypeUnionToken = JToken.Parse(
+            var expectedTypeTestToken = JToken.Parse(
                 // language=JSON
                 """
 {
@@ -658,7 +678,7 @@ type typeTest = {
 }
 """);
 
-            typeTestToken.Should().DeepEqual(expectedTypeUnionToken);
+            typeTestToken.Should().DeepEqual(expectedTypeTestToken);
         }
     }
 }

@@ -617,7 +617,6 @@ namespace Bicep.Core.Emit
                     else
                     {
                         objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr, new HashSet<string> { discriminatorPropertyName });
-                        objectExpression = ExpressionFactory.CreateObject(objectExpression.Properties.Where(p => p.TryGetKeyText() != TypePropertyName), objectExpression.SourceSyntax);
                     }
 
                     yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
