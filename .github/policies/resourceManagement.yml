@@ -93,36 +93,5 @@ configuration:
           action: Opened
       then:
       - addCodeFlowLink
-    - description: "Approve and apply 'auto-merge' label to dependabot PRs"
-      if:
-      - payloadType: Pull_Request
-      - hasLabel:
-          label: dependencies
-      - not:
-          hasLabel:
-            label: auto-merge
-      - isActivitySender:
-          user: dependabot[bot]
-          issueAuthor: False
-      then:
-      - approvePullRequest:
-          comment: ':shipit:'
-      - addLabel:
-          label: auto-merge
-    - description: "Auto merge PRs"
-      if:
-      - payloadType: Pull_Request
-      - hasLabel:
-          label: auto-merge
-      then:
-      - enableAutoMerge:
-          mergeMethod: Squash
-    - description: "Disable PR auto merge"
-      if:
-      - payloadType: Pull_Request
-      - labelRemoved:
-          label: auto-merge
-      then:
-      - disableAutoMerge
 onFailure: 
 onSuccess: 
