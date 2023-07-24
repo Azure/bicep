@@ -15,6 +15,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using System.Collections.Immutable;
 using Bicep.Core;
 using System.Text.RegularExpressions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Cli.Services
 {
