@@ -623,6 +623,42 @@ type typeTest = {
             result.ExcludingLinterDiagnostics()
                 .Should()
                 .NotHaveAnyDiagnostics();
+
+            var typeTestToken = result.Template!.SelectToken(".definitions.typeTest");
+            typeTestToken.Should().NotBeNull();
+
+            var expectedTypeUnionToken = JToken.Parse(
+                // language=JSON
+                """
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "allowedValues": [
+        "b"
+      ]
+    },
+    "prop": {
+      "type": "object",
+      "nullable": true,
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "$ref": "#/definitions/typeA"
+          },
+          "b": {
+            "$ref": "#/definitions/typeTest"
+          }
+        }
+      }
+    }
+  }
+}
+""");
+
+            typeTestToken.Should().DeepEqual(expectedTypeUnionToken);
         }
     }
 }
