@@ -13,7 +13,7 @@ import * as path from "path";
 import * as os from "os";
 import * as fse from "fs-extra";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
-import { TextDocument, Uri, window, workspace } from "vscode";
+import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
 import {
   bicepFileExtension,
   bicepLanguageId,
@@ -45,9 +45,18 @@ export async function findOrCreateActiveBicepFile(
   context: IActionContext,
   documentUri: Uri | undefined,
   prompt: string,
+  includeBicepParam = false
 ): Promise<Uri> {
   const properties = <Properties>context.telemetry.properties;
   const ui = context.ui;
+
+  const matchesLanguageId = (editor: TextEditor) => {
+    const languageId = editor.document.languageId;
+    return (
+      languageId === bicepLanguageId ||
+      (includeBicepParam && languageId === bicepParamLanguageId)
+    );
+  };
 
   if (documentUri) {
     // The command specified a specific URI, so act on that (right-click or context menu).
@@ -58,16 +67,20 @@ export async function findOrCreateActiveBicepFile(
   }
 
   const activeEditor = window.activeTextEditor;
-  if (activeEditor?.document.languageId === bicepLanguageId) {
+  if (activeEditor && matchesLanguageId(activeEditor)) {
     properties.targetFile = "activeEditor";
     return activeEditor.document.uri;
   }
 
+  const globPattern = includeBicepParam
+    ? "**/*.{bicep, bicepparam}"
+    : "**/*.bicep";
+
   const workspaceBicepFiles = (
-    await workspace.findFiles("**/*.bicep", undefined)
+    await workspace.findFiles(globPattern, undefined)
   ).filter((f) => !!f.fsPath);
   const visibleBicepFiles = window.visibleTextEditors // List of the active editor in each editor tab group
-    .filter((e) => e.document.languageId === bicepLanguageId)
+    .filter(matchesLanguageId)
     .map((e) => e.document.uri);
 
   // Create deduped, sorted array of all available Bicep files (in workspace and visible editors)
