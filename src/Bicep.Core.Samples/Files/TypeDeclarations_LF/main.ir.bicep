@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4527) ProgramExpression
+//@[000:4545) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -504,19 +504,19 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[009:0045) |         └─TypeAliasReferenceExpression { Name = discriminatorInnerSelfOptionalCycle1 }
 }
 
-type discriminatedSelfInlineCycle1 = {
-//@[000:0126) ├─DeclaredTypeExpression { Name = discriminatedSelfInlineCycle1 }
-//@[037:0126) | └─ObjectTypeExpression { Name = { type: 'b', prop: (typeA | discriminatedSelfInlineCycle1)? } }
+type discriminatedUnionMemberOptionalCycle1 = {
+//@[000:0144) ├─DeclaredTypeExpression { Name = discriminatedUnionMemberOptionalCycle1 }
+//@[046:0144) | └─ObjectTypeExpression { Name = { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
   type: 'b'
 //@[002:0011) |   ├─ObjectTypePropertyExpression
 //@[008:0011) |   | └─StringLiteralTypeExpression { Name = 'b' }
   @discriminator('type')
-//@[002:0073) |   └─ObjectTypePropertyExpression
-  prop: (typeA | discriminatedSelfInlineCycle1)?
-//@[008:0048) |     └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedSelfInlineCycle1)? } }
-//@[009:0046) |       └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedSelfInlineCycle1)? } }
+//@[002:0082) |   └─ObjectTypePropertyExpression
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
+//@[008:0057) |     └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
+//@[009:0055) |       └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
 //@[009:0014) |         ├─TypeAliasReferenceExpression { Name = typeA }
-//@[017:0046) |         └─TypeAliasReferenceExpression { Name = discriminatedSelfInlineCycle1 }
+//@[017:0055) |         └─TypeAliasReferenceExpression { Name = discriminatedUnionMemberOptionalCycle1 }
 }
 
 type discriminatedUnionTuple1 = [

@@ -202,8 +202,12 @@ type discriminatorMemberHasAdditionalProperties = typeA | typeE
 //@[58:063) [BCP355 (Error)] Tagged unions with additional properties declarations is currently not supported. (CodeDescription: none) |typeE|
 
 @discriminator('type')
-type discriminatorSelfCycle = typeA | discriminatorSelfCycle
-//@[05:027) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle|
+type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
+//@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle1|
+
+@discriminator('type')
+type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
+//@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle2|
 
 @discriminator('type')
 type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB

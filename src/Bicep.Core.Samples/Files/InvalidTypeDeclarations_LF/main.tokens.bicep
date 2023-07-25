@@ -694,14 +694,33 @@ type discriminatorMemberHasAdditionalProperties = typeA | typeE
 //@[015:021) StringComplete |'type'|
 //@[021:022) RightParen |)|
 //@[022:023) NewLine |\n|
-type discriminatorSelfCycle = typeA | discriminatorSelfCycle
+type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
 //@[000:004) Identifier |type|
-//@[005:027) Identifier |discriminatorSelfCycle|
-//@[028:029) Assignment |=|
-//@[030:035) Identifier |typeA|
-//@[036:037) Pipe |||
-//@[038:060) Identifier |discriminatorSelfCycle|
-//@[060:062) NewLine |\n\n|
+//@[005:028) Identifier |discriminatorSelfCycle1|
+//@[029:030) Assignment |=|
+//@[031:036) Identifier |typeA|
+//@[037:038) Pipe |||
+//@[039:062) Identifier |discriminatorSelfCycle1|
+//@[062:064) NewLine |\n\n|
+
+@discriminator('type')
+//@[000:001) At |@|
+//@[001:014) Identifier |discriminator|
+//@[014:015) LeftParen |(|
+//@[015:021) StringComplete |'type'|
+//@[021:022) RightParen |)|
+//@[022:023) NewLine |\n|
+type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
+//@[000:004) Identifier |type|
+//@[005:028) Identifier |discriminatorSelfCycle2|
+//@[029:030) Assignment |=|
+//@[031:032) LeftParen |(|
+//@[032:037) Identifier |typeA|
+//@[038:039) Pipe |||
+//@[040:063) Identifier |discriminatorSelfCycle2|
+//@[063:064) RightParen |)|
+//@[064:065) Question |?|
+//@[065:067) NewLine |\n\n|
 
 @discriminator('type')
 //@[000:001) At |@|

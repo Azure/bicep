@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12370555905763492196"
+      "templateHash": "9443838327502671409"
     }
   },
   "definitions": {
@@ -594,7 +594,7 @@
         }
       }
     },
-    "discriminatedSelfInlineCycle1": {
+    "discriminatedUnionMemberOptionalCycle1": {
       "type": "object",
       "properties": {
         "type": {
@@ -612,7 +612,7 @@
                 "$ref": "#/definitions/typeA"
               },
               "b": {
-                "$ref": "#/definitions/discriminatedSelfInlineCycle1"
+                "$ref": "#/definitions/discriminatedUnionMemberOptionalCycle1"
               }
             }
           },

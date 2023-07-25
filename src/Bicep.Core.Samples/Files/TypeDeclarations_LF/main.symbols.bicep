@@ -214,11 +214,11 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
   value: discriminatorInnerSelfOptionalCycle1?
 }
 
-type discriminatedSelfInlineCycle1 = {
-//@[5:34) TypeAlias discriminatedSelfInlineCycle1. Type: Type<{ type: 'b', prop: (typeA | discriminatedSelfInlineCycle1)? }>. Declaration start char: 0, length: 126
+type discriminatedUnionMemberOptionalCycle1 = {
+//@[5:43) TypeAlias discriminatedUnionMemberOptionalCycle1. Type: Type<{ type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? }>. Declaration start char: 0, length: 144
   type: 'b'
   @discriminator('type')
-  prop: (typeA | discriminatedSelfInlineCycle1)?
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 }
 
 type discriminatedUnionTuple1 = [

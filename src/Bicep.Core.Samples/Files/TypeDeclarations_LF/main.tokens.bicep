@@ -973,12 +973,12 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-type discriminatedSelfInlineCycle1 = {
+type discriminatedUnionMemberOptionalCycle1 = {
 //@[000:004) Identifier |type|
-//@[005:034) Identifier |discriminatedSelfInlineCycle1|
-//@[035:036) Assignment |=|
-//@[037:038) LeftBrace |{|
-//@[038:039) NewLine |\n|
+//@[005:043) Identifier |discriminatedUnionMemberOptionalCycle1|
+//@[044:045) Assignment |=|
+//@[046:047) LeftBrace |{|
+//@[047:048) NewLine |\n|
   type: 'b'
 //@[002:006) Identifier |type|
 //@[006:007) Colon |:|
@@ -991,16 +991,16 @@ type discriminatedSelfInlineCycle1 = {
 //@[017:023) StringComplete |'type'|
 //@[023:024) RightParen |)|
 //@[024:025) NewLine |\n|
-  prop: (typeA | discriminatedSelfInlineCycle1)?
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 //@[002:006) Identifier |prop|
 //@[006:007) Colon |:|
 //@[008:009) LeftParen |(|
 //@[009:014) Identifier |typeA|
 //@[015:016) Pipe |||
-//@[017:046) Identifier |discriminatedSelfInlineCycle1|
-//@[046:047) RightParen |)|
-//@[047:048) Question |?|
-//@[048:049) NewLine |\n|
+//@[017:055) Identifier |discriminatedUnionMemberOptionalCycle1|
+//@[055:056) RightParen |)|
+//@[056:057) Question |?|
+//@[057:058) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|

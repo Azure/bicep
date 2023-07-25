@@ -825,8 +825,8 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@              }
 }
 
-type discriminatedSelfInlineCycle1 = {
-//@    "discriminatedSelfInlineCycle1": {
+type discriminatedUnionMemberOptionalCycle1 = {
+//@    "discriminatedUnionMemberOptionalCycle1": {
 //@      "type": "object",
 //@      "properties": {
 //@      }
@@ -839,7 +839,7 @@ type discriminatedSelfInlineCycle1 = {
 //@          ]
 //@        },
   @discriminator('type')
-  prop: (typeA | discriminatedSelfInlineCycle1)?
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 //@        "prop": {
 //@          "type": "object",
 //@          "discriminator": {
@@ -849,7 +849,7 @@ type discriminatedSelfInlineCycle1 = {
 //@                "$ref": "#/definitions/typeA"
 //@              },
 //@              "b": {
-//@                "$ref": "#/definitions/discriminatedSelfInlineCycle1"
+//@                "$ref": "#/definitions/discriminatedUnionMemberOptionalCycle1"
 //@              }
 //@            }
 //@          },

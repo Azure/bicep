@@ -1,5 +1,5 @@
 type 44
-//@[000:4594) ProgramSyntax
+//@[000:4686) ProgramSyntax
 //@[000:0007) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0007) | ├─IdentifierSyntax
@@ -1155,7 +1155,7 @@ type discriminatorMemberHasAdditionalProperties = typeA | typeE
 //@[063:0065) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
-//@[000:0083) ├─TypeDeclarationSyntax
+//@[000:0085) ├─TypeDeclarationSyntax
 //@[000:0022) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[001:0022) | | └─FunctionCallSyntax
@@ -1167,22 +1167,57 @@ type discriminatorMemberHasAdditionalProperties = typeA | typeE
 //@[015:0021) | |   |   └─Token(StringComplete) |'type'|
 //@[021:0022) | |   └─Token(RightParen) |)|
 //@[022:0023) | ├─Token(NewLine) |\n|
-type discriminatorSelfCycle = typeA | discriminatorSelfCycle
+type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
 //@[000:0004) | ├─Token(Identifier) |type|
-//@[005:0027) | ├─IdentifierSyntax
-//@[005:0027) | | └─Token(Identifier) |discriminatorSelfCycle|
-//@[028:0029) | ├─Token(Assignment) |=|
-//@[030:0060) | └─UnionTypeSyntax
-//@[030:0035) |   ├─UnionTypeMemberSyntax
-//@[030:0035) |   | └─VariableAccessSyntax
-//@[030:0035) |   |   └─IdentifierSyntax
-//@[030:0035) |   |     └─Token(Identifier) |typeA|
-//@[036:0037) |   ├─Token(Pipe) |||
-//@[038:0060) |   └─UnionTypeMemberSyntax
-//@[038:0060) |     └─VariableAccessSyntax
-//@[038:0060) |       └─IdentifierSyntax
-//@[038:0060) |         └─Token(Identifier) |discriminatorSelfCycle|
-//@[060:0062) ├─Token(NewLine) |\n\n|
+//@[005:0028) | ├─IdentifierSyntax
+//@[005:0028) | | └─Token(Identifier) |discriminatorSelfCycle1|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0062) | └─UnionTypeSyntax
+//@[031:0036) |   ├─UnionTypeMemberSyntax
+//@[031:0036) |   | └─VariableAccessSyntax
+//@[031:0036) |   |   └─IdentifierSyntax
+//@[031:0036) |   |     └─Token(Identifier) |typeA|
+//@[037:0038) |   ├─Token(Pipe) |||
+//@[039:0062) |   └─UnionTypeMemberSyntax
+//@[039:0062) |     └─VariableAccessSyntax
+//@[039:0062) |       └─IdentifierSyntax
+//@[039:0062) |         └─Token(Identifier) |discriminatorSelfCycle1|
+//@[062:0064) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[000:0088) ├─TypeDeclarationSyntax
+//@[000:0022) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0022) | | └─FunctionCallSyntax
+//@[001:0014) | |   ├─IdentifierSyntax
+//@[001:0014) | |   | └─Token(Identifier) |discriminator|
+//@[014:0015) | |   ├─Token(LeftParen) |(|
+//@[015:0021) | |   ├─FunctionArgumentSyntax
+//@[015:0021) | |   | └─StringSyntax
+//@[015:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[021:0022) | |   └─Token(RightParen) |)|
+//@[022:0023) | ├─Token(NewLine) |\n|
+type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0028) | ├─IdentifierSyntax
+//@[005:0028) | | └─Token(Identifier) |discriminatorSelfCycle2|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0065) | └─NullableTypeSyntax
+//@[031:0064) |   ├─ParenthesizedExpressionSyntax
+//@[031:0032) |   | ├─Token(LeftParen) |(|
+//@[032:0063) |   | ├─UnionTypeSyntax
+//@[032:0037) |   | | ├─UnionTypeMemberSyntax
+//@[032:0037) |   | | | └─VariableAccessSyntax
+//@[032:0037) |   | | |   └─IdentifierSyntax
+//@[032:0037) |   | | |     └─Token(Identifier) |typeA|
+//@[038:0039) |   | | ├─Token(Pipe) |||
+//@[040:0063) |   | | └─UnionTypeMemberSyntax
+//@[040:0063) |   | |   └─VariableAccessSyntax
+//@[040:0063) |   | |     └─IdentifierSyntax
+//@[040:0063) |   | |       └─Token(Identifier) |discriminatorSelfCycle2|
+//@[063:0064) |   | └─Token(RightParen) |)|
+//@[064:0065) |   └─Token(Question) |?|
+//@[065:0067) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
 //@[000:0093) ├─TypeDeclarationSyntax

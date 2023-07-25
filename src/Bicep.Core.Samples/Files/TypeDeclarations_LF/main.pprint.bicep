@@ -183,10 +183,10 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
   value: discriminatorInnerSelfOptionalCycle1?
 }
 
-type discriminatedSelfInlineCycle1 = {
+type discriminatedUnionMemberOptionalCycle1 = {
   type: 'b'
   @discriminator('type')
-  prop: (typeA | discriminatedSelfInlineCycle1)?
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 }
 
 type discriminatedUnionTuple1 = [discriminatedUnion1, string]

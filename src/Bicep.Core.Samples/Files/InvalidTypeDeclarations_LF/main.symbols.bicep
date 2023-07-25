@@ -203,8 +203,12 @@ type discriminatorMemberHasAdditionalProperties = typeA | typeE
 //@[5:47) TypeAlias discriminatorMemberHasAdditionalProperties. Type: error. Declaration start char: 0, length: 86
 
 @discriminator('type')
-type discriminatorSelfCycle = typeA | discriminatorSelfCycle
-//@[5:27) TypeAlias discriminatorSelfCycle. Type: error. Declaration start char: 0, length: 83
+type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
+//@[5:28) TypeAlias discriminatorSelfCycle1. Type: error. Declaration start char: 0, length: 85
+
+@discriminator('type')
+type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
+//@[5:28) TypeAlias discriminatorSelfCycle2. Type: error. Declaration start char: 0, length: 88
 
 @discriminator('type')
 type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB

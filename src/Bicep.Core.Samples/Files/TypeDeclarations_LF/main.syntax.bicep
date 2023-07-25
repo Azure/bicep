@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4527) ProgramSyntax
+//@[000:4545) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1663,15 +1663,15 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[000:0001) |       └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-type discriminatedSelfInlineCycle1 = {
-//@[000:0126) ├─TypeDeclarationSyntax
+type discriminatedUnionMemberOptionalCycle1 = {
+//@[000:0144) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
-//@[005:0034) | ├─IdentifierSyntax
-//@[005:0034) | | └─Token(Identifier) |discriminatedSelfInlineCycle1|
-//@[035:0036) | ├─Token(Assignment) |=|
-//@[037:0126) | └─ObjectTypeSyntax
-//@[037:0038) |   ├─Token(LeftBrace) |{|
-//@[038:0039) |   ├─Token(NewLine) |\n|
+//@[005:0043) | ├─IdentifierSyntax
+//@[005:0043) | | └─Token(Identifier) |discriminatedUnionMemberOptionalCycle1|
+//@[044:0045) | ├─Token(Assignment) |=|
+//@[046:0144) | └─ObjectTypeSyntax
+//@[046:0047) |   ├─Token(LeftBrace) |{|
+//@[047:0048) |   ├─Token(NewLine) |\n|
   type: 'b'
 //@[002:0011) |   ├─ObjectTypePropertySyntax
 //@[002:0006) |   | ├─IdentifierSyntax
@@ -1681,7 +1681,7 @@ type discriminatedSelfInlineCycle1 = {
 //@[008:0011) |   |   └─Token(StringComplete) |'b'|
 //@[011:0012) |   ├─Token(NewLine) |\n|
   @discriminator('type')
-//@[002:0073) |   ├─ObjectTypePropertySyntax
+//@[002:0082) |   ├─ObjectTypePropertySyntax
 //@[002:0024) |   | ├─DecoratorSyntax
 //@[002:0003) |   | | ├─Token(At) |@|
 //@[003:0024) |   | | └─FunctionCallSyntax
@@ -1693,26 +1693,26 @@ type discriminatedSelfInlineCycle1 = {
 //@[017:0023) |   | |   |   └─Token(StringComplete) |'type'|
 //@[023:0024) |   | |   └─Token(RightParen) |)|
 //@[024:0025) |   | ├─Token(NewLine) |\n|
-  prop: (typeA | discriminatedSelfInlineCycle1)?
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |prop|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0048) |   | └─NullableTypeSyntax
-//@[008:0047) |   |   ├─ParenthesizedExpressionSyntax
+//@[008:0057) |   | └─NullableTypeSyntax
+//@[008:0056) |   |   ├─ParenthesizedExpressionSyntax
 //@[008:0009) |   |   | ├─Token(LeftParen) |(|
-//@[009:0046) |   |   | ├─UnionTypeSyntax
+//@[009:0055) |   |   | ├─UnionTypeSyntax
 //@[009:0014) |   |   | | ├─UnionTypeMemberSyntax
 //@[009:0014) |   |   | | | └─VariableAccessSyntax
 //@[009:0014) |   |   | | |   └─IdentifierSyntax
 //@[009:0014) |   |   | | |     └─Token(Identifier) |typeA|
 //@[015:0016) |   |   | | ├─Token(Pipe) |||
-//@[017:0046) |   |   | | └─UnionTypeMemberSyntax
-//@[017:0046) |   |   | |   └─VariableAccessSyntax
-//@[017:0046) |   |   | |     └─IdentifierSyntax
-//@[017:0046) |   |   | |       └─Token(Identifier) |discriminatedSelfInlineCycle1|
-//@[046:0047) |   |   | └─Token(RightParen) |)|
-//@[047:0048) |   |   └─Token(Question) |?|
-//@[048:0049) |   ├─Token(NewLine) |\n|
+//@[017:0055) |   |   | | └─UnionTypeMemberSyntax
+//@[017:0055) |   |   | |   └─VariableAccessSyntax
+//@[017:0055) |   |   | |     └─IdentifierSyntax
+//@[017:0055) |   |   | |       └─Token(Identifier) |discriminatedUnionMemberOptionalCycle1|
+//@[055:0056) |   |   | └─Token(RightParen) |)|
+//@[056:0057) |   |   └─Token(Question) |?|
+//@[057:0058) |   ├─Token(NewLine) |\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|

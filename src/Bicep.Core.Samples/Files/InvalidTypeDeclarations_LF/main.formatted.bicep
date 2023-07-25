@@ -153,7 +153,10 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
 
 @discriminator('type')
-type discriminatorSelfCycle = typeA | discriminatorSelfCycle
+type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
+
+@discriminator('type')
+type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
 
 @discriminator('type')
 type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
