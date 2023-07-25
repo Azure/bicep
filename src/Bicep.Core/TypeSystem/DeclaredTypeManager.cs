@@ -801,7 +801,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var errorDiagnostics = new List<ErrorDiagnostic>();
-            var memberDiscriminatorValues = new HashSet<string>();
+            var memberDiscriminatorValues = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase); // back end is case insensitive
             var expandedMemberTypes = new List<ObjectType>();
 
             foreach (var (memberSyntax, memberType) in unionMembers)
@@ -810,23 +810,15 @@ namespace Bicep.Core.TypeSystem
 
                 if (memberTypeEvaluated is ObjectType objectType)
                 {
-                    // validate the member has the discriminator property defined
-                    if (!objectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty))
+                    // validate the member has the discriminator property defined and is of the right type
+                    if (!objectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
+                        || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorMemberLiteral
+                        || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required)
+                        || !string.Equals(discriminatorPropertyName, discriminatorTypeProperty.Name, LanguageConstants.IdentifierComparison))
                     {
                         errorDiagnostics.Add(
                             DiagnosticBuilder.ForPosition(memberSyntax)
                                 .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
-
-                        continue;
-                    }
-
-                    // validate the discriminator property is of the right type
-                    if (discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorMemberLiteral
-                        || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
-                    {
-                        errorDiagnostics.Add(
-                            DiagnosticBuilder.ForPosition(memberSyntax)
-                            .DiscriminatorPropertyMustBeRequiredStringLiteral(discriminatorPropertyName));
 
                         continue;
                     }
