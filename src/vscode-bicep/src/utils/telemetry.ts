@@ -45,12 +45,14 @@ export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(
   );
 }
 
-export function raiseErrorWithoutTelemetry(callbackId: string, error: any) {
-  callWithTelemetryAndErrorHandling<void>(
-    callbackId,
-    context => {
-      context.telemetry.suppressAll = true;
+export async function raiseErrorWithoutTelemetry(
+  callbackId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any,
+) {
+  await callWithTelemetryAndErrorHandling<void>(callbackId, (context) => {
+    context.telemetry.suppressAll = true;
 
-      return new Promise((_, reject) => reject(error));
-    });
+    return new Promise((_, reject) => reject(error));
+  });
 }

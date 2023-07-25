@@ -45,7 +45,7 @@ export async function findOrCreateActiveBicepFile(
   context: IActionContext,
   documentUri: Uri | undefined,
   prompt: string,
-  includeBicepParam = false
+  includeBicepParam = false,
 ): Promise<Uri> {
   const properties = <Properties>context.telemetry.properties;
   const ui = context.ui;

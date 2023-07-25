@@ -1,23 +1,44 @@
-import { useState } from 'react';
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import { useState } from "react";
 import { RestError } from "@azure/core-rest-pipeline";
-import { DeployResult, DeploymentScope, ParamData, ParametersMetadata, TemplateMetadata } from '../models';
-import { AccessToken, TokenCredential } from '@azure/identity';
-import { Deployment, DeploymentOperation, ErrorResponse, ResourceManagementClient, WhatIfChange } from "@azure/arm-resources";
+import {
+  DeployResult,
+  DeploymentScope,
+  ParamData,
+  ParametersMetadata,
+  TemplateMetadata,
+  UntypedError,
+} from "../models";
+import { AccessToken, TokenCredential } from "@azure/identity";
+import {
+  Deployment,
+  DeploymentOperation,
+  ErrorResponse,
+  ResourceManagementClient,
+  WhatIfChange,
+} from "@azure/arm-resources";
 
 export interface UseAzureProps {
   scope?: DeploymentScope;
   templateMetadata?: TemplateMetadata;
   parametersMetadata: ParametersMetadata;
   acquireAccessToken: () => Promise<AccessToken>;
-  showErrorDialog: (callbackId: string, error: any) => void;
+  showErrorDialog: (callbackId: string, error: UntypedError) => void;
 }
 
 export function useAzure(props: UseAzureProps) {
-  const { scope, templateMetadata, parametersMetadata, acquireAccessToken, showErrorDialog } = props;
-  const deploymentName = 'bicep-deploy';
+  const {
+    scope,
+    templateMetadata,
+    parametersMetadata,
+    acquireAccessToken,
+    showErrorDialog,
+  } = props;
+  const deploymentName = "bicep-deploy";
   const [operations, setOperations] = useState<DeploymentOperation[]>();
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
-  const [outputs, setOutputs] = useState<Record<string, any>>();
+  const [outputs, setOutputs] = useState<Record<string, unknown>>();
   const [result, setResult] = useState<DeployResult>();
   const [running, setRunning] = useState(false);
 
@@ -25,34 +46,43 @@ export function useAzure(props: UseAzureProps) {
     const tokenProvider: TokenCredential = {
       getToken: async () => accessToken,
     };
-  
+
     return new ResourceManagementClient(tokenProvider, scope.subscriptionId, {
       userAgentOptions: {
-        userAgentPrefix: 'bicepdeploypane'
+        userAgentPrefix: "bicepdeploypane",
       },
     });
   }
 
-  async function doDeploymentOperation(scope: DeploymentScope, operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<void>) {
+  async function doDeploymentOperation(
+    scope: DeploymentScope,
+    operation: (
+      armClient: ResourceManagementClient,
+      deployment: Deployment,
+    ) => Promise<void>,
+  ) {
     if (!templateMetadata) {
       return;
     }
-  
+
     try {
       clearState();
       setRunning(true);
-  
-      const deployment = getDeploymentProperties(templateMetadata, parametersMetadata.parameters);
+
+      const deployment = getDeploymentProperties(
+        templateMetadata,
+        parametersMetadata.parameters,
+      );
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
       await operation(armClient, deployment);
     } catch (e) {
-      showErrorDialog('doDeploymentOperation', e);
-    }  finally {
+      showErrorDialog("doDeploymentOperation", e);
+    } finally {
       setRunning(false);
     }
   }
-  
+
   async function deploy() {
     if (!scope) {
       return;
@@ -61,20 +91,27 @@ export function useAzure(props: UseAzureProps) {
     await doDeploymentOperation(scope, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
-        const result = client.deploymentOperations.list(scope.resourceGroup, deploymentName);
+        const result = client.deploymentOperations.list(
+          scope.resourceGroup,
+          deploymentName,
+        );
         for await (const page of result.byPage()) {
           operations.push(...page);
         }
         setOperations(operations);
-      }
-  
+      };
+
       let poller;
       try {
-        poller = await client.deployments.beginCreateOrUpdate(scope.resourceGroup, deploymentName, deployment);
-  
+        poller = await client.deployments.beginCreateOrUpdate(
+          scope.resourceGroup,
+          deploymentName,
+          deployment,
+        );
+
         while (!poller.isDone()) {
-          updateOperations();
-          await new Promise(f => setTimeout(f, 5000));
+          await updateOperations();
+          await new Promise((f) => setTimeout(f, 5000));
           await poller.poll();
         }
       } catch (e) {
@@ -84,9 +121,9 @@ export function useAzure(props: UseAzureProps) {
         });
         return;
       } finally {
-        updateOperations();
+        await updateOperations();
       }
-  
+
       const finalResult = poller.getResult();
       setOutputs(finalResult?.properties?.outputs);
       setResult({
@@ -94,7 +131,7 @@ export function useAzure(props: UseAzureProps) {
       });
     });
   }
-  
+
   async function validate() {
     if (!scope) {
       return;
@@ -102,8 +139,12 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await client.deployments.beginValidateAndWait(scope.resourceGroup, deploymentName, deployment);
-  
+        const response = await client.deployments.beginValidateAndWait(
+          scope.resourceGroup,
+          deploymentName,
+          deployment,
+        );
+
         setResult({
           success: !response.error,
           error: response.error,
@@ -116,7 +157,7 @@ export function useAzure(props: UseAzureProps) {
       }
     });
   }
-  
+
   async function whatIf() {
     if (!scope) {
       return;
@@ -124,8 +165,12 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await client.deployments.beginWhatIfAndWait(scope.resourceGroup, deploymentName, deployment);
-  
+        const response = await client.deployments.beginWhatIfAndWait(
+          scope.resourceGroup,
+          deploymentName,
+          deployment,
+        );
+
         setResult({
           success: !response.error,
           error: response.error,
@@ -159,23 +204,27 @@ export function useAzure(props: UseAzureProps) {
   };
 }
 
-function parseError(e: any): ErrorResponse {
-  if (e instanceof RestError) {
-    return (e.details as any).error as ErrorResponse;
+function parseError(error: UntypedError): ErrorResponse {
+  if (error instanceof RestError) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (error.details as any).error as ErrorResponse;
   }
 
   return {
-    code: 'InternalError',
-    message: `${e}`,
+    message: `${error}`,
   };
 }
 
-function getDeploymentProperties(metadata: TemplateMetadata, paramValues: Record<string, ParamData>): Deployment {
-  const parameters: any = {};
-  for (let [key, { value }] of Object.entries(paramValues)) {
+function getDeploymentProperties(
+  metadata: TemplateMetadata,
+  paramValues: Record<string, ParamData>,
+): Deployment {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const parameters: Record<string, any> = {};
+  for (const [key, { value }] of Object.entries(paramValues)) {
     parameters[key] = {
       value,
-    }
+    };
   }
 
   return {
@@ -184,5 +233,5 @@ function getDeploymentProperties(metadata: TemplateMetadata, paramValues: Record
       parameters,
       template: metadata.template,
     },
-  }
+  };
 }

@@ -11,13 +11,13 @@ async function showDeployPane(
   context: IActionContext,
   viewManager: DeployPaneViewManager,
   documentUri: vscode.Uri | undefined,
-  sideBySide = false
+  sideBySide = false,
 ) {
   documentUri = await findOrCreateActiveBicepFile(
     context,
     documentUri,
     "Choose a .bicep or .bicepparam file to deploy",
-    true
+    true,
   );
 
   const viewColumn = sideBySide
@@ -36,7 +36,7 @@ export class ShowDeployPaneCommand implements Command {
 
   public async execute(
     context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<vscode.ViewColumn | undefined> {
     return await showDeployPane(context, this.viewManager, documentUri);
   }
@@ -49,7 +49,7 @@ export class ShowDeployPaneToSideCommand implements Command {
 
   public async execute(
     context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri?: vscode.Uri | undefined,
   ): Promise<vscode.ViewColumn | undefined> {
     return await showDeployPane(context, this.viewManager, documentUri, true);
   }

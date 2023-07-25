@@ -1,20 +1,39 @@
-import { useEffect, useState } from 'react';
-import { vscode } from '../../vscode';
-import { VscodeMessage, createGetAccessTokenMessage, createGetDeploymentScopeMessage, createGetStateMessage, createPickParamsFileMessage, createReadyMessage, createSaveStateMessage, createShowUserErrorDialogMessage } from '../../../messages';
-import { parseParametersJson, parseTemplateJson } from '../utils';
-import { DeployPaneState, DeploymentScope, ParametersMetadata, TemplateMetadata } from '../models';
-import { AccessToken } from '@azure/identity';
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import { useEffect, useState } from "react";
+import { vscode } from "../../vscode";
+import {
+  VscodeMessage,
+  createGetAccessTokenMessage,
+  createGetDeploymentScopeMessage,
+  createGetStateMessage,
+  createPickParamsFileMessage,
+  createReadyMessage,
+  createSaveStateMessage,
+  createShowUserErrorDialogMessage,
+} from "../../../messages";
+import { parseParametersJson, parseTemplateJson } from "../utils";
+import {
+  DeployPaneState,
+  DeploymentScope,
+  ParametersMetadata,
+  TemplateMetadata,
+  UntypedError,
+} from "../models";
+import { AccessToken } from "@azure/identity";
 
 // TODO see if there's a way to use react hooks instead of this hackery
 let accessTokenResolver: {
-  resolve: (accessToken: AccessToken) => void,
-  reject: (error: any) => void,
+  resolve: (accessToken: AccessToken) => void;
+  reject: (error: UntypedError) => void;
 };
 
 export function useMessageHandler() {
   const [persistedState, setPersistedState] = useState<DeployPaneState>();
   const [templateMetadata, setTemplateMetadata] = useState<TemplateMetadata>();
-  const [paramsMetadata, setParamsMetadata] = useState<ParametersMetadata>({ parameters: {} });
+  const [paramsMetadata, setParamsMetadata] = useState<ParametersMetadata>({
+    parameters: {},
+  });
   const [scope, setScope] = useState<DeploymentScope>();
 
   const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
@@ -24,14 +43,22 @@ export function useMessageHandler() {
         const templateMetadata = parseTemplateJson(message.templateJson);
         setTemplateMetadata(templateMetadata);
 
-        if (templateMetadata.template['$schema'] !== 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#') {
-          showErrorDialog('handleMessageEvent', 'The deployment pane currently only supports resourceGroup-scoped Bicep files.');
+        if (
+          templateMetadata.template["$schema"] !==
+          "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+        ) {
+          showErrorDialog(
+            "handleMessageEvent",
+            "The deployment pane currently only supports resourceGroup-scoped Bicep files.",
+          );
           return;
         }
 
         if (message.parametersJson) {
           setParamsMetadata({
-            sourceFilePath: message.documentPath.endsWith('.bicep') ? undefined : message.documentPath,
+            sourceFilePath: message.documentPath.endsWith(".bicep")
+              ? undefined
+              : message.documentPath,
             parameters: parseParametersJson(message.parametersJson),
           });
         }
@@ -53,7 +80,9 @@ export function useMessageHandler() {
         if (message.accessToken) {
           accessTokenResolver.resolve(message.accessToken);
         } else {
-          accessTokenResolver.reject(message.error ?? 'Failed to authenticate with Azure');
+          accessTokenResolver.reject(
+            message.error ?? "Failed to authenticate with Azure",
+          );
         }
         return;
       }
@@ -85,13 +114,14 @@ export function useMessageHandler() {
     vscode.postMessage(createGetDeploymentScopeMessage());
   }
 
-  function showErrorDialog(callbackId: string, error: any) {
+  function showErrorDialog(callbackId: string, error: UntypedError) {
     vscode.postMessage(createShowUserErrorDialogMessage(callbackId, error));
   }
 
   function acquireAccessToken() {
     const promise = new Promise<AccessToken>(
-      (resolve, reject) => accessTokenResolver = { resolve, reject });
+      (resolve, reject) => (accessTokenResolver = { resolve, reject }),
+    );
 
     vscode.postMessage(createGetAccessTokenMessage(scope!));
     return promise;

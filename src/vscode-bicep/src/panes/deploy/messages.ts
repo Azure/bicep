@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
-import { DeployPaneState, DeploymentScope } from "./app/components/models";
+import {
+  DeployPaneState,
+  DeploymentScope,
+  UntypedError,
+} from "./app/components/models";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -25,7 +29,7 @@ export type DeploymentDataMessage = MessageWithPayload<
 export function createDeploymentDataMessage(
   documentPath: string,
   templateJson: string,
-  parametersJson?: string
+  parametersJson?: string,
 ): DeploymentDataMessage {
   return createMessageWithPayload("DEPLOYMENT_DATA", {
     documentPath,
@@ -42,28 +46,28 @@ export function createGetStateMessage(): GetStateMessage {
 export type GetStateResultMessage = MessageWithPayload<
   "GET_STATE_RESULT",
   {
-    state: DeployPaneState
+    state: DeployPaneState;
   }
 >;
 export function createGetStateResultMessage(
-  state: DeployPaneState
+  state: DeployPaneState,
 ): GetStateResultMessage {
   return createMessageWithPayload("GET_STATE_RESULT", {
-    state
+    state,
   });
 }
 
 export type SaveStateMessage = MessageWithPayload<
   "SAVE_STATE",
   {
-    state: DeployPaneState
+    state: DeployPaneState;
   }
 >;
 export function createSaveStateMessage(
-  state: DeployPaneState
+  state: DeployPaneState,
 ): SaveStateMessage {
   return createMessageWithPayload("SAVE_STATE", {
-    state
+    state,
   });
 }
 
@@ -84,13 +88,13 @@ export function createGetAccessTokenMessage(
 export type GetAccessTokenResultMessage = MessageWithPayload<
   "GET_ACCESS_TOKEN_RESULT",
   {
-    accessToken?: AccessToken,
-    error?: any,
+    accessToken?: AccessToken;
+    error?: UntypedError;
   }
 >;
 export function createGetAccessTokenResultMessage(
   accessToken?: AccessToken,
-  error?: any,
+  error?: UntypedError,
 ): GetAccessTokenResultMessage {
   return createMessageWithPayload("GET_ACCESS_TOKEN_RESULT", {
     accessToken,
@@ -112,11 +116,11 @@ export type PickParamsFileResultMessage = MessageWithPayload<
 >;
 export function createPickParamsFileResultMessage(
   documentPath: string,
-  parametersJson: string
+  parametersJson: string,
 ): PickParamsFileResultMessage {
   return createMessageWithPayload("PICK_PARAMS_FILE_RESULT", {
     documentPath,
-    parametersJson
+    parametersJson,
   });
 }
 
@@ -143,12 +147,12 @@ export type ShowUserErrorDialogMessage = MessageWithPayload<
   "SHOW_USER_ERROR_DIALOG",
   {
     callbackId: string;
-    error: any;
+    error: UntypedError;
   }
 >;
 export function createShowUserErrorDialogMessage(
   callbackId: string,
-  error: any
+  error: UntypedError,
 ): ShowUserErrorDialogMessage {
   return createMessageWithPayload("SHOW_USER_ERROR_DIALOG", {
     callbackId,
@@ -156,14 +160,14 @@ export function createShowUserErrorDialogMessage(
   });
 }
 
-export type VscodeMessage = 
+export type VscodeMessage =
   | DeploymentDataMessage
   | GetStateResultMessage
   | PickParamsFileResultMessage
   | GetAccessTokenResultMessage
   | GetDeploymentScopeResultMessage;
 
-export type ViewMessage = 
+export type ViewMessage =
   | ReadyMessage
   | GetStateMessage
   | SaveStateMessage
@@ -178,7 +182,7 @@ function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
 
 function createMessageWithPayload<
   T extends string,
-  U = Record<string, unknown>
+  U = Record<string, unknown>,
 >(kind: T, payload: U): MessageWithPayload<T, U> {
   return {
     kind,

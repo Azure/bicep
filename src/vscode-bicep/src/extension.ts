@@ -153,8 +153,8 @@ export async function activate(
             extensionContext,
             extension.extensionUri,
             languageClient,
-            treeManager
-          )
+            treeManager,
+          ),
         );
 
         const suppressedWarningsManager = new SuppressedWarningsManager();

@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import { ErrorResponse } from "@azure/arm-resources";
 
 export interface TemplateMetadata {
@@ -35,3 +37,6 @@ export interface DeploymentScope {
 export interface DeployPaneState {
   scope: DeploymentScope;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UntypedError = any;

@@ -12,7 +12,7 @@ import {
   createGetDeploymentScopeResultMessage,
   createGetStateResultMessage,
   createPickParamsFileResultMessage,
-  ViewMessage
+  ViewMessage,
 } from "./messages";
 import { getDeploymentDataRequestType } from "../../language";
 import { Disposable } from "../../utils/disposable";
@@ -23,6 +23,7 @@ import { AzResourceGroupTreeItem } from "../../tree/AzResourceGroupTreeItem";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { GlobalStateKeys } from "../../globalState";
 import { raiseErrorWithoutTelemetry } from "../../utils/telemetry";
+import { DeployPaneState } from "./app/components/models";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -39,21 +40,21 @@ export class DeployPaneView extends Disposable {
     private readonly languageClient: LanguageClient,
     private readonly webviewPanel: vscode.WebviewPanel,
     private readonly extensionUri: vscode.Uri,
-    private readonly documentUri: vscode.Uri
+    private readonly documentUri: vscode.Uri,
   ) {
     super();
 
     this.onDidDisposeEmitter = new vscode.EventEmitter<void>();
     this.onDidChangeViewStateEmitter = this.register(
-      new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>()
+      new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
     );
 
     this.register(
       this.webviewPanel.webview.onDidReceiveMessage(
         // eslint-disable-next-line jest/unbound-method
         this.handleDidReceiveMessage,
-        this
-      )
+        this,
+      ),
     );
 
     if (!this.isDisposed) {
@@ -64,8 +65,8 @@ export class DeployPaneView extends Disposable {
       // eslint-disable-next-line jest/unbound-method
       this.webviewPanel.onDidDispose(this.dispose, this),
       this.webviewPanel.onDidChangeViewState((e) =>
-        this.onDidChangeViewStateEmitter.fire(e)
-      )
+        this.onDidChangeViewStateEmitter.fire(e),
+      ),
     );
   }
 
@@ -84,7 +85,7 @@ export class DeployPaneView extends Disposable {
     languageClient: LanguageClient,
     viewColumn: vscode.ViewColumn,
     extensionUri: vscode.Uri,
-    documentUri: vscode.Uri
+    documentUri: vscode.Uri,
   ): DeployPaneView {
     const visualizerTitle = `Deploy ${path.basename(documentUri.fsPath)}`;
     const webviewPanel = vscode.window.createWebviewPanel(
@@ -94,7 +95,7 @@ export class DeployPaneView extends Disposable {
       {
         enableScripts: true,
         retainContextWhenHidden: true,
-      }
+      },
     );
 
     return new DeployPaneView(
@@ -104,7 +105,7 @@ export class DeployPaneView extends Disposable {
       languageClient,
       webviewPanel,
       extensionUri,
-      documentUri
+      documentUri,
     );
   }
 
@@ -115,7 +116,7 @@ export class DeployPaneView extends Disposable {
     languageClient: LanguageClient,
     webviewPanel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
-    documentUri: vscode.Uri
+    documentUri: vscode.Uri,
   ): DeployPaneView {
     return new DeployPaneView(
       extensionContext,
@@ -124,7 +125,7 @@ export class DeployPaneView extends Disposable {
       languageClient,
       webviewPanel,
       extensionUri,
-      documentUri
+      documentUri,
     );
   }
 
@@ -167,9 +168,9 @@ export class DeployPaneView extends Disposable {
       {
         textDocument:
           this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
-            document
+            document,
           ),
-      }
+      },
     );
 
     if (this.isDisposed) {
@@ -185,8 +186,8 @@ export class DeployPaneView extends Disposable {
         createDeploymentDataMessage(
           this.documentUri.fsPath,
           deploymentData.templateJson,
-          deploymentData.parametersJson
-        )
+          deploymentData.parametersJson,
+        ),
       );
     } catch (error) {
       // Race condition: the webview was closed before receiving the message,
@@ -203,18 +204,28 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "GET_STATE": {
-        const deployPaneState: any = this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
+        const deployPaneState: Record<string, DeployPaneState> =
+          this.extensionContext.globalState.get(
+            GlobalStateKeys.deployPaneStateKey,
+          ) || {};
         const filteredState = deployPaneState[this.documentUri.toString()];
 
         await this.webviewPanel.webview.postMessage(
-          createGetStateResultMessage(filteredState));
+          createGetStateResultMessage(filteredState),
+        );
         return;
       }
       case "SAVE_STATE": {
-        const deployPaneState: any = this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
+        const deployPaneState: Record<string, DeployPaneState> =
+          this.extensionContext.globalState.get(
+            GlobalStateKeys.deployPaneStateKey,
+          ) || {};
         deployPaneState[this.documentUri.toString()] = message.state;
 
-        this.extensionContext.globalState.update(GlobalStateKeys.deployPaneStateKey, deployPaneState);
+        await this.extensionContext.globalState.update(
+          GlobalStateKeys.deployPaneStateKey,
+          deployPaneState,
+        );
         return;
       }
       case "PICK_PARAMS_FILE": {
@@ -225,50 +236,58 @@ export class DeployPaneView extends Disposable {
         });
         const parameterFile = await fse.readFile(
           parametersFileUri[0].fsPath,
-          "utf-8"
+          "utf-8",
         );
         await this.webviewPanel.webview.postMessage(
           createPickParamsFileResultMessage(
             parametersFileUri[0].fsPath,
-            parameterFile
-          )
+            parameterFile,
+          ),
         );
         return;
       }
       case "GET_ACCESS_TOKEN": {
         try {
           const rgId = `/subscriptions/${message.scope.subscriptionId}/resourceGroups/${message.scope.resourceGroup}`;
-          const rgTreeItem = await this.treeManager.azResourceGroupTreeItem.findTreeItem(rgId, this.context);
+          const rgTreeItem =
+            await this.treeManager.azResourceGroupTreeItem.findTreeItem(
+              rgId,
+              this.context,
+            );
           if (!rgTreeItem) {
             throw `Failed to find authenticated context for scope ${rgId}`;
           }
 
-          const accessToken = await rgTreeItem.subscription.credentials.getToken();  
+          const accessToken =
+            await rgTreeItem.subscription.credentials.getToken();
           await this.webviewPanel.webview.postMessage(
-            createGetAccessTokenResultMessage(accessToken));
+            createGetAccessTokenResultMessage(accessToken),
+          );
         } catch (error) {
           await this.webviewPanel.webview.postMessage(
-            createGetAccessTokenResultMessage(undefined, error));
+            createGetAccessTokenResultMessage(undefined, error),
+          );
         }
 
-        return;  
+        return;
       }
       case "GET_DEPLOYMENT_SCOPE": {
         const rgTreeItem =
           await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
             "",
-            this.context
+            this.context,
           );
         await this.webviewPanel.webview.postMessage(
           createGetDeploymentScopeResultMessage({
             subscriptionId: rgTreeItem.subscription.subscriptionId,
             resourceGroup: rgTreeItem.label,
-          }));
+          }),
+        );
 
         return;
       }
       case "SHOW_USER_ERROR_DIALOG": {
-        raiseErrorWithoutTelemetry(message.callbackId, message.error);
+        await raiseErrorWithoutTelemetry(message.callbackId, message.error);
       }
     }
   }
@@ -277,7 +296,7 @@ export class DeployPaneView extends Disposable {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js")
+      vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js"),
     );
 
     return `
