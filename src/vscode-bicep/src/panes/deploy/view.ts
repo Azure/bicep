@@ -8,10 +8,11 @@ import { LanguageClient } from "vscode-languageclient/node";
 
 import {
   createDeploymentDataMessage,
+  createGetAccessTokenResultMessage,
+  createGetDeploymentScopeResultMessage,
   createGetStateResultMessage,
-  createNewDeploymentScopeMessage,
-  createParametersDataMessage,
-  Message,
+  createPickParamsFileResultMessage,
+  ViewMessage
 } from "./messages";
 import { getDeploymentDataRequestType } from "../../language";
 import { Disposable } from "../../utils/disposable";
@@ -193,7 +194,8 @@ export class DeployPaneView extends Disposable {
     }
   }
 
-  private async handleDidReceiveMessage(message: Message) {
+  private async handleDidReceiveMessage(message: ViewMessage) {
+    console.log(`vscode received: ${JSON.stringify(message)}`);
     switch (message.kind) {
       case "READY": {
         this.readyToRender = true;
@@ -204,8 +206,6 @@ export class DeployPaneView extends Disposable {
         const deployPaneState: any = this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
         const filteredState = deployPaneState[this.documentUri.toString()];
 
-        console.log(`GET_STATE: ${JSON.stringify(deployPaneState)}`);
-
         await this.webviewPanel.webview.postMessage(
           createGetStateResultMessage(filteredState));
         return;
@@ -214,30 +214,10 @@ export class DeployPaneView extends Disposable {
         const deployPaneState: any = this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
         deployPaneState[this.documentUri.toString()] = message.state;
 
-        console.log(`SAVE_STATE: ${JSON.stringify(deployPaneState)}`);
-
         this.extensionContext.globalState.update(GlobalStateKeys.deployPaneStateKey, deployPaneState);
         return;
       }
-      case "GET_DEPLOYMENT_SCOPE": {
-        const rgTreeItem =
-          await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
-            "",
-            this.context
-          );
-        // TODO: figure out how to allow webview to refresh this token
-        const accessToken =
-          await rgTreeItem.subscription.credentials.getToken();
-        await this.webviewPanel.webview.postMessage(
-          createNewDeploymentScopeMessage(
-            rgTreeItem.subscription.subscriptionId,
-            rgTreeItem.label,
-            accessToken
-          )
-        );
-        return;
-      }
-      case "PICK_PARAMETERS_FILE": {
+      case "PICK_PARAMS_FILE": {
         const parametersFileUri = await this.context.ui.showOpenDialog({
           canSelectMany: false,
           openLabel: "Select Parameters file",
@@ -247,13 +227,35 @@ export class DeployPaneView extends Disposable {
           parametersFileUri[0].fsPath,
           "utf-8"
         );
-
         await this.webviewPanel.webview.postMessage(
-          createParametersDataMessage(
+          createPickParamsFileResultMessage(
             parametersFileUri[0].fsPath,
             parameterFile
           )
         );
+        return;
+      }
+      case "GET_ACCESS_TOKEN": {
+        // TODO: figure out how to allow webview to refresh this token
+        return;
+      }
+      case "GET_DEPLOYMENT_SCOPE": {
+        const rgTreeItem =
+          await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
+            "",
+            this.context
+          );
+        await this.webviewPanel.webview.postMessage(
+          createGetDeploymentScopeResultMessage({
+            subscriptionId: rgTreeItem.subscription.subscriptionId,
+            resourceGroup: rgTreeItem.label,
+          }));
+
+        // TODO: figure out have the access token be fetched on-demand
+        const accessToken = await rgTreeItem.subscription.credentials.getToken();
+        await this.webviewPanel.webview.postMessage(
+          createGetAccessTokenResultMessage(accessToken));
+
         return;
       }
     }
