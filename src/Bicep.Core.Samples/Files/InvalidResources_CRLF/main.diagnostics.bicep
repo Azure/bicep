@@ -1034,7 +1034,7 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 
 var mock = incorrectPropertiesKey.p
 //@[004:008) [no-unused-vars (Warning)] Variable "mock" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mock|
-//@[034:035) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (CodeDescription: none) |p|
+//@[034:035) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (CodeDescription: none) |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -2138,7 +2138,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   managedBy: 'string'
 //@[002:011) [BCP187 (Warning)] The property "managedBy" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedBy|
   mangedByExtended: [
-//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
+//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "asserts", "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
    'str1'
    'str2'
   ]
@@ -2181,7 +2181,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:011) [BCP187 (Warning)] The property "managedBy" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedBy|
 //@[013:015) [BCP036 (Warning)] The property "managedBy" expected a value of type "string" but the provided value is of type "object". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |{}|
   mangedByExtended: [
-//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
+//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "asserts", "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
    {}
    {}
   ]
@@ -2214,14 +2214,14 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
     name: 'Premium_LRS'    
   }
   madeUpProperty: {}
-//@[002:016) [BCP037 (Error)] The property "madeUpProperty" is not allowed on objects of type "Microsoft.Storage/storageAccounts". Permissible properties include "dependsOn", "extendedLocation", "identity", "properties", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |madeUpProperty|
+//@[002:016) [BCP037 (Error)] The property "madeUpProperty" is not allowed on objects of type "Microsoft.Storage/storageAccounts". Permissible properties include "asserts", "dependsOn", "extendedLocation", "identity", "properties", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |madeUpProperty|
   managedByExtended: []
 //@[002:019) [BCP187 (Warning)] The property "managedByExtended" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedByExtended|
 }
 
 var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
 //@[004:030) [no-unused-vars (Warning)] Variable "issue3000stgMadeUpProperty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |issue3000stgMadeUpProperty|
-//@[046:060) [BCP053 (Error)] The type "Microsoft.Storage/storageAccounts" does not contain property "madeUpProperty". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". (CodeDescription: none) |madeUpProperty|
+//@[046:060) [BCP053 (Error)] The type "Microsoft.Storage/storageAccounts" does not contain property "madeUpProperty". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". (CodeDescription: none) |madeUpProperty|
 var issue3000stgManagedBy = issue3000stg.managedBy
 //@[004:025) [no-unused-vars (Warning)] Variable "issue3000stgManagedBy" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |issue3000stgManagedBy|
 //@[041:050) [BCP187 (Warning)] The property "managedBy" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedBy|

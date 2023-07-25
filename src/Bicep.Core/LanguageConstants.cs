@@ -89,6 +89,7 @@ namespace Bicep.Core
             StringComparer.Ordinal,
             new[]
             {
+                AssertKeyword,
                 ImportKeyword,
                 MetadataKeyword,
                 ParameterKeyword,
@@ -149,6 +150,7 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string ResourceLocationPropertyName = "location";
         public const string ResourcePropertiesPropertyName = "properties";
+        public const string ResourceAssertPropertyName = "asserts";
 
         // types
         public const string TypeNameString = "string";

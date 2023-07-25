@@ -25,18 +25,18 @@
       },
       "JsonPath.Net": {
         "type": "Direct",
-        "requested": "[0.5.2, )",
-        "resolved": "0.5.2",
-        "contentHash": "qhf4kY6opPjhyFRll63XHFOcsc9zNtIraUmX65Wd4k4DR1b7LXAaHOv1VSshpzebEgtohrIqBsmaVmWg9jlf3g==",
+        "requested": "[0.6.3, )",
+        "resolved": "0.6.3",
+        "contentHash": "3zMQiSDrYX79ZaTmDgBSQZQBMMQHFz0L4Jsd1ZTiBRthsvhUalVfcW8QL0H8QiHm6nePaQVt/vk/niQ7TfmyZQ==",
         "dependencies": {
           "Json.More.Net": "1.8.0"
         }
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[4.1.1, )",
-        "resolved": "4.1.1",
-        "contentHash": "R17IcU2nfddbMsbTzKZAUWLaVx3sGP5XLjiCfAC7ob56f/rmVfj5q6IdADdCtYPxxcyOpFPQLYXfTFODXCWmMQ==",
+        "requested": "[4.1.8, )",
+        "resolved": "4.1.8",
+        "contentHash": "qcVAEOFdKX7JYhPMjqHHl/t+s61lai28N/PF7ijkQpfd3iAntENiEWaDl5I3RBdMVE+6VL1Fga52jKSooGpQCw==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.8.0",
@@ -187,10 +187,10 @@
       },
       "Azure.Containers.ContainerRegistry": {
         "type": "Transitive",
-        "resolved": "1.1.0-beta.9",
-        "contentHash": "G8cYgwKuNie1CLAS0ovh3iNndeQL6/l9A/5zgZ0LzK9M+QAxTxHgU3jQg9u6gHg6wJRofYAzBeJePXlPp4J3uA==",
+        "resolved": "1.1.0",
+        "contentHash": "rzq33uuE4b8wSTMJGkAjUfWjb/NGKw385D8wqxLQY96H6mDmlqawowAgd5juTc44tBKZLxWnmp9d6ObUm4p3ug==",
         "dependencies": {
-          "Azure.Core": "1.31.0",
+          "Azure.Core": "1.32.0",
           "System.Text.Json": "4.7.2"
         }
       },
@@ -256,20 +256,20 @@
       },
       "Azure.ResourceManager": {
         "type": "Transitive",
-        "resolved": "1.4.0",
-        "contentHash": "BaQijHf104MNqXMhZX5RseEwXNyBl4CKwDSqP9/tOyIy9/Ph5M9mL2MKo368VuOfD3PMQXG1GtI9jW1okuI2tg==",
+        "resolved": "1.6.0",
+        "contentHash": "pd7DRK7UpsQagSwgkXiWl6k5v3aXTcEwLvyjAtozd/pr86bsmaWEtcA2aa+kt82wMH2L8nw1ByfRIY0hQQSIVg==",
         "dependencies": {
-          "Azure.Core": "1.28.0",
+          "Azure.Core": "1.32.0",
           "System.Text.Json": "4.7.2"
         }
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.4.0",
-        "contentHash": "+mlZ+QVpO0Sclk72OROt6hjvcve99bf2NRKVt0GR2VkxV/HyIEGuDCmK5X7QbrQtZoWTOLMLSKZTfAYO9G0SlQ==",
+        "resolved": "1.6.0",
+        "contentHash": "QC1DAa8X1pQTJRC5clCWX+mfV0DJDE4hPTrgnGmBniLxLDOv9Bd143ydUliiBEYDp5u3QsQNth3O0VXIMG/b8A==",
         "dependencies": {
-          "Azure.Core": "1.28.0",
-          "Azure.ResourceManager": "1.4.0",
+          "Azure.Core": "1.32.0",
+          "Azure.ResourceManager": "1.6.0",
           "System.Text.Json": "4.7.2"
         }
       },
@@ -293,10 +293,10 @@
       },
       "JsonPatch.Net": {
         "type": "Transitive",
-        "resolved": "2.0.6",
-        "contentHash": "gEFF6F1Mtcy3x7d1LCrnFPI6jWQOz6/xDG1eHctIQKr2BombVLJNn8Q5pSa/vqi7GZeo9Du3J6og7daOvydHgA==",
+        "resolved": "2.1.0",
+        "contentHash": "iTTUYeOk6tLGCwKTnqC/w28vkxaP8pO5BgIODpvwU3MM63XqZJ/p+iWZXhSvyRBUxqo3l+VHw49TnsxBZGTW9Q==",
         "dependencies": {
-          "JsonPointer.Net": "3.0.0"
+          "JsonPointer.Net": "3.0.1"
         }
       },
       "JsonPointer.Net": {
@@ -2022,14 +2022,14 @@
           "Azure.Bicep.Types": "[0.3.99, )",
           "Azure.Bicep.Types.Az": "[0.2.527, )",
           "Azure.Bicep.Types.K8s": "[0.1.245, )",
-          "Azure.Containers.ContainerRegistry": "[1.1.0-beta.9, )",
+          "Azure.Containers.ContainerRegistry": "[1.1.0, )",
           "Azure.Deployments.Core": "[1.0.1010, )",
           "Azure.Deployments.Expression": "[1.0.1010, )",
           "Azure.Deployments.Templates": "[1.0.1010, )",
           "Azure.Identity": "[1.9.0, )",
-          "Azure.ResourceManager.Resources": "[1.4.0, )",
-          "JsonPatch.Net": "[2.0.6, )",
-          "JsonPath.Net": "[0.5.2, )",
+          "Azure.ResourceManager.Resources": "[1.6.0, )",
+          "JsonPatch.Net": "[2.1.0, )",
+          "JsonPath.Net": "[0.6.3, )",
           "Microsoft.Extensions.Configuration": "[7.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[7.0.4, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
