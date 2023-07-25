@@ -35,14 +35,14 @@ export const ParamInputBox : FC<ParamInputBoxProps> = (props) => {
         disabled={disabled || useDefault}>
         {name}
       </VSCodeTextField>
-      {(defaultValue !== undefined) ? (
+      {(defaultValue !== undefined) && (
         <VSCodeCheckbox
           checked={useDefault}
           onChange={handleDefaultValueChange}
           disabled={disabled}>
           Use Default?
         </VSCodeCheckbox>
-      ) : null}
+      )}
     </span>
   );
 }

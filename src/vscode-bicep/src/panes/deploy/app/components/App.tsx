@@ -57,7 +57,7 @@ export const App: FC = () => {
       </section>
 
       <section className="form-section">
-        {azure.running ? <VSCodeProgressRing /> : null}
+        {azure.running && <VSCodeProgressRing />}
         <ResultsView result={azure.result} />
         <DeploymentOperationsView operations={azure.operations} />
         <DeploymentOutputsView outputs={azure.outputs} />

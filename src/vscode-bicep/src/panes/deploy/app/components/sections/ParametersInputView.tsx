@@ -24,10 +24,10 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, pa
     <section className="form-section">
       <VSCodeDivider />
       <h2>Parameters</h2>
-      {sourceFilePath ? <VSCodeTextField value={sourceFilePath} disabled={true}>File Path</VSCodeTextField> : null}
-      {sourceFilePath && !sourceFilePath.endsWith('.bicepparam') ? <VSCodeCheckbox onChange={onEnableEditing} checked={false}>Edit Parameters?</VSCodeCheckbox> : null}
-      {!sourceFilePath ? <VSCodeButton onClick={onPickParametersFile} appearance="secondary">Pick Parameters File</VSCodeButton> : null}
-      {!sourceFilePath ? parameterDefinitions.map(definition => (
+      {sourceFilePath && <VSCodeTextField value={sourceFilePath} disabled={true}>File Path</VSCodeTextField>}
+      {sourceFilePath && !sourceFilePath.endsWith('.bicepparam') && <VSCodeCheckbox onChange={onEnableEditing} checked={false}>Edit Parameters?</VSCodeCheckbox>}
+      {!sourceFilePath && <VSCodeButton onClick={onPickParametersFile} appearance="secondary">Pick Parameters File</VSCodeButton>}
+      {!sourceFilePath && parameterDefinitions.map(definition => (
         <ParamInputBox
           key={definition.name}
           definition={definition}
@@ -35,7 +35,7 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, pa
           disabled={disabled}
           onChangeData={data => onValueChange(definition.name, data)}
         />
-      )) : null}
+      ))}
     </section>
   );
 };

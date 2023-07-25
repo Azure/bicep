@@ -50,6 +50,6 @@ export function isSucceeded(operation: DeploymentOperation) {
 
 export function getPreformattedJson(input: any) {
   return (
-    <pre>{JSON.stringify(input, null, 2)}</pre>
-  )
+    <pre style={{whiteSpace: 'pre-wrap'}}>{JSON.stringify(input, null, 2)}</pre>
+  );
 }
