@@ -14,6 +14,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -1441,10 +1442,19 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
                 .WithDescription("Allows the type to be imported into other templates.")
                 .WithFlags(FunctionFlags.TypeDecorator)
-                .WithEvaluator((functionCall, decorated) => decorated switch
+                .WithEvaluator(static (functionCall, decorated) => decorated switch
                 {
                     DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
                     _ => decorated,
+                })
+                .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
+                {
+                    var decoratorTarget = binder.GetParent(decoratorSyntax);
+
+                    if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
+                    }
                 })
                 .Build();
 

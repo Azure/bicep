@@ -51,6 +51,22 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Exporting_type_property_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+            type foo = {
+                @export()
+                property: string
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP358", DiagnosticLevel.Error, "The \"@export()\" decorator must target a top-level statement.")
+        });
+    }
+
+    [TestMethod]
     public void Importing_non_template_should_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,

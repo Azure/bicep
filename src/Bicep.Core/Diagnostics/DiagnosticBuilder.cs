@@ -2005,6 +2005,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP357",
                 $"The '{symbolName}' symbol was not found in (or was not exported by) the imported template.");
+
+            public ErrorDiagnostic ExportDecoratorMustTargetStatement() => new(
+                TextSpan,
+                "BCP358",
+                @"The ""@export()"" decorator must target a top-level statement.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
