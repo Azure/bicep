@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
+import { DeployPaneState } from "./state";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -41,7 +42,10 @@ export type Message =
   | NewDeploymentScopeMessage
   | DeploymentDataMessage
   | PickParametersFileMessage
-  | ParametersDataMessage;
+  | ParametersDataMessage
+  | GetStateMessage
+  | GetStateResultMessage
+  | SaveStateMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };
@@ -100,5 +104,38 @@ export function createDeploymentDataMessage(
     documentPath,
     templateJson,
     parametersJson,
+  });
+}
+
+export type GetStateMessage = SimpleMessage<"GET_STATE">;
+export function createGetStateMessage(): GetStateMessage {
+  return createSimpleMessage("GET_STATE");
+}
+
+export type GetStateResultMessage = MessageWithPayload<
+  "GET_STATE_RESULT",
+  {
+    state: DeployPaneState
+  }
+>;
+export function createGetStateResultMessage(
+  state: DeployPaneState
+): GetStateResultMessage {
+  return createMessageWithPayload("GET_STATE_RESULT", {
+    state
+  });
+}
+
+export type SaveStateMessage = MessageWithPayload<
+  "SAVE_STATE",
+  {
+    state: DeployPaneState
+  }
+>;
+export function createSaveStateMessage(
+  state: DeployPaneState
+): SaveStateMessage {
+  return createMessageWithPayload("SAVE_STATE", {
+    state
   });
 }

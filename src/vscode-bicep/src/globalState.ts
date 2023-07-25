@@ -5,6 +5,7 @@ import { Memento } from "vscode";
 
 export enum GlobalStateKeys {
   annualSurveyStateKey = "bicep.surveys.annualSurveyState",
+  deployPaneStateKey = "bicep.deployPane.configState",
 }
 
 export const globalStateKeys = {};

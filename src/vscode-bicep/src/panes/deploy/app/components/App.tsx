@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import { FC, useEffect, useState } from "react";
 import { VSCodeDivider, VSCodeButton, VSCodeDataGrid, VSCodeDataGridCell, VSCodeDataGridRow, VSCodeProgressRing, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { createGetDeploymentScopeMessage, createPickParametersFileMessage, createReadyMessage, Message } from "../../messages";
+import { createGetStateMessage, createPickParametersFileMessage, createReadyMessage, createSaveStateMessage, Message } from "../../messages";
 import { vscode } from "../vscode";
 import "./index.css";
 import { RestError } from "@azure/core-rest-pipeline";
@@ -11,6 +11,7 @@ import { AccessToken, TokenCredential } from "@azure/identity";
 import { ParamData, ParamDefinition, TemplateMetadata } from "./models";
 import { ParamInputBox } from "./ParamInputBox";
 import { getPreformattedJson, isFailed, isInProgress, parseParametersJson, parseTemplateJson } from "./utils";
+import { DeployPaneState } from "../../state";
 
 function parseError(e: any): ErrorResponse {
   if (e instanceof RestError) {
@@ -66,15 +67,25 @@ export const App : FC = () => {
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
   const [outputs, setOutputs] = useState<Record<string, any>>();
   const [result, setResult] = useState<DeployResult>();
+  const [state, setState] = useState<DeployPaneState>();
 
   function setParamValue(key: string, data: ParamData) {
     const replaced = Object.assign({}, paramValues, {[key]: data});
     setParamValues(replaced);
   }
 
+  function saveState(state: DeployPaneState) {
+    vscode.postMessage(createSaveStateMessage(state));
+    setState(state);
+  }
+
   const handleMessageEvent = (e: MessageEvent<Message>) => {
     const message = e.data;
     switch (message.kind) {
+      case "GET_STATE_RESULT": {
+        setState(message.state)
+        return;
+      }
       case "DEPLOYMENT_DATA": {
         vscode.setState(message.documentPath);
         const metadata = parseTemplateJson(message.templateJson);
@@ -103,11 +114,14 @@ export const App : FC = () => {
   useEffect(() => {
     window.addEventListener("message", handleMessageEvent);
     vscode.postMessage(createReadyMessage());
+    vscode.postMessage(createGetStateMessage());
     return () => window.removeEventListener("message", handleMessageEvent);
   }, []);
 
   function handleLoginClick() {
-    vscode.postMessage(createGetDeploymentScopeMessage());
+    saveState({ count: (state?.count ?? 0) + 1, });
+    //vscode.postMessage(createGetDeploymentScopeMessage());
+    return;
   }
 
   function handlePickParametersFileClick() {
@@ -240,6 +254,7 @@ export const App : FC = () => {
 
   return (
     <main id="webview-body">
+      { state?.count }
       <section className="form-section">
         <h2>Deployment Properties</h2>
         <div className="controls">

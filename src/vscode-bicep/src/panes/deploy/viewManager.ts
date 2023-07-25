@@ -20,6 +20,7 @@ export class DeployPaneViewManager
 
   constructor(
     private readonly context: IActionContext,
+    private readonly extensionContext: vscode.ExtensionContext,
     private readonly extensionUri: vscode.Uri,
     private readonly languageClient: LanguageClient,
     private readonly treeManager: TreeManager
@@ -63,6 +64,7 @@ export class DeployPaneViewManager
     this.registerView(
       documentUri,
       DeployPaneView.create(
+        this.extensionContext,
         this.context,
         this.treeManager,
         this.languageClient,
@@ -85,6 +87,7 @@ export class DeployPaneViewManager
     this.registerView(
       documentUri,
       DeployPaneView.revive(
+        this.extensionContext,
         this.context,
         this.treeManager,
         this.languageClient,

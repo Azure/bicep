@@ -150,6 +150,7 @@ export async function activate(
         const deployPaneViewManager = extension.register(
           new DeployPaneViewManager(
             actionContext,
+            extensionContext,
             extension.extensionUri,
             languageClient,
             treeManager

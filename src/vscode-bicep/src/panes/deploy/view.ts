@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
+import vscode, { ExtensionContext } from "vscode";
 import fse from "fs-extra";
 import path from "path";
 import crypto from "crypto";
@@ -8,6 +8,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 
 import {
   createDeploymentDataMessage,
+  createGetStateResultMessage,
   createNewDeploymentScopeMessage,
   createParametersDataMessage,
   Message,
@@ -19,6 +20,7 @@ import { getLogger } from "../../utils/logger";
 import { TreeManager } from "../../tree/TreeManager";
 import { AzResourceGroupTreeItem } from "../../tree/AzResourceGroupTreeItem";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
+import { GlobalStateKeys } from "../../globalState";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -29,6 +31,7 @@ export class DeployPaneView extends Disposable {
   private readyToRender = false;
 
   private constructor(
+    private readonly extensionContext: ExtensionContext,
     private readonly context: IActionContext,
     private readonly treeManager: TreeManager,
     private readonly languageClient: LanguageClient,
@@ -73,6 +76,7 @@ export class DeployPaneView extends Disposable {
   }
 
   public static create(
+    extensionContext: ExtensionContext,
     context: IActionContext,
     treeManager: TreeManager,
     languageClient: LanguageClient,
@@ -92,6 +96,7 @@ export class DeployPaneView extends Disposable {
     );
 
     return new DeployPaneView(
+      extensionContext,
       context,
       treeManager,
       languageClient,
@@ -102,6 +107,7 @@ export class DeployPaneView extends Disposable {
   }
 
   public static revive(
+    extensionContext: ExtensionContext,
     context: IActionContext,
     treeManager: TreeManager,
     languageClient: LanguageClient,
@@ -110,6 +116,7 @@ export class DeployPaneView extends Disposable {
     documentUri: vscode.Uri
   ): DeployPaneView {
     return new DeployPaneView(
+      extensionContext,
       context,
       treeManager,
       languageClient,
@@ -191,6 +198,25 @@ export class DeployPaneView extends Disposable {
       case "READY": {
         this.readyToRender = true;
         this.render();
+        return;
+      }
+      case "GET_STATE": {
+        const deployPaneState: any = this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
+        const filteredState = deployPaneState[this.documentUri.toString()];
+
+        console.log(`GET_STATE: ${JSON.stringify(deployPaneState)}`);
+
+        await this.webviewPanel.webview.postMessage(
+          createGetStateResultMessage(filteredState));
+        return;
+      }
+      case "SAVE_STATE": {
+        const deployPaneState: any = this.extensionContext.globalState.get(GlobalStateKeys.deployPaneStateKey) || {};
+        deployPaneState[this.documentUri.toString()] = message.state;
+
+        console.log(`SAVE_STATE: ${JSON.stringify(deployPaneState)}`);
+
+        this.extensionContext.globalState.update(GlobalStateKeys.deployPaneStateKey, deployPaneState);
         return;
       }
       case "GET_DEPLOYMENT_SCOPE": {
