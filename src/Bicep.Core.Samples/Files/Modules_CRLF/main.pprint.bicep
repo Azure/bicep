@@ -302,7 +302,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [
 
 // BEGIN: Key Vault Secret Reference
 
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 
@@ -314,7 +314,7 @@ module secureModule1 'child/secureParams.bicep' = {
   }
 }
 
-resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' = {
+resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
   scope: resourceGroup('otherGroup')
 }
@@ -351,7 +351,7 @@ var secrets = [
   }
 ]
 
-resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' = [
+resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [
   for vault in vaults: {
     name: vault.vaultName
     scope: resourceGroup(vault.vaultSub, vault.vaultRG)

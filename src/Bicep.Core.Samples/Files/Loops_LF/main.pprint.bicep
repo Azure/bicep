@@ -252,7 +252,7 @@ output indexedModulesName string = moduleCollectionWithSingleDependency[index].n
 output indexedModuleOutput string = moduleCollectionWithSingleDependency[index * 1].outputs.myOutput
 
 // resource collection
-resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' existing = [
   for account in accounts: {
     name: '${name}-existing-${account.name}'
   }

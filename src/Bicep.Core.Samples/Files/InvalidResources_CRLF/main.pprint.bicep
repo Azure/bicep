@@ -1004,7 +1004,7 @@ resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
   scope: cyclicRes
 }
 
-resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
+resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
   name: 'cyclicExistingRes'
   scope: cyclicExistingRes
 }
@@ -1344,7 +1344,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 }
 
 // parent property with 'existing' resource at different scope
-resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   scope: subscription()
   name: 'res1'
 }
@@ -1426,7 +1426,7 @@ resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1/res2'
 }
 
-resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
   name: 'existingResProperty'
   location: 'westeurope'
   properties: {}
@@ -1467,12 +1467,12 @@ resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' =
     scope: any(invalidExistingLocationRef)
   }
 
-resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' = {
+resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
   parent: any('')
   scope: any(false)
 }
 
-resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' = [
+resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [
   for thing in []: {
     parent: any('')
     scope: any(false)
@@ -1572,7 +1572,7 @@ var defaultLogAnalyticsWorkspace = {
   subscriptionId: subscription().subscriptionId
 }
 
-resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' = [
+resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [
   for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
     name: logAnalyticsWorkspace.name
     scope: resourceGroup(
