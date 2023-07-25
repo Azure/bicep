@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { FC } from "react";
-import { VSCodeButton, VSCodeProgressRing, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./index.css";
 import { ParamData } from "./models";
 import { useMessageHandler } from "./hooks/useMessageHandler";
@@ -11,6 +11,7 @@ import { DeploymentOutputsView } from "./sections/DeploymentOutputsView";
 import { ResultsView } from "./sections/ResultsView";
 import { ParametersInputView } from "./sections/ParametersInputView";
 import { useAzure } from "./hooks/useAzure";
+import { DeploymentScopeInputView } from "./sections/DeploymentScopeInputView";
 
 export const App: FC = () => {
   const messages = useMessageHandler();
@@ -18,12 +19,17 @@ export const App: FC = () => {
     scope: messages.scope,
     acquireAccessToken: messages.acquireAccessToken,
     templateMetadata: messages.templateMetadata,
-    paramValues: messages.paramValues,
+    parametersMetadata: messages.paramsMetadata,
+    showErrorDialog: messages.showErrorDialog
   });
 
   function setParamValue(key: string, data: ParamData) {
-    const replaced = Object.assign({}, messages.paramValues, { [key]: data });
-    messages.setParamValues(replaced);
+    const parameters = Object.assign({}, messages.paramsMetadata.parameters, { [key]: data });
+    messages.setParamsMetadata({ ...messages.paramsMetadata, parameters });
+  }
+
+  function handleEnableParamEditing() {
+    messages.setParamsMetadata({ ...messages.paramsMetadata, sourceFilePath: undefined });
   }
 
   const azureDisabled = !messages.scope || !messages.templateMetadata || azure.running;
@@ -31,19 +37,17 @@ export const App: FC = () => {
   return (
     <main id="webview-body">
       <section className="form-section">
-        <h2>Deployment Properties</h2>
-        <div className="controls">
-          <VSCodeButton onClick={messages.pickScope} appearance={!messages.scope ? "primary" : "secondary"}>Pick Scope</VSCodeButton>
-          <VSCodeButton onClick={messages.pickParamsFile} appearance="secondary">Pick Parameters File</VSCodeButton>
-        </div>
-        <VSCodeTextField value={messages.scope?.subscriptionId} disabled={true}>
-          Subscription Id
-        </VSCodeTextField>
-        <VSCodeTextField value={messages.scope?.resourceGroup} disabled={true}>
-          Resource Group
-        </VSCodeTextField>
+        <DeploymentScopeInputView
+          scope={messages.scope}
+          onPickScope={messages.pickScope} />
 
-        <ParametersInputView params={messages.paramValues} template={messages.templateMetadata} disabled={azure.running} onValueChange={setParamValue}/>
+        <ParametersInputView
+          parameters={messages.paramsMetadata}
+          template={messages.templateMetadata}
+          disabled={azure.running}
+          onValueChange={setParamValue}
+          onEnableEditing={handleEnableParamEditing}
+          onPickParametersFile={messages.pickParamsFile} />
 
         <div className="controls">
           <VSCodeButton onClick={azure.deploy} disabled={azureDisabled}>Deploy</VSCodeButton>

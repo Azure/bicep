@@ -6,10 +6,10 @@ import { ParamData, ParamDefinition, TemplateMetadata } from "./models";
 export function parseTemplateJson(json: string): TemplateMetadata {
   const template = JSON.parse(json);
 
-  const parameters: ParamDefinition[] = [];
+  const parameterDefinitions: ParamDefinition[] = [];
   for (const key in template.parameters) {
     const parameter = template.parameters[key];
-    parameters.push({
+    parameterDefinitions.push({
       name: key,
       type: parameter.type,
       defaultValue: parameter.defaultValue,
@@ -18,7 +18,7 @@ export function parseTemplateJson(json: string): TemplateMetadata {
 
   return {
     template,
-    parameters,
+    parameterDefinitions,
   };
 }
 

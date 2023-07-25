@@ -67,22 +67,34 @@ export function createSaveStateMessage(
   });
 }
 
-export type GetAccessTokenMessage = SimpleMessage<"GET_ACCESS_TOKEN">;
-export function createGetAccessTokenMessage(): GetAccessTokenMessage {
-  return createSimpleMessage("GET_ACCESS_TOKEN");
+export type GetAccessTokenMessage = MessageWithPayload<
+  "GET_ACCESS_TOKEN",
+  {
+    scope: DeploymentScope;
+  }
+>;
+export function createGetAccessTokenMessage(
+  scope: DeploymentScope,
+): GetAccessTokenMessage {
+  return createMessageWithPayload("GET_ACCESS_TOKEN", {
+    scope,
+  });
 }
 
 export type GetAccessTokenResultMessage = MessageWithPayload<
   "GET_ACCESS_TOKEN_RESULT",
   {
-    accessToken: AccessToken
+    accessToken?: AccessToken,
+    error?: any,
   }
 >;
 export function createGetAccessTokenResultMessage(
-  accessToken: AccessToken
+  accessToken?: AccessToken,
+  error?: any,
 ): GetAccessTokenResultMessage {
   return createMessageWithPayload("GET_ACCESS_TOKEN_RESULT", {
-    accessToken
+    accessToken,
+    error,
   });
 }
 
@@ -127,6 +139,23 @@ export function createGetDeploymentScopeResultMessage(
   });
 }
 
+export type ShowUserErrorDialogMessage = MessageWithPayload<
+  "SHOW_USER_ERROR_DIALOG",
+  {
+    callbackId: string;
+    error: any;
+  }
+>;
+export function createShowUserErrorDialogMessage(
+  callbackId: string,
+  error: any
+): ShowUserErrorDialogMessage {
+  return createMessageWithPayload("SHOW_USER_ERROR_DIALOG", {
+    callbackId,
+    error,
+  });
+}
+
 export type VscodeMessage = 
   | DeploymentDataMessage
   | GetStateResultMessage
@@ -140,7 +169,8 @@ export type ViewMessage =
   | SaveStateMessage
   | PickParamsFileMessage
   | GetAccessTokenMessage
-  | GetDeploymentScopeMessage;
+  | GetDeploymentScopeMessage
+  | ShowUserErrorDialogMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };

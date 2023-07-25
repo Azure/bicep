@@ -1,12 +1,9 @@
-// Copyright (c) Microsoft Corporation.
-
 import { ErrorResponse } from "@azure/arm-resources";
 
-// Licensed under the MIT License.
 export interface TemplateMetadata {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template: any;
-  parameters: ParamDefinition[];
+  parameterDefinitions: ParamDefinition[];
 }
 
 export interface ParamDefinition {
@@ -15,12 +12,15 @@ export interface ParamDefinition {
   defaultValue?: string;
 }
 
+export interface ParametersMetadata {
+  sourceFilePath?: string;
+  parameters: Record<string, ParamData>;
+}
+
 export interface ParamData {
   useDefault: boolean;
   value: string;
 }
-
-export type ParamsData = Record<string, ParamData>;
 
 export interface DeployResult {
   success: boolean;

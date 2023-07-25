@@ -1,38 +1,47 @@
+import { VSCodeTextField, VSCodeCheckbox, VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
-import { ParamData, ParamDefinition, ParamsData, TemplateMetadata } from "../models";
+import { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../models";
 import { ParamInputBox } from "../ParamInputBox";
 
 interface ParametersInputViewProps {
   template?: TemplateMetadata;
-  params?: ParamsData;
+  parameters?: ParametersMetadata;
   disabled: boolean;
   onValueChange: (name: string, data: ParamData) => void;
+  onEnableEditing: () => void;
+  onPickParametersFile: () => void;
 }
 
-export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, params, disabled, onValueChange }) => {
-  if (!template || !params) {
+export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, parameters, disabled, onValueChange, onEnableEditing, onPickParametersFile }) => {
+  if (!template || !parameters) {
     return null;
   }
 
-  const { parameters } = template;
+  const { parameterDefinitions } = template;
+  const { sourceFilePath } = parameters;
 
   return (
-    <section>
-      {parameters.map(definition => (
+    <section className="form-section">
+      <VSCodeDivider />
+      <h2>Parameters</h2>
+      {sourceFilePath ? <VSCodeTextField value={sourceFilePath} disabled={true}>File Path</VSCodeTextField> : null}
+      {sourceFilePath && !sourceFilePath.endsWith('.bicepparam') ? <VSCodeCheckbox onChange={onEnableEditing} checked={false}>Edit Parameters?</VSCodeCheckbox> : null}
+      {!sourceFilePath ? <VSCodeButton onClick={onPickParametersFile} appearance="secondary">Pick Parameters File</VSCodeButton> : null}
+      {!sourceFilePath ? parameterDefinitions.map(definition => (
         <ParamInputBox
           key={definition.name}
           definition={definition}
-          data={getParamData(params, definition)}
+          data={getParamData(parameters, definition)}
           disabled={disabled}
           onChangeData={data => onValueChange(definition.name, data)}
         />
-      ))}
+      )) : null}
     </section>
   );
 };
 
-function getParamData(params: ParamsData, definition: ParamDefinition): ParamData {
-  return params[definition.name] ?? {
+function getParamData(params: ParametersMetadata, definition: ParamDefinition): ParamData {
+  return params.parameters[definition.name] ?? {
     value: definition.defaultValue ?? '',
     useDefault: definition.defaultValue !== undefined,
   };

@@ -44,3 +44,13 @@ export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(
     },
   );
 }
+
+export function raiseErrorWithoutTelemetry(callbackId: string, error: any) {
+  callWithTelemetryAndErrorHandling<void>(
+    callbackId,
+    context => {
+      context.telemetry.suppressAll = true;
+
+      return new Promise((_, reject) => reject(error));
+    });
+}

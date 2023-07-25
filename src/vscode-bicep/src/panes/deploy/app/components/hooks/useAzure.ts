@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { RestError } from "@azure/core-rest-pipeline";
-import { DeployResult, DeploymentScope, ParamData, ParamsData, TemplateMetadata } from '../models';
+import { DeployResult, DeploymentScope, ParamData, ParametersMetadata, TemplateMetadata } from '../models';
 import { AccessToken, TokenCredential } from '@azure/identity';
 import { Deployment, DeploymentOperation, ErrorResponse, ResourceManagementClient, WhatIfChange } from "@azure/arm-resources";
 
 export interface UseAzureProps {
   scope?: DeploymentScope;
   templateMetadata?: TemplateMetadata;
-  paramValues: ParamsData;
+  parametersMetadata: ParametersMetadata;
   acquireAccessToken: () => Promise<AccessToken>;
+  showErrorDialog: (callbackId: string, error: any) => void;
 }
 
 export function useAzure(props: UseAzureProps) {
-  const { scope, templateMetadata, paramValues, acquireAccessToken } = props;
+  const { scope, templateMetadata, parametersMetadata, acquireAccessToken, showErrorDialog } = props;
   const deploymentName = 'bicep-deploy';
   const [operations, setOperations] = useState<DeploymentOperation[]>();
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
@@ -25,7 +26,11 @@ export function useAzure(props: UseAzureProps) {
       getToken: async () => accessToken,
     };
   
-    return new ResourceManagementClient(tokenProvider, scope.subscriptionId);
+    return new ResourceManagementClient(tokenProvider, scope.subscriptionId, {
+      userAgentOptions: {
+        userAgentPrefix: 'bicepdeploypane'
+      },
+    });
   }
 
   async function doDeploymentOperation(scope: DeploymentScope, operation: (armClient: ResourceManagementClient, deployment: Deployment) => Promise<void>) {
@@ -37,11 +42,13 @@ export function useAzure(props: UseAzureProps) {
       clearState();
       setRunning(true);
   
-      const deployment = getDeploymentProperties(templateMetadata, paramValues);
+      const deployment = getDeploymentProperties(templateMetadata, parametersMetadata.parameters);
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
       await operation(armClient, deployment);
-    } finally {
+    } catch (e) {
+      showErrorDialog('doDeploymentOperation', e);
+    }  finally {
       setRunning(false);
     }
   }
@@ -154,7 +161,7 @@ export function useAzure(props: UseAzureProps) {
 
 function parseError(e: any): ErrorResponse {
   if (e instanceof RestError) {
-    return e.details as ErrorResponse;
+    return (e.details as any).error as ErrorResponse;
   }
 
   return {

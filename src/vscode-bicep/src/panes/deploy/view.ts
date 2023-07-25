@@ -22,6 +22,7 @@ import { TreeManager } from "../../tree/TreeManager";
 import { AzResourceGroupTreeItem } from "../../tree/AzResourceGroupTreeItem";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { GlobalStateKeys } from "../../globalState";
+import { raiseErrorWithoutTelemetry } from "../../utils/telemetry";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -195,7 +196,6 @@ export class DeployPaneView extends Disposable {
   }
 
   private async handleDidReceiveMessage(message: ViewMessage) {
-    console.log(`vscode received: ${JSON.stringify(message)}`);
     switch (message.kind) {
       case "READY": {
         this.readyToRender = true;
@@ -236,8 +236,22 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "GET_ACCESS_TOKEN": {
-        // TODO: figure out how to allow webview to refresh this token
-        return;
+        try {
+          const rgId = `/subscriptions/${message.scope.subscriptionId}/resourceGroups/${message.scope.resourceGroup}`;
+          const rgTreeItem = await this.treeManager.azResourceGroupTreeItem.findTreeItem(rgId, this.context);
+          if (!rgTreeItem) {
+            throw `Failed to find authenticated context for scope ${rgId}`;
+          }
+
+          const accessToken = await rgTreeItem.subscription.credentials.getToken();  
+          await this.webviewPanel.webview.postMessage(
+            createGetAccessTokenResultMessage(accessToken));
+        } catch (error) {
+          await this.webviewPanel.webview.postMessage(
+            createGetAccessTokenResultMessage(undefined, error));
+        }
+
+        return;  
       }
       case "GET_DEPLOYMENT_SCOPE": {
         const rgTreeItem =
@@ -251,12 +265,10 @@ export class DeployPaneView extends Disposable {
             resourceGroup: rgTreeItem.label,
           }));
 
-        // TODO: figure out have the access token be fetched on-demand
-        const accessToken = await rgTreeItem.subscription.credentials.getToken();
-        await this.webviewPanel.webview.postMessage(
-          createGetAccessTokenResultMessage(accessToken));
-
         return;
+      }
+      case "SHOW_USER_ERROR_DIALOG": {
+        raiseErrorWithoutTelemetry(message.callbackId, message.error);
       }
     }
   }
