@@ -16,8 +16,6 @@ namespace Bicep.Core.Emit.CompileTimeImports;
 
 internal class ArmTypeToExpressionConverter
 {
-    private const string ArmTypeRefPrefix = "#/definitions/";
-
     private readonly SchemaValidationContext context;
     private readonly ImmutableDictionary<string, string> typePointerToSymbolNameMapping;
     private readonly SyntaxBase? sourceSyntax;
@@ -30,20 +28,7 @@ internal class ArmTypeToExpressionConverter
     }
 
     internal DeclaredTypeExpression ConvertToExpression(string convertedSymbolName, string typePointer)
-        => ConvertToExpression(convertedSymbolName, DerefArmType(typePointer));
-
-    private ITemplateSchemaNode DerefArmType(string typePointer)
-    {
-        // TODO make LocalSchemaRefResolver in Azure.Deployments.Templates public
-        if (!typePointer.StartsWith(ArmTypeRefPrefix) ||
-            typePointer.Substring(ArmTypeRefPrefix.Length).Contains('/') ||
-            !context.Definitions.TryGetValue(typePointer.Substring(ArmTypeRefPrefix.Length), out var typeDefinition))
-        {
-            throw new InvalidOperationException($"Invalid ARM template type reference ({typePointer}) encountered");
-        }
-
-        return typeDefinition;
-    }
+        => ConvertToExpression(convertedSymbolName, ArmTemplateHelpers.DerefArmType(context, typePointer));
 
     private DeclaredTypeExpression ConvertToExpression(string convertedSymbolName, ITemplateSchemaNode schemaNode)
     {
