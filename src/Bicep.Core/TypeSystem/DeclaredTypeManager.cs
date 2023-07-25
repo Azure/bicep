@@ -851,7 +851,7 @@ namespace Bicep.Core.TypeSystem
                 else if (memberTypeEvaluated is DiscriminatedObjectType memberDiscriminatedObjectType)
                 {
                     // validate it has the same discriminator property
-                    if (memberDiscriminatedObjectType.DiscriminatorProperty.Name != discriminatorPropertyName)
+                    if (!string.Equals(discriminatorPropertyName, memberDiscriminatedObjectType.DiscriminatorProperty.Name, LanguageConstants.IdentifierComparison))
                     {
                         errorDiagnostics.Add(
                             DiagnosticBuilder.ForPosition(memberSyntax)
