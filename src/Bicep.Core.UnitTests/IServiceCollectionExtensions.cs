@@ -12,7 +12,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
@@ -38,7 +37,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-        .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
+        .AddSingleton<IArtifactDispatcher, ArtifactDispatcher>()
         .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
@@ -76,8 +75,8 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithFeatureProviderFactory(this IServiceCollection services, IFeatureProviderFactory featureProviderFactory)
         => Register(services, featureProviderFactory);
 
-    public static IServiceCollection WithModuleDispatcher(this IServiceCollection services, IModuleDispatcher moduleDispatcher)
-        => Register(services, moduleDispatcher);
+    public static IServiceCollection WithArtifactDispatcher(this IServiceCollection services, IArtifactDispatcher artifactDispatcher)
+        => Register(services, artifactDispatcher);
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);

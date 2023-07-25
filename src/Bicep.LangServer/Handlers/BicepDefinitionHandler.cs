@@ -37,20 +37,20 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly IFileResolver fileResolver;
         private readonly ILanguageServerFacade languageServer;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
             ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher) : base()
+            IArtifactDispatcher artifactDispatcher) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
             this.languageServer = languageServer;
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
-                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
+                 && this.artifactDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(

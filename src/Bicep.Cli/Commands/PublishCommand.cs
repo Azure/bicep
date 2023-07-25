@@ -9,10 +9,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using System;
-using System.Data.Common;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
@@ -24,7 +22,7 @@ namespace Bicep.Cli.Commands
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter compilationWriter;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
         private readonly IConfigurationManager configurationManager;
         private readonly IFileSystem fileSystem;
 
@@ -32,14 +30,14 @@ namespace Bicep.Cli.Commands
             IDiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter compilationWriter,
-            IModuleDispatcher moduleDispatcher,
+            IArtifactDispatcher artifactDispatcher,
             IConfigurationManager configurationManager,
             IFileSystem fileSystem)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compilationService = compilationService;
             this.compilationWriter = compilationWriter;
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
             this.configurationManager = configurationManager;
             this.fileSystem = fileSystem;
         }
@@ -83,11 +81,11 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && await this.moduleDispatcher.CheckModuleExists(target))
+                if (!overwriteIfExists && await this.artifactDispatcher.CheckModuleExists(target))
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.moduleDispatcher.PublishModule(target, stream, documentationUri);
+                await this.artifactDispatcher.PublishModule(target, stream, documentationUri);
             }
             catch (ExternalModuleException exception)
             {
@@ -97,7 +95,7 @@ namespace Bicep.Cli.Commands
 
         private ModuleReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
         {
-            if (!this.moduleDispatcher.TryGetModuleReference(targetModuleReference, targetModuleUri, out var moduleReference, out var failureBuilder))
+            if (!this.artifactDispatcher.TryGetModuleReference(targetModuleReference, targetModuleUri, out var moduleReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
@@ -105,7 +103,7 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if (!this.moduleDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))
+            if (!this.artifactDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))
             {
                 throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
             }

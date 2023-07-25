@@ -64,7 +64,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IModuleDispatcher>();
+                .Construct<IArtifactDispatcher>();
 
             var clients = new List<(Uri registryUri, string repository)>();
 
@@ -84,17 +84,17 @@ namespace Bicep.Core.Samples
             return CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
-        public static (Mock<IContainerRegistryClientFactory> factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (Uri registryUri, string repository)[] clients)
+        public static (Mock<IContainerRegistryClientFactory> factoryMock, ImmutableDictionary<(Uri, string), FakeRegistryClient> blobClientMocks) CreateMockRegistryClients(params (Uri registryUri, string repository)[] clients)
         {
-            var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
+            var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), FakeRegistryClient>();
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IModuleDispatcher>();
+                .Construct<IArtifactDispatcher>();
 
             foreach (var client in clients)
             {
-                clientsBuilder.TryAdd((client.registryUri, client.repository), new MockRegistryBlobClient());
+                clientsBuilder.TryAdd((client.registryUri, client.repository), new FakeRegistryClient());
             }
 
             var repoToClient = clientsBuilder.ToImmutable();
@@ -133,7 +133,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IModuleDispatcher>();
+                .Construct<IArtifactDispatcher>();
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
@@ -173,7 +173,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IModuleDispatcher>();
+                .Construct<IArtifactDispatcher>();
 
             var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri(), out var @ref, out _) ? @ref
                 : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");

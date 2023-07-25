@@ -35,7 +35,7 @@ public static class IDependencyHelperExtensions
     public static SourceFileGrouping BuildSourceFileGrouping(this IDependencyHelper helper, Uri entryFileUri, bool forceModulesRestore = false)
         => SourceFileGroupingBuilder.Build(
             helper.Construct<IFileResolver>(),
-            helper.Construct<IModuleDispatcher>(),
+            helper.Construct<IArtifactDispatcher>(),
             helper.Construct<IWorkspace>(),
             entryFileUri,
             forceModulesRestore);

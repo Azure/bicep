@@ -35,7 +35,7 @@ namespace Bicep.LangServer.UnitTests
         {
             const string ModuleRefStr = "hello";
 
-            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var dispatcher = StrictMock.Of<IArtifactDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
             ModuleReference? @ref = null;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<Uri>(), out @ref, out failureBuilder)).Returns(false);
@@ -55,7 +55,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public async Task LocalModuleReferenceShouldThrow()
         {
-            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var dispatcher = StrictMock.Of<IArtifactDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
 
             const string ModuleRefStr = "./hello.bicep";
@@ -80,7 +80,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public async Task ExternalModuleNotInCacheShouldThrow()
         {
-            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var dispatcher = StrictMock.Of<IArtifactDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public async Task ExternalModuleFailedEntryPointShouldThrow()
         {
-            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var dispatcher = StrictMock.Of<IArtifactDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
@@ -143,7 +143,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public async Task FailureToReadEntryPointShouldThrow()
         {
-            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var dispatcher = StrictMock.Of<IArtifactDispatcher>();
 
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
@@ -179,7 +179,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public async Task RestoredValidModuleShouldReturnSuccessfully()
         {
-            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var dispatcher = StrictMock.Of<IArtifactDispatcher>();
 
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;

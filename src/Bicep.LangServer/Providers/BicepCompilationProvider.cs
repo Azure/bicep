@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -26,33 +25,60 @@ namespace Bicep.LanguageServer.Providers
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
 
-        public BicepCompilationProvider(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IBicepAnalyzer bicepAnalyzer)
+        public BicepCompilationProvider(
+            IFeatureProviderFactory featureProviderFactory,
+            INamespaceProvider namespaceProvider,
+            IFileResolver fileResolver,
+            IArtifactDispatcher artifactDispatcher,
+            IConfigurationManager configurationManager,
+            IBicepAnalyzer bicepAnalyzer)
         {
             this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
             this.configurationManager = configurationManager;
             this.bicepAnalyzer = bicepAnalyzer;
         }
 
-        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        public CompilationContext Create(
+            IReadOnlyWorkspace workspace,
+            DocumentUri documentUri,
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri());
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(
+                fileResolver,
+                artifactDispatcher,
+                workspace,
+                documentUri.ToUri());
             return this.CreateContext(sourceFileGrouping, modelLookup);
         }
 
-        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        public CompilationContext Update(
+            IReadOnlyWorkspace workspace,
+            CompilationContext current,
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
+                artifactDispatcher,
+                workspace,
+                current.Compilation.SourceFileGrouping);
             return this.CreateContext(sourceFileGrouping, modelLookup);
         }
 
-        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        private CompilationContext CreateContext(
+            SourceFileGrouping syntaxTreeGrouping,
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var compilation = new Compilation(featureProviderFactory, namespaceProvider, syntaxTreeGrouping, configurationManager, bicepAnalyzer, modelLookup);
+            var compilation = new Compilation(
+                featureProviderFactory,
+                namespaceProvider,
+                syntaxTreeGrouping,
+                configurationManager,
+                bicepAnalyzer,
+                modelLookup);
             return new CompilationContext(compilation);
         }
     }

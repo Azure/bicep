@@ -13,19 +13,19 @@ using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class MockRegistryBlobClientExtensions
+    public static class FakeRegistryBlobClientExtensions
     {
-        public static MockRegistryAssertions Should(this MockRegistryBlobClient client) => new MockRegistryAssertions(client);
+        public static MockRegistryAssertions Should(this FakeRegistryClient client) => new MockRegistryAssertions(client);
     }
 
-    public class MockRegistryAssertions : ReferenceTypeAssertions<MockRegistryBlobClient, MockRegistryAssertions>
+    public class MockRegistryAssertions : ReferenceTypeAssertions<FakeRegistryClient, MockRegistryAssertions>
     {
-        public MockRegistryAssertions(MockRegistryBlobClient client)
+        public MockRegistryAssertions(FakeRegistryClient client)
             : base(client)
         {
         }
 
-        protected override string Identifier => nameof(MockRegistryBlobClient);
+        protected override string Identifier => nameof(FakeRegistryClient);
 
         public AndConstraint<MockRegistryAssertions> HaveModule(string tag, Stream expectedModuleContent)
         {
@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 this.Subject.Manifests.Should().ContainKey(manifestDigest, $"tag '{tag}' resolves to digest '{manifestDigest}' that should exist");
 
                 var manifestBytes = this.Subject.Manifests[manifestDigest];
-                using var manifestStream = MockRegistryBlobClient.WriteStream(manifestBytes);
+                using var manifestStream = FakeRegistryClient.WriteStream(manifestBytes);
                 var manifest = OciSerialization.Deserialize<OciManifest>(manifestStream);
 
                 manifest.ArtifactType.Should().Be("application/vnd.ms.bicep.module.artifact", "artifact type should be correct");
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 var layerBytes = this.Subject.Blobs[layer.Digest];
                 ((long)layerBytes.Length).Should().Be(layer.Size);
 
-                var actual = MockRegistryBlobClient.WriteStream(layerBytes).FromJsonStream<JToken>();
+                var actual = FakeRegistryClient.WriteStream(layerBytes).FromJsonStream<JToken>();
                 var expected = expectedModuleContent.FromJsonStream<JToken>();
 
                 actual.Should().DeepEqual(expected, "module content should match");

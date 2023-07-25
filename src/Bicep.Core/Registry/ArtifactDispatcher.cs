@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
-    public class ModuleDispatcher : IModuleDispatcher
+    public class ArtifactDispatcher : IArtifactDispatcher
     {
         private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
 
@@ -27,7 +27,7 @@ namespace Bicep.Core.Registry
 
         private readonly IConfigurationManager configurationManager;
 
-        public ModuleDispatcher(IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public ArtifactDispatcher(IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
         {
             this.registryProvider = registryProvider;
             this.configurationManager = configurationManager;
@@ -201,7 +201,7 @@ namespace Bicep.Core.Registry
 
             return true;
         }
-
+        
         public async Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri)
         {
             var registry = this.GetRegistry(moduleReference);

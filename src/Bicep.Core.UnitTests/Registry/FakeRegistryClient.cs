@@ -18,9 +18,9 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockRegistryBlobClient : ContainerRegistryContentClient
+    public class FakeRegistryClient : ContainerRegistryContentClient
     {
-        public MockRegistryBlobClient() : base()
+        public FakeRegistryClient() : base()
         {
             // ensure we call the base parameterless constructor to prevent outgoing calls
         }

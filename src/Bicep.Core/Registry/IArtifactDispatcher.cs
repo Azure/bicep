@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
-    public interface IModuleDispatcher
+    public interface IArtifactDispatcher
     {
         ImmutableArray<string> AvailableSchemes(Uri parentModuleUri);
 

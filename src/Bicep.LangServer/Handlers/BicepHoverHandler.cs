@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
         private readonly IModuleRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
 
@@ -32,11 +32,11 @@ namespace Bicep.LanguageServer.Handlers
         //actual limit for hover in VS code is 100,000 characters.
 
         public BicepHoverHandler(
-            IModuleDispatcher moduleDispatcher,
+            IArtifactDispatcher artifactDispatcher,
             IModuleRegistryProvider moduleRegistryProvider,
             ISymbolResolver symbolResolver)
         {
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
             this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
         }
@@ -49,7 +49,7 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            var markdown = await GetMarkdown(request, result, this.moduleDispatcher, this.moduleRegistryProvider);
+            var markdown = await GetMarkdown(request, result, this.artifactDispatcher, this.moduleRegistryProvider);
             if (markdown == null)
             {
                 return null;
@@ -65,7 +65,9 @@ namespace Bicep.LanguageServer.Handlers
         private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
             if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
-                DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax) is { } description)
+                DescriptionHelper.TryGetFromDecorator(
+                    result.Context.Compilation.GetEntrypointSemanticModel(), 
+                    decorableSyntax) is { } description)
             {
                 return description;
             }
@@ -76,7 +78,7 @@ namespace Bicep.LanguageServer.Handlers
         private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
-            IModuleDispatcher moduleDispatcher,
+            IArtifactDispatcher artifactDispatcher,
             IModuleRegistryProvider moduleRegistryProvider)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
@@ -115,7 +117,7 @@ namespace Bicep.LanguageServer.Handlers
                         description is { } ? $"{description}\n{docsSuffix}" : docsSuffix));
 
                 case ModuleSymbol module:
-                    return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
+                    return await GetModuleMarkdown(request, result, artifactDispatcher, moduleRegistryProvider, module);
 
                 case OutputSymbol output:
                     return AsMarkdown(CodeBlockWithDescription(
@@ -152,7 +154,12 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(HoverParams request, SymbolResolutionResult result, IModuleDispatcher moduleDispatcher, IModuleRegistryProvider moduleRegistryProvider, ModuleSymbol module)
+        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
+            HoverParams request, 
+            SymbolResolutionResult result, 
+            IArtifactDispatcher artifactDispatcher, 
+            IModuleRegistryProvider moduleRegistryProvider, 
+            ModuleSymbol module)
         {
             var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _) ?? string.Empty;
             var descriptionLines = new List<string?>();
@@ -163,7 +170,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (registries != null &&
                 registries.Any() &&
-                moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                artifactDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
                 moduleReference is not null)
             {
                 var registry = registries.FirstOrDefault(r => r.Scheme == moduleReference.Scheme);

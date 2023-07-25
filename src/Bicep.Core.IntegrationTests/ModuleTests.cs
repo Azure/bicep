@@ -206,7 +206,7 @@ module main 'main.bicep' = {
             var fileUri = new Uri("file:///path/to/main.bicep");
 
             var mockFileResolver = Repository.Create<IFileResolver>();
-            var mockDispatcher = Repository.Create<IModuleDispatcher>();
+            var mockDispatcher = Repository.Create<IArtifactDispatcher>();
             SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
             Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher.Object, new Workspace(), fileUri);

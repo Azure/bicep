@@ -21,14 +21,14 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
         private readonly IWorkspace workspace;
 
-        public BicepForceModulesRestoreCommandHandler(ISerializer serializer, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace)
+        public BicepForceModulesRestoreCommandHandler(ISerializer serializer, IFileResolver fileResolver, IArtifactDispatcher artifactDispatcher, IWorkspace workspace)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
             this.workspace = workspace;
         }
 
@@ -49,14 +49,14 @@ namespace Bicep.LanguageServer.Handlers
         {
             var fileUri = documentUri.ToUri();
 
-            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri);
+            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.artifactDispatcher, workspace, fileUri);
 
             // Ignore modules to restore logic, include all modules to be restored
             var modulesToRestore = sourceFileGrouping.UriResultByModule
                 .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore)
+            var modulesToRestoreReferences = this.artifactDispatcher.GetValidModuleReferences(modulesToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
@@ -66,13 +66,13 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreModules(modulesToRestoreReferences, forceModulesRestore: true);
+            await this.artifactDispatcher.RestoreModules(modulesToRestoreReferences, forceModulesRestore: true);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
             foreach (var module in modulesToRestoreReferences)
             {
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(module, out _);
+                var restoreStatus = this.artifactDispatcher.GetModuleRestoreStatus(module, out _);
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 

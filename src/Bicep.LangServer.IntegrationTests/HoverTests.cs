@@ -943,7 +943,7 @@ param foo|bar = true
             var compilationContext = new CompilationContext(compilation);
             var compilationManager = GetBicepCompilationManager(documentUri, compilationContext);
 
-            var moduleDispatcher = GetModuleDispatcher(
+            var artifactDispatcher = GetArtifactDispatcher(
                 compilationContext.ProgramSyntax,
                 parentModuleUri,
                 bicepFileContents,
@@ -955,7 +955,13 @@ param foo|bar = true
                 tag);
 
             SharedLanguageHelperManager sharedLanguageHelperManager = new();
-            sharedLanguageHelperManager.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureProviderFactory(featureProviderFactory).WithModuleDispatcher(moduleDispatcher).WithCompilationManager(compilationManager)));
+            sharedLanguageHelperManager.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    TestContext, 
+                    services => services
+                        .WithFeatureProviderFactory(featureProviderFactory)
+                        .WithArtifactDispatcher(artifactDispatcher)
+                        .WithCompilationManager(compilationManager)));
 
             var multiFileLanguageServerHelper = await sharedLanguageHelperManager.GetAsync();
             return multiFileLanguageServerHelper.Client;
@@ -980,7 +986,7 @@ param foo|bar = true
             return featureProviderFactory.Object;
         }
 
-        private IModuleDispatcher GetModuleDispatcher(
+        private IArtifactDispatcher GetArtifactDispatcher(
             ProgramSyntax programSyntax,
             Uri parentModuleUri,
             string bicepFileContents,
@@ -1005,10 +1011,10 @@ param foo|bar = true
                 tag);
 
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri, out ociArtifactModuleReference, out failureBuilder)).Returns(true);
+            var artifactDispatcher = StrictMock.Of<IArtifactDispatcher>();
+            artifactDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri, out ociArtifactModuleReference, out failureBuilder)).Returns(true);
 
-            return moduleDispatcher.Object;
+            return artifactDispatcher.Object;
         }
 
         private static void ValidateHover(Hover? hover, Symbol symbol)

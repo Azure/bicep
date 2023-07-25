@@ -20,7 +20,7 @@ namespace Bicep.Core.Workspaces
     public class SourceFileGroupingBuilder
     {
         private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, FileResolutionResult> fileResultByUri;
@@ -28,38 +28,38 @@ namespace Bicep.Core.Workspaces
 
         private readonly bool forceModulesRestore;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceModulesRestore = false)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IArtifactDispatcher artifactDispatcher, IReadOnlyWorkspace workspace, bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
             this.workspace = workspace;
             this.uriResultByModule = new();
             this.fileResultByUri = new();
             this.forceModulesRestore = forceModulesRestore;
         }
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IArtifactDispatcher artifactDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
             this.workspace = workspace;
             this.uriResultByModule = new(current.UriResultByModule.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
             this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.File is not null).ToDictionary(x => x.Key, x => x.Value);
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IArtifactDispatcher artifactDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, bool forceModulesRestore = false)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, forceModulesRestore);
+            var builder = new SourceFileGroupingBuilder(fileResolver, artifactDispatcher, workspace, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IArtifactDispatcher artifactDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
-            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
+            var builder = new SourceFileGroupingBuilder(current.FileResolver, artifactDispatcher, workspace, current);
             var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
-            var modulesToRestore = current.GetModulesToRestore().ToHashSet();
+            var modulesToRestore = current.GetModulesToRestore().OfType<ModuleSourceResolutionInfo>().ToHashSet();
 
             foreach (var (module, sourceFile) in modulesToRestore)
             {
@@ -212,13 +212,13 @@ namespace Bicep.Core.Workspaces
 
         private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, ModuleDeclarationSyntax module)
         {
-            if (!moduleDispatcher.TryGetModuleReference(module, parentFileUri, out var moduleReference, out var referenceResolutionError))
+            if (!artifactDispatcher.TryGetModuleReference(module, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
                 // module reference is not valid
                 return (null, new(module, null, false, referenceResolutionError));
             }
 
-            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            if (!artifactDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
             {
                 return (moduleReference, new(module, null, false, moduleGetPathFailureBuilder));
             }
@@ -229,7 +229,7 @@ namespace Bicep.Core.Workspaces
                 return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
             }
 
-            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+            var restoreStatus = artifactDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ModuleRestoreStatus.Unknown:
@@ -249,13 +249,13 @@ namespace Bicep.Core.Workspaces
         
         private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, TestDeclarationSyntax module)
         {
-            if (!moduleDispatcher.TryGetModuleReference(module, parentFileUri, out var moduleReference, out var referenceResolutionError))
+            if (!artifactDispatcher.TryGetModuleReference(module, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
                 // module reference is not valid
                 return (null, new(module, null, false, referenceResolutionError));
             }
 
-            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            if (!artifactDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
             {
                 return (moduleReference, new(module, null, false, moduleGetPathFailureBuilder));
             }
@@ -266,7 +266,7 @@ namespace Bicep.Core.Workspaces
                 return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
             }
 
-            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+            var restoreStatus = artifactDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ModuleRestoreStatus.Unknown:

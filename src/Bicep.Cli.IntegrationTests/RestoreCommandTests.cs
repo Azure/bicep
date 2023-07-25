@@ -140,7 +140,7 @@ namespace Bicep.Cli.IntegrationTests
             var repository = "hello/there";
             var dataSet = DataSets.Empty;
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
@@ -206,7 +206,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
@@ -325,7 +325,7 @@ output o1 string = '${p1}${p2}'");
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new MockRegistryBlobClient();
+            var client = new FakeRegistryClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);

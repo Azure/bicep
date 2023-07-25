@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Registry
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IArtifactDispatcher artifactDispatcher;
 
         private readonly Queue<QueueItem> queue = new();
 
@@ -35,9 +35,9 @@ namespace Bicep.LanguageServer.Registry
         private bool disposed = false;
         private Task? consumerTask;
 
-        public ModuleRestoreScheduler(IModuleDispatcher moduleDispatcher)
+        public ModuleRestoreScheduler(IArtifactDispatcher artifactDispatcher)
         {
-            this.moduleDispatcher = moduleDispatcher;
+            this.artifactDispatcher = artifactDispatcher;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Registry
         {
             this.CheckDisposed();
 
-            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
+            var moduleReferences = this.artifactDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
             var item = new QueueItem(compilationManager, documentUri, moduleReferences);
             lock (this.queue)
             {
@@ -126,7 +126,7 @@ namespace Bicep.LanguageServer.Registry
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.moduleDispatcher.RestoreModules(item.ModuleReferences))
+                    if (!await this.artifactDispatcher.RestoreModules(item.ModuleReferences))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion
@@ -139,7 +139,7 @@ namespace Bicep.LanguageServer.Registry
                     item.CompilationManager.RefreshCompilation(item.Uri);
                 }
 
-                this.moduleDispatcher.PruneRestoreStatuses();
+                this.artifactDispatcher.PruneRestoreStatuses();
             }
         }
 

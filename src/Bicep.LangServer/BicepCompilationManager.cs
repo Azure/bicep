@@ -329,7 +329,7 @@ namespace Bicep.LanguageServer
                         }
 
                         // this completes immediately
-                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore());
+                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore().OfType<ModuleSourceResolutionInfo>());
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
                         var output = workspace.UpsertSourceFiles(sourceFiles);
