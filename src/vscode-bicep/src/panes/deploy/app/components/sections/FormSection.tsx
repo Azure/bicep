@@ -1,10 +1,9 @@
 import { VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
-import { FC, ReactNode } from "react";
+import { FC, PropsWithChildren } from "react";
 
-interface FormSectionProps {
+type FormSectionProps = PropsWithChildren<{
   title: string;
-  children: ReactNode;
-}
+}>;
 
 export const FormSection: FC<FormSectionProps> = ({ title, children, }) => {
   return (

@@ -3,8 +3,7 @@
 import { ErrorResponse } from "@azure/arm-resources";
 
 export interface TemplateMetadata {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template: any;
+  template: Record<string, unknown>;
   parameterDefinitions: ParamDefinition[];
 }
 
@@ -20,8 +19,7 @@ export interface ParametersMetadata {
   parameters: Record<string, ParamData>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ParameterValue = any;
+export type ParameterValue = unknown;
 
 export interface ParamData {
   value: ParameterValue;
@@ -41,8 +39,4 @@ export interface DeployPaneState {
   scope: DeploymentScope;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type UntypedError = any;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TelemetryProperties = Record<string, any>;
+export type UntypedError = unknown;

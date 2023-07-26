@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
-import {
-  DeployPaneState,
-  DeploymentScope,
-  TelemetryProperties,
-  UntypedError,
-} from "./models";
+import { DeployPaneState, DeploymentScope, UntypedError } from "./models";
+import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 
 interface SimpleMessage<T> {
   kind: T;

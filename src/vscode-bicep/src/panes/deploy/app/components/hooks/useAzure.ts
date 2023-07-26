@@ -12,9 +12,9 @@ import {
 } from "../../../models";
 import { AccessToken, TokenCredential } from "@azure/identity";
 import {
+  CloudError,
   Deployment,
   DeploymentOperation,
-  ErrorResponse,
   ResourceManagementClient,
   WhatIfChange,
 } from "@azure/arm-resources";
@@ -204,10 +204,9 @@ export function useAzure(props: UseAzureProps) {
   };
 }
 
-function parseError(error: UntypedError): ErrorResponse {
+function parseError(error: UntypedError) {
   if (error instanceof RestError) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (error.details as any).error as ErrorResponse;
+    return (error.details as CloudError).error;
   }
 
   return {
@@ -219,8 +218,7 @@ function getDeploymentProperties(
   metadata: TemplateMetadata,
   paramValues: Record<string, ParamData>,
 ): Deployment {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parameters: Record<string, any> = {};
+  const parameters: Record<string, unknown> = {};
   for (const [key, { value }] of Object.entries(paramValues)) {
     parameters[key] = {
       value,

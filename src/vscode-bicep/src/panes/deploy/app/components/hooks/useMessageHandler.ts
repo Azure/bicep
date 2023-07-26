@@ -18,11 +18,11 @@ import {
   DeployPaneState,
   DeploymentScope,
   ParametersMetadata,
-  TelemetryProperties,
   TemplateMetadata,
   UntypedError,
 } from "../../../models";
 import { AccessToken } from "@azure/identity";
+import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 
 // TODO see if there's a way to use react hooks instead of this hackery
 let accessTokenResolver: {

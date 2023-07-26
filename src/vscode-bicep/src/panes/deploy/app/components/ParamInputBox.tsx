@@ -36,7 +36,7 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
       case 'int':
         return (
           <VSCodeTextField
-            value={value ?? 0}
+            value={`${value ?? 0}`}
             onChange={e => handleValueChange(parseInt((e.currentTarget as HTMLInputElement).value, 10))}
             disabled={disabled}>
             {name}
@@ -63,7 +63,7 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
         } else {
           return (
             <VSCodeTextField
-              value={value ?? ''}
+              value={`${value ?? ''}`}
               onChange={e => handleValueChange((e.currentTarget as HTMLInputElement).value)}
               disabled={disabled}>
               {name}
