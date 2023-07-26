@@ -488,7 +488,7 @@ module anyTypeInScopeLoop 'empty.bicep' = [
 
 // Key Vault Secret Reference
 
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 

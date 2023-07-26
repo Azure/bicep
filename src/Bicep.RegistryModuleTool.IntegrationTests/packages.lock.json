@@ -238,8 +238,8 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "4.1.7",
-        "contentHash": "pq1Uo7neno/WlLgBQlIlfJ4oNmsBqrHbZJl6pmH17l1PEHZSddPIIwT4rmLGOTS3rCIvAspX+tUp8jvkWSvQOg==",
+        "resolved": "4.1.8",
+        "contentHash": "qcVAEOFdKX7JYhPMjqHHl/t+s61lai28N/PF7ijkQpfd3iAntENiEWaDl5I3RBdMVE+6VL1Fga52jKSooGpQCw==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.8.0",
@@ -2123,7 +2123,7 @@
           "DiffPlex": "[1.7.1, )",
           "FluentAssertions": "[6.11.0, )",
           "JsonPath.Net": "[0.6.3, )",
-          "JsonSchema.Net": "[4.1.7, )",
+          "JsonSchema.Net": "[4.1.8, )",
           "Markdig": "[0.31.0, )",
           "Microsoft.Extensions.Logging": "[7.0.0, )",
           "Serilog.Extensions.Hosting": "[7.0.0, )",

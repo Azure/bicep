@@ -33,10 +33,10 @@ output referenceBasicChild string = basicParent::basicChild.properties.size
 // #completionTest(67) -> grandChildResources
 output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
 
-resource existingParent 'My.Rp/parentType@2020-12-01' = {
+resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
   name: 'existingParent'
 
-  resource existingChild 'childType' = {
+  resource existingChild 'childType' existing = {
     name: 'existingChild'
 
     resource existingGrandchild 'grandchildType' = {

@@ -270,12 +270,12 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 }
 
 @sys.description('this is existing1')
-resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' = {
+resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
   name: 'existing1'
   scope: extension1
 }
 
-resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' = {
+resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
   name: 'existing2'
   scope: existing1
 }
@@ -482,7 +482,7 @@ output p2_res2childtype string = p2_res2child.type
 output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
-resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   name: 'res1'
 }
 
@@ -497,12 +497,12 @@ output p3_res1childtype string = p3_child1.type
 output p3_res1childid string = p3_child1.id
 
 // parent & child with 'existing'
-resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   scope: tenant()
   name: 'res1'
 }
 
-resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
   parent: p4_res1
   name: 'child1'
 }

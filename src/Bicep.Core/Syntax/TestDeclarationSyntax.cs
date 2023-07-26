@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -53,21 +52,9 @@ namespace Bicep.Core.Syntax
                 // blocked by assert in the constructor
                 _ => throw new NotImplementedException($"Unexpected type of test value '{this.Value.GetType().Name}'.")
             };
-            
+
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid test body is not available on this test due to errors. Use {nameof(TryGetBody)}() instead.");
-
-        public ObjectSyntax? TryGetParameters(){
-            var body = this.GetBody();
-            foreach (var property in body.Properties) {
-                if (property.TryGetKeyText() == "params" && property.Value is ObjectSyntax paramsObject) 
-                {
-                    return paramsObject;
-                }
-            }
-            return null;
-        }
-
 
     }
 }
