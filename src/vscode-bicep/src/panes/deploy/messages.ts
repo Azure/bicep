@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
-import {
-  DeployPaneState,
-  DeploymentScope,
-  UntypedError,
-} from "./app/components/models";
+import { DeployPaneState, DeploymentScope, UntypedError } from "./models";
+import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -160,6 +157,23 @@ export function createShowUserErrorDialogMessage(
   });
 }
 
+export type PublishTelemetryMessage = MessageWithPayload<
+  "PUBLISH_TELEMETRY",
+  {
+    eventName: string;
+    properties: TelemetryProperties;
+  }
+>;
+export function createPublishTelemetryMessage(
+  eventName: string,
+  properties: TelemetryProperties,
+): PublishTelemetryMessage {
+  return createMessageWithPayload("PUBLISH_TELEMETRY", {
+    eventName,
+    properties,
+  });
+}
+
 export type VscodeMessage =
   | DeploymentDataMessage
   | GetStateResultMessage
@@ -174,7 +188,8 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | ShowUserErrorDialogMessage;
+  | ShowUserErrorDialogMessage
+  | PublishTelemetryMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };

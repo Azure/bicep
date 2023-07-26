@@ -8,6 +8,7 @@ import {
   createGetDeploymentScopeMessage,
   createGetStateMessage,
   createPickParamsFileMessage,
+  createPublishTelemetryMessage,
   createReadyMessage,
   createSaveStateMessage,
   createShowUserErrorDialogMessage,
@@ -19,8 +20,9 @@ import {
   ParametersMetadata,
   TemplateMetadata,
   UntypedError,
-} from "../models";
+} from "../../../models";
 import { AccessToken } from "@azure/identity";
+import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 
 // TODO see if there's a way to use react hooks instead of this hackery
 let accessTokenResolver: {
@@ -118,6 +120,13 @@ export function useMessageHandler() {
     vscode.postMessage(createShowUserErrorDialogMessage(callbackId, error));
   }
 
+  function publishTelemetry(
+    eventName: string,
+    properties: TelemetryProperties,
+  ) {
+    vscode.postMessage(createPublishTelemetryMessage(eventName, properties));
+  }
+
   function acquireAccessToken() {
     const promise = new Promise<AccessToken>(
       (resolve, reject) => (accessTokenResolver = { resolve, reject }),
@@ -136,5 +145,6 @@ export function useMessageHandler() {
     acquireAccessToken,
     pickScope,
     scope,
+    publishTelemetry,
   };
 }

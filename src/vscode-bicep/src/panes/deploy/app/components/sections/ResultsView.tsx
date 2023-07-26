@@ -1,8 +1,9 @@
-import { VSCodeDivider, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
 import { FC, useState } from "react";
-import { DeployResult } from "../models";
+import { DeployResult } from "../../../models";
 import { ErrorResponse } from "@azure/arm-resources";
 import { getPreformattedJson } from "../utils";
+import { FormSection } from "./FormSection";
 
 interface ResultsViewProps {
   result?: DeployResult;
@@ -16,13 +17,11 @@ export const ResultsView: FC<ResultsViewProps> = ({ result, }) => {
   const [showJson, setShowJson] = useState(false);
 
   return (
-    <section>
-      <VSCodeDivider />
-      <h2>Result</h2>
+    <FormSection title="Result">
       <p>{result.success ? 'Succeeded' : 'Failed'}</p>
       {result.error && <VSCodeCheckbox onChange={() => setShowJson(!showJson)} checked={showJson}>Show JSON?</VSCodeCheckbox>}
       {result.error && getError(result.error, showJson)}
-    </section>
+    </FormSection>
   );
 };
 

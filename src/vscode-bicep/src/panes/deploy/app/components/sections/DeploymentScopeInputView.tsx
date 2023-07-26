@@ -1,6 +1,7 @@
-import { VSCodeTextField, VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
-import { DeploymentScope } from "../models";
+import { DeploymentScope } from "../../../models";
+import { FormSection } from "./FormSection";
 
 interface DeploymentScopeInputViewProps {
   scope?: DeploymentScope;
@@ -9,18 +10,18 @@ interface DeploymentScopeInputViewProps {
 
 export const DeploymentScopeInputView: FC<DeploymentScopeInputViewProps> = ({ scope, onPickScope }) => {
   return (
-    <section className="form-section">
-      <VSCodeDivider />
-      <h2>Deployment Scope</h2>
+    <FormSection title="Deployment Scope">
       <div className="controls">
         <VSCodeButton onClick={onPickScope} appearance={!scope ? "primary" : "secondary"}>Pick Scope</VSCodeButton>
       </div>
-      <VSCodeTextField value={scope?.subscriptionId} disabled={true}>
-        Subscription Id
-      </VSCodeTextField>
-      <VSCodeTextField value={scope?.resourceGroup} disabled={true}>
-        Resource Group
-      </VSCodeTextField>
-    </section>
+      {scope && <>
+        <VSCodeTextField value={scope.subscriptionId} disabled={true}>
+          Subscription Id
+        </VSCodeTextField>
+        <VSCodeTextField value={scope.resourceGroup} disabled={true}>
+          Resource Group
+        </VSCodeTextField>
+      </>}
+    </FormSection>
   );
 };

@@ -3,15 +3,15 @@
 import { ErrorResponse } from "@azure/arm-resources";
 
 export interface TemplateMetadata {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  template: any;
+  template: Record<string, unknown>;
   parameterDefinitions: ParamDefinition[];
 }
 
 export interface ParamDefinition {
-  type: string;
   name: string;
-  defaultValue?: string;
+  type: "string" | "int" | "bool" | "object" | "array" | object;
+  allowedValues?: string[];
+  defaultValue?: ParameterValue;
 }
 
 export interface ParametersMetadata {
@@ -19,9 +19,10 @@ export interface ParametersMetadata {
   parameters: Record<string, ParamData>;
 }
 
+export type ParameterValue = unknown;
+
 export interface ParamData {
-  useDefault: boolean;
-  value: string;
+  value: ParameterValue;
 }
 
 export interface DeployResult {
@@ -38,5 +39,4 @@ export interface DeployPaneState {
   scope: DeploymentScope;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type UntypedError = any;
+export type UntypedError = unknown;

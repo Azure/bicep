@@ -1,6 +1,7 @@
-import { VSCodeDivider, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { getPreformattedJson } from "../utils";
+import { FormSection } from "./FormSection";
 
 interface DeploymentOutputsViewProps {
   outputs?: Record<string, any>;
@@ -12,9 +13,7 @@ export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs 
   }
 
   return (
-    <section>
-      <VSCodeDivider />
-      <h2>Outputs</h2>
+    <FormSection title="Outputs">
       <VSCodeDataGrid>
         <VSCodeDataGridRow rowType="header">
           <VSCodeDataGridCell gridColumn="1" cellType="columnheader">Name</VSCodeDataGridCell>
@@ -27,6 +26,6 @@ export const DeploymentOutputsView: FC<DeploymentOutputsViewProps> = ({ outputs 
           </VSCodeDataGridRow>
         ))}
       </VSCodeDataGrid>
-    </section>
+    </FormSection>
   );
 };
