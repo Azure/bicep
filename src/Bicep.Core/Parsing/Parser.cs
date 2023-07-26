@@ -297,7 +297,7 @@ namespace Bicep.Core.Parsing
                 TokenType.NewLine or
                 TokenType.Identifier => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
                 TokenType.LeftBrace => ImportedSymbolsList(),
-                TokenType.Asterisk => WildcardImport(),
+                TokenType.Asterisk => WithRecovery(WildcardImport, GetSuppressionFlag(keyword), TokenType.NewLine),
                 _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
             };
 

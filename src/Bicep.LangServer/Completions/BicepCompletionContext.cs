@@ -214,6 +214,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 kind |= ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
                     ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
+                    ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
                     ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
                     ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath);
             }
@@ -792,6 +793,14 @@ namespace Bicep.LanguageServer.Completions
         private static bool IsImportedSymbolListItemContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<ImportedSymbolsListItemSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
             SyntaxMatcher.IsTailMatch<ImportedSymbolsListSyntax, Token>(matchingNodes);
+
+        private static bool ExpectingContextualAsKeyword(List<SyntaxBase> matchingNodes, int offset) =>
+            // import {} | or import * |
+            SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax>(matchingNodes, statement => statement.ImportExpression is SkippedTriviaSyntax importExpressionTrivia &&
+                statement.FromClause.Span.Length == 0 &&
+                importExpressionTrivia.Elements.Length == 1 &&
+                importExpressionTrivia.Elements[0] is Token importToken &&
+                importToken.Type == TokenType.Asterisk);
 
         private static bool ExpectingContextualFromKeyword(List<SyntaxBase> matchingNodes, int offset) =>
             // import {} | or import * as foo |

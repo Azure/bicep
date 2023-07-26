@@ -66,6 +66,8 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
 
+        private static readonly SharedLanguageHelperManager ServerWithCompileTimeImportsEnabled = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -117,6 +119,11 @@ namespace Bicep.LangServer.IntegrationTests
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
                         .WithNamespaceProvider(BuiltInTestTypes.Create())));
+
+            ServerWithCompileTimeImportsEnabled.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    testContext,
+                    services => services.WithFeatureOverrides(new(testContext, CompileTimeImportsEnabled: true))));
         }
 
         [ClassCleanup]
@@ -129,6 +136,7 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithTypesEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithResourceTypedParamsEnabled.DisposeAsync();
+            await ServerWithCompileTimeImportsEnabled.DisposeAsync();
         }
 
         [TestMethod]
@@ -4054,7 +4062,21 @@ var arr6 = [
         }
 
         [TestMethod]
-        public async Task Compile_time_imports_offer_imported_symbol_completions()
+        public async Task Compile_time_imports_offer_as_keyword_completions()
+        {
+            var fileWithCursors = """
+              import * |
+              """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithCompileTimeImportsEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "as");
+        }
+
+        [TestMethod]
+        public async Task Compile_time_imports_offer_imported_symbol_list_item_completions()
         {
             var modContent = """
               @export()
@@ -4091,7 +4113,7 @@ var arr6 = [
                 this.TestContext,
                 files,
                 bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4106,6 +4128,123 @@ var arr6 = [
             completions.Should().Contain(c => c.Label == "buzz");
             completions.Should().NotContain(c => c.Label == "foo");
             completions.Should().NotContain(c => c.Label == "bar");
+        }
+
+        [TestMethod]
+        public async Task Compile_time_imports_offer_imported_wildcard_property_completions()
+        {
+            var modContent = """
+              @export()
+              type foo = string
+
+              @export()
+              type bar = int
+              """;
+
+            var mod2Content = """
+              @export()
+              type fizz = string
+
+              @export()
+              type buzz = int
+              """;
+
+            var mainContent = """
+              import * as mod from 'mod.bicep'
+              import * as mod2 from 'mod2.bicep'
+
+              type a = mod.|
+              type b = mod2.|
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = modContent,
+                [new Uri("file:///mod2.bicep")] = mod2Content,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().Contain(c => c.Label == "foo");
+            completions.Should().Contain(c => c.Label == "bar");
+            completions.Should().NotContain(c => c.Label == "fizz");
+            completions.Should().NotContain(c => c.Label == "buzz");
+
+            completions = await file.RequestCompletion(cursors[1]);
+            completions.Should().Contain(c => c.Label == "fizz");
+            completions.Should().Contain(c => c.Label == "buzz");
+            completions.Should().NotContain(c => c.Label == "foo");
+            completions.Should().NotContain(c => c.Label == "bar");
+        }
+
+        [TestMethod]
+        public async Task Imported_type_completions_are_offered_within_type_syntax()
+        {
+            var modContent = """
+              @export()
+              type foo = string
+
+              @export()
+              type bar = int
+              """;
+
+            var mod2Content = """
+              @export()
+              type fizz = string
+
+              @export()
+              type buzz = int
+              """;
+
+            var mainContent = """
+              import {foo, bar} from 'mod.bicep'
+              import * as mod2 from 'mod2.bicep'
+
+              param a |
+              output b |
+              type c = |
+              type d = {
+                property: |
+              }
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = modContent,
+                [new Uri("file:///mod2.bicep")] = mod2Content,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            foreach (var cursor in cursors)
+            {
+              var completions = await file.RequestCompletion(cursor);
+              completions.Should().Contain(c => c.Label == "foo");
+              completions.Should().Contain(c => c.Label == "bar");
+              completions.Should().Contain(c => c.Label == "mod2.fizz");
+              completions.Should().Contain(c => c.Label == "mod2.buzz");
+            }
         }
     }
 }
