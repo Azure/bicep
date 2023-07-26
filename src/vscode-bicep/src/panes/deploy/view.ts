@@ -20,10 +20,13 @@ import { debounce } from "../../utils/time";
 import { getLogger } from "../../utils/logger";
 import { TreeManager } from "../../tree/TreeManager";
 import { AzResourceGroupTreeItem } from "../../tree/AzResourceGroupTreeItem";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
+import {
+  callWithTelemetryAndErrorHandlingSync,
+  IActionContext,
+} from "@microsoft/vscode-azext-utils";
 import { GlobalStateKeys } from "../../globalState";
 import { raiseErrorWithoutTelemetry } from "../../utils/telemetry";
-import { DeployPaneState } from "./app/components/models";
+import { DeployPaneState } from "./models";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -288,6 +291,17 @@ export class DeployPaneView extends Disposable {
       }
       case "SHOW_USER_ERROR_DIALOG": {
         await raiseErrorWithoutTelemetry(message.callbackId, message.error);
+        return;
+      }
+      case "PUBLISH_TELEMETRY": {
+        callWithTelemetryAndErrorHandlingSync(
+          message.eventName,
+          (telemetryActionContext) => {
+            telemetryActionContext.errorHandling.suppressDisplay = true;
+            telemetryActionContext.telemetry.properties = message.properties;
+          },
+        );
+        return;
       }
     }
   }

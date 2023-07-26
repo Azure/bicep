@@ -9,9 +9,10 @@ export interface TemplateMetadata {
 }
 
 export interface ParamDefinition {
-  type: string;
   name: string;
-  defaultValue?: string;
+  type: "string" | "int" | "bool" | "object" | "array" | object;
+  allowedValues?: string[];
+  defaultValue?: ParameterValue;
 }
 
 export interface ParametersMetadata {
@@ -19,9 +20,11 @@ export interface ParametersMetadata {
   parameters: Record<string, ParamData>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ParameterValue = any;
+
 export interface ParamData {
-  useDefault: boolean;
-  value: string;
+  value: ParameterValue;
 }
 
 export interface DeployResult {
@@ -40,3 +43,6 @@ export interface DeployPaneState {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type UntypedError = any;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TelemetryProperties = Record<string, any>;

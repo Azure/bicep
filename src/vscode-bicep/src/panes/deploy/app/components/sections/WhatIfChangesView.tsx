@@ -1,6 +1,7 @@
-import { VSCodeDivider, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { WhatIfChange, WhatIfPropertyChange } from "@azure/arm-resources";
+import { FormSection } from "./FormSection";
 
 interface WhatIfChangesViewProps {
   changes?: WhatIfChange[];
@@ -13,9 +14,7 @@ export const WhatIfChangesView: FC<WhatIfChangesViewProps> = ({ changes }) => {
 
   const filteredChanges = changes.filter(x => x.changeType !== "Ignore");
   return (
-    <section>
-      <VSCodeDivider />
-      <h2>What-If Changes</h2>
+    <FormSection title="What-If Changes">
       <VSCodeDataGrid>
         <VSCodeDataGridRow rowType="header">
           <VSCodeDataGridCell gridColumn="1" cellType="columnheader">Resource Id</VSCodeDataGridCell>
@@ -30,7 +29,7 @@ export const WhatIfChangesView: FC<WhatIfChangesViewProps> = ({ changes }) => {
           </VSCodeDataGridRow>
         ))}
       </VSCodeDataGrid>
-    </section>
+    </FormSection>
   );
 };
 

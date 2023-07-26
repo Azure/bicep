@@ -4,8 +4,9 @@ import { AccessToken } from "@azure/identity";
 import {
   DeployPaneState,
   DeploymentScope,
+  TelemetryProperties,
   UntypedError,
-} from "./app/components/models";
+} from "./models";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -160,6 +161,23 @@ export function createShowUserErrorDialogMessage(
   });
 }
 
+export type PublishTelemetryMessage = MessageWithPayload<
+  "PUBLISH_TELEMETRY",
+  {
+    eventName: string;
+    properties: TelemetryProperties;
+  }
+>;
+export function createPublishTelemetryMessage(
+  eventName: string,
+  properties: TelemetryProperties,
+): PublishTelemetryMessage {
+  return createMessageWithPayload("PUBLISH_TELEMETRY", {
+    eventName,
+    properties,
+  });
+}
+
 export type VscodeMessage =
   | DeploymentDataMessage
   | GetStateResultMessage
@@ -174,7 +192,8 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | ShowUserErrorDialogMessage;
+  | ShowUserErrorDialogMessage
+  | PublishTelemetryMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };

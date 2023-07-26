@@ -9,7 +9,7 @@ import {
   ParametersMetadata,
   TemplateMetadata,
   UntypedError,
-} from "../models";
+} from "../../../models";
 import { AccessToken, TokenCredential } from "@azure/identity";
 import {
   Deployment,

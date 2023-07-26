@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { DeploymentOperation } from "@azure/arm-resources";
-import { ParamData, ParamDefinition, TemplateMetadata } from "./models";
+import { ParamData, ParamDefinition, TemplateMetadata } from "../../models";
 
 export function parseTemplateJson(json: string): TemplateMetadata {
   const template = JSON.parse(json);
@@ -12,6 +12,7 @@ export function parseTemplateJson(json: string): TemplateMetadata {
     parameterDefinitions.push({
       name: key,
       type: parameter.type,
+      allowedValues: parameter.allowedValues,
       defaultValue: parameter.defaultValue,
     });
   }
@@ -28,7 +29,6 @@ export function parseParametersJson(json: string) {
   const paramValues: Record<string, ParamData> = {};
   for (const key in data.parameters) {
     paramValues[key] = {
-      useDefault: false,
       value: data.parameters[key].value,
     };
   }
