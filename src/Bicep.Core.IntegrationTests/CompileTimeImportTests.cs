@@ -46,7 +46,25 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP357", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template.")
+            ("BCP357", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
+        });
+    }
+
+    [TestMethod]
+    public void Dereferencing_unexported_or_unknown_symbol_from_wildcard_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import * as bar from 'mod.bicep'
+                param baz bar.foo
+                """),
+            ("mod.bicep", """
+                type foo = string[]
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP052", DiagnosticLevel.Error, "The type \"bar\" does not contain property \"foo\"."),
         });
     }
 
@@ -368,5 +386,57 @@ public class CompileTimeImportTests
                 }
             }
             """));
+    }
+
+    [TestMethod]
+    public void Importing_the_same_symbol_under_two_separate_names_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+                import {foo as fizz} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                type foo = string[]
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
+            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
+        });
+    }
+
+    [TestMethod]
+    public void Importing_the_same_symbol_from_json_template_under_two_separate_names_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.json'
+                import {foo as fizz} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "1.10-experimental",
+                    "definitions": {
+                        "foo": {
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            },
+                            "type": "string"
+                        }
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
+            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
+        });
     }
 }

@@ -1894,8 +1894,12 @@ namespace Bicep.Core.TypeSystem
                     case BuiltInNamespaceSymbol @namespace:
                         return @namespace.Type;
 
+                    case WildcardImportSymbol wildcardImport:
+                        return wildcardImport.Type;
+
                     case TypeAliasSymbol:
                     case AmbientTypeSymbol:
+                    case ImportedTypeSymbol:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
 
                     default:

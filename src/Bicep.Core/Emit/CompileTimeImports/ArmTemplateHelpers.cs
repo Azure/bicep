@@ -21,12 +21,12 @@ internal static class ArmTemplateHelpers
         return SchemaValidationContext.ForTemplate(template);
     }
 
-    internal static ITemplateSchemaNode DerefArmType(SchemaValidationContext context, string typePointer)
+    internal static ITemplateSchemaNode DereferenceArmType(SchemaValidationContext context, string typePointer)
     {
         // TODO make LocalSchemaRefResolver in Azure.Deployments.Templates public
         if (!typePointer.StartsWith(ArmTypeRefPrefix) ||
-            typePointer.Substring(ArmTypeRefPrefix.Length).Contains('/') ||
-            !context.Definitions.TryGetValue(typePointer.Substring(ArmTypeRefPrefix.Length), out var typeDefinition))
+            typePointer[ArmTypeRefPrefix.Length..].Contains('/') ||
+            !context.Definitions.TryGetValue(typePointer[ArmTypeRefPrefix.Length..], out var typeDefinition))
         {
             throw new InvalidOperationException($"Invalid ARM template type reference ({typePointer}) encountered");
         }
@@ -35,7 +35,7 @@ internal static class ArmTemplateHelpers
     }
 
     internal static IEnumerable<string> EnumerateTypeReferencesUsedIn(SchemaValidationContext context, string typePointer)
-        => EnumerateTypeReferencesUsedIn(DerefArmType(context, typePointer));
+        => EnumerateTypeReferencesUsedIn(DereferenceArmType(context, typePointer));
 
     internal static IEnumerable<string> EnumerateTypeReferencesUsedIn(ITemplateSchemaNode schemaNode)
     {

@@ -67,6 +67,16 @@ namespace Bicep.Core.Semantics
                     this.diagnosticWriter.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
                 }
             }
+
+            // find instances where the same symbol is imported multiple times under different names
+            foreach (var grouping in symbol.TypeImports.ToLookup(t => (t.TryGetSemanticModel(out var model, out _) ? model : null, t.OriginalSymbolName)).Where(g => g.Count() > 1))
+            {
+                var importedAs = grouping.Select(s => s.Name).ToArray();
+                foreach (var import in grouping)
+                {
+                    this.diagnosticWriter.Write(import.DeclaringSyntax, x => x.SymbolImportedMultipleTimes(importedAs));
+                }
+            }
         }
 
         public override void VisitVariableSymbol(VariableSymbol symbol)
@@ -126,6 +136,18 @@ namespace Bicep.Core.Semantics
         public override void VisitLocalScope(LocalScope symbol)
         {
             base.VisitLocalScope(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitWildcardImportSymbol(WildcardImportSymbol symbol)
+        {
+            base.VisitWildcardImportSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitImportedTypeSymbol(ImportedTypeSymbol symbol)
+        {
+            base.VisitImportedTypeSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 

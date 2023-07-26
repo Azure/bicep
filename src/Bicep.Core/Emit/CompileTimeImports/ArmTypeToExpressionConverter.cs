@@ -28,7 +28,7 @@ internal class ArmTypeToExpressionConverter
     }
 
     internal DeclaredTypeExpression ConvertToExpression(string convertedSymbolName, string typePointer)
-        => ConvertToExpression(convertedSymbolName, ArmTemplateHelpers.DerefArmType(context, typePointer));
+        => ConvertToExpression(convertedSymbolName, ArmTemplateHelpers.DereferenceArmType(context, typePointer));
 
     private DeclaredTypeExpression ConvertToExpression(string convertedSymbolName, ITemplateSchemaNode schemaNode)
     {

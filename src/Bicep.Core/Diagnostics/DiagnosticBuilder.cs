@@ -1217,10 +1217,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
+            public ErrorDiagnostic ExpectedProviderSpecificationOrCompileTimeImportExpression() => new(
                 TextSpan,
                 "BCP201",
-                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+                "Expected a provider specification string of format \"<providerName>@<providerVersion>\", an asterisk, or a left curly brace.");
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,
@@ -1981,10 +1981,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP352",
                 "Expected the name of an exported symbol at this location.");
 
-            public ErrorDiagnostic ExpectedSymbolAliasIdentifier() => new(
+            public ErrorDiagnostic ExpectedNamespaceIdentifier() => new(
                 TextSpan,
                 "BCP353",
-                "Expected a valid symbol alias at this location.");
+                "Expected a valid namespace identifier at this location.");
 
             public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
                 TextSpan,
@@ -2010,6 +2010,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP358",
                 @"The ""@export()"" decorator must target a top-level statement.");
+
+            public ErrorDiagnostic SymbolImportedMultipleTimes(params string[] importedAs) => new(
+                TextSpan,
+                "BCP359",
+                $"This symbol is imported multiple times under the names {string.Join(", ", importedAs.Select(identifier => $"'{identifier}'"))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
