@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer.Utils
 
         public static string? GetDocumentationLink(string? documentationUri)
         {
-            return documentationUri is null ? null : $"[View Documentation]({Uri.UnescapeDataString(documentationUri)})";
+            return documentationUri is null ? null : $"[View Documentation]({documentationUri})";
         }
     }
 }
