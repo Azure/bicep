@@ -70,7 +70,7 @@ import 'az@1.0.0'
 import
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\"."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\", an asterisk, or a left curly brace."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
