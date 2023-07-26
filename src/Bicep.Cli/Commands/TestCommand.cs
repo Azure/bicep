@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -62,8 +61,8 @@ namespace Bicep.Cli.Commands
             if (IsBicepFile(inputPath))
             {
                 diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
-                var test = await compilationService.TestAsync(inputPath, args.NoRestore, logger);
-
+                var validation = await compilationService.TestAsync(inputPath, args.NoRestore);
+                LogResults(validation);
                 diagnosticLogger.FlushLog();
 
                 // return non-zero exit code on errors
@@ -75,5 +74,32 @@ namespace Bicep.Cli.Commands
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
+        private void LogResults(Validation validation){
+            foreach(var (name, evaluation) in validation.SuccessfullEvaluations){
+                logger.LogInformation($"[✓] Evaluation {name} Passed!");
+            }
+            foreach(var (name, evaluation) in validation.SkippedEvaluations){
+                logger.LogError($"[-] Evaluation {name} Skipped!");
+                logger.LogError($"Reason: {evaluation.Error?.Message}");
+
+            }
+            foreach(var (name, evaluation) in validation.FailedEvaluations){
+                logger.LogError($"[✗] Evaluation {name} Failed at {evaluation.FailedAssertions.Count} / {evaluation.Assertions.Count} assertions!");
+                foreach(var (assertion, _) in evaluation.FailedAssertions){
+                    logger.LogError($"\t[✗] Assertion {assertion} failed!");
+                }
+                
+            }
+            if (validation.Success)
+            {
+                logger.LogInformation($"All {validation.TotalEvaluations} evaluations passed!");
+            }
+            else 
+            {
+                logger.LogError($"Evaluation Summary: Failure!");
+                logger.LogError($"Total: {validation.TotalEvaluations} - Success: {validation.SuccessfullEvaluations.Count} - Skipped: {validation.SkippedEvaluations.Count} - Failed: {validation.FailedEvaluations.Count}");
+            }
+            
+        }
     }
 }

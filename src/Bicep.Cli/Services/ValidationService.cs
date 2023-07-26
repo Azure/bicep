@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
@@ -17,18 +16,40 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Services
 {
-    public class ValidationService
+    public class Validation
     {
-        public static void Validate(ImmutableArray<TestSymbol> testDeclarations, ILogger logger)
+        private InsensitiveDictionary<TemplateEvaluation> successfullEvaluations;
+
+        private InsensitiveDictionary<TemplateEvaluation> failedEvaluations;
+
+        private InsensitiveDictionary<TemplateEvaluation> skippedEvaluations;
+
+        public InsensitiveDictionary<TemplateEvaluation> SuccessfullEvaluations => successfullEvaluations;
+
+        public InsensitiveDictionary<TemplateEvaluation> FailedEvaluations => failedEvaluations;
+
+        public InsensitiveDictionary<TemplateEvaluation> SkippedEvaluations => skippedEvaluations;
+
+        public bool Success => failedEvaluations.Count == 0 && skippedEvaluations.Count == 0;
+
+        public int TotalEvaluations => successfullEvaluations.Count + failedEvaluations.Count + skippedEvaluations.Count;
+
+        public Validation(ImmutableArray<TestSymbol> testDeclarations)
+        {
+            successfullEvaluations = new InsensitiveDictionary<TemplateEvaluation>();
+            failedEvaluations = new InsensitiveDictionary<TemplateEvaluation>();
+            skippedEvaluations = new InsensitiveDictionary<TemplateEvaluation>();
+
+            Validate(testDeclarations);
+        }
+        public void Validate(ImmutableArray<TestSymbol> testDeclarations)
         {
             var templateOutputBuffer = new StringBuilder();
             using var textWriter = new StringWriter();
 
-            EvaluateTemplates(testDeclarations, textWriter, logger);
-
-            
+            EvaluateTemplates(testDeclarations, textWriter);    
         }
-        private static void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter, ILogger logger)
+        private void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
         {
             var evaluatedTemplates =  new InsensitiveDictionary<JToken>();
 
@@ -40,18 +61,13 @@ namespace Bicep.Cli.Services
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
                     var template = GetTemplate(testSemanticModel, testDeclaration);
 
-                    var (evaluatedTemplate, error) = TemplateEvaluatorService.Evaluate(template, parameters);
-                    
-                    if (evaluatedTemplate != null)
-                    {
-                        evaluatedTemplates.Add(testDeclaration.Name, evaluatedTemplate);
-                        logger.LogInformation($"[✓] Evaluated template for {testDeclaration.Name} successfully.");
-                    }
-                    
-                    if (error!= null)
-                    {
-                        logger.LogError($"[✗] Error evaluating template for {testDeclaration.Name} : {error.Message}");
-                    }
+                    var evaluation = new TemplateEvaluation(template, parameters);
+
+                    var skipped = evaluation.Skip;
+                    var success = evaluation.Success;
+
+                    var evaluations = skipped ? skippedEvaluations : (success ? successfullEvaluations : failedEvaluations);
+                    evaluations.Add(testDeclaration.Name, evaluation);
                 
                 }
                 
