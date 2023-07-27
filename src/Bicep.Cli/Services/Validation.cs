@@ -18,27 +18,21 @@ namespace Bicep.Cli.Services
 {
     public class Validation
     {
-        private InsensitiveDictionary<TemplateEvaluation> successfullEvaluations;
+        public InsensitiveDictionary<Evaluation> SuccessfullEvaluations { get; }
 
-        private InsensitiveDictionary<TemplateEvaluation> failedEvaluations;
+        public InsensitiveDictionary<Evaluation> FailedEvaluations { get; }
 
-        private InsensitiveDictionary<TemplateEvaluation> skippedEvaluations;
+        public InsensitiveDictionary<Evaluation> SkippedEvaluations { get; }
 
-        public InsensitiveDictionary<TemplateEvaluation> SuccessfullEvaluations => successfullEvaluations;
+        public bool Success => FailedEvaluations.Count == 0 && SkippedEvaluations.Count == 0;
 
-        public InsensitiveDictionary<TemplateEvaluation> FailedEvaluations => failedEvaluations;
-
-        public InsensitiveDictionary<TemplateEvaluation> SkippedEvaluations => skippedEvaluations;
-
-        public bool Success => failedEvaluations.Count == 0 && skippedEvaluations.Count == 0;
-
-        public int TotalEvaluations => successfullEvaluations.Count + failedEvaluations.Count + skippedEvaluations.Count;
+        public int TotalEvaluations => SuccessfullEvaluations.Count + FailedEvaluations.Count + SkippedEvaluations.Count;
 
         public Validation(ImmutableArray<TestSymbol> testDeclarations)
         {
-            successfullEvaluations = new InsensitiveDictionary<TemplateEvaluation>();
-            failedEvaluations = new InsensitiveDictionary<TemplateEvaluation>();
-            skippedEvaluations = new InsensitiveDictionary<TemplateEvaluation>();
+            SuccessfullEvaluations = new InsensitiveDictionary<Evaluation>();
+            FailedEvaluations = new InsensitiveDictionary<Evaluation>();
+            SkippedEvaluations = new InsensitiveDictionary<Evaluation>();
 
             Validate(testDeclarations);
         }
@@ -61,12 +55,12 @@ namespace Bicep.Cli.Services
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
                     var template = GetTemplate(testSemanticModel, testDeclaration);
 
-                    var evaluation = new TemplateEvaluation(template, parameters);
+                    var evaluation = TemplateEvaluation.Evaluate(template, parameters);
 
                     var skipped = evaluation.Skip;
                     var success = evaluation.Success;
 
-                    var evaluations = skipped ? skippedEvaluations : (success ? successfullEvaluations : failedEvaluations);
+                    var evaluations = skipped ? SkippedEvaluations : (success ? SuccessfullEvaluations : FailedEvaluations);
                     evaluations.Add(testDeclaration.Name, evaluation);
                 
                 }

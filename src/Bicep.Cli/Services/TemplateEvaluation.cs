@@ -26,19 +26,7 @@ namespace Bicep.Cli.Services
         private const string DummyResourceGroupName = "";
         private const string DummyLocation = "";
         private static readonly Regex templateSchemaPattern = new Regex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.Compiled);
-        private InvalidOperationException? error;
-        private Template? resultTemplate;
-        private Dictionary<string, bool>? assertions;
-        private bool isSkipped;
-        private bool isSuccessful;
-
-        public InvalidOperationException? Error => error;
-        public Template? ResultTemplate => resultTemplate;
-        public Dictionary<string, bool> Assertions => assertions ?? new Dictionary<string, bool>();
-        public Dictionary<string, bool> FailedAssertions => assertions?.Where(a => !a.Value).ToDictionary(a => a.Key, a => a.Value) ?? new Dictionary<string, bool>();
-        public bool Success => isSuccessful;
-        public bool Skip => isSkipped;
-
+        
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
         public delegate JToken OnReferenceDelegate(string resourceId, string apiVersion, bool fullBody);
@@ -65,12 +53,7 @@ namespace Bicep.Cli.Services
             );
         }
 
-        public TemplateEvaluation(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
-        {
-            isSkipped = !Evaluate(templateJtoken, parametersJToken, configBuilder);
-            isSuccessful = !isSkipped && IsTestSuccessfull();
-        }
-        private string GetResourceId(string scopeString, TemplateResource resource)
+        private static string GetResourceId(string scopeString, TemplateResource resource)
         {
             var typeSegments = resource.Type.Value.Split('/');
             var nameSegments = resource.Name.Value.Split('/');
@@ -81,7 +64,7 @@ namespace Bicep.Cli.Services
             return $"{scopeString}providers/{string.Join('/', types)}";
         }
 
-        private void ProcessTemplateLanguageExpressions(Template template, EvaluationConfiguration config, TemplateDeploymentScope deploymentScope)
+        private static void ProcessTemplateLanguageExpressions(Template template, EvaluationConfiguration config, TemplateDeploymentScope deploymentScope)
         {
             var scopeString = deploymentScope switch
             {
@@ -159,7 +142,7 @@ namespace Bicep.Cli.Services
             }
         }
 
-        public bool Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
+        public static Evaluation Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
@@ -171,7 +154,7 @@ namespace Bicep.Cli.Services
             return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
         }
 
-        private bool EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
+        private static Evaluation EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
@@ -193,42 +176,23 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
-                assertions = template.Asserts?.ToDictionary(p => p.Key, p => (bool)p.Value.Value) ?? new Dictionary<string, bool>();
+                var assertions = template.Asserts?.ToDictionary(p => p.Key, p => (bool)p.Value.Value) ?? new Dictionary<string, bool>();
 
-                resultTemplate = template;
-
-                return true;
+                return new Evaluation(template, assertions, null);
             }
             catch (Exception exception)
             {
-                error = new InvalidOperationException(
+                var error = new InvalidOperationException(
                     $"Evaluating template failed: {exception.Message}." +
                     $"\nTemplate file: {templateJtoken}" +
                     (parametersJToken is null ? "" : $"\nParameters file: {parametersJToken}"),
                     exception);
 
-                return false;
+                return new Evaluation(null, null, error);
             }
         }
 
-        private bool IsTestSuccessfull()
-        {
-            if (assertions is null) 
-            {
-                return false;
-            }
-            foreach(var (name, assertion) in assertions)
-            {
-                if (!assertion)
-                {
-                    return false;
-                }
-            }
-            return true;
-
-        }
-
-        private ImmutableDictionary<string, JToken> ParseParametersFile(JToken? parametersJToken)
+        private static ImmutableDictionary<string, JToken> ParseParametersFile(JToken? parametersJToken)
         {
             if (parametersJToken is null)
             {
@@ -238,7 +202,7 @@ namespace Bicep.Cli.Services
             return parametersJToken.Cast<JProperty>().ToImmutableDictionary(x => x.Name, x => x.Value!);
         }
         
-        private TemplateDeploymentScope GetDeploymentScope(string templateSchema)
+        private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
         {
             var templateSchemaMatch = templateSchemaPattern.Match(templateSchema);
             var templateType = templateSchemaMatch.Groups["templateType"].Value.ToLowerInvariant();
