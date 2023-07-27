@@ -70,7 +70,7 @@ import 'az@1.0.0'
 import
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" at this location."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
