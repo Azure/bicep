@@ -76,7 +76,7 @@ namespace Bicep.Cli.Commands
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
         private void LogResults(Validation validation){
             foreach(var (name, evaluation) in validation.SuccessfullEvaluations){
-                logger.LogInformation($"[✓] Evaluation {name} Passed!");
+                logger.LogInformation($"[✓] Evaluation {name} passed!");
             }
             foreach(var (name, evaluation) in validation.SkippedEvaluations){
                 logger.LogError($"[-] Evaluation {name} Skipped!");
