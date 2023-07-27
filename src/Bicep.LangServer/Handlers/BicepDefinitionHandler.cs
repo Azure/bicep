@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Entities;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -273,24 +275,38 @@ namespace Bicep.LanguageServer.Handlers
                 }
 
                 // The user should be redirected to the import target file if the symbol is a wildcard import
-                if (propertyAccesses.Count == 1 &&
-                    ancestorSymbol is WildcardImportSymbol wildcardImport &&
-                    wildcardImport.TryGetSemanticModel(out var importedTargetModel, out _) &&
-                    importedTargetModel is SemanticModel importedTargetBicepModel &&
-                    importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is {} originalDeclaration)
+                if (propertyAccesses.Count == 1 && ancestorSymbol is WildcardImportSymbol wildcardImport)
                 {
-                    var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
-
-                    return new(new LocationOrLocationLink(new LocationLink
+                    if (wildcardImport.TryGetSemanticModel(out var importedTargetModel, out _) &&
+                        importedTargetModel is SemanticModel importedTargetBicepModel &&
+                        importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is {} originalDeclaration)
                     {
-                        // source of the link. Underline only the symbolic name
-                        OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
-                        TargetUri = importedTargetBicepModel.SourceFile.FileUri,
+                        var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
 
-                        // entire span of the declaredSymbol
-                        TargetRange = range,
-                        TargetSelectionRange = range
-                    }));
+                        return new(new LocationOrLocationLink(new LocationLink
+                        {
+                            // source of the link. Underline only the symbolic name
+                            OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
+                            TargetUri = importedTargetBicepModel.SourceFile.FileUri,
+
+                            // entire span of the declaredSymbol
+                            TargetRange = range,
+                            TargetSelectionRange = range
+                        }));
+                    }
+
+                    return GetArmSourceTemplateInfo(context, wildcardImport.EnclosingDeclaration) switch
+                    {
+                        (Template template, Uri localFileUri) when template.Definitions?.TryGetValue(propertyAccesses.Single().IdentifierName, out var definition) == true && ToRange(definition) is {} range
+                            => new(new LocationOrLocationLink(new LocationLink
+                            {
+                                OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
+                                TargetUri = localFileUri,
+                                TargetRange = range,
+                                TargetSelectionRange = range,
+                            })),
+                        _ => new(),
+                    };
                 }
 
                 // Otherwise, we redirect user to the specified module, variable, or resource declaration
@@ -349,26 +365,51 @@ namespace Bicep.LanguageServer.Handlers
 
         private LocationOrLocationLinks HandleImportedTypeSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedTypeSymbol imported)
         {
-            if (!imported.TryGetSemanticModel(out var semanticModel, out _) ||
-                semanticModel is not SemanticModel bicepModel ||
-                bicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is not {} originalDeclaration)
+            // source of the link. Underline only the symbolic name
+            var originSelectionRange = result.Origin.ToRange(context.LineStarts);
+
+            if (imported.TryGetSemanticModel(out var semanticModel, out _) &&
+                semanticModel is SemanticModel bicepModel &&
+                bicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is {} originalDeclaration)
             {
-                return new();
+                // entire span of the declaredSymbol
+                var targetRange = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
+
+                return new(new LocationOrLocationLink(new LocationLink
+                {
+                    OriginSelectionRange = originSelectionRange,
+                    TargetUri = bicepModel.SourceFile.FileUri,
+                    TargetRange = targetRange,
+                    TargetSelectionRange = targetRange,
+                }));
             }
 
-            var range = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
-
-            return new(new LocationOrLocationLink(new LocationLink
+            return GetArmSourceTemplateInfo(context, imported.EnclosingDeclaration) switch
             {
-                // source of the link. Underline only the symbolic name
-                OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
-                TargetUri = bicepModel.SourceFile.FileUri,
-
-                // entire span of the declaredSymbol
-                TargetRange = range,
-                TargetSelectionRange = range
-            }));
+                (Template armTemplate, Uri armTemplateUri) when armTemplate.Definitions?.TryGetValue(imported.OriginalSymbolName, out var definition) == true && ToRange(definition) is {} range
+                    => new(new LocationOrLocationLink(new LocationLink
+                    {
+                        OriginSelectionRange = originSelectionRange,
+                        TargetUri = armTemplateUri,
+                        TargetRange = range,
+                        TargetSelectionRange = range,
+                    })),
+                _ => new(),
+            };
         }
+
+        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IForeignTemplateReference foreignTemplateReference)
+            => context.Compilation.SourceFileGrouping.TryGetSourceFile(foreignTemplateReference) switch
+            {
+                TemplateSpecFile templateSpecFile => (templateSpecFile.MainTemplateFile.Template, templateSpecFile.FileUri),
+                ArmTemplateFile armTemplateFile => (armTemplateFile.Template, armTemplateFile.FileUri),
+                _ => (null, null),
+            };
+
+        private static Range? ToRange(JTokenMetadata jToken)
+            => jToken.LineNumber.HasValue && jToken.LinePosition.HasValue
+                ? new(jToken.LineNumber.Value - 1, jToken.LinePosition.Value, jToken.LineNumber.Value - 1, jToken.LinePosition.Value)
+                : null;
 
         private LocationOrLocationLinks GetModuleSymbolLocation(
             SyntaxBase underlinedSyntax,
