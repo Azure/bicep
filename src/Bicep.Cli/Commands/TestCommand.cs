@@ -20,6 +20,9 @@ namespace Bicep.Cli.Commands
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private const string SuccessSymbol = "[✓]";
+        private const string FailureSymbol = "[✗]";
+        private const string SkippedSymbol = "[-]";
 
         public TestCommand(
             ILogger logger,
@@ -86,7 +89,7 @@ namespace Bicep.Cli.Commands
             foreach(var (name, evaluation) in validation.FailedEvaluations){
                 logger.LogError($"[✗] Evaluation {name} failed at {evaluation.FailedAssertions.Count} / {evaluation.Assertions.Count} assertions!");
                 foreach(var (assertion, _) in evaluation.FailedAssertions){
-                    logger.LogError($"\t[✗] Assertion {assertion} failed!");
+                    logger.LogError($"\t{FailureSymbol} Assertion {assertion} failed!");
                 }
                 
             }
