@@ -79,7 +79,7 @@ namespace Bicep.Cli.Commands
                 logger.LogInformation($"[✓] Evaluation {name} passed!");
             }
             foreach(var (name, evaluation) in validation.SkippedEvaluations){
-                logger.LogError($"[-] Evaluation {name} Skipped!");
+                logger.LogError($"[-] Evaluation {name} skipped!");
                 logger.LogError($"Reason: {evaluation.Error?.Message}");
 
             }
