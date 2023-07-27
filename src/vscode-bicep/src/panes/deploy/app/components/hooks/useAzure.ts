@@ -24,7 +24,7 @@ export interface UseAzureProps {
   templateMetadata?: TemplateMetadata;
   parametersMetadata: ParametersMetadata;
   acquireAccessToken: () => Promise<AccessToken>;
-  showErrorDialog: (callbackId: string, error: UntypedError) => void;
+  setErrorMessage: (message?: string) => void;
 }
 
 export function useAzure(props: UseAzureProps) {
@@ -33,7 +33,7 @@ export function useAzure(props: UseAzureProps) {
     templateMetadata,
     parametersMetadata,
     acquireAccessToken,
-    showErrorDialog,
+    setErrorMessage,
   } = props;
   const deploymentName = "bicep-deploy";
   const [operations, setOperations] = useState<DeploymentOperation[]>();
@@ -66,6 +66,7 @@ export function useAzure(props: UseAzureProps) {
     }
 
     try {
+      setErrorMessage(undefined);
       clearState();
       setRunning(true);
 
@@ -76,8 +77,8 @@ export function useAzure(props: UseAzureProps) {
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
       await operation(armClient, deployment);
-    } catch (e) {
-      showErrorDialog("doDeploymentOperation", e);
+    } catch (error) {
+      setErrorMessage(`Azure operation failed: ${error}`);
     } finally {
       setRunning(false);
     }

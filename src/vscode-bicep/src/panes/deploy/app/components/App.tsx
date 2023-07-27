@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { FC } from "react";
+import { FC, useState } from "react";
 import { VSCodeButton, VSCodeDivider, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./index.css";
 import { ParamData } from "../../models";
@@ -15,13 +15,14 @@ import { DeploymentScopeInputView } from "./sections/DeploymentScopeInputView";
 import { FormSection } from "./sections/FormSection";
 
 export const App: FC = () => {
-  const messages = useMessageHandler();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const messages = useMessageHandler({ setErrorMessage });
   const azure = useAzure({
     scope: messages.scope,
     acquireAccessToken: messages.acquireAccessToken,
     templateMetadata: messages.templateMetadata,
     parametersMetadata: messages.paramsMetadata,
-    showErrorDialog: messages.showErrorDialog
+    setErrorMessage
   });
 
   function setParamValue(key: string, data: ParamData) {
@@ -67,6 +68,17 @@ export const App: FC = () => {
         onPickParametersFile={messages.pickParamsFile} />
 
       <FormSection title="Actions">
+        {errorMessage && <div
+          style={{
+            color: "var(--vscode-statusBarItem-errorForeground)",
+            backgroundColor: "var(--vscode-statusBarItem-errorBackground)",
+            padding: '5px 10px',
+            borderRadius: '4px',
+            fontSize: '14px',
+            alignSelf: 'center'
+          }}>
+          {errorMessage}
+        </div>}
         <div className="controls">
           <VSCodeButton onClick={handleDeployClick} disabled={azureDisabled}>Deploy</VSCodeButton>
           <VSCodeButton onClick={handleValidateClick} disabled={azureDisabled}>Validate</VSCodeButton>

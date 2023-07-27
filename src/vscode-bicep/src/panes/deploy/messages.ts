@@ -19,19 +19,22 @@ export type DeploymentDataMessage = MessageWithPayload<
   "DEPLOYMENT_DATA",
   {
     documentPath: string;
-    templateJson: string;
+    templateJson?: string;
     parametersJson?: string;
+    errorMessage?: string;
   }
 >;
 export function createDeploymentDataMessage(
   documentPath: string,
-  templateJson: string,
+  templateJson?: string,
   parametersJson?: string,
+  errorMessage?: string,
 ): DeploymentDataMessage {
   return createMessageWithPayload("DEPLOYMENT_DATA", {
     documentPath,
     templateJson,
     parametersJson,
+    errorMessage,
   });
 }
 
@@ -140,23 +143,6 @@ export function createGetDeploymentScopeResultMessage(
   });
 }
 
-export type ShowUserErrorDialogMessage = MessageWithPayload<
-  "SHOW_USER_ERROR_DIALOG",
-  {
-    callbackId: string;
-    error: UntypedError;
-  }
->;
-export function createShowUserErrorDialogMessage(
-  callbackId: string,
-  error: UntypedError,
-): ShowUserErrorDialogMessage {
-  return createMessageWithPayload("SHOW_USER_ERROR_DIALOG", {
-    callbackId,
-    error,
-  });
-}
-
 export type PublishTelemetryMessage = MessageWithPayload<
   "PUBLISH_TELEMETRY",
   {
@@ -188,7 +174,6 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | ShowUserErrorDialogMessage
   | PublishTelemetryMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {

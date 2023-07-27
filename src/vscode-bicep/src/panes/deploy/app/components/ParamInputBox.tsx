@@ -75,7 +75,7 @@ export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
           <VSCodeTextArea
             className="code-textarea-container"
             resize="vertical"
-            value={JSON.stringify(value, null, 2)}
+            value={value ? JSON.stringify(value, null, 2) : ''}
             onChange={e => handleValueChange(JSON.parse((e.currentTarget as HTMLInputElement).value))}
             disabled={disabled}>
             {name}

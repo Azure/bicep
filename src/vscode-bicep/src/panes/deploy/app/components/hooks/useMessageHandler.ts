@@ -11,7 +11,6 @@ import {
   createPublishTelemetryMessage,
   createReadyMessage,
   createSaveStateMessage,
-  createShowUserErrorDialogMessage,
 } from "../../../messages";
 import { parseParametersJson, parseTemplateJson } from "../utils";
 import {
@@ -30,7 +29,12 @@ let accessTokenResolver: {
   reject: (error: UntypedError) => void;
 };
 
-export function useMessageHandler() {
+export interface UseMessageHandlerProps {
+  setErrorMessage: (message?: string) => void;
+}
+
+export function useMessageHandler(props: UseMessageHandlerProps) {
+  const { setErrorMessage } = props;
   const [persistedState, setPersistedState] = useState<DeployPaneState>();
   const [templateMetadata, setTemplateMetadata] = useState<TemplateMetadata>();
   const [paramsMetadata, setParamsMetadata] = useState<ParametersMetadata>({
@@ -42,20 +46,29 @@ export function useMessageHandler() {
     const message = e.data;
     switch (message.kind) {
       case "DEPLOYMENT_DATA": {
+        if (!message.templateJson) {
+          setTemplateMetadata(undefined);
+          setErrorMessage(
+            message.errorMessage ??
+              "An error occurred building the deployment object.",
+          );
+          return;
+        }
+
         const templateMetadata = parseTemplateJson(message.templateJson);
-        setTemplateMetadata(templateMetadata);
 
         if (
           templateMetadata.template["$schema"] !==
           "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
         ) {
-          showErrorDialog(
-            "handleMessageEvent",
+          setTemplateMetadata(undefined);
+          setErrorMessage(
             "The deployment pane currently only supports resourceGroup-scoped Bicep files.",
           );
           return;
         }
 
+        setTemplateMetadata(templateMetadata);
         if (message.parametersJson) {
           setParamsMetadata({
             sourceFilePath: message.documentPath.endsWith(".bicep")
@@ -64,6 +77,7 @@ export function useMessageHandler() {
             parameters: parseParametersJson(message.parametersJson),
           });
         }
+        setErrorMessage(undefined);
         return;
       }
       case "GET_STATE_RESULT": {
@@ -116,10 +130,6 @@ export function useMessageHandler() {
     vscode.postMessage(createGetDeploymentScopeMessage());
   }
 
-  function showErrorDialog(callbackId: string, error: UntypedError) {
-    vscode.postMessage(createShowUserErrorDialogMessage(callbackId, error));
-  }
-
   function publishTelemetry(
     eventName: string,
     properties: TelemetryProperties,
@@ -137,7 +147,6 @@ export function useMessageHandler() {
   }
 
   return {
-    showErrorDialog,
     pickParamsFile,
     paramsMetadata,
     setParamsMetadata,

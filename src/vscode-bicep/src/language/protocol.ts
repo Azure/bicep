@@ -46,13 +46,14 @@ export interface GetDeploymentDataRequest {
 }
 
 export interface GetDeploymentDataResponse {
-  templateJson: string;
+  templateJson?: string;
   parametersJson?: string;
+  errorMessage?: string;
 }
 
 export const getDeploymentDataRequestType = new ProtocolRequestType<
   GetDeploymentDataRequest,
-  GetDeploymentDataResponse | null,
+  GetDeploymentDataResponse,
   never,
   void,
   void
