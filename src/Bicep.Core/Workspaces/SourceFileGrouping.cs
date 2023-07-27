@@ -7,7 +7,6 @@ using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
-using Bicep.Core.Syntax;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
@@ -23,7 +22,7 @@ namespace Bicep.Core.Workspaces
         ErrorBuilderDelegate? ErrorBuilder);
 
     public record ModuleSourceResolutionInfo(
-        ModuleDeclarationSyntax ModuleDeclaration,
+        IForeignTemplateReference ForeignTemplateReference,
         ISourceFile ParentTemplateFile);
 
     public record SourceFileGrouping(
@@ -35,9 +34,9 @@ namespace Bicep.Core.Workspaces
     {
         public IEnumerable<ModuleSourceResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(
-                kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>()
-                    .Where(x => kvp.Value[x].RequiresRestore)
-                    .Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
+                kvp => kvp.Value
+                    .Where(entry => entry.Value.RequiresRestore)
+                    .Select(entry => new ModuleSourceResolutionInfo(entry.Key, kvp.Key)));
 
         public BicepSourceFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepSourceFile)!;
 
