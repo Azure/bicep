@@ -211,7 +211,7 @@ namespace Bicep.Cli.Services
             }
         }
 
-        private bool wasTestSuccessfull()
+        private bool IsTestSuccessfull()
         {
             if (assertions is null) 
             {
