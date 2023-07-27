@@ -5,7 +5,6 @@ import fse from "fs-extra";
 import path from "path";
 import crypto from "crypto";
 import { LanguageClient } from "vscode-languageclient/node";
-
 import {
   createDeploymentDataMessage,
   createGetAccessTokenResultMessage,
@@ -25,7 +24,6 @@ import {
   IActionContext,
 } from "@microsoft/vscode-azext-utils";
 import { GlobalStateKeys } from "../../globalState";
-import { raiseErrorWithoutTelemetry } from "../../utils/telemetry";
 import { DeployPaneState } from "./models";
 
 export class DeployPaneView extends Disposable {
@@ -180,16 +178,13 @@ export class DeployPaneView extends Disposable {
       return;
     }
 
-    if (!deploymentData) {
-      return;
-    }
-
     try {
       await this.webviewPanel.webview.postMessage(
         createDeploymentDataMessage(
           this.documentUri.fsPath,
           deploymentData.templateJson,
           deploymentData.parametersJson,
+          deploymentData.errorMessage,
         ),
       );
     } catch (error) {
@@ -287,10 +282,6 @@ export class DeployPaneView extends Disposable {
           }),
         );
 
-        return;
-      }
-      case "SHOW_USER_ERROR_DIALOG": {
-        await raiseErrorWithoutTelemetry(message.callbackId, message.error);
         return;
       }
       case "PUBLISH_TELEMETRY": {
