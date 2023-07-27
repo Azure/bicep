@@ -1220,7 +1220,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedProviderSpecificationOrCompileTimeImportExpression() => new(
                 TextSpan,
                 "BCP201",
-                "Expected a provider specification string of format \"<providerName>@<providerVersion>\", an asterisk, or a left curly brace.");
+                "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location.");
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,

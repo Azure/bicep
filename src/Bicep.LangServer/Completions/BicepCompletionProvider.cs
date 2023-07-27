@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
@@ -2103,9 +2102,9 @@ namespace Bicep.LanguageServer.Completions
             if(symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
                 var documentation = DescriptionHelper.TryGetFromDecorator(model, decorableSyntax);
-                if(declaredSymbol is ParameterSymbol || declaredSymbol is TypeAliasSymbol)
+                if(declaredSymbol is ParameterSymbol)
                 {
-                    documentation = $"Type: {HttpUtility.HtmlEncode(declaredSymbol.Type.Name)}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}");
+                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}");
                 }
                 return documentation;
             }
