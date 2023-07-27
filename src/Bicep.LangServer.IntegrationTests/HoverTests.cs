@@ -893,6 +893,46 @@ param foo|bar = true
             );
         }
 
+        [TestMethod]
+        public async Task Hovers_are_displayed_on_imported_types()
+        {
+            var moduleText = """
+                @export()
+                @description('The foo type')
+                type foo = string
+                """;
+
+            var mainTextWithCursor = """
+                import {foo} from 'mod.bicep'
+                import * as mod from 'mod.bicep'
+
+                type fooAlias = f|oo
+                type fooAliasOffWildcard = m|od.f|oo
+                """;
+
+            var (mainText, cursors) = ParserHelper.GetFileWithCursors(mainTextWithCursor, '|');
+
+            var mainFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), mainText);
+            var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), moduleText);
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainFile.FileUri] = mainText,
+                [moduleFile.FileUri] = moduleText
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, mainFile.FileUri,
+                services => services.WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true, CompileTimeImportsEnabled: true)));
+            var client = helper.Client;
+
+            var hovers = await RequestHovers(client, mainFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\ntype foo: Type<string>\n```\nThe foo type\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nmod namespace\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nfoo: Type<string>\n```\nThe foo type\n"));
+        }
+
 
         private string GetManifestFileContents(string? documentationUri, string? description)
         {

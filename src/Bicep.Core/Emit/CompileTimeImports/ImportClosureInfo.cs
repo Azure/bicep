@@ -222,16 +222,13 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             .Select<TypeAliasSymbol, (string, IntraTemplateSymbolicTypeReference)>(t => (t.Name, new BicepSymbolicTypeReference(t, model)));
 
     private static IEnumerable<(string symbolName, IntraTemplateSymbolicTypeReference reference)> EnumerateExportedSymbolsAsIntraTemplateSymbols(ArmTemplateSemanticModel model)
-        => EnumerateExportedTypesAsPointers(model)
-            .Select<string, (string, IntraTemplateSymbolicTypeReference)>(pointer => (pointer, new ArmSymbolicTypeReference(pointer, model.SourceFile, model)));
+        => model.ExportedTypes.Keys
+            .Select<string, (string, IntraTemplateSymbolicTypeReference)>(typeName => (typeName, new ArmSymbolicTypeReference($"{ArmTypeRefPrefix}{typeName}", model.SourceFile, model)));
 
     private static IEnumerable<(string symbolName, IntraTemplateSymbolicTypeReference reference)> EnumerateExportedSymbolsAsIntraTemplateSymbols(TemplateSpecSemanticModel model)
-        => EnumerateExportedTypesAsPointers(model)
+        => model.ExportedTypes.Keys
             .Select<string, (string, IntraTemplateSymbolicTypeReference)>(
-                pointer => (pointer, new ArmSymbolicTypeReference(pointer, model.SourceFile.MainTemplateFile, model)));
-
-    private static IEnumerable<string> EnumerateExportedTypesAsPointers(ISemanticModel model)
-        => model.ExportedTypes.Keys.Select(typeName => $"{ArmTypeRefPrefix}{typeName}");
+                typeName => (typeName, new ArmSymbolicTypeReference($"{ArmTypeRefPrefix}{typeName}", model.SourceFile.MainTemplateFile, model)));
 
     private static IReadOnlyDictionary<IntraTemplateSymbolicTypeReference, (ImportedSymbolOriginMetadata OriginMetadata, string UniqueNameWithinClosure)>
     CalculateImportedTypeMetadata(SemanticModel model, ImportClosure closure)
