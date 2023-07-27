@@ -10,6 +10,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -730,5 +731,23 @@ param myParam string
         {
             ("BCP025", DiagnosticLevel.Error, "The property \"bar\" is declared multiple times in this object. Remove or rename the duplicate properties.")
         });
+    }
+
+    [TestMethod]
+    public void Union_types_with_single_normalized_member_raise_diagnostics()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, """
+            type union = 'a' | 'a'
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result.Template.Should().NotBeNull();
+        result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
+            {
+                "type": "string",
+                "allowedValues": ["a"]
+            }
+            """));
     }
 }
