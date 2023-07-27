@@ -68,7 +68,7 @@ namespace Bicep.Cli.Services
         public TemplateEvaluation(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             isSkipped = !Evaluate(templateJtoken, parametersJToken, configBuilder);
-            isSuccessful = !isSkipped && wasTestSuccessfull();
+            isSuccessful = !isSkipped && IsTestSuccessfull();
         }
         private string GetResourceId(string scopeString, TemplateResource resource)
         {
