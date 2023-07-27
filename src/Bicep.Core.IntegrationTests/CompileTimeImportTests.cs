@@ -167,10 +167,10 @@ public class CompileTimeImportTests
                 "foo": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/667DA15BA24E05778924A37D15988F81D593A3CD71B5CF17AF835094AEF6B0EF.bar"
+                        "$ref": "#/definitions/1.2"
                     }
                 },
-                "667DA15BA24E05778924A37D15988F81D593A3CD71B5CF17AF835094AEF6B0EF.bar": {
+                "1.2": {
                     "type": "string"
                 }
             }
@@ -239,7 +239,7 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
             {
-                "F50265A833D6D0931D901EA006975762A8CB6AC8CA807421DA00C1DC781CAC2C.foo": {
+                "1.2": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -278,7 +278,7 @@ public class CompileTimeImportTests
                         "type": "string"
                     }
                 },
-                "F50265A833D6D0931D901EA006975762A8CB6AC8CA807421DA00C1DC781CAC2C.fizz": {
+                "1.2": {
                     "type": "int",
                     "minValue": 1,
                     "maxValue": 10
@@ -338,14 +338,14 @@ public class CompileTimeImportTests
                     "type": "object",
                     "properties": {
                         "bar": {
-                            "$ref": "#/definitions/651C7BC080E02B2F6882703968B1EDF5B6AA76E92C6FACFC0F9050C3023C2331.bar"
+                            "$ref": "#/definitions/3.6"
                         },
                         "anotherProperty": {
-                            "$ref": "#/definitions/F50265A833D6D0931D901EA006975762A8CB6AC8CA807421DA00C1DC781CAC2C.unexported"
+                            "$ref": "#/definitions/1.2"
                         }
                     }
                 },
-                "F50265A833D6D0931D901EA006975762A8CB6AC8CA807421DA00C1DC781CAC2C.unexported": {
+                "1.2": {
                     "type": "string",
                     "allowedValues": [
                         "buzz",
@@ -353,32 +353,32 @@ public class CompileTimeImportTests
                         "pop"
                     ]
                 },
-                "651C7BC080E02B2F6882703968B1EDF5B6AA76E92C6FACFC0F9050C3023C2331.bar": {
+                "3.6": {
                     "type": "object",
                     "properties": {
                         "foo": {
-                            "$ref": "#/definitions/5F9E55E40B10AD26BDDC7BBB870824D715967A0FDF6F44AB8A392F717C3FB5A0.bar"
+                            "$ref": "#/definitions/9.10"
                         },
                         "prop": {
-                            "$ref": "#/definitions/651C7BC080E02B2F6882703968B1EDF5B6AA76E92C6FACFC0F9050C3023C2331.unexported"
+                            "$ref": "#/definitions/3.8"
                         }
                     }
                 },
-                "651C7BC080E02B2F6882703968B1EDF5B6AA76E92C6FACFC0F9050C3023C2331.unexported": {
+                "3.8": {
                     "type": "object",
                     "properties": {
                         "nested": {
-                            "$ref": "#/definitions/651C7BC080E02B2F6882703968B1EDF5B6AA76E92C6FACFC0F9050C3023C2331.alsoNotExported"
+                            "$ref": "#/definitions/3.4"
                         }
                     }
                 },
-                "651C7BC080E02B2F6882703968B1EDF5B6AA76E92C6FACFC0F9050C3023C2331.alsoNotExported": {
+                "3.4": {
                     "type": "int"
                 },
-                "5F9E55E40B10AD26BDDC7BBB870824D715967A0FDF6F44AB8A392F717C3FB5A0.bar": {
-                    "$ref": "#/definitions/DC87F6056263791CB99D224E81E281E05A23CE9F66479A7CF2F5138CCD9412B6.foo"
+                "9.10": {
+                    "$ref": "#/definitions/11.12"
                 },
-                "DC87F6056263791CB99D224E81E281E05A23CE9F66479A7CF2F5138CCD9412B6.foo": {
+                "11.12": {
                     "type": "array",
                     "items": {
                         "type": "string"
