@@ -75,9 +75,8 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
         }
 
         private ObjectSyntax? GetMetadataObject(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(model, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMetadataPropertyName) is {} mdDecorator &&
-                mdDecorator.Arguments.FirstOrDefault()?.Expression is ObjectSyntax objectArgument
-                    ? objectArgument
-                    : null;
+            => SemanticModelHelper.TryGetDecoratorInNamespace(model, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMetadataPropertyName) is {} mdDecorator
+                ? mdDecorator.Arguments.FirstOrDefault()?.Expression as ObjectSyntax
+                : null;
     }
 }
