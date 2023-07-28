@@ -192,10 +192,10 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-    description: 'An array.'
+    description: 'I will be overrode.'
 })
 @sys.maxLength(20)
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 param decoratedArray array = [
     utcNow()
     newGuid()
