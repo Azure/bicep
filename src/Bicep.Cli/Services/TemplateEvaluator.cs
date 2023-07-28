@@ -176,17 +176,18 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
-                var allAssertions = template.Asserts?.ToImmutableDictionary(p => p.Key, p => (bool)p.Value.Value);
-                var allAssertionsNotNull = allAssertions ?? ImmutableDictionary<string, bool>.Empty;
-                var failedAssertions = allAssertionsNotNull.Where(a => !a.Value).ToImmutableDictionary(a => a.Key, a => a.Value);
-                
-                return new TestEvaluation(template, null, allAssertionsNotNull, failedAssertions);
+                // var allAssertions = template.Asserts?.ToImmutableArray(p => AssertionResult(p, p.Value.Value));
+                // var allAssertionsNotNull = allAssertions ?? ImmutableDictionary<string, bool>.Empty;
+                // var failedAssertions = allAssertionsNotNull.Where(a => !a.Value).ToImmutableDictionary(a => a.Key, a => a.Value);
+                var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? ImmutableArray<AssertionResult>.Empty;
+                var failedAssertions = allAssertions.Where(a => !a.Result).Select(a => a).ToImmutableArray();
+                return new TestEvaluation(template, null, allAssertions, failedAssertions);
             }
             catch (Exception exception)
             {
                 var error = exception.Message;
 
-                return new TestEvaluation(null, error, ImmutableDictionary<string, bool>.Empty, ImmutableDictionary<string, bool>.Empty);
+                return new TestEvaluation(null, error, ImmutableArray<AssertionResult>.Empty, ImmutableArray<AssertionResult>.Empty);
             }
         }
 

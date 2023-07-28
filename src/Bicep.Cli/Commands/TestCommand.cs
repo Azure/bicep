@@ -87,7 +87,7 @@ namespace Bicep.Cli.Commands
 
             }
             foreach(var (name, evaluation) in validation.FailedEvaluations){
-                logger.LogError($"{FailureSymbol} Evaluation {name} Failed at {evaluation.FailedAssertions.Count} / {evaluation.Assertions.Count} assertions!");
+                logger.LogError($"{FailureSymbol} Evaluation {name} Failed at {evaluation.FailedAssertions.Length} / {evaluation.AllAssertions.Length} assertions!");
                 foreach(var (assertion, _) in evaluation.FailedAssertions){
                     logger.LogError($"\t{FailureSymbol} Assertion {assertion} failed!");
                 }

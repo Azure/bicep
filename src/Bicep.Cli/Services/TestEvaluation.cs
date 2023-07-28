@@ -29,17 +29,22 @@
 using System;
 using System.Collections.Immutable;
 using Azure.Deployments.Core.Definitions.Schema;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Cli.Services;
 
 public record TestEvaluation(
     Template? Template,
     String? Error,
-    ImmutableDictionary<string, bool> Assertions,
-    ImmutableDictionary<string, bool> FailedAssertions)
+    ImmutableArray<AssertionResult> AllAssertions,
+    ImmutableArray<AssertionResult> FailedAssertions)
 {
 
-    public bool Success => Error == null && (FailedAssertions.Count == 0);
+    public bool Success => Error == null && (FailedAssertions.Length == 0);
 
     public bool Skip => Error != null;
+}
+
+public record AssertionResult(string Source, bool Result)
+{
 }
