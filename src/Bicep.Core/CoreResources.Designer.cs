@@ -304,7 +304,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Metadata properties whose value is set by a separate decorator should not be set via the &quot;@metadata()&quot; decorator..
+        ///   Looks up a localized string similar to Metadata properties whose value is set by a separate decorator should not be set via the &apos;@metadata()&apos; decorator..
         /// </summary>
         internal static string NoConflictingMetadataRuleDescription {
             get {

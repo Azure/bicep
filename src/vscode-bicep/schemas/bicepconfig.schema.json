@@ -308,7 +308,7 @@
                 "no-conflicting-metadata": {
                   "allOf": [
                     {
-                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the \"@metadata()\" decorator. See https://aka.ms/bicep/linter/no-conflicting-metadata"
+                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator. See https://aka.ms/bicep/linter/no-conflicting-metadata"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
