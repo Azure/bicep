@@ -176,15 +176,17 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
-                var assertions = template.Asserts?.ToDictionary(p => p.Key, p => (bool)p.Value.Value) ?? new Dictionary<string, bool>();
-
-                return new TestEvaluation(template, assertions, null);
+                var allAssertions = template.Asserts?.ToImmutableDictionary(p => p.Key, p => (bool)p.Value.Value);
+                var allAssertionsNotNull = allAssertions ?? ImmutableDictionary<string, bool>.Empty;
+                var failedAssertions = allAssertionsNotNull.Where(a => !a.Value).ToImmutableDictionary(a => a.Key, a => a.Value);
+                
+                return new TestEvaluation(template, null, allAssertionsNotNull, failedAssertions);
             }
             catch (Exception exception)
             {
                 var error = exception.Message;
 
-                return new TestEvaluation(null, null, error);
+                return new TestEvaluation(null, error, ImmutableDictionary<string, bool>.Empty, ImmutableDictionary<string, bool>.Empty);
             }
         }
 
