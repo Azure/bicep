@@ -77,6 +77,11 @@ namespace Bicep.Core.TypeSystem
         FunctionDecorator = 1 << 13,
 
         /// <summary>
+        /// The function can be used in direct assignment only
+        /// </summary>
+        DirectAssignment = 1 << 14,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
