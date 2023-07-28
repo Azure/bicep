@@ -83,7 +83,7 @@ namespace Bicep.Cli.Commands
             }
             foreach(var (name, evaluation) in validation.SkippedEvaluations){
                 logger.LogError($"{SkippedSymbol} Evaluation {name} Skipped!");
-                logger.LogError($"Reason: {evaluation.Error?.Message}");
+                logger.LogError($"Reason: {evaluation.Error}");
 
             }
             foreach(var (name, evaluation) in validation.FailedEvaluations){

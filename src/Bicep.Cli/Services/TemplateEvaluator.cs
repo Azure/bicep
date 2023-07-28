@@ -182,11 +182,7 @@ namespace Bicep.Cli.Services
             }
             catch (Exception exception)
             {
-                var error = new InvalidOperationException(
-                    $"Evaluating template failed: {exception.Message}." +
-                    $"\nTemplate file: {templateJtoken}" +
-                    (parametersJToken is null ? "" : $"\nParameters file: {parametersJToken}"),
-                    exception);
+                var error = exception.Message;
 
                 return new TestEvaluation(null, null, error);
             }

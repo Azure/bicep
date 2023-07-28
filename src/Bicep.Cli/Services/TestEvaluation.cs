@@ -11,16 +11,16 @@ namespace Bicep.Cli.Services
     public class TestEvaluation
     {
         public Template? Template { get; }
-        public InvalidOperationException? Error { get; }
+        public string Error { get; }
         public Dictionary<string, bool> Assertions { get; }
         public Dictionary<string, bool> FailedAssertions { get; }
-        public bool Success => Error == null && (FailedAssertions.Count == 0);
-        public bool Skip => Error != null;
-        public TestEvaluation(Template? template, Dictionary<string, bool>? assertions, InvalidOperationException? error)
+        public bool Success => Error == "" && (FailedAssertions.Count == 0);
+        public bool Skip => Error != "";
+        public TestEvaluation(Template? template, Dictionary<string, bool>? assertions, string? error)
         {
             Template = template;
             Assertions = assertions ?? new Dictionary<string, bool>();
-            Error = error;
+            Error = error ?? "";
             FailedAssertions = assertions?.Where(a => !a.Value).ToDictionary(a => a.Key, a => a.Value) ?? new Dictionary<string, bool>();
         }
     }
