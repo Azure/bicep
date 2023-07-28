@@ -8,7 +8,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 
 namespace Bicep.Cli.Services
 {
-    public class Evaluation
+    public class TestEvaluation
     {
         public Template? Template { get; }
         public InvalidOperationException? Error { get; }
@@ -16,7 +16,7 @@ namespace Bicep.Cli.Services
         public Dictionary<string, bool> FailedAssertions { get; }
         public bool Success => Error == null && (FailedAssertions.Count == 0);
         public bool Skip => Error != null;
-        public Evaluation(Template? template, Dictionary<string, bool>? assertions, InvalidOperationException? error)
+        public TestEvaluation(Template? template, Dictionary<string, bool>? assertions, InvalidOperationException? error)
         {
             Template = template;
             Assertions = assertions ?? new Dictionary<string, bool>();

@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Cli.Services
 {
-    public class TemplateEvaluation
+    public class TemplateEvaluator
     {
         private const string DummyTenantId = "";
         private const string DummyManagementGroupName = "";
@@ -142,7 +142,7 @@ namespace Bicep.Cli.Services
             }
         }
 
-        public static Evaluation Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
+        public static TestEvaluation Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
@@ -154,7 +154,7 @@ namespace Bicep.Cli.Services
             return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
         }
 
-        private static Evaluation EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
+        private static TestEvaluation EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
@@ -178,7 +178,7 @@ namespace Bicep.Cli.Services
 
                 var assertions = template.Asserts?.ToDictionary(p => p.Key, p => (bool)p.Value.Value) ?? new Dictionary<string, bool>();
 
-                return new Evaluation(template, assertions, null);
+                return new TestEvaluation(template, assertions, null);
             }
             catch (Exception exception)
             {
@@ -188,7 +188,7 @@ namespace Bicep.Cli.Services
                     (parametersJToken is null ? "" : $"\nParameters file: {parametersJToken}"),
                     exception);
 
-                return new Evaluation(null, null, error);
+                return new TestEvaluation(null, null, error);
             }
         }
 

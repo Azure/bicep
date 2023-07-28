@@ -8,7 +8,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
@@ -18,11 +17,11 @@ namespace Bicep.Cli.Services
 {
     public class Validation
     {
-        public InsensitiveDictionary<Evaluation> SuccessfullEvaluations { get; }
+        public InsensitiveDictionary<TestEvaluation> SuccessfullEvaluations { get; }
 
-        public InsensitiveDictionary<Evaluation> FailedEvaluations { get; }
+        public InsensitiveDictionary<TestEvaluation> FailedEvaluations { get; }
 
-        public InsensitiveDictionary<Evaluation> SkippedEvaluations { get; }
+        public InsensitiveDictionary<TestEvaluation> SkippedEvaluations { get; }
 
         public bool Success => FailedEvaluations.Count == 0 && SkippedEvaluations.Count == 0;
 
@@ -30,9 +29,9 @@ namespace Bicep.Cli.Services
 
         public Validation(ImmutableArray<TestSymbol> testDeclarations)
         {
-            SuccessfullEvaluations = new InsensitiveDictionary<Evaluation>();
-            FailedEvaluations = new InsensitiveDictionary<Evaluation>();
-            SkippedEvaluations = new InsensitiveDictionary<Evaluation>();
+            SuccessfullEvaluations = new InsensitiveDictionary<TestEvaluation>();
+            FailedEvaluations = new InsensitiveDictionary<TestEvaluation>();
+            SkippedEvaluations = new InsensitiveDictionary<TestEvaluation>();
 
             Validate(testDeclarations);
         }
@@ -55,7 +54,7 @@ namespace Bicep.Cli.Services
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
                     var template = GetTemplate(testSemanticModel, testDeclaration);
 
-                    var evaluation = TemplateEvaluation.Evaluate(template, parameters);
+                    var evaluation = TemplateEvaluator.Evaluate(template, parameters);
 
                     var skipped = evaluation.Skip;
                     var success = evaluation.Success;
