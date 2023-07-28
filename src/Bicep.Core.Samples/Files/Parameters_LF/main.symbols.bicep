@@ -228,10 +228,10 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-    description: 'An array.'
+    description: 'I will be overrode.'
 })
 @sys.maxLength(20)
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 param decoratedArray array = [
 //@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 166
     utcNow()
