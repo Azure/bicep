@@ -18,6 +18,7 @@ param myBool bool
 @sys.description('this is myString2')
 @metadata({
   description: 'overwrite but still valid'
+//@[02:013) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-conflicting-metadata)) |description|
 })
 param myString2 string = 'string value'
 //@[06:015) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|
@@ -34,6 +35,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 @sys.description('this is foo')
 @metadata({
   description: 'overwrite but still valid'
+//@[02:013) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-conflicting-metadata)) |description|
   another: 'just for fun'
 })
 param foo object = {
@@ -191,6 +193,7 @@ param negativeValues int
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
+//@[04:015) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-conflicting-metadata)) |description|
     foo: 'something'
     bar: [
         {          }
@@ -229,6 +232,7 @@ param decoratedObject object = {
 
 @sys.metadata({
     description: 'I will be overrode.'
+//@[04:015) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-conflicting-metadata)) |description|
 })
 @sys.maxLength(20)
 @sys.description('An array.')

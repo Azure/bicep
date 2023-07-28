@@ -440,4 +440,10 @@
   <data name="MaxNumberAssertsRuleMessageFormat" xml:space="preserve">
     <value>Too many predeployment conditions. Number of 'assert' statements is limited to {0}.</value>
   </data>
+  <data name="NoConflictingMetadataRuleDescription" xml:space="preserve">
+    <value>Metadata properties whose value is set by a separate decorator should not be set via the "@metadata()" decorator.</value>
+  </data>
+  <data name="NoConflictingMetadataRuleMessageFormat" xml:space="preserve">
+    <value>The "{0}" metadata property conflicts with the "{1}" decorator and will be overwritten.</value>
+  </data>
 </root>

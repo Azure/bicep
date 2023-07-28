@@ -304,6 +304,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Metadata properties whose value is set by a separate decorator should not be set via the &quot;@metadata()&quot; decorator..
+        /// </summary>
+        internal static string NoConflictingMetadataRuleDescription {
+            get {
+                return ResourceManager.GetString("NoConflictingMetadataRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The &quot;{0}&quot; metadata property conflicts with the &quot;{1}&quot; decorator and will be overwritten..
+        /// </summary>
+        internal static string NoConflictingMetadataRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("NoConflictingMetadataRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value. Change variable &apos;{0}&apos; into a parameter instead..
         /// </summary>
         internal static string NoHardcodedLocation_ErrorChangeVarToParam {
