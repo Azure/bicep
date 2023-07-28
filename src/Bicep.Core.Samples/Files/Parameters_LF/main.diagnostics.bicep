@@ -228,10 +228,10 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-    description: 'An array.'
+    description: 'I will be overrode.'
 })
 @sys.maxLength(20)
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 param decoratedArray array = [
 //@[06:020) [no-unused-params (Warning)] Parameter "decoratedArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedArray|
     utcNow()

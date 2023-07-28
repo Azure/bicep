@@ -832,11 +832,11 @@ param decoratedObject object = {
 //@[013:014) LeftParen |(|
 //@[014:015) LeftBrace |{|
 //@[015:016) NewLine |\n|
-    description: 'An array.'
+    description: 'I will be overrode.'
 //@[004:015) Identifier |description|
 //@[015:016) Colon |:|
-//@[017:028) StringComplete |'An array.'|
-//@[028:029) NewLine |\n|
+//@[017:038) StringComplete |'I will be overrode.'|
+//@[038:039) NewLine |\n|
 })
 //@[000:001) RightBrace |}|
 //@[001:002) RightParen |)|
@@ -850,15 +850,15 @@ param decoratedObject object = {
 //@[015:017) Integer |20|
 //@[017:018) RightParen |)|
 //@[018:019) NewLine |\n|
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 //@[000:001) At |@|
 //@[001:004) Identifier |sys|
 //@[004:005) Dot |.|
 //@[005:016) Identifier |description|
 //@[016:017) LeftParen |(|
-//@[017:038) StringComplete |'I will be overrode.'|
-//@[038:039) RightParen |)|
-//@[039:040) NewLine |\n|
+//@[017:028) StringComplete |'An array.'|
+//@[028:029) RightParen |)|
+//@[029:030) NewLine |\n|
 param decoratedArray array = [
 //@[000:005) Identifier |param|
 //@[006:020) Identifier |decoratedArray|
