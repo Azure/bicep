@@ -40,5 +40,9 @@ namespace Bicep.Core.TypeSystem
         public string ProviderName => Settings.BicepProviderName;
 
         public ObjectType? ConfigurationType => Settings.ConfigurationType;
+
+        public TypeTypeProperty? TryGetTypeProperty(string name) => Properties.TryGetValue(name, out var property) && property is TypeTypeProperty typeProperty
+            ? typeProperty
+            : null;
     }
 }

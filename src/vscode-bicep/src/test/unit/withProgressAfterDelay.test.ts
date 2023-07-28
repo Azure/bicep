@@ -20,7 +20,7 @@ describe("withProgressAfterDelay", () => {
         await sleep(1);
         isDone = true;
         return "hi";
-      }
+      },
     );
 
     expect(isDone).toBeTruthy();
@@ -42,7 +42,7 @@ describe("withProgressAfterDelay", () => {
         await sleep(1);
         isDone = true;
         return "hi";
-      }
+      },
     );
 
     expect(isDone).toBeTruthy();
@@ -64,7 +64,7 @@ describe("withProgressAfterDelay", () => {
         await sleep(10);
         isDone = true;
         return 123;
-      }
+      },
     );
 
     expect(isDone).toBeTruthy();
@@ -83,7 +83,7 @@ describe("withProgressAfterDelay", () => {
         },
         async () => {
           throw new Error("hah!");
-        }
+        },
       );
     await expect(func).rejects.toThrow("hah!");
 
@@ -104,7 +104,7 @@ describe("withProgressAfterDelay", () => {
           await sleep(10);
           expect(withProgressMock).toHaveBeenCalledTimes(1);
           throw new Error("hah!");
-        }
+        },
       );
     await expect(func).rejects.toThrow("hah!");
 

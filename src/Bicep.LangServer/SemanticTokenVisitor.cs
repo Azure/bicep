@@ -358,5 +358,12 @@ namespace Bicep.LanguageServer
             base.VisitUsingDeclarationSyntax(syntax);
         }
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) 
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitAssertDeclarationSyntax(syntax);
+        }
+
     }
 }

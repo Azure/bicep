@@ -5,6 +5,7 @@ targetScope = 'subscription'
 
 param prefix string = 'majastrz'
 //@[00:032) ├─DeclaredParameterExpression { Name = prefix }
+//@[13:019) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[22:032) | └─StringLiteralExpression { Value = majastrz }
 var groups = [
 //@[00:060) ├─DeclaredVariableExpression { Name = groups }

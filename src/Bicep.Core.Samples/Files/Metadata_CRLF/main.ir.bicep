@@ -108,4 +108,5 @@ metadata myEmptyArray = [ ]
 // param with same name as metadata is permitted
 param foo string
 //@[00:016) └─DeclaredParameterExpression { Name = foo }
+//@[10:016)   └─AmbientTypeReferenceExpression { Name = string }
 

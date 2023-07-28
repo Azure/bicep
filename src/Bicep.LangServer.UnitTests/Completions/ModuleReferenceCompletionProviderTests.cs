@@ -581,7 +581,7 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help2") });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html") });
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -611,7 +611,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.InsertText == null &&
                 x.SortText == expectedSortText2 &&
                 x.Detail == "d2" &&
-                x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help2)" &&
+                x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help%20page.html)" &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText2 &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&

@@ -18,7 +18,7 @@ import {
 export class ManagementGroupTreeItem extends SubscriptionTreeItemBase {
   public readonly childTypeLabel: string = localize(
     "managementGroup",
-    "Management Group"
+    "Management Group",
   );
 
   private _nextLink: string | undefined;
@@ -30,18 +30,18 @@ export class ManagementGroupTreeItem extends SubscriptionTreeItemBase {
   // Loads management groups
   public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
     const managementGroupsAPI = new ManagementGroupsAPI(
-      new DefaultAzureCredential()
+      new DefaultAzureCredential(),
     );
 
     let managementGroupInfos: ManagementGroupInfo[] = [];
 
     try {
       managementGroupInfos = await uiUtils.listAllIterator(
-        managementGroupsAPI.managementGroups.list()
+        managementGroupsAPI.managementGroups.list(),
       );
     } catch (error) {
       throw new Error(
-        "You do not have access to any management group. Please create one in the Azure portal and try to deploy again"
+        "You do not have access to any management group. Please create one in the Azure portal and try to deploy again",
       );
     }
 
@@ -49,7 +49,7 @@ export class ManagementGroupTreeItem extends SubscriptionTreeItemBase {
       managementGroupInfos,
       "invalidManagementGroup",
       (mg) => new GenericAzExtTreeItem(this, mg.id, mg.name),
-      (mg) => mg.name
+      (mg) => mg.name,
     );
   }
 }

@@ -10,7 +10,7 @@ import {
 import { DecompileParamsCommand } from "./commands/decompileParams";
 
 export async function updateUiContext(
-  currentDocument: TextDocument | undefined
+  currentDocument: TextDocument | undefined,
 ): Promise<void> {
   await callWithTelemetryAndErrorHandling(
     "updateUiContext",
@@ -23,7 +23,7 @@ export async function updateUiContext(
         case "json":
         case "jsonc":
           cannotDecompile = !(await DecompileCommand.mightBeArmTemplateNoThrow(
-            currentDocument.uri
+            currentDocument.uri,
           ));
           break;
         default:
@@ -35,7 +35,7 @@ export async function updateUiContext(
       await commands.executeCommand(
         "setContext",
         "bicep.cannotDecompile",
-        cannotDecompile
+        cannotDecompile,
       );
 
       let cannotDecompileParams: boolean;
@@ -44,7 +44,7 @@ export async function updateUiContext(
         case "jsonc":
           cannotDecompileParams =
             !(await DecompileParamsCommand.mightBeArmParametersNoThrow(
-              currentDocument.uri
+              currentDocument.uri,
             ));
           break;
         default:
@@ -55,8 +55,8 @@ export async function updateUiContext(
       await commands.executeCommand(
         "setContext",
         "bicep.cannotDecompileParams",
-        cannotDecompileParams
+        cannotDecompileParams,
       );
-    }
+    },
   );
 }

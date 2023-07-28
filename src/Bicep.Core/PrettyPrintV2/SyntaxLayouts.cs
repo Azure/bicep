@@ -175,6 +175,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Path,
+                null,
                 syntax.Assignment,
                 syntax.Newlines,
                 syntax.Value);
@@ -295,6 +296,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Type,
+                syntax.ExistingKeyword,
                 syntax.Assignment,
                 syntax.Newlines,
                 syntax.Value);
@@ -304,29 +306,24 @@ namespace Bicep.Core.PrettyPrintV2
             SyntaxBase keyword,
             SyntaxBase name,
             SyntaxBase typeOrPath,
+            SyntaxBase? existingKeyword,
             SyntaxBase assignment,
             IEnumerable<SyntaxBase> newlines,
             SyntaxBase value)
         {
             if (value is IfConditionSyntax)
             {
-                var valueAssignmentClause = newlines.Prepend(assignment).Append(value);
+                var valueAssignmentClause = this.IndentTail(newlines.Prepend(assignment).Append(value));
 
-                return this.LayoutLeadingNodes(leadingNodes)
-                    .Concat(this.Spread(
-                        keyword,
-                        name,
-                        typeOrPath,
-                        this.IndentTail(valueAssignmentClause)));
+                return this.LayoutLeadingNodes(leadingNodes).Concat(existingKeyword is not null
+                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, valueAssignmentClause)
+                    : this.Spread(keyword, name, typeOrPath, valueAssignmentClause));
             }
 
             return this.LayoutLeadingNodes(leadingNodes)
-                .Concat(this.Spread(
-                    keyword,
-                    name,
-                    typeOrPath,
-                    assignment,
-                    value));
+                .Concat(existingKeyword is not null
+                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, assignment, value)
+                    : this.Spread(keyword, name, typeOrPath, assignment, value));
         }
 
         private IEnumerable<Document> LayoutResourceTypeSyntax(ResourceTypeSyntax syntax) =>
@@ -433,6 +430,14 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrEmpty);
 
         private IEnumerable<Document> LayoutVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(this.Spread(
+                    syntax.Keyword,
+                    syntax.Name,
+                    syntax.Assignment,
+                    syntax.Value));
+
+        private IEnumerable<Document> LayoutAssertDeclarationSyntax(AssertDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(this.Spread(
                     syntax.Keyword,

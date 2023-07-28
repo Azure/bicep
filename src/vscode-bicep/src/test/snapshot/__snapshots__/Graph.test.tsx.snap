@@ -10,7 +10,7 @@ Array [
   right: 0px;
   overflow: hidden;
   background-color: #111111;
-  background-image: radial-gradient(circle at 1px 1px,#3f3f3f 1px,transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, #3f3f3f 1px, transparent 0);
   background-size: 24px 24px;
   background-position: 12px 12px;
 }
@@ -20,9 +20,6 @@ Array [
   />,
   .c1 {
   display: relative;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -34,8 +31,6 @@ Array [
   padding: 4px 8px;
   margin-top: 2px;
   right: 44px;
-  width: -webkit-max-content;
-  width: -moz-max-content;
   width: max-content;
   display: none;
 }
@@ -45,34 +40,22 @@ Array [
   top: 20px;
   right: 20px;
   z-index: 99999;
-  -webkit-filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.25));
-  filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.25));
+  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.25));
 }
 
 .c3 {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   padding: 6px;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
   justify-content: center;
   background-color: #333333;
 }
 
 .c3:hover {
-  -webkit-filter: brightness(125%);
   filter: brightness(125%);
 }
 
 .c3:active {
-  -webkit-filter: brightness(85%);
   filter: brightness(85%);
 }
 
@@ -83,6 +66,7 @@ Array [
       className="c1"
     >
       <div
+        active={false}
         className="c2"
       >
         Zoom in
@@ -125,6 +109,7 @@ Array [
       className="c1"
     >
       <div
+        active={false}
         className="c2"
       >
         Zoom out
@@ -167,6 +152,7 @@ Array [
       className="c1"
     >
       <div
+        active={false}
         className="c2"
       >
         Reset layout
@@ -206,6 +192,7 @@ Array [
       className="c1"
     >
       <div
+        active={false}
         className="c2"
       >
         Fit

@@ -219,6 +219,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a module path (local or remote)
         /// </summary>
-        TestPath = 1UL << 40,        
+        TestPath = 1UL << 40,
+        
+        /// <summary>
+        /// The current location needs an assert value.
+        /// </summary>
+        AssertValue = 1UL << 41,
     }
 }

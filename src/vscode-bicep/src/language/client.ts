@@ -24,7 +24,7 @@ function getServerStartupOptions(
   dotnetCommandPath: string,
   languageServerPath: string,
   transportKind: TransportKind,
-  waitForDebugger: boolean
+  waitForDebugger: boolean,
 ): lsp.ServerOptions {
   const args = [];
   if (waitForDebugger) {
@@ -70,7 +70,7 @@ export async function createLanguageService(
   actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel,
-  dotnetCommandPath: string
+  dotnetCommandPath: string,
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
 
@@ -83,7 +83,7 @@ export async function createLanguageService(
     // Use named pipe transport for LSP comms
     TransportKind.pipe,
     // Set to true to pause server startup until a dotnet debugger is attached
-    false
+    false,
   );
 
   const clientOptions: lsp.LanguageClientOptions = {
@@ -105,7 +105,7 @@ export async function createLanguageService(
                 .getConfiguration("files")
                 .get("insertFinalNewline") ?? false,
           },
-          token
+          token,
         ),
     },
     synchronize: {
@@ -123,7 +123,7 @@ export async function createLanguageService(
     bicepLanguageId,
     "Bicep",
     serverOptions,
-    clientOptions
+    clientOptions,
   );
 
   client.registerProposedFeatures();
@@ -135,7 +135,7 @@ export async function createLanguageService(
 
   client.onNotification(
     "deploymentComplete",
-    writeDeploymentOutputMessageToBicepOperationsOutputChannel
+    writeDeploymentOutputMessageToBicepOperationsOutputChannel,
   );
 
   client.onNotification("bicep/triggerEditorCompletion", async () => {
@@ -157,7 +157,7 @@ function getCustomDotnetRuntimePathConfig() {
 }
 
 export async function ensureDotnetRuntimeInstalled(
-  actionContext: IActionContext
+  actionContext: IActionContext,
 ): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
 
@@ -166,8 +166,8 @@ export async function ensureDotnetRuntimeInstalled(
     // This setting is a common source of issues. Add explicit logging to help with investigation.
     getLogger().info(
       `Found config for '${dotnetAcquisitionExtensionSetting}.${existingDotnetPathSetting}': ${JSON.stringify(
-        customDotnetRuntimePathConfig
-      )}`
+        customDotnetRuntimePathConfig,
+      )}`,
     );
   }
 
@@ -176,7 +176,7 @@ export async function ensureDotnetRuntimeInstalled(
     {
       version: dotnetRuntimeVersion,
       requestingExtensionId: extensionId,
-    }
+    },
   );
 
   if (!result) {
@@ -213,7 +213,7 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
 
   if (!existsSync(languageServerPath)) {
     throw new Error(
-      `Language server does not exist at '${languageServerPath}'.`
+      `Language server does not exist at '${languageServerPath}'.`,
     );
   }
 
@@ -235,16 +235,16 @@ function configureTelemetry(client: lsp.LanguageClient) {
           telemetryActionContext.errorHandling.suppressDisplay = true;
           telemetryActionContext.telemetry.properties =
             telemetryData.properties;
-        }
+        },
       );
-    }
+    },
   );
 
   client.clientOptions.errorHandler = {
     error(
       error: Error,
       message: Message | undefined,
-      count: number | undefined
+      count: number | undefined,
     ) {
       callWithTelemetryAndErrorHandlingSync(
         "bicep.lsp-error",
@@ -256,7 +256,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
             (Date.now() - startTime) / 1000;
 
           throw new Error(`Error: ${parseError(error).message}`);
-        }
+        },
       );
       return defaultErrorHandler.error(error, message, count);
     },
@@ -268,7 +268,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
             (Date.now() - startTime) / 1000;
 
           throw new Error(`Connection closed`);
-        }
+        },
       );
       return defaultErrorHandler.closed();
     },

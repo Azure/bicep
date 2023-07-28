@@ -45,12 +45,14 @@ var variousAlphabets = {
 
 output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[00:061) ├─DeclaredOutputExpression { Name = concatUnicodeStrings }
+//@[28:034) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[37:061) | └─FunctionCallExpression { Name = concat }
 //@[44:048) |   ├─StringLiteralExpression { Value = Θμ }
 //@[50:055) |   ├─StringLiteralExpression { Value = 二头肌 }
 //@[57:060) |   └─StringLiteralExpression { Value = α }
 output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
 //@[00:070) └─DeclaredOutputExpression { Name = interpolateUnicodeStrings }
+//@[33:039)   ├─AmbientTypeReferenceExpression { Name = string }
 //@[42:070)   └─InterpolatedStringExpression
 //@[48:054)     ├─VariableReferenceExpression { Variable = emojis }
 //@[59:067)     └─VariableReferenceExpression { Variable = ninjaCat }

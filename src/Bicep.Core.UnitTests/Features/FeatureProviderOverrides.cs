@@ -18,7 +18,9 @@ public record FeatureProviderOverrides(
     bool? UserDefinedFunctionsEnabled = default,
     bool? PrettyPrintingEnabled = default,
     bool? TestFrameworkEnabled = default,
-    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
+    bool? AssertsEnabled = default,
+    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
+    bool? DynamicTypeLoading = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -32,7 +34,9 @@ public record FeatureProviderOverrides(
         bool? UserDefinedFunctionsEnabled = default,
         bool? PrettyPrintingEnabled = default,
         bool? TestFrameworkEnabled = default,
-        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
+        bool? AssertsEnabled = default,
+        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
+        bool? DynamicTypeLoading = default
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
         RegistryEnabled,
@@ -45,5 +49,7 @@ public record FeatureProviderOverrides(
         UserDefinedFunctionsEnabled,
         PrettyPrintingEnabled,
         TestFrameworkEnabled,
-        AssemblyVersion) {}
+        AssertsEnabled,
+        AssemblyVersion,
+        DynamicTypeLoading) { }
 }

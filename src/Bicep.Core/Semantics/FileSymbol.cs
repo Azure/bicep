@@ -35,7 +35,7 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
-            // TODO: Avoid looping 9 times?
+            // TODO: Avoid looping 10 times?
             this.DeclarationsBySyntax = fileScope.Declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
             this.ImportDeclarations = fileScope.Declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = fileScope.Declarations.OfType<MetadataSymbol>().ToImmutableArray();
@@ -46,6 +46,7 @@ namespace Bicep.Core.Semantics
             this.ResourceDeclarations = fileScope.Declarations.OfType<ResourceSymbol>().ToImmutableArray();
             this.ModuleDeclarations = fileScope.Declarations.OfType<ModuleSymbol>().ToImmutableArray();
             this.OutputDeclarations = fileScope.Declarations.OfType<OutputSymbol>().ToImmutableArray();
+            this.AssertDeclarations = fileScope.Declarations.OfType<AssertSymbol>().ToImmutableArray();
             this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
             this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
@@ -65,6 +66,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations)
+            .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments);
 
         public IEnumerable<Symbol> Namespaces =>
@@ -102,6 +104,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
+
+        public ImmutableArray<AssertSymbol> AssertDeclarations { get; }
 
         public ImmutableArray<TestSymbol> TestDeclarations { get; }
 

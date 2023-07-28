@@ -5,13 +5,13 @@ import { parseError } from "@microsoft/vscode-azext-utils";
 
 export async function testScope(
   testScopeName: string,
-  action: () => Promise<void> | void
+  action: () => Promise<void> | void,
 ): Promise<void> {
   try {
     await action();
   } catch (err) {
     throw new Error(
-      `Test failure in scope "${testScopeName}":\n${parseError(err).message}`
+      `Test failure in scope "${testScopeName}":\n${parseError(err).message}`,
     );
   }
 }

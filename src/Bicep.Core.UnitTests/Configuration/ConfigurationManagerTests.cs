@@ -103,7 +103,9 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
-                    "testFramework": false
+                    "testFramework": false,
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -172,7 +174,9 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
-                    "testFramework": false
+                    "testFramework": false,
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -265,8 +269,10 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false,
-                    "testFramework": false
+                    "prettyPrinting": false, 
+                    "testFramework": false,
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -591,7 +597,9 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
                     "prettyPrinting": false, 
-                    "testFramework": false
+                    "testFramework": false,
+                    "assertions": false,
+                    "dynamicTypeLoading": false
                   },
                   "formatting": {
                     "indentKind": "Space",

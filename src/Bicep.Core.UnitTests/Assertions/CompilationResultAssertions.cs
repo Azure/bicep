@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,14 @@ namespace Bicep.Core.UnitTests.Assertions
             return new CompilationResult(
                 result.Template,
                 result.Diagnostics.Where(filterFunc),
+                result.Compilation);
+        }
+
+        public static CompilationResult WithErrorDiagnosticsOnly(this CompilationResult result)
+        {
+            return new CompilationResult(
+                result.Template,
+                result.Diagnostics.OnlyIncludingErrorDiagnostics(),
                 result.Compilation);
         }
     }

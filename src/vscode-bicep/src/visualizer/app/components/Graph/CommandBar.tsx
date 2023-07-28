@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { VFC } from "react";
+import { FC } from "react";
 import styled, { DefaultTheme, withTheme, css } from "styled-components";
 import { VscWand } from "react-icons/vsc";
 import { CgMaximize, CgZoomIn, CgZoomOut } from "react-icons/cg";
@@ -61,7 +61,7 @@ const CommandBarButton = styled.div`
   }}
 `;
 
-const CommandBarComponent: VFC<CommandBarProps> = (props) => (
+const CommandBarComponent: FC<CommandBarProps> = (props) => (
   <CommandBarContainer>
     <TooltipHost content="Zoom in">
       <CommandBarButton onClick={props.onZoomIn}>
@@ -98,4 +98,7 @@ const CommandBarComponent: VFC<CommandBarProps> = (props) => (
   </CommandBarContainer>
 );
 
-export const CommandBar = withTheme(CommandBarComponent);
+// Workaround for https://github.com/styled-components/styled-components/issues/4082.
+export const CommandBar = withTheme(CommandBarComponent) as FC<
+  Omit<CommandBarProps, "theme">
+>;

@@ -12,7 +12,7 @@ export class GenericAzExtTreeItem extends AzExtTreeItem {
   constructor(
     parent: AzExtParentTreeItem,
     id: string | undefined,
-    label: string | undefined
+    label: string | undefined,
   ) {
     super(parent);
     this._id = id;

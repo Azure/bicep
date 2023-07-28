@@ -28,14 +28,14 @@ describe("bicep.createConfigFile", (): void => {
 
       await testScope("Execute Create Config command", async () => {
         const newConfigPathOrUndefined = await executeCreateConfigFileCommand(
-          Uri.file(fakeBicepPath)
+          Uri.file(fakeBicepPath),
         );
 
         if (!newConfigPathOrUndefined) {
           throw new Error(
             `Language server returned ${String(
-              newConfigPathOrUndefined
-            )} for bicep.createConfigFile`
+              newConfigPathOrUndefined,
+            )} for bicep.createConfigFile`,
           );
         }
 
@@ -45,7 +45,7 @@ describe("bicep.createConfigFile", (): void => {
         expect(path.basename(newConfigPath)).toBe("bicepconfig.json");
         if (!fileExists(newConfigPath)) {
           throw new Error(
-            `Expected file ${newConfigPath} to exist but it doesn't`
+            `Expected file ${newConfigPath} to exist but it doesn't`,
           );
         }
 
@@ -54,7 +54,7 @@ describe("bicep.createConfigFile", (): void => {
         // Since the test instance of vscode does not have any workspace folders, the new file should be opened
         //   in the same folder as the bicep file
         expect(path.dirname(newConfigPath).toLowerCase()).toBe(
-          path.dirname(fakeBicepPath).toLowerCase()
+          path.dirname(fakeBicepPath).toLowerCase(),
         );
       });
 
@@ -65,14 +65,14 @@ describe("bicep.createConfigFile", (): void => {
           editorOrUndefined = window.visibleTextEditors.find(
             (ed) =>
               ed.document.uri.fsPath.toLowerCase() ===
-              newConfigPath?.toLowerCase()
+              newConfigPath?.toLowerCase(),
           );
           if (!editorOrUndefined) {
             throw new Error(
-              "New config file should be opened in a visible editor"
+              "New config file should be opened in a visible editor",
             );
           }
-        }
+        },
       );
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const editor = editorOrUndefined!;

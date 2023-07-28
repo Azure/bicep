@@ -32,7 +32,6 @@ namespace Bicep.Core.Semantics.Namespaces
             return (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
             {
                 diagnostics.Write(functionCall.Name, writeDiagnostic);
-
                 return new(returnType);
             };
         }
@@ -502,7 +501,12 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName,
-                Settings,
+                new NamespaceSettings(
+                    IsSingleton: true,
+                    BicepProviderName: BuiltInName,
+                    ConfigurationType: null,
+                    ArmTemplateProviderName: "AzureResourceManager",
+                    ArmTemplateProviderVersion: resourceTypeProvider.Version),
                 ImmutableArray<TypeTypeProperty>.Empty,
                 GetAzOverloads(resourceScope, bicepSourceFileKind),
                 ImmutableArray<BannedFunction>.Empty,

@@ -32,7 +32,7 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a parameter name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(1, 7)
+      new vscode.Position(1, 7),
     );
 
     expectHovers(hovers, {
@@ -47,7 +47,7 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a variable name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(50, 10)
+      new vscode.Position(50, 10),
     );
 
     expectHovers(hovers, {
@@ -62,7 +62,7 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a resource symbolic name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(108, 10)
+      new vscode.Position(108, 10),
     );
 
     expectHovers(hovers, {
@@ -73,7 +73,7 @@ describe("hover", (): void => {
       contents: [
         codeblockWithDescription(
           "resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01'",
-          "[View Documentation](https://docs.microsoft.com/azure/templates/microsoft.network/virtualnetworks?tabs=bicep)"
+          "[View Documentation](https://docs.microsoft.com/azure/templates/microsoft.network/virtualnetworks?tabs=bicep)",
         ),
       ],
     });
@@ -82,7 +82,7 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over an output name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(183, 14)
+      new vscode.Position(183, 14),
     );
 
     expectHovers(hovers, {
@@ -97,7 +97,7 @@ describe("hover", (): void => {
   it("should reveal type signature when hovering over a function name", async () => {
     const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
-      new vscode.Position(18, 60)
+      new vscode.Position(18, 60),
     );
 
     expectHovers(hovers, {
@@ -108,7 +108,7 @@ describe("hover", (): void => {
       contents: [
         codeblockWithDescription(
           "function uniqueString(... : string): string",
-          "Creates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long."
+          "Creates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.",
         ),
       ],
     });
@@ -116,11 +116,11 @@ describe("hover", (): void => {
 
   function executeHoverProviderCommandWithRetry(
     documentUri: vscode.Uri,
-    position: vscode.Position
+    position: vscode.Position,
   ) {
     return retryWhile(
       async () => await executeHoverProvider(documentUri, position),
-      (hovers) => hovers === undefined || hovers.length === 0
+      (hovers) => hovers === undefined || hovers.length === 0,
     );
   }
 
@@ -146,7 +146,7 @@ describe("hover", (): void => {
         startLine,
         startCharacter,
         endLine,
-        endCharacter
+        endCharacter,
       );
       expect(hover.contents).toHaveLength(contents.length);
       hover.contents.forEach((content, contentIndex) => {
@@ -156,7 +156,7 @@ describe("hover", (): void => {
   }
 
   function normalizeMarkedString(
-    content: vscode.MarkedString | vscode.MarkdownString
+    content: vscode.MarkedString | vscode.MarkdownString,
   ): string {
     return typeof content === "string" ? content : content.value;
   }
@@ -167,7 +167,7 @@ describe("hover", (): void => {
 
   function codeblockWithDescription(
     rawString: string,
-    description: string
+    description: string,
   ): string {
     return `${codeblock(rawString)}${description}\n`;
   }

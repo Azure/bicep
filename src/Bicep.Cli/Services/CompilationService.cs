@@ -3,16 +3,12 @@
 
 using Bicep.Cli.Logging;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
@@ -90,6 +86,9 @@ namespace Bicep.Cli.Services
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
             var semantic_model = compilation.GetEntrypointSemanticModel();
+
+            var declarations = semantic_model.Root.TestDeclarations;
+            ValidationService.Validate(declarations);
 
             LogDiagnostics(compilation);
 

@@ -9,7 +9,7 @@ import {
 import { getLogger } from "./logger";
 
 export async function activateWithTelemetryAndErrorHandling(
-  activateCallback: (actionContext: IActionContext) => Promise<void>
+  activateCallback: (actionContext: IActionContext) => Promise<void>,
 ): Promise<void> {
   await callWithTelemetryAndErrorHandling(
     "bicep.activate",
@@ -26,14 +26,14 @@ export async function activateWithTelemetryAndErrorHandling(
 
       actionContext.telemetry.measurements.extensionLoad =
         (Date.now() - startTime) / 1000;
-    }
+    },
   );
 }
 
 // Creates a possible telemetry event scope.  But the event is only sent if there is a cancel or an error
 export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(
   callbackId: string,
-  callback: (context: IActionContext) => T | PromiseLike<T>
+  callback: (context: IActionContext) => T | PromiseLike<T>,
 ): Promise<T | undefined> {
   return await callWithTelemetryAndErrorHandling<T | undefined>(
     callbackId,
@@ -41,6 +41,18 @@ export async function callWithTelemetryAndErrorHandlingOnlyOnErrors<T>(
       context.telemetry.suppressIfSuccessful = true;
 
       return await callback(context);
-    }
+    },
   );
+}
+
+export async function raiseErrorWithoutTelemetry(
+  callbackId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any,
+) {
+  await callWithTelemetryAndErrorHandling<void>(callbackId, (context) => {
+    context.telemetry.suppressAll = true;
+
+    return new Promise((_, reject) => reject(error));
+  });
 }

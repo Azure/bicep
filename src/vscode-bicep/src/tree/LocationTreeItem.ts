@@ -21,7 +21,7 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
   // Loads locations
   public async loadMoreChildrenImpl(
     clearCache: boolean,
-    context: IActionContext
+    context: IActionContext,
   ): Promise<AzExtTreeItem[]> {
     if (clearCache) {
       this._nextLink = undefined;
@@ -34,7 +34,7 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
     const subscriptionId = this.subscription.subscriptionId;
     const locations = [];
     for await (const location of client.subscriptions.listLocations(
-      subscriptionId
+      subscriptionId,
     )) {
       locations.push(location);
     }
@@ -43,7 +43,7 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
       locations,
       "invalidLocation",
       (location) => new GenericAzExtTreeItem(this, location.id, location.name),
-      (location) => location.name
+      (location) => location.name,
     );
 
     return locationItems;

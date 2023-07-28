@@ -1,21 +1,21 @@
 
 @sys.description('string output description')
+//@      "metadata": {
 //@        "description": "string output description"
+//@      },
 output myStr string = 'hello'
 //@    "myStr": {
 //@      "type": "string",
-//@      "metadata": {
-//@      },
 //@      "value": "hello"
 //@    },
 
 @sys.description('int output description')
+//@      "metadata": {
 //@        "description": "int output description"
+//@      },
 output myInt int = 7
 //@    "myInt": {
 //@      "type": "int",
-//@      "metadata": {
-//@      },
 //@      "value": 7
 //@    },
 output myOtherInt int = 20 / 13 + 80 % -4
@@ -25,12 +25,12 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@    },
 
 @sys.description('bool output description')
+//@      "metadata": {
 //@        "description": "bool output description"
+//@      },
 output myBool bool = !false
 //@    "myBool": {
 //@      "type": "bool",
-//@      "metadata": {
-//@      },
 //@      "value": "[not(false())]"
 //@    },
 output myOtherBool bool = true
@@ -40,12 +40,12 @@ output myOtherBool bool = true
 //@    },
 
 @sys.description('object array description')
+//@      "metadata": {
 //@        "description": "object array description"
+//@      },
 output suchEmpty array = [
 //@    "suchEmpty": {
 //@      "type": "array",
-//@      "metadata": {
-//@      },
 //@      "value": []
 //@    },
 ]
@@ -58,12 +58,12 @@ output suchEmpty2 object = {
 }
 
 @sys.description('object output description')
+//@      "metadata": {
 //@        "description": "object output description"
+//@      },
 output obj object = {
 //@    "obj": {
 //@      "type": "object",
-//@      "metadata": {
-//@      },
 //@      "value": {
 //@      }
 //@    },

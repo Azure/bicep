@@ -1,0 +1,26 @@
+id: labelAdded.dependabot
+name: GitOps.PullRequestIssueManagement
+description: Handles when "dependencies" label is added by dependabot
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+    - description: Approve PRs submitted by dependabot with the "dependencies" label
+      if:
+      - payloadType: Pull_Request
+      - hasLabel:
+          label: dependencies
+      - not:
+          hasLabel:
+            label: auto-merge
+      - isActivitySender:
+          user: dependabot[bot]
+          issueAuthor: False
+      then:
+      - approvePullRequest:
+          comment: ':shipit:'
+onFailure:
+onSuccess:

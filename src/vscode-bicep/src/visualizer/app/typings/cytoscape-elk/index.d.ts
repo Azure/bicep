@@ -4,6 +4,6 @@ declare module "cytoscape-elk" {
   const cytoscape = import("cytoscape");
 
   export default function register(
-    cytoscape: (options?: cytoscape.CytoscapeOptions) => cytoscape.Core
+    cytoscape: (options?: cytoscape.CytoscapeOptions) => cytoscape.Core,
   ): void;
 }

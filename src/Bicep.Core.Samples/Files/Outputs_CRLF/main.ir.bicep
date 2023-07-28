@@ -3,14 +3,17 @@
 @sys.description('string output description')
 //@[00:0076) ├─DeclaredOutputExpression { Name = myStr }
 output myStr string = 'hello'
+//@[13:0019) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[22:0029) | └─StringLiteralExpression { Value = hello }
 
 @sys.description('int output description')
 //@[00:0064) ├─DeclaredOutputExpression { Name = myInt }
 output myInt int = 7
+//@[13:0016) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[19:0020) | └─IntegerLiteralExpression { Value = 7 }
 output myOtherInt int = 20 / 13 + 80 % -4
 //@[00:0041) ├─DeclaredOutputExpression { Name = myOtherInt }
+//@[18:0021) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[24:0041) | └─BinaryExpression { Operator = Add }
 //@[24:0031) |   ├─BinaryExpression { Operator = Divide }
 //@[24:0026) |   | ├─IntegerLiteralExpression { Value = 20 }
@@ -22,26 +25,31 @@ output myOtherInt int = 20 / 13 + 80 % -4
 @sys.description('bool output description')
 //@[00:0072) ├─DeclaredOutputExpression { Name = myBool }
 output myBool bool = !false
+//@[14:0018) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[21:0027) | └─UnaryExpression { Operator = Not }
 //@[22:0027) |   └─BooleanLiteralExpression { Value = False }
 output myOtherBool bool = true
 //@[00:0030) ├─DeclaredOutputExpression { Name = myOtherBool }
+//@[19:0023) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[26:0030) | └─BooleanLiteralExpression { Value = True }
 
 @sys.description('object array description')
 //@[00:0075) ├─DeclaredOutputExpression { Name = suchEmpty }
 output suchEmpty array = [
+//@[17:0022) | ├─AmbientTypeReferenceExpression { Name = array }
 //@[25:0029) | └─ArrayExpression
 ]
 
 output suchEmpty2 object = {
 //@[00:0031) ├─DeclaredOutputExpression { Name = suchEmpty2 }
+//@[18:0024) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[27:0031) | └─ObjectExpression
 }
 
 @sys.description('object output description')
 //@[00:0225) ├─DeclaredOutputExpression { Name = obj }
 output obj object = {
+//@[11:0017) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[20:0178) | └─ObjectExpression
   a: 'a'
 //@[02:0008) |   ├─ObjectPropertyExpression
@@ -91,6 +99,7 @@ output obj object = {
 
 output myArr array = [
 //@[00:0074) ├─DeclaredOutputExpression { Name = myArr }
+//@[13:0018) | ├─AmbientTypeReferenceExpression { Name = array }
 //@[21:0074) | └─ArrayExpression
   'pirates'
 //@[02:0011) |   ├─StringLiteralExpression { Value = pirates }
@@ -105,11 +114,13 @@ output myArr array = [
 
 output rgLocation string = resourceGroup().location
 //@[00:0051) ├─DeclaredOutputExpression { Name = rgLocation }
+//@[18:0024) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[27:0051) | └─PropertyAccessExpression { PropertyName = location }
 //@[27:0042) |   └─FunctionCallExpression { Name = resourceGroup }
 
 output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 //@[00:0074) ├─DeclaredOutputExpression { Name = isWestUs }
+//@[16:0020) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[23:0074) | └─TernaryExpression
 //@[23:0059) |   ├─BinaryExpression { Operator = NotEquals }
 //@[23:0047) |   | ├─PropertyAccessExpression { PropertyName = location }
@@ -120,6 +131,7 @@ output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 
 output expressionBasedIndexer string = {
 //@[00:0140) ├─DeclaredOutputExpression { Name = expressionBasedIndexer }
+//@[30:0036) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[39:0140) | └─AccessChainExpression
 //@[39:0136) |   ├─ArrayAccessExpression
 //@[39:0110) |   | └─ObjectExpression
@@ -156,6 +168,7 @@ var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), 
 
 output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
 //@[00:0097) ├─DeclaredOutputExpression { Name = primaryKey }
+//@[18:0024) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[27:0097) | └─PropertyAccessExpression { PropertyName = primaryKey }
 //@[27:0086) |   └─FunctionCallExpression { Name = listKeys }
 //@[36:0071) |     ├─FunctionCallExpression { Name = resourceId }
@@ -164,23 +177,28 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[73:0085) |     └─StringLiteralExpression { Value = 2020-01-01 }
 output secondaryKey string = secondaryKeyIntermediateVar
 //@[00:0056) ├─DeclaredOutputExpression { Name = secondaryKey }
+//@[20:0026) | ├─AmbientTypeReferenceExpression { Name = string }
 
 var varWithOverlappingOutput = 'hello'
 //@[00:0038) ├─DeclaredVariableExpression { Name = varWithOverlappingOutput }
 //@[31:0038) | └─StringLiteralExpression { Value = hello }
 param paramWithOverlappingOutput string
 //@[00:0039) ├─DeclaredParameterExpression { Name = paramWithOverlappingOutput }
+//@[33:0039) | └─AmbientTypeReferenceExpression { Name = string }
 
 output varWithOverlappingOutput string = varWithOverlappingOutput
 //@[00:0065) ├─DeclaredOutputExpression { Name = varWithOverlappingOutput }
+//@[32:0038) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[41:0065) | └─VariableReferenceExpression { Variable = varWithOverlappingOutput }
 output paramWithOverlappingOutput string = paramWithOverlappingOutput
 //@[00:0069) ├─DeclaredOutputExpression { Name = paramWithOverlappingOutput }
+//@[34:0040) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[43:0069) | └─ParametersReferenceExpression { Parameter = paramWithOverlappingOutput }
 
 // top-level output loops are supported
 output generatedArray array = [for i in range(0,10): i]
 //@[00:0055) └─DeclaredOutputExpression { Name = generatedArray }
+//@[22:0027)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[30:0055)   └─ForLoopExpression
 //@[40:0051)     ├─FunctionCallExpression { Name = range }
 //@[46:0047)     | ├─IntegerLiteralExpression { Value = 0 }

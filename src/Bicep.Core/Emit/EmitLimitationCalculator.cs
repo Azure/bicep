@@ -51,6 +51,7 @@ namespace Bicep.Core.Emit
             BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
             BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
+            BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -567,6 +568,25 @@ namespace Bicep.Core.Emit
                 if (outputTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
                 {
                     diagnostics.Write(lambda.ReturnType, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                }
+            }
+        }
+
+        private static void BlockAssertsWithoutExperimentalFeatures(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var assert in model.Root.AssertDeclarations)
+            {
+                if (!model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(assert.DeclaringAssert, x => x.AssertsUnsupported());
+                }
+            }
+            foreach (var resourceDeclarationSymbol in model.Root.ResourceDeclarations)
+            {
+
+                if (resourceDeclarationSymbol.TryGetBodyProperty(LanguageConstants.ResourceAssertPropertyName)?.Value is SyntaxBase value && !model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(value, x => x.AssertsUnsupported());
                 }
             }
         }

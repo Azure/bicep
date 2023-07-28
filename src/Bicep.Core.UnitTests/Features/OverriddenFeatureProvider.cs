@@ -33,6 +33,10 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
 
     public bool PrettyPrintingEnabled => overrides.PrettyPrintingEnabled ?? features.PrettyPrintingEnabled;
-    
+
     public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;
+    
+    public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
+    
+    public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoading ?? features.DynamicTypeLoadingEnabled;
 }

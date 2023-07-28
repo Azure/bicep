@@ -42,6 +42,14 @@ configuration:
       - addReply:
           reply: 'Hi @${issueAuthor}, this issue has been marked as stale because it was labeled as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 3 days of this comment**. Thanks for contributing to bicep! :smile: :mechanical_arm:'
     eventResponderTasks:
+    - description: "Adds 'Needs: Triage' label for new issues"
+      if:
+      - payloadType: Issues
+      - isAction:
+          action: Opened
+      then:
+      - addLabel:
+          label: 'Needs: Triage :mag:'
     - description: "Replace 'Needs: Author Feedback' with 'Needs: Attention' label when author comments"
       if:
       - payloadType: Issue_Comment
@@ -85,36 +93,5 @@ configuration:
           action: Opened
       then:
       - addCodeFlowLink
-    - description: "Approve and apply 'auto-merge' label to dependabot PRs"
-      if:
-      - payloadType: Pull_Request
-      - hasLabel:
-          label: dependencies
-      - not:
-          hasLabel:
-            label: auto-merge
-      - isActivitySender:
-          user: dependabot[bot]
-          issueAuthor: False
-      then:
-      - approvePullRequest:
-          comment: ':shipit:'
-      - addLabel:
-          label: auto-merge
-    - description: "Auto merge PRs"
-      if:
-      - payloadType: Pull_Request
-      - hasLabel:
-          label: auto-merge
-      then:
-      - enableAutoMerge:
-          mergeMethod: Squash
-    - description: "Disable PR auto merge"
-      if:
-      - payloadType: Pull_Request
-      - labelRemoved:
-          label: auto-merge
-      then:
-      - disableAutoMerge
 onFailure: 
 onSuccess: 

@@ -29,6 +29,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .DistinctBy(x => x.Name, LanguageConstants.IdentifierComparer);
 
             var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
+            
             var namespaceTypes = importedNamespaces
                 .Select(x => x.DeclaredType)
                 .OfType<NamespaceType>()

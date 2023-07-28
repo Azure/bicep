@@ -897,10 +897,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP143",
                 "For-expressions cannot be used with properties whose names are also expressions.");
 
-            public ErrorDiagnostic DirectAccessToCollectionNotSupported() => new(
-                TextSpan,
-                "BCP144",
-                "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+            public ErrorDiagnostic DirectAccessToCollectionNotSupported(IEnumerable<string>? accessChain = null)
+            {
+                var accessChainClause = accessChain?.Any() ?? false
+                    ? $"The collection was accessed by the chain of \"{string.Join("\" -> \"", accessChain)}\". "
+                    : "";
+
+                return new(
+                    TextSpan,
+                    "BCP144",
+                    $"Directly referencing a resource or module collection is not currently supported here. {accessChainClause}Apply an array indexer to the expression.");
+            }
 
             public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
                 TextSpan,
@@ -1931,10 +1938,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
 
-            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
+            public ErrorDiagnostic ExpectedAssertIdentifier() => new(
                 TextSpan,
                 "BCP344",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+                "Expected an assert identifier at this location.");
 
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
@@ -1954,6 +1961,20 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP348",
                 $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
+            public ErrorDiagnostic AssertsUnsupported() => new(
+                TextSpan,
+                "BCP349",
+                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Assertions)}"".");
+
+            public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
+                TextSpan,
+                "BCP350",
+                $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
+
+            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
+                TextSpan,
+                "BCP351",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

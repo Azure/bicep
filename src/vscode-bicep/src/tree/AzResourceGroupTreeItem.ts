@@ -12,7 +12,7 @@ export class AzResourceGroupTreeItem extends AzureAccountTreeItemBase {
     super();
   }
   public createSubscriptionTreeItem(
-    root: ISubscriptionContext
+    root: ISubscriptionContext,
   ): ResourceGroupTreeItem {
     return new ResourceGroupTreeItem(this, root, this.outputChannelManager);
   }

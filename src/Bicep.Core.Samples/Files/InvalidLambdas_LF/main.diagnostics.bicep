@@ -157,7 +157,7 @@ module modLoop './empty.bicep' = [for item in range(0, 5): {
 
 var modLoopNames = map(modLoop, i => i.name)
 //@[04:16) [no-unused-vars (Warning)] Variable "modLoopNames" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |modLoopNames|
-//@[23:30) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |modLoop|
+//@[23:30) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |modLoop|
 output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[56:57) [BCP247 (Error)] Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: "i". (CodeDescription: none) |i|
 //@[67:70) [BCP052 (Error)] The type "outputs" does not contain property "foo". (CodeDescription: none) |foo|

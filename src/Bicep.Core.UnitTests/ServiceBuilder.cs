@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -30,7 +29,6 @@ public static class IDependencyHelperExtensions
             helper.Construct<INamespaceProvider>(),
             sourceFileGrouping,
             helper.Construct<IConfigurationManager>(),
-            helper.Construct<IApiVersionProviderFactory>(),
             helper.Construct<IBicepAnalyzer>(),
             modelLookup);
 
