@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.Intermediate;
@@ -15,37 +16,32 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Services
 {
-    public class Validation
+    public record TestResult(TestSymbol Source, TestEvaluation Result);
+
+    public record TestResults(ImmutableArray<TestResult> Results)
     {
-        public InsensitiveDictionary<TestEvaluation> SuccessfullEvaluations { get; }
+        public int TotalEvaluations => Results.Length;
 
-        public InsensitiveDictionary<TestEvaluation> FailedEvaluations { get; }
+        public int SuccessfullEvaluations => Results.Count(x => x.Result.Success);
 
-        public InsensitiveDictionary<TestEvaluation> SkippedEvaluations { get; }
+        public int FailedEvaluations => Results.Count(x => !x.Result.Success);
 
-        public bool Success => FailedEvaluations.Count == 0 && SkippedEvaluations.Count == 0;
+        public int SkippedEvaluations => Results.Count(x => x.Result.Skip);
 
-        public int TotalEvaluations => SuccessfullEvaluations.Count + FailedEvaluations.Count + SkippedEvaluations.Count;
-
-        public Validation(ImmutableArray<TestSymbol> testDeclarations)
-        {
-            SuccessfullEvaluations = new InsensitiveDictionary<TestEvaluation>();
-            FailedEvaluations = new InsensitiveDictionary<TestEvaluation>();
-            SkippedEvaluations = new InsensitiveDictionary<TestEvaluation>();
-
-            Validate(testDeclarations);
-        }
-        public void Validate(ImmutableArray<TestSymbol> testDeclarations)
+        public bool Success => FailedEvaluations == 0 && SkippedEvaluations == 0;
+    }
+    public class TestRunner
+    { 
+        public static TestResults Run(ImmutableArray<TestSymbol> testDeclarations)
         {
             var templateOutputBuffer = new StringBuilder();
             using var textWriter = new StringWriter();
 
-            EvaluateTemplates(testDeclarations, textWriter);    
+            return EvaluateTemplates(testDeclarations, textWriter);    
         }
-        private void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
+        private static  TestResults EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
         {
-            var evaluatedTemplates =  new InsensitiveDictionary<JToken>();
-
+            var testResults = ImmutableArray.CreateBuilder<TestResult>();;
             foreach(var testDeclaration  in testDeclarations)
             {
                 if (testDeclaration.TryGetSemanticModel(out var semanticModel, out var failureDiagnostic) &&
@@ -55,16 +51,15 @@ namespace Bicep.Cli.Services
                     var template = GetTemplate(testSemanticModel, testDeclaration);
 
                     var evaluation = TemplateEvaluator.Evaluate(template, parameters);
+                    var testResult = new TestResult(testDeclaration, evaluation);
 
-                    var skipped = evaluation.Skip;
-                    var success = evaluation.Success;
-
-                    var evaluations = skipped ? SkippedEvaluations : (success ? SuccessfullEvaluations : FailedEvaluations);
-                    evaluations.Add(testDeclaration.Name, evaluation);
+                    testResults.Add(testResult);
                 
                 }
                 
             }
+            return new TestResults(testResults.ToImmutable());
+
 
         }
 

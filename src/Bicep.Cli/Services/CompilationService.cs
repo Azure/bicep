@@ -80,20 +80,19 @@ namespace Bicep.Cli.Services
             return compilation;
         }
 
-        public async Task<Validation> TestAsync(string inputPath, bool skipRestore)
+        public async Task<TestResults> TestAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
-            var semantic_model = compilation.GetEntrypointSemanticModel();
+            var semanticModel = compilation.GetEntrypointSemanticModel();
 
-            var declarations = semantic_model.Root.TestDeclarations;
-            var validation = new Validation(declarations);
-
+            var declarations = semanticModel.Root.TestDeclarations;
+            var testResults = TestRunner.Run(declarations);
 
             LogDiagnostics(compilation);
 
-            return validation;
+            return testResults;
         }
 
         public async Task<DecompileResult> DecompileAsync(string inputPath, string outputPath)
