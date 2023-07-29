@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
-import { DeployPaneState, DeploymentScope, UntypedError } from "./models";
+import {
+  DeployPaneState,
+  DeploymentScope,
+  DeploymentScopeType,
+  UntypedError,
+} from "./models";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 
 interface SimpleMessage<T> {
@@ -124,9 +129,18 @@ export function createPickParamsFileResultMessage(
   });
 }
 
-export type GetDeploymentScopeMessage = SimpleMessage<"GET_DEPLOYMENT_SCOPE">;
-export function createGetDeploymentScopeMessage(): GetDeploymentScopeMessage {
-  return createSimpleMessage("GET_DEPLOYMENT_SCOPE");
+export type GetDeploymentScopeMessage = MessageWithPayload<
+  "GET_DEPLOYMENT_SCOPE",
+  {
+    scopeType: DeploymentScopeType;
+  }
+>;
+export function createGetDeploymentScopeMessage(
+  scopeType: DeploymentScopeType,
+): GetDeploymentScopeMessage {
+  return createMessageWithPayload("GET_DEPLOYMENT_SCOPE", {
+    scopeType,
+  });
 }
 
 export type GetDeploymentScopeResultMessage = MessageWithPayload<

@@ -1,7 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { DeploymentOperation } from "@azure/arm-resources";
-import { ParamData, ParamDefinition, TemplateMetadata } from "../../models";
+import { DeploymentScopeType, ParamData, ParamDefinition, TemplateMetadata } from "../../models";
+
+function getScopeTypeFromSchema(template: Record<string, unknown>): DeploymentScopeType | undefined {
+  const lookup: Record<string, DeploymentScopeType> = {
+    'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#': 'resourceGroup',
+    'https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#': 'subscription',
+  }
+
+  return lookup[template['$schema'] as string];
+}
 
 export function parseTemplateJson(json: string): TemplateMetadata {
   const template = JSON.parse(json);
@@ -17,9 +26,11 @@ export function parseTemplateJson(json: string): TemplateMetadata {
     });
   }
 
+  const scopeType = getScopeTypeFromSchema(template);
   return {
     template,
     parameterDefinitions,
+    scopeType,
   };
 }
 

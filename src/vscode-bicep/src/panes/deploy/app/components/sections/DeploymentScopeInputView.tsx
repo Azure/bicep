@@ -14,14 +14,19 @@ export const DeploymentScopeInputView: FC<DeploymentScopeInputViewProps> = ({ sc
       <div className="controls">
         <VSCodeButton onClick={onPickScope} appearance={!scope ? "primary" : "secondary"}>Pick Scope</VSCodeButton>
       </div>
-      {scope && <>
+
+      {scope && (scope.scopeType === 'resourceGroup' || scope.scopeType === 'subscription') &&
         <VSCodeTextField value={scope.subscriptionId} disabled={true}>
           Subscription Id
-        </VSCodeTextField>
+        </VSCodeTextField>}
+      {scope && (scope.scopeType === 'resourceGroup') &&
         <VSCodeTextField value={scope.resourceGroup} disabled={true}>
           Resource Group
-        </VSCodeTextField>
-      </>}
+        </VSCodeTextField>}
+      {scope && scope.scopeType !== 'resourceGroup' &&
+        <VSCodeTextField value={scope.location} disabled={true}>
+          Location
+        </VSCodeTextField>}
     </FormSection>
   );
 };

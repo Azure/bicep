@@ -3,6 +3,7 @@
 import { ErrorResponse } from "@azure/arm-resources";
 
 export interface TemplateMetadata {
+  scopeType?: DeploymentScopeType;
   template: Record<string, unknown>;
   parameterDefinitions: ParamDefinition[];
 }
@@ -30,10 +31,21 @@ export interface DeployResult {
   error?: ErrorResponse;
 }
 
-export interface DeploymentScope {
-  subscriptionId: string;
-  resourceGroup: string;
-}
+export type DeploymentScope =
+  | {
+      scopeType: "resourceGroup";
+      subscriptionId: string;
+      resourceGroup: string;
+    }
+  | {
+      scopeType: "subscription";
+      location: string;
+      subscriptionId: string;
+    };
+
+export type DeploymentScopeType =
+  | "resourceGroup"
+  | "subscription";
 
 export interface DeployPaneState {
   scope: DeploymentScope;
