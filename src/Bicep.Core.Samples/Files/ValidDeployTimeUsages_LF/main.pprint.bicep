@@ -20,7 +20,7 @@ resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [
     kind: 'StorageV2'
   }
 ]
-resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource existingFoo 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: 'existingFoo'
 }
 

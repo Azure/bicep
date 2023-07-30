@@ -1433,7 +1433,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new(
                 TextSpan,
                 "BCP244",
                 $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
@@ -1971,49 +1971,54 @@ namespace Bicep.Core.Diagnostics
                 "BCP350",
                 $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
 
-            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
+            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
                 TextSpan,
                 "BCP351",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+
+            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
+                TextSpan,
+                "BCP352",
                 "Expected left brace ('{') or asterisk ('*') character at this location.");
 
             public ErrorDiagnostic ExpectedExportedSymbolName() => new(
                 TextSpan,
-                "BCP352",
+                "BCP353",
                 "Expected the name of an exported symbol at this location.");
 
             public ErrorDiagnostic ExpectedNamespaceIdentifier() => new(
                 TextSpan,
-                "BCP353",
+                "BCP354",
                 "Expected a valid namespace identifier at this location.");
 
             public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
                 TextSpan,
-                "BCP354",
+                "BCP355",
                 $@"Using compile-time import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
 
             public ErrorDiagnostic PathHasNotBeenSpecified() => new(
                 TextSpan,
-                "BCP355",
+                "BCP356",
                 "This declaration is missing a template file path reference.");
 
             public ErrorDiagnostic CompileTimeImportDeclarationMustReferenceTemplate() => new(
                 TextSpan,
-                "BCP356",
+                "BCP357",
                 "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.");
 
             public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
                 TextSpan,
-                "BCP357",
+                "BCP358",
                 $"The '{symbolName}' symbol was not found in (or was not exported by) the imported template.");
 
             public ErrorDiagnostic ExportDecoratorMustTargetStatement() => new(
                 TextSpan,
-                "BCP358",
+                "BCP359",
                 @"The ""@export()"" decorator must target a top-level statement.");
 
             public ErrorDiagnostic SymbolImportedMultipleTimes(params string[] importedAs) => new(
                 TextSpan,
-                "BCP359",
+                "BCP360",
                 $"This symbol is imported multiple times under the names {string.Join(", ", importedAs.Select(identifier => $"'{identifier}'"))}.");
         }
 

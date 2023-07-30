@@ -237,7 +237,7 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 var batchSizeMakesNoSenseHere = false
 
 //KeyVault Secret Reference
-resource kv 'Microsoft.KeyVault/vaults@2019-09-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'testkeyvault'
 }
 

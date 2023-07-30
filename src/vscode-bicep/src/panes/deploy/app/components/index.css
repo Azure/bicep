@@ -1,0 +1,55 @@
+#webview-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-section {
+  display: grid;
+  grid-auto-flow: row;
+  grid-row-gap: 1rem;
+  overflow-x: scroll;
+}
+
+.input-row {
+  display: grid;
+  grid-auto-flow: row;
+}
+
+@media screen and (min-width: 1024px) {
+  #webview-body {
+    padding: 0 8rem;
+    max-width: 1024px;
+    margin: 0 auto;
+  }
+}
+
+vscode-button {
+  width: fit-content;
+  margin-right: 0.5rem;
+}
+
+.dropdown-container {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.dropdown-container label {
+  display: block;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+  font-size: var(--vscode-font-size);
+  line-height: normal;
+  margin-bottom: 2px;
+}
+
+.code-textarea-container textarea {
+  white-space: pre;
+  font-family: monospace;
+}
+
+.form-section h2 {
+  margin: 0;
+}

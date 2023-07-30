@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14082633431494757834"
+      "templateHash": "8526612719250933722"
     }
   },
   "parameters": {
@@ -427,11 +427,11 @@
     "numDataDisks": {
       "type": "int",
       "defaultValue": 1,
+      "minValue": 0,
+      "maxValue": 64,
       "metadata": {
         "description": "Specifies the number of data disks of the virtual machine."
-      },
-      "maxValue": 64,
-      "minValue": 0
+      }
     },
     "osDiskSize": {
       "type": "int",
@@ -1201,11 +1201,11 @@
             "numDataDisks": {
               "type": "int",
               "defaultValue": 1,
+              "minValue": 0,
+              "maxValue": 64,
               "metadata": {
                 "description": "Specifies the number of data disks of the virtual machine."
-              },
-              "maxValue": 64,
-              "minValue": 0
+              }
             },
             "osDiskSize": {
               "type": "int",

@@ -29,7 +29,7 @@ public class CompileTimeImportTests
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP354", DiagnosticLevel.Error, "Using compile-time import statements requires enabling EXPERIMENTAL feature \"CompileTimeImports\"."),
+            ("BCP355", DiagnosticLevel.Error, "Using compile-time import statements requires enabling EXPERIMENTAL feature \"CompileTimeImports\"."),
         });
     }
 
@@ -46,7 +46,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP357", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
+            ("BCP358", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
         });
     }
 
@@ -80,7 +80,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP358", DiagnosticLevel.Error, "The \"@export()\" decorator must target a top-level statement.")
+            ("BCP359", DiagnosticLevel.Error, "The \"@export()\" decorator must target a top-level statement.")
         });
     }
 
@@ -102,7 +102,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP356", DiagnosticLevel.Error, "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.")
+            ("BCP357", DiagnosticLevel.Error, "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.")
         });
     }
 
@@ -403,8 +403,8 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
-            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
+            ("BCP360", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
+            ("BCP360", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
         });
     }
 
@@ -435,8 +435,8 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
-            ("BCP359", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
+            ("BCP360", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."),
+            ("BCP360", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
         });
     }
 }

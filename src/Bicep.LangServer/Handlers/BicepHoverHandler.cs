@@ -94,7 +94,6 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(CodeBlockWithDescription(
                         $"metadata {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
 
-
                 case ParameterSymbol parameter:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameter.Name}: {parameter.Type}", parameter.Type), TryGetDescriptionMarkdown(result, parameter)));
@@ -160,6 +159,9 @@ namespace Bicep.LanguageServer.Handlers
 
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameterAssignment.Name}: {declaredParamMetadata.TypeReference.Type}", declaredParamMetadata.TypeReference.Type), declaredParamMetadata.Description));
+
+                case AssertSymbol assert:
+                    return AsMarkdown(CodeBlockWithDescription($"assert {assert.Name}: {assert.Type}", TryGetDescriptionMarkdown(result, assert)));
 
                 default:
                     return null;
