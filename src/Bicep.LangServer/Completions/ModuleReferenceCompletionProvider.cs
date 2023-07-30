@@ -115,7 +115,7 @@ namespace Bicep.LanguageServer.Completions
             else
             {
                 // "ts/"
-                AddCompletionItem("ts/", null, "Template spec (alias)", ModuleCompletionPriority.FullPath);
+                AddCompletionItem("ts/", null, "Template spec (alias)", ModuleCompletionPriority.Alias);
             }
 
             // Top-level Bicep registry completions
@@ -137,7 +137,7 @@ namespace Bicep.LanguageServer.Completions
             }
             else
             {
-                // "ts/"
+                // "br/"
                 AddCompletionItem("br/", null, "Bicep registry (alias)", ModuleCompletionPriority.Alias);
             }
 
