@@ -119,12 +119,17 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "foo": {
                     "type": "array",
                     "items": {
                         "type": "string"
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
+                        }
                     }
                 }
             }
@@ -162,16 +167,26 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "foo": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/1.2"
+                        "$ref": "#/definitions/1.bar"
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.json"
+                        }
                     }
                 },
-                "1.2": {
-                    "type": "string"
+                "1.bar": {
+                    "type": "string",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.json"
+                        }
+                    }
                 }
             }
             """));
@@ -210,15 +225,27 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "fizz": {
                     "type": "array",
-                    "allowedValues": ["bar", "foo"]
+                    "allowedValues": ["bar", "foo"],
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.json",
+                            "originalIdentifier": "foo"
+                        }
+                    }
                 },
                 "buzz": {
                     "type": "string",
-                    "allowedValues": ["bar", "foo"]
+                    "allowedValues": ["bar", "foo"],
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.json",
+                            "originalIdentifier": "bar"
+                        }
+                    }
                 }
             }
             """));
@@ -237,12 +264,17 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
-                "1.2": {
+                "1.foo": {
                     "type": "array",
                     "items": {
                         "type": "string"
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
+                        }
                     }
                 }
             }
@@ -270,18 +302,28 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         // `foo` is imported both by name and via a wildcard -- make sure it only gets injected once (and that it uses the right name)
-        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "foo": {
                     "type": "array",
                     "items": {
                         "type": "string"
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
+                        }
                     }
                 },
-                "1.2": {
+                "1.fizz": {
                     "type": "int",
                     "minValue": 1,
-                    "maxValue": 10
+                    "maxValue": 10,
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
+                        }
+                    }
                 }
             }
             """));
@@ -332,56 +374,91 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "foo": {
                     "type": "object",
                     "properties": {
                         "bar": {
-                            "$ref": "#/definitions/3.6"
+                            "$ref": "#/definitions/2.bar"
                         },
                         "anotherProperty": {
-                            "$ref": "#/definitions/1.2"
+                            "$ref": "#/definitions/1.unexported"
+                        }
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
                         }
                     }
                 },
-                "1.2": {
+                "1.unexported": {
                     "type": "string",
                     "allowedValues": [
                         "buzz",
                         "fizz",
                         "pop"
-                    ]
+                    ],
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
+                        }
+                    }
                 },
-                "3.6": {
+                "2.bar": {
                     "type": "object",
                     "properties": {
                         "foo": {
-                            "$ref": "#/definitions/9.10"
+                            "$ref": "#/definitions/3.bar"
                         },
                         "prop": {
-                            "$ref": "#/definitions/3.8"
+                            "$ref": "#/definitions/2.unexported"
+                        }
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod2.bicep"
                         }
                     }
                 },
-                "3.8": {
+                "2.unexported": {
                     "type": "object",
                     "properties": {
                         "nested": {
-                            "$ref": "#/definitions/3.4"
+                            "$ref": "#/definitions/2.alsoNotExported"
+                        }
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod2.bicep"
                         }
                     }
                 },
-                "3.4": {
-                    "type": "int"
+                "2.alsoNotExported": {
+                    "type": "int",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod2.bicep"
+                        }
+                    }
                 },
-                "9.10": {
-                    "$ref": "#/definitions/11.12"
+                "3.bar": {
+                    "$ref": "#/definitions/4.foo",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod3.bicep"
+                        }
+                    }
                 },
-                "11.12": {
+                "4.foo": {
                     "type": "array",
                     "items": {
                         "type": "string"
+                    },
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod4.bicep"
+                        }
                     }
                 }
             }

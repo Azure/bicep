@@ -138,6 +138,9 @@ namespace Bicep.Core
         public const string MetadataDescriptionPropertyName = "description";
         public const string MetadataResourceTypePropertyName = "resourceType";
         public const string MetadataExportedPropertyName = "__bicep_export!";
+        public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
+        public const string ImportMetadataSourceTemplatePropertyName = "sourceTemplate";
+        public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
         public const string ExportPropertyName = "export";
 

@@ -304,7 +304,19 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperty(declaredType.Name,
                 () =>
                 {
-                    EmitProperties(emitter, ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value)));
+                    var declaredTypeObject = ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value));
+                    if (ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(declaredType.Name, out var originMetadata))
+                    {
+                        var importedFromProperties = ExpressionFactory.CreateObjectProperty(LanguageConstants.ImportMetadataSourceTemplatePropertyName,
+                            ExpressionFactory.CreateStringLiteral(originMetadata.SourceTemplateIdentifier)).AsEnumerable();
+                        if (!declaredType.Name.EndsWith(originMetadata.OriginalName))
+                        {
+                            importedFromProperties = importedFromProperties.Append(ExpressionFactory.CreateObjectProperty(LanguageConstants.ImportMetadataOriginalIdentifierPropertyName,
+                                ExpressionFactory.CreateStringLiteral(originMetadata.OriginalName)));
+                        }
+                        declaredTypeObject = ApplyMetadataProperty(declaredTypeObject, LanguageConstants.MetadataImportedFromPropertyName, ExpressionFactory.CreateObject(importedFromProperties));
+                    }
+                    EmitProperties(emitter, declaredTypeObject);
                 },
                 declaredType.SourceSyntax);
         }

@@ -245,7 +245,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         }
 
         int uniqueIdentifier = 1;
-        ConcurrentDictionary<string, string> templateIdentifiers = new();
+        ConcurrentDictionary<string, int> templateIds = new();
 
         // Every other symbol in the closure should be assigned a stable identifier that won't conflict with any valid Bicep identifier
         foreach (var (symbolInfo, sourceTemplateIdentifier, originalSymbolName) in closure.TypeSymbolsInImportClosure.Keys
@@ -258,8 +258,10 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                 continue;
             }
 
-            importedTypeSymbolMetadata.Add(symbolInfo, (new(sourceTemplateIdentifier, originalSymbolName),
-                $"{templateIdentifiers.GetOrAdd(sourceTemplateIdentifier, $"{uniqueIdentifier++}")}.{uniqueIdentifier++}"));
+            var templateId = templateIds.GetOrAdd(sourceTemplateIdentifier, _ => uniqueIdentifier++);
+            var symbolId = Lexer.IsValidIdentifier(originalSymbolName) ? originalSymbolName : $"{uniqueIdentifier++}";
+
+            importedTypeSymbolMetadata.Add(symbolInfo, (new(sourceTemplateIdentifier, originalSymbolName), $"{templateId}.{symbolId}"));
         }
 
         return importedTypeSymbolMetadata;
