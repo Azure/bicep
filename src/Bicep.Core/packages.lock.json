@@ -19,9 +19,9 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.2.542, )",
-        "resolved": "0.2.542",
-        "contentHash": "4645iXGwRTkx28t6RJ+fkxs/tpn5fkCIns22YkO2WZ1OCVUhKPHzrgQrkbdLkuZlmW7bE6g3lSfExiV5JDMNhg==",
+        "requested": "[0.2.552, )",
+        "resolved": "0.2.552",
+        "contentHash": "UQgXi6LY0Kyjp7m3p7X/eiKbC+6iQvo0/1IcynWyO/OQ1rljmgECB82ca/OUdDR2xf5nypTNldUQgNRUgQGZfA==",
         "dependencies": {
           "Azure.Bicep.Types": "0.3.181"
         }
