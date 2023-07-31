@@ -465,7 +465,7 @@ namespace Bicep.Core.Emit
         private static ArrayExpression GetAllowedValuesForUnionType(UnionType unionType, SyntaxBase? sourceSyntax)
             => ExpressionFactory.CreateArray(unionType.Members.Select(ToLiteralValue), sourceSyntax);
 
-        private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeExpression expression, HashSet<string>? excludedObjectProperties = null)
+        private ObjectExpression GetTypePropertiesForObjectType(ObjectTypeExpression expression)
         {
             var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ObjectType, expression.SourceSyntax) };
             List<ObjectPropertyExpression> propertySchemata = new();
@@ -473,12 +473,6 @@ namespace Bicep.Core.Emit
             foreach (var property in expression.PropertyExpressions)
             {
                 var propertySchema = ApplyTypeModifiers(property, TypePropertiesForTypeExpression(property.Value));
-
-                if (excludedObjectProperties?.Contains(property.PropertyName) ?? false)
-                {
-                    continue;
-                }
-
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(property.PropertyName, propertySchema, property.SourceSyntax));
             }
 
@@ -616,7 +610,7 @@ namespace Bicep.Core.Emit
                     }
                     else
                     {
-                        objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr, new HashSet<string> { discriminatorPropertyName });
+                        objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr);
                     }
 
                     yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);

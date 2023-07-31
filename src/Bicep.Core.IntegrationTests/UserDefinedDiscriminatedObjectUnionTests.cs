@@ -176,6 +176,12 @@ type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
       "a": {
         "type": "object",
         "properties": {
+          "type": {
+            "type": "string",
+            "allowedValues": [
+              "a"
+            ]
+          },
           "value": {
             "type": "int"
           }
@@ -184,6 +190,12 @@ type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
       "b": {
         "type": "object",
         "properties": {
+          "type": {
+            "type": "string",
+            "allowedValues": [
+              "b"
+            ]
+          },
           "value": {
             "type": "string"
           }
@@ -357,6 +369,12 @@ type discriminatorInnerSelfRefOptionalCycle1 = typeA | {
       "b": {
         "type": "object",
         "properties": {
+          "type": {
+            "type": "string",
+            "allowedValues": [
+              "b"
+            ]
+          },
           "value": {
             "$ref": "#/definitions/discriminatorInnerSelfRefOptionalCycle1",
             "nullable": true

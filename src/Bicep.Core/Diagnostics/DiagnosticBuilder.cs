@@ -1991,11 +1991,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP354",
                 $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
-
-            public ErrorDiagnostic DiscriminatedUnionMemberAdditionalPropertiesUnsupported() => new(
-                TextSpan,
-                "BCP355",
-                "Tagged unions with additional properties declarations is currently not supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

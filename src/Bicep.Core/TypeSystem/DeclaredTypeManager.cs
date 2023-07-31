@@ -823,16 +823,6 @@ namespace Bicep.Core.TypeSystem
                         continue;
                     }
 
-                    // validate "additional properties" is not used
-                    if (objectType.HasExplicitAdditionalPropertiesType)
-                    {
-                        errorDiagnostics.Add(
-                            DiagnosticBuilder.ForPosition(memberSyntax)
-                                .DiscriminatedUnionMemberAdditionalPropertiesUnsupported());
-
-                        continue;
-                    }
-
                     // validate the discriminator property value does not overlap with other members
                     var discriminatorMemberValue = discriminatorMemberLiteral.RawStringValue;
 
