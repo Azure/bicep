@@ -18,7 +18,6 @@ import { Disposable } from "../../utils/disposable";
 import { debounce } from "../../utils/time";
 import { getLogger } from "../../utils/logger";
 import { TreeManager } from "../../tree/TreeManager";
-import { AzResourceGroupTreeItem } from "../../tree/AzResourceGroupTreeItem";
 import {
   callWithTelemetryAndErrorHandlingSync,
   IActionContext,
@@ -246,21 +245,44 @@ export class DeployPaneView extends Disposable {
       }
       case "GET_ACCESS_TOKEN": {
         try {
-          const rgId = `/subscriptions/${message.scope.subscriptionId}/resourceGroups/${message.scope.resourceGroup}`;
-          const rgTreeItem =
-            await this.treeManager.azResourceGroupTreeItem.findTreeItem(
-              rgId,
-              this.context,
-            );
-          if (!rgTreeItem) {
-            throw `Failed to find authenticated context for scope ${rgId}`;
-          }
+          switch (message.scope.scopeType) {
+            case "resourceGroup": {
+              const scopeId = `/subscriptions/${message.scope.subscriptionId}/resourceGroups/${message.scope.resourceGroup}`;
+              const treeItem =
+                await this.treeManager.azResourceGroupTreeItem.findTreeItem(
+                  scopeId,
+                  this.context,
+                );
+              if (!treeItem) {
+                throw `Failed to find authenticated context for scope ${scopeId}`;
+              }
 
-          const accessToken =
-            await rgTreeItem.subscription.credentials.getToken();
-          await this.webviewPanel.webview.postMessage(
-            createGetAccessTokenResultMessage(accessToken),
-          );
+              const accessToken =
+                await treeItem.subscription.credentials.getToken();
+              await this.webviewPanel.webview.postMessage(
+                createGetAccessTokenResultMessage(accessToken),
+              );
+              return;
+            }
+            case "subscription": {
+              const scopeId = `/subscriptions/${message.scope.subscriptionId}`;
+              const treeItem =
+                await this.treeManager.azLocationTree.findTreeItem(
+                  scopeId,
+                  this.context,
+                );
+              if (!treeItem) {
+                throw `Failed to find authenticated context for scope ${scopeId}`;
+              }
+
+              const accessToken =
+                await treeItem.subscription.credentials.getToken();
+              await this.webviewPanel.webview.postMessage(
+                createGetAccessTokenResultMessage(accessToken),
+              );
+              return;
+            }
+          }
         } catch (error) {
           await this.webviewPanel.webview.postMessage(
             createGetAccessTokenResultMessage(undefined, error),
@@ -270,17 +292,38 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "GET_DEPLOYMENT_SCOPE": {
-        const rgTreeItem =
-          await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
-            "",
-            this.context,
-          );
-        await this.webviewPanel.webview.postMessage(
-          createGetDeploymentScopeResultMessage({
-            subscriptionId: rgTreeItem.subscription.subscriptionId,
-            resourceGroup: rgTreeItem.label,
-          }),
-        );
+        switch (message.scopeType) {
+          case "resourceGroup": {
+            const treeItem =
+              await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker(
+                "",
+                this.context,
+              );
+            await this.webviewPanel.webview.postMessage(
+              createGetDeploymentScopeResultMessage({
+                scopeType: "resourceGroup",
+                subscriptionId: treeItem.subscription.subscriptionId,
+                resourceGroup: treeItem.label,
+              }),
+            );
+            return;
+          }
+          case "subscription": {
+            const treeItem =
+              await this.treeManager.azLocationTree.showTreeItemPicker(
+                "",
+                this.context,
+              );
+            await this.webviewPanel.webview.postMessage(
+              createGetDeploymentScopeResultMessage({
+                scopeType: "subscription",
+                subscriptionId: treeItem.subscription.subscriptionId,
+                location: treeItem.label,
+              }),
+            );
+            return;
+          }
+        }
 
         return;
       }

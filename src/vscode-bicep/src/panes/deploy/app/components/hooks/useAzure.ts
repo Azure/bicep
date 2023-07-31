@@ -71,6 +71,7 @@ export function useAzure(props: UseAzureProps) {
       setRunning(true);
 
       const deployment = getDeploymentProperties(
+        scope,
         templateMetadata,
         parametersMetadata.parameters,
       );
@@ -92,8 +93,8 @@ export function useAzure(props: UseAzureProps) {
     await doDeploymentOperation(scope, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
-        const result = client.deploymentOperations.list(
-          scope.resourceGroup,
+        const result = client.deploymentOperations.listAtScope(
+          getScopeId(scope),
           deploymentName,
         );
         for await (const page of result.byPage()) {
@@ -104,8 +105,8 @@ export function useAzure(props: UseAzureProps) {
 
       let poller;
       try {
-        poller = await client.deployments.beginCreateOrUpdate(
-          scope.resourceGroup,
+        poller = await client.deployments.beginCreateOrUpdateAtScope(
+          getScopeId(scope),
           deploymentName,
           deployment,
         );
@@ -140,8 +141,8 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await client.deployments.beginValidateAndWait(
-          scope.resourceGroup,
+        const response = await client.deployments.beginValidateAtScopeAndWait(
+          getScopeId(scope),
           deploymentName,
           deployment,
         );
@@ -166,8 +167,9 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await client.deployments.beginWhatIfAndWait(
-          scope.resourceGroup,
+        const response = await beginWhatIfAndWait(
+          client,
+          scope,
           deploymentName,
           deployment,
         );
@@ -216,21 +218,57 @@ function parseError(error: UntypedError) {
 }
 
 function getDeploymentProperties(
+  scope: DeploymentScope,
   metadata: TemplateMetadata,
   paramValues: Record<string, ParamData>,
 ): Deployment {
   const parameters: Record<string, unknown> = {};
-  for (const [key, { value }] of Object.entries(paramValues)) {
-    parameters[key] = {
-      value,
-    };
+  for (const { name } of metadata.parameterDefinitions) {
+    if (paramValues[name]) {
+      const value = paramValues[name].value;
+      parameters[name] = { value };
+    }
   }
 
+  const location =
+    scope.scopeType !== "resourceGroup" ? scope.location : undefined;
+
   return {
+    location,
     properties: {
       mode: "Incremental",
       parameters,
       template: metadata.template,
     },
   };
+}
+
+function getScopeId(scope: DeploymentScope) {
+  switch (scope.scopeType) {
+    case "resourceGroup":
+      return `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}`;
+    case "subscription":
+      return `/subscriptions/${scope.subscriptionId}`;
+  }
+}
+
+async function beginWhatIfAndWait(
+  client: ResourceManagementClient,
+  scope: DeploymentScope,
+  deploymentName: string,
+  deployment: Deployment,
+) {
+  switch (scope.scopeType) {
+    case "resourceGroup":
+      return await client.deployments.beginWhatIfAndWait(
+        scope.resourceGroup,
+        deploymentName,
+        deployment,
+      );
+    case "subscription":
+      return await client.deployments.beginWhatIfAtSubscriptionScopeAndWait(
+        deploymentName,
+        { ...deployment, location: scope.location },
+      );
+  }
 }
