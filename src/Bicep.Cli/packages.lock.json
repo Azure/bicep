@@ -44,9 +44,9 @@
       },
       "Sarif.Sdk": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
-        "resolved": "4.2.2",
-        "contentHash": "RDy2tPNUiU3C5FeUXr6wLcnsE3Gv2Ter1L1kTI5Zidb0uvyOwFsO/LQsm12WqLHOoMqCvrpcTSF97g0ZIAgVXw==",
+        "requested": "[4.3.0, )",
+        "resolved": "4.3.0",
+        "contentHash": "Esmiznvrk8LHdczTrfUmQi+TD8EJFlffI2jGRjaSdcK6bT6oIhfT7nCq6URohK7DMRkg/TMXGQr9lig8dd6NeQ==",
         "dependencies": {
           "Microsoft.Diagnostics.Tracing.EventRegister": "1.1.28",
           "Microsoft.Diagnostics.Tracing.TraceEvent": "3.1.3",
