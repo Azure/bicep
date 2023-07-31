@@ -1900,7 +1900,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
                 TextSpan,
                 "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
 
             public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
@@ -1975,6 +1975,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP351",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+
+            public ErrorDiagnostic FailedToEvaluateVariable(string name, string message) => new(
+                TextSpan,
+                "BCP352",
+                $"Failed to evaluate variable \"{name}\": {message}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
