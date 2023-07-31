@@ -299,7 +299,7 @@
     "detail": "Template spec (alias)",
     "deprecated": false,
     "preselect": false,
-    "sortText": "92_ts/",
+    "sortText": "90_ts/",
     "filterText": "'ts/$0'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
