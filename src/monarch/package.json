@@ -30,6 +30,6 @@
   "dependencies": {
     "@babel/core": "^7.22.9",
     "@babel/plugin-transform-modules-commonjs": "^7.22.5",
-    "babel-jest": "^29.6.1"
+    "babel-jest": "^29.6.2"
   }
 }
