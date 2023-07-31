@@ -200,7 +200,7 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
-//@[5:47) TypeAlias discriminatorMemberHasAdditionalProperties. Type: error. Declaration start char: 0, length: 86
+//@[5:47) TypeAlias discriminatorMemberHasAdditionalProperties. Type: Type<{ type: 'a', value: string } | { type: 'e', *: string }>. Declaration start char: 0, length: 86
 
 @discriminator('type')
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1

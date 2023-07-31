@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4545) ProgramExpression
+//@[000:4701) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -335,6 +335,17 @@ type typeE = {
 //@[015:0018) |       └─StringLiteralTypeExpression { Name = 'b' }
 }
 
+type typeF = {
+//@[000:0040) ├─DeclaredTypeExpression { Name = typeF }
+//@[013:0040) | └─ObjectTypeExpression { Name = { type: 'f', *: string } }
+  type: 'f'
+//@[002:0011) |   ├─ObjectTypePropertyExpression
+//@[008:0011) |   | └─StringLiteralTypeExpression { Name = 'f' }
+  *: string
+//@[002:0011) |   └─ObjectTypeAdditionalPropertiesExpression
+//@[005:0011) |     └─AmbientTypeReferenceExpression { Name = string }
+}
+
 @discriminator('type')
 //@[000:0063) ├─DeclaredTypeExpression { Name = discriminatedUnion1 }
 type discriminatedUnion1 = typeA | typeB
@@ -488,6 +499,18 @@ type discriminatedUnionInlineAdditionalProps2 = {
 //@[006:0011) |         ├─TypeAliasReferenceExpression { Name = typeA }
 //@[014:0019) |         └─TypeAliasReferenceExpression { Name = typeB }
 }
+
+@discriminator('type')
+//@[000:0111) ├─DeclaredTypeExpression { Name = discriminatorMemberHasAdditionalProperties1 }
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | { type: 'g', *: int } 
+//@[051:0088) | └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'f', *: string } | { type: 'g', *: int } }
+//@[051:0056) |   ├─TypeAliasReferenceExpression { Name = typeA }
+//@[059:0064) |   ├─TypeAliasReferenceExpression { Name = typeF }
+//@[067:0088) |   └─ObjectTypeExpression { Name = { type: 'g', *: int } }
+//@[069:0078) |     ├─ObjectTypePropertyExpression
+//@[075:0078) |     | └─StringLiteralTypeExpression { Name = 'g' }
+//@[080:0086) |     └─ObjectTypeAdditionalPropertiesExpression
+//@[083:0086) |       └─AmbientTypeReferenceExpression { Name = int }
 
 @discriminator('type')
 //@[000:0137) ├─DeclaredTypeExpression { Name = discriminatorInnerSelfOptionalCycle1 }

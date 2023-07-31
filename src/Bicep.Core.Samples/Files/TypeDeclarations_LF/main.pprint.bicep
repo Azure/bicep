@@ -115,6 +115,11 @@ type typeE = {
   value: 'a' | 'b'
 }
 
+type typeF = {
+  type: 'f'
+  *: string
+}
+
 @discriminator('type')
 type discriminatedUnion1 = typeA | typeB
 
@@ -175,6 +180,12 @@ type discriminatedUnionInlineAdditionalProps1 = {
 type discriminatedUnionInlineAdditionalProps2 = {
   @discriminator('type')
   *: (typeA | typeB)?
+}
+
+@discriminator('type')
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | {
+  type: 'g'
+  *: int
 }
 
 @discriminator('type')

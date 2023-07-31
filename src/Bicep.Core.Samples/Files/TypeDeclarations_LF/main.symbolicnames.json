@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9443838327502671409"
+      "templateHash": "6550893647956416299"
     }
   },
   "definitions": {
@@ -274,6 +274,20 @@
         }
       }
     },
+    "typeF": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "f"
+          ]
+        }
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "discriminatedUnion1": {
       "type": "object",
       "discriminator": {
@@ -296,6 +310,12 @@
           "c": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "c"
+                ]
+              },
               "value": {
                 "type": "string"
               }
@@ -304,6 +324,12 @@
           "d": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "d"
+                ]
+              },
               "value": {
                 "$ref": "#/definitions/bool"
               }
@@ -326,6 +352,12 @@
           "c": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "c"
+                ]
+              },
               "value": {
                 "type": "string"
               }
@@ -334,6 +366,12 @@
           "d": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "d"
+                ]
+              },
               "value": {
                 "$ref": "#/definitions/bool"
               }
@@ -342,6 +380,12 @@
           "e": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "e"
+                ]
+              },
               "value": {
                 "type": "string"
               }
@@ -364,6 +408,12 @@
           "c": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "c"
+                ]
+              },
               "value": {
                 "type": "string"
               }
@@ -372,6 +422,12 @@
           "d": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "d"
+                ]
+              },
               "value": {
                 "$ref": "#/definitions/bool"
               }
@@ -428,6 +484,12 @@
               "a": {
                 "type": "object",
                 "properties": {
+                  "type": {
+                    "type": "string",
+                    "allowedValues": [
+                      "a"
+                    ]
+                  },
                   "value": {
                     "$ref": "#/definitions/bool"
                   }
@@ -449,6 +511,12 @@
           "a": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "a"
+                ]
+              },
               "prop": {
                 "type": "object",
                 "discriminator": {
@@ -457,6 +525,12 @@
                     "a": {
                       "type": "object",
                       "properties": {
+                        "type": {
+                          "type": "string",
+                          "allowedValues": [
+                            "a"
+                          ]
+                        },
                         "value": {
                           "$ref": "#/definitions/bool"
                         }
@@ -473,6 +547,12 @@
           "b": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "b"
+                ]
+              },
               "prop": {
                 "type": "object",
                 "discriminator": {
@@ -487,6 +567,12 @@
                     "c": {
                       "type": "object",
                       "properties": {
+                        "type": {
+                          "type": "string",
+                          "allowedValues": [
+                            "c"
+                          ]
+                        },
                         "value": {
                           "type": "string"
                         }
@@ -495,6 +581,12 @@
                     "d": {
                       "type": "object",
                       "properties": {
+                        "type": {
+                          "type": "string",
+                          "allowedValues": [
+                            "d"
+                          ]
+                        },
                         "value": {
                           "$ref": "#/definitions/bool"
                         }
@@ -574,6 +666,34 @@
         "nullable": true
       }
     },
+    "discriminatorMemberHasAdditionalProperties1": {
+      "type": "object",
+      "discriminator": {
+        "propertyName": "type",
+        "mapping": {
+          "a": {
+            "$ref": "#/definitions/typeA"
+          },
+          "f": {
+            "$ref": "#/definitions/typeF"
+          },
+          "g": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "g"
+                ]
+              }
+            },
+            "additionalProperties": {
+              "type": "int"
+            }
+          }
+        }
+      }
+    },
     "discriminatorInnerSelfOptionalCycle1": {
       "type": "object",
       "discriminator": {
@@ -585,6 +705,12 @@
           "b": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "b"
+                ]
+              },
               "value": {
                 "$ref": "#/definitions/discriminatorInnerSelfOptionalCycle1",
                 "nullable": true
@@ -649,6 +775,12 @@
               "c": {
                 "type": "object",
                 "properties": {
+                  "type": {
+                    "type": "string",
+                    "allowedValues": [
+                      "c"
+                    ]
+                  },
                   "value": {
                     "type": "object"
                   }
@@ -822,6 +954,12 @@
           "c": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "c"
+                ]
+              },
               "value": {
                 "type": "int"
               }
@@ -848,6 +986,12 @@
           "c": {
             "type": "object",
             "properties": {
+              "type": {
+                "type": "string",
+                "allowedValues": [
+                  "c"
+                ]
+              },
               "value": {
                 "type": "int"
               }

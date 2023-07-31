@@ -139,6 +139,12 @@ type typeE = {
   value: 'a' | 'b'
 }
 
+type typeF = {
+//@[5:10) TypeAlias typeF. Type: Type<{ type: 'f', *: string }>. Declaration start char: 0, length: 40
+  type: 'f'
+  *: string
+}
+
 @discriminator('type')
 type discriminatedUnion1 = typeA | typeB
 //@[5:24) TypeAlias discriminatedUnion1. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 63
@@ -206,6 +212,10 @@ type discriminatedUnionInlineAdditionalProps2 = {
   @discriminator('type')
   *: (typeA | typeB)?
 }
+
+@discriminator('type')
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | { type: 'g', *: int } 
+//@[5:48) TypeAlias discriminatorMemberHasAdditionalProperties1. Type: Type<{ type: 'a', value: string } | { type: 'f', *: string } | { type: 'g', *: int }>. Declaration start char: 0, length: 111
 
 @discriminator('type')
 type discriminatorInnerSelfOptionalCycle1 = typeA | {

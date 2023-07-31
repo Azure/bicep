@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4545) ProgramSyntax
+//@[000:4701) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1022,6 +1022,35 @@ type typeE = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
+type typeF = {
+//@[000:0040) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0010) | ├─IdentifierSyntax
+//@[005:0010) | | └─Token(Identifier) |typeF|
+//@[011:0012) | ├─Token(Assignment) |=|
+//@[013:0040) | └─ObjectTypeSyntax
+//@[013:0014) |   ├─Token(LeftBrace) |{|
+//@[014:0015) |   ├─Token(NewLine) |\n|
+  type: 'f'
+//@[002:0011) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |type|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   |   └─Token(StringComplete) |'f'|
+//@[011:0012) |   ├─Token(NewLine) |\n|
+  *: string
+//@[002:0011) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[002:0003) |   | ├─Token(Asterisk) |*|
+//@[003:0004) |   | ├─Token(Colon) |:|
+//@[005:0011) |   | └─VariableAccessSyntax
+//@[005:0011) |   |   └─IdentifierSyntax
+//@[005:0011) |   |     └─Token(Identifier) |string|
+//@[011:0012) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
 @discriminator('type')
 //@[000:0063) ├─TypeDeclarationSyntax
 //@[000:0022) | ├─DecoratorSyntax
@@ -1611,6 +1640,54 @@ type discriminatedUnionInlineAdditionalProps2 = {
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[000:0111) ├─TypeDeclarationSyntax
+//@[000:0022) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0022) | | └─FunctionCallSyntax
+//@[001:0014) | |   ├─IdentifierSyntax
+//@[001:0014) | |   | └─Token(Identifier) |discriminator|
+//@[014:0015) | |   ├─Token(LeftParen) |(|
+//@[015:0021) | |   ├─FunctionArgumentSyntax
+//@[015:0021) | |   | └─StringSyntax
+//@[015:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[021:0022) | |   └─Token(RightParen) |)|
+//@[022:0023) | ├─Token(NewLine) |\n|
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | { type: 'g', *: int } 
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0048) | ├─IdentifierSyntax
+//@[005:0048) | | └─Token(Identifier) |discriminatorMemberHasAdditionalProperties1|
+//@[049:0050) | ├─Token(Assignment) |=|
+//@[051:0088) | └─UnionTypeSyntax
+//@[051:0056) |   ├─UnionTypeMemberSyntax
+//@[051:0056) |   | └─VariableAccessSyntax
+//@[051:0056) |   |   └─IdentifierSyntax
+//@[051:0056) |   |     └─Token(Identifier) |typeA|
+//@[057:0058) |   ├─Token(Pipe) |||
+//@[059:0064) |   ├─UnionTypeMemberSyntax
+//@[059:0064) |   | └─VariableAccessSyntax
+//@[059:0064) |   |   └─IdentifierSyntax
+//@[059:0064) |   |     └─Token(Identifier) |typeF|
+//@[065:0066) |   ├─Token(Pipe) |||
+//@[067:0088) |   └─UnionTypeMemberSyntax
+//@[067:0088) |     └─ObjectTypeSyntax
+//@[067:0068) |       ├─Token(LeftBrace) |{|
+//@[069:0078) |       ├─ObjectTypePropertySyntax
+//@[069:0073) |       | ├─IdentifierSyntax
+//@[069:0073) |       | | └─Token(Identifier) |type|
+//@[073:0074) |       | ├─Token(Colon) |:|
+//@[075:0078) |       | └─StringSyntax
+//@[075:0078) |       |   └─Token(StringComplete) |'g'|
+//@[078:0079) |       ├─Token(Comma) |,|
+//@[080:0086) |       ├─ObjectTypeAdditionalPropertiesSyntax
+//@[080:0081) |       | ├─Token(Asterisk) |*|
+//@[081:0082) |       | ├─Token(Colon) |:|
+//@[083:0086) |       | └─VariableAccessSyntax
+//@[083:0086) |       |   └─IdentifierSyntax
+//@[083:0086) |       |     └─Token(Identifier) |int|
+//@[087:0088) |       └─Token(RightBrace) |}|
+//@[089:0091) ├─Token(NewLine) |\n\n|
 
 @discriminator('type')
 //@[000:0137) ├─TypeDeclarationSyntax

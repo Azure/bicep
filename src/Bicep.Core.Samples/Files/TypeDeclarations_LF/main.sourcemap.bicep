@@ -443,6 +443,25 @@ type typeE = {
 //@        }
 }
 
+type typeF = {
+//@    "typeF": {
+//@      "type": "object",
+//@      "properties": {
+//@      },
+//@    },
+  type: 'f'
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@            "f"
+//@          ]
+//@        }
+  *: string
+//@      "additionalProperties": {
+//@        "type": "string"
+//@      }
+}
+
 @discriminator('type')
 type discriminatedUnion1 = typeA | typeB
 //@    "discriminatedUnion1": {
@@ -488,6 +507,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@          "c": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "c"
+//@                ]
+//@              },
 //@              "value": {
 //@                "type": "string"
 //@              }
@@ -496,6 +521,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@          "d": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "d"
+//@                ]
+//@              },
 //@              "value": {
 //@                "$ref": "#/definitions/bool"
 //@              }
@@ -507,6 +538,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@          "c": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "c"
+//@                ]
+//@              },
 //@              "value": {
 //@                "type": "string"
 //@              }
@@ -515,6 +552,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@          "d": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "d"
+//@                ]
+//@              },
 //@              "value": {
 //@                "$ref": "#/definitions/bool"
 //@              }
@@ -523,6 +566,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@          "c": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "c"
+//@                ]
+//@              },
 //@              "value": {
 //@                "type": "string"
 //@              }
@@ -531,6 +580,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@          "d": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "d"
+//@                ]
+//@              },
 //@              "value": {
 //@                "$ref": "#/definitions/bool"
 //@              }
@@ -539,6 +594,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@                    "c": {
 //@                      "type": "object",
 //@                      "properties": {
+//@                        "type": {
+//@                          "type": "string",
+//@                          "allowedValues": [
+//@                            "c"
+//@                          ]
+//@                        },
 //@                        "value": {
 //@                          "type": "string"
 //@                        }
@@ -547,6 +608,12 @@ type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bo
 //@                    "d": {
 //@                      "type": "object",
 //@                      "properties": {
+//@                        "type": {
+//@                          "type": "string",
+//@                          "allowedValues": [
+//@                            "d"
+//@                          ]
+//@                        },
 //@                        "value": {
 //@                          "$ref": "#/definitions/bool"
 //@                        }
@@ -563,6 +630,12 @@ type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: '
 //@          "e": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "e"
+//@                ]
+//@              },
 //@              "value": {
 //@                "type": "string"
 //@              }
@@ -644,6 +717,12 @@ type inlineDiscriminatedUnion2 = {
 //@              "a": {
 //@                "type": "object",
 //@                "properties": {
+//@                  "type": {
+//@                    "type": "string",
+//@                    "allowedValues": [
+//@                      "a"
+//@                    ]
+//@                  },
 //@                  "value": {
 //@                    "$ref": "#/definitions/bool"
 //@                  }
@@ -673,6 +752,12 @@ type inlineDiscriminatedUnion3 = {
 //@      }
 //@    },
   type: 'a'
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "a"
+//@                ]
+//@              },
   @discriminator('type')
   prop: { type: 'a', value: bool } | typeB
 //@              "prop": {
@@ -683,6 +768,12 @@ type inlineDiscriminatedUnion3 = {
 //@                    "a": {
 //@                      "type": "object",
 //@                      "properties": {
+//@                        "type": {
+//@                          "type": "string",
+//@                          "allowedValues": [
+//@                            "a"
+//@                          ]
+//@                        },
 //@                        "value": {
 //@                          "$ref": "#/definitions/bool"
 //@                        }
@@ -701,6 +792,12 @@ type inlineDiscriminatedUnion3 = {
 //@            }
 //@          }
   type: 'b'
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "b"
+//@                ]
+//@              },
   @discriminator('type')
   prop: discriminatedUnion1 | discriminatedUnion2
 //@              "prop": {
@@ -800,6 +897,37 @@ type discriminatedUnionInlineAdditionalProps2 = {
 }
 
 @discriminator('type')
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | { type: 'g', *: int } 
+//@    "discriminatorMemberHasAdditionalProperties1": {
+//@      "type": "object",
+//@      "discriminator": {
+//@        "propertyName": "type",
+//@        "mapping": {
+//@          "a": {
+//@            "$ref": "#/definitions/typeA"
+//@          },
+//@          "f": {
+//@            "$ref": "#/definitions/typeF"
+//@          },
+//@          "g": {
+//@            "type": "object",
+//@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "g"
+//@                ]
+//@              }
+//@            },
+//@            "additionalProperties": {
+//@              "type": "int"
+//@            }
+//@          }
+//@        }
+//@      }
+//@    },
+
+@discriminator('type')
 type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@    "discriminatorInnerSelfOptionalCycle1": {
 //@      "type": "object",
@@ -818,6 +946,12 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@      }
 //@    },
   type: 'b'
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "b"
+//@                ]
+//@              },
   value: discriminatorInnerSelfOptionalCycle1?
 //@              "value": {
 //@                "$ref": "#/definitions/discriminatorInnerSelfOptionalCycle1",
@@ -897,6 +1031,12 @@ type discriminatedUnionInlineTuple1 = [
 //@              "c": {
 //@                "type": "object",
 //@                "properties": {
+//@                  "type": {
+//@                    "type": "string",
+//@                    "allowedValues": [
+//@                      "c"
+//@                    ]
+//@                  },
 //@                  "value": {
 //@                    "type": "object"
 //@                  }
@@ -1015,6 +1155,12 @@ output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int }
 //@          "c": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "c"
+//@                ]
+//@              },
 //@              "value": {
 //@                "type": "int"
 //@              }
@@ -1044,6 +1190,12 @@ output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int 
 //@          "c": {
 //@            "type": "object",
 //@            "properties": {
+//@              "type": {
+//@                "type": "string",
+//@                "allowedValues": [
+//@                  "c"
+//@                ]
+//@              },
 //@              "value": {
 //@                "type": "int"
 //@              }

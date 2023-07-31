@@ -608,6 +608,26 @@ type typeE = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+type typeF = {
+//@[000:004) Identifier |type|
+//@[005:010) Identifier |typeF|
+//@[011:012) Assignment |=|
+//@[013:014) LeftBrace |{|
+//@[014:015) NewLine |\n|
+  type: 'f'
+//@[002:006) Identifier |type|
+//@[006:007) Colon |:|
+//@[008:011) StringComplete |'f'|
+//@[011:012) NewLine |\n|
+  *: string
+//@[002:003) Asterisk |*|
+//@[003:004) Colon |:|
+//@[005:011) Identifier |string|
+//@[011:012) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 @discriminator('type')
 //@[000:001) At |@|
 //@[001:014) Identifier |discriminator|
@@ -942,6 +962,32 @@ type discriminatedUnionInlineAdditionalProps2 = {
 }
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
+
+@discriminator('type')
+//@[000:001) At |@|
+//@[001:014) Identifier |discriminator|
+//@[014:015) LeftParen |(|
+//@[015:021) StringComplete |'type'|
+//@[021:022) RightParen |)|
+//@[022:023) NewLine |\n|
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | { type: 'g', *: int } 
+//@[000:004) Identifier |type|
+//@[005:048) Identifier |discriminatorMemberHasAdditionalProperties1|
+//@[049:050) Assignment |=|
+//@[051:056) Identifier |typeA|
+//@[057:058) Pipe |||
+//@[059:064) Identifier |typeF|
+//@[065:066) Pipe |||
+//@[067:068) LeftBrace |{|
+//@[069:073) Identifier |type|
+//@[073:074) Colon |:|
+//@[075:078) StringComplete |'g'|
+//@[078:079) Comma |,|
+//@[080:081) Asterisk |*|
+//@[081:082) Colon |:|
+//@[083:086) Identifier |int|
+//@[087:088) RightBrace |}|
+//@[089:091) NewLine |\n\n|
 
 @discriminator('type')
 //@[000:001) At |@|

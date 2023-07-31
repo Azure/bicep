@@ -199,7 +199,6 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
-//@[58:063) [BCP355 (Error)] Tagged unions with additional properties declarations is currently not supported. (CodeDescription: none) |typeE|
 
 @discriminator('type')
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
