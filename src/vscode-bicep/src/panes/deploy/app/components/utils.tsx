@@ -61,6 +61,6 @@ export function isSucceeded(operation: DeploymentOperation) {
 
 export function getPreformattedJson(input: any) {
   return (
-    <pre style={{whiteSpace: 'pre-wrap'}}>{JSON.stringify(input, null, 2)}</pre>
+    <pre className="code-wrapped">{JSON.stringify(input, null, 2)}</pre>
   );
 }
