@@ -1,5 +1,5 @@
 test sample 'samples/sample1.bicep' = {
-//@[00:2011) ProgramSyntax
+//@[00:1897) ProgramSyntax
 //@[00:0084) ├─TestDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |test|
 //@[05:0011) | ├─IdentifierSyntax
@@ -566,43 +566,6 @@ test testDev 'samples/development.bicep' = {
 //@[14:0023) |   |   | └─StringSyntax
 //@[14:0023) |   |   |   └─Token(StringComplete) |'westus3'|
 //@[23:0025) |   |   ├─Token(NewLine) |\r\n|
-  }
-//@[02:0003) |   |   └─Token(RightBrace) |}|
-//@[03:0005) |   ├─Token(NewLine) |\r\n|
-}
-//@[00:0001) |   └─Token(RightBrace) |}|
-//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
-
-// Test the broken file
-//@[23:0027) ├─Token(NewLine) |\r\n\r\n|
-
-test testBroken 'samples/broken.bicep' = {
-//@[00:0083) ├─TestDeclarationSyntax
-//@[00:0004) | ├─Token(Identifier) |test|
-//@[05:0015) | ├─IdentifierSyntax
-//@[05:0015) | | └─Token(Identifier) |testBroken|
-//@[16:0038) | ├─StringSyntax
-//@[16:0038) | | └─Token(StringComplete) |'samples/broken.bicep'|
-//@[39:0040) | ├─Token(Assignment) |=|
-//@[41:0083) | └─ObjectSyntax
-//@[41:0042) |   ├─Token(LeftBrace) |{|
-//@[42:0044) |   ├─Token(NewLine) |\r\n|
-  params: {
-//@[02:0036) |   ├─ObjectPropertySyntax
-//@[02:0008) |   | ├─IdentifierSyntax
-//@[02:0008) |   | | └─Token(Identifier) |params|
-//@[08:0009) |   | ├─Token(Colon) |:|
-//@[10:0036) |   | └─ObjectSyntax
-//@[10:0011) |   |   ├─Token(LeftBrace) |{|
-//@[11:0013) |   |   ├─Token(NewLine) |\r\n|
-    location: 'us'
-//@[04:0018) |   |   ├─ObjectPropertySyntax
-//@[04:0012) |   |   | ├─IdentifierSyntax
-//@[04:0012) |   |   | | └─Token(Identifier) |location|
-//@[12:0013) |   |   | ├─Token(Colon) |:|
-//@[14:0018) |   |   | └─StringSyntax
-//@[14:0018) |   |   |   └─Token(StringComplete) |'us'|
-//@[18:0020) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[02:0003) |   |   └─Token(RightBrace) |}|
 //@[03:0005) |   ├─Token(NewLine) |\r\n|

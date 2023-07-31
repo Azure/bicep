@@ -94,7 +94,7 @@ namespace Bicep.Core.Samples
 
         public static DataSet TestFramework_CRLF => CreateDataSet();
 
-        public static DataSet TestFrameworkInvalid_CRLF => CreateDataSet();
+        public static DataSet InvalidTestFramework_CRLF => CreateDataSet();
 
         public static DataSet InvalidModules_LF => CreateDataSet();
 

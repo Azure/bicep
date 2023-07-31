@@ -398,33 +398,6 @@ test testDev 'samples/development.bicep' = {
 //@[00:01) RightBrace |}|
 //@[01:05) NewLine |\r\n\r\n|
 
-// Test the broken file
-//@[23:27) NewLine |\r\n\r\n|
-
-test testBroken 'samples/broken.bicep' = {
-//@[00:04) Identifier |test|
-//@[05:15) Identifier |testBroken|
-//@[16:38) StringComplete |'samples/broken.bicep'|
-//@[39:40) Assignment |=|
-//@[41:42) LeftBrace |{|
-//@[42:44) NewLine |\r\n|
-  params: {
-//@[02:08) Identifier |params|
-//@[08:09) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:13) NewLine |\r\n|
-    location: 'us'
-//@[04:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:18) StringComplete |'us'|
-//@[18:20) NewLine |\r\n|
-  }
-//@[02:03) RightBrace |}|
-//@[03:05) NewLine |\r\n|
-}
-//@[00:01) RightBrace |}|
-//@[01:05) NewLine |\r\n\r\n|
-
 // Test the file trying to access a resource
 //@[44:48) NewLine |\r\n\r\n|
 

@@ -96,14 +96,6 @@ test testDev 'samples/development.bicep' = {
   }
 }
 
-// Test the broken file
-
-test testBroken 'samples/broken.bicep' = {
-  params: {
-    location: 'us'
-  }
-}
-
 // Test the file trying to access a resource
 
 test testResource2 'samples/AccessResource.bicep' = {

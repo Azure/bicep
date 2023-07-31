@@ -1,32 +1,32 @@
-testsample'samples/sample1.bicep'={
+test sample 'samples/sample1.bicep' = {
   params: {
     location: 'westus'
   }
 }
 
 // Test the main file
-testtestMain'samples/main.bicep'={
+test testMain 'samples/main.bicep' = {
   params: {
     env: 'prod'
     suffix: 1
   }
 }
 
-testtestMain2'samples/main.bicep'={
+test testMain2 'samples/main.bicep' = {
   params: {
     env: 'dev'
     suffix: 10
   }
 }
 
-testtestMain2'samples/main.bicep'={
+test testMain2 'samples/main.bicep' = {
   params: {
     env: 'main'
     suffix: 10
   }
 }
 
-testtestMain3'samples/main.bicep'={
+test testMain3 'samples/main.bicep' = {
   params: {
     env: 'NotMain'
     suffix: 10
@@ -34,31 +34,31 @@ testtestMain3'samples/main.bicep'={
 }
 
 // Skipped tests
-testtestNoParams'samples/main.bicep'={
+test testNoParams 'samples/main.bicep' = {
   params: {}
 }
 
-testtestMissingParams'samples/main.bicep'={
+test testMissingParams 'samples/main.bicep' = {
   params: {
     env: 'NotMain'
   }
 }
 
-testtestWrongParamsType'samples/main.bicep'={
+test testWrongParamsType 'samples/main.bicep' = {
   params: {
     env: 1
     suffix: 10
   }
 }
 
-testtestWrongParamsType2'samples/main.bicep'={
+test testWrongParamsType2 'samples/main.bicep' = {
   params: {
     env: 'dev'
     suffix: '10'
   }
 }
 
-testtestWrongParamsType3'samples/main.bicep'={
+test testWrongParamsType3 'samples/main.bicep' = {
   params: {
     env: 'dev'
     suffix: 10
@@ -66,7 +66,7 @@ testtestWrongParamsType3'samples/main.bicep'={
   }
 }
 
-testtestInexitentParam'samples/main.bicep'={
+test testInexitentParam 'samples/main.bicep' = {
   params: {
     env: 'dev'
     suffix: 10
@@ -74,13 +74,13 @@ testtestInexitentParam'samples/main.bicep'={
   }
 }
 
-testtestEmptyBody'samples/main.bicep'={}
+test testEmptyBody 'samples/main.bicep' = {}
 
-testtestShouldIgnoreAdditionalProperties'samples/main.bicep'={
+test testShouldIgnoreAdditionalProperties 'samples/main.bicep' = {
   additionalProp: {}
 }
 
-testtestShouldIgnoreAdditionalProperties2'samples/main.bicep'={
+test testShouldIgnoreAdditionalProperties2 'samples/main.bicep' = {
   params: {
     env: 'dev'
     suffix: 10
@@ -90,31 +90,23 @@ testtestShouldIgnoreAdditionalProperties2'samples/main.bicep'={
 
 // Test the development file
 
-testtestDev'samples/development.bicep'={
+test testDev 'samples/development.bicep' = {
   params: {
     location: 'westus3'
   }
 }
 
-// Test the broken file
-
-testtestBroken'samples/broken.bicep'={
-  params: {
-    location: 'us'
-  }
-}
-
 // Test the file trying to access a resource
 
-testtestResource2'samples/AccessResource.bicep'={
+test testResource2 'samples/AccessResource.bicep' = {
   params: {
     location: 'westus2'
   }
 }
 
 // Test the file trying to access runtime functions
-testtestRuntime'samples/runtime.bicep'={}
+test testRuntime 'samples/runtime.bicep' = {}
 
 // Test inexistent file
 
-testtestInexistentFile'samples/inexistent.bicep'={}
+test testInexistentFile 'samples/inexistent.bicep' = {}

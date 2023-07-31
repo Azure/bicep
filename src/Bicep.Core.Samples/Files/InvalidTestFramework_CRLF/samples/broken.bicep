@@ -8,5 +8,3 @@ var obj = {
     nestedArray: [1, 2, 3]
   
 }
-
-

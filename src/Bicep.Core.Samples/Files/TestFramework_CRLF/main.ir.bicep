@@ -1,5 +1,5 @@
 test sample 'samples/sample1.bicep' = {
-//@[0:2011) ProgramExpression
+//@[0:1897) ProgramExpression
   params: {
     location: 'westus'
   }
@@ -95,14 +95,6 @@ test testShouldIgnoreAdditionalProperties2 'samples/main.bicep' = {
 test testDev 'samples/development.bicep' = {
   params: {
     location: 'westus3'
-  }
-}
-
-// Test the broken file
-
-test testBroken 'samples/broken.bicep' = {
-  params: {
-    location: 'us'
   }
 }
 
