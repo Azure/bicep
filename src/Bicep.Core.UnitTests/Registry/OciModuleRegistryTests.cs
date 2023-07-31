@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
@@ -28,7 +26,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void GetDocumentationUri_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -43,7 +41,7 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void GetDocumentationUri_WithNonExistentManifestFile_ShouldReturnNull()
         {
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 "some_manifest_text",
                 "test.azurecr.io",
@@ -77,7 +75,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ]
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -115,7 +113,7 @@ namespace Bicep.Core.UnitTests.Registry
     ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -150,7 +148,7 @@ namespace Bicep.Core.UnitTests.Registry
   ""annotations"": {
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -189,7 +187,7 @@ namespace Bicep.Core.UnitTests.Registry
      ""org.opencontainers.image.notdescription"": """ + "description" + @"""
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -228,7 +226,7 @@ namespace Bicep.Core.UnitTests.Registry
     ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -274,7 +272,7 @@ namespace Bicep.Core.UnitTests.Registry
     ]
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 bicepFileContents,
                 manifestFileContents,
                 "mcr.microsoft.com",
@@ -293,7 +291,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -308,7 +306,7 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task GetDescription_WithNonExistentManifestFile_ShouldReturnNull()
         {
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 "some_manifest_text",
                 "test.azurecr.io",
@@ -342,7 +340,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ]
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -377,7 +375,7 @@ namespace Bicep.Core.UnitTests.Registry
     }
   ]
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -414,7 +412,7 @@ namespace Bicep.Core.UnitTests.Registry
     ""org.opencontainers.image.description"": """ + description + @"""
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -453,7 +451,7 @@ namespace Bicep.Core.UnitTests.Registry
     ""org.opencontainers.image.description"": """ + description + @"""
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -492,7 +490,7 @@ namespace Bicep.Core.UnitTests.Registry
     ""org.opencontainers.image.description"": """ + description + @"""
   }
 }";
-            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+            (OciModuleRegistry ociModuleRegistry, OciModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -510,7 +508,7 @@ namespace Bicep.Core.UnitTests.Registry
             actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json
         }
 
-        private (OciModuleRegistry, OciArtifactModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(
+        private (OciModuleRegistry, OciModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(
             string bicepFileContents,
             string manifestFileContents,
             string registory,

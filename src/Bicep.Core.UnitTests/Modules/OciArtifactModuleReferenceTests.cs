@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Modules
                 parsed.Repository.Should().Be(@case.ExpectedRepository);
                 parsed.Tag.Should().Be(@case.ExpectedTag);
                 parsed.Digest.Should().Be(@case.ExpectedDigest);
-                parsed.ArtifactId.Should().Be(@case.Value);
+                parsed.UnqualifiedReference.Should().Be(@case.Value);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciArtifactModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var @ref, out var failureBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var @ref, out var failureBuilder).Should().BeFalse();
             @ref.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
@@ -144,7 +144,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            OciArtifactModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -158,7 +158,7 @@ namespace Bicep.Core.UnitTests.Modules
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
 
-            OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -170,7 +170,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetInvalidAliasData), DynamicDataSourceType.Method)]
         public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
         {
-            OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -182,22 +182,22 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
-            OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeTrue();
+            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
         }
 
 
-        private static OciArtifactModuleReference Parse(string package)
+        private static OciModuleReference Parse(string package)
         {
-            OciArtifactModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeTrue();
+            OciModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return parsed!;
         }
 
-        private static (OciArtifactModuleReference, OciArtifactModuleReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
+        private static (OciModuleReference, OciModuleReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
         private static IEnumerable<object[]> GetValidCases()
         {

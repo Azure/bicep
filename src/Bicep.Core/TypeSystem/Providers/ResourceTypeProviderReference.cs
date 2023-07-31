@@ -3,14 +3,14 @@
 
 using System;
 
-namespace Bicep.Core.Modules
+namespace Bicep.Core.TypeSystem.ResourceTypeProviders
 {
-    /// <summary>
-    /// Strongly typed representation of a module reference string.
+    ///<summary>
+    /// Strongly typed representation of a provider reference string.
     /// </summary>
-    public abstract class ModuleReference
+    public abstract class ResourceTypeProviderReference
     {
-        protected ModuleReference(string scheme, Uri parentModuleUri)
+        protected ResourceTypeProviderReference(string scheme, Uri parentModuleUri)
         {
             this.Scheme = scheme;
             this.ParentModuleUri = parentModuleUri;
@@ -19,22 +19,22 @@ namespace Bicep.Core.Modules
         public string Scheme { get; }
 
         /// <summary>
-        /// The URI of the template in which this module reference appears.
+        /// The URI of the template in which this provider reference appears.
         /// </summary>
         public Uri ParentModuleUri { get; }
 
         /// <summary>
-        /// Gets the fully qualified module reference, which includes the scheme.
+        /// Gets the fully qualified provider reference, which includes the scheme.
         /// </summary>
         public virtual string FullyQualifiedReference => $"{this.Scheme}:{this.UnqualifiedReference}";
 
         /// <summary>
-        /// Gets the unqualified module reference, which does not include the scheme.
+        /// Gets the unqualified provider reference, which does not include the scheme.
         /// </summary>
         public abstract string UnqualifiedReference { get; }
 
         /// <summary>
-        /// Gets a value indicating whether this reference points to an external module.
+        /// Gets a value indicating whether this reference points to an external provider.
         /// </summary>
         public abstract bool IsExternal { get; }
     }

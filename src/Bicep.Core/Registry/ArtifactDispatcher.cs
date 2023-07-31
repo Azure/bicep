@@ -101,7 +101,7 @@ namespace Bicep.Core.Registry
 
             return this.TryGetModuleReference(moduleReferenceString, parentModuleUri, out moduleReference, out failureBuilder);
         }
-        
+
         public bool TryGetModuleReference(TestDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
@@ -121,7 +121,9 @@ namespace Bicep.Core.Registry
             return registry.GetCapabilities(moduleReference);
         }
 
-        public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ArtifactRestoreStatus GetModuleRestoreStatus(
+            ModuleReference moduleReference, 
+            out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(moduleReference);
             var configuration = configurationManager.GetConfiguration(moduleReference.ParentModuleUri);
@@ -130,18 +132,18 @@ namespace Bicep.Core.Registry
             if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
-                return ModuleRestoreStatus.Failed;
+                return ArtifactRestoreStatus.Failed;
             }
 
             if (registry.IsModuleRestoreRequired(moduleReference))
             {
                 // module is not present on the local file system
                 failureBuilder = x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference);
-                return ModuleRestoreStatus.Unknown;
+                return ArtifactRestoreStatus.Unknown;
             }
 
             failureBuilder = null;
-            return ModuleRestoreStatus.Succeeded;
+            return ArtifactRestoreStatus.Succeeded;
         }
 
         public bool TryGetLocalModuleEntryPointUri(ModuleReference moduleReference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
@@ -163,7 +165,8 @@ namespace Bicep.Core.Registry
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceModulesRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, out _) == ModuleRestoreStatus.Succeeded))
+            if (!forceModulesRestore && 
+                moduleReferences.All(module => this.GetModuleRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -201,7 +204,7 @@ namespace Bicep.Core.Registry
 
             return true;
         }
-        
+
         public async Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri)
         {
             var registry = this.GetRegistry(moduleReference);

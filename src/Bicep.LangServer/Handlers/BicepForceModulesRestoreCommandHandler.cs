@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
                 .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var modulesToRestoreReferences = this.artifactDispatcher.GetValidModuleReferences(modulesToRestore)
+            var modulesToRestoreReferences = this.artifactDispatcher.GetValidArtifactReferences(modulesToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 

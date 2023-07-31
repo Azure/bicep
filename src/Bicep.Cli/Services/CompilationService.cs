@@ -60,7 +60,7 @@ namespace Bicep.Cli.Services
             var originalModulesToRestore = compilation.SourceFileGrouping.GetArtifactsToRestore().ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
-            var modulesToRestoreReferences = this.artifactDispatcher.GetValidModuleReferences(originalModulesToRestore)
+            var modulesToRestoreReferences = this.artifactDispatcher.GetValidArtifactReferences(originalModulesToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
@@ -138,12 +138,12 @@ namespace Bicep.Cli.Services
             return decompilation;
         }
 
-        private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ISourceResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
+        private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<IArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
             static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, ModuleDeclarationSyntax module)
                 => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.Path)) : null;
 
-            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ISourceResolutionInfo> originaArtifactsToRestore)
+            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<IArtifactResolutionInfo> originaArtifactsToRestore)
             {
                 var originalModulesToRestore = originaArtifactsToRestore.OfType<ModuleSourceResolutionInfo>();
                 foreach (var (module, sourceFile) in originalModulesToRestore)

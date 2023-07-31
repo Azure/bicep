@@ -9,7 +9,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
@@ -232,10 +231,10 @@ namespace Bicep.Core.Workspaces
             var restoreStatus = artifactDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
-                case ModuleRestoreStatus.Unknown:
+                case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
                     return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
-                case ModuleRestoreStatus.Failed:
+                case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
                     return (moduleReference, new(module, null, false, restoreErrorBuilder));
@@ -269,10 +268,10 @@ namespace Bicep.Core.Workspaces
             var restoreStatus = artifactDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
-                case ModuleRestoreStatus.Unknown:
+                case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
                     return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
-                case ModuleRestoreStatus.Failed:
+                case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
                     return (moduleReference, new(module, null, false, restoreErrorBuilder));

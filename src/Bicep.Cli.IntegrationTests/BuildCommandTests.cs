@@ -14,7 +14,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
@@ -100,6 +99,40 @@ namespace Bicep.Cli.IntegrationTests
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
+        }
+
+        [TestMethod]
+        public async Task TestAri()
+        {
+            var registryStr = "asilvermantestbr.azurecr.io";
+            var registryUri = new Uri($"https://{registryStr}");
+            var repository = $"bicep/providers/az";
+
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
+
+            var myClient = blobClients[(registryUri, repository)];
+            var manifest = await BinaryData.FromStreamAsync(File.OpenRead(@"C:\Users\asilverman\src\ms\bicep\.asilverman\.bicep\br\mcr.microsoft.com\bicep$providers$az\1.0.0\manifest"));
+            await myClient.SetManifestAsync(manifest, "test");
+            await myClient.UploadBlobAsync(File.OpenRead(@"C:\Users\asilverman\src\ms\bicep\.asilverman\.bicep\br\mcr.microsoft.com\bicep$providers$az\1.0.0\types.tgz"));
+            
+
+            // save file to test output directory...
+            var bicepFile = """
+import 'az@1.0.0'
+""";
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, bicepFile);
+
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
+            var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
+
+            // ensure something got restored
+            Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
+            Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+            // assert there are no errors
         }
 
         [DataTestMethod]
@@ -305,9 +338,9 @@ output myOutput string = 'hello!'
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
         }
 
-        [DataRow(new string[] {})]
-        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
-        [DataRow(new[] { "--diagnostics-format", "sArif"})]
+        [DataRow(new string[] { })]
+        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
+        [DataRow(new[] { "--diagnostics-format", "sArif" })]
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
@@ -320,7 +353,7 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath}.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath }.Concat(args).ToArray());
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
@@ -427,8 +460,8 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.\".");
         }
 
-        [DataRow(new string[] {})]
-        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
+        [DataRow(new string[] { })]
+        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
         [DataTestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
@@ -451,7 +484,7 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile}.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile }.Concat(args).ToArray());
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
@@ -523,17 +556,17 @@ output myOutput string = 'hello!'
     }
   ]
 }");
-        var selectedPath = errorJToken.SelectToken("$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri");
-        selectedPath.Should().NotBeNull();
-        selectedPath?.Value<string>().Should().Contain("file://");
-        selectedPath?.Value<string>().Should().Contain("main.bicep");
-        selectedPath?.Replace("main.bicep");
-        errorJToken.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                expectedErrorJToken,
-                "",
-                "",
-                validateLocation: false);
+            var selectedPath = errorJToken.SelectToken("$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri");
+            selectedPath.Should().NotBeNull();
+            selectedPath?.Value<string>().Should().Contain("file://");
+            selectedPath?.Value<string>().Should().Contain("main.bicep");
+            selectedPath?.Replace("main.bicep");
+            errorJToken.Should().EqualWithJsonDiffOutput(
+                    TestContext,
+                    expectedErrorJToken,
+                    "",
+                    "",
+                    validateLocation: false);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

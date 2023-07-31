@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
             }
 
-            if (this.artifactDispatcher.GetModuleRestoreStatus(moduleReference, out _) != ModuleRestoreStatus.Succeeded)
+            if (this.artifactDispatcher.GetModuleRestoreStatus(moduleReference, out _) != ArtifactRestoreStatus.Succeeded)
             {
                 throw new InvalidOperationException(
                     $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");

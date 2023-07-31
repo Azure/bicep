@@ -11,7 +11,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
 {
-    public interface ISourceResolutionInfo
+    public interface IArtifactResolutionInfo
     {
         StatementSyntax Statement { get; }
         ISourceFile SourceFile { get; }
@@ -30,7 +30,7 @@ namespace Bicep.Core.Workspaces
 
     public record ModuleSourceResolutionInfo(
         ModuleDeclarationSyntax ModuleDeclaration,
-        ISourceFile ParentTemplateFile) : ISourceResolutionInfo
+        ISourceFile ParentTemplateFile) : IArtifactResolutionInfo
     {
         public StatementSyntax Statement => ModuleDeclaration;
 
@@ -39,7 +39,7 @@ namespace Bicep.Core.Workspaces
 
     public record ProviderSourceResolutionInfo(
         ImportDeclarationSyntax ImportDeclaration,
-        ISourceFile ParentTemplateFile) : ISourceResolutionInfo
+        ISourceFile ParentTemplateFile) : IArtifactResolutionInfo
     {
         public StatementSyntax Statement => ImportDeclaration;
 
@@ -53,20 +53,20 @@ namespace Bicep.Core.Workspaces
         ImmutableDictionary<ISourceFile, ImmutableDictionary<StatementSyntax, UriResolutionResult>> UriResultByModule,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup)
     {
-        public IEnumerable<ISourceResolutionInfo> GetModulesToRestore()
+        public IEnumerable<IArtifactResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(
                 kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>()
                     .Where(x => kvp.Value[x].RequiresRestore)
                     .Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
-        public IEnumerable<ISourceResolutionInfo> GetProvidersToRestore()
+        public IEnumerable<IArtifactResolutionInfo> GetProvidersToRestore()
         {
             return SourceFiles.OfType<BicepSourceFile>()
                 .SelectMany(sourceFile => sourceFile.ProgramSyntax.Children.OfType<ImportDeclarationSyntax>()
                 .Select(import => new ProviderSourceResolutionInfo(import, sourceFile)));
         }
 
-        public IEnumerable<ISourceResolutionInfo> GetArtifactsToRestore() =>
+        public IEnumerable<IArtifactResolutionInfo> GetArtifactsToRestore() =>
             GetModulesToRestore().Concat(GetProvidersToRestore());
 
         public BicepSourceFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepSourceFile)!;

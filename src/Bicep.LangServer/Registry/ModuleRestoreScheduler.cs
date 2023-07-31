@@ -3,7 +3,6 @@
 
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -51,7 +50,7 @@ namespace Bicep.LanguageServer.Registry
         {
             this.CheckDisposed();
 
-            var moduleReferences = this.artifactDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
+            var moduleReferences = this.artifactDispatcher.GetValidArtifactReferences(modules).ToImmutableArray();
             var item = new QueueItem(compilationManager, documentUri, moduleReferences);
             lock (this.queue)
             {

@@ -13,22 +13,17 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
-using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using FluentAssertions.Execution;
 using Bicep.Core.UnitTests.Baselines;
-using System;
-using System.Reflection;
-using System.Text.RegularExpressions;
+
 
 namespace Bicep.Core.IntegrationTests.Emit
 {
@@ -54,7 +49,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var dispatcher = new ArtifactDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProviderFactory(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), configManager), configManager), configManager);
             Workspace workspace = new();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
+            if (await dispatcher.RestoreModules(dispatcher.GetValidArtifactReferences(sourceFileGrouping.GetModulesToRestore())))
             {
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
