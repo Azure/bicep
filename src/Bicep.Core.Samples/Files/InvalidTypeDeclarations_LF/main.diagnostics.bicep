@@ -158,43 +158,43 @@ type wrongDiscriminatorParamType = typeA | typeB
 
 @discriminator('nonexistent')
 type discriminatorPropertyNotExistAtAll = typeA | typeB
-//@[42:047) [BCP352 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeA|
-//@[50:055) [BCP352 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeB|
+//@[42:047) [BCP353 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeA|
+//@[50:055) [BCP353 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeB|
 
 @discriminator('nonexistent')
-//@[00:029) [BCP354 (Error)] The discriminator property name must be "nonexistent" on all union member types. (CodeDescription: none) |@discriminator('nonexistent')|
+//@[00:029) [BCP355 (Error)] The discriminator property name must be "nonexistent" on all union member types. (CodeDescription: none) |@discriminator('nonexistent')|
 type discriminatorPropertyMismatch = unionAB
 
 @discriminator('type')
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
-//@[57:072) [BCP352 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |{ value: bool }|
+//@[57:072) [BCP353 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |{ value: bool }|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorWithOnlyOneMember = typeA
 
 @discriminator('type')
 type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
-//@[62:067) [BCP352 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeF|
+//@[62:067) [BCP353 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeF|
 
 @discriminator('type')
 type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
-//@[62:067) [BCP352 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeG|
+//@[62:067) [BCP353 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeG|
 
 @discriminator('type')
 type discriminatorDuplicatedMember1 = typeA | typeA
-//@[46:051) [BCP353 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
+//@[46:051) [BCP354 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
-//@[46:075) [BCP353 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
+//@[46:075) [BCP354 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorOnlyOneNonNullMember1 = typeA | null
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorOnlyOneNonNullMember2 = (typeA)?
 
 @discriminator('type')
@@ -232,17 +232,17 @@ type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 //@[05:033) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorInnerSelfCycle2" -> "discriminatorInnerSelfCycle2Helper"). (CodeDescription: none) |discriminatorInnerSelfCycle2|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTupleBadType1 = [typeA, typeB]
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTupleBadType2 = [typeA | typeB]
 //@[35:040) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeA|
 //@[43:048) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
 //@[35:040) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeA|
 //@[43:048) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
@@ -251,19 +251,19 @@ type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
 
 type discriminatorInlineAdditionalPropsBadType1 = {
   @discriminator('type')
-//@[02:024) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[02:024) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
   *: typeA
 }
 
 type discriminatorInlineAdditionalPropsBadType2 = {
   @discriminator('type')
   *: typeA | typeA
-//@[13:018) [BCP353 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
+//@[13:018) [BCP354 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 }
 
 type discriminatorInlineAdditionalPropsBadType3 = {
   @discriminator('type')
-//@[02:024) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[02:024) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
   *: string
 }
 
@@ -271,34 +271,34 @@ type discriminatorInlineAdditionalPropsCycle1 = {
 //@[05:045) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorInlineAdditionalPropsCycle1|
   type: 'b'
   @discriminator('type')
-//@[02:024) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[02:024) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
   *: typeA | discriminatorInlineAdditionalPropsCycle1
 }
 
 @discriminator('type')
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
-//@[83:108) [BCP353 (Error)] The value "A" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'A', value: int }|
+//@[83:108) [BCP354 (Error)] The value "A" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'A', value: int }|
 
 @discriminator('TYPE')
 type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }
-//@[52:080) [BCP352 (Error)] The property "TYPE" must be a required string literal on all union member types. (CodeDescription: none) |{ type: 'a', value: string }|
-//@[83:108) [BCP352 (Error)] The property "TYPE" must be a required string literal on all union member types. (CodeDescription: none) |{ type: 'b', value: int }|
+//@[52:080) [BCP353 (Error)] The property "TYPE" must be a required string literal on all union member types. (CodeDescription: none) |{ type: 'a', value: string }|
+//@[83:108) [BCP353 (Error)] The property "TYPE" must be a required string literal on all union member types. (CodeDescription: none) |{ type: 'b', value: int }|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 param discriminatorParamBadType1 typeA
 //@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |discriminatorParamBadType1|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 param discriminatorParamBadType2 'a' | 'b'
 //@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |discriminatorParamBadType2|
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 
 @discriminator('type')
-//@[00:022) [BCP351 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 output discriminatorOutputBadType2 object = { prop: 'value' }
 
