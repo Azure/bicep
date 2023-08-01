@@ -80,15 +80,26 @@ namespace Bicep.Core.Emit
 
         private void VerifyModuleSecureParameterFunctionPlacement(FunctionCallSyntaxBase syntax)
         {
-            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ModuleSecureParameterOnly))
+            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol)
             {
-                // we can check placement only for funtions that were matched and has a proper placement flag
-                var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
-                if (!(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
-                    || levelUpSymbol is not PropertySymbol propertySymbol
-                    || !propertySymbol.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ModuleSecureParameterOnly))
                 {
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidInModuleSecureParameterAssignment(functionSymbol.Name));
+                    // we can check placement only for funtions that were matched and has a proper placement flag
+                    var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
+                    if (!(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
+                        || levelUpSymbol is not PropertySymbol propertySymbol
+                        || !propertySymbol.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidInModuleSecureParameterAssignment(functionSymbol.Name));
+                    }
+                }
+                if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.DirectAssignment))
+                {
+                    var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
+                    if (levelUpSymbol is null)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithDirectAssignment(functionSymbol.Name));
+                    }
                 }
             }
         }

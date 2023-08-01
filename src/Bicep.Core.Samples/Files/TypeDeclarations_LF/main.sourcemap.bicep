@@ -11,13 +11,13 @@ type foo = {
 //@      },
 //@    },
   @minLength(3)
-//@          "minLength": 3
+//@          "minLength": 3,
   @maxLength(10)
 //@          "maxLength": 10,
   @description('A string property')
 //@          "metadata": {
 //@            "description": "A string property"
-//@          },
+//@          }
   stringProp: string
 //@        "stringProp": {
 //@          "type": "string",
@@ -290,9 +290,9 @@ type stringStringDictionary = {
 }
 
 @minValue(1)
-//@      "minValue": 1
+//@      "minValue": 1,
 @maxValue(10)
-//@      "maxValue": 10,
+//@      "maxValue": 10
 type constrainedInt = int
 //@    "constrainedInt": {
 //@      "type": "int",

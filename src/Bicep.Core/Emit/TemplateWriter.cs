@@ -88,6 +88,12 @@ namespace Bicep.Core.Emit
             writer.ProcessSourceMap(templateJToken);
         }
 
+        public (Template, JToken) GetTemplate(SourceAwareJsonTextWriter writer)
+        {
+            return GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
+        }
+
+
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
@@ -185,15 +191,13 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private record TypeModification(Expression? Modifier, Func<ObjectExpression, Expression, ObjectExpression> ModifyFunc) {}
-
-        private ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
+        private static ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
         {
-            List<TypeModification> modifications = new();
+            var result = input;
 
-            modifications.Add(new(expression.Secure, (result, secure) =>
+            if (expression.Secure is {} secure)
             {
-                return input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
+                result = result.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
                 {
                     StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString
                         => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", secure.SourceSyntax)),
@@ -201,10 +205,12 @@ namespace Bicep.Core.Emit
                         => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", secure.SourceSyntax)),
                     _ => result,
                 };
-            }));
+            }
 
-            modifications.Add(new(expression.Sealed,
-                (result, @sealed) => result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax))));
+            if (expression.Sealed is {} @sealed)
+            {
+                result = result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax));
+            }
 
             foreach (var (modifier, propertyName) in new[]
             {
@@ -214,48 +220,13 @@ namespace Bicep.Core.Emit
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
                 (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
             }) {
-                modifications.Add(new(modifier, (result, nonNullModifier) => result.MergeProperty(propertyName, nonNullModifier)));
-            }
-
-            modifications.Add(new(expression.Description, (result, _) => ApplyDescription(expression, result)));
-
-            // Whether one decorator overrides another is determined by their order in the syntax tree
-            // TODO should we change this?
-            if (expression.SourceSyntax is DecorableSyntax decorable)
-            {
-                ConcurrentDictionary<TypeModification, int> modificationIndices = new();
-                int GetIndex(TypeModification modification)
+                if (modifier is not null)
                 {
-                    if (modification.Modifier?.SourceSyntax is {} sourceSyntax)
-                    {
-                        int idx = 0;
-                        foreach (var decorator in decorable.Decorators)
-                        {
-                            if (Context.SemanticModel.Binder.IsDescendant(sourceSyntax, decorator))
-                            {
-                                return idx;
-                            }
-
-                            idx++;
-                        }
-                    }
-
-                    return int.MaxValue;
-                }
-
-                modifications.Sort((a, b) => modificationIndices.GetOrAdd(b, GetIndex) - modificationIndices.GetOrAdd(a, GetIndex));
-            }
-
-            var result = input;
-            foreach (var modification in modifications)
-            {
-                if (modification.Modifier is not null)
-                {
-                    result = modification.ModifyFunc(result, modification.Modifier);
+                    result = result.MergeProperty(propertyName, modifier);
                 }
             }
 
-            return result;
+            return ApplyDescription(expression, result);
         }
 
         private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input) => expression.Description is {} description
@@ -510,7 +481,7 @@ namespace Bicep.Core.Emit
                 _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
             };
 
-        private static ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
+        private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {
             (var nullable, var nonLiteralTypeName) = GetUnionTypeNullabilityAndType(expression.ExpressedUnionType);
 
@@ -829,6 +800,28 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(property);
                 }
             }, resource.SourceSyntax);
+        }
+
+        public void EmitTestParameters(ExpressionEmitter emitter, Expression parameters)
+        {
+            if (parameters is not ObjectExpression paramsObject)
+            {
+                // 'params' is optional if the module has no required params
+                return;
+            }
+
+            emitter.EmitObject(() => {
+                foreach (var property in paramsObject.Properties)
+                {
+                    if (property.TryGetKeyText() is not {} keyName)
+                    {
+                        // should have been caught by earlier validation
+                        throw new ArgumentException("Disallowed interpolation in test parameter");
+                    }
+
+                    emitter.EmitProperty(keyName, property.Value);
+                }
+            }, paramsObject.SourceSyntax);
         }
 
         private void EmitModuleParameters(ExpressionEmitter emitter, DeclaredModuleExpression module)

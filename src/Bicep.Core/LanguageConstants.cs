@@ -35,6 +35,8 @@ namespace Bicep.Core
         public const string JsoncFileExtension = ".jsonc";
         public const string ArmTemplateFileExtension = ".arm";
 
+        public const string BicepPublicMcrRegistry = "mcr.microsoft.com";
+
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
         public const int MaxLiteralCharacterLimit = 131072;

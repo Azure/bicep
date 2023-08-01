@@ -28,6 +28,7 @@ const keywords = [
   'with',
   'using',
   'func',
+  'assert',
 ];
 
 const namedLiterals = [

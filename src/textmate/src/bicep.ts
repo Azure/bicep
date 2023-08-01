@@ -62,6 +62,7 @@ const keywords = [
   'with',
   'using',
   'func',
+  'assert',
 ];
 
 const keywordExpression: MatchRule = {

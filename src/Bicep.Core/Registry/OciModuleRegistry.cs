@@ -30,9 +30,7 @@ namespace Bicep.Core.Registry
 
         private readonly RootConfiguration configuration;
 
-        private readonly Uri parentModuleUri;
-
-        private const string BicepPublicMcrRegistry = "mcr.microsoft.com";
+        private readonly Uri parentModuleUri;        
 
         public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
             : base(FileResolver)
@@ -130,7 +128,7 @@ namespace Bicep.Core.Registry
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
-                if (ociArtifactModuleReference.Registry == BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
+                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
                 {
                     var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
                     return ociArtifactModuleReference.Tag is null ? null : GetPublicBicepModuleDocumentationUri(moduleName, ociArtifactModuleReference.Tag);
