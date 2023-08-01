@@ -96,26 +96,26 @@
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.3.99",
-        "contentHash": "N7unUj6hb3b/O3GPb8rxsUijOmkc/XfBAqyDAxx+ESQyaEA/Og/b5ZvJ29M0o1qhm+FpXe/XoCd9yPd5xXEM/A==",
+        "resolved": "0.3.181",
+        "contentHash": "Zbn4qhr79IXsrIRGyqKPkP5UTa2HO4TiGcryQvHv3xFtX5AKdgoQShMW5y0VlFNSBDgwT0rd509ITyt0uyvCsQ==",
         "dependencies": {
           "System.Text.Json": "7.0.1"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.527",
-        "contentHash": "4+Pt9t8Sk3BRIxF/s2C4KoNIu1+MxmI9sevne+8FZ9hT8wJC9dh2Nb4BHP4THpfMkZg3O7Ne07URHS0lSEGe9g==",
+        "resolved": "0.2.552",
+        "contentHash": "UQgXi6LY0Kyjp7m3p7X/eiKbC+6iQvo0/1IcynWyO/OQ1rljmgECB82ca/OUdDR2xf5nypTNldUQgNRUgQGZfA==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.99"
+          "Azure.Bicep.Types": "0.3.181"
         }
       },
       "Azure.Bicep.Types.K8s": {
         "type": "Transitive",
-        "resolved": "0.1.245",
-        "contentHash": "E6e+Rur048xk8sD38UyJnDMiF8Oa/gbkADOF2s6cW5Jg8Ez3v4Da5UN1AnZ/pPxCi1DEClUD8eRpWhvNvEE20w==",
+        "resolved": "0.1.504",
+        "contentHash": "Mh85gu2PQx8FpC2CDf6gRJ+m82b3obvLCmkVNdFGmbxSLxu1hyPQOzUf54NYh2rcBbpyKo6UkuOjijaMIhIfEw==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.61"
+          "Azure.Bicep.Types": "0.3.181"
         }
       },
       "Azure.Containers.ContainerRegistry": {
@@ -2000,9 +2000,9 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "[0.3.99, )",
-          "Azure.Bicep.Types.Az": "[0.2.527, )",
-          "Azure.Bicep.Types.K8s": "[0.1.245, )",
+          "Azure.Bicep.Types": "[0.3.181, )",
+          "Azure.Bicep.Types.Az": "[0.2.552, )",
+          "Azure.Bicep.Types.K8s": "[0.1.504, )",
           "Azure.Containers.ContainerRegistry": "[1.1.0, )",
           "Azure.Deployments.Core": "[1.0.1010, )",
           "Azure.Deployments.Expression": "[1.0.1010, )",

@@ -57,13 +57,10 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
 
         const templateMetadata = parseTemplateJson(message.templateJson);
 
-        if (
-          templateMetadata.template["$schema"] !==
-          "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
-        ) {
+        if (!templateMetadata.scopeType) {
           setTemplateMetadata(undefined);
           setErrorMessage(
-            "The deployment pane currently only supports resourceGroup-scoped Bicep files.",
+            "The deployment pane currently only supports resourceGroup and subscription-scoped Bicep files.",
           );
           return;
         }
@@ -127,7 +124,13 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
   }
 
   function pickScope() {
-    vscode.postMessage(createGetDeploymentScopeMessage());
+    if (!templateMetadata?.scopeType) {
+      throw `ScopeType not set`;
+    }
+
+    vscode.postMessage(
+      createGetDeploymentScopeMessage(templateMetadata.scopeType),
+    );
   }
 
   function publishTelemetry(

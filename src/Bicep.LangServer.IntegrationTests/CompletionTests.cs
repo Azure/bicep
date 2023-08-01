@@ -2048,7 +2048,8 @@ module a '|' = {
                 x => x.Label.Should().Be("percentage%file.bicep"),
                 x => x.Label.Should().Be("../"),
                 x => x.Label.Should().Be("folder with space/"),
-                x => x.Label.Should().Be("br/"),
+                x => x.Label.Should().Be("br/public:"),
+                x => x.Label.Should().Be("ts/"),
                 x => x.Label.Should().Be("br:"),
                 x => x.Label.Should().Be("ts:")
             );
@@ -4056,7 +4057,7 @@ var arr6 = [
             completions.Should().Contain(c => c.Label == "mod2.bicep" && c.Kind == CompletionItemKind.File);
             completions.Should().Contain(c => c.Label == "mod2.json" && c.Kind == CompletionItemKind.File);
             completions.Should().Contain(c => c.Label == "../" && c.Kind == CompletionItemKind.Folder);
-            completions.Should().Contain(c => c.Label == "br/" && c.Kind == CompletionItemKind.Reference);
+            completions.Should().Contain(c => c.Label == "br/public:" && c.Kind == CompletionItemKind.Reference);
             completions.Should().Contain(c => c.Label == "br:" && c.Kind == CompletionItemKind.Reference);
             completions.Should().Contain(c => c.Label == "ts:" && c.Kind == CompletionItemKind.Reference);
         }

@@ -50,6 +50,12 @@ vscode-button {
   font-family: monospace;
 }
 
+.code-wrapped { 
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+}
+
 .form-section h2 {
   margin: 0;
 }
