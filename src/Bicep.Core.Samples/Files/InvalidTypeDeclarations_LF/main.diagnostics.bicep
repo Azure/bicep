@@ -183,11 +183,11 @@ type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
 
 @discriminator('type')
 type discriminatorDuplicatedMember1 = typeA | typeA
-//@[46:051) [BCP354 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
+//@[46:051) [BCP354 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
-//@[46:075) [BCP354 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
+//@[46:075) [BCP354 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
 
 @discriminator('type')
 //@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
@@ -258,7 +258,7 @@ type discriminatorInlineAdditionalPropsBadType1 = {
 type discriminatorInlineAdditionalPropsBadType2 = {
   @discriminator('type')
   *: typeA | typeA
-//@[13:018) [BCP354 (Error)] The value "a" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
+//@[13:018) [BCP354 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 }
 
 type discriminatorInlineAdditionalPropsBadType3 = {
@@ -277,7 +277,7 @@ type discriminatorInlineAdditionalPropsCycle1 = {
 
 @discriminator('type')
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
-//@[83:108) [BCP354 (Error)] The value "A" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'A', value: int }|
+//@[83:108) [BCP354 (Error)] The value "'A'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'A', value: int }|
 
 @discriminator('TYPE')
 type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }

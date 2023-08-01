@@ -481,7 +481,7 @@ type typeB = {
 type typeUnion = {{typeTest}}
 """);
 
-            result.Should().OnlyContainDiagnostic("BCP354", DiagnosticLevel.Error, "The value \"a\" for discriminator property \"type\" is duplicated across multiple union member types. The value must be unique across all union member types.");
+            result.Should().OnlyContainDiagnostic("BCP354", DiagnosticLevel.Error, "The value \"'a'\" for discriminator property \"type\" is duplicated across multiple union member types. The value must be unique across all union member types.");
         }
 
         [DataTestMethod]

@@ -801,6 +801,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var errorDiagnostics = new List<ErrorDiagnostic>();
+            // NOTE(kylealbert): keys are bicep string literals (ex: "'a'" and not "a")
             var memberDiscriminatorValues = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase); // back end is case insensitive
             var expandedMemberTypes = new List<ObjectType>();
 
@@ -824,7 +825,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // validate the discriminator property value does not overlap with other members
-                    var discriminatorMemberValue = discriminatorMemberLiteral.RawStringValue;
+                    var discriminatorMemberValue = discriminatorMemberLiteral.Name;
 
                     if (memberDiscriminatorValues.Contains(discriminatorMemberValue))
                     {
@@ -851,6 +852,8 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // validate there's not value overlap
+                    var nestedHasError = false;
+
                     foreach (var nestedDiscriminatorValue in memberDiscriminatedObjectType.UnionMembersByKey.Keys)
                     {
                         if (memberDiscriminatorValues.Contains(nestedDiscriminatorValue))
@@ -858,12 +861,17 @@ namespace Bicep.Core.TypeSystem
                             errorDiagnostics.Add(
                                 DiagnosticBuilder.ForPosition(memberSyntax)
                                 .DiscriminatorPropertyMemberDuplicatedValue(discriminatorPropertyName, nestedDiscriminatorValue));
+
+                            nestedHasError = true;
                         }
 
                         memberDiscriminatorValues.Add(nestedDiscriminatorValue);
                     }
 
-                    expandedMemberTypes.AddRange(memberDiscriminatedObjectType.UnionMembersByKey.Values);
+                    if (!nestedHasError)
+                    {
+                        expandedMemberTypes.AddRange(memberDiscriminatedObjectType.UnionMembersByKey.Values);
+                    }
                 }
                 else
                 {
