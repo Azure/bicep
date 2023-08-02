@@ -201,17 +201,21 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
 
 @discriminator('type')
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
 //@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle1|
 
 @discriminator('type')
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
 //@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle2|
 
 @discriminator('type')
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
 //@[05:032) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleA" -> "discriminatorTopLevelCycleB"). (CodeDescription: none) |discriminatorTopLevelCycleA|
 @discriminator('type')
+//@[00:022) [BCP352 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 //@[05:032) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleB" -> "discriminatorTopLevelCycleA"). (CodeDescription: none) |discriminatorTopLevelCycleB|
 
