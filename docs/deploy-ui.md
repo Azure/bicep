@@ -9,7 +9,7 @@ This feature is currently experimental while we collect feedback, but can be eas
 
 ## Enabling
 1. You must be using Bicep VSCode extension v0.20.4 or later.
-1. You must enable the "Experimental: Deploy Pane" VSCode setting before you can access the functionality.
+1. You must enable the "Experimental: Deploy Pane" [VSCode setting](https://code.visualstudio.com/docs/getstarted/settings) before you can access the functionality.
     ![](./images/deploypane-setting.png)
 
 ## Using
