@@ -150,16 +150,6 @@ namespace Bicep.Core.Parsing
             return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
         }
 
-        private SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
-        {
-            var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
-
-            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
-        }
-
         private SyntaxBase FunctionDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.FunctionKeyword);

@@ -36,6 +36,16 @@ namespace Bicep.Core.Parsing
 
         public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
+        protected SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
         private static int GetOperatorPrecedence(TokenType tokenType) => tokenType switch

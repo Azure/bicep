@@ -218,7 +218,7 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        private static ImmutableDictionary<string, JToken> ParseParametersFile(JToken? parametersJToken)
+        public static ImmutableDictionary<string, JToken> ParseParametersFile(JToken? parametersJToken)
         {
             if (parametersJToken is null)
             {

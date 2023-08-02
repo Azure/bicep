@@ -4875,6 +4875,26 @@ module mod 'mod.bicep' = [for i in range(0, count): {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/Azure/bicep/issues/11437
+    [TestMethod]
+    public void Test_Issue11437()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param foo = 'asdf'
+param foo = 'asdf'
+"""),
+            ("main.bicep", """param foo string"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP028", DiagnosticLevel.Error, """Identifier "foo" is declared multiple times. Remove or rename the duplicates."""),
+            ("BCP028", DiagnosticLevel.Error, """Identifier "foo" is declared multiple times. Remove or rename the duplicates."""),
+        });
+    }
+
     // https://github.com/Azure/bicep/issues/10994
     [TestMethod]
     public void Test_Issue10994()

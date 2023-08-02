@@ -6,10 +6,10 @@ param para1 = 'value
 //@[14:20) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'value|
 
 para
-//@[00:04) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using" or "param" declaration. (CodeDescription: none) |para|
+//@[00:04) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "param" or "var" declaration. (CodeDescription: none) |para|
 
 para2
-//@[00:05) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using" or "param" declaration. (CodeDescription: none) |para2|
+//@[00:05) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "param" or "var" declaration. (CodeDescription: none) |para2|
 
 param expr = 1 + 2
 //@[00:18) [BCP259 (Error)] The parameter "expr" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param expr = 1 + 2|
