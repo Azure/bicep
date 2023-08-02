@@ -18,15 +18,16 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Cli.Services
 {
-    public class TemplateEvaluator
+    public partial class TemplateEvaluator
     {
         private const string DummyTenantId = "";
         private const string DummyManagementGroupName = "";
         private const string DummySubscriptionId = "";
         private const string DummyResourceGroupName = "";
         private const string DummyLocation = "";
-        private static readonly Regex templateSchemaPattern = new Regex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.Compiled);
-        
+
+        [GeneratedRegex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex templateSchemaPattern();
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
         public delegate JToken OnReferenceDelegate(string resourceId, string apiVersion, bool fullBody);
@@ -176,9 +177,6 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
-                // var allAssertions = template.Asserts?.ToImmutableArray(p => AssertionResult(p, p.Value.Value));
-                // var allAssertionsNotNull = allAssertions ?? ImmutableDictionary<string, bool>.Empty;
-                // var failedAssertions = allAssertionsNotNull.Where(a => !a.Value).ToImmutableDictionary(a => a.Key, a => a.Value);
                 var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? ImmutableArray<AssertionResult>.Empty;
                 var failedAssertions = allAssertions.Where(a => !a.Result).Select(a => a).ToImmutableArray();
                 return new TestEvaluation(template, null, allAssertions, failedAssertions);
@@ -203,7 +201,7 @@ namespace Bicep.Cli.Services
         
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
         {
-            var templateSchemaMatch = templateSchemaPattern.Match(templateSchema);
+            var templateSchemaMatch = templateSchemaPattern().Match(templateSchema);
             var templateType = templateSchemaMatch.Groups["templateType"].Value.ToLowerInvariant();
 
             return templateType switch 
