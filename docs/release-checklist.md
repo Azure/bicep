@@ -2,15 +2,9 @@
 
 1. (**end-of-month releases only**) Update Bicep Az types:
     1. Run the [Update Types](https://github.com/Azure/bicep-types-az/actions/workflows/update-types.yml) GitHub Action to generate the latest type definitions.
-<<<<<<< Updated upstream
-    1. Wait ~3hrs for the previous step to complete. Ensure it runs successfully, and generates + merges a PR (example [here](https://github.com/Azure/bicep-types-az/pull/1299)).
-    1. Run the Official Build (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
-    1. Publish Bicep.Types NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
-=======
         1. Wait ~3hrs for it to complete. Ensure it runs successfully and that it generates + merges a PR (example [here](https://github.com/Azure/bicep-types-az/pull/1299)).
     1. Run the Official Build for BicepMirror-Types-Az(see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
     1. Publish Bicep.Types.Az NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
->>>>>>> Stashed changes
         1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
         1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
         1. Run `./scripts/UploadPackages.ps1 -PackageDirectory <downloads>/drop_build_main -NuGetPath <nuget_tool_directory>`
@@ -20,22 +14,15 @@
         1. Might also need to update baseline tests (run `bicep/scripts/SetBaseline.ps1`)
 1. Verify the latest build on the `main` branch is green: ![Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main).
 1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Raise an issue for any recently-added linter rules which do not have public documentation.
-1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
-<<<<<<< Updated upstream
-1. Run the Official Build (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
-1. Get version number from official build by looking at the artifacts and push a new tag to the Bicep repo. This should be of format `vXX.YY.ZZ` - e.g `v0.14.85`.
-    1. In the Bicep repo, make sure you are on the main branch and on the latest commit.
-    1. Run git tag v<new_release_number> (ex: git tag v0.15.31)
-    1. Run git push origin v<new_release_number> (ex: git push origin v0.15.31)
-=======
-1. Run the Official Build for BicepMirror (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
+1. (**end-of-month releases only**) Update Bicep:
+    1. Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
+    1. Run the Official Build for BicepMirror (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
 1. Push the version tag for the commit used to generate the official build.
     1. Obtain the version number from official build. This should be of format `vXX.YY.ZZ` - e.g `v0.14.85`.
         1. Look at either the official build artifacts or 
         2. Look at random logs of the the build from [here](https://msazure.visualstudio.com/One/_build?definitionId=182734&_a=summary). One example might be bicep_windows -> Copy Bicep registry module tool package to output (windows_build_container)
     1. In the Bicep repo, run `git tag v<new_release_number> <commit_hash>`, where `<commit_hash>` is the git commit hash used for the official build (ex: `git tag v0.15.31 3ba6e06a8d412febd182e607d0f5fe607ec90274`).
     1. Run `git push origin v<new_release_number>` to push the tag (ex: `git push origin v0.15.31`).
->>>>>>> Stashed changes
 1. [Create a draft release](https://github.com/Azure/bicep/releases/new) for the new tag and set release title to the tag name. Use the "Save draft" button to save the changes without publishing it.
 1. Run `bicep/scripts/CreateReleaseNotes -FromTag <previous tag> -ToTag <new tag>` and set the output as the release description.
     1. Give the output of this script to a PM, and ask them to clean up the notes for the release.
