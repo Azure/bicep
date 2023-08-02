@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests
                       }
                       asserts: {
                         ra1: false
-                      } 
+                      }
                 }
             """;
 
@@ -91,7 +91,7 @@ namespace Bicep.Core.IntegrationTests
                     properties: {
                         serverFarmId: 'id'
                         httpsOnly: true
-                    }    
+                    }
                     asserts: {
                         locationInUS: contains(location, 'us')
                         missingColon
@@ -111,7 +111,7 @@ namespace Bicep.Core.IntegrationTests
                     properties: {
                         serverFarmId: 'id'
                         httpsOnly: true
-                    }    
+                    }
                     asserts: {
                         locationInUS: contains(location, 'us')
                         missingCondition:
@@ -156,7 +156,7 @@ namespace Bicep.Core.IntegrationTests
                         properties: {
                             serverFarmId: 'id'
                             httpsOnly: true
-                        }    
+                        }
                         asserts: {
                             ra1: false
                             ra1: location == 'us'
@@ -188,7 +188,7 @@ namespace Bicep.Core.IntegrationTests
                         properties: {
                             serverFarmId: 'id'
                             httpsOnly: true
-                        }    
+                        }
                         asserts: {
                             ra1: 0
                             ra2: contains(accountName, 'stgA')
@@ -204,7 +204,7 @@ namespace Bicep.Core.IntegrationTests
                     }
 
                     assert a1 = 1
-                    assert a2 = 1 + 2 
+                    assert a2 = 1 + 2
                     assert a3 = contains(accountName, 'stgA')
                     assert a4 = true
                     assert a5 = environment == 'dev'
@@ -283,7 +283,7 @@ namespace Bicep.Core.IntegrationTests
                         },
                         ""location"": {
                             ""type"": ""string""
-                        }           
+                        }
                     },
                     ""resources"": {
                         ""stgAccount"": {
@@ -343,7 +343,7 @@ namespace Bicep.Core.IntegrationTests
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""2524536890773058281""
+                            ""templateHash"": ""8822582252570074206""
                         }
                     },
                     ""parameters"": {
@@ -355,7 +355,7 @@ namespace Bicep.Core.IntegrationTests
                         },
                         ""location"": {
                             ""type"": ""string""
-                        }           
+                        }
                     },
                     ""resources"": {
                         ""stgAccount"": {
@@ -371,7 +371,7 @@ namespace Bicep.Core.IntegrationTests
                                 ""ra1"": ""[less(length(parameters('accountName')), variables('myInt'))]"",
                                 ""ra2"": ""[contains(parameters('location'), 'us')]"",
                                 ""ra3"": ""[equals(parameters('environment'), 'dev')]""
-                            }   
+                            }
                         }
                     },
                     ""variables"": {
