@@ -12,9 +12,7 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
-using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
@@ -348,9 +346,8 @@ namespace Bicep.Core.Semantics
                 {
                     // depending on the language version, either only properties included in schemaNode.Required are required,
                     // or all of them are (but some may be nullable)
-                    var required = template.GetLanguageVersion().HasFeature(TemplateLanguageFeature.NullableParameters)
-                        ? true
-                        : schemaNode.Required?.Value.Contains(propertyName) ?? false;
+                    var required = template.SupportsLanguageFeature(TemplateLanguageFeature.NullableParameters)
+                        || (schemaNode.Required?.Value.Contains(propertyName) ?? false);
                     var flags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
                     var description = GetMostSpecificDescription(schema);
 
