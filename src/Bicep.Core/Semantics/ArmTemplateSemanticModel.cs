@@ -12,9 +12,7 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
-using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
@@ -144,10 +142,10 @@ namespace Bicep.Core.Semantics
             TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(GetMetadata(parameter), out var resourceType) =>
                 resourceType,
 
-            _ => GetType((ITemplateSchemaNode)parameter),
+            _ => GetType((ITemplateSchemaNode)parameter, allowLooseAssignment: true),
         };
 
-        private TypeSymbol GetType(ITemplateSchemaNode schemaNode)
+        private TypeSymbol GetType(ITemplateSchemaNode schemaNode, bool allowLooseAssignment = false)
         {
             try
             {
@@ -156,12 +154,13 @@ namespace Bicep.Core.Semantics
                 var bicepType = resolved.Type.Value switch
                 {
                     TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(resolved.Metadata?.Value, out var resourceType) => resourceType,
-                    TemplateParameterType.String => GetPrimitiveType(resolved, t => t.IsTextBasedJTokenType(), LanguageConstants.TypeNameString, LanguageConstants.LooseString),
-                    TemplateParameterType.Int => GetPrimitiveType(resolved, t => t.Type == JTokenType.Integer, LanguageConstants.TypeNameInt, LanguageConstants.LooseInt),
-                    TemplateParameterType.Bool => GetPrimitiveType(resolved, t => t.Type == JTokenType.Boolean, LanguageConstants.TypeNameBool, LanguageConstants.LooseBool),
+                    TemplateParameterType.String => GetStringType(resolved, allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : default),
+                    TemplateParameterType.Int => GetIntegerType(resolved, allowLooseAssignment),
+                    TemplateParameterType.Bool => GetPrimitiveType(resolved, t => t.Type == JTokenType.Boolean, LanguageConstants.TypeNameBool, allowLooseAssignment ? LanguageConstants.LooseBool : LanguageConstants.Bool),
                     TemplateParameterType.Array => GetArrayType(resolved),
                     TemplateParameterType.Object => GetObjectType(SourceFile.Template!, resolved),
-                    TemplateParameterType.SecureString => LanguageConstants.SecureString,
+                    TemplateParameterType.SecureString => GetStringType(resolved,
+                        TypeSymbolValidationFlags.IsSecure | (allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default)),
                     TemplateParameterType.SecureObject => GetObjectType(SourceFile.Template!, resolved, TypeSymbolValidationFlags.IsSecure),
                     _ => ErrorType.Empty(),
                 };
@@ -233,11 +232,33 @@ namespace Bicep.Core.Semantics
             return TypeHelper.CreateTypeUnion(literalTypeTargets);
         }
 
+        private static TypeSymbol GetIntegerType(ITemplateSchemaNode schemaNode, bool allowLooseAssignment)
+        {
+            if (schemaNode.AllowedValues?.Value is JArray jArray)
+            {
+                return TryGetLiteralUnionType(jArray, t => t.Type == JTokenType.Integer, b => b.InvalidUnionTypeMember(LanguageConstants.TypeNameInt));
+            }
+
+            return TypeFactory.CreateIntegerType(schemaNode.MinValue?.Value,
+                schemaNode.MaxValue?.Value,
+                allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default);
+        }
+
+        private static TypeSymbol GetStringType(ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
+        {
+            if (schemaNode.AllowedValues?.Value is JArray jArray)
+            {
+                return TryGetLiteralUnionType(jArray, t => t.IsTextBasedJTokenType(), b => b.InvalidUnionTypeMember(LanguageConstants.TypeNameString));
+            }
+
+            return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, flags);
+        }
+
         private TypeSymbol GetArrayType(ITemplateSchemaNode schemaNode)
         {
             if (schemaNode.AllowedValues?.Value is JArray allowedValues)
             {
-                return GetArrayLiteralType(allowedValues);
+                return GetArrayLiteralType(allowedValues, schemaNode);
             }
 
             if (schemaNode.PrefixItems is { } prefixItems)
@@ -259,19 +280,19 @@ namespace Bicep.Core.Semantics
                 if (items.Ref?.Value is { } @ref)
                 {
                     var (type, typeName) = GetDeferrableTypeInfo(items);
-                    return new TypedArrayType($"{typeName}[]", type, default);
+                    return new TypedArrayType($"{typeName}[]", type, default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
                 }
 
-                return new TypedArrayType(GetType(items), default);
+                return new TypedArrayType(GetType(items), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
             }
 
             // TODO it's possible to encounter an array with a defined prefix and either a schema or a boolean for "items."
             // TupleType does not support an "AdditionalItemsType" for items after the tuple, but when it does, update this type reader to handle the combination of "items" and "prefixItems"
 
-            return LanguageConstants.Array;
+            return TypeFactory.CreateArrayType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
         }
 
-        private static TypeSymbol GetArrayLiteralType(JArray allowedValues)
+        private static TypeSymbol GetArrayLiteralType(JArray allowedValues, ITemplateSchemaNode schemaNode)
         {
             // For allowedValues on an array, either all or none of the allowed values need to be arrays.
             if (allowedValues.Any(t => t.Type == JTokenType.Array))
@@ -304,7 +325,7 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            return new TypedArrayType(TypeHelper.CreateTypeUnion(elements), default);
+            return new TypedArrayType(TypeHelper.CreateTypeUnion(elements), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
         }
 
         private TypeSymbol GetObjectType(Template template, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags symbolValidationFlags = TypeSymbolValidationFlags.Default)
@@ -325,9 +346,8 @@ namespace Bicep.Core.Semantics
                 {
                     // depending on the language version, either only properties included in schemaNode.Required are required,
                     // or all of them are (but some may be nullable)
-                    var required = template.GetLanguageVersion().HasFeature(TemplateLanguageFeature.NullableParameters)
-                        ? true
-                        : schemaNode.Required?.Value.Contains(propertyName) ?? false;
+                    var required = template.SupportsLanguageFeature(TemplateLanguageFeature.NullableParameters)
+                        || (schemaNode.Required?.Value.Contains(propertyName) ?? false);
                     var flags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
                     var description = GetMostSpecificDescription(schema);
 
@@ -368,28 +388,16 @@ namespace Bicep.Core.Semantics
             _ => GetType(schemaNode) switch { TypeSymbol concreteType => (concreteType, concreteType.Name) },
         };
 
-        private static TypeSymbol GetType(TemplateOutputParameter output)
+        private TypeSymbol GetType(TemplateOutputParameter output)
         {
-            return output.Type.Value switch
+            return output.Type?.Value switch
             {
                 TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(output.Metadata?.Value, out var resourceType) =>
                     resourceType,
 
-                _ => GetType((TemplateParameter)output),
+                _ => GetType((ITemplateSchemaNode)output),
             };
         }
-
-        private static TypeSymbol GetType(TemplateParameter parameterOrOutput) => parameterOrOutput.Type.Value switch
-        {
-            TemplateParameterType.String => LanguageConstants.LooseString,
-            TemplateParameterType.Int => LanguageConstants.Int,
-            TemplateParameterType.Bool => LanguageConstants.Bool,
-            TemplateParameterType.Array => LanguageConstants.Array,
-            TemplateParameterType.Object => LanguageConstants.Object,
-            TemplateParameterType.SecureString => LanguageConstants.SecureString,
-            TemplateParameterType.SecureObject => LanguageConstants.SecureObject,
-            _ => ErrorType.Empty(),
-        };
 
         private static bool TryCreateUnboundResourceTypeParameter(JToken? metadataToken, [NotNullWhen(true)] out TypeSymbol? type)
         {

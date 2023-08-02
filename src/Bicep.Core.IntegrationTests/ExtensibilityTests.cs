@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder Services => new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
 
         [TestMethod]
         public void Storage_import_bad_config_is_blocked()
@@ -339,6 +339,60 @@ resource secret 'core/Secret@v1' = {
             result.Should().NotHaveAnyDiagnostics();
         }
 
+        [TestMethod]
+        public void Kubernetes_CustomResourceType_EmitWarning()
+        {
+            var result = CompilationHelper.Compile(Services, """
+                import 'kubernetes@1.0.0' with {
+                  namespace: 'default'
+                  kubeConfig: ''
+                }
+                resource crd 'custom/Foo@v1' = {
+                  metadata: {
+                    name: 'existing-service'
+                  }
+                }
+                """);
+
+            result.Should().GenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""custom/Foo@v1"" does not have types available."),
+            });
+        }
+
+        [TestMethod]
+        public void Kubernetes_AmbiguousFallbackType_MustFullyQualify()
+        {
+            var result = CompilationHelper.Compile(Services, """
+                import 'kubernetes@1.0.0' with {
+                  namespace: 'default'
+                  kubeConfig: ''
+                }
+
+                resource ambiguous 'Microsoft.Compute/availabilitySets@2023-01-01' = {
+                  metadata: {
+                    name: 'existing-service'
+                  }
+                }
+
+                resource availabilitySet 'az:Microsoft.Compute/availabilitySets@2023-01-01' = {
+                }
+
+                resource custom 'kubernetes:Microsoft.Foo/bar@2023-01-01' = {
+                  metadata: {
+                    name: 'custom'
+                  }
+                }
+                """);
+
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP264", DiagnosticLevel.Error, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" is declared in multiple imported namespaces (""az"", ""kubernetes""), and must be fully-qualified."),
+                ("BCP035", DiagnosticLevel.Error, @"The specified ""resource"" declaration is missing the following required properties: ""name""."),
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Foo/bar@2023-01-01"" does not have types available."),
+            });
+        }
 
         [TestMethod]
         public void Storage_import_basic_test_with_qualified_type()
@@ -465,7 +519,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""12622870383828628423""
+      ""templateHash"": ""13432420222306620637""
     }
   },
   ""parameters"": {
@@ -486,7 +540,7 @@ Hello from Bicep!"));
     },
     ""website"": {
       ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2020-10-01"",
+      ""apiVersion"": ""2022-09-01"",
       ""name"": ""website"",
       ""properties"": {
         ""expressionEvaluationOptions"": {

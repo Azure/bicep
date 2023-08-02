@@ -6,10 +6,12 @@ namespace Bicep.Cli.Constants
     public static class Command
     {
         public const string Build = "build";
+        public const string Test = "test";
         public const string BuildParams = "build-params";
         public const string Format = "format";
         public const string GenerateParamsFile = "generate-params";
         public const string Decompile = "decompile";
+        public const string DecompileParams = "decompile-params";
         public const string Publish = "publish";
         public const string Restore = "restore";
         public const string Root = "";

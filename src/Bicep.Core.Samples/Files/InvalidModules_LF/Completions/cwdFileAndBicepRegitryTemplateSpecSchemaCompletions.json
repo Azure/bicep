@@ -54,27 +54,27 @@
     }
   },
   {
-    "label": "br/",
+    "label": "br/public:",
     "kind": "reference",
-    "detail": "Bicep registry schema name",
+    "detail": "Public Bicep registry",
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_br/",
-    "filterText": "'br/$0'",
+    "sortText": "90_br/public:",
+    "filterText": "'br/public:$0'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'br/$0'"
+      "newText": "'br/public:$0'"
     }
   },
   {
     "label": "br:",
     "kind": "reference",
-    "detail": "Bicep registry schema name",
+    "detail": "Bicep registry",
     "deprecated": false,
     "preselect": false,
-    "sortText": "0_br:",
+    "sortText": "92_br:",
     "filterText": "'br:$0'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
@@ -137,6 +137,20 @@
     "textEdit": {
       "range": {},
       "newText": "'main.formatted.bicep'"
+    }
+  },
+  {
+    "label": "main.pprint.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.pprint.bicep",
+    "filterText": "'main.pprint.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.pprint.bicep'"
     }
   },
   {
@@ -280,12 +294,27 @@
     }
   },
   {
-    "label": "ts:",
+    "label": "ts/",
     "kind": "reference",
-    "detail": "Template spec schema name",
+    "detail": "Template spec (alias)",
     "deprecated": false,
     "preselect": false,
-    "sortText": "0_ts:",
+    "sortText": "90_ts/",
+    "filterText": "'ts/$0'",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'ts/$0'"
+    }
+  },
+  {
+    "label": "ts:",
+    "kind": "reference",
+    "detail": "Template spec",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "92_ts:",
     "filterText": "'ts:$0'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",

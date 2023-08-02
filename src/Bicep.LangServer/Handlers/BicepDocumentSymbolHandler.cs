@@ -82,10 +82,12 @@ namespace Bicep.LanguageServer.Handlers
             ParameterSymbol => SymbolKind.Field,
             TypeAliasSymbol => SymbolKind.Field,
             VariableSymbol => SymbolKind.Variable,
+            DeclaredFunctionSymbol => SymbolKind.Function,
             ResourceSymbol => SymbolKind.Object,
             ModuleSymbol => SymbolKind.Module,
             OutputSymbol => SymbolKind.Interface,
             ParameterAssignmentSymbol => SymbolKind.Constant,
+            AssertSymbol => SymbolKind.Boolean,
             _ => SymbolKind.Key,
         };
 
@@ -94,10 +96,12 @@ namespace Bicep.LanguageServer.Handlers
             ParameterSymbol parameter => parameter.Type.Name,
             TypeAliasSymbol declaredType => declaredType.Type.Name,
             VariableSymbol variable => variable.Type.Name,
+            DeclaredFunctionSymbol func => func.Type.Name,
             ResourceSymbol resource => resource.Type.Name,
             ModuleSymbol module => module.Type.Name,
             OutputSymbol output => output.Type.Name,
             ParameterAssignmentSymbol paramAssignment => paramAssignment.Type.Name,
+            AssertSymbol assert => assert.Type.Name,
             _ => string.Empty,
         };
 

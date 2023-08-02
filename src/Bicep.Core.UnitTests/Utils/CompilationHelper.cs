@@ -74,30 +74,33 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, string fileContents)
             => Compile(services, ("main.bicep", fileContents));
 
+
         public static ParamsCompilationResult CompileParams(params (string fileName, string fileContents)[] files)
         {
-            var features = BicepTestConstants.FeatureOverrides;
+            return CompileParams(new ServiceBuilder(), files);
+        }
+
+        public static ParamsCompilationResult CompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
+        {
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var services = new ServiceBuilder().WithFeatureOverrides(features).WithConfigurationPatch(c => configuration);
+            services = services.WithConfigurationPatch(c => configuration);
 
             files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
 
             var (uriDictionary, entryUri) = CreateFileDictionary(files, "parameters.bicepparam");
             var fileResolver = new InMemoryFileResolver(uriDictionary);
+            services = services.WithFileResolver(fileResolver);
 
             var sourceFiles = uriDictionary
                 .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var compilation = services.WithFeatureOverrides(features).BuildCompilation(sourceFiles, entryUri);
+            var compilation = services.BuildCompilation(sourceFiles, entryUri);
 
             return CompileParams(compilation);
         }
 
-        public static ParamsCompilationResult CompileParams(string fileContents)
-            => CompileParams(("parameters.bicepparam", fileContents));
-
-        private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files, string entryFileName)
+        public static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files, string entryFileName)
         {
             var uriDictionary = files.ToDictionary(
                 x => InMemoryFileResolver.GetFileUri($"/path/to/{x.fileName}"),

@@ -617,6 +617,227 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[069:070) Comma |,|
 //@[071:103) StringComplete |'.products[?(@.price > 3)].name'|
 //@[103:104) RightParen |)|
-//@[104:106) NewLine |\r\n|
+//@[104:108) NewLine |\r\n\r\n|
+
+var testYaml = loadYamlContent('./Assets/test.yaml.txt')
+//@[000:003) Identifier |var|
+//@[004:012) Identifier |testYaml|
+//@[013:014) Assignment |=|
+//@[015:030) Identifier |loadYamlContent|
+//@[030:031) LeftParen |(|
+//@[031:055) StringComplete |'./Assets/test.yaml.txt'|
+//@[055:056) RightParen |)|
+//@[056:058) NewLine |\r\n|
+var testYamlString = testYaml.string
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |testYamlString|
+//@[019:020) Assignment |=|
+//@[021:029) Identifier |testYaml|
+//@[029:030) Dot |.|
+//@[030:036) Identifier |string|
+//@[036:038) NewLine |\r\n|
+var testYamlInt = testYaml.int
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |testYamlInt|
+//@[016:017) Assignment |=|
+//@[018:026) Identifier |testYaml|
+//@[026:027) Dot |.|
+//@[027:030) Identifier |int|
+//@[030:032) NewLine |\r\n|
+var testYamlBool = testYaml.bool
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |testYamlBool|
+//@[017:018) Assignment |=|
+//@[019:027) Identifier |testYaml|
+//@[027:028) Dot |.|
+//@[028:032) Identifier |bool|
+//@[032:034) NewLine |\r\n|
+var testYamlArrayInt = testYaml.arrayInt
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |testYamlArrayInt|
+//@[021:022) Assignment |=|
+//@[023:031) Identifier |testYaml|
+//@[031:032) Dot |.|
+//@[032:040) Identifier |arrayInt|
+//@[040:042) NewLine |\r\n|
+var testYamlArrayIntVal = testYaml.arrayInt[0]
+//@[000:003) Identifier |var|
+//@[004:023) Identifier |testYamlArrayIntVal|
+//@[024:025) Assignment |=|
+//@[026:034) Identifier |testYaml|
+//@[034:035) Dot |.|
+//@[035:043) Identifier |arrayInt|
+//@[043:044) LeftSquare |[|
+//@[044:045) Integer |0|
+//@[045:046) RightSquare |]|
+//@[046:048) NewLine |\r\n|
+var testYamlArrayString = testYaml.arrayString
+//@[000:003) Identifier |var|
+//@[004:023) Identifier |testYamlArrayString|
+//@[024:025) Assignment |=|
+//@[026:034) Identifier |testYaml|
+//@[034:035) Dot |.|
+//@[035:046) Identifier |arrayString|
+//@[046:048) NewLine |\r\n|
+var testYamlArrayStringVal = testYaml.arrayString[0]
+//@[000:003) Identifier |var|
+//@[004:026) Identifier |testYamlArrayStringVal|
+//@[027:028) Assignment |=|
+//@[029:037) Identifier |testYaml|
+//@[037:038) Dot |.|
+//@[038:049) Identifier |arrayString|
+//@[049:050) LeftSquare |[|
+//@[050:051) Integer |0|
+//@[051:052) RightSquare |]|
+//@[052:054) NewLine |\r\n|
+var testYamlArrayBool = testYaml.arrayBool
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |testYamlArrayBool|
+//@[022:023) Assignment |=|
+//@[024:032) Identifier |testYaml|
+//@[032:033) Dot |.|
+//@[033:042) Identifier |arrayBool|
+//@[042:044) NewLine |\r\n|
+var testYamlArrayBoolVal = testYaml.arrayBool[0]
+//@[000:003) Identifier |var|
+//@[004:024) Identifier |testYamlArrayBoolVal|
+//@[025:026) Assignment |=|
+//@[027:035) Identifier |testYaml|
+//@[035:036) Dot |.|
+//@[036:045) Identifier |arrayBool|
+//@[045:046) LeftSquare |[|
+//@[046:047) Integer |0|
+//@[047:048) RightSquare |]|
+//@[048:050) NewLine |\r\n|
+var testYamlObject = testYaml.object
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |testYamlObject|
+//@[019:020) Assignment |=|
+//@[021:029) Identifier |testYaml|
+//@[029:030) Dot |.|
+//@[030:036) Identifier |object|
+//@[036:038) NewLine |\r\n|
+var testYamlObjectNestedString = testYaml.object.nestedString
+//@[000:003) Identifier |var|
+//@[004:030) Identifier |testYamlObjectNestedString|
+//@[031:032) Assignment |=|
+//@[033:041) Identifier |testYaml|
+//@[041:042) Dot |.|
+//@[042:048) Identifier |object|
+//@[048:049) Dot |.|
+//@[049:061) Identifier |nestedString|
+//@[061:063) NewLine |\r\n|
+var testYamlObjectNestedInt = testYaml.object.nestedInt
+//@[000:003) Identifier |var|
+//@[004:027) Identifier |testYamlObjectNestedInt|
+//@[028:029) Assignment |=|
+//@[030:038) Identifier |testYaml|
+//@[038:039) Dot |.|
+//@[039:045) Identifier |object|
+//@[045:046) Dot |.|
+//@[046:055) Identifier |nestedInt|
+//@[055:057) NewLine |\r\n|
+var testYamlObjectNestedBool = testYaml.object.nestedBool
+//@[000:003) Identifier |var|
+//@[004:028) Identifier |testYamlObjectNestedBool|
+//@[029:030) Assignment |=|
+//@[031:039) Identifier |testYaml|
+//@[039:040) Dot |.|
+//@[040:046) Identifier |object|
+//@[046:047) Dot |.|
+//@[047:057) Identifier |nestedBool|
+//@[057:061) NewLine |\r\n\r\n|
+
+output testYamlString string = testYamlString
+//@[000:006) Identifier |output|
+//@[007:021) Identifier |testYamlString|
+//@[022:028) Identifier |string|
+//@[029:030) Assignment |=|
+//@[031:045) Identifier |testYamlString|
+//@[045:047) NewLine |\r\n|
+output testYamlInt int = testYamlInt
+//@[000:006) Identifier |output|
+//@[007:018) Identifier |testYamlInt|
+//@[019:022) Identifier |int|
+//@[023:024) Assignment |=|
+//@[025:036) Identifier |testYamlInt|
+//@[036:038) NewLine |\r\n|
+output testYamlBool bool = testYamlBool
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |testYamlBool|
+//@[020:024) Identifier |bool|
+//@[025:026) Assignment |=|
+//@[027:039) Identifier |testYamlBool|
+//@[039:041) NewLine |\r\n|
+output testYamlArrayInt array = testYamlArrayInt
+//@[000:006) Identifier |output|
+//@[007:023) Identifier |testYamlArrayInt|
+//@[024:029) Identifier |array|
+//@[030:031) Assignment |=|
+//@[032:048) Identifier |testYamlArrayInt|
+//@[048:050) NewLine |\r\n|
+output testYamlArrayIntVal int = testYamlArrayIntVal
+//@[000:006) Identifier |output|
+//@[007:026) Identifier |testYamlArrayIntVal|
+//@[027:030) Identifier |int|
+//@[031:032) Assignment |=|
+//@[033:052) Identifier |testYamlArrayIntVal|
+//@[052:054) NewLine |\r\n|
+output testYamlArrayString array = testYamlArrayString
+//@[000:006) Identifier |output|
+//@[007:026) Identifier |testYamlArrayString|
+//@[027:032) Identifier |array|
+//@[033:034) Assignment |=|
+//@[035:054) Identifier |testYamlArrayString|
+//@[054:056) NewLine |\r\n|
+output testYamlArrayStringVal string = testYamlArrayStringVal
+//@[000:006) Identifier |output|
+//@[007:029) Identifier |testYamlArrayStringVal|
+//@[030:036) Identifier |string|
+//@[037:038) Assignment |=|
+//@[039:061) Identifier |testYamlArrayStringVal|
+//@[061:063) NewLine |\r\n|
+output testYamlArrayBool array = testYamlArrayBool
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |testYamlArrayBool|
+//@[025:030) Identifier |array|
+//@[031:032) Assignment |=|
+//@[033:050) Identifier |testYamlArrayBool|
+//@[050:052) NewLine |\r\n|
+output testYamlArrayBoolVal bool = testYamlArrayBoolVal
+//@[000:006) Identifier |output|
+//@[007:027) Identifier |testYamlArrayBoolVal|
+//@[028:032) Identifier |bool|
+//@[033:034) Assignment |=|
+//@[035:055) Identifier |testYamlArrayBoolVal|
+//@[055:057) NewLine |\r\n|
+output testYamlObject object = testYamlObject
+//@[000:006) Identifier |output|
+//@[007:021) Identifier |testYamlObject|
+//@[022:028) Identifier |object|
+//@[029:030) Assignment |=|
+//@[031:045) Identifier |testYamlObject|
+//@[045:047) NewLine |\r\n|
+output testYamlObjectNestedString string = testYamlObjectNestedString
+//@[000:006) Identifier |output|
+//@[007:033) Identifier |testYamlObjectNestedString|
+//@[034:040) Identifier |string|
+//@[041:042) Assignment |=|
+//@[043:069) Identifier |testYamlObjectNestedString|
+//@[069:071) NewLine |\r\n|
+output testYamlObjectNestedInt int = testYamlObjectNestedInt
+//@[000:006) Identifier |output|
+//@[007:030) Identifier |testYamlObjectNestedInt|
+//@[031:034) Identifier |int|
+//@[035:036) Assignment |=|
+//@[037:060) Identifier |testYamlObjectNestedInt|
+//@[060:062) NewLine |\r\n|
+output testYamlObjectNestedBool bool = testYamlObjectNestedBool
+//@[000:006) Identifier |output|
+//@[007:031) Identifier |testYamlObjectNestedBool|
+//@[032:036) Identifier |bool|
+//@[037:038) Assignment |=|
+//@[039:063) Identifier |testYamlObjectNestedBool|
+//@[063:065) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

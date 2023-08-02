@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -38,7 +39,12 @@ namespace Bicep.Core.Parsing
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(declarationsOrTokens, endOfFile, this.lexerDiagnostics);
+            var programSyntax = new ProgramSyntax(declarationsOrTokens, endOfFile);
+
+            var parsingErrorVisitor = new ParseDiagnosticsVisitor(this.ParsingErrorTree);
+            parsingErrorVisitor.Visit(programSyntax);
+
+            return programSyntax;
         }
 
         protected override SyntaxBase Declaration() =>
@@ -58,10 +64,13 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
                             LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
+                            LanguageConstants.AssertKeyword => this.AssertDeclaration(leadingNodes),
                             _ => leadingNodes.Length > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
@@ -152,11 +161,20 @@ namespace Bicep.Core.Parsing
             return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
+        private SyntaxBase FunctionDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.FunctionKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var lambda = this.WithRecovery(() => this.TypedLambda(), GetSuppressionFlag(name), TokenType.NewLine);
+
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
+        }
+
         private SyntaxBase OutputDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => OutputType(), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(allowOptionalResourceType: true), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
@@ -177,6 +195,10 @@ namespace Bicep.Core.Parsing
             var existingKeyword = GetOptionalKeyword(LanguageConstants.ExistingKeyword);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
 
+            var newlines = !assignment.IsSkipped && reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : ImmutableArray<Token>.Empty;
+
             var value = this.WithRecovery(() =>
                 {
                     var current = reader.Peek();
@@ -191,7 +213,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, value);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, newlines, value);
         }
 
         private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
@@ -206,6 +228,10 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
+            var newlines = reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : ImmutableArray<Token>.Empty;
+
             var value = this.WithRecovery(() =>
                 {
                     var current = reader.Peek();
@@ -220,9 +246,35 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
         }
+        private SyntaxBase TestDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.TestKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedTestIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
 
+            // TODO: Unify StringSyntax with TypeSyntax
+            var path = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedTestPathString()),
+                GetSuppressionFlag(name),
+                TokenType.Assignment, TokenType.NewLine);
+
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
+
+            var value = this.WithRecovery(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{"))
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.NewLine);
+
+            return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+        }
         private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
@@ -266,6 +318,16 @@ namespace Bicep.Core.Parsing
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, modifier);
+        }
+
+        private SyntaxBase AssertDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.AssertKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedAssertIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new AssertDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
     }
 }

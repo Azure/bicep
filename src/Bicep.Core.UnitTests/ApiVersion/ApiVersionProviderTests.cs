@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
-using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
+using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,8 +21,8 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataRow("")]
         [DataRow("  ")]
         [DataRow("invalid-text")]
-        [DataRow("fake.Network/dnszones", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01" )]
-        [DataRow("fAKE.NETWORK/DNSZONES","2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01" )]
+        [DataRow("fake.Network/dnszones", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01")]
+        [DataRow("fAKE.NETWORK/DNSZONES", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01")]
         [DataTestMethod]
         public void GetApiVersions(string fullyQualifiedName, params string[] expected)
         {
@@ -82,7 +82,10 @@ namespace Bicep.Core.UnitTests.ApiVersions
             tenantTypes.Should().Contain("fake.tenant/whatever");
         }
 
-        private ApiVersionProvider CreateDefaultApiVersionProvider()
-            => new ApiVersionProvider(new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration()), new DefaultNamespaceProvider(new AzResourceTypeLoader()));
+        private ApiVersionProvider CreateDefaultApiVersionProvider(IEnumerable<ResourceTypeReference>? resourceTypeReferences = null)
+            => new ApiVersionProvider(
+                new FeatureProvider(
+                    IConfigurationManager.GetBuiltInConfiguration()),
+                    resourceTypeReferences ?? Enumerable.Empty<ResourceTypeReference>());
     }
 }

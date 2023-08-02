@@ -1,0 +1,30 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/highlightjs/test/baselines/functions.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-variable"><span class="hljs-keyword">func</span></span> <span class="hljs-function">buildUrl(<span class="hljs-variable">https</span> <span class="hljs-variable">bool</span>, <span class="hljs-variable">hostname</span> <span class="hljs-variable">string</span>, <span class="hljs-variable">path</span> <span class="hljs-variable">string</span>)</span> <span class="hljs-variable">string</span> =&gt; <span class="hljs-string">&#x27;<span class="hljs-subst">${<span class="hljs-variable">https</span> ? <span class="hljs-string">&#x27;https&#x27;</span> : <span class="hljs-string">&#x27;http&#x27;</span>}</span>://<span class="hljs-subst">${<span class="hljs-variable">hostname</span>}</span><span class="hljs-subst">${<span class="hljs-function">empty(<span class="hljs-variable">path</span>)</span> ? <span class="hljs-string">&#x27;&#x27;</span> : <span class="hljs-string">&#x27;/<span class="hljs-subst">${<span class="hljs-variable">path</span>}</span>&#x27;</span>}</span>&#x27;</span>
+
+<span class="hljs-variable"><span class="hljs-keyword">output</span></span> <span class="hljs-variable">foo</span> <span class="hljs-variable">string</span> = <span class="hljs-function">buildUrl(<span class="hljs-literal">true</span>, <span class="hljs-string">&#x27;google.com&#x27;</span>, <span class="hljs-string">&#x27;search&#x27;</span>)</span>
+
+<span class="hljs-variable"><span class="hljs-keyword">func</span></span> <span class="hljs-function">sayHello(<span class="hljs-variable">name</span> <span class="hljs-variable">string</span>)</span> <span class="hljs-variable">string</span> =&gt; <span class="hljs-string">&#x27;Hi <span class="hljs-subst">${<span class="hljs-variable">name</span>}</span>!&#x27;</span>
+
+<span class="hljs-variable"><span class="hljs-keyword">output</span></span> <span class="hljs-variable">hellos</span> <span class="hljs-variable">array</span> = <span class="hljs-function">map([<span class="hljs-string">&#x27;Evie&#x27;</span>, <span class="hljs-string">&#x27;Casper&#x27;</span>], <span class="hljs-variable">name</span> =&gt; <span class="hljs-function">sayHello(<span class="hljs-variable">name</span>)</span>)</span>
+
+<span class="hljs-variable"><span class="hljs-keyword">func</span></span> <span class="hljs-function">objReturnType(<span class="hljs-variable">name</span> <span class="hljs-variable">string</span>)</span> <span class="hljs-variable">object</span> =&gt; {
+  <span class="hljs-property">hello</span>: <span class="hljs-string">&#x27;Hi <span class="hljs-subst">${<span class="hljs-variable">name</span>}</span>!&#x27;</span>
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">func</span></span> <span class="hljs-function">arrayReturnType(<span class="hljs-variable">name</span> <span class="hljs-variable">string</span>)</span> <span class="hljs-variable">array</span> =&gt; [
+  <span class="hljs-variable">name</span>
+]
+
+    </pre>
+  </body>
+</html>

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Syntax;
@@ -67,19 +68,19 @@ namespace Bicep.Core.Navigation
         }
 
         /// <summary>
-        /// Generate a string that represents this Syntax element
+        /// Generate/format/print a string that represents this Syntax element
         /// </summary>
         public static string ToText(this SyntaxBase syntax, string indent = "", string? newLineSequence = null)
         {
             var sb = new StringBuilder();
             var documentBuildVisitor = new DocumentBuildVisitor();
             var document = documentBuildVisitor.BuildDocument(syntax);
-            document.Layout(sb, indent, newLineSequence ?? System.Environment.NewLine);
+            document.Layout(sb, indent, newLineSequence ?? Environment.NewLine);
             return sb.ToString();
         }
 
         /// <summary>
-        /// Generate a string that represents this Syntax element.
+        /// Generate/format/print a string that represents this Syntax element.
         /// </summary>
         public static string ToTextPreserveFormatting(this SyntaxBase syntax)
         {

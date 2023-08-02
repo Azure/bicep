@@ -34,7 +34,10 @@ const KEYWORDS = {
     'import',
     'as',
     'type',
-    'with'
+    'with',
+    'using',
+    'func',
+    'assert',
   ],
   literal: [
     "true",

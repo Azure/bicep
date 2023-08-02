@@ -26,7 +26,7 @@ metadata missingAssignment 'noAssingmentOperator'
 metadata myMetadata = 'hello'
 var attemptToReferenceMetadata = myMetadata
 //@[04:30) [no-unused-vars (Warning)] Variable "attemptToReferenceMetadata" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceMetadata|
-//@[33:43) [BCP063 (Error)] The name "myMetadata" is not a parameter, variable, resource or module. (CodeDescription: none) |myMetadata|
+//@[33:43) [BCP057 (Error)] The name "myMetadata" does not exist in the current context. (CodeDescription: none) |myMetadata|
 
 // two meta blocks with same identifier name
 metadata same = 'value1'
@@ -42,7 +42,7 @@ metadata test = testSymbol
 
 // metadata referencing itself
 metadata selfRef = selfRef
-//@[19:26) [BCP063 (Error)] The name "selfRef" is not a parameter, variable, resource or module. (CodeDescription: none) |selfRef|
+//@[19:26) [BCP057 (Error)] The name "selfRef" does not exist in the current context. (CodeDescription: none) |selfRef|
 
 // metadata with decorators
 @description('this is a description')

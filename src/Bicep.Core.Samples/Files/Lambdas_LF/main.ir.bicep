@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2533) ProgramExpression
+//@[000:2847) ProgramExpression
 //@[000:0054) ├─DeclaredVariableExpression { Name = doggos }
 //@[013:0054) | └─ArrayExpression
   'Evie'
@@ -353,6 +353,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
 //@[000:0068) └─DeclaredOutputExpression { Name = doggoGreetings }
+//@[022:0027)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[030:0068)   └─ForLoopExpression
 //@[043:0052)     ├─VariableReferenceExpression { Variable = mapObject }
 //@[054:0067)     └─PropertyAccessExpression { PropertyName = greeting }
@@ -442,4 +443,47 @@ var objectMap3 = toObject(sortByObjectKey, x => x.name)
 //@[043:0054) |   └─LambdaExpression
 //@[048:0054) |     └─PropertyAccessExpression { PropertyName = name }
 //@[048:0049) |       └─LambdaVariableReferenceExpression { Variable = x }
+var objectMap4 = toObject(sortByObjectKey, x =>
+//@[000:0060) ├─DeclaredVariableExpression { Name = objectMap4 }
+//@[017:0060) | └─FunctionCallExpression { Name = toObject }
+//@[026:0041) |   ├─VariableReferenceExpression { Variable = sortByObjectKey }
+//@[043:0059) |   └─LambdaExpression
+  
+  x.name)
+//@[002:0008) |     └─PropertyAccessExpression { PropertyName = name }
+//@[002:0003) |       └─LambdaVariableReferenceExpression { Variable = x }
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[000:0129) ├─DeclaredVariableExpression { Name = objectMap5 }
+//@[017:0129) | └─FunctionCallExpression { Name = toObject }
+//@[026:0041) |   ├─VariableReferenceExpression { Variable = sortByObjectKey }
+//@[043:0128) |   └─LambdaExpression
+//@[085:0128) |     └─PropertyAccessExpression { PropertyName = name }
+//@[085:0123) |       └─LambdaVariableReferenceExpression { Variable = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx }
+var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
+//@[000:0122) ├─DeclaredVariableExpression { Name = objectMap6 }
+//@[017:0122) | └─FunctionCallExpression { Name = toObject }
+//@[026:0038) |   ├─FunctionCallExpression { Name = range }
+//@[032:0033) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[035:0037) |   | └─IntegerLiteralExpression { Value = 10 }
+//@[040:0051) |   ├─LambdaExpression
+//@[045:0051) |   | └─InterpolatedStringExpression
+//@[048:0049) |   |   └─LambdaVariableReferenceExpression { Variable = i }
+//@[053:0121) |   └─LambdaExpression
+{
+//@[000:0052) |     └─ObjectExpression
+  isEven: (i % 2) == 0
+//@[002:0022) |       ├─ObjectPropertyExpression
+//@[002:0008) |       | ├─StringLiteralExpression { Value = isEven }
+//@[010:0022) |       | └─BinaryExpression { Operator = Equals }
+//@[011:0016) |       |   ├─BinaryExpression { Operator = Modulo }
+//@[011:0012) |       |   | ├─LambdaVariableReferenceExpression { Variable = i }
+//@[015:0016) |       |   | └─IntegerLiteralExpression { Value = 2 }
+//@[021:0022) |       |   └─IntegerLiteralExpression { Value = 0 }
+  isGreaterThan4: (i > 4)
+//@[002:0025) |       └─ObjectPropertyExpression
+//@[002:0016) |         ├─StringLiteralExpression { Value = isGreaterThan4 }
+//@[019:0024) |         └─BinaryExpression { Operator = GreaterThan }
+//@[019:0020) |           ├─LambdaVariableReferenceExpression { Variable = i }
+//@[023:0024) |           └─IntegerLiteralExpression { Value = 4 }
+})
 

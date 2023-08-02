@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure;
-using Azure.Containers.ContainerRegistry.Specialized;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -21,6 +21,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DataSet = Bicep.Core.Samples.DataSet;
@@ -146,7 +147,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository)).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -176,11 +177,18 @@ namespace Bicep.Cli.IntegrationTests
             // verify the module was published
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
 
-            // publish the same content again
+            // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
-            result2.Should().Be(0);
+            result2.Should().Be(1);
             output2.Should().BeEmpty();
-            AssertNoErrors(error2);
+            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
+
+            // publish the same content again with --force
+            requiredArgs.Add("--force");
+            var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
+            result3.Should().Be(0);
+            output3.Should().BeEmpty();
+            AssertNoErrors(error3);
 
             // we should still only have 1 module
             expectedCompiledStream.Position = 0;
@@ -189,7 +197,7 @@ namespace Bicep.Cli.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Publish_ValidArmTemplteFile_ShouldSucceed(DataSet dataSet)
+        public async Task Publish_ValidArmTemplateFile_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
@@ -197,7 +205,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository));
+            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository)).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -217,11 +225,17 @@ namespace Bicep.Cli.IntegrationTests
             // verify the module was published
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
 
-            // publish the same content again
+            // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result2.Should().Be(0);
+            result2.Should().Be(1);
             output2.Should().BeEmpty();
-            AssertNoErrors(error2);
+            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
+
+            // publish the same content again with --force
+            var (output3, error3, result3) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--force");
+            result3.Should().Be(0);
+            output3.Should().BeEmpty();
+            AssertNoErrors(error3);
 
             // we should still only have 1 module
             expectedCompiledStream.Position = 0;
@@ -235,10 +249,13 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
-            var client = StrictMock.Of<ContainerRegistryBlobClient>();
+            var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
                 .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
+            client
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException(404, "Module not found."));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
@@ -264,10 +281,13 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
-            var client = StrictMock.Of<ContainerRegistryBlobClient>();
+            var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
                 .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
+            client
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException(404, "Module not found."));
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
@@ -305,6 +325,71 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(1);
                 output.Should().BeEmpty();
                 error.Should().ContainAll(diagnostics);
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            null,
+            "param description string",
+            null,
+            DisplayName = "manifest: neither description nor uri"
+            )]
+        [DataRow(
+            "mydocs.org/abc",
+            "metadata description = 'my description'",
+            "my description",
+            DisplayName = "manifest: description and uri"
+            )]
+        [DataRow(
+            null,
+            "metadata description = 'my description'",
+            "my description",
+            DisplayName = "manifest: just description"
+            )]
+        [DataRow(
+            "mydocs.org/abc",
+            "",
+            null,
+            DisplayName = "manifest: just uri"
+            )]
+        [DataRow(
+            "mydocs.org/abc",
+            "metadata description2 = 'my description'",
+            null,
+            DisplayName = "manifest: just uri 2"
+            )]
+        public async Task Publish_BicepModule_WithDescriptionAndDocUri_ShouldPlaceDescriptionInManifest(string? documentationUri, string bicepModuleContents, string? expectedDescription)
+        {
+            var moduleName = "module1";
+            var registryStr = "example.com";
+            var registryUri = new Uri($"https://{registryStr}");
+            var repository = $"test/{moduleName}".ToLowerInvariant();
+
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
+
+            var blobClient = blobClients[(registryUri, repository)];
+
+            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, documentationUri);
+
+            var manifest = Encoding.Default.GetString(blobClient.Manifests.Single().Value.ToBuilder().ToArray());
+
+            if (expectedDescription is null)
+            {
+                manifest.Should().NotMatchRegex($@"org.opencontainers.image.description");
+            }
+            else
+            {
+                manifest.Should().MatchRegex($@"""org.opencontainers.image.description"": ""{expectedDescription}""");
+            }
+
+            if (documentationUri is null)
+            {
+                manifest.Should().NotMatchRegex($@"org.opencontainers.image.documentation");
+            }
+            else
+            {
+                manifest.Should().MatchRegex($@"""org.opencontainers.image.documentation"": ""{documentationUri}""");
             }
         }
 

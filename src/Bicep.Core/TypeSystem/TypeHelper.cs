@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using Azure.Deployments.Expression.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -17,48 +17,13 @@ namespace Bicep.Core.TypeSystem
 {
     public static class TypeHelper
     {
+        private static TypeComparer typeComparer = new();
+
         /// <summary>
         /// Try to collapse multiple types into a single (non-union) type. Returns null if this is not possible.
         /// </summary>
         public static TypeSymbol? TryCollapseTypes(IEnumerable<ITypeReference> itemTypes)
-        {
-            var aggregatedItemType = CreateTypeUnion(itemTypes);
-
-            if (aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)
-            {
-                // it doesn't really make sense to collapse 'never' or 'any'
-                return null;
-            }
-
-            if (aggregatedItemType is UnionType unionType)
-            {
-                if (unionType.Members.All(x => x is StringLiteralType || x == LanguageConstants.String))
-                {
-                    return unionType.Members.Any(x => x == LanguageConstants.String) ?
-                        LanguageConstants.String :
-                        unionType;
-                }
-
-                if (unionType.Members.All(x => TypeValidator.AreTypesAssignable(x.Type, LanguageConstants.Bool)))
-                {
-                    return unionType.Members.Any(x => x == LanguageConstants.Bool)
-                        ? LanguageConstants.Bool
-                        : unionType;
-                }
-
-                if (unionType.Members.All(x => TypeValidator.AreTypesAssignable(x.Type, LanguageConstants.Int)))
-                {
-                    return unionType.Members.Any(x => x == LanguageConstants.Int)
-                        ? LanguageConstants.Bool
-                        : unionType;
-                }
-
-                // We have a mix of item types that cannot be collapsed
-                return null;
-            }
-
-            return aggregatedItemType;
-        }
+            => TypeCollapser.TryCollapse(CreateTypeUnion(itemTypes));
 
         /// <summary>
         /// Collapses multiple types into either:
@@ -92,7 +57,7 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
-            PrimitiveType { Name: LanguageConstants.NullKeyword } => true,
+            NullType => true,
 
             // A tuple can be a literal only if each item contained therein is also a literal
             TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),
@@ -119,10 +84,14 @@ namespace Bicep.Core.TypeSystem
         {
             JObject jObject => TryCreateTypeLiteral(jObject),
             JArray jArray => TryCreateTypeLiteral(jArray),
-            _ when token.Type == JTokenType.Boolean => new BooleanLiteralType(token.ToObject<bool>()),
-            _ when token.IsTextBasedJTokenType() => new StringLiteralType(token.ToString()),
-            _ when token.Type == JTokenType.Integer && token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => new IntegerLiteralType((long)intVal),
-            _ => null,
+            _ => token.Type switch
+            {
+                JTokenType.Null => LanguageConstants.Null,
+                JTokenType.Boolean => token.ToObject<bool>() ? LanguageConstants.True : LanguageConstants.False,
+                JTokenType.Integer when token.ToObject<BigInteger>() is BigInteger intVal && long.MinValue <= intVal && intVal <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)intVal),
+                JTokenType.String or JTokenType.Uri => TypeFactory.CreateStringLiteralType(token.ToString()),
+                _ => null,
+            },
         };
 
         private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
@@ -348,6 +317,11 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
+        public static bool IsNullable(TypeSymbol type) => TryRemoveNullability(type) is not null;
+
+        public static bool IsRequired(TypeProperty typeProperty)
+            => typeProperty.Flags.HasFlag(TypePropertyFlags.Required) && !TypeHelper.IsNullable(typeProperty.TypeReference.Type);
+
         /// <summary>
         /// Determines if the provided candidate type would be assignable to the provided expected type if the former were stripped of its nullability.
         /// </summary>
@@ -367,33 +341,78 @@ namespace Bicep.Core.TypeSystem
             return false;
         }
 
-        private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
+        /// <summary>
+        /// Determines the possible range of lengths a supplied IntegerType will have when stringified under the invariant culture.
+        /// </summary>
+        public static (long minLength, long maxLength) GetMinAndMaxLengthOfStringified(IntegerType integer)
         {
-            // flatten and then de-duplicate members
-            var flattenedMembers = FlattenMembers(unionMembers)
-                .Distinct()
-                .OrderBy(m => m.Type.Name, StringComparer.Ordinal)
-                .ToImmutableArray();
+            long minValue = integer.MinValue ?? long.MinValue;
+            long minValueLength = minValue.ToString(CultureInfo.InvariantCulture).Length;
+            long maxValue = integer.MaxValue ?? long.MaxValue;
+            long maxValueLength = maxValue.ToString(CultureInfo.InvariantCulture).Length;
 
-            if (flattenedMembers.Any(member => member is AnyType))
+            if (minValue < 0 && maxValue >= 0)
             {
-                // a union type with "| any" is the same as "any" type
-                return ImmutableArray.Create<ITypeReference>(LanguageConstants.Any);
+                // if the range of values crosses from negative into positive numbers, the value may be a single digit (`0`)
+                return (1, Math.Max(minValueLength, maxValueLength));
             }
 
-            IEnumerable<ITypeReference> intermediateMembers = flattenedMembers;
-
-            if (flattenedMembers.Any(member => member.Type == LanguageConstants.Array))
-            {
-                // the union has the base "array" type, so we can drop any more specific array types
-                intermediateMembers = intermediateMembers.Where(member => member.Type is not ArrayType || member.Type == LanguageConstants.Array);
-            }
-
-            return intermediateMembers.ToImmutableArray();
+            return (Math.Min(minValueLength, maxValueLength), Math.Max(minValueLength, maxValueLength));
         }
 
-        private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) =>
-            members.SelectMany(member => member.Type is UnionType union
+        /// <summary>
+        /// Determines the possible range of lengths a supplied TypeSymbol will have when stringified under the invariant culture.
+        /// </summary>
+        public static (long minLength, long? maxLength) GetMinAndMaxLengthOfStringified(TypeSymbol type) => type switch
+        {
+            _ when ArmFunctionReturnTypeEvaluator.TryEvaluate("string", out _, type.AsEnumerable()) is StringLiteralType stringified
+                => (stringified.RawStringValue.Length, stringified.RawStringValue.Length),
+            UnionType union when union.Members.Length == 0 => (0, 0),
+            UnionType union => union.Members.Select(m => GetMinAndMaxLengthOfStringified(m.Type)).Aggregate((acc, next) => (
+                Math.Min(acc.minLength, next.minLength),
+                acc.maxLength.HasValue && next.maxLength.HasValue
+                    ? Math.Max(acc.maxLength.Value, next.maxLength.Value)
+                    : null)),
+            StringType @string => (@string.MinLength ?? 0, @string.MaxLength),
+            IntegerType integer => GetMinAndMaxLengthOfStringified(integer),
+            // 'true' or 'false'
+            BooleanType => (4, 5),
+            // opening and closing square or curly brackets will at least be present
+            ArrayType or ObjectType or DiscriminatedObjectType => (2, null),
+            _ => (0, null),
+        };
+
+        private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
+        {
+            HashSet<TypeSymbol> distinctMembers = new();
+            bool hasUnrefinedUntypedArrayMember = false;
+            foreach (var member in FlattenMembers(unionMembers))
+            {
+                if (member is AnyType)
+                {
+                    // a union type with "| any" is the same as "any" type
+                    return ImmutableArray.Create<ITypeReference>(LanguageConstants.Any);
+                }
+
+                if (hasUnrefinedUntypedArrayMember && member is ArrayType)
+                {
+                    continue;
+                }
+
+                if (member.Equals(LanguageConstants.Array))
+                {
+                    hasUnrefinedUntypedArrayMember = true;
+                    distinctMembers.RemoveWhere(t => t is ArrayType);
+                }
+
+                distinctMembers.Add(member);
+            }
+
+            return distinctMembers.Order(typeComparer).ToImmutableArray<ITypeReference>();
+        }
+
+        private static IEnumerable<TypeSymbol> FlattenMembers(IEnumerable<ITypeReference> members) =>
+            members.Select(member => member.Type).SelectMany(member => member is UnionType union
                 ? FlattenMembers(union.Members)
                 : member.AsEnumerable());
 

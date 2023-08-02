@@ -16,6 +16,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax.Visitors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -47,8 +48,13 @@ namespace Bicep.Core.Emit
             BlockModuleOutputResourcePropertyAccess(model, diagnostics);
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
+            BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
+            BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
+            BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
+            BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
+            var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -452,14 +458,23 @@ namespace Bicep.Core.Emit
         }
 
         private static void BlockModuleOutputResourcePropertyAccess(SemanticModel model, IDiagnosticWriter diagnostics) =>
-            diagnostics.WriteMultiple(SyntaxAggregator.Aggregate(model.Root.Syntax, syntax => syntax is PropertyAccessSyntax propertyAccess &&
+            diagnostics.WriteMultiple(
+                SyntaxAggregator.Aggregate(model.Root.Syntax, syntax => IsModuleOutputResourceRuntimePropertyAccess(model, syntax) || IsModuleOutputResourceListFunction(model, syntax))
+                    .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
+
+        private static bool IsModuleOutputResourceRuntimePropertyAccess(SemanticModel model, SyntaxBase syntax)
+            => syntax is PropertyAccessSyntax propertyAccess &&
                 model.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata &&
-                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName))
-                .Select(syntaxToBlock => DiagnosticBuilder.ForPosition(syntaxToBlock).ModuleOutputResourcePropertyAccessDetected()));
+                !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyAccess.PropertyName.IdentifierName);
+
+        private static bool IsModuleOutputResourceListFunction(SemanticModel model, SyntaxBase syntax)
+            => syntax is InstanceFunctionCallSyntax instanceFunctionCall &&
+                model.ResourceMetadata.TryLookup(instanceFunctionCall.BaseExpression) is ModuleOutputResourceMetadata &&
+                !LanguageConstants.IdentifierComparer.Equals(instanceFunctionCall.Name.IdentifierName, AzResourceTypeProvider.GetSecretFunctionName);
 
         private static void BlockSafeDereferenceOfModuleOrResourceCollectionMember(SemanticModel model, IDiagnosticWriter diagnostics) =>
             diagnostics.WriteMultiple(SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(model.Root.Syntax)
-                .Select(arrayAccess => arrayAccess.SafeAccessMarker is not null
+                .Select(arrayAccess => arrayAccess.IsSafeAccess
                     ? model.GetSymbolInfo(arrayAccess.BaseExpression) switch
                     {
                         ModuleSymbol module when module.IsCollection => arrayAccess.SafeAccessMarker,
@@ -478,6 +493,102 @@ namespace Bicep.Core.Emit
                 1 => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicTypeSelfReference(),
                 _ => DiagnosticBuilder.ForPosition(kvp.Key.DeclaringType.Name).CyclicType(kvp.Value.Select(s => s.Name)),
             }));
+        }
+
+        private static ImmutableDictionary<ParameterAssignmentSymbol, JToken> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            var generated = new Dictionary<ParameterAssignmentSymbol, JToken>();
+            var evaluator = new ParameterAssignmentEvaluator(model);
+            foreach (var parameter in model.Root.ParameterAssignments)
+            {
+                var type = model.GetTypeInfo(parameter.DeclaringSyntax);
+                if (type is ErrorType)
+                {
+                    // no point evaluating if we're already reporting an error
+                    continue;
+                }
+
+                // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
+                // This is something we should improve before the first release.
+                var result = evaluator.EvaluateParameter(parameter);
+                if (result.Diagnostic is {})
+                {
+                    diagnostics.Write(result.Diagnostic);
+                }
+                if (result.Value is {})
+                {
+                    generated[parameter] = result.Value;
+                }
+            }
+
+            return generated.ToImmutableDictionary();
+        }
+
+        private static void BlockUserDefinedFunctionsWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var function in model.Root.FunctionDeclarations)
+            {
+                if (!model.Features.UserDefinedFunctionsEnabled)
+                {
+                    diagnostics.Write(function.DeclaringFunction, x => x.FuncDeclarationStatementsUnsupported());
+                }
+            }
+        }
+
+        private static void BlockTestFrameworkWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var test in model.Root.TestDeclarations)
+            {
+                if (!model.Features.TestFrameworkEnabled)
+                {
+                    diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
+                }
+            }
+        }
+
+        private static void BlockUserDefinedTypesWithUserDefinedFunctions(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var function in model.Root.FunctionDeclarations)
+            {
+                if (function.DeclaringFunction.Lambda is not TypedLambdaSyntax lambda)
+                {
+                    continue;
+                }
+
+                foreach (var localVariable in lambda.GetLocalVariables())
+                {
+                    var argTypeSymbol = model.GetSymbolInfo(localVariable.Type);
+                    if (argTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
+                    {
+                        diagnostics.Write(localVariable, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                    }
+                }
+
+                var outputTypeSymbol = model.GetSymbolInfo(lambda.ReturnType);
+                if (outputTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
+                {
+                    diagnostics.Write(lambda.ReturnType, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
+                }
+            }
+        }
+
+        private static void BlockAssertsWithoutExperimentalFeatures(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var assert in model.Root.AssertDeclarations)
+            {
+                if (!model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(assert.DeclaringAssert, x => x.AssertsUnsupported());
+                }
+            }
+            foreach (var resourceDeclarationSymbol in model.Root.ResourceDeclarations)
+            {
+
+                if (resourceDeclarationSymbol.TryGetBodyProperty(LanguageConstants.ResourceAssertPropertyName)?.Value is SyntaxBase value && !model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(value, x => x.AssertsUnsupported());
+                }
+            }
         }
     }
 }

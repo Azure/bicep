@@ -110,6 +110,20 @@
     }
   },
   {
+    "label": "main.pprint.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.pprint.bicep",
+    "filterText": "'main.pprint.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.pprint.bicep'"
+    }
+  },
+  {
     "label": "main.symbols.bicep",
     "kind": "file",
     "deprecated": false,

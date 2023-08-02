@@ -123,7 +123,7 @@ resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
 }
 var mappedResProps = map(items(storageAcc.properties.secondaryEndpoints), item => item.value)
 //@[074:078) Local item. Type: object. Declaration start char: 74, length: 4
-//@[004:018) Variable mappedResProps. Type: any[]. Declaration start char: 0, length: 93
+//@[004:018) Variable mappedResProps. Type: array. Declaration start char: 0, length: 93
 
 module myMod './test.bicep' = {
 //@[007:012) Module myMod. Type: module. Declaration start char: 0, length: 117
@@ -154,4 +154,20 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
 //@[043:044) Local x. Type: object | object | object | object. Declaration start char: 43, length: 1
 //@[004:014) Variable objectMap3. Type: object. Declaration start char: 0, length: 55
+var objectMap4 = toObject(sortByObjectKey, x =>
+//@[043:044) Local x. Type: object | object | object | object. Declaration start char: 43, length: 1
+//@[004:014) Variable objectMap4. Type: object. Declaration start char: 0, length: 60
+  
+  x.name)
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[043:081) Local xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx. Type: object | object | object | object. Declaration start char: 43, length: 38
+//@[004:014) Variable objectMap5. Type: object. Declaration start char: 0, length: 129
+var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
+//@[040:041) Local i. Type: int. Declaration start char: 40, length: 1
+//@[053:054) Local i. Type: int. Declaration start char: 53, length: 1
+//@[004:014) Variable objectMap6. Type: object. Declaration start char: 0, length: 122
+{
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
 

@@ -351,6 +351,14 @@ param paramUsingType mixedArray
 //@[21:31) Identifier |mixedArray|
 //@[31:33) NewLine |\n\n|
 
+output outputUsingType mixedArray = paramUsingType
+//@[00:06) Identifier |output|
+//@[07:22) Identifier |outputUsingType|
+//@[23:33) Identifier |mixedArray|
+//@[34:35) Assignment |=|
+//@[36:50) Identifier |paramUsingType|
+//@[50:52) NewLine |\n\n|
+
 type tuple = [
 //@[00:04) Identifier |type|
 //@[05:10) Identifier |tuple|
@@ -397,6 +405,27 @@ type stringStringDictionary = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
+@minValue(1)
+//@[00:01) At |@|
+//@[01:09) Identifier |minValue|
+//@[09:10) LeftParen |(|
+//@[10:11) Integer |1|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
+@maxValue(10)
+//@[00:01) At |@|
+//@[01:09) Identifier |maxValue|
+//@[09:10) LeftParen |(|
+//@[10:12) Integer |10|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+type constrainedInt = int
+//@[00:04) Identifier |type|
+//@[05:19) Identifier |constrainedInt|
+//@[20:21) Assignment |=|
+//@[22:25) Identifier |int|
+//@[25:27) NewLine |\n\n|
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[00:05) Identifier |param|
 //@[06:22) Identifier |mightIncludeNull|
@@ -413,7 +442,28 @@ param mightIncludeNull ({key: 'value'} | null)[]
 //@[47:48) RightSquare |]|
 //@[48:50) NewLine |\n\n|
 
-var maybeNull = mightIncludeNull[0]!.key
+var nonNull = mightIncludeNull[0]!.key
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |nonNull|
+//@[12:13) Assignment |=|
+//@[14:30) Identifier |mightIncludeNull|
+//@[30:31) LeftSquare |[|
+//@[31:32) Integer |0|
+//@[32:33) RightSquare |]|
+//@[33:34) Exclamation |!|
+//@[34:35) Dot |.|
+//@[35:38) Identifier |key|
+//@[38:40) NewLine |\n\n|
+
+output nonNull string = nonNull
+//@[00:06) Identifier |output|
+//@[07:14) Identifier |nonNull|
+//@[15:21) Identifier |string|
+//@[22:23) Assignment |=|
+//@[24:31) Identifier |nonNull|
+//@[31:33) NewLine |\n\n|
+
+var maybeNull = mightIncludeNull[0].?key
 //@[00:03) Identifier |var|
 //@[04:13) Identifier |maybeNull|
 //@[14:15) Assignment |=|
@@ -421,10 +471,19 @@ var maybeNull = mightIncludeNull[0]!.key
 //@[32:33) LeftSquare |[|
 //@[33:34) Integer |0|
 //@[34:35) RightSquare |]|
-//@[35:36) Exclamation |!|
-//@[36:37) Dot |.|
+//@[35:36) Dot |.|
+//@[36:37) Question |?|
 //@[37:40) Identifier |key|
 //@[40:42) NewLine |\n\n|
+
+output maybeNull string? = maybeNull
+//@[00:06) Identifier |output|
+//@[07:16) Identifier |maybeNull|
+//@[17:23) Identifier |string|
+//@[23:24) Question |?|
+//@[25:26) Assignment |=|
+//@[27:36) Identifier |maybeNull|
+//@[36:38) NewLine |\n\n|
 
 type nullable = string?
 //@[00:04) Identifier |type|

@@ -27,7 +27,7 @@ export class CreateBicepConfigurationFile implements Command {
     context: IActionContext,
     documentUri?: Uri,
     suppressQuery?: boolean, // If true, the recommended location is used without querying user (for testing)
-    rethrow?: boolean // (for testing)
+    rethrow?: boolean, // (for testing)
   ): Promise<string | undefined> {
     context.errorHandling.rethrow = !!rethrow;
 
@@ -39,7 +39,7 @@ export class CreateBicepConfigurationFile implements Command {
         getRecommendedConfigLocationRequestType,
         {
           bicepFilePath: documentUri?.fsPath,
-        }
+        },
       );
     } catch (err) {
       throw new Error("Failed determining recommended configuration location");
@@ -48,13 +48,13 @@ export class CreateBicepConfigurationFile implements Command {
       throw new Error(
         `Could not determine recommended configuration location: ${
           recommendation.error ?? "Unknown"
-        }`
+        }`,
       );
     }
 
     const recommendedPath = path.join(
       recommendation.recommendedFolder,
-      bicepConfig
+      bicepConfig,
     );
     let selectedPath: string = recommendedPath;
 
@@ -76,7 +76,7 @@ export class CreateBicepConfigurationFile implements Command {
         if (path.basename(selectedPath) !== bicepConfig) {
           // Don't wait
           void window.showErrorMessage(
-            `A Bicep configuration file must be named ${bicepConfig}`
+            `A Bicep configuration file must be named ${bicepConfig}`,
           );
           selectedPath = path.join(path.dirname(selectedPath), bicepConfig);
         } else {
@@ -86,10 +86,10 @@ export class CreateBicepConfigurationFile implements Command {
     }
 
     context.telemetry.properties.usingRecommendedLocation = String(
-      selectedPath === recommendedPath
+      selectedPath === recommendedPath,
     );
     context.telemetry.properties.sameFolderAsBicep = String(
-      recommendation.recommendedFolder === path.dirname(selectedPath)
+      recommendation.recommendedFolder === path.dirname(selectedPath),
     );
 
     await this.client.sendRequest("workspace/executeCommand", {
@@ -107,7 +107,7 @@ export class CreateBicepConfigurationFile implements Command {
       return selectedPath;
     } else {
       throw new Error(
-        "Configuration file was not created by the language server"
+        "Configuration file was not created by the language server",
       );
     }
   }

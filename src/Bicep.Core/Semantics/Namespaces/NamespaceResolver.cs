@@ -6,6 +6,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -22,9 +23,13 @@ namespace Bicep.Core.Semantics.Namespaces
             this.BuiltIns = builtIns;
         }
 
-        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, ResourceScope targetScope, IEnumerable<ImportedNamespaceSymbol> importedNamespaces)
+        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
         {
+            var importedNamespaces = fileScope.Declarations.OfType<ImportedNamespaceSymbol>()
+                .DistinctBy(x => x.Name, LanguageConstants.IdentifierComparer);
+
             var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
+            
             var namespaceTypes = importedNamespaces
                 .Select(x => x.DeclaredType)
                 .OfType<NamespaceType>()
@@ -32,7 +37,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             void TryAddBuiltInNamespace(string @namespace)
             {
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features) is not { } namespaceType)
+                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features, sourceFile.FileKind) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;
@@ -57,6 +62,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
+
             TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
 
             return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));

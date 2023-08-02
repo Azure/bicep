@@ -341,14 +341,6 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
   name: runtimeValidRes2['${magicString1}']
 }
 
-// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-var magicString2 = 'name'
-//@[004:016) Variable magicString2. Type: 'name'. Declaration start char: 0, length: 25
-resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:027) Resource runtimeInvalidRes9. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 139
-  name: runtimeValidRes2['${magicString2}']
-}
-
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[009:028) Resource runtimeInvalidRes10. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
   name: '${runtimeValidRes3.location}'
@@ -443,6 +435,12 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+var magicString2 = 'name'
+//@[004:016) Variable magicString2. Type: 'name'. Declaration start char: 0, length: 25
+resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[009:026) Resource runtimeValidRes10. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 138
+  name: runtimeValidRes2['${magicString2}']
+}
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[076:081) Local thing. Type: never. Declaration start char: 76, length: 5
@@ -1952,7 +1950,7 @@ var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
 var issue3000stgManagedBy = issue3000stg.managedBy
 //@[004:025) Variable issue3000stgManagedBy. Type: string. Declaration start char: 0, length: 50
 var issue3000stgManagedByExtended = issue3000stg.managedByExtended
-//@[004:033) Variable issue3000stgManagedByExtended. Type: never[]. Declaration start char: 0, length: 66
+//@[004:033) Variable issue3000stgManagedByExtended. Type: <empty array>. Declaration start char: 0, length: 66
 
 param dataCollectionRule object
 //@[006:024) Parameter dataCollectionRule. Type: object. Declaration start char: 0, length: 31

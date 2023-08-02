@@ -9,7 +9,7 @@ export async function retryWhile<T>(
   retryOptions?: Readonly<{
     interval?: number;
     timeout?: number;
-  }>
+  }>,
 ): Promise<T> {
   let result = await func();
 
@@ -32,11 +32,11 @@ export async function until(
   retryOptions?: Readonly<{
     interval?: number;
     timeoutMs?: number;
-  }>
+  }>,
 ): Promise<void> {
   await retryWhile(
     async () => void 0,
     () => !predicate(),
-    retryOptions
+    retryOptions,
   );
 }

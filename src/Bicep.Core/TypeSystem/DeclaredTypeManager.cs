@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
@@ -81,6 +82,9 @@ namespace Bicep.Core.TypeSystem
                 case TupleTypeItemSyntax tupleTypeItem:
                     return GetTupleTypeItemType(tupleTypeItem);
 
+                case ArrayTypeSyntax arrayType:
+                    return new(GetArrayTypeType(arrayType), arrayType);
+
                 case ArrayTypeMemberSyntax typeMember:
                     return GetTypeMemberType(typeMember);
 
@@ -104,6 +108,9 @@ namespace Bicep.Core.TypeSystem
 
                 case OutputDeclarationSyntax output:
                     return GetOutputType(output);
+
+                case AssertDeclarationSyntax assert:
+                    return new DeclaredTypeAssignment(TypeFactory.CreateBooleanType(), assert);
 
                 case TargetScopeSyntax targetScope:
                     return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
@@ -152,9 +159,36 @@ namespace Bicep.Core.TypeSystem
 
                 case NonNullAssertionSyntax nonNullAssertion:
                     return GetNonNullType(nonNullAssertion);
+
+                case TypedLocalVariableSyntax typedLocalVariable:
+                    return GetTypedLocalVariableType(typedLocalVariable);
+
+                case TypedLambdaSyntax typedLambda:
+                    return GetTypedLambdaType(typedLambda);
             }
 
             return null;
+        }
+
+        private DeclaredTypeAssignment GetTypedLocalVariableType(TypedLocalVariableSyntax syntax)
+        {
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
+
+            return new(declaredType, syntax);
+        }
+
+        private DeclaredTypeAssignment GetTypedLambdaType(TypedLambdaSyntax syntax)
+        {
+            var argumentTypes = syntax.GetLocalVariables()
+                .Select(x => GetTypedLocalVariableType(x).Reference)
+                .ToImmutableArray();
+
+            var returnType = TryGetTypeFromTypeSyntax(syntax.ReturnType, allowNamespaceReferences: false) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ReturnType).InvalidOutputType(GetValidTypeNames()));
+
+            var type = new LambdaType(argumentTypes, returnType);
+            return new(type, syntax);
         }
 
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)
@@ -162,7 +196,7 @@ namespace Bicep.Core.TypeSystem
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false);
             declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
-            return new(declaredType, syntax);
+            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment: true), syntax);
         }
 
         private DeclaredTypeAssignment? GetParameterAssignmentType(ParameterAssignmentSyntax syntax)
@@ -210,7 +244,7 @@ namespace Bicep.Core.TypeSystem
             {
                 TypeAliasSymbol declaredType => userDefinedTypeReferences.GetOrAdd(declaredType, GetUserDefinedTypeType),
                 ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
-                // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
+                // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a TypeAliasSymbol or an error, but just in case...
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
             var typeRefType = type switch
@@ -234,14 +268,161 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type;
+            return ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type, symbol.DeclaringType);
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
+
+        private ITypeReference ApplyTypeModifyingDecorators(ITypeReference declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false) => declaredType switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment)),
+            _ => ApplyTypeModifyingDecorators(declaredType.Type, syntax, allowLooseAssignment),
+        };
+
+        // decorator diagnostics are raised by the TypeAssignmentVisitor, so we're only concerned in this method
+        // with the happy path or any errors that produce an invalid type
+        private TypeSymbol ApplyTypeModifyingDecorators(TypeSymbol declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false)
+        {
+            var validationFlags = declaredType switch
+            {
+                BooleanType or IntegerType or StringType when allowLooseAssignment
+                    => TypeSymbolValidationFlags.AllowLooseAssignment | declaredType.ValidationFlags,
+                _ => declaredType.ValidationFlags,
+            };
+
+            if (HasSecureDecorator(syntax))
+            {
+                validationFlags |= TypeSymbolValidationFlags.IsSecure;
+            }
+
+            return declaredType switch
+            {
+                _ when declaredType.ValidationFlags == validationFlags && !syntax.Decorators.Any() => declaredType,
+                _ when TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable
+                    => TypeHelper.CreateTypeUnion(LanguageConstants.Null, ApplyTypeModifyingDecorators(nonNullable, syntax, allowLooseAssignment)),
+                IntegerType declaredInt => GetModifiedInteger(declaredInt, syntax, validationFlags),
+                // minLength/maxLength on a tuple are superfluous.
+                TupleType declaredTuple => declaredTuple.ValidationFlags == validationFlags ? declaredTuple : new TupleType(declaredTuple.Items, validationFlags),
+                ArrayType declaredArray => GetModifiedArray(declaredArray, syntax, validationFlags),
+                StringType declaredString => GetModifiedString(declaredString, syntax, validationFlags),
+                BooleanType declaredBoolean => TypeFactory.CreateBooleanType(validationFlags),
+                ObjectType declaredObject => GetModifiedObject(declaredObject, syntax, validationFlags),
+                _ => declaredType,
+            };
+        }
+
+        private TypeSymbol GetModifiedInteger(IntegerType declaredInteger, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            var minValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinValuePropertyName);
+            var minValue = GetSingleIntDecoratorArgument(minValueDecorator) ?? declaredInteger.MinValue;
+            var maxValueDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxValuePropertyName);
+            var maxValue = GetSingleIntDecoratorArgument(maxValueDecorator) ?? declaredInteger.MaxValue;
+
+            if (minValue.HasValue && maxValue.HasValue && minValue.Value > maxValue.Value)
+            {
+                // create at most one error diagnostic iff a min/maxValue decorator targets this statement.
+                if (minValueDecorator is not null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(minValueDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinValuePropertyName,
+                        minValue.Value,
+                        LanguageConstants.ParameterMaxValuePropertyName,
+                        maxValue.Value));
+                }
+
+                if (maxValueDecorator is not null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(maxValueDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinValuePropertyName,
+                        minValue.Value,
+                        LanguageConstants.ParameterMaxValuePropertyName,
+                        maxValue.Value));
+                }
+            }
+
+            return TypeFactory.CreateIntegerType(minValue, maxValue, validationFlags);
+        }
+
+        private long? GetSingleIntDecoratorArgument(DecoratorSyntax? syntax)
+            => syntax?.Arguments.Count() == 1 && typeManager.GetTypeInfo(syntax.Arguments.Single()) is IntegerLiteralType integerLiteral
+                ? integerLiteral.Value
+                : null;
+
+        private TypeSymbol GetModifiedArray(ArrayType declaredArray, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (!GetLengthModifiers(syntax, declaredArray.MinLength, declaredArray.MaxLength, out var minLength, out var maxLength, out var errorType))
+            {
+                return errorType;
+            }
+
+            return TypeFactory.CreateArrayType(declaredArray.Item, minLength, maxLength, validationFlags);
+        }
+
+        private TypeSymbol GetModifiedString(StringType declaredString, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (!GetLengthModifiers(syntax, declaredString.MinLength, declaredString.MaxLength, out var minLength, out var maxLength, out var errorType))
+            {
+                return errorType;
+            }
+
+            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
+        }
+
+        private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
+        {
+            var minLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMinLengthPropertyName);
+            minLength = GetSingleIntDecoratorArgument(minLengthDecorator) ?? defaultMinLength;
+            var maxLengthDecorator = SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMaxLengthPropertyName);
+            maxLength = GetSingleIntDecoratorArgument(maxLengthDecorator) ?? defaultMaxLength;
+
+            if (minLength.HasValue && maxLength.HasValue && minLength.Value > maxLength.Value)
+            {
+                // create at most one error diagnostic iff a min/maxLength decorator targets this statement.
+                if (minLengthDecorator is not null)
+                {
+                    error = ErrorType.Create(DiagnosticBuilder.ForPosition(minLengthDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinLengthPropertyName,
+                        minLength.Value,
+                        LanguageConstants.ParameterMaxLengthPropertyName,
+                        maxLength.Value));
+                    return false;
+                }
+
+                if (maxLengthDecorator is not null)
+                {
+                    error = ErrorType.Create(DiagnosticBuilder.ForPosition(maxLengthDecorator).MinMayNotExceedMax(
+                        LanguageConstants.ParameterMinLengthPropertyName,
+                        minLength.Value,
+                        LanguageConstants.ParameterMaxLengthPropertyName,
+                        maxLength.Value));
+                    return false;
+                }
+            }
+
+            error = null;
+            return true;
+        }
+
+        private TypeSymbol GetModifiedObject(ObjectType declaredObject, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
+        {
+            if (TryGetSealedDecorator(syntax) is DecoratorSyntax sealedDecorator)
+            {
+                return declaredObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
+                    ? new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null)
+                    : ErrorType.Create(DiagnosticBuilder.ForPosition(sealedDecorator).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+            }
+
+            if (declaredObject.ValidationFlags == validationFlags)
+            {
+                return declaredObject;
+            }
+
+            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
+        }
 
         private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
@@ -257,9 +438,9 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
-                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType(GetValidTypeNames()));
 
-            return new(declaredType, syntax);
+            return new(ApplyTypeModifyingDecorators(declaredType.Type, syntax), syntax);
         }
 
         private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
@@ -275,7 +456,7 @@ namespace Bicep.Core.TypeSystem
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
-                ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
+                ArrayTypeSyntax array => GetDeclaredTypeAssignment(array)?.Reference,
                 ObjectTypeSyntax @object => GetDeclaredType(@object),
                 TupleTypeSyntax tuple => GetDeclaredType(tuple),
                 StringSyntax @string => ConvertTypeExpressionToType(@string),
@@ -352,7 +533,7 @@ namespace Bicep.Core.TypeSystem
             return signifiedType;
         });
 
-        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
+        private TypeSymbol GetArrayTypeType(ArrayTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -374,6 +555,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedObjectDeclarationsUnsupported());
             }
 
+            HashSet<string> propertyNamesEncountered = new();
             List<TypeProperty> properties = new();
             List<ErrorDiagnostic> diagnostics = new();
             ObjectTypeNameBuilder nameBuilder = new();
@@ -385,7 +567,15 @@ namespace Bicep.Core.TypeSystem
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
-                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
+                    if (propertyNamesEncountered.Contains(propertyName))
+                    {
+                        // if there is already a property with this name declared, log an error and move on
+                        diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).PropertyMultipleDeclarations(propertyName));
+                        continue;
+                    }
+                    propertyNamesEncountered.Add(propertyName);
+
+                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, DescriptionHelper.TryGetFromDecorator(binder, typeManager, prop)));
                     nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 } else
                 {
@@ -399,11 +589,10 @@ namespace Bicep.Core.TypeSystem
             }
 
             var additionalPropertiesDeclarations = syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().ToImmutableArray();
-            ITypeReference? additionalPropertiesType = additionalPropertiesDeclarations.Length switch
+            ITypeReference additionalPropertiesType = additionalPropertiesDeclarations.Length switch
             {
                 1 => GetDeclaredTypeAssignment(additionalPropertiesDeclarations[0])?.Reference
                     ?? ErrorType.Create(DiagnosticBuilder.ForPosition(additionalPropertiesDeclarations[0].Value).InvalidTypeDefinition()),
-                _ when UnwrapUntilDecorable(syntax, HasSealedDecorator) => null,
                 _ => LanguageConstants.Any,
             };
             var additionalPropertiesFlags = additionalPropertiesDeclarations.Any() ? TypePropertyFlags.None : TypePropertyFlags.FallbackProperty;
@@ -425,9 +614,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            var typeFlags = UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default);
-
-            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalPropertiesType, additionalPropertiesFlags);
+            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags);
         }
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -440,22 +627,11 @@ namespace Bicep.Core.TypeSystem
             return propertyType.Type.Name;
         }
 
-        private T UnwrapUntilDecorable<T>(SyntaxBase syntax, Predicate<DecorableSyntax> condition, T valueIfTrue, T valueIfFalse) => binder.GetParent(syntax) switch
-        {
-            DecorableSyntax decorable when condition(decorable) => valueIfTrue,
-            ParenthesizedExpressionSyntax parenthesized => UnwrapUntilDecorable(parenthesized, condition, valueIfTrue, valueIfFalse),
-            TernaryOperationSyntax ternary when ternary.TrueExpression == syntax || ternary.FalseExpression == syntax
-                => UnwrapUntilDecorable(ternary, condition, valueIfTrue, valueIfFalse),
-            _ => valueIfFalse,
-        };
-
-        private bool UnwrapUntilDecorable(SyntaxBase syntax, Predicate<DecorableSyntax> condition) => UnwrapUntilDecorable(syntax, condition, true, false);
-
         private bool HasSecureDecorator(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
 
-        private bool HasSealedDecorator(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
+        private DecoratorSyntax? TryGetSealedDecorator(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName);
 
         private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)
         {
@@ -474,13 +650,11 @@ namespace Bicep.Core.TypeSystem
                 nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
             }
 
-            return new TupleType(nameBuilder.ToString(),
-                items.ToImmutableArray(),
-                UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default));
+            return new TupleType(nameBuilder.ToString(), items.ToImmutableArray(), default);
         }
 
         private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
 
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {
@@ -546,16 +720,19 @@ namespace Bicep.Core.TypeSystem
                 return baseExpressionType;
             }
 
-            var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
-            foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var evaluated = OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, baseExpressionType, diagnosticWriter);
+            if (diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>().Any())
+            {
+                return ErrorType.Create(diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>());
+            }
 
-            if (evaluated is {} result && TypeHelper.IsLiteralType(result) && !foldDiags.OfType<ErrorDiagnostic>().Any())
+            if (evaluated is {} result && TypeHelper.IsLiteralType(result))
             {
                 return result;
             }
 
-            return ErrorType.Create(foldDiags.OfType<ErrorDiagnostic>()
-                .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
         }
 
         private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
@@ -880,7 +1057,7 @@ namespace Bicep.Core.TypeSystem
                     break;
                 }
 
-                if (prevAccess?.SafeAccessMarker is not null || nextAccess.SafeAccessMarker is not null)
+                if (prevAccess?.IsSafeAccess is true || nextAccess.IsSafeAccess)
                 {
                     // if the first access definitely returns null, short-circuit the whole chain
                     if (ReferenceEquals(baseAssignment.Reference.Type, LanguageConstants.Null))
@@ -923,12 +1100,33 @@ namespace Bicep.Core.TypeSystem
                 case ObjectPropertySyntax:
                     // this array is a value of the property
                     // the declared type should be the same as the array and we should propagate the flags
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
+                    return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
+                case ParameterAssignmentSyntax:
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
             }
+        }
+
+        /// <remarks>
+        /// This function should be used instead of <see cref="GetDeclaredTypeAssignment" /> when the caller is certain that the null branch of a nullable type
+        /// is irrelevant (such as when syntax representing a non-null value has been supplied for a location whose type is nullable).
+        /// </remarks>
+        private DeclaredTypeAssignment? GetNonNullableTypeAssignment(SyntaxBase syntax)
+        {
+            var typeAssignment = GetDeclaredTypeAssignment(syntax);
+
+            if (typeAssignment?.Reference.Type is TypeSymbol declaredType && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
+            {
+                // if the declared type is nullable and we're supplying a non-null value, then the null branch of the declared type can be dropped
+                return new(nonNullable, typeAssignment.DeclaringSyntax, typeAssignment.Flags);
+            }
+
+            return typeAssignment;
         }
 
         private DeclaredTypeAssignment? GetStringType(StringSyntax syntax)
@@ -944,9 +1142,9 @@ namespace Bicep.Core.TypeSystem
                 case ArrayItemSyntax:
                     // this string is a value of the property
                     // the declared type should be the same as the string and we should propagate the flags
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
-                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                    return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 default:
                     return null;
             }
@@ -983,7 +1181,7 @@ namespace Bicep.Core.TypeSystem
                 case ArraySyntax _:
                     // array items can only have array parents
                     // use the declared item type
-                    var parentType = GetDeclaredTypeAssignment(parent)?.Reference.Type;
+                    var parentType = GetNonNullableTypeAssignment(parent)?.Reference.Type;
                     if (parentType is ArrayType arrayType)
                     {
                         return new DeclaredTypeAssignment(arrayType.Item.Type, syntax);
@@ -1154,7 +1352,7 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(arrayType.Item.Type, syntax, forParentTypeAssignment.Flags);
 
                 case ObjectPropertySyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } objectPropertyAssignment ||
+                    if (GetNonNullableTypeAssignment(parent) is not { } objectPropertyAssignment ||
                         objectPropertyAssignment.Reference.Type is not { } objectPropertyParent)
                     {
                         return null;
@@ -1165,7 +1363,7 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(objectPropertyParent, syntax), syntax, objectPropertyAssignment.Flags);
 
                 case ArrayItemSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } arrayItemAssignment ||
+                    if (GetNonNullableTypeAssignment(parent) is not { } arrayItemAssignment ||
                         arrayItemAssignment.Reference.Type is not { } arrayParent)
                     {
                         return null;
@@ -1200,12 +1398,35 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
                 case FunctionArgumentSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not { } parentAssignment)
+                case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
+                    if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;
                     }
 
                     return TryCreateAssignment(ResolveDiscriminatedObjects(parentAssignment.Reference.Type, syntax), syntax, parentAssignment.Flags);
+                case ParameterDefaultValueSyntax:
+                    // if we're in a parameter default value, get the declared type of the parameter itself
+                    parent = this.binder.GetParent(parent);
+
+                    if (parent is null)
+                    {
+                        throw new InvalidOperationException("Expected ParameterDefaultValueSyntax to have a parent.");
+                    }
+
+                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignment)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignment.Reference.Type, syntax), syntax, parameterAssignment.Flags);
+                case ParameterAssignmentSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
+                    {
+                        return null;
+                    };
+
+                    return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
             }
 
             return null;
@@ -1213,21 +1434,37 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetObjectPropertyType(ObjectPropertySyntax syntax)
         {
-            var propertyName = syntax.TryGetKeyText();
+            // `syntax.TryGetKeyText()` will only return a non-null value if the key is a bare identifier or a non-interpolated string
+            // if it does return null, look at the *type* of the key and see if it's a string literal. If an interpolated key can be folded
+            // to a literal type at compile time, this will likely already have been calculated and cached in the type manager
+            var propertyName = syntax.TryGetKeyText() ?? (typeManager.GetTypeInfo(syntax.Key) as StringLiteralType)?.RawStringValue;
             var parent = this.binder.GetParent(syntax);
-            if (propertyName == null || !(parent is ObjectSyntax parentObject))
+            if (parent is not ObjectSyntax parentObject)
             {
-                // the property name is an interpolated string (expression) OR the parent is missing OR the parent is not ObjectSyntax
+                // the parent is missing OR the parent is not ObjectSyntax
                 // cannot establish declared type
-                // TODO: Improve this when we have constant folding
                 return null;
             }
 
-            var assignment = GetDeclaredTypeAssignment(parent);
+            var parentAssignment = GetNonNullableTypeAssignment(parent);
+
+            if (propertyName is null)
+            {
+                // if we don't know the property name BUT we know that the parent is a simple dictionary (has an additional properties type and has no named
+                // properties with their own types), then use the dictionary value type
+                if (parentAssignment?.Reference.Type is ObjectType parentObjectType &&
+                    parentObjectType.Properties.IsEmpty &&
+                    parentObjectType.AdditionalPropertiesType is {} additionalPropertiesType)
+                {
+                    return new(additionalPropertiesType, syntax, DeclaredTypeFlags.None);
+                }
+
+                return null;
+            }
 
             // we are in the process of establishing the declared type for the syntax nodes,
             // so we must set useSyntax to false to avoid a stack overflow
-            return GetObjectPropertyType(assignment?.Reference.Type, parentObject, propertyName, useSyntax: false);
+            return GetObjectPropertyType(parentAssignment?.Reference.Type, parentObject, propertyName, useSyntax: false);
         }
 
         private DeclaredTypeAssignment? GetObjectPropertyType(TypeSymbol? type, ObjectSyntax? objectSyntax, string propertyName, bool useSyntax)

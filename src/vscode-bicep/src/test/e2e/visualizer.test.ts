@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import vscode from "vscode";
+import { e2eLogName } from "../../utils/logger";
 import { sleep } from "../../utils/time";
 
 import { expectDefined } from "../utils/assert";
@@ -16,7 +17,7 @@ import {
 } from "./commands";
 import { resolveExamplePath } from "./examples";
 
-const extensionLogPath = path.join(__dirname, "../../../bicep.log");
+const extensionLogPath = path.join(__dirname, `../../../${e2eLogName}`);
 
 describe("visualizer", (): void => {
   afterEach(executeCloseAllEditors);
@@ -35,7 +36,7 @@ describe("visualizer", (): void => {
     });
     if (!visualizerIsReady(document.uri)) {
       throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
+        `Expected visualizer to be ready for ${document.uri.toString()}`,
       );
     }
     expectDefined(viewColumn);
@@ -55,7 +56,7 @@ describe("visualizer", (): void => {
     });
     if (!visualizerIsReady(document.uri)) {
       throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
+        `Expected visualizer to be ready for ${document.uri.toString()}`,
       );
     }
     expectDefined(viewColumn);
@@ -76,7 +77,7 @@ describe("visualizer", (): void => {
 
     if (!visualizerIsReady(document.uri)) {
       throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
+        `Expected visualizer to be ready for ${document.uri.toString()}`,
       );
     }
 

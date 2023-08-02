@@ -7,9 +7,10 @@ import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
 } from "@microsoft/vscode-azext-utils";
+import { DecompileParamsCommand } from "./commands/decompileParams";
 
 export async function updateUiContext(
-  currentDocument: TextDocument | undefined
+  currentDocument: TextDocument | undefined,
 ): Promise<void> {
   await callWithTelemetryAndErrorHandling(
     "updateUiContext",
@@ -22,7 +23,7 @@ export async function updateUiContext(
         case "json":
         case "jsonc":
           cannotDecompile = !(await DecompileCommand.mightBeArmTemplateNoThrow(
-            currentDocument.uri
+            currentDocument.uri,
           ));
           break;
         default:
@@ -34,8 +35,28 @@ export async function updateUiContext(
       await commands.executeCommand(
         "setContext",
         "bicep.cannotDecompile",
-        cannotDecompile
+        cannotDecompile,
       );
-    }
+
+      let cannotDecompileParams: boolean;
+      switch (currentDocument?.languageId) {
+        case "json":
+        case "jsonc":
+          cannotDecompileParams =
+            !(await DecompileParamsCommand.mightBeArmParametersNoThrow(
+              currentDocument.uri,
+            ));
+          break;
+        default:
+          cannotDecompileParams = true;
+          break;
+      }
+
+      await commands.executeCommand(
+        "setContext",
+        "bicep.cannotDecompileParams",
+        cannotDecompileParams,
+      );
+    },
   );
 }

@@ -106,4 +106,16 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
 })
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
 //@[04:14) [no-unused-vars (Warning)] Variable "objectMap3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap3|
+var objectMap4 = toObject(sortByObjectKey, x =>
+//@[04:14) [no-unused-vars (Warning)] Variable "objectMap4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap4|
+  
+  x.name)
+var objectMap5 = toObject(sortByObjectKey, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx => xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.name)
+//@[04:14) [no-unused-vars (Warning)] Variable "objectMap5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap5|
+var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
+//@[04:14) [no-unused-vars (Warning)] Variable "objectMap6" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objectMap6|
+{
+  isEven: (i % 2) == 0
+  isGreaterThan4: (i > 4)
+})
 

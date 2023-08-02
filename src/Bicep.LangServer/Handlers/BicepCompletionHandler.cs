@@ -38,8 +38,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var featureProvider = featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri());
             var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (compilationContext is null ||
-                (compilationContext.SourceFileKind == BicepSourceFileKind.ParamsFile && !featureProvider.ParamsFilesEnabled))
+            if (compilationContext is null)
             {
                 // no compilation context or this is a param file and params are disabled
                 return new CompletionList();
@@ -51,7 +50,7 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                completions = await this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
+                completions = await this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext, cancellationToken);
             }
             catch (Exception e)
             {

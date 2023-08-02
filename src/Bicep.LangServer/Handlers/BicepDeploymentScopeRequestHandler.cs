@@ -55,7 +55,7 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 var documentUri = request.TextDocument.Uri;
-                var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
+                var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
 
                 // Cache the compilation so that it can be reused by BicepDeploymentParametersHandler
                 deploymentFileCompilationCache.CacheCompilation(documentUri, compilation);

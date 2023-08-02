@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests
@@ -57,6 +58,42 @@ using './one.bicepparam'
                     x.Message.Should().EndWith("\").");
                     x.Message.Should().ContainAll("one.bicepparam\" -> \"", "two.bicepparam\").");
                 });
+        }
+
+        [TestMethod]
+        public void Params_file_with_not_using_declaration_should_log_diagnostic()
+        {                    
+            var result = CompilationHelper.CompileParams(
+    ("parameters.bicepparam", @"
+    param foo = 'bar'
+    "),
+    ("main.bicep", @"
+    param foo string
+    "));
+
+            using(new AssertionScope())
+            {
+                result.Parameters.Should().BeNull();
+                result.Diagnostics.Should().HaveDiagnostics(new[]
+                {
+                    ("BCP261", DiagnosticLevel.Error, "A using declaration must be present in this parameters file.")
+                });
+            }
+        }
+
+        [TestMethod]
+        public void Parameters_file_cannot_reference_non_existing_env_variable()
+        {
+            var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using 'foo.bicep'
+param fromEnv=readEnvironmentVariable('stringEnvVariable')
+"),
+("foo.bicep", @"param fromEnv string"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []{
+                ("BCP338", DiagnosticLevel.Error,
+                "Failed to evaluate parameter \"stringEnvVariable\": Environment variable does not exist, and no default value set")});
         }
     }
 }

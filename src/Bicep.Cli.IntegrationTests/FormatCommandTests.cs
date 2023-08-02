@@ -51,7 +51,7 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
 
                 error.Should().NotBeEmpty();
-                error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a bicep file. Bicep files must use the {LanguageConstants.LanguageFileExtension} extension.");
+                error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the {LanguageConstants.LanguageFileExtension} or {LanguageConstants.ParamsFileExtension} extension.");
             }
         }
 
@@ -530,6 +530,26 @@ output myOutput string = 'hello!'
                 output.Should().BeEmpty();
                 error.Should().Contain("Empty.bicep");
             }
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        public async Task Format_bicepparam_gives_expected_output(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            data.Formatted.WriteToOutputFolder(data.Parameters.EmbeddedFile.Contents);
+            var (output, error, result) = await Bicep("format", data.Formatted.OutputFilePath, "--insertfinalnewline");
+
+            // Should format successfully
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                AssertNoErrors(error);
+            }
+
+            data.Formatted.ShouldHaveExpectedValue();
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

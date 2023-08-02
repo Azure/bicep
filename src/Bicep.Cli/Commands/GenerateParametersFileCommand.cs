@@ -5,8 +5,10 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -41,7 +43,7 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
-            var emitterSettings = new EmitterSettings(features);
+            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.ParamsFile);
 
             if (emitterSettings.EnableSymbolicNames)
             {
@@ -55,7 +57,7 @@ namespace Bicep.Cli.Commands
 
             if (!IsBicepFile(inputPath))
             {
-                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+                logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
                 return 1;
             }
 
@@ -65,7 +67,7 @@ namespace Bicep.Cli.Commands
             {
                 if (args.OutputToStdOut)
                 {
-                    writer.ToStdout(compilation);
+                    writer.ToStdout(compilation, args.OutputFormat, args.IncludeParams);
                 }
                 else
                 {
@@ -83,9 +85,9 @@ namespace Bicep.Cli.Commands
                         outputPath = inputPath;
                     }
 
-                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath);
+                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat);
 
-                    writer.ToFile(compilation, outputPath);
+                    writer.ToFile(compilation, outputPath, args.OutputFormat, args.IncludeParams);
                 }
             }
 

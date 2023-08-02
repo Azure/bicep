@@ -331,7 +331,7 @@ param paramAccessingResource string = sampleResource
 
 param paramAccessingOutput string = sampleOutput
 //@[06:026) [no-unused-params (Warning)] Parameter "paramAccessingOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramAccessingOutput|
-//@[36:048) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |sampleOutput|
+//@[36:048) [BCP057 (Error)] The name "sampleOutput" does not exist in the current context. (CodeDescription: none) |sampleOutput|
 
 // #completionTest(6) -> empty
 param 
@@ -449,9 +449,9 @@ param unaryMinusOnFunction int
 param duplicateDecorators string
 //@[06:025) [no-unused-params (Warning)] Parameter "duplicateDecorators" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |duplicateDecorators|
 
-@minLength(-1)
+@maxLength(-1)
 //@[11:013) [BCP168 (Error)] Length must not be a negative value. (CodeDescription: none) |-1|
-@maxLength(-100)
+@minLength(-100)
 //@[11:015) [BCP168 (Error)] Length must not be a negative value. (CodeDescription: none) |-100|
 param invalidLength string
 //@[06:019) [no-unused-params (Warning)] Parameter "invalidLength" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |invalidLength|

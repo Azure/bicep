@@ -14,12 +14,12 @@ namespace Bicep.Core.Semantics
         TypeSymbol targetType,
         ITypeManager typeManager,
         IBinder binder,
+        IDiagnosticLookup parsingErrorLookup,
         IDiagnosticWriter diagnosticWriter);
 
-    public delegate ObjectExpression? DecoratorEvaluator(
-        FunctionCallExpression functionCall,
-        TypeSymbol targetType,
-        ObjectExpression? targetObject);
+    public delegate Expression DecoratorEvaluator(
+        FunctionCallExpression decorator,
+        Expression decorated);
 
     public class Decorator
     {
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
 
         public bool CanAttachTo(TypeSymbol targetType) => TypeValidator.AreTypesAssignable(targetType, attachableType);
 
-        public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+        public void Validate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {
             // The following line makes the simplifying assumption that nullability does not impact decorator validity. This assumption is true at the moment
             // because aside from @metadata and @description (which are attachable to targets of any type), all decorators represent validation constraints
@@ -60,17 +60,17 @@ namespace Bicep.Core.Semantics
             }
 
             // Invoke custom validator if provided.
-            this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+            this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
         }
 
-        public ObjectExpression? Evaluate(FunctionCallExpression functionCall, TypeSymbol targetType, ObjectExpression? targetObject)
+        public Expression Evaluate(FunctionCallExpression functionCall, Expression decoratedExpression)
         {
             if (this.evaluator is null)
             {
-                return targetObject;
+                return decoratedExpression;
             }
 
-            return this.evaluator(functionCall, RemoveImplicitNull(targetType), targetObject);
+            return this.evaluator(functionCall, decoratedExpression);
         }
 
         private static TypeSymbol RemoveImplicitNull(TypeSymbol type) => TypeHelper.TryRemoveNullability(type) ?? type;

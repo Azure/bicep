@@ -254,6 +254,21 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
   }
 }
 
+@sys.description('this is another vmWithCondition')
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+                    if (shouldDeployVm) {
+  name: 'vmName2'
+  location: 'westus'
+//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
+  properties: {
+    osProfile: {
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+      }
+    }
+  }
+}
+
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@[20:56) [BCP081 (Warning)] Resource type "My.Rp/extensionResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/extensionResource@2020-12-01'|
   name: 'extension'

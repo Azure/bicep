@@ -129,6 +129,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ModuleSymbol ||
                         s is OutputSymbol ||
                         s is FunctionSymbol ||
+                        s is DeclaredFunctionSymbol ||
                         s is ImportedNamespaceSymbol ||
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol);
@@ -147,6 +148,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ModuleSymbol ||
                         s is OutputSymbol ||
                         s is FunctionSymbol ||
+                        s is DeclaredFunctionSymbol ||
                         s is ImportedNamespaceSymbol ||
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol);
@@ -335,6 +337,14 @@ param storageAccount string = 'testStorageAccount'";
                 dataSet.Ir ?? "",
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
                 actualLocation: resultsFile);
+        }
+
+        [TestInitialize]
+        public void testInit()
+        {
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
+            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)

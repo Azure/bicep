@@ -140,7 +140,7 @@ namespace Bicep.Core.Samples
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet)data[0]).Name}";
 
-        private string ReadDataSetFile(string fileName) => ReadFile(GetStreamName(fileName));
+        public string ReadDataSetFile(string fileName) => ReadFile(GetStreamName(fileName));
 
         private string GetStreamName(string fileName) => $"{GetStreamPrefix()}/{fileName}";
 

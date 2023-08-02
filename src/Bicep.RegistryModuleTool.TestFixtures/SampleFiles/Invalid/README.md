@@ -2,7 +2,7 @@
 
 Sample summary for test
 
-## Description
+## Details
 
 ## Parameters
 

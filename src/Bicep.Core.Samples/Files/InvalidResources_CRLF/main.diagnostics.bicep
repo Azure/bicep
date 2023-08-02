@@ -256,7 +256,7 @@ param resrefpar string = foo.id
 //@[025:028) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. (CodeDescription: none) |foo|
 
 output resrefout bool = bar.id
-//@[024:030) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "string". (CodeDescription: none) |bar.id|
+//@[024:030) [BCP033 (Error)] Expected a value of type "bool" but the provided value is of type "string". (CodeDescription: none) |bar.id|
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -440,13 +440,6 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[008:043) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['${magicString1}']|
 }
 
-// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-var magicString2 = 'name'
-resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: runtimeValidRes2['${magicString2}']
-//@[008:043) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['${magicString2}']|
-}
-
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
 //@[008:038) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${runtimeValidRes3.location}'|
@@ -556,6 +549,10 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
   name: runtimeValid.foo4
 }
 
+var magicString2 = 'name'
+resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString2}']
+}
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[009:028) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck|
@@ -729,7 +726,7 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
 //@[004:035) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource|
-//@[038:070) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for|
+//@[038:070) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for|
 //@[071:075) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (CodeDescription: none) |kind|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
@@ -757,7 +754,7 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
 //@[004:038) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceListIsNotSingleResource_if|
-//@[041:076) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for_if|
+//@[041:076) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |discriminatorKeyValueMissing_for_if|
 //@[077:081) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (CodeDescription: none) |kind|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
@@ -1037,7 +1034,7 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 
 var mock = incorrectPropertiesKey.p
 //@[004:008) [no-unused-vars (Warning)] Variable "mock" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mock|
-//@[034:035) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (CodeDescription: none) |p|
+//@[034:035) [BCP053 (Error)] The type "AzureCLI" does not contain property "p". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "systemData", "tags", "type", "zones". (CodeDescription: none) |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -1771,17 +1768,17 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 
 var directRefViaVar = premiumStorages
 //@[004:019) [no-unused-vars (Warning)] Variable "directRefViaVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |directRefViaVar|
-//@[022:037) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[022:037) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
 output directRefViaOutput array = union(premiumStorages, stuffs)
-//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
-//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
+//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone2'
   location: 'global'
   properties: {
     registrationVirtualNetworks: premiumStorages
-//@[033:048) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[033:048) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
   }
 }
 
@@ -1790,8 +1787,8 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   location: 'global'
   properties: {
     registrationVirtualNetworks: concat(premiumStorages, stuffs)
-//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
-//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
+//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |stuffs|
   }
 }
 
@@ -1801,7 +1798,7 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
-//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
   }
 }]
 
@@ -1811,11 +1808,11 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
   name: 'vnet-${i}'
   properties: {
     subnets: premiumStorages
-//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[013:028) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
     dependsOn: [
 //@[004:013) [BCP037 (Warning)] The property "dependsOn" is not allowed on objects of type "VirtualNetworkPropertiesFormat". Permissible properties include "addressSpace", "bgpCommunities", "ddosProtectionPlan", "dhcpOptions", "enableDdosProtection", "enableVmProtection", "ipAllocations", "virtualNetworkPeerings". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |dependsOn|
       premiumStorages
-//@[006:021) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
+//@[006:021) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (CodeDescription: none) |premiumStorages|
     ]
   }
   dependsOn: [
@@ -2141,7 +2138,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   managedBy: 'string'
 //@[002:011) [BCP187 (Warning)] The property "managedBy" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedBy|
   mangedByExtended: [
-//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
+//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "asserts", "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
    'str1'
    'str2'
   ]
@@ -2184,7 +2181,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:011) [BCP187 (Warning)] The property "managedBy" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedBy|
 //@[013:015) [BCP036 (Warning)] The property "managedBy" expected a value of type "string" but the provided value is of type "object". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |{}|
   mangedByExtended: [
-//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
+//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "Microsoft.Logic/workflows". Permissible properties include "asserts", "dependsOn", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |mangedByExtended|
    {}
    {}
   ]
@@ -2217,14 +2214,14 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
     name: 'Premium_LRS'    
   }
   madeUpProperty: {}
-//@[002:016) [BCP037 (Error)] The property "madeUpProperty" is not allowed on objects of type "Microsoft.Storage/storageAccounts". Permissible properties include "dependsOn", "extendedLocation", "identity", "properties", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |madeUpProperty|
+//@[002:016) [BCP037 (Error)] The property "madeUpProperty" is not allowed on objects of type "Microsoft.Storage/storageAccounts". Permissible properties include "asserts", "dependsOn", "extendedLocation", "identity", "properties", "tags". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |madeUpProperty|
   managedByExtended: []
 //@[002:019) [BCP187 (Warning)] The property "managedByExtended" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedByExtended|
 }
 
 var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
 //@[004:030) [no-unused-vars (Warning)] Variable "issue3000stgMadeUpProperty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |issue3000stgMadeUpProperty|
-//@[046:060) [BCP053 (Error)] The type "Microsoft.Storage/storageAccounts" does not contain property "madeUpProperty". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". (CodeDescription: none) |madeUpProperty|
+//@[046:060) [BCP053 (Error)] The type "Microsoft.Storage/storageAccounts" does not contain property "madeUpProperty". Available properties include "apiVersion", "asserts", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". (CodeDescription: none) |madeUpProperty|
 var issue3000stgManagedBy = issue3000stg.managedBy
 //@[004:025) [no-unused-vars (Warning)] Variable "issue3000stgManagedBy" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |issue3000stgManagedBy|
 //@[041:050) [BCP187 (Warning)] The property "managedBy" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |managedBy|

@@ -8,8 +8,10 @@ namespace Bicep.LanguageServer
         public const string BuildCommand = "build";
         public const string DecompileForPasteCommand = "decompileForPaste";
         public const string DecompileCommand = "decompile";
+        public const string DecompileParamsCommand = "decompileParams";
         public const string DecompileSaveCommand = "decompileSave";
         public const string GenerateParamsCommand = "generateParams";
+        public const string BuildParamsCommand = "buildParams";
         public const string DeployCompleteMethod = "deploymentComplete";
         public const string DeployStartCommand = "deploy/start";
         public const string DeployWaitForCompletionCommand = "deploy/waitForCompletion";
@@ -20,7 +22,8 @@ namespace Bicep.LanguageServer
         public const string CreateConfigFile = "createConfigFile";
         // An internal-only command used in code actions to edit a particular rule in the bicepconfig.json file
         public const string EditLinterRuleCommandName = "bicep.EditLinterRule";
-        public const string EnableModuleRegistryReferenceCompletionsSetting = "enableModuleRegistryReferenceCompletions";
-        public const string IncludeAllAccessibleAzureContainerRegistriesForCompletionsSetting = "includeAllAccessibleAzureContainerRegistriesForCompletions";
+
+        // This is under "bicep.completions" in configuration
+        public const string GetAllAzureContainerRegistriesForCompletionsSetting = "getAllAccessibleAzureContainerRegistries";
     }
 }

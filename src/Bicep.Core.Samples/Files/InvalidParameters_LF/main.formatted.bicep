@@ -64,24 +64,24 @@ param objectCompletions object =
 param wrongType fluffyBunny = 'what' s up doc?'
 
 // invalid escape
-param wrongType fluffyBunny =   'what\s up doc?'
+param wrongType fluffyBunny = 'what\s up doc?'
 
 // unterminated string 
-param wrongType fluffyBunny =   'what\'s up doc?
+param wrongType fluffyBunny = 'what\'s up doc?
 
 // unterminated interpolated string
 param wrongType fluffyBunny = 'what\'s ${
-param wrongType fluffyBunny =   'what\'s ${ up 
-param wrongType fluffyBunny =   'what\'s ${ up }
-param wrongType fluffyBunny =   'what\'s ${   'up 
+param wrongType fluffyBunny = 'what\'s ${up
+param wrongType fluffyBunny = 'what\'s ${up}
+param wrongType fluffyBunny = 'what\'s ${'up
 
 // unterminated nested interpolated string
 param wrongType fluffyBunny = 'what\'s ${'up${
 param wrongType fluffyBunny = 'what\'s ${'up${
-param wrongType fluffyBunny =   'what\'s ${   'up${ doc 
-param wrongType fluffyBunny =   'what\'s ${   'up${ doc } 
-param wrongType fluffyBunny =   'what\'s ${ 'up${doc}' 
-param wrongType fluffyBunny =   'what\'s ${ 'up${doc}' }?
+param wrongType fluffyBunny = 'what\'s ${'up${doc
+param wrongType fluffyBunny = 'what\'s ${'up${doc}
+param wrongType fluffyBunny = 'what\'s ${'up${doc}'
+param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 
 // object literal inside interpolated string
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
@@ -107,10 +107,8 @@ param secureInt int
   'test'
   true
 ])
-@minValue({
-})
-@maxValue([
-])
+@minValue({})
+@maxValue([])
 @metadata('wrong')
 param wrongIntModifier int = true
 
@@ -243,8 +241,8 @@ param unaryMinusOnFunction int
 @maxLength(4)
 param duplicateDecorators string
 
-@minLength(-1)
-@maxLength(-100)
+@maxLength(-1)
+@minLength(-100)
 param invalidLength string
 
 @allowed([

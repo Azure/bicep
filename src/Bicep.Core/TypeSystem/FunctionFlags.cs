@@ -72,6 +72,16 @@ namespace Bicep.Core.TypeSystem
         GenerateIntermediateVariableOnIndirectAssignment = 1 << 12,
 
         /// <summary>
+        /// The function can be used as a function decorator.
+        /// </summary>
+        FunctionDecorator = 1 << 13,
+
+        /// <summary>
+        /// The function can be used in direct assignment only
+        /// </summary>
+        DirectAssignment = 1 << 14,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
@@ -89,6 +99,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
-        AnyDecorator = ParameterDecorator | VariableDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator | MetadataDecorator | TypeDecorator,
+        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator | MetadataDecorator | TypeDecorator,
     }
 }

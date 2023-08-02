@@ -88,11 +88,11 @@ namespace Bicep.Core.UnitTests.Utils
                 "kind",
                 new[] {
                     new ObjectType("BodyA", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
-                        new TypeProperty("kind", new StringLiteralType("BodyA"), TypePropertyFlags.None, "This is the kind of body A"),
+                        new TypeProperty("kind", TypeFactory.CreateStringLiteralType("BodyA"), TypePropertyFlags.None, "This is the kind of body A"),
                         new TypeProperty("properties", bodyAProps, TypePropertyFlags.None, "These are the properties for body A"),
                     }), null),
                     new ObjectType("BodyB", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
-                        new TypeProperty("kind", new StringLiteralType("BodyB"), TypePropertyFlags.None, "This is the kind of body B"),
+                        new TypeProperty("kind", TypeFactory.CreateStringLiteralType("BodyB"), TypePropertyFlags.None, "This is the kind of body B"),
                         new TypeProperty("properties", bodyBProps, TypePropertyFlags.None, "These are the properties for body B"),
                     }), null),
                 });
@@ -108,7 +108,7 @@ namespace Bicep.Core.UnitTests.Utils
                 "PropertiesA",
                 TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new[] {
-                    new TypeProperty("propType", new StringLiteralType("PropertiesA"), TypePropertyFlags.None, "..."),
+                    new TypeProperty("propType", TypeFactory.CreateStringLiteralType("PropertiesA"), TypePropertyFlags.None, "..."),
                     new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
                 },
                 null);
@@ -117,7 +117,7 @@ namespace Bicep.Core.UnitTests.Utils
                 "PropertiesB",
                 TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new[] {
-                    new TypeProperty("propType", new StringLiteralType("PropertiesB"), TypePropertyFlags.None, "..."),
+                    new TypeProperty("propType", TypeFactory.CreateStringLiteralType("PropertiesB"), TypePropertyFlags.None, "..."),
                     new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
                 },
                 null);
@@ -161,11 +161,11 @@ namespace Bicep.Core.UnitTests.Utils
                 "propType",
                 new[] {
                     new ObjectType("BodyA", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
-                        new TypeProperty("propType", new StringLiteralType("PropertiesA"), TypePropertyFlags.None, "This is the propType of body A"),
+                        new TypeProperty("propType", TypeFactory.CreateStringLiteralType("PropertiesA"), TypePropertyFlags.None, "This is the propType of body A"),
                         new TypeProperty("values", bodyAProps, TypePropertyFlags.None, "These are the properties for body A"),
                     }), null),
                     new ObjectType("BodyB", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
-                        new TypeProperty("propType", new StringLiteralType("PropertiesB"), TypePropertyFlags.None, "This is the propType of body B"),
+                        new TypeProperty("propType", TypeFactory.CreateStringLiteralType("PropertiesB"), TypePropertyFlags.None, "This is the propType of body B"),
                         new TypeProperty("values", bodyBProps, TypePropertyFlags.None, "These are the properties for body B"),
                     }), null),
                 });
@@ -208,7 +208,7 @@ namespace Bicep.Core.UnitTests.Utils
                 new[] {
                     new TypeProperty("withInputInputVal", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.Required, "Foo description"),
                     new TypeProperty("optionalVal", LanguageConstants.String, TypePropertyFlags.WriteOnly, "optionalVal description"),
-                    new TypeProperty("optionalLiteralVal", TypeHelper.CreateTypeUnion(new StringLiteralType("either"), new StringLiteralType("or")), TypePropertyFlags.WriteOnly, "optionalLiteralVal description"),
+                    new TypeProperty("optionalLiteralVal", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("either"), TypeFactory.CreateStringLiteralType("or")), TypePropertyFlags.WriteOnly, "optionalLiteralVal description"),
                 }, null);
             var withInputOutput = new ObjectType("WithInputOutput", TypeSymbolValidationFlags.Default,
                 new[] {
@@ -226,7 +226,7 @@ namespace Bicep.Core.UnitTests.Utils
                     .WithFlags(FunctionFlags.RequiresInlining)
                     .Build(),
                 new FunctionOverloadBuilder("listWithInput")
-                    .WithRequiredParameter("apiVersion", new StringLiteralType(resourceType.ApiVersion!), "The api version")
+                    .WithRequiredParameter("apiVersion", TypeFactory.CreateStringLiteralType(resourceType.ApiVersion!), "The api version")
                     .WithRequiredParameter("params", withInputInput, "listWithInput parameters")
                     .WithReturnType(withInputOutput)
                     .WithFlags(FunctionFlags.RequiresInlining)
@@ -243,7 +243,7 @@ namespace Bicep.Core.UnitTests.Utils
                     overloads));
         }
 
-        public static ImmutableArray<ResourceTypeComponents> Types { get; } = new [] {
+        public static ImmutableArray<ResourceTypeComponents> Types { get; } = new[] {
             BasicTestsType(),
             ReadWriteTestsType(),
             ReadOnlyTestsType(),
@@ -255,6 +255,8 @@ namespace Bicep.Core.UnitTests.Utils
         }.ToImmutableArray();
 
         public static INamespaceProvider Create()
-            => new DefaultNamespaceProvider(TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(Types));
+            => new DefaultNamespaceProvider(
+                TestTypeHelper.CreateAzResourceTypeLoaderFactory(
+                    TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(Types)));
     }
 }

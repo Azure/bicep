@@ -25,7 +25,7 @@ export class WalkthroughCreateBicepFileCommand implements Command {
 }
 
 async function createAndOpenBicepFile(
-  fileContents: string
+  fileContents: string,
 ): Promise<vscode.TextEditor> {
   const folder: Uri =
     (workspace.workspaceFolders
@@ -50,6 +50,6 @@ async function createAndOpenBicepFile(
   const document: TextDocument = await workspace.openTextDocument(uri);
   return await vscode.window.showTextDocument(
     document,
-    vscode.ViewColumn.Beside
+    vscode.ViewColumn.Beside,
   );
 }

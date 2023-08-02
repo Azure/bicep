@@ -125,7 +125,7 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"nestedObj\" does not contain property \"writeOnlyProp\". Available properties include \"readOnlyNestedProp\", \"requiredNestedProp\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"properties\" does not contain property \"missingOutput\". Available properties include \"additionalProps\", \"nestedObj\", \"readOnlyProp\", \"requiredProp\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"nestedObj\" does not contain property \"missingOutput\". Available properties include \"readOnlyNestedProp\", \"requiredNestedProp\"."),
-                x => x.Should().HaveCodeAndSeverity("BCP026", DiagnosticLevel.Error).And.HaveMessage("The output expects a value of type \"int\" but the provided value is of type \"string\"."),
+                x => x.Should().HaveCodeAndSeverity("BCP033", DiagnosticLevel.Error).And.HaveMessage("Expected a value of type \"int\" but the provided value is of type \"string\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"nestedObj\" does not contain property \"readOnlyProp\". Available properties include \"readOnlyNestedProp\", \"requiredNestedProp\".")
             );
         }
@@ -139,14 +139,14 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("unspecifiedStringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDef", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedAbcOrDef", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
+                    new TypeProperty("abcOrDef", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("unspecifiedAbcOrDef", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myDependentType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOnly", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOnly", new StringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOnlyUnNarrowed", new StringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("abcOnly", TypeFactory.CreateStringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("abcOnlyUnNarrowed", TypeFactory.CreateStringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("stringOrIntUnNarrowed", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDefUnNarrowed", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def"), new StringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
+                    new TypeProperty("abcOrDefUnNarrowed", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def"), TypeFactory.CreateStringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
             };
             var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
@@ -184,11 +184,11 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
                     new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
                             new ObjectType("choiceA", validationFlags, new [] {
-                                new TypeProperty("discKey", new StringLiteralType("choiceA"), TypePropertyFlags.Required),
+                                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceA"), TypePropertyFlags.Required),
                                 new TypeProperty("valueA", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),
                             new ObjectType("choiceB", validationFlags, new [] {
-                                new TypeProperty("discKey", new StringLiteralType("choiceB"), TypePropertyFlags.Required),
+                                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceB"), TypePropertyFlags.Required),
                                 new TypeProperty("valueB", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),
                         }

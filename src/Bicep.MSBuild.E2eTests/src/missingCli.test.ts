@@ -7,7 +7,7 @@ import { Example } from "./example";
 describe("msbuild", () => {
   it("should produce a friendly error message if CLI is missing from the path", () => {
     const example = new Example("missingCli");
-    example.clean();
+    example.cleanProjectDir();
 
     const result = example.build(false);
 

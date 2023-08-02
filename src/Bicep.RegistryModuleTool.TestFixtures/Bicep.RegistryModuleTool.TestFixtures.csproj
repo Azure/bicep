@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -22,13 +22,14 @@
     <None Remove="SampleFiles\Invalid\metadata.json" />
     <None Remove="SampleFiles\Invalid\test\main.test.bicep" />
     <None Remove="SampleFiles\Valid\test\main.test.bicep" />
+    <None Remove="SampleFiles\ModuleWithObsoleteMetadataFile\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.10.0" />
-    <PackageReference Include="JsonPatch.Net" Version="2.0.4" />
+    <PackageReference Include="FluentAssertions" Version="6.11.0" />
+    <PackageReference Include="JsonPatch.Net" Version="2.1.0" />
     <PackageReference Include="Moq" Version="4.18.4" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.1.18" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="19.2.29" />
   </ItemGroup>
 
   <ItemGroup>

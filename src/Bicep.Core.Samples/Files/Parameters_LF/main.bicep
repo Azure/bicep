@@ -154,7 +154,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 ])
 param decoratedString string
 
-@minValue(200)
+@minValue(100)
 param decoratedInt int = 123
 
 // negative integer literals are allowed as decorator values
@@ -199,10 +199,10 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-    description: 'An array.'
+    description: 'I will be overrode.'
 })
 @sys.maxLength(20)
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 param decoratedArray array = [
     utcNow()
     newGuid()

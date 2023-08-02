@@ -45,14 +45,14 @@ export class WorkspaceConfigurationFake implements WorkspaceConfiguration {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
     configurationTarget?: boolean | ConfigurationTarget | null | undefined,
-    overrideInLanguage?: boolean | undefined
+    overrideInLanguage?: boolean | undefined,
   ): Promise<void> {
     if (
       configurationTarget !== ConfigurationTarget.Global &&
       configurationTarget !== true
     ) {
       throw new Error(
-        "Functionality not implemented: WorkspaceConfigurationFake currently only supports global configuration target"
+        "Functionality not implemented: WorkspaceConfigurationFake currently only supports global configuration target",
       );
     }
 

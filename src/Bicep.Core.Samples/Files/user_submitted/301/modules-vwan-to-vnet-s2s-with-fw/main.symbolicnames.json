@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2021617875632265089"
+      "templateHash": "15324481904347043092"
     }
   },
   "parameters": {
@@ -71,7 +71,7 @@
     },
     "vnet": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[variables('vnetname')]",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -335,7 +335,7 @@
     },
     "vpngw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vpngw-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -474,7 +474,7 @@
     },
     "fwpolicy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "fwpolicy-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -644,7 +644,7 @@
     },
     "fwpip": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "pip-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -694,15 +694,15 @@
             "ipprefixlength": {
               "type": "int",
               "defaultValue": 31,
-              "metadata": {
-                "description": "Specifies the size of the Public IP Prefix"
-              },
               "allowedValues": [
                 28,
                 29,
                 30,
                 31
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the size of the Public IP Prefix"
+              }
             }
           },
           "resources": {
@@ -753,7 +753,7 @@
     },
     "fw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "fw-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -803,13 +803,13 @@
             },
             "fwtype": {
               "type": "string",
-              "metadata": {
-                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
-              },
               "allowedValues": [
                 "VNet",
                 "vWAN"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+              }
             },
             "fwpolicyid": {
               "type": "string",
@@ -911,7 +911,7 @@
     },
     "vwan": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vwan-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -953,13 +953,13 @@
             "wantype": {
               "type": "string",
               "defaultValue": "Standard",
-              "metadata": {
-                "description": "Specifies the type of Virtual WAN."
-              },
               "allowedValues": [
                 "Standard",
                 "Basic"
-              ]
+              ],
+              "metadata": {
+                "description": "Specifies the type of Virtual WAN."
+              }
             }
           },
           "resources": {
@@ -990,7 +990,7 @@
     },
     "vhub": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vhub-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1083,7 +1083,7 @@
     },
     "vhubfwpolicy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vhubfwpolicy-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1253,7 +1253,7 @@
     },
     "vhubfw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vhubfw-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1303,13 +1303,13 @@
             },
             "fwtype": {
               "type": "string",
-              "metadata": {
-                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
-              },
               "allowedValues": [
                 "VNet",
                 "vWAN"
-              ]
+              ],
+              "metadata": {
+                "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+              }
             },
             "fwpolicyid": {
               "type": "string",
@@ -1410,7 +1410,7 @@
     },
     "vhubvpngw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vhubvpngw",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1512,7 +1512,7 @@
     },
     "vwanvpnsite": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vwanvpnsite-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1638,7 +1638,7 @@
     },
     "vhubs2s": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vhubs2s-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1711,7 +1711,7 @@
     },
     "vnets2s": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "vnets2s-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {

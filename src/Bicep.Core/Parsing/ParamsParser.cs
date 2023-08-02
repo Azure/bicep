@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -35,8 +36,12 @@ namespace Bicep.Core.Parsing
             }
 
             var endOfFile = reader.Read();
+            var programSyntax = new ProgramSyntax(declarationsOrTokens, endOfFile);
 
-            return new ProgramSyntax(declarationsOrTokens, endOfFile, this.lexerDiagnostics);
+            var parsingErrorVisitor = new ParseDiagnosticsVisitor(this.ParsingErrorTree);
+            parsingErrorVisitor.Visit(programSyntax);
+
+            return programSyntax;
         }
 
         protected override SyntaxBase Declaration() =>
@@ -52,11 +57,11 @@ namespace Bicep.Core.Parsing
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
 
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                     };
                 },
                 RecoveryFlags.None,

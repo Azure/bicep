@@ -1,0 +1,19 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "resources": [
+        {
+            "name": "foo",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "/subscriptions/28cbf98f-381d-4425-9ac4-cf342dab9753/resourceGroups/StacksTestRG34xu72emdafmq/providers/Microsoft.Resources/templateSpecs/ABetterSpec/versions/V2"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

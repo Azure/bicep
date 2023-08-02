@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer
 {
-    public class SemanticTokenVisitor : AstVisitor
+    public class SemanticTokenVisitor : CstVisitor
     {
         private readonly SemanticModel model;
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();
@@ -177,6 +177,13 @@ namespace Bicep.LanguageServer
             base.VisitModuleDeclarationSyntax(syntax);
         }
 
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitTestDeclarationSyntax(syntax);
+        }
+
         public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -250,6 +257,9 @@ namespace Bicep.LanguageServer
                 case TokenType.StringRightPiece:
                 case TokenType.MultilineString:
                     AddStringToken(token);
+                    break;
+                case TokenType.Comma:
+                    AddTokenType(token, SemanticTokenType.Operator);
                     break;
                 default:
                     break;
@@ -328,7 +338,7 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.Config);
         }
-        
+
         public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -346,6 +356,13 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             base.VisitUsingDeclarationSyntax(syntax);
+        }
+
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) 
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitAssertDeclarationSyntax(syntax);
         }
 
     }

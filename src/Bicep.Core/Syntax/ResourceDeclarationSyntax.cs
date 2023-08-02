@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -11,7 +12,7 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ResourceDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, Token? existingKeyword, SyntaxBase assignment, SyntaxBase value)
+        public ResourceDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, Token? existingKeyword, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ResourceKeyword);
@@ -28,6 +29,7 @@ namespace Bicep.Core.Syntax
             this.Type = type;
             this.ExistingKeyword = existingKeyword;
             this.Assignment = assignment;
+            this.Newlines = newlines;
             this.Value = value;
         }
 
@@ -40,6 +42,8 @@ namespace Bicep.Core.Syntax
         public Token? ExistingKeyword { get; }
 
         public SyntaxBase Assignment { get; }
+
+        public ImmutableArray<Token> Newlines { get; }
 
         public SyntaxBase Value { get; }
 
@@ -74,5 +78,7 @@ namespace Bicep.Core.Syntax
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid resource body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
 
         public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
+
+        public bool IsCollection() => this.Value is ForSyntax;
     }
 }

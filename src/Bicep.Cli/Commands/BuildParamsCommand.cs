@@ -1,16 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Semantics;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -43,10 +41,10 @@ namespace Bicep.Cli.Commands
         public async Task<int> RunAsync(BuildParamsArguments args)
         {
             var paramsInputPath = PathHelper.ResolvePath(args.ParamsFile);
-            var bicepInputPath = args.BicepFile != null ? PathHelper.ResolvePath(args.BicepFile) : null;
+            var bicepFileArgPath = args.BicepFile != null ? PathHelper.ResolvePath(args.BicepFile) : null;
 
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(paramsInputPath));
-            var emitterSettings = new EmitterSettings(features);
+            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.ParamsFile);
 
             if (emitterSettings.EnableSymbolicNames)
             {
@@ -58,81 +56,48 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }
 
-            if(bicepInputPath != null && !IsBicepFile(bicepInputPath))
+            if (bicepFileArgPath != null && !IsBicepFile(bicepFileArgPath))
             {
-                throw new CommandLineException($"{bicepInputPath} is not a bicep file");
+                throw new CommandLineException($"{bicepFileArgPath} is not a bicep file");
             }
 
-            if(features.ParamsFilesEnabled && IsBicepparamsFile(paramsInputPath)) 
+            if (!IsBicepparamsFile(paramsInputPath))
             {
-                var paramsCompilation = await compilationService.CompileAsync(paramsInputPath, args.NoRestore);
+                logger.LogError(CliResources.UnrecognizedBicepparamsFileExtensionMessage, paramsInputPath);
+                return 1;
+            }
 
-                var bicepSemanticModel = GetBicepSemanticModelFromParamsCompilation(paramsCompilation);
+            var paramsCompilation = await compilationService.CompileAsync(paramsInputPath, args.NoRestore);
 
-                if(bicepSemanticModel != null && bicepInputPath != null) 
-                {   
-                    var bicepFilePath = bicepSemanticModel.Root.FileUri;
-                    
-                    if(!bicepFilePath.Equals(PathHelper.FilePathToFileUrl(bicepInputPath)))
-                    {
-                        throw new CommandLineException($"Bicep file {bicepInputPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the using declaration in the parameters file");
-                    }
+            var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
+
+            //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis
+            if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            {
+                var bicepFileUsingPathUri = bicepSemanticModel.Root.FileUri;
+
+                if (bicepFileArgPath is { } && !bicepFileUsingPathUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath)))
+                {
+                    throw new CommandLineException($"Bicep file {bicepFileArgPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the using declaration in the parameters file");
                 }
 
                 if (diagnosticLogger.ErrorCount < 1)
                 {
                     if (args.OutputToStdOut)
-                    {   
-                        if(bicepSemanticModel != null) 
-                        {
-                            var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
-                            writer.ToStdout(bicepSemanticModel, paramsSemanticModel);
-                        }
+                    {
+                        writer.ToStdout(bicepSemanticModel, paramsSemanticModel);
                     }
                     else
                     {
                         static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
-                        var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(paramsInputPath, null, args.OutputParamsFile, DefaultOutputPath);
-                        var bicepOutputPath = bicepInputPath != null ? 
-                                              PathHelper.ResolveDefaultOutputPath(bicepInputPath, null, args.OutputParamsFile, DefaultOutputPath)
-                                              : null;
+                        var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(paramsInputPath, null, args.OutputFile, DefaultOutputPath);
 
                         writer.ToFile(paramsCompilation, paramsOutputPath);
-
-                        if(bicepSemanticModel != null && bicepOutputPath != null)
-                        {
-                            writer.ToFile(bicepSemanticModel, bicepOutputPath);
-                        }
                     }
                 }
-
-                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
 
-
-            if(!features.ParamsFilesEnabled) 
-            {
-                logger.LogError(CliResources.UnableToCompileParamsFile, paramsInputPath, nameof(ExperimentalFeaturesEnabled.ParamsFiles));
-            }
-
-            if (!IsBicepparamsFile(paramsInputPath))
-            {
-                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, paramsInputPath);
-            }
-
-            return 1;
-        }
-
-        private SemanticModel? GetBicepSemanticModelFromParamsCompilation(Compilation paramsCompilation) 
-        {
-            var paramSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
-            
-            if(paramSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
-            {
-                return bicepSemanticModel;
-            }
-           
-           throw new InvalidOperationException($"Unable to read corresponding bicep file for the params file");
+            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));

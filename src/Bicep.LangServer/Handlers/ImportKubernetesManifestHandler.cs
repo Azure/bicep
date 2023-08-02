@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -53,30 +54,31 @@ namespace Bicep.LanguageServer.Handlers
 
         public static string Decompile(string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
         {
-            var declarations = new List<SyntaxBase>();
+            var declarations = new List<SyntaxBase>
+            {
+                new ParameterDeclarationSyntax(
+                    new SyntaxBase[] {
+                        SyntaxFactory.CreateDecorator("secure"),
+                        SyntaxFactory.NewlineToken,
+                    },
+                    SyntaxFactory.CreateIdentifierToken("param"),
+                    SyntaxFactory.CreateIdentifier("kubeConfig"),
+                    new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
+                    null),
 
-            declarations.Add(new ParameterDeclarationSyntax(
-                new SyntaxBase[] {
-                    SyntaxFactory.CreateDecorator("secure"),
-                    SyntaxFactory.NewlineToken,
-                },
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "param"),
-                SyntaxFactory.CreateIdentifier("kubeConfig"),
-                new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "string"))),
-                null));
-
-            declarations.Add(new ImportDeclarationSyntax(
-                Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateToken(TokenType.Identifier, "import"),
-                SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
-                new ImportWithClauseSyntax(
-                    SyntaxFactory.CreateToken(TokenType.WithKeyword, LanguageConstants.WithKeyword), 
-                    SyntaxFactory.CreateObject(new []
-                    {
-                        SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
-                        SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
-                    })),
-                asClause: SyntaxFactory.EmptySkippedTrivia));
+                new ImportDeclarationSyntax(
+                    Enumerable.Empty<SyntaxBase>(),
+                    SyntaxFactory.CreateIdentifierToken("import"),
+                    SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
+                    new ImportWithClauseSyntax(
+                        SyntaxFactory.CreateToken(TokenType.WithKeyword),
+                        SyntaxFactory.CreateObject(new[]
+                        {
+                            SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
+                            SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
+                        })),
+                    asClause: SyntaxFactory.EmptySkippedTrivia)
+            };
 
             try
             {
@@ -102,10 +104,9 @@ namespace Bicep.LanguageServer.Handlers
 
             var program = new ProgramSyntax(
                 declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
-                SyntaxFactory.CreateToken(TokenType.EndOfFile, ""),
-                Enumerable.Empty<IDiagnostic>());
+                SyntaxFactory.CreateToken(TokenType.EndOfFile));
 
-            return PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
+            return PrettyPrinter.PrintValidProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
         }
 
         private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
@@ -145,11 +146,12 @@ namespace Bicep.LanguageServer.Handlers
 
             return new ResourceDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "resource"),
+                SyntaxFactory.CreateIdentifierToken("resource"),
                 SyntaxFactory.CreateIdentifier(symbolName),
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
                 null,
                 SyntaxFactory.AssignmentToken,
+                ImmutableArray<Token>.Empty,
                 resourceBody);
         }
 

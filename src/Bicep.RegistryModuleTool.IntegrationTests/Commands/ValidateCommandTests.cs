@@ -21,6 +21,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     [TestClass]
     public class ValidateCommandTests
     {
+        // NOTE: The templateHash here has to match the templateHash in SampleFiles/Valid/main.json
         private static readonly MockFileData MockValidMainTestArmTemplateData = @"{
   ""resources"": [
     {
@@ -42,6 +43,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
   ""resources"": []
 }";
 
+        // TODO: This test doesn't catch if main.json does not match the compiled main.bicep
         [TestMethod]
         public void Invoke_ValidFiles_ReturnsZero()
         {
@@ -89,10 +91,9 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath($"test/{MainBicepTestFile.FileName}")}"" is invalid. Could not find tests in the file. Please make sure to add at least one module referencing the main Bicep file.
 ".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is invalid:
-  #/summary: Value is not longer than or equal to 10 characters
+                $@"The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. ""metadata description"" must contain at least 10 characters.
 ".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
+                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please run ""brm generate"" to regenerate it.
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is invalid:
   #: Required properties [""$schema"",""version"",""pathFilters""] were not present
@@ -127,6 +128,23 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
 
             var console = new MockConsole().ExpectErrorLines(error);
+
+            Invoke(fileSystem, processProxy, console);
+
+            console.Verify();
+        }
+
+        [TestMethod]
+        public void Invoke_MetadataFileExists_WritesErrorToConsole()
+        {
+            var fileSystem = MockFileSystemFactory.CreateFileSystemWithModuleWithObsoleteMetadataFile();
+            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
+            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
+                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
+
+            var console = new MockConsole().ExpectErrorLines(
+                $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is obsolete.  Please run ""brm generate"" to have its contents moved to ""main.bicep""." + "\n");
 
             Invoke(fileSystem, processProxy, console);
 

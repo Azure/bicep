@@ -6,6 +6,12 @@ import Transport from "winston-transport";
 import * as path from "path";
 import { MESSAGE } from "triple-beam";
 
+/**
+ * This logfile is written during to E2E tests. It serves as a way to watch for events from the code
+ * while running inside the tests, since simple in-memory sharing won't work.
+ */
+export const e2eLogName = "bicep-e2e.log";
+
 export interface Logger extends vscode.Disposable {
   debug(message: string): void;
   info(message: string): void;
@@ -31,8 +37,8 @@ export class WinstonLogger implements Logger {
         winston.format.printf((entry) =>
           entry.stack
             ? `${entry.timestamp} ${entry.level}: ${entry.message} - ${entry.stack}`
-            : `${entry.timestamp} ${entry.level}: ${entry.message}`
-        )
+            : `${entry.timestamp} ${entry.level}: ${entry.message}`,
+        ),
       ),
       transports: [
         new outputChannelTransport(outputChannel),
@@ -40,7 +46,7 @@ export class WinstonLogger implements Logger {
           ? [
               new winston.transports.File({
                 dirname: path.resolve(__dirname, ".."),
-                filename: "bicep.log",
+                filename: e2eLogName,
                 options: { flags: "w" },
               }),
             ]
@@ -87,7 +93,7 @@ class outputChannelTransport extends Transport {
 
 export function createLogger(
   context: vscode.ExtensionContext,
-  outputChannel: vscode.OutputChannel
+  outputChannel: vscode.OutputChannel,
 ): Logger {
   // TODO:
   // - make log level configurable
@@ -105,7 +111,7 @@ export function createLogger(
 export function getLogger(): Logger {
   if (!logger) {
     throw new Error(
-      "Logger is undefined. Make sure to call createLogger() first."
+      "Logger is undefined. Make sure to call createLogger() first.",
     );
   }
 

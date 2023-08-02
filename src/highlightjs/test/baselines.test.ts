@@ -51,7 +51,7 @@ ${result.value}
 const baselinesDir = `${__dirname}/baselines`;
 
 const baselineFiles = readdirSync(baselinesDir)
-  .filter(p => extname(p) === '.bicep')
+  .filter(p => extname(p) === '.bicep' || extname(p) === '.bicepparam')
   .map(p => path.join(baselinesDir, p));
 
 for (const filePath of baselineFiles) {
@@ -76,8 +76,9 @@ for (const filePath of baselineFiles) {
           fail(`Unable to find '${cliCsproj}'`);
           return;
         }
-
-        const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], {
+        
+        const subCommand = extname(filePath) === '.bicepparam' ? 'build-params' : 'build';
+        const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, subCommand, '--stdout', filePath], {
           encoding: 'utf-8',
           env,
         });

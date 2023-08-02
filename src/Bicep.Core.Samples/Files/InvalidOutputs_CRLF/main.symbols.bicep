@@ -50,19 +50,19 @@ output 2
 
 // malformed type
 output malformedType 3
-//@[07:20) Output malformedType. Type: any. Declaration start char: 0, length: 22
+//@[07:20) Output malformedType. Type: error. Declaration start char: 0, length: 22
 
 // malformed type but type check should still happen
 output malformedType2 3 = 2 + null
-//@[07:21) Output malformedType2. Type: any. Declaration start char: 0, length: 34
+//@[07:21) Output malformedType2. Type: error. Declaration start char: 0, length: 34
 
 // malformed type assignment
 output malformedAssignment 2 = 2
-//@[07:26) Output malformedAssignment. Type: any. Declaration start char: 0, length: 32
+//@[07:26) Output malformedAssignment. Type: error. Declaration start char: 0, length: 32
 
 // malformed type before assignment
 output lol 2 = true
-//@[07:10) Output lol. Type: any. Declaration start char: 0, length: 19
+//@[07:10) Output lol. Type: error. Declaration start char: 0, length: 19
 
 // wrong type + missing value
 output foo fluffy

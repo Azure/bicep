@@ -67,6 +67,7 @@ namespace Bicep.Cli.IntegrationTests
                     "--outdir",
                     "--outfile",
                     "--stdout",
+                    "--diagnostics-format",
                     "--version",
                     "--help",
                     "information",

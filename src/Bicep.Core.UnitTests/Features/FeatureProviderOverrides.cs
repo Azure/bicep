@@ -14,19 +14,42 @@ public record FeatureProviderOverrides(
     bool? AdvancedListComprehensionEnabled = default,
     bool? ResourceTypedParamsAndOutputsEnabled = default,
     bool? SourceMappingEnabled = default,
-    bool? ParamsFilesEnabled = default,
     bool? UserDefinedTypesEnabled = default,
-    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
+    bool? UserDefinedFunctionsEnabled = default,
+    bool? PrettyPrintingEnabled = default,
+    bool? TestFrameworkEnabled = default,
+    bool? AssertsEnabled = default,
+    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
+    bool? DynamicTypeLoading = default)
 {
-    public FeatureProviderOverrides(TestContext testContext,
+    public FeatureProviderOverrides(
+        TestContext testContext,
         bool? RegistryEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
         bool? ExtensibilityEnabled = default,
         bool? AdvancedListComprehensionEnabled = default,
         bool? ResourceTypedParamsAndOutputsEnabled = default,
         bool? SourceMappingEnabled = default,
-        bool? ParamsFilesEnabled = default,
         bool? UserDefinedTypesEnabled = default,
-        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
-    ) : this(FileHelper.GetCacheRootPath(testContext), RegistryEnabled, SymbolicNameCodegenEnabled, ExtensibilityEnabled, AdvancedListComprehensionEnabled, ResourceTypedParamsAndOutputsEnabled, SourceMappingEnabled, ParamsFilesEnabled, UserDefinedTypesEnabled, AssemblyVersion) {}
+        bool? UserDefinedFunctionsEnabled = default,
+        bool? PrettyPrintingEnabled = default,
+        bool? TestFrameworkEnabled = default,
+        bool? AssertsEnabled = default,
+        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
+        bool? DynamicTypeLoading = default
+    ) : this(
+        FileHelper.GetCacheRootPath(testContext),
+        RegistryEnabled,
+        SymbolicNameCodegenEnabled,
+        ExtensibilityEnabled,
+        AdvancedListComprehensionEnabled,
+        ResourceTypedParamsAndOutputsEnabled,
+        SourceMappingEnabled,
+        UserDefinedTypesEnabled,
+        UserDefinedFunctionsEnabled,
+        PrettyPrintingEnabled,
+        TestFrameworkEnabled,
+        AssertsEnabled,
+        AssemblyVersion,
+        DynamicTypeLoading) { }
 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12314803302758435083"
+      "templateHash": "399206377356114672"
     }
   },
   "parameters": {
@@ -128,7 +128,7 @@
     },
     "activeDeployment": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "setActiveDeployment",
       "properties": {
         "expressionEvaluationOptions": {

@@ -1,14 +1,16 @@
 
-//@[000:7416) ProgramExpression
+//@[000:7923) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
+//@[017:0034) | ├─StringLiteralExpression { Value = an int variable }
 var myInt = 42
 //@[012:0014) | └─IntegerLiteralExpression { Value = 42 }
 
 // string
 @sys.description('a string variable')
 //@[000:0055) ├─DeclaredVariableExpression { Name = myStr }
+//@[017:0036) | ├─StringLiteralExpression { Value = a string variable }
 var myStr = 'str'
 //@[012:0017) | └─StringLiteralExpression { Value = str }
 var curliesWithNoInterp = '}{1}{'
@@ -84,6 +86,7 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 // booleans
 @sys.description('a bool variable')
 //@[000:0054) ├─DeclaredVariableExpression { Name = myTruth }
+//@[017:0034) | ├─StringLiteralExpression { Value = a bool variable }
 var myTruth = true
 //@[014:0018) | └─BooleanLiteralExpression { Value = True }
 var myFalsehood = false
@@ -100,6 +103,7 @@ var myEmptyArray = [ ]
 // object
 @sys.description('a object variable')
 //@[000:0242) ├─DeclaredVariableExpression { Name = myObj }
+//@[017:0036) | ├─StringLiteralExpression { Value = a object variable }
 var myObj = {
 //@[012:0204) | └─ObjectExpression
   a: 'a'
@@ -167,6 +171,7 @@ var myObj = {
 
 @sys.description('a object with interp')
 //@[000:0157) ├─DeclaredVariableExpression { Name = objWithInterp }
+//@[017:0039) | ├─StringLiteralExpression { Value = a object with interp }
 var objWithInterp = {
 //@[020:0116) | └─ObjectExpression
   '${myStr}': 1
@@ -538,6 +543,7 @@ var variables = true
 //@[016:0020) | └─BooleanLiteralExpression { Value = True }
 param parameters bool = true
 //@[000:0028) ├─DeclaredParameterExpression { Name = parameters }
+//@[017:0021) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[024:0028) | └─BooleanLiteralExpression { Value = True }
 var if = true
 //@[000:0013) ├─DeclaredVariableExpression { Name = if }
@@ -562,6 +568,7 @@ var div = true
 //@[010:0014) | └─BooleanLiteralExpression { Value = True }
 param mod bool = true
 //@[000:0021) ├─DeclaredParameterExpression { Name = mod }
+//@[010:0014) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[017:0021) | └─BooleanLiteralExpression { Value = True }
 var less = true
 //@[000:0015) ├─DeclaredVariableExpression { Name = less }
@@ -577,6 +584,7 @@ var greaterOrEquals = true
 //@[022:0026) | └─BooleanLiteralExpression { Value = True }
 param equals bool = true
 //@[000:0024) ├─DeclaredParameterExpression { Name = equals }
+//@[013:0017) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[020:0024) | └─BooleanLiteralExpression { Value = True }
 var not = true
 //@[000:0014) ├─DeclaredVariableExpression { Name = not }
@@ -771,6 +779,89 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[036:0047) |     └─FunctionCallExpression { Name = range }
 //@[042:0043) |       ├─IntegerLiteralExpression { Value = 0 }
 //@[044:0046) |       └─IntegerLiteralExpression { Value = 10 }
+var printToSingleLine1 = [
+//@[000:0057) ├─DeclaredVariableExpression { Name = printToSingleLine1 }
+//@[025:0057) | └─ForLoopExpression
+    for i in range(0,20) : i
+//@[013:0024) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |   | └─IntegerLiteralExpression { Value = 20 }
+//@[027:0028) |   └─ArrayAccessExpression
+//@[027:0028) |     ├─CopyIndexExpression
+//@[013:0024) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |       └─IntegerLiteralExpression { Value = 20 }
+]
+var printToSingleLine2 = [
+//@[000:0080) ├─DeclaredVariableExpression { Name = printToSingleLine2 }
+//@[025:0080) | └─ForLoopExpression
+    /* harmless comment */ for i in range(0,20) : i
+//@[036:0047) |   ├─FunctionCallExpression { Name = range }
+//@[042:0043) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[044:0046) |   | └─IntegerLiteralExpression { Value = 20 }
+//@[050:0051) |   └─ArrayAccessExpression
+//@[050:0051) |     ├─CopyIndexExpression
+//@[036:0047) |     └─FunctionCallExpression { Name = range }
+//@[042:0043) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[044:0046) |       └─IntegerLiteralExpression { Value = 20 }
+]
+var printToSingleLine3 = [
+//@[000:0080) ├─DeclaredVariableExpression { Name = printToSingleLine3 }
+//@[025:0080) | └─ForLoopExpression
+    for i in range(0,20) : i /* harmless comment */
+//@[013:0024) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |   | └─IntegerLiteralExpression { Value = 20 }
+//@[027:0028) |   └─ArrayAccessExpression
+//@[027:0028) |     ├─CopyIndexExpression
+//@[013:0024) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[021:0023) |       └─IntegerLiteralExpression { Value = 20 }
+]
+var forceLineBreaks1 = [
+//@[000:0084) ├─DeclaredVariableExpression { Name = forceLineBreaks1 }
+//@[023:0084) | └─ForLoopExpression
+    // force line breaks
+    for i in range(0,    30) : i
+//@[013:0028) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |   | └─IntegerLiteralExpression { Value = 30 }
+//@[031:0032) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─CopyIndexExpression
+//@[013:0028) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |       └─IntegerLiteralExpression { Value = 30 }
+]
+var forceLineBreaks2 = [
+//@[000:0084) ├─DeclaredVariableExpression { Name = forceLineBreaks2 }
+//@[023:0084) | └─ForLoopExpression
+    for i in range(0,    30) : i
+//@[013:0028) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |   | └─IntegerLiteralExpression { Value = 30 }
+//@[031:0032) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─CopyIndexExpression
+//@[013:0028) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |       └─IntegerLiteralExpression { Value = 30 }
+    // force line breaks
+]
+var forceLineBreaks3 = [
+//@[000:0115) ├─DeclaredVariableExpression { Name = forceLineBreaks3 }
+//@[023:0115) | └─ForLoopExpression
+    /* force line breaks */
+    for i in range(0,    30) : i
+//@[013:0028) |   ├─FunctionCallExpression { Name = range }
+//@[019:0020) |   | ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |   | └─IntegerLiteralExpression { Value = 30 }
+//@[031:0032) |   └─ArrayAccessExpression
+//@[031:0032) |     ├─CopyIndexExpression
+//@[013:0028) |     └─FunctionCallExpression { Name = range }
+//@[019:0020) |       ├─IntegerLiteralExpression { Value = 0 }
+//@[025:0027) |       └─IntegerLiteralExpression { Value = 30 }
+    /* force line breaks */
+]
+
 var loopInput = [
 //@[000:0035) ├─DeclaredVariableExpression { Name = loopInput }
 //@[016:0035) | └─ArrayExpression

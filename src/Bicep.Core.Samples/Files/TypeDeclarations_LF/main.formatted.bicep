@@ -55,6 +55,8 @@ param unionParam { property: 'ping' } | { property: 'pong' } = { property: 'pong
 
 param paramUsingType mixedArray
 
+output outputUsingType mixedArray = paramUsingType
+
 type tuple = [
   @description('A leading string')
   string
@@ -67,9 +69,19 @@ type stringStringDictionary = {
   *: string
 }
 
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
+
 param mightIncludeNull ({ key: 'value' } | null)[]
 
-var maybeNull = mightIncludeNull[0]!.key
+var nonNull = mightIncludeNull[0]!.key
+
+output nonNull string = nonNull
+
+var maybeNull = mightIncludeNull[0].?key
+
+output maybeNull string? = maybeNull
 
 type nullable = string?
 

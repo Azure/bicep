@@ -67,6 +67,9 @@ jest.mock(
       registerCommand: jest.fn(),
     },
     CodeLen: jest.fn(),
+    l10n: {
+      t: jest.fn(),
+    },
   }),
-  { virtual: true }
+  { virtual: true },
 );

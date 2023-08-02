@@ -17,63 +17,54 @@ namespace Bicep.Core.Parsing
     {
         protected readonly TokenReader reader;
 
-        protected readonly ImmutableArray<IDiagnostic> lexerDiagnostics;
-
         protected BaseParser(string text)
         {
             // treating the lexer as an implementation detail of the parser
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            var lexingErrorTree = new DiagnosticTree();
+            var lexer = new Lexer(new SlidingTextWindow(text), lexingErrorTree);
             lexer.Lex();
 
-            this.lexerDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
-
             this.reader = new TokenReader(lexer.GetTokens());
+
+            this.ParsingErrorTree = new DiagnosticTree();
+            this.LexingErrorLookup = lexingErrorTree;
         }
+
+        protected DiagnosticTree ParsingErrorTree { get; }
+
+        public IDiagnosticLookup LexingErrorLookup { get; }
+
+        public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
-        private static int GetOperatorPrecedence(TokenType tokenType)
+        private static int GetOperatorPrecedence(TokenType tokenType) => tokenType switch
         {
             // the absolute values are not important here
-            switch (tokenType)
-            {
-                case TokenType.Modulo:
-                case TokenType.Asterisk:
-                case TokenType.Slash:
-                    return 100;
+            TokenType.Modulo or
+            TokenType.Asterisk or
+            TokenType.Slash => 100,
 
-                case TokenType.Plus:
-                case TokenType.Minus:
-                    return 90;
+            TokenType.Plus or
+            TokenType.Minus => 90,
 
-                case TokenType.GreaterThan:
-                case TokenType.GreaterThanOrEqual:
-                case TokenType.LessThan:
-                case TokenType.LessThanOrEqual:
-                    return 80;
+            TokenType.GreaterThan or
+            TokenType.GreaterThanOrEqual or
+            TokenType.LessThan or
+            TokenType.LessThanOrEqual => 80,
 
-                case TokenType.Equals:
-                case TokenType.NotEquals:
-                case TokenType.EqualsInsensitive:
-                case TokenType.NotEqualsInsensitive:
-                    return 70;
+            TokenType.Equals or
+            TokenType.NotEquals or
+            TokenType.EqualsInsensitive or
+            TokenType.NotEqualsInsensitive => 70,
 
-                // if we add bitwise operators in the future, they should go here
+            // if we add bitwise operators in the future, they should go here
+            TokenType.LogicalAnd => 50,
+            TokenType.LogicalOr => 40,
+            TokenType.DoubleQuestion => 30,
 
-                case TokenType.LogicalAnd:
-                    return 50;
-
-                case TokenType.LogicalOr:
-                    return 40;
-
-                case TokenType.DoubleQuestion:
-                    return 30;
-
-                default:
-                    return -1;
-            }
-        }
+            _ => -1,
+        };
 
         protected static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
         {
@@ -135,6 +126,11 @@ namespace Bicep.Core.Parsing
         {
             var candidate = this.BinaryExpression(expressionFlags);
 
+            var newlinesBeforeQuestion =
+                this.reader.Peek(skipNewlines: true).IsOf(TokenType.Question)
+                    ? this.NewLines().ToImmutableArray()
+                    : ImmutableArray<Token>.Empty;
+
             if (this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
@@ -147,6 +143,12 @@ namespace Bicep.Core.Parsing
                     TokenType.RightParen,
                     TokenType.RightSquare,
                     TokenType.NewLine);
+
+                var newlinesBeforeColon =
+                    !trueExpression.IsSkipped && this.reader.Peek(skipNewlines: true).IsOf(TokenType.Colon)
+                        ? this.NewLines().ToImmutableArray()
+                        : ImmutableArray<Token>.Empty;
+
                 var colon = this.WithRecovery(
                     () => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")),
                     GetSuppressionFlag(trueExpression),
@@ -164,7 +166,7 @@ namespace Bicep.Core.Parsing
                     TokenType.RightSquare,
                     TokenType.NewLine);
 
-                return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
+                return new TernaryOperationSyntax(candidate, newlinesBeforeQuestion, question, trueExpression, newlinesBeforeColon, colon, falseExpression);
             }
 
             return candidate;
@@ -299,6 +301,7 @@ namespace Bicep.Core.Parsing
         protected ForSyntax ForExpression(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+            var openNewlines = this.NewLines().ToImmutableArray();
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
             SyntaxBase variableSection = this.reader.Peek().Type switch
             {
@@ -307,16 +310,19 @@ namespace Bicep.Core.Parsing
                 _ => this.SkipEmpty(b => b.ExpectedLoopItemIdentifierOrVariableBlockStart())
             };
 
-            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), variableSection.HasParseErrors() ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None, TokenType.RightSquare, TokenType.NewLine);
+            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), this.HasSyntaxError(variableSection) ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None, TokenType.RightSquare, TokenType.NewLine);
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
             var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
             var body = this.WithRecovery(
                 () => this.ForBody(expressionFlags, isResourceOrModuleContext),
                 GetSuppressionFlag(colon),
                 TokenType.RightSquare, TokenType.NewLine);
+            var closeNewlines = body.IsSkipped
+                ? ImmutableArray<Token>.Empty
+                : this.NewLines().ToImmutableArray();
             var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
 
-            return new(openBracket, forKeyword, variableSection, inKeyword, expression, colon, body, closeBracket);
+            return new(openBracket, openNewlines, forKeyword, variableSection, inKeyword, expression, colon, body, closeNewlines, closeBracket);
         }
 
         private SyntaxBase ForVariableBlock()
@@ -325,7 +331,7 @@ namespace Bicep.Core.Parsing
 
             var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-            if (variableBlock.Arguments.Length != 2 && !variableBlock.HasParseErrors())
+            if (variableBlock.Arguments.Length != 2 && !this.HasSyntaxError(variableBlock))
             {
                 return Skip(variableBlock.AsEnumerable(), x => x.ExpectedLoopVariableBlockWith2Elements(variableBlock.Arguments.Length));
             }
@@ -380,9 +386,13 @@ namespace Bicep.Core.Parsing
             if (Check(TokenType.Arrow))
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
+                var next = this.reader.Peek(skipNewlines: true);
+                var newlinesBeforeBody = !LanguageConstants.DeclarationKeywords.Contains(next.Text)
+                    ? this.NewLines().ToImmutableArray()
+                    : ImmutableArray<Token>.Empty;
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
 
-                return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, expression);
+                return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, newlinesBeforeBody, expression);
             }
 
             return new VariableAccessSyntax(identifier);
@@ -410,7 +420,8 @@ namespace Bicep.Core.Parsing
 
         private ParenthesizedExpressionSyntax GetParenthesizedExpressionSyntax(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
         {
-            var bodyExpression = expressionsOrCommas.Length switch {
+            var bodyExpression = expressionsOrCommas.Length switch
+            {
                 0 => SkipEmpty(openParen.Span.GetEndPosition(), x => x.ParenthesesMustHaveExactlyOneItem()),
                 1 when expressionsOrCommas[0] is Token token => Skip(token.AsEnumerable()),
                 1 => expressionsOrCommas[0],
@@ -422,11 +433,12 @@ namespace Bicep.Core.Parsing
 
         private VariableBlockSyntax GetVariableBlock(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
         {
-            var rewritten = expressionsOrCommas.Select(item => item switch {
+            var rewritten = expressionsOrCommas.Select(item => item switch
+            {
                 VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
                 Token { Type: TokenType.Comma } => item,
                 SkippedTriviaSyntax => item,
-                _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable(), Enumerable.Empty<IDiagnostic>()),
+                _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable()),
             });
 
             return new VariableBlockSyntax(openParen, rewritten, closeParen);
@@ -643,7 +655,7 @@ namespace Bicep.Core.Parsing
                         // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
                         // Rather than trying to add two expression nodes, combine them.
                         var combined = new[] { interpExpression, skippedSyntax };
-                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<IDiagnostic>());
+                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined);
                     }
 
                     tokensOrSyntax.Add(interpExpression);
@@ -702,7 +714,7 @@ namespace Bicep.Core.Parsing
                 {
                     // This error-handling is just for cases where we were completely unable to interpret the string.
                     var span = TextSpan.BetweenInclusiveAndExclusive(startToken, reader.Peek());
-                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<IDiagnostic>());
+                    return new SkippedTriviaSyntax(span, tokensOrSyntax);
                 }
 
                 return null;
@@ -913,7 +925,7 @@ namespace Bicep.Core.Parsing
 
             if (stringValue is null)
             {
-                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<IDiagnostic>());
+                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable());
             }
 
             return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
@@ -935,7 +947,7 @@ namespace Bicep.Core.Parsing
             return NewLine();
         }
 
-        private IEnumerable<Token> NewLines()
+        protected IEnumerable<Token> NewLines()
         {
             while (Check(TokenType.NewLine))
             {
@@ -1070,13 +1082,41 @@ namespace Bicep.Core.Parsing
             if (Check(TokenType.Arrow))
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
+                var next = this.reader.Peek(skipNewlines: true);
+                var newlinesBeforeBody = !LanguageConstants.DeclarationKeywords.Contains(next.Text)
+                    ? this.NewLines().ToImmutableArray()
+                    : ImmutableArray<Token>.Empty;
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
                 var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-                return new LambdaSyntax(variableBlock, arrow, expression);
+                return new LambdaSyntax(variableBlock, arrow, newlinesBeforeBody.ToImmutableArray(), expression);
             }
 
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
+        }
+
+        private SyntaxBase TypedLocalVariable(params TokenType[] terminatingTypes)
+        {
+            var name = IdentifierOrSkip(b => b.ExpectedVariableIdentifier());
+            var type = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, terminatingTypes);
+
+            return new TypedLocalVariableSyntax(name, type);
+        }
+
+        protected SyntaxBase TypedLambda()
+        {
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen));
+
+            var returnType = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var next = this.reader.Peek(skipNewlines: true);
+            var newlinesBeforeBody = !arrow.IsSkipped && !LanguageConstants.DeclarationKeywords.Contains(next.Text)
+                ? this.NewLines().ToImmutableArray()
+                : ImmutableArray<Token>.Empty;
+            var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+            var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
+
+            return new TypedLambdaSyntax(variableBlock, returnType, arrow, newlinesBeforeBody, expression);
         }
 
         private SyntaxBase PrimaryExpression(ExpressionFlags expressionFlags)
@@ -1102,7 +1142,7 @@ namespace Bicep.Core.Parsing
                     return this.Object(expressionFlags);
 
                 case TokenType.LeftSquare when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
-                    return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword)
+                    return CheckKeyword(this.reader.PeekAhead(skipNewlines: true), LanguageConstants.ForKeyword)
                         ? this.ForExpression(expressionFlags, isResourceOrModuleContext: false)
                         : this.Array();
 
@@ -1164,11 +1204,12 @@ namespace Bicep.Core.Parsing
             return new SkippedTriviaSyntax(span, syntaxArray, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
         }
 
-        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax)
+        private static SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax)
         {
             var syntaxArray = syntax.ToImmutableArray();
             var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());
-            return new SkippedTriviaSyntax(span, syntaxArray, Enumerable.Empty<Diagnostic>());
+
+            return new SkippedTriviaSyntax(span, syntaxArray);
         }
 
         protected SkippedTriviaSyntax SkipEmpty()
@@ -1180,8 +1221,8 @@ namespace Bicep.Core.Parsing
         private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)
         {
             var span = new TextSpan(position, 0);
-            var diagnostics = errorFunc is null ? Enumerable.Empty<IDiagnostic>() : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
-            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, diagnostics);
+            var errors = errorFunc is null ? Enumerable.Empty<ErrorDiagnostic>() : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
+            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errors);
         }
 
         private void Synchronize(bool consumeTerminator, params TokenType[] expectedTypes)
@@ -1236,41 +1277,9 @@ namespace Bicep.Core.Parsing
             return syntax;
         }
 
-        protected SyntaxBase OutputType()
-        {
-            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
-            {
-                var type = this.WithRecoveryNullable(
-                    () =>
-                    {
-                        // The resource type is optional for an output
-                        if (!this.Check(this.reader.Peek(), TokenType.StringComplete, TokenType.StringLeftPiece))
-                        {
-                            return null;
-                        }
-                        else
-                        {
-                            return ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString());
-                        }
-                    },
-                    RecoveryFlags.None,
-                    TokenType.Assignment, TokenType.NewLine);
-                return new ResourceTypeSyntax(resourceKeyword, type);
-            }
-
-            SyntaxBase current = new VariableAccessSyntax(new(Expect(TokenType.Identifier, b => b.ExpectedOutputType())));
-
-            while (this.Check(TokenType.Dot))
-            {
-                current = new PropertyAccessSyntax(current, this.reader.Read(), null, this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName()));
-            }
-
-            return current;
-        }
-
         protected SyntaxBase Type(bool allowOptionalResourceType)
         {
-            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
+            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is { } resourceKeyword)
             {
                 var type = this.WithRecoveryNullable(
                     () =>
@@ -1310,7 +1319,8 @@ namespace Bicep.Core.Parsing
                     if (Check(TokenType.NewLine))
                     {
                         elementAndSeparators.Add(SkipEmpty(b => b.ExpectedTypeLiteral()));
-                    } else
+                    }
+                    else
                     {
                         elementAndSeparators.Add(WithRecovery(() => new UnionTypeMemberSyntax(UnaryTypeExpression()), RecoveryFlags.None));
                     }
@@ -1553,6 +1563,21 @@ namespace Bicep.Core.Parsing
             {
                 return SynchronizeAndReturnTrivia(startReaderPosition, flags, _ => exception.Error, terminatingTypes);
             }
+        }
+
+        private bool HasSyntaxError(SyntaxBase syntax)
+        {
+            if (this.LexingErrorLookup.Contains(syntax))
+            {
+                return true;
+            }
+
+            var diagnosticWriter = new SimpleDiagnosticWriter();
+            var parsingErrorVisitor = new ParseDiagnosticsVisitor(diagnosticWriter);
+
+            parsingErrorVisitor.Visit(syntax);
+
+            return diagnosticWriter.HasDiagnostics();
         }
     }
 }

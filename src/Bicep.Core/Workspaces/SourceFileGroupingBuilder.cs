@@ -28,14 +28,14 @@ namespace Bicep.Core.Workspaces
 
         private readonly bool forceModulesRestore;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.uriResultByModule = new();
             this.fileResultByUri = new();
-            this.forceModulesRestore = forceforceModulesRestore;
+            this.forceModulesRestore = forceModulesRestore;
         }
 
         private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
@@ -66,7 +66,7 @@ namespace Bicep.Core.Workspaces
                 builder.uriResultByModule[sourceFile].Remove(module);
             }
 
-            // Rebuild source files that contains external module references restored during the inital build.
+            // Rebuild source files that contain external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
                 .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()
@@ -155,6 +155,26 @@ namespace Bicep.Core.Workspaces
 
                         fileResultByUri[uriResult.FileUri] = childResult;
                     }
+                    foreach (var childModule in bicepFile.ProgramSyntax.Declarations.OfType<TestDeclarationSyntax>())
+                    {
+                        
+                        var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, childModule);
+
+                        uriResultByModule.GetOrAdd(bicepFile, f => new())[childModule] = uriResult;
+                        if (uriResult.FileUri is null)
+                        {
+                            continue;
+                        }
+
+                        if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
+                            (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
+                        {
+                            // only recurse if we've not seen this file before - to avoid infinite loops
+                            childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild);
+                        }
+
+                        fileResultByUri[uriResult.FileUri] = childResult;
+                    }
                     break;
                 }
                 case BicepParamFile paramsFile:
@@ -225,6 +245,44 @@ namespace Bicep.Core.Workspaces
 
             return (moduleReference, new(module, moduleFileUri, false, null));
         }
+
+        
+        private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, TestDeclarationSyntax module)
+        {
+            if (!moduleDispatcher.TryGetModuleReference(module, parentFileUri, out var moduleReference, out var referenceResolutionError))
+            {
+                // module reference is not valid
+                return (null, new(module, null, false, referenceResolutionError));
+            }
+
+            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            {
+                return (moduleReference, new(module, null, false, moduleGetPathFailureBuilder));
+            }
+
+            if (forceModulesRestore)
+            {
+                //override the status to force restore
+                return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
+            }
+
+            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+            switch (restoreStatus)
+            {
+                case ModuleRestoreStatus.Unknown:
+                    // we have not yet attempted to restore the module, so let's do it
+                    return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
+                case ModuleRestoreStatus.Failed:
+                    // the module has not yet been restored or restore failed
+                    // in either case, set the error
+                    return (moduleReference, new(module, null, false, restoreErrorBuilder));
+                default:
+                    break;
+            }
+
+            return (moduleReference, new(module, moduleFileUri, false, null));
+        }
+        
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
         {

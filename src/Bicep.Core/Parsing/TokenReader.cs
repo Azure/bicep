@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Syntax;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,14 +27,33 @@ namespace Bicep.Core.Parsing
             return this.Tokens[Position - 1];
         }
 
-        public Token Peek()
+        public Token Peek(bool skipNewlines = false)
         {
-            return Tokens[Position];
+            var peekPosition = this.Position;
+
+            if (skipNewlines)
+            {
+                while (this.AtPosition(peekPosition).IsOf(TokenType.NewLine))
+                {
+                    peekPosition++;
+                }
+            }
+
+            return Tokens[peekPosition];
         }
 
-        public Token? PeekAhead(int charCount = 1)
+        public Token? PeekAhead(int charCount = 1, bool skipNewlines = false)
         {
             var effectivePosition = this.Position + charCount;
+
+            if (skipNewlines)
+            {
+                while (this.AtPosition(effectivePosition).IsOf(TokenType.NewLine))
+                {
+                    effectivePosition++;
+                }
+            }
+
             return effectivePosition < this.Tokens.Length ? this.AtPosition(effectivePosition) : null;
         }
 

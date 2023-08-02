@@ -5,17 +5,19 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11416995507121229636"
+      "templateHash": "1060883810516541578"
     }
   },
   "parameters": {
     "apimInstanceName": {
       "type": "string",
-      "defaultValue": "[format('PGAPIM-{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('PGAPIM-{0}', uniqueString(resourceGroup().id))]",
+      "minLength": 1
     },
     "appInsightsName": {
       "type": "string",
-      "defaultValue": "[parameters('apimInstanceName')]"
+      "defaultValue": "[parameters('apimInstanceName')]",
+      "minLength": 1
     },
     "resourceTags": {
       "type": "object",
@@ -140,7 +142,7 @@
     {
       "condition": "[variables('deployGroups')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "apimGroups",
       "properties": {
         "expressionEvaluationOptions": {
@@ -218,7 +220,7 @@
     {
       "condition": "[variables('deployUsers')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "apimUsers",
       "properties": {
         "expressionEvaluationOptions": {
@@ -293,7 +295,7 @@
     {
       "condition": "[variables('deployNameValuePairs')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "apimNameValuePairs",
       "properties": {
         "expressionEvaluationOptions": {

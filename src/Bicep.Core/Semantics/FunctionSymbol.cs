@@ -8,7 +8,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class FunctionSymbol : Symbol
+    public class FunctionSymbol : Symbol, IFunctionSymbol
     {
         public FunctionSymbol(ObjectType declaringObject, string name, IEnumerable<FunctionOverload> overloads)
             : base(name)

@@ -21,6 +21,9 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
 using SharpYaml.Tokens;
+using Bicep.LanguageServer;
+using Bicep.Core.UnitTests.Utils;
+using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -52,22 +55,63 @@ namespace Bicep.LangServer.UnitTests.Handlers
             BicepValue,
         }
 
+        record Options(
+            string pastedJson,
+            PasteType? expectedPasteType = null,
+            PasteContext expectedPasteContext = PasteContext.None,
+            string? expectedBicep = null,
+            bool ignoreGeneratedBicep = false,
+            string? expectedErrorMessage = null,
+            string? editorContentsWithCursor = null);
+
         private async Task TestDecompileForPaste(
             string json,
-            PasteType expectedPasteType,
-            string? expectedBicep,
-            string? expectedErrorMessage = null)
+            PasteType? expectedPasteType = null,
+            string? expectedBicep = null,
+            string? expectedErrorMessage = null,
+            string? editorContentsWithCursor = null)
         {
+            await TestDecompileForPaste(new Options(
+                json,
+                expectedPasteType,
+                PasteContext.None,
+                expectedBicep: expectedBicep,
+                ignoreGeneratedBicep: false,
+                expectedErrorMessage: expectedErrorMessage,
+                editorContentsWithCursor: editorContentsWithCursor));
+        }
+
+        private async Task TestDecompileForPaste(Options options)
+        {
+            var (editorContents, cursorOffset) = (options.editorContentsWithCursor is not null && options.editorContentsWithCursor.Contains('|'))
+                ? ParserHelper.GetFileWithSingleCursor(options.editorContentsWithCursor, '|')
+                : (string.Empty, 0);
+
+            var editorContentsWithPastedJson = editorContents.Substring(0, cursorOffset) + options.pastedJson + editorContents.Substring(cursorOffset);
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", editorContentsWithPastedJson);
             LanguageServerMock server = new LanguageServerMock();
             var handler = CreateHandler(server);
-            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(json, queryCanPaste: false), CancellationToken.None);
 
-            result.ErrorMessage.Should().Be(expectedErrorMessage);
 
-            expectedBicep = expectedBicep?.Trim('\n');
-            string? actualBicep = result.Bicep?.Trim('\n');
-            actualBicep.Should().EqualTrimmedLines(expectedBicep);
-            result.PasteType.Should().Be(expectedPasteType switch
+            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false), CancellationToken.None);
+
+            result.ErrorMessage.Should().Be(options.expectedErrorMessage);
+
+            if (!options.ignoreGeneratedBicep)
+            {
+                var expectedBicep = options.expectedBicep?.Trim('\n');
+                string? actualBicep = result.Bicep?.Trim('\n');
+                actualBicep.Should().EqualTrimmedLines(expectedBicep);
+            }
+
+            result.PasteContext.Should().Be(options.expectedPasteContext switch
+            {
+                PasteContext.None => "none",
+                PasteContext.String => "string",
+                _ => throw new NotImplementedException()
+            });
+
+            result.PasteType.Should().Be(options.expectedPasteType switch
             {
                 PasteType.None => BicepDecompileForPasteCommandHandler.PasteType_None,
                 PasteType.FullTemplate => BicepDecompileForPasteCommandHandler.PasteType_FullTemplate,
@@ -146,6 +190,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #endregion
 
+        [DataTestMethod]
         [DataRow(
             jsonFullTemplate,
             PasteType.FullTemplate,
@@ -252,8 +297,7 @@ random characters
             PasteType.JsonValue,
             // Treats it simply as a JSON object
             $@"{{
-                '$schema': {{
-                }}
+                '$schema': {{}}
                 parameters: {{
                     location: {{
                         type: 'string'
@@ -263,7 +307,6 @@ random characters
             }}",
             DisplayName = "Schema not a string"
         )]
-        [DataTestMethod]
         public async Task FullTemplate(string json, PasteType expectedPasteType, string expectedBicep, string? errorMessage = null)
         {
             await TestDecompileForPaste(
@@ -273,7 +316,8 @@ random characters
                     errorMessage);
         }
 
-        public async Task PasteFullTemplate_ButNoSchema_CantConvert()
+        [TestMethod]
+        public async Task PasteFullTemplate_ButNoSchema_ConvertsIntoPlainOldObject()
         {
             const string json = @"
                 {
@@ -297,11 +341,32 @@ random characters
                     }
                   ]
                 }";
+            var expectedBicep = @"{
+contentVersion: '1.0.0.0'
+parameters: {
+location: {
+type: 'string'
+defaultValue: resourceGroup().location
+}
+}
+resources: [
+{
+type: 'Microsoft.Storage/storageAccounts'
+apiVersion: '2021-02-01'
+name: 'name'
+location: location
+kind: 'StorageV2'
+sku: {
+name: 'Premium_LRS'
+}
+}
+]
+}";
             await TestDecompileForPaste(
                     json: json,
-                    expectedPasteType: PasteType.None,
+                    expectedPasteType: PasteType.JsonValue,
                     expectedErrorMessage: null,
-                    expectedBicep: null);
+                    expectedBicep: expectedBicep);
         }
 
         [TestMethod]
@@ -333,6 +398,7 @@ random characters
                     expectedBicep: null);
         }
 
+        [DataTestMethod]
         [DataRow(
             @"
                 {
@@ -374,7 +440,6 @@ random characters
             "[6:46]: The language expression 'bad-expression' is not valid: the string character 'x' at position '5' is not expected.",
             DisplayName = "Bad expression"
             )]
-        [DataTestMethod]
         public async Task Errors(string json, PasteType pasteType, string? expectedBicep, string? expectedErrorMessage)
         {
             await TestDecompileForPaste(json, pasteType, expectedBicep, expectedErrorMessage);
@@ -404,8 +469,7 @@ random characters
                     expectedBicep: @"
                         {
                             type: 'Microsoft.Storage/storageAccounts'
-                            apiVersion: {
-                            }
+                            apiVersion: {}
                             name: 'name1'
                             location: 'eastus'
                             kind: 'StorageV2'
@@ -802,14 +866,12 @@ random characters
             string expected = @"
                 module nestedDeploymentInner './nested_nestedDeploymentInner.bicep' = {
                   name: 'nestedDeploymentInner'
-                  params: {
-                  }
+                  params: {}
                 }
 
                 module nestedDeploymentOuter './nested_nestedDeploymentOuter.bicep' = {
                   name: 'nestedDeploymentOuter'
-                  params: {
-                  }
+                  params: {}
                 }
 
                 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -827,8 +889,7 @@ random characters
 
                 module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
                   name: 'nestedDeploymentInner2'
-                  params: {
-                  }
+                  params: {}
                 }";
 
             await TestDecompileForPaste(
@@ -1217,6 +1278,7 @@ random characters
 ");
         }
 
+        [DataTestMethod]
         [DataRow(
             @"""just a string with double quotes""",
             @"'just a string with double quotes'",
@@ -1336,7 +1398,6 @@ random characters
             "\"2012-03-21T05:40Z\"",
             "'2012-03-21T05:40Z'",
             DisplayName = "datetime string")]
-        [DataTestMethod]
         public async Task JsonValue_Valid_ShouldSucceed(string json, string expectedBicep)
         {
             await TestDecompileForPaste(
@@ -1346,7 +1407,6 @@ random characters
                     expectedBicep: expectedBicep);
         }
 
-        [DataTestMethod]
         [DataRow(
             @"{
               ipConfigurations: [
@@ -1422,58 +1482,122 @@ random characters
         [DataTestMethod]
         [DataRow(
             @"{ abc: 1, def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"{
                 abc: 1
                 def: 'def'
             }")]
         [DataRow(
             @"{ abc: 1, /*hi*/ def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"{
                 abc: 1
                 def: 'def'
             }")]
         [DataRow(
             "[1]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"[
                 1
             ]")]
         [DataRow(
             "[1, 1]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"[
                 1
                 1
             ]")]
-        [DataRow("[      /* */  ]", "[]")]
+        [DataRow(
+            "[      /* */  ]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
+            "[]")]
         [DataRow(
             @"[
 /* */  ]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
         "[]")]
         [DataRow(
             @"[
   1]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"[
                 1
             ]")]
         [DataRow(
             "null",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             "null",
             DisplayName = "null")]
         [DataRow(
             @"'just a string with single quotes'",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"'just a string with single quotes'",
             DisplayName = "String with single quotes"
         )]
-        public async Task JsonValue_IsAlreadyLegalBicep(string json, string expectedBicep)
+        [DataRow(
+            @"// comment that shouldn't get removed because code is already valid Bicep
+
+                /* another comment
+
+                */
+                '123' // yet another comment
+
+                /* and another
+                */
+
+                ",
+            PasteType.BicepValue, // Valid json and valid Bicep expression (will get pasted as original for copy/paste, as '123' for "paste as Bicep" command)
+            "'123'",
+            DisplayName = "Regress #10940 Paste removes comments when copying/pasting Bicep"
+        )]
+        [DataRow(
+            @"param p1 string
+              param p2 string",
+            PasteType.None, // Valid Bicep, but not as a single expression
+            null,
+            DisplayName = "multiple valid Bicep statements - shouldn't be changed"
+        )]
+        [DataRow(
+            @"param p1 string // comment 1
+              // comment 2
+              param p2 string /* comment 3 */",
+            PasteType.None, // Valid Bicep, but not as a single expression
+            null,
+            DisplayName = "multiple valid Bicep statements with comments - shouldn't be changed"
+        )]
+        [DataRow(
+            @"[
+                1
+                2
+            ]",
+            PasteType.None, // Valid Bicep but not valid JSON, therefore not converted
+            null,
+            DisplayName = "multi-line valid Bicep expression - shouldn't be changed"
+        )]
+        [DataRow(
+            @"[
+                1 // comment 1
+                // comment 2
+                2 /* comment 3
+                3
+                /*
+                4
+            ]",
+            PasteType.None, // Valid Bicep but not valid JSON, therefore not converted
+            null,
+            DisplayName = "multi-line valid Bicep expression with comments - shouldn't be changed"
+        )]
+        public async Task IsAlreadyLegalBicep(string pasted, PasteType expectedPasteType, string expectedBicep)
         {
             await TestDecompileForPaste(
-                    json,
-                    PasteType.BicepValue,
+                    pasted,
+                    expectedPasteType,
                     expectedBicep,
                     expectedErrorMessage: null);
         }
 
         [TestMethod]
-        public async Task Template_CreatesEmptyBicep()
+        public async Task Template_JsonConvertsToEmptyBicep()
         {
             await TestDecompileForPaste(
                     @"{
@@ -1489,6 +1613,250 @@ random characters
                     PasteType.None,
                     expectedErrorMessage: null,
                     expectedBicep: null);
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            @"|@description('bicep string')
+                param s string",
+            PasteContext.None,
+            DisplayName = "simple: cursor at start of bicep file"
+        )]
+        [DataRow(
+            @"@description('bicep string')
+                param s string|",
+            PasteContext.None,
+            DisplayName = "simple: cursor at end of bicep file"
+        )]
+        [DataRow(
+            @"var a = |'bicep string'",
+            PasteContext.None,
+            DisplayName = "variable value: right before string's beginning single quote"
+        )]
+        [DataRow(
+            @"var a = '|bicep string'",
+            PasteContext.String,
+            DisplayName = "variable value: right after string's beginning single quote"
+        )]
+        [DataRow(
+            @"var a = 'bicep |string'",
+            PasteContext.String,
+            DisplayName = "variable value: in middle"
+        )]
+        [DataRow(
+            @"var a = 'bicep string|'",
+            PasteContext.String,
+            DisplayName = "variable value: right before string's ending single quote"
+        )]
+        [DataRow(
+            @"var a = 'bicep string'|",
+            PasteContext.None,
+            DisplayName = "variable value: right after string's ending single quote"
+        )]
+        [DataRow(
+            @"var a = 1 // 'not a| string'",
+            PasteContext.None,
+            DisplayName = "comments: string inside a comment"
+        )]
+        [DataRow(
+            @"var a = /* 'not a| string' */ 123",
+            PasteContext.None,
+            DisplayName = "comments: string inside a /**/ comment"
+        )]
+        [DataRow(
+            @"var a = /* 
+                'not a| string' */ 123
+                ",
+            PasteContext.None,
+            DisplayName = "comments: string inside a multiline comment"
+        )]
+        // @description does not use a StringSyntax, we have to look for string tokens...
+        [DataRow(
+            @"@description(|'bicep string')
+                param s string",
+            PasteContext.None,
+            DisplayName = "@description: before beginning quote"
+        )]
+        [DataRow(
+            @"@description('|bicep string')
+                param s string",
+            PasteContext.String,
+            DisplayName = "@description: after beginning quote"
+        )]
+        [DataRow(
+            @"@description('bicep string|')
+                param s string",
+            PasteContext.String,
+            DisplayName = "@description: before end quote"
+        )]
+        [DataRow(
+            @"@description('bicep string'|)
+                param s string",
+            PasteContext.None,
+            DisplayName = "@description: after end quote"
+        )]
+        [DataRow(
+            @"output s string = '|'",
+            PasteContext.String,
+            DisplayName = "output s = '|'"
+        )]
+        [DataRow(
+            @"output s string = 'Here\|'s to you!'",
+            PasteContext.String,
+            DisplayName = "escapes: inside escaped single quotes in string"
+        )]
+        [DataRow(
+            @"output s string = 'This is |${aValue} interpolated value'",
+            PasteContext.String,
+            DisplayName = "interpolation: right before $"
+        )]
+        [DataRow(
+            @"output s string = 'This is $|{aValue} interpolated value'",
+            PasteContext.String,
+            DisplayName = "interpolation: right before value"
+        )]
+        [DataRow(
+            @"output s string = 'This is ${|aValue} interpolated'",
+            PasteContext.None,
+            DisplayName = "interpolation: just inside of expression"
+        )]
+        [DataRow(
+            @"output s string = 'This is ${aValue|} interpolated'",
+            PasteContext.None,
+            DisplayName = "interpolation: right before ending }"
+        )]
+        [DataRow(
+            @"output s string ='This is ${aValue}| interpolated'",
+            PasteContext.String,
+            DisplayName = "interpolation: right after ending }"
+        )]
+        [DataRow(
+            @"output s string ='This is ${concat(a, |'string', value)} interpolated'",
+            PasteContext.None,
+            DisplayName = "string inside interpolation: right before beginning quote"
+        )]
+        [DataRow(
+            @"output s string ='This is ${concat(a, '|string', value)} interpolated'",
+            PasteContext.String,
+            DisplayName = "string inside interpolation: inside string"
+        )]
+        [DataRow(
+            @"output s string ='This is ${concat(a, 'string'|, value)} interpolated'",
+            PasteContext.None,
+            DisplayName = "string inside interpolation: right after string"
+        )]
+        [DataRow(
+            @"output s string ='This is ${concat(a, 'before|${'a'}after', value)} interpolated'",
+            PasteContext.String,
+            DisplayName = "nested interpolation: right before $"
+        )]
+        [DataRow(
+            @"output s string ='This is ${concat(a, 'before${|'a'}after', value)} interpolated'",
+            PasteContext.None,
+            DisplayName = "nested interpolation: right before string inside interpolation"
+        )]
+        [DataRow(
+            "output s string ='This is ${concat(a, 'before${'|a'}after', value)} interpolated'",
+            PasteContext.String,
+            DisplayName = "nested interpolation: right inside string inside interpolation"
+        )]
+        [DataRow(
+            @"output s string ='This is ${concat(a, 'before${'a'|}after', value)} interpolated'",
+            PasteContext.None,
+            DisplayName = "nested interpolation: right after string inside interpolation, still inside string hole"
+        )]
+        [DataRow(
+            @"var s = |'''hello ${not a hole}
+                there '''",
+            PasteContext.None,
+            DisplayName = "multi-line string: just before starting quotes"
+        )]
+        [DataRow(
+            @"var s = '''|hello ${not a hole}
+                there '''",
+            PasteContext.String,
+            DisplayName = "multi-line string: just inside string"
+        )]
+        [DataRow(
+            @"var s = '''hello ${not a |hole}
+                there '''",
+            PasteContext.String,
+            DisplayName = "multi-line string: not a hole"
+        )]
+        [DataRow(
+            @"var s = '''hello ${not a hole}
+                there |'''",
+            PasteContext.String,
+            DisplayName = "multi-line string: just before ending quotes"
+        )]
+        [DataRow(
+            @"var s = '''hello ${not a hole}
+                there '''|",
+            PasteContext.None,
+            DisplayName = "multi-line string: just outside ending quotes"
+        )]
+        [DataRow(
+            @"resource stg '|Microsoft.Storage/storageAccounts@2021-02-01' = {
+                name: 'name'
+                location: 'location'
+                kind: 'StorageV2'
+                sku: {
+                name: 'Premium_LRS'
+                }
+            }",
+            PasteContext.String,
+            DisplayName = "resources: inside resource type"
+        )]
+        [DataRow(
+            @"resource stg 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                name: 'name'
+                location: 'location'
+                kind: '|StorageV2'
+                sku: {
+                name: 'Premium_LRS'
+                }
+            }",
+            PasteContext.String,
+            DisplayName = "resources: inside resource property value"
+        )]
+        [DataRow(
+            @"resource loadBalancerPublicIPAddress 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+              name: 'loadBalancerName'
+              location: '|location'
+              sku: {
+                name: 'Standard'
+              }
+              properties: {
+                publicIPAllocationMethod: 'static'
+              }
+            }",
+            PasteContext.String,
+            DisplayName = "resources: inside resource property value"
+        )]
+        public async Task DontPasteIntoStrings(string editorContentsWithCursor, PasteContext expectedPasteContext)
+        {
+            await TestDecompileForPaste(new Options(
+                "\"json string\"",
+                expectedPasteContext == PasteContext.String ? PasteType.None : PasteType.JsonValue,
+                expectedPasteContext,
+                ignoreGeneratedBicep: true,
+                expectedErrorMessage: null,
+                editorContentsWithCursor: editorContentsWithCursor
+            ));
+
+            await TestDecompileForPaste(new Options(
+                @"{
+                  ""type"": ""Microsoft.Resources/resourceGroups"",
+                  ""apiVersion"": ""2022-09-01"",
+                  ""name"": ""rg"",
+                  ""location"": ""[parameters('location')]""
+                }",
+                expectedPasteContext == PasteContext.String ? PasteType.None : PasteType.SingleResource,
+                expectedPasteContext,
+                ignoreGeneratedBicep: true,
+                expectedErrorMessage: null,
+                editorContentsWithCursor: editorContentsWithCursor
+            ));
         }
     }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15925634747314689617"
+      "templateHash": "8569593233825144249"
     }
   },
   "parameters": {
@@ -108,7 +108,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "LAWorkspace",
       "resourceGroup": "[parameters('logAnalyticsResourceGroup')]",
       "properties": {
@@ -143,7 +143,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2428758099845201020"
+              "templateHash": "3547092196470580673"
             }
           },
           "parameters": {
@@ -182,7 +182,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "myBicepLADiag",
               "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
               "properties": {

@@ -22,18 +22,16 @@ namespace Bicep.Core.Semantics
             // TODO use lazy or some other pattern for init
             this.bicepFile = sourceFile;
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
-            var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext);
-            var uniqueDeclarations = GetUniqueDeclarations(declarations);
-            this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, this.TargetScope, uniqueDeclarations);
-            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
+            var fileScope = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext);
+            this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, sourceFile, this.TargetScope, fileScope);
+            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
             this.FileSymbol = new FileSymbol(
                 symbolContext,
                 sourceFile,
                 NamespaceResolver,
-                outermostScopes,
-                declarations);
+                fileScope);
         }
 
         public ResourceScope TargetScope { get; }
@@ -60,22 +58,9 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 
-        private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueDeclarations(IEnumerable<DeclaredSymbol> outermostDeclarations)
+        private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
         {
-            // in cases of duplicate declarations we will see multiple declaration symbols in the result list
-            // for simplicitly we will bind to the first one
-            // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
-            return outermostDeclarations
-                .OrderBy(x => x is not OutputSymbol && x is not MetadataSymbol ? 0 : 1)
-                .ToLookup(x => x.Name, LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-        }
-
-        private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)
-        {
-            var importedNamespaces = uniqueDeclarations.Values.OfType<ImportedNamespaceSymbol>();
-
-            return NamespaceResolver.Create(features, namespaceProvider, targetScope, importedNamespaces);
+            return NamespaceResolver.Create(features, namespaceProvider, sourceFile, targetScope, fileScope);
         }
     }
 }

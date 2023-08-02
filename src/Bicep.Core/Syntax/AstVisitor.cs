@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
     /// Visits an <see href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree (AST)</see>.
     /// </summary>
     /// <remarks>
-    /// The Bicep syntax tree is always a <see href="https://en.wikipedia.org/wiki/Parse_tree">concret syntax tree</see>.
+    /// The Bicep syntax tree is always a <see href="https://en.wikipedia.org/wiki/Parse_tree">concrete syntax tree</see>.
     /// The visitor visits syntax nodes except for terminal symbols (tokens) so that the Bicep syntax tree is traversed as an AST.
     /// </remarks>
     public abstract class AstVisitor : SyntaxVisitor
@@ -73,6 +73,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
         {
             this.Visit(syntax.Name);
@@ -93,6 +100,13 @@ namespace Bicep.Core.Syntax
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Value);
+        }
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);
@@ -347,6 +361,31 @@ namespace Bicep.Core.Syntax
         public override void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax)
         {
             this.Visit(syntax.BaseExpression);
+        }
+
+        public override void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax)
+        {
+            this.VisitNodes(syntax.Children);
+        }
+
+        public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+        }
+
+        public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
+        {
+            this.Visit(syntax.VariableSection);
+            this.Visit(syntax.ReturnType);
+            this.Visit(syntax.Body);
+        }
+
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Lambda);
         }
     }
 }

@@ -26,10 +26,8 @@ var x = a + 2
 var not = !null
 var not = !4
 var not = !'s'
-var not = ![
-]
-var not = !{
-}
+var not = ![]
+var not = !{}
 
 // unary not chaining will be added in the future
 var not = !!!!!!!true
@@ -41,17 +39,13 @@ var minus = ------12
 var minus = -true
 var minus = -null
 var minus = -'s'
-var minus = -[
-]
-var minus = -{
-}
+var minus = -[]
+var minus = -{}
 
 // multiplicative
 var mod = 's' % true
 var mul = true * null
-var div = {
-} / [
-]
+var div = {} / []
 
 // additive
 var add = null + 's'
@@ -60,16 +54,13 @@ var add = 'bad' + 'str'
 
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
-var ne = 15 !~ [
-]
+var ne = 15 !~ []
 
 // relational
 var lt = 4 < 's'
 var lteq = null <= 10
-var gt = false > [
-]
-var gteq = {
-} >= false
+var gt = false > []
+var gteq = {} >= false
 
 // logical
 var and = null && 'a'
@@ -94,7 +85,7 @@ var errorInsideArrayAccess = [
 var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 var malformedStringIndex = {
-}[ 'test\e']
+}['test\e']
 var invalidIndexTypeOverAny = any(true)[true]
 var badIndexOverArray = [][null]
 var badIndexOverArray2 = []['s']
@@ -128,8 +119,7 @@ var fakeVar = concat(totallyFakeVar, 's')
 // bad functions arguments
 var concatNotEnough = concat()
 var padLeftNotEnough = padLeft('s')
-var takeTooMany = take([
-  ], 1, 2, 's')
+var takeTooMany = take([], 1, 2, 's')
 
 // missing arguments
 var trailingArgumentComma = format('s',)
@@ -140,10 +130,8 @@ var leadingEmptyArg = concat(,[])
 var leadingAndTrailingEmptyArg = concat(,'s',)
 
 // wrong argument types
-var concatWrongTypes = concat({
-})
-var concatWrongTypesContradiction = concat('s', [
-  ])
+var concatWrongTypes = concat({})
+var concatWrongTypesContradiction = concat('s', [])
 var indexOfWrongTypes = indexOf(1, 1)
 
 // not enough params

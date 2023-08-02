@@ -77,9 +77,11 @@ namespace Bicep.Cli.IntegrationTests
             return output;
         }
 
-        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath)
         {
-            var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory).CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
+            var compiler = new ServiceBuilder().WithEmptyAzResources().Build().GetCompiler();
+
+            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
 
             var semanticModel = compilation.GetEntrypointSemanticModel();
 

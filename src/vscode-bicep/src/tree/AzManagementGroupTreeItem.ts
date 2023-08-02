@@ -7,7 +7,7 @@ import { ManagementGroupTreeItem } from "./ManagementGroupTreeItem";
 // The root of treeview used in management group scope deployment. Represents an Azure account
 export class AzManagementGroupTreeItem extends AzureAccountTreeItemBase {
   public createSubscriptionTreeItem(
-    root: ISubscriptionContext
+    root: ISubscriptionContext,
   ): ManagementGroupTreeItem {
     return new ManagementGroupTreeItem(this, root);
   }

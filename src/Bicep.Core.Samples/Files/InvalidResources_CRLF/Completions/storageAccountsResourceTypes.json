@@ -8,8 +8,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000015",
-    "filterText": "'Microsoft.Storage/storageAccounts@2015-05-01-preview'",
+    "sortText": "00000016",
+    "filterText": "'microsoft.storage/storageaccounts@2015-05-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -26,8 +26,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000014",
-    "filterText": "'Microsoft.Storage/storageAccounts@2015-06-15'",
+    "sortText": "00000015",
+    "filterText": "'microsoft.storage/storageaccounts@2015-06-15'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -44,8 +44,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000013",
-    "filterText": "'Microsoft.Storage/storageAccounts@2016-01-01'",
+    "sortText": "00000014",
+    "filterText": "'microsoft.storage/storageaccounts@2016-01-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -62,8 +62,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000012",
-    "filterText": "'Microsoft.Storage/storageAccounts@2016-05-01'",
+    "sortText": "00000013",
+    "filterText": "'microsoft.storage/storageaccounts@2016-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -80,8 +80,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000011",
-    "filterText": "'Microsoft.Storage/storageAccounts@2016-12-01'",
+    "sortText": "00000012",
+    "filterText": "'microsoft.storage/storageaccounts@2016-12-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -98,8 +98,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000010",
-    "filterText": "'Microsoft.Storage/storageAccounts@2017-06-01'",
+    "sortText": "00000011",
+    "filterText": "'microsoft.storage/storageaccounts@2017-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -116,8 +116,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000000f",
-    "filterText": "'Microsoft.Storage/storageAccounts@2017-10-01'",
+    "sortText": "00000010",
+    "filterText": "'microsoft.storage/storageaccounts@2017-10-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -134,8 +134,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000000e",
-    "filterText": "'Microsoft.Storage/storageAccounts@2018-02-01'",
+    "sortText": "0000000f",
+    "filterText": "'microsoft.storage/storageaccounts@2018-02-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -152,8 +152,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000000d",
-    "filterText": "'Microsoft.Storage/storageAccounts@2018-03-01-preview'",
+    "sortText": "0000000e",
+    "filterText": "'microsoft.storage/storageaccounts@2018-03-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -170,8 +170,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000000c",
-    "filterText": "'Microsoft.Storage/storageAccounts@2018-07-01'",
+    "sortText": "0000000d",
+    "filterText": "'microsoft.storage/storageaccounts@2018-07-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -188,8 +188,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000000b",
-    "filterText": "'Microsoft.Storage/storageAccounts@2018-11-01'",
+    "sortText": "0000000c",
+    "filterText": "'microsoft.storage/storageaccounts@2018-11-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -206,8 +206,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "0000000a",
-    "filterText": "'Microsoft.Storage/storageAccounts@2019-04-01'",
+    "sortText": "0000000b",
+    "filterText": "'microsoft.storage/storageaccounts@2019-04-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -224,8 +224,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000009",
-    "filterText": "'Microsoft.Storage/storageAccounts@2019-06-01'",
+    "sortText": "0000000a",
+    "filterText": "'microsoft.storage/storageaccounts@2019-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -242,8 +242,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000008",
-    "filterText": "'Microsoft.Storage/storageAccounts@2020-08-01-preview'",
+    "sortText": "00000009",
+    "filterText": "'microsoft.storage/storageaccounts@2020-08-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -260,8 +260,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000007",
-    "filterText": "'Microsoft.Storage/storageAccounts@2021-01-01'",
+    "sortText": "00000008",
+    "filterText": "'microsoft.storage/storageaccounts@2021-01-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -278,8 +278,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000006",
-    "filterText": "'Microsoft.Storage/storageAccounts@2021-02-01'",
+    "sortText": "00000007",
+    "filterText": "'microsoft.storage/storageaccounts@2021-02-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -296,8 +296,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000005",
-    "filterText": "'Microsoft.Storage/storageAccounts@2021-04-01'",
+    "sortText": "00000006",
+    "filterText": "'microsoft.storage/storageaccounts@2021-04-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -314,8 +314,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000004",
-    "filterText": "'Microsoft.Storage/storageAccounts@2021-06-01'",
+    "sortText": "00000005",
+    "filterText": "'microsoft.storage/storageaccounts@2021-06-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -332,8 +332,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000003",
-    "filterText": "'Microsoft.Storage/storageAccounts@2021-08-01'",
+    "sortText": "00000004",
+    "filterText": "'microsoft.storage/storageaccounts@2021-08-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -350,8 +350,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000002",
-    "filterText": "'Microsoft.Storage/storageAccounts@2021-09-01'",
+    "sortText": "00000003",
+    "filterText": "'microsoft.storage/storageaccounts@2021-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -368,8 +368,8 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000001",
-    "filterText": "'Microsoft.Storage/storageAccounts@2022-05-01'",
+    "sortText": "00000002",
+    "filterText": "'microsoft.storage/storageaccounts@2022-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -386,13 +386,31 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000000",
-    "filterText": "'Microsoft.Storage/storageAccounts@2022-09-01'",
+    "sortText": "00000001",
+    "filterText": "'microsoft.storage/storageaccounts@2022-09-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'Microsoft.Storage/storageAccounts@2022-09-01'"
+    }
+  },
+  {
+    "label": "2023-01-01",
+    "kind": "class",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2023-01-01`"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "00000000",
+    "filterText": "'microsoft.storage/storageaccounts@2023-01-01'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'Microsoft.Storage/storageAccounts@2023-01-01'"
     }
   }
 ]

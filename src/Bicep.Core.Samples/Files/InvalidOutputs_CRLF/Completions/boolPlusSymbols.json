@@ -158,6 +158,48 @@
     }
   },
   {
+    "label": "cidrHost",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```\nCalculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrHost",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrHost($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "cidrSubnet",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrSubnet(network: string, cidr: int, subnetIndex: int): string\n\n```\nSplits the specified IP address range in CIDR notation into subnets with a new CIDR value and returns the IP address range of the subnet with the specified index.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrSubnet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrSubnet($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "concat",
     "kind": "function",
     "documentation": {
@@ -804,6 +846,27 @@
     }
   },
   {
+    "label": "loadYamlContent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadYamlContent(filePath: string, [pathFilter: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```\nLoads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadYamlContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadYamlContent($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "managementGroup",
     "kind": "function",
     "documentation": {
@@ -923,6 +986,27 @@
     "textEdit": {
       "range": {},
       "newText": "padLeft($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "parseCidr",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseCidr(network: string): parseCidr\n\n```\nParses an IP address range in CIDR notation to get various properties of the address range.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseCidr",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseCidr($0)"
     },
     "command": {
       "title": "signature help",

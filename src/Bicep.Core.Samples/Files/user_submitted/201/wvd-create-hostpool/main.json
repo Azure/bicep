@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15497682551507496643"
+      "templateHash": "9132068450143405321"
     }
   },
   "parameters": {
@@ -107,14 +107,14 @@
     "availabilityOption": {
       "type": "string",
       "defaultValue": "None",
-      "metadata": {
-        "description": "Select the availability options for the VMs."
-      },
       "allowedValues": [
         "None",
         "AvailabilitySet",
         "AvailabilityZone"
-      ]
+      ],
+      "metadata": {
+        "description": "Select the availability options for the VMs."
+      }
     },
     "availabilitySetName": {
       "type": "string",
@@ -133,9 +133,6 @@
     "availabilitySetUpdateDomainCount": {
       "type": "int",
       "defaultValue": 5,
-      "metadata": {
-        "description": "The platform update domain count of avaiability set to be created."
-      },
       "allowedValues": [
         1,
         2,
@@ -157,31 +154,34 @@
         18,
         19,
         20
-      ]
+      ],
+      "metadata": {
+        "description": "The platform update domain count of avaiability set to be created."
+      }
     },
     "availabilitySetFaultDomainCount": {
       "type": "int",
       "defaultValue": 2,
-      "metadata": {
-        "description": "The platform fault domain count of avaiability set to be created."
-      },
       "allowedValues": [
         1,
         2,
         3
-      ]
+      ],
+      "metadata": {
+        "description": "The platform fault domain count of avaiability set to be created."
+      }
     },
     "availabilityZone": {
       "type": "int",
       "defaultValue": 1,
-      "metadata": {
-        "description": "The number of availability zone to be used when create the VMs."
-      },
       "allowedValues": [
         1,
         2,
         3
-      ]
+      ],
+      "metadata": {
+        "description": "The number of availability zone to be used when create the VMs."
+      }
     },
     "vmResourceGroup": {
       "type": "string",
@@ -221,14 +221,14 @@
     "vmImageType": {
       "type": "string",
       "defaultValue": "Gallery",
-      "metadata": {
-        "description": "Select the image source for the session host vms. VMs from a Gallery image will be created with Managed Disks."
-      },
       "allowedValues": [
         "CustomVHD",
         "CustomImage",
         "Gallery"
-      ]
+      ],
+      "metadata": {
+        "description": "Select the image source for the session host vms. VMs from a Gallery image will be created with Managed Disks."
+      }
     },
     "vmGalleryImageOffer": {
       "type": "string",
@@ -268,14 +268,14 @@
     "vmDiskType": {
       "type": "string",
       "defaultValue": "StandardSSD_LRS",
-      "metadata": {
-        "description": "The VM disk type for the VM: HDD or SSD."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "The VM disk type for the VM: HDD or SSD."
+      }
     },
     "vmUseManagedDisks": {
       "type": "bool",
@@ -335,25 +335,25 @@
     },
     "hostpoolType": {
       "type": "string",
-      "metadata": {
-        "description": "Set this parameter to Personal if you would like to enable Persistent Desktop experience. Defaults to false."
-      },
       "allowedValues": [
         "Personal",
         "Pooled"
-      ]
+      ],
+      "metadata": {
+        "description": "Set this parameter to Personal if you would like to enable Persistent Desktop experience. Defaults to false."
+      }
     },
     "personalDesktopAssignmentType": {
       "type": "string",
       "defaultValue": "",
-      "metadata": {
-        "description": "Set the type of assignment for a Personal hostpool type"
-      },
       "allowedValues": [
         "Automatic",
         "Direct",
         ""
-      ]
+      ],
+      "metadata": {
+        "description": "Set the type of assignment for a Personal hostpool type"
+      }
     },
     "maxSessionLimit": {
       "type": "int",
@@ -365,14 +365,14 @@
     "loadBalancerType": {
       "type": "string",
       "defaultValue": "BreadthFirst",
-      "metadata": {
-        "description": "Type of load balancer algorithm."
-      },
       "allowedValues": [
         "BreadthFirst",
         "DepthFirst",
         "Persistent"
-      ]
+      ],
+      "metadata": {
+        "description": "Type of load balancer algorithm."
+      }
     },
     "customRdpProperty": {
       "type": "string",
@@ -572,7 +572,7 @@
     {
       "condition": "[parameters('addToWorkspace')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('Workspace-linkedTemplate-{0}', parameters('deploymentId'))]",
       "resourceGroup": "[variables('workspaceResourceGroup_var')]",
       "properties": {
@@ -629,7 +629,7 @@
     {
       "condition": "[and(and(variables('createVMs'), equals(parameters('availabilityOption'), 'AvailabilitySet')), parameters('createAvailabilitySet'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "AVSet-deployment",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -712,7 +712,7 @@
     {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-customvhdvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -837,7 +837,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11987168975588361348"
+              "templateHash": "5496671400759637143"
             }
           },
           "parameters": {
@@ -851,14 +851,14 @@
             "availabilityOption": {
               "type": "string",
               "defaultValue": "None",
-              "metadata": {
-                "description": "The availability option for the VMs."
-              },
               "allowedValues": [
                 "None",
                 "AvailabilitySet",
                 "AvailabilityZone"
-              ]
+              ],
+              "metadata": {
+                "description": "The availability option for the VMs."
+              }
             },
             "availabilitySetName": {
               "type": "string",
@@ -870,14 +870,14 @@
             "availabilityZone": {
               "type": "int",
               "defaultValue": 1,
-              "metadata": {
-                "description": "The number of availability zone to be used when create the VMs."
-              },
               "allowedValues": [
                 1,
                 2,
                 3
-              ]
+              ],
+              "metadata": {
+                "description": "The number of availability zone to be used when create the VMs."
+              }
             },
             "vmImageVhdUri": {
               "type": "string",
@@ -927,14 +927,14 @@
             },
             "rdshVMDiskType": {
               "type": "string",
-              "metadata": {
-                "description": "The VM disk type for the VM: HDD or SSD."
-              },
               "allowedValues": [
                 "Premium_LRS",
                 "StandardSSD_LRS",
                 "Standard_LRS"
-              ]
+              ],
+              "metadata": {
+                "description": "The VM disk type for the VM: HDD or SSD."
+              }
             },
             "rdshVmSize": {
               "type": "string",
@@ -1321,7 +1321,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1398,7 +1398,7 @@
     {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), not(parameters('vmUseManagedDisks')))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-unmanagedDisks-customvhdvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -1523,7 +1523,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9080275681022015337"
+              "templateHash": "12820056084073504429"
             }
           },
           "parameters": {
@@ -1537,14 +1537,14 @@
             "availabilityOption": {
               "type": "string",
               "defaultValue": "None",
-              "metadata": {
-                "description": "The availability option for the VMs."
-              },
               "allowedValues": [
                 "None",
                 "AvailabilitySet",
                 "AvailabilityZone"
-              ]
+              ],
+              "metadata": {
+                "description": "The availability option for the VMs."
+              }
             },
             "availabilitySetName": {
               "type": "string",
@@ -1556,14 +1556,14 @@
             "availabilityZone": {
               "type": "int",
               "defaultValue": 1,
-              "metadata": {
-                "description": "The number of availability zone to be used when create the VMs."
-              },
               "allowedValues": [
                 1,
                 2,
                 3
-              ]
+              ],
+              "metadata": {
+                "description": "The number of availability zone to be used when create the VMs."
+              }
             },
             "vmImageVhdUri": {
               "type": "string",
@@ -1613,14 +1613,14 @@
             },
             "rdshVMDiskType": {
               "type": "string",
-              "metadata": {
-                "description": "The VM disk type for the VM: HDD or SSD."
-              },
               "allowedValues": [
                 "Premium_LRS",
                 "StandardSSD_LRS",
                 "Standard_LRS"
-              ]
+              ],
+              "metadata": {
+                "description": "The VM disk type for the VM: HDD or SSD."
+              }
             },
             "rdshVmSize": {
               "type": "string",
@@ -1992,7 +1992,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2069,7 +2069,7 @@
     {
       "condition": "[and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomImage'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-customimagevm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -2194,7 +2194,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18101554483569597011"
+              "templateHash": "5275119469596650755"
             }
           },
           "parameters": {
@@ -2208,14 +2208,14 @@
             "availabilityOption": {
               "type": "string",
               "defaultValue": "None",
-              "metadata": {
-                "description": "The availability option for the VMs."
-              },
               "allowedValues": [
                 "None",
                 "AvailabilitySet",
                 "AvailabilityZone"
-              ]
+              ],
+              "metadata": {
+                "description": "The availability option for the VMs."
+              }
             },
             "availabilitySetName": {
               "type": "string",
@@ -2227,14 +2227,14 @@
             "availabilityZone": {
               "type": "int",
               "defaultValue": 1,
-              "metadata": {
-                "description": "The number of availability zone to be used when create the VMs."
-              },
               "allowedValues": [
                 1,
                 2,
                 3
-              ]
+              ],
+              "metadata": {
+                "description": "The number of availability zone to be used when create the VMs."
+              }
             },
             "vmImageVhdUri": {
               "type": "string",
@@ -2284,14 +2284,14 @@
             },
             "rdshVMDiskType": {
               "type": "string",
-              "metadata": {
-                "description": "The VM disk type for the VM: HDD or SSD."
-              },
               "allowedValues": [
                 "Premium_LRS",
                 "StandardSSD_LRS",
                 "Standard_LRS"
-              ]
+              ],
+              "metadata": {
+                "description": "The VM disk type for the VM: HDD or SSD."
+              }
             },
             "rdshVmSize": {
               "type": "string",
@@ -2659,7 +2659,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2736,7 +2736,7 @@
     {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'Gallery')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-galleryvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -2861,7 +2861,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15709312384976462390"
+              "templateHash": "951626561695186356"
             }
           },
           "parameters": {
@@ -2875,14 +2875,14 @@
             "availabilityOption": {
               "type": "string",
               "defaultValue": "None",
-              "metadata": {
-                "description": "The availability option for the VMs."
-              },
               "allowedValues": [
                 "None",
                 "AvailabilitySet",
                 "AvailabilityZone"
-              ]
+              ],
+              "metadata": {
+                "description": "The availability option for the VMs."
+              }
             },
             "availabilitySetName": {
               "type": "string",
@@ -2894,14 +2894,14 @@
             "availabilityZone": {
               "type": "int",
               "defaultValue": 1,
-              "metadata": {
-                "description": "The number of availability zone to be used when create the VMs."
-              },
               "allowedValues": [
                 1,
                 2,
                 3
-              ]
+              ],
+              "metadata": {
+                "description": "The number of availability zone to be used when create the VMs."
+              }
             },
             "vmImageVhdUri": {
               "type": "string",
@@ -2951,14 +2951,14 @@
             },
             "rdshVMDiskType": {
               "type": "string",
-              "metadata": {
-                "description": "The VM disk type for the VM: HDD or SSD."
-              },
               "allowedValues": [
                 "Premium_LRS",
                 "StandardSSD_LRS",
                 "Standard_LRS"
-              ]
+              ],
+              "metadata": {
+                "description": "The VM disk type for the VM: HDD or SSD."
+              }
             },
             "rdshVmSize": {
               "type": "string",
@@ -3329,7 +3329,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-10-01",
+              "apiVersion": "2022-09-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {

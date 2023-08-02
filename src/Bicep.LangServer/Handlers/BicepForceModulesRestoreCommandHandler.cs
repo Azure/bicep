@@ -22,12 +22,14 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IWorkspace workspace;
 
-        public BicepForceModulesRestoreCommandHandler(ISerializer serializer, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
+        public BicepForceModulesRestoreCommandHandler(ISerializer serializer, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.workspace = workspace;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -38,28 +40,28 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            Task<string> restoreOutput = GenerateForceModulesRestoreOutputMessage(bicepFilePath, documentUri);
+            Task<string> restoreOutput = ForceModulesRestoreAndGenerateOutputMessage(documentUri);
 
             return restoreOutput;
         }
 
-        private async Task<string> GenerateForceModulesRestoreOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> ForceModulesRestoreAndGenerateOutputMessage(DocumentUri documentUri)
         {
             var fileUri = documentUri.ToUri();
 
-            Workspace workspace = new Workspace();
             SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri);
 
             // Ignore modules to restore logic, include all modules to be restored
             var modulesToRestore = sourceFileGrouping.UriResultByModule
                 .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
-            // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging
+            // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
             var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
-            if (!modulesToRestoreReferences.Any()) {
+            if (!modulesToRestoreReferences.Any())
+            {
                 return $"Restore (force) skipped. No modules references in input file.";
             }
 
@@ -68,10 +70,14 @@ namespace Bicep.LanguageServer.Handlers
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
-            foreach(var module in modulesToRestoreReferences) {
+            foreach (var module in modulesToRestoreReferences)
+            {
                 var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(module, out _);
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
+
+            // Have to actually update compilations to pick up new modules' contents
+            workspace.UpsertSourceFiles(sourceFileGrouping.SourceFiles);
 
             return $"Restore (force) summary: {sbRestoreSummary}";
         }

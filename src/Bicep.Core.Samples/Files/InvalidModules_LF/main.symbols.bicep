@@ -115,7 +115,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
-//@[07:17) Module modANoName. Type: error. Declaration start char: 0, length: 68
+//@[07:17) Module modANoName. Type: module. Declaration start char: 0, length: 68
 
 }
 

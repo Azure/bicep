@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -35,7 +34,7 @@ namespace Bicep.Core.TypeSystem
 
         protected ResourceTypeResolver ResourceTypeResolver { get; }
 
-        protected void FlagDeployTimeConstantViolation(SyntaxBase errorSyntax, DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null)
+        protected void FlagDeployTimeConstantViolation(SyntaxBase errorSyntax, DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null, string? violatingPropertyName = null)
         {
             var accessedSymbolName = accessedSymbol?.Name;
             var accessiblePropertyNames = GetAccessiblePropertyNames(accessedSymbol, accessedObjectType);
@@ -56,11 +55,12 @@ namespace Bicep.Core.TypeSystem
 
                 // Corner case: the runtime value is in the for-body of a variable declaration.
                 ForSyntax forSyntax when ErrorSyntaxInForBodyOfVariable(forSyntax, errorSyntax) is string variableName =>
-                    diagnosticBuilder.RuntimeValueNotAllowedInVariableForBody(variableName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                    diagnosticBuilder.RuntimeValueNotAllowedInVariableForBody(variableName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain, violatingPropertyName),
 
                 ForSyntax => diagnosticBuilder.RuntimeValueNotAllowedInForExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
                 FunctionCallSyntaxBase functionCallSyntaxBase => diagnosticBuilder.RuntimeValueNotAllowedInRunTimeFunctionArguments(functionCallSyntaxBase.Name.IdentifierName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, a IfConditionSyntax, a ForSyntax, or a FunctionCallSyntaxBase."),
+                FunctionDeclarationSyntax => diagnosticBuilder.RuntimeValueNotAllowedInFunctionDeclaration(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, an IfConditionSyntax, a ForSyntax, a FunctionCallSyntaxBase, or a FunctionDeclarationSyntax."),
             };
 
             this.DiagnosticWriter.Write(diagnostic);

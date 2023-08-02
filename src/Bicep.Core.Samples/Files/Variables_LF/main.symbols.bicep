@@ -11,17 +11,17 @@ var myStr = 'str'
 var curliesWithNoInterp = '}{1}{'
 //@[04:23) Variable curliesWithNoInterp. Type: '}{1}{'. Declaration start char: 0, length: 33
 var interp1 = 'abc${123}def'
-//@[04:11) Variable interp1. Type: string. Declaration start char: 0, length: 28
+//@[04:11) Variable interp1. Type: 'abc123def'. Declaration start char: 0, length: 28
 var interp2 = '${123}def'
-//@[04:11) Variable interp2. Type: string. Declaration start char: 0, length: 25
+//@[04:11) Variable interp2. Type: '123def'. Declaration start char: 0, length: 25
 var interp3 = 'abc${123}'
-//@[04:11) Variable interp3. Type: string. Declaration start char: 0, length: 25
+//@[04:11) Variable interp3. Type: 'abc123'. Declaration start char: 0, length: 25
 var interp4 = 'abc${123}${456}jk$l${789}p$'
-//@[04:11) Variable interp4. Type: string. Declaration start char: 0, length: 43
+//@[04:11) Variable interp4. Type: 'abc123456jk$l789p$'. Declaration start char: 0, length: 43
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
-//@[04:16) Variable doubleInterp. Type: string. Declaration start char: 0, length: 56
+//@[04:16) Variable doubleInterp. Type: 'abcdef123_456789'. Declaration start char: 0, length: 56
 var curliesInInterp = '{${123}{0}${true}}'
-//@[04:19) Variable curliesInInterp. Type: string. Declaration start char: 0, length: 42
+//@[04:19) Variable curliesInInterp. Type: '{123{0}True}'. Declaration start char: 0, length: 42
 
 // #completionTest(0) -> declarations
 
@@ -37,11 +37,11 @@ var enclosingBrackets = '[test]'
 var emptyJsonArray = '[]'
 //@[04:18) Variable emptyJsonArray. Type: '[]'. Declaration start char: 0, length: 25
 var interpolatedBrackets = '[${myInt}]'
-//@[04:24) Variable interpolatedBrackets. Type: string. Declaration start char: 0, length: 39
+//@[04:24) Variable interpolatedBrackets. Type: '[42]'. Declaration start char: 0, length: 39
 var nestedBrackets = '[test[]test2]'
 //@[04:18) Variable nestedBrackets. Type: '[test[]test2]'. Declaration start char: 0, length: 36
 var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
-//@[04:30) Variable nestedInterpolatedBrackets. Type: string. Declaration start char: 0, length: 54
+//@[04:30) Variable nestedInterpolatedBrackets. Type: '[[]]'. Declaration start char: 0, length: 54
 var bracketStringInExpression = concat('[', '\'test\'',']')
 //@[04:29) Variable bracketStringInExpression. Type: string. Declaration start char: 0, length: 59
 
@@ -149,7 +149,7 @@ var functionOnIndexer1 = concat([
 var singleQuote = '\''
 //@[04:15) Variable singleQuote. Type: '\''. Declaration start char: 0, length: 22
 var myPropertyName = '${singleQuote}foo${singleQuote}'
-//@[04:18) Variable myPropertyName. Type: string. Declaration start char: 0, length: 54
+//@[04:18) Variable myPropertyName. Type: '\'foo\''. Declaration start char: 0, length: 54
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 //@[04:22) Variable unusedIntermediate. Type: any. Declaration start char: 0, length: 84
@@ -158,7 +158,7 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
 // previously this was not possible to emit correctly
 var previousEmitLimit = [
-//@[04:21) Variable previousEmitLimit. Type: [string, string, object]. Declaration start char: 0, length: 299
+//@[04:21) Variable previousEmitLimit. Type: [string, '4', object]. Declaration start char: 0, length: 299
   concat('s')
   '${4}'
   {
@@ -183,7 +183,7 @@ var previousEmitLimit = [
 
 // previously this was not possible to emit correctly
 var previousEmitLimit2 = [
-//@[04:22) Variable previousEmitLimit2. Type: [string, string, object]. Declaration start char: 0, length: 327
+//@[04:22) Variable previousEmitLimit2. Type: [string, '4', object]. Declaration start char: 0, length: 327
   concat('s')
   '${4}'
   {
@@ -340,6 +340,41 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 var incrementingNumbers = [for i in range(0,10) : i]
 //@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
 //@[04:23) Variable incrementingNumbers. Type: int[]. Declaration start char: 0, length: 52
+var printToSingleLine1 = [
+//@[04:22) Variable printToSingleLine1. Type: int[]. Declaration start char: 0, length: 57
+    for i in range(0,20) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+]
+var printToSingleLine2 = [
+//@[04:22) Variable printToSingleLine2. Type: int[]. Declaration start char: 0, length: 80
+    /* harmless comment */ for i in range(0,20) : i
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
+]
+var printToSingleLine3 = [
+//@[04:22) Variable printToSingleLine3. Type: int[]. Declaration start char: 0, length: 80
+    for i in range(0,20) : i /* harmless comment */
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+]
+var forceLineBreaks1 = [
+//@[04:20) Variable forceLineBreaks1. Type: int[]. Declaration start char: 0, length: 84
+    // force line breaks
+    for i in range(0,    30) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+]
+var forceLineBreaks2 = [
+//@[04:20) Variable forceLineBreaks2. Type: int[]. Declaration start char: 0, length: 84
+    for i in range(0,    30) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+    // force line breaks
+]
+var forceLineBreaks3 = [
+//@[04:20) Variable forceLineBreaks3. Type: int[]. Declaration start char: 0, length: 115
+    /* force line breaks */
+    for i in range(0,    30) : i
+//@[08:09) Local i. Type: int. Declaration start char: 8, length: 1
+    /* force line breaks */
+]
+
 var loopInput = [
 //@[04:13) Variable loopInput. Type: ['one', 'two']. Declaration start char: 0, length: 35
   'one'

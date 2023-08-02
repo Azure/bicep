@@ -278,9 +278,21 @@ public record ParametersReferenceExpression(
     protected override object? GetDebugAttributes() => new { Parameter = Parameter.Name };
 }
 
+public record ParametersAssignmentReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ParameterAssignmentSymbol Parameter
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitParametersAssignmentReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Parameter = Parameter.Name };
+}
+
 public record LambdaVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
-    LocalVariableSymbol Variable
+    LocalVariableSymbol Variable,
+    bool IsFunctionLambda
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -323,18 +335,26 @@ public record ConditionExpression(
 public record LambdaExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<string> Parameters,
-    Expression Body
+    ImmutableArray<TypeExpression?> ParameterTypes,
+    Expression Body,
+    TypeExpression? OutputType
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitLambdaExpression(this);
 }
 
+public abstract record DescribableExpression(
+    SyntaxBase? SourceSyntax,
+    Expression? Description
+) : Expression(SourceSyntax) {}
+
 public record DeclaredMetadataExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    Expression Value
-) : Expression(SourceSyntax)
+    Expression Value,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredMetadataExpression(this);
@@ -346,8 +366,9 @@ public record DeclaredImportExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     NamespaceType NamespaceType,
-    Expression? Config
-) : Expression(SourceSyntax)
+    Expression? Config,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredImportExpression(this);
@@ -355,12 +376,33 @@ public record DeclaredImportExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
+public abstract record TypeDeclaringExpression(
+    SyntaxBase? SourceSyntax,
+    Expression? Description,
+    Expression? Metadata,
+    Expression? Secure,
+    Expression? MinLength,
+    Expression? MaxLength,
+    Expression? MinValue,
+    Expression? MaxValue,
+    Expression? Sealed
+) : DescribableExpression(SourceSyntax, Description) {}
+
 public record DeclaredParameterExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    ParameterSymbol Symbol,
-    Expression? DefaultValue
-) : Expression(SourceSyntax)
+    TypeExpression Type,
+    Expression? DefaultValue,
+    Expression? Description = null,
+    Expression? Metadata = null,
+    Expression? Secure = null,
+    Expression? MinLength = null,
+    Expression? MaxLength = null,
+    Expression? MinValue = null,
+    Expression? MaxValue = null,
+    Expression? Sealed = null,
+    Expression? AllowedValues = null
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredParameterExpression(this);
@@ -371,8 +413,9 @@ public record DeclaredParameterExpression(
 public record DeclaredVariableExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    Expression Value
-) : Expression(SourceSyntax)
+    Expression Value,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredVariableExpression(this);
@@ -383,9 +426,17 @@ public record DeclaredVariableExpression(
 public record DeclaredOutputExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    OutputSymbol Symbol,
-    Expression Value
-) : Expression(SourceSyntax)
+    TypeExpression Type,
+    Expression Value,
+    Expression? Description = null,
+    Expression? Metadata = null,
+    Expression? Secure = null,
+    Expression? MinLength = null,
+    Expression? MaxLength = null,
+    Expression? MinValue = null,
+    Expression? MaxValue = null,
+    Expression? Sealed = null
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredOutputExpression(this);
@@ -393,14 +444,28 @@ public record DeclaredOutputExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
+public record DeclaredAssertExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    Expression Value,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredAssertExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
 public record DeclaredResourceExpression(
     SyntaxBase? SourceSyntax,
-    DeclaredResourceMetadata Metadata,
+    DeclaredResourceMetadata ResourceMetadata,
     ScopeHelper.ScopeData ScopeData,
     SyntaxBase BodySyntax,
     Expression Body,
-    ImmutableArray<ResourceDependencyExpression> DependsOn
-) : Expression(SourceSyntax)
+    ImmutableArray<ResourceDependencyExpression> DependsOn,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredResourceExpression(this);
@@ -413,8 +478,9 @@ public record DeclaredModuleExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     Expression? Parameters,
-    ImmutableArray<ResourceDependencyExpression> DependsOn
-) : Expression(SourceSyntax)
+    ImmutableArray<ResourceDependencyExpression> DependsOn,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredModuleExpression(this);
@@ -433,11 +499,14 @@ public record ProgramExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<DeclaredMetadataExpression> Metadata,
     ImmutableArray<DeclaredImportExpression> Imports,
+    ImmutableArray<DeclaredTypeExpression> Types,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
+    ImmutableArray<DeclaredFunctionExpression> Functions,
     ImmutableArray<DeclaredResourceExpression> Resources,
     ImmutableArray<DeclaredModuleExpression> Modules,
-    ImmutableArray<DeclaredOutputExpression> Outputs
+    ImmutableArray<DeclaredOutputExpression> Outputs,
+    ImmutableArray<DeclaredAssertExpression> Asserts
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -452,4 +521,257 @@ public record AccessChainExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitAccessChainExpression(this);
+}
+
+public record DeclaredFunctionExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    Expression Lambda,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredFunctionExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record UserDefinedFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitUserDefinedFunctionCallExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record DeclaredTypeExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    TypeAliasSymbol Symbol,
+    TypeExpression Value,
+    Expression? Description = null,
+    Expression? Metadata = null,
+    Expression? Secure = null,
+    Expression? MinLength = null,
+    Expression? MaxLength = null,
+    Expression? MinValue = null,
+    Expression? MaxValue = null,
+    Expression? Sealed = null
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredTypeExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public abstract record TypeExpression(
+    SyntaxBase? SourceSyntax,
+    TypeSymbol ExpressedType
+) : Expression(SourceSyntax)
+{
+    protected override object? GetDebugAttributes() => new { Name = ExpressedType.Name };
+}
+
+public record AmbientTypeReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitAmbientTypeReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record FullyQualifiedAmbientTypeReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string ProviderName,
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitFullyQualifiedAmbientTypeReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = $"{ProviderName}.{Name}" };
+}
+
+public record TypeAliasReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeAliasReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record StringLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    StringLiteralType ExpressedStringLiteralType
+) : TypeExpression(SourceSyntax, ExpressedStringLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitStringLiteralTypeExpression(this);
+
+    public string Value => ExpressedStringLiteralType.RawStringValue;
+}
+
+public record IntegerLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    IntegerLiteralType ExpressedIntegerLiteralType
+) : TypeExpression(SourceSyntax, ExpressedIntegerLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitIntegerLiteralTypeExpression(this);
+
+    public long Value => ExpressedIntegerLiteralType.Value;
+}
+
+public record BooleanLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    BooleanLiteralType ExpressedBooleanLiteralType
+) : TypeExpression(SourceSyntax, ExpressedBooleanLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitBooleanLiteralTypeExpression(this);
+
+    public bool Value => ExpressedBooleanLiteralType.Value;
+}
+
+public record NullLiteralTypeExpression(
+    SyntaxBase? SourceSyntax,
+    NullType ExpressedNullLiteralType
+) : TypeExpression(SourceSyntax, ExpressedNullLiteralType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNullLiteralTypeExpression(this);
+}
+
+public record ResourceTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ResourceType ExpressedResourceType
+) : TypeExpression(SourceSyntax, ExpressedResourceType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceTypeExpression(this);
+}
+
+public record ObjectTypePropertyExpression(
+    SyntaxBase? SourceSyntax,
+    string PropertyName,
+    TypeExpression Value,
+    Expression? Description = null,
+    Expression? Metadata = null,
+    Expression? Secure = null,
+    Expression? MinLength = null,
+    Expression? MaxLength = null,
+    Expression? MinValue = null,
+    Expression? MaxValue = null,
+    Expression? Sealed = null
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectTypePropertyExpression(this);
+}
+
+public record ObjectTypeAdditionalPropertiesExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression Value,
+    Expression? Description = null,
+    Expression? Metadata = null,
+    Expression? Secure = null,
+    Expression? MinLength = null,
+    Expression? MaxLength = null,
+    Expression? MinValue = null,
+    Expression? MaxValue = null,
+    Expression? Sealed = null
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectTypeAdditionalPropertiesExpression(this);
+}
+
+public record ObjectTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ObjectType ExpressedObjectType,
+    ImmutableArray<ObjectTypePropertyExpression> PropertyExpressions,
+    ObjectTypeAdditionalPropertiesExpression? AdditionalPropertiesExpression
+) : TypeExpression(SourceSyntax, ExpressedObjectType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectTypeExpression(this);
+}
+
+public record TupleTypeItemExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression Value,
+    Expression? Description = null,
+    Expression? Metadata = null,
+    Expression? Secure = null,
+    Expression? MinLength = null,
+    Expression? MaxLength = null,
+    Expression? MinValue = null,
+    Expression? MaxValue = null,
+    Expression? Sealed = null
+) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTupleTypeItemExpression(this);
+}
+
+public record TupleTypeExpression(
+    SyntaxBase? SourceSyntax,
+    TupleType ExpressedTupleType,
+    ImmutableArray<TupleTypeItemExpression> ItemExpressions
+) : TypeExpression(SourceSyntax, ExpressedTupleType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTupleTypeExpression(this);
+}
+
+public record ArrayTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ArrayType ExpressedArrayType,
+    TypeExpression BaseExpression
+) : TypeExpression(SourceSyntax, ExpressedArrayType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitArrayTypeExpression(this);
+}
+
+public record NullableTypeExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression
+) : TypeExpression(SourceSyntax, TypeHelper.CreateTypeUnion(BaseExpression.ExpressedType, LanguageConstants.Null))
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNullableTypeExpression(this);
+}
+
+public record NonNullableTypeExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression
+) : TypeExpression(SourceSyntax, TypeHelper.CreateTypeUnion(BaseExpression.ExpressedType, TypeHelper.TryRemoveNullability(BaseExpression.ExpressedType) ?? BaseExpression.ExpressedType))
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitNonNullableTypeExpression(this);
+}
+
+public record UnionTypeExpression(
+    SyntaxBase? SourceSyntax,
+    UnionType ExpressedUnionType,
+    ImmutableArray<TypeExpression> MemberExpressions
+) : TypeExpression(SourceSyntax, ExpressedUnionType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitUnionTypeExpression(this);
 }

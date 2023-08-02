@@ -261,7 +261,7 @@ var badIndexOverObj2 = {}[0]
 //@[26:27) [BCP075 (Error)] Indexing over objects requires an index of type "string" but the provided index was of type "0". (CodeDescription: none) |0|
 var badExpressionIndexer = {}[base64('a')]
 //@[04:24) [no-unused-vars (Warning)] Variable "badExpressionIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badExpressionIndexer|
-//@[30:41) [BCP054 (Error)] The type "object" does not contain any properties. (CodeDescription: none) |base64('a')|
+//@[30:41) [BCP052 (Error)] The type "object" does not contain property "YQ==". (CodeDescription: none) |base64('a')|
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
@@ -618,7 +618,7 @@ var unterminated2 = (,
 
 // trailing decorator with no declaration
 @minLength()
-//@[00:12) [BCP147 (Error)] Expected a parameter declaration after the decorator. (CodeDescription: none) |@minLength()|
+//@[00:12) [BCP291 (Error)] Expected a parameter or output declaration after the decorator. (CodeDescription: none) |@minLength()|
 //@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
 
 

@@ -69,7 +69,7 @@ namespace Bicep.Core.Workspaces
             var parser = new ParamsParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileUri, lineStarts, parser.Program());
+            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
         public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
@@ -77,7 +77,7 @@ namespace Bicep.Core.Workspaces
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileUri, lineStarts, parser.Program());
+            return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
         public static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)

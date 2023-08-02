@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.FileSystem;
-using System.IO;
-
 namespace Bicep.Cli.Arguments
 {
     public class BuildParamsArguments : ArgumentsBase
@@ -27,29 +24,16 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
-                    case "--outfile-params":
+                    case "--outfile":
                         if (args.Length == i + 1)
                         {
-                            throw new CommandLineException($"The --outfile-params parameter expects an argument");
+                            throw new CommandLineException($"The --outfile parameter expects an argument");
                         }
-                        if (OutputParamsFile is not null)
+                        if (OutputFile is not null)
                         {
-                            throw new CommandLineException($"The --outfile-params parameter cannot be specified twice");
+                            throw new CommandLineException($"The --outfile parameter cannot be specified twice");
                         }
-                        OutputParamsFile = args[i + 1];
-                        i++;
-                        break;
-
-                    case "--outfile-bicep":
-                        if (args.Length == i + 1)
-                        {
-                            throw new CommandLineException($"The --outfile-bicep parameter expects an argument");
-                        }
-                        if (OutputBicepFile is not null)
-                        {
-                            throw new CommandLineException($"The --outfile-bicep parameter cannot be specified twice");
-                        }
-                        OutputBicepFile = args[i + 1];
+                        OutputFile = args[i + 1];
                         i++;
                         break;
 
@@ -80,14 +64,9 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The parameters file path was not specified");
             }
 
-            if (OutputParamsFile is not null && OutputBicepFile is not null && OutputParamsFile == OutputBicepFile)
+            if (OutputFile is not null && OutputToStdOut)
             {
-                throw new CommandLineException($"The path for --outfile-params and --outfile-bicep can not be the same");
-            }
-
-            if ((OutputParamsFile is not null || OutputBicepFile is not null) && OutputToStdOut)
-            {
-                throw new CommandLineException($"The --stdout can not be use when either --outfile-param or --outfile-bicep is specified");
+                throw new CommandLineException($"The --stdout can not be used when --outfile is specified");
             }
         }
 
@@ -99,8 +78,6 @@ namespace Bicep.Cli.Arguments
 
         public string? BicepFile { get; }
 
-        public string? OutputParamsFile { get; }
-
-        public string? OutputBicepFile { get; }
+        public string? OutputFile { get; }
     }
 }

@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -14,6 +16,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class EvaluationTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public void Basic_arithmetic_expressions_are_evaluated_successfully()
         {
@@ -86,12 +91,14 @@ output multiline string = multiline
         [TestMethod]
         public void ResourceId_expressions_are_evaluated_successfully()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param parentName = 'myParent'
 param childName = 'myChild'
-");
+";
 
-            var (template, _, _) = CompilationHelper.Compile(@"
+            var bicepTemplateText = @"
 param parentName string
 param childName string
 
@@ -146,7 +153,11 @@ output resource8Id string = existing8.id
 output resource1Name string = existing1.name
 output resource1ApiVersion string = existing1.apiVersion
 output resource1Type string = existing1.type
-");
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var (template, _, _) = CompilationHelper.Compile(bicepTemplateText);
 
             using (new AssertionScope())
             {
@@ -207,11 +218,13 @@ output coalesce int = null ?? 123
         [TestMethod]
         public void Resource_property_access_works()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
-param abcVal = 'test!!!'
-");
+            var bicepparamText = @"
+using 'main.bicep'
 
-            var (template, _, _) = CompilationHelper.Compile(@"
+param abcVal = 'test!!!'
+";
+
+            var bicepTemplateText = @"
 param abcVal string
 
 resource testRes 'My.Rp/res1@2020-01-01' = {
@@ -222,7 +235,11 @@ resource testRes 'My.Rp/res1@2020-01-01' = {
 }
 
 output abcVal string = testRes.properties.abc
-");
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var (template, _, _) = CompilationHelper.Compile(bicepTemplateText);
 
             using (new AssertionScope())
             {
@@ -268,7 +285,9 @@ output abcVal string = testRes.properties.abc
         [TestMethod]
         public void Items_function_evaluation_works()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param inputObj = {
   'ghiKey': 'ghiValue'
   'defKey': 'defValue'
@@ -279,13 +298,18 @@ param inputObj = {
   'ABCKey': 'ABCValue'
   '456Key': '456Value'
 }
-");
-            var result = CompilationHelper.Compile(@"
+";
+
+            var bicepTemplateText = @"
 param inputObj object
 
 output inputObjKeys array = [for item in items(inputObj): item.key]
 output inputObjValues array = [for item in items(inputObj): item.value]
-");
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var result = CompilationHelper.Compile(bicepTemplateText);
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
 
@@ -344,15 +368,17 @@ output joined3 string = join([
         [TestMethod]
         public void indexof_contains_function_evaluation_works()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param inputString = 'FOOBAR'
 param inputArray = [
   'FOO'
   'BAR'
 ]
-");
+";
 
-            var (template, _, _) = CompilationHelper.Compile(@"
+            var bicepTemplateText = @"
 param inputString string
 param inputArray array
 
@@ -377,7 +403,12 @@ output containsArrBarLC bool = contains(inputArray, 'bar')
 output containsArrBarUC bool = contains(inputArray, 'BAR')
 output containsArrfalse bool = contains(inputArray, false)
 output containsArr123 bool = contains(inputArray, 123)
-");
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var (template, _, _) = CompilationHelper.Compile(bicepTemplateText);
+
 
             using (new AssertionScope())
             {
@@ -412,7 +443,9 @@ output containsArr123 bool = contains(inputArray, 123)
         [TestMethod]
         public void List_comprehension_function_evaluation_works()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param doggos = [
   'Evie'
   'Casper'
@@ -420,9 +453,9 @@ param doggos = [
   'Kira'
 ]
 param numbers = [0, 1, 2, 3]
-");
+";
 
-            var (template, _, _) = CompilationHelper.Compile(@"
+            var bicepTemplateText = @"
 param doggos array
 param numbers array
 
@@ -478,7 +511,12 @@ var objectMap2 = toObject(numbers, i => '${i}', i => {
   isGreaterThan2: (i > 2)
 })
 var objectMap3 = toObject(sortByObjectKey, x => x.name)
-");
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var (template, _, _) = CompilationHelper.Compile(bicepTemplateText);
+
 
             using (new AssertionScope())
             {
@@ -731,13 +769,16 @@ output testFor array = [for record in testArray: {
         [TestMethod]
         public void Issue8782_2()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+            var bicepparamText = @"
+using 'main.bicep'
+
 param testObject = {
   a: true
   b: false
 }
-");
-            var result = CompilationHelper.Compile(@"
+";
+
+            var bicepTemplateText = @"
 param testObject object
 output output1 array = map(
   items(testObject),
@@ -746,7 +787,12 @@ output output1 array = map(
 output output2 array = map(
   items(testObject),
   subObject => subObject.key == 'a' ? [ 'yes' ] : [ 'no' ]
-)");
+)";
+
+            var (parameters, diag, comp) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var result = CompilationHelper.Compile(bicepTemplateText);
+
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
             evaluated.Should().HaveValueAtPath("$.outputs['output1'].value", JToken.Parse(@"[
@@ -832,12 +878,13 @@ output iDogs array = filter(dogs, dog =>  (contains(dog.name, 'C') || contains(d
         [TestMethod]
         public void Module_with_unknown_resourcetype_as_parameter_and_output_has_diagnostics()
         {
-            var (parameters, _, _) = CompilationHelper.CompileParams(@"
-param useMod1 = true
-");
+            var bicepparamText = @"
+using 'main.bicep'
 
-            var result = CompilationHelper.Compile(
-("main.bicep", @"
+param useMod1 = true
+";
+
+            var bicepTemplateText = @"
 param useMod1 bool
 
 module mod1 'module.bicep' = {
@@ -862,21 +909,26 @@ output test2 string = mod2.outputs.foo.bar
 output test3 string = (useMod1 ? mod1 : mod2).outputs.foo.bar
 output test4 string = selectedMod.outputs.foo.bar
 output test5 string = selectedMod2.outputs.foo.bar
-"),
-("module.bicep", @"
+";
+            var bicepModuleText = @"
 param bar string
 
 output foo object = {
   bar: bar
 }
-"));
+";
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters, config => config with {
+            var (parameters, diag, comp) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var result = CompilationHelper.Compile(("main.bicep", bicepTemplateText), ("module.bicep", bicepModuleText));
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters, config => config with
+            {
                 OnReferenceFunc = (resourceId, apiVersion, fullBody) =>
                 {
-                  var id = ResourceGroupLevelResourceId.Parse(resourceId);
-                  var barVal = id.FormatName() == "test" ? "abc" : "def";
-                  return JToken.Parse(@"{
+                    var id = ResourceGroupLevelResourceId.Parse(resourceId);
+                    var barVal = id.FormatName() == "test" ? "abc" : "def";
+                    return JToken.Parse(@"{
   ""outputs"": {
     ""foo"": {
       ""value"": {
@@ -893,6 +945,33 @@ output foo object = {
             evaluated.Should().HaveValueAtPath("$.outputs['test3'].value", "abc");
             evaluated.Should().HaveValueAtPath("$.outputs['test4'].value", "abc");
             evaluated.Should().HaveValueAtPath("$.outputs['test5'].value", "abc");
+        }
+
+        [TestMethod]
+        public void Az_getsecret_functions_are_evaluated_successfully()
+        {
+          var bicepTemplateText =  @"
+param param1 object
+output output1 object = param1
+";
+
+          var bicepparamText = @"
+using 'main.bicep'
+param param1 = { reference: 'param1' }
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var (template, diagnostics, _) = CompilationHelper.Compile(bicepTemplateText);
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+
+                diagnostics.Should().NotHaveAnyDiagnostics();
+
+                evaluated.Should().HaveValueAtPath("$.outputs['output1'].value.reference", $"param1");
+            }
         }
 
         [TestMethod]
@@ -928,6 +1007,54 @@ output properties object = {
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExist", JValue.CreateNull());
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.existsArrayAccess", "baz");
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExistArrayAccess", JValue.CreateNull());
+            }
+        }
+
+        [TestMethod]
+        public void Assertions_are_evaluated_correctly()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, AssertsEnabled: true));
+            var bicepFile = @"
+param accountName string
+param environment string
+param location string
+
+resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: toLower(accountName)
+  location: resourceGroup().location
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+var myInt = 24
+
+assert a1 = length(accountName) < myInt
+assert a2 = contains(location, 'us')
+assert a3 = environment == 'dev'
+";
+
+
+            var paramsFile = @"
+using 'main.bicep'
+
+// long string to trigger the assertion
+param accountName = 'asdgkbauskfabdsfibasdogbnasdognbaosdingoaisdngoisdangoinbdsaoigbsadoibgodsiabgos'
+param environment = 'dev'
+param location = 'westus'
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(services, ("parameters.bicepparam", paramsFile), ("main.bicep", bicepFile));
+            var (template, _, _) = CompilationHelper.Compile(services, bicepFile);
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+                
+                evaluated.Should().HaveValueAtPath("$.asserts['a1']", false);
+                evaluated.Should().HaveValueAtPath("$.asserts['a2']", true);
+                evaluated.Should().HaveValueAtPath("$.asserts['a3']", true);
             }
         }
     }

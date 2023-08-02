@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem.K8s
             {
                 case ObjectType bodyObjectType:
                     if (bodyObjectType.Properties.TryGetValue(NamePropertyName, out var nameProperty) &&
-                        nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString })
+                        nameProperty.TypeReference.Type is not StringType)
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
@@ -154,7 +154,7 @@ namespace Bicep.Core.TypeSystem.K8s
             }
 
             // It's important to cache this result because generating the resource type is an expensive operation
-            var resourceType =  definedTypeCache.GetOrAdd(flags, typeReference, () =>
+            var resourceType = definedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
                 var resourceType = this.resourceTypeLoader.LoadType(typeReference);
 
@@ -172,12 +172,35 @@ namespace Bicep.Core.TypeSystem.K8s
         }
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
-            => null;
+        {
+            var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
+            {
+                var resourceType = new ResourceTypeComponents(
+                    typeReference,
+                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                    ResourceScope.None,
+                    ResourceFlags.None,
+                    new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any));
+
+                return SetBicepResourceProperties(resourceType, flags);
+            });
+
+            return new(
+                declaringNamespace,
+                resourceType.TypeReference,
+                resourceType.ValidParentScopes,
+                resourceType.ReadOnlyScopes,
+                resourceType.Flags,
+                resourceType.Body,
+                UniqueIdentifierProperties);
+        }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
             => availableResourceTypes.Contains(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
+
+        public string Version { get; } = "1.0.0";
     }
 }

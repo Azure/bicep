@@ -11,21 +11,23 @@ using './main.bicep'
 // parameter assignment to literals
 param myString = 'hello world!!'
 param myInt = 42
-param myBool = true
+param myBool = false
+
+param numberOfVMs = 1
 
 // parameter assignment to objects
 param password = 'strongPassword'
 param secretObject = {
-    name : 'vm2'
-    location : 'westus'
+  name : 'vm2'
+  location : 'westus'
 }
 param storageSku = 'Standard_LRS'
 param storageName = 'myStorage'
 param someArray = [
-    'a'
-    'b'
-    'c'
-    'd'
+  'a'
+  'b'
+  'c'
+  'd'
 ]
 param emptyMetadata = 'empty!'
 param description = 'descriptive description'
@@ -34,3 +36,7 @@ param additionalMetadata = 'more metadata'
 param someParameter = 'three'
 param stringLiteral = 'abc'
 param decoratedString = 'Apple'
+param stringfromEnvironmentVariables = readEnvironmentVariable('stringEnvVariableName')
+param intfromEnvironmentVariables = int(readEnvironmentVariable('intEnvVariableName'))
+param boolfromEnvironmentVariables = bool(readEnvironmentVariable('boolEnvironmentVariable'))
+param intfromEnvironmentVariablesDefault = int(readEnvironmentVariable('intDefaultEnvVariableName','12'))

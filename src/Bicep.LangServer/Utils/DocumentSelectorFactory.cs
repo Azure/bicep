@@ -7,12 +7,6 @@ namespace Bicep.LanguageServer.Utils
 {
     public class DocumentSelectorFactory
     {
-        public static DocumentSelector Create() => DocumentSelector.ForLanguage(
-            LanguageConstants.LanguageId);
-
-        public static DocumentSelector CreateForParamsOnly() => DocumentSelector.ForLanguage(
-            LanguageConstants.ParamsLanguageId);
-
         public static DocumentSelector CreateForBicepAndParams() => DocumentSelector.ForLanguage(
             LanguageConstants.LanguageId,
             LanguageConstants.ParamsLanguageId);

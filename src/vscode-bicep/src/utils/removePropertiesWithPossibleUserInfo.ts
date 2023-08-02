@@ -3,11 +3,11 @@
 
 const deployParamsPattern = new RegExp(
   '(?<lhs>"token":\\s*")(?<token>[^"]+)"',
-  "g"
+  "g",
 );
 
 export function removePropertiesWithPossibleUserInfoInDeployParams(
-  value: string
+  value: string,
 ): string {
   return value.replace(deployParamsPattern, '$<lhs><REDACTED: token>"');
 }

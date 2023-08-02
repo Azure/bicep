@@ -192,6 +192,7 @@ aaa: bbb
             $"var foo = bar{Environment.NewLine}",
             new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true));
 
+        // TODO: fix in formatter v2.
         [TestMethod]
         public void PrintProgram_CommentAfterOpenSyntax_ShouldMoveToNextLineAndIndent() => this.TestPrintProgram(
 // Raw.
@@ -226,32 +227,34 @@ param bar array = [     /*I can be anywhere */          // I can be anywhere
   false
 ]",
 // Formatted.
-@"param foo object = { // I can be anywhere
+@"param foo object = {
+  // I can be anywhere
 }
 
-param foo object = { // I can be anywhere
+param foo object = {// I can be anywhere
   abc: true
 }
 
-param foo object = { /* I can be anywhere */
+param foo object = {/* I can be anywhere */
   abc: true
   xyz: false
 }
 
-param foo object = { /* I can
+param foo object = {/* I can
   be anywhere */
   abc: true
   xyz: false
 }
 
-param bar array = [ // I can be anywhere
+param bar array = [
+  // I can be anywhere
 ]
 
-param bar array = [ // I can be anywhere
+param bar array = [// I can be anywhere
   true
 ]
 
-param bar array = [ /*I can be anywhere */ // I can be anywhere
+param bar array = [/*I can be anywhere */ // I can be anywhere
   true
   false
 ]");
@@ -295,19 +298,18 @@ param bar array = [
   false
    /* I can be anywhere */       /* I can be anywhere */]",
 // Formatted.
-@"param foo object = { /* I can be anywhere */}
+@"param foo object = {/* I can be anywhere */ }
 
-param foo object = {
-/* I can be anywhere */}
+param foo object = {/* I can be anywhere */ }
 
 param foo object = {
   abc: true
-/* I can be anywhere */}
+/* I can be anywhere */ }
 
 param foo object = {
   abc: true
   xyz: false
-/* I can be anywhere */}
+/* I can be anywhere */ }
 
 param foo object = {
   abc: true
@@ -315,21 +317,20 @@ param foo object = {
 /* I
   can
   be anywhere
-  */}
+  */ }
 
-param bar array = [
-/* I can be anywhere */]
+param bar array = [/* I can be anywhere */ ]
 
-param bar array = [ /* I can be anywhere */]
+param bar array = [/* I can be anywhere */ ]
 
 param bar array = [
   true
-/* I can be anywhere */]
+/* I can be anywhere */ ]
 
 param bar array = [
   true
   false
-/* I can be anywhere */ /* I can be anywhere */]");
+/* I can be anywhere */ /* I can be anywhere */ ]");
 
         [TestMethod]
         public void PrintProgram_EmptyBlocks_ShouldFormatCorrectly() => this.TestPrintProgram(
@@ -361,24 +362,14 @@ param bar array = [
 ]",
 // Formatted.
 @"param foo object = {}
-param foo object = {
-}
-param foo object = {
-
-}
-param foo object = {
-
-}
+param foo object = {}
+param foo object = {}
+param foo object = {}
 
 param bar array = []
-param bar array = [
-]
-param bar array = [
-
-]
-param bar array = [
-
-]");
+param bar array = []
+param bar array = []
+param bar array = []");
 
         [TestMethod]
         public void PrintProgram_MultilineComment_ShouldReplaceNewlinesInTheCommentToo() => this.TestPrintProgram(
@@ -498,10 +489,8 @@ module myModule 'myModule' = {
 resource myResource2 'myResource' = {
   something: 'foo/${myName}/bar'
   properties: {
-    emptyObj: {
-    }
-    emptyArr: [
-    ]
+    emptyObj: {}
+    emptyArr: []
   }
 }
 
@@ -509,9 +498,7 @@ output myOutput1 int = 1 + num * 3
 output myOutput2 string = yes ? 'yes' : 'no'
 output myOutput3 object = yes ? {
   value: 42
-} : {
-
-}");
+} : {}");
 
         [TestMethod]
         public void PrintProgram_CommentBomb_ShouldFormatCorrectly()
@@ -576,7 +563,7 @@ null
  */
 
 /* I can be any
-where */module /* I can be anywhere */ foo /* I can be anywhere */ './myModule' = /* I can be anywhere */ {
+where */ module /* I can be anywhere */ foo /* I can be anywhere */ './myModule' = /* I can be anywhere */ {
   name /* I can be any where */: value // I can be anywhere
 }
 
@@ -588,17 +575,16 @@ var foo = {
 // I can be anywhere
 param foo string // I can be anywhere
 // I can be anywhere
-param bar string = { /* I can be
+param bar string = {/* I can be
 anywhere */ /* I can be anywhere */
   foo: true
   bar /* I can be anywhere */: false
-  /* I can be anywhere */baz: [
+  /* I can be anywhere */ baz: [
     bar
-    az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[ /* I can be anywhere */1 /* I can be anywhere */] /* I can be anywhere */. /* I can be anywhere */baz // I can be anywhere
+    az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[/* I can be anywhere */ 1 /* I can be anywhere */] /* I can be anywhere */./* I can be anywhere */ baz // I can be anywhere
     true
     {
-      m: [
-      ] /* I can be any
+      m: [] /* I can be any
 where */
       kkk: [
         // I can be any where
@@ -612,7 +598,7 @@ where */
       // I can be anywhere
     }
     null
-  /* I can be anywhere */ /* I can be anywhere */] // I can be any where
+  /* I can be anywhere */ /* I can be anywhere */ ] // I can be any where
 }
 /* I can be anywhere */");
         }
@@ -666,7 +652,6 @@ var test = 'adfsdf'
 
             var output = @"/* asdfasdf */
 var test = 'adfsdf'
-
 #disable-next-line asdf /*
 
 

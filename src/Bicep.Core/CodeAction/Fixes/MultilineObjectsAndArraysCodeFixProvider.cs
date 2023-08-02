@@ -35,7 +35,7 @@ namespace Bicep.Core.CodeAction.Fixes
         public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
         {
             var objectOrArray = matchingNodes.Where(x => x is ArraySyntax or ObjectSyntax).LastOrDefault();
-            if (objectOrArray is null || objectOrArray.HasParseErrors())
+            if (objectOrArray is null || semanticModel.HasParsingError(objectOrArray))
             {
                 yield break;
             }

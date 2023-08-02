@@ -10,6 +10,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -626,5 +627,127 @@ param myParam 'foo' | 'bar'
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public void Constraint_decorators_permitted_on_outputs()
+    {
+        var result = CompilationHelper.Compile(@"
+@minLength(3)
+@maxLength(5)
+@description('A string with a bunch of constraints')
+output foo string = 'foo'
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void User_defined_types_may_be_used_with_outputs()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(3)
+@maxLength(4)
+type constrainedString = string
+
+output arrayOfConstrainedStrings constrainedString[] = ['fizz', 'buzz', 'pop']
+");
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    public void Type_aliases_incorporate_modifiers_into_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@maxLength(2)
+type shortString = string
+
+param myString shortString = 'foo'
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_integer_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(@"
+@minValue(1)
+@maxValue(0)
+param myParam int
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP331", DiagnosticLevel.Error, "A type's \"minValue\" must be less than or equal to its \"maxValue\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_array_length_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(1)
+@maxLength(0)
+param myParam array
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
+
+    [TestMethod]
+    public void Impossible_string_length_domains_raise_descriptive_error()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(1)
+@maxLength(0)
+param myParam string
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        {
+            ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
+        });
+    }
+
+    [TestMethod]
+    public void Duplicate_property_names_should_raise_descriptive_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+            """
+            type foo = {
+                bar: bool
+                bar: string
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP025", DiagnosticLevel.Error, "The property \"bar\" is declared multiple times in this object. Remove or rename the duplicate properties.")
+        });
+    }
+
+    [TestMethod]
+    public void Union_types_with_single_normalized_member_raise_diagnostics()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, """
+            type union = 'a' | 'a'
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result.Template.Should().NotBeNull();
+        result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
+            {
+                "type": "string",
+                "allowedValues": ["a"]
+            }
+            """));
     }
 }

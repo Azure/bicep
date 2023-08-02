@@ -127,14 +127,14 @@ namespace Bicep.LangServer.IntegrationTests
                         continue;
                     }
 
-                    switch (symbol!.Kind)
+                    switch (symbol)
                     {
-                        case SymbolKind.Function when symbolReference is VariableAccessSyntax:
+                        case FunctionSymbol when symbolReference is VariableAccessSyntax:
                             // variable got bound to a function
                             hover.Should().BeNull();
                             break;
 
-                        case SymbolKind.Error:
+                        case ErrorSymbol:
                             // error symbol
                             hover.Should().BeNull();
                             break;
@@ -304,7 +304,7 @@ output string test = testRes.prop|erties.rea|donly
         }
 
         [TestMethod]
-        public async Task Hovers_are_displayed_on_discription_decorator_objects()
+        public async Task Hovers_are_displayed_on_description_decorator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 @description('''this is my module''')
@@ -339,12 +339,34 @@ resource test|Output string = 'str'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource  \n[View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/discriminatortests?tabs=bicep)\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource  \n[View Documentation](https://docs.microsoft.com/azure/templates/test.rp/discriminatortests?tabs=bicep)\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output  \n\n"));
         }
 
         [TestMethod]
-        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_bicep_modules()
+        public async Task Hovers_include_type_modifications()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@secure()
+@minLength(1)
+@maxLength(128)
+param constrainedSe|cureString string
+",
+                '|');
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n@minLength(1)\n@maxLength(128)\n@secure()\nparam constrainedSecureString: string\n```\n"));
+        }
+
+        [TestMethod]
+        public async Task Hovers_are_displayed_on_description_decorator_objects_across_bicep_modules()
         {
             var modFile = @"
 @description('this is param1')
@@ -397,6 +419,96 @@ output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
         }
 
         [TestMethod]
+        public async Task Hovers_are_displayed_on_description_metadata_in_bicep_module()
+        {
+            var modFile = @"
+metadata description = '''this
+is
+a description'''
+
+param description string
+output o1 string = description
+";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@description('''this is mod1''')
+module mod|1 './mod.bicep' = {
+  name: 'myMod'
+}
+
+output o1 string = mod|1.name
+",
+                '|');
+
+            var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+
+            var files = new Dictionary<Uri, string>
+            {
+                [bicepFile.FileUri] = file,
+                [moduleFile.FileUri] = modFile
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            var client = helper.Client;
+
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            var expectedHover = "```bicep\nmodule mod1 './mod.bicep'\n```\nthis is mod1  \n  \nthis  \nis  \na description\n";
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover),
+                h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover)
+            );
+        }
+
+        [DataTestMethod]
+        [DataRow("json")]
+        [DataRow("jsonc")]
+        public async Task Hovers_are_displayed_on_description_metadata_in_json_module(string extension)
+        {
+            var modFile = @"
+metadata description = '''this
+is
+a description'''
+
+param description string
+output o1 string = description
+";
+            var (file, cursors) = ParserHelper.GetFileWithCursors($@"
+@description('''this is mod1''')
+module mod|1 './mod.{extension}' = {{
+  name: 'myMod'
+}}
+
+output o1 string = mod|1.name
+",
+                '|');
+
+            var (template, diags, _) = CompilationHelper.Compile(modFile);
+            template!.Should().NotBeNull();
+            diags.Should().BeEmpty();
+
+            var moduleTemplateFile = SourceFileFactory.CreateArmTemplateFile(new Uri($"file:///path/to/mod.{extension}"), template!.ToString());
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+
+            var files = new Dictionary<Uri, string>
+            {
+                [bicepFile.FileUri] = file,
+                [moduleTemplateFile.FileUri] = template!.ToString()
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+            var client = helper.Client;
+
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            var expectedHover = $"```bicep\nmodule mod1 './mod.{extension}'\n```\nthis is mod1  \n  \nthis  \nis  \na description\n";
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover),
+                h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover)
+            );
+        }
+
+        [TestMethod]
         public async Task Function_hovers_include_descriptions_if_function_overload_has_been_resolved()
         {
             var hovers = await RequestHoversAtCursorLocations(@"
@@ -432,18 +544,17 @@ resource m|adeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01' = {}
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource foo 'Test.Rp/basicTests@2020-01-01'
 ```
-[View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
+[View Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource bar 'Test.Rp/basicTests@2020-01-01'
 ```
 This resource also has a description!  " + @"
-[View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
+[View Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
 ```
-
 "));
         }
 
@@ -468,7 +579,7 @@ var nsConcatFunc = sys.conc|at(any('hello'))
         }
 
         [TestMethod]
-        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_arm_modules()
+        public async Task Hovers_are_displayed_on_description_decorator_objects_across_arm_modules()
         {
             var modFile = @"
 @description('this is param1')
@@ -532,6 +643,46 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
         }
 
         [TestMethod]
+        public async Task Func_usage_hovers_display_information()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+@description('Checks whether the input is true in a roundabout way')
+func isTrue(input bool) bool => !(input == false)
+
+var test = is|True(false)
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents.MarkupContent!.Value.Should().Contain("""
+```bicep
+function isTrue(input: bool): bool
+```
+""");
+            hover!.Contents.MarkupContent!.Value.Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
+        public async Task Func_declaration_hovers_display_information()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+@description('Checks whether the input is true in a roundabout way')
+func isT|rue(input bool) bool => !(input == false)
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents.MarkupContent!.Value.Should().Contain("""
+```bicep
+function isTrue(input: bool): bool
+```
+""");
+            hover!.Contents.MarkupContent!.Value.Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -552,6 +703,9 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
         }
 
         [DataTestMethod]
+        //
+        // DocumentationUri only, no description
+        //
         [DataRow(
             "http://test.com",
             "br:test.azurecr.io/bicep/modules/storage:sha:12345",
@@ -559,15 +713,10 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             "bicep/modules/storage",
             "sha:12345",
             null,
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n[View Type Documentation](http://test.com)\n")]
-        [DataRow(
-            null,
-            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
-            "test.azurecr.io",
-            "bicep/modules/storage",
-            "sha:12345",
-            null,
-            "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n")]
+            null, // description
+
+             // documentationUri passed in, use it
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n[View Documentation](http://test.com)\n")]
         [DataRow(
             "http://test.com",
             "br:mcr.microsoft.com/bicep/modules/storage:1.0.1",
@@ -575,7 +724,10 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             "bicep/modules/storage",
             null,
             "1.0.1",
-             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/modules/storage:1.0.1'\n```\n[View Type Documentation](http://test.com)\n")]
+            null, // description
+
+            // documentationUri was passed in (overrides MCR location)
+            "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/modules/storage:1.0.1'\n```\n[View Documentation](http://test.com)\n")]
         [DataRow(
             null,
             "br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.1",
@@ -583,7 +735,10 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             "bicep/app/dapr-containerapps-environment",
             null,
             "1.0.1",
-             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.1'\n```\n[View Type Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.1/modules/app/dapr-containerapps-environment/README.md)\n")]
+            null, // description
+
+             // documentationUri calculated from MCR location
+             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.1'\n```\n[View Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.1/modules/app/dapr-containerapps-environment/README.md)\n")]
         [DataRow(
             null,
             "br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.2",
@@ -591,10 +746,70 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             "bicep/app/dapr-containerapps-environment",
             null,
             "1.0.2",
-             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.2'\n```\n[View Type Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.2/modules/app/dapr-containerapps-environment/README.md)\n")]
-        public async Task Verify_OverContainerRegistryModuleName(string? documentationUri, string repositoryAndTag, string registry, string repository, string? digest, string? tag, string expectedHoverContent)
+            null, // description
+
+             // documentationUri calculated from MCR location
+             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.2'\n```\n[View Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.2/modules/app/dapr-containerapps-environment/README.md)\n")]
+        //
+        // Description only, no documentationUri
+        //
+        [DataRow(
+            null,
+            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "test.azurecr.io",
+            "bicep/modules/storage",
+            "sha:12345",
+            null,
+            "my description", // description
+
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy description\n")]
+        [DataRow(
+            null,
+            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "test.azurecr.io",
+            "bicep/modules/storage",
+            "sha:12345",
+            null,
+            "my \\\"description\\\"", // description
+
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy \"description\"\n")]
+        [DataRow(
+            null,
+            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "test.azurecr.io",
+            "bicep/modules/storage",
+            "sha:12345",
+            null,
+            "my [description", // description
+
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy [description\n")]
+        //
+        // Neither documentationUri nor description
+        [DataRow(
+            null,
+            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "test.azurecr.io",
+            "bicep/modules/storage",
+            "sha:12345",
+            null,
+            null, // description
+
+            "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n")]
+        //
+        // Both documentationUri and description
+        //
+        [DataRow(
+            "http://test.com",
+            "br:test.azurecr.io/bicep/modules/storage:sha:12345",
+            "test.azurecr.io",
+            "bicep/modules/storage",
+            "sha:12345",
+            null,
+            "my description", // description
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy description  \n  \n[View Documentation](http://test.com)\n")]
+        public async Task Verify_Hover_ContainerRegistry(string? documentationUri, string repositoryAndTag, string registry, string repository, string? digest, string? tag, string? description, string expectedHoverContent)
         {
-            string manifestFileContents = GetManifestFileContents(documentationUri);
+            string manifestFileContents = GetManifestFileContents(documentationUri, description);
             var fileWithCursors = $@"module |test '{repositoryAndTag}' = {{
               name: 'abc'
             }}";
@@ -620,11 +835,76 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             hovers.Should().SatisfyRespectively(h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent));
         }
 
-        private string GetManifestFileContents(string? documentationUri)
+        [TestMethod]
+        public async Task ParamHovers_are_displayed_on_param_symbols_params_file()
         {
-            if (documentationUri is null)
+            var bicepText = @"
+@allowed(
+  [ 'value1'
+    'value2'
+  ]
+)
+@description('this is a string value')
+param foo string
+
+@allowed(
+    [
+        0
+        1
+    ]
+)
+@description('this is an int value')
+param bar int
+
+@description('this is a bool value')
+param foobar bool
+";
+
+            var bicepparamTextWithCursor = @"
+using 'main.bicep'
+
+param f|oo = 'value1'
+
+param ba|r = 1
+
+param foo|bar = true
+";
+
+            var (bicepparamText, cursors) = ParserHelper.GetFileWithCursors(bicepparamTextWithCursor, '|');
+
+            var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri("file:///path/to/params.bicepparam"), bicepparamText);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), bicepText);
+
+            var files = new Dictionary<Uri, string>
             {
-                return @"{
+                [paramsFile.FileUri] = bicepparamText,
+                [bicepFile.FileUri] = bicepText
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, paramsFile.FileUri);
+            var client = helper.Client;
+
+            var hovers = await RequestHovers(client, paramsFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foo: 'value1' | 'value2'\n```\nthis is a string value\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam bar: 0 | 1\n```\nthis is an int value\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foobar: bool\n```\nthis is a bool value\n")
+            );
+        }
+
+
+        private string GetManifestFileContents(string? documentationUri, string? description)
+        {
+            string annotations =
+                string.Join(
+                    ",",
+                    new string?[] {
+                        documentationUri is null ? null : $"\"org.opencontainers.image.documentation\": \"{documentationUri}\"",
+                        description is null ? description  : $"\"org.opencontainers.image.description\": \"{description}\"",
+                    }.WhereNotNull());
+
+            return @"{
   ""schemaVersion"": 2,
   ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
   ""config"": {
@@ -641,33 +921,8 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
       ""annotations"": {}
     }
   ],
-  ""annotations"": {}
+  ""annotations"": {" + annotations + @"}
   }";
-            }
-            else
-            {
-                return @"{
-  ""schemaVersion"": 2,
-  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
-  ""config"": {
-    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
-    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
-    ""size"": 0,
-    ""annotations"": {}
-  },
-  ""layers"": [
-    {
-      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
-      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
-      ""size"": 735131,
-      ""annotations"": {}
-    }
-  ],
-  ""annotations"": {
-    ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
-  }
-}";
-            }
         }
 
         private async Task<ILanguageClient> GetLanguageClientAsync(
@@ -717,7 +972,6 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
         private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectory)
         {
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
             features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
 
             var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
@@ -828,6 +1082,10 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                         }
                         break;
 
+                    case DeclaredFunctionSymbol declaredFunction:
+                        tooltip.Should().Contain($"function {declaredFunction.Name}(");
+                        break;
+
                     case LocalVariableSymbol local:
                         tooltip.Should().Contain($"{local.Name}: {local.Type}");
                         break;
@@ -853,13 +1111,23 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
         private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
         {
+            return await RequestHovers(client, bicepFile.FileUri, bicepFile.LineStarts, cursors);
+        }
+
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, BicepParamFile paramFile, IEnumerable<int> cursors)
+        {
+            return await RequestHovers(client, paramFile.FileUri, paramFile.LineStarts, cursors);
+        }
+
+        private static async Task<IEnumerable<Hover?>> RequestHovers(ILanguageClient client, Uri fileUri, IReadOnlyList<int> lineStarts, IEnumerable<int> cursors)
+        {
             var hovers = new List<Hover?>();
             foreach (var cursor in cursors)
             {
                 var hover = await client.RequestHover(new HoverParams
                 {
-                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
+                    TextDocument = new TextDocumentIdentifier(fileUri),
+                    Position = TextCoordinateConverter.GetPosition(lineStarts, cursor),
                 });
 
                 hovers.Add(hover);

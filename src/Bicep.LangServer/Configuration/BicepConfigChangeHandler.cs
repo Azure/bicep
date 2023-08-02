@@ -35,11 +35,7 @@ namespace Bicep.LanguageServer.Configuration
         public void RefreshCompilationOfSourceFilesInWorkspace()
         {
             configurationManager.PurgeCache();
-
-            foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
-            {
-                compilationManager.RefreshCompilation(DocumentUri.From(sourceFileUri));
-            }
+            compilationManager.RefreshAllActiveCompilations();
         }
 
         public void HandleBicepConfigOpenEvent(DocumentUri documentUri)
@@ -55,7 +51,7 @@ namespace Bicep.LanguageServer.Configuration
             configurationManager.PurgeLookupCache();
         }
 
-        private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri) 
+        private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
             => configurationManager.RefreshConfigCacheEntry(documentUri.ToUri());
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)

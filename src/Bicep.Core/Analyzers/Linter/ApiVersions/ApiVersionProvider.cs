@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions
@@ -20,12 +18,11 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         // One cache per target scope type
         private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
         private readonly IFeatureProvider features;
-        private readonly INamespaceProvider namespaceProvider;
-
-        public ApiVersionProvider(IFeatureProvider features, INamespaceProvider namespaceProvider)
+        private readonly IEnumerable<ResourceTypeReference> resourceTypeReferences;
+        public ApiVersionProvider(IFeatureProvider features, IEnumerable<ResourceTypeReference> resourceTypeReferences)
         {
             this.features = features;
-            this.namespaceProvider = namespaceProvider;
+            this.resourceTypeReferences = resourceTypeReferences;
         }
 
         // for unit testing
@@ -69,19 +66,9 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
                 return cache;
             }
             cache.typesCached = true;
+            var resourceTypesToCache = cache.injectedTypes ?? this.resourceTypeReferences;
 
-            IEnumerable<ResourceTypeReference> resourceTypeReferences;
-            if (cache.injectedTypes is null)
-            {
-                NamespaceResolver namespaceResolver = NamespaceResolver.Create(features, namespaceProvider, scope, Enumerable.Empty<ImportedNamespaceSymbol>());
-                resourceTypeReferences = namespaceResolver.GetAvailableResourceTypes();
-            }
-            else
-            {
-                resourceTypeReferences = cache.injectedTypes;
-            }
-
-            cache.CacheApiVersions(resourceTypeReferences);
+            cache.CacheApiVersions(resourceTypesToCache);
             return cache;
         }
 

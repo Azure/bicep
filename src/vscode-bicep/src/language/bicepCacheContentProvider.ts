@@ -24,7 +24,7 @@ export class BicepCacheContentProvider
          * Moving this to an event listener instead avoids these issues entirely.
          */
         this.tryFixCacheContentLanguage(document);
-      })
+      }),
     );
   }
 
@@ -32,12 +32,12 @@ export class BicepCacheContentProvider
 
   async provideTextDocumentContent(
     uri: vscode.Uri,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): Promise<string> {
     const response = await this.languageClient.sendRequest(
       bicepCacheRequestType,
       this.getBicepCacheRequest(uri),
-      token
+      token,
     );
 
     return response.content;
@@ -56,7 +56,7 @@ export class BicepCacheContentProvider
     const colonIndex = moduleReferenceWithLeadingSeparator.indexOf(":");
     if (colonIndex < 0) {
       throw new Error(
-        `The document URI '${document.uri.toString()}' has an unexpected format.`
+        `The document URI '${document.uri.toString()}' has an unexpected format.`,
       );
     }
 
@@ -75,7 +75,7 @@ export class BicepCacheContentProvider
       // Not necessary to wait for this to finish
       void vscode.languages.setTextDocumentLanguage(
         document,
-        this.getLanguageId(scheme)
+        this.getLanguageId(scheme),
       );
     }
   }
@@ -86,7 +86,7 @@ export class BicepCacheContentProvider
         return "json";
       case "br": {
         const armToolsExtension = vscode.extensions.getExtension(
-          "msazurermtools.azurerm-vscode-tools"
+          "msazurermtools.azurerm-vscode-tools",
         );
 
         // if ARM Tools extension is installed and active, use a more specific language ID

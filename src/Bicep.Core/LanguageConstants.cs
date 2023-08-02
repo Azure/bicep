@@ -34,6 +34,8 @@ namespace Bicep.Core
         public const string JsoncFileExtension = ".jsonc";
         public const string ArmTemplateFileExtension = ".arm";
 
+        public const string BicepPublicMcrRegistry = "mcr.microsoft.com";
+
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
         public const int MaxLiteralCharacterLimit = 131072;
@@ -56,8 +58,11 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+        public const string TestKeyword = "test";
+        public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
+        public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
 
@@ -81,7 +86,20 @@ namespace Bicep.Core
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
-        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { MetadataKeyword, ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword, TypeKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static readonly ImmutableSortedSet<string> DeclarationKeywords = ImmutableSortedSet.Create(
+            StringComparer.Ordinal,
+            new[]
+            {
+                AssertKeyword,
+                ImportKeyword,
+                MetadataKeyword,
+                ParameterKeyword,
+                VariableKeyword,
+                ResourceKeyword,
+                OutputKeyword,
+                ModuleKeyword,
+                TypeKeyword
+            });
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)
@@ -95,9 +113,9 @@ namespace Bicep.Core
 
         public const string ListFunctionPrefix = "list";
 
-        public const string McrRegistry = "mcr.microsoft.com";
         public const string McrRepositoryPrefix = "bicep/";
         public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
+        public const string OciOpenContainerImageDescriptionAnnotation = "org.opencontainers.image.description";
 
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
@@ -132,6 +150,7 @@ namespace Bicep.Core
         public const string ResourceDependsOnPropertyName = "dependsOn";
         public const string ResourceLocationPropertyName = "location";
         public const string ResourcePropertiesPropertyName = "properties";
+        public const string ResourceAssertPropertyName = "asserts";
 
         // types
         public const string TypeNameString = "string";
@@ -164,26 +183,27 @@ namespace Bicep.Core
         // the type of the dependsOn property in module and resource bodies
         public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
 
-        public static readonly TypeSymbol String = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol String = TypeFactory.CreateStringType();
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
-        public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol LooseString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
-        public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
+        public static readonly TypeSymbol SecureString = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment | TypeSymbolValidationFlags.IsSecure);
         public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol Int = new PrimitiveType(TypeNameInt, TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Int = TypeFactory.CreateIntegerType();
         // LooseInt should be regarded as equal to the 'int' type, but with different validation behavior
-        public static readonly TypeSymbol LooseInt = new PrimitiveType(TypeNameInt, TypeSymbolValidationFlags.AllowLooseAssignment);
-        public static readonly TypeSymbol Bool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol LooseInt = TypeFactory.CreateIntegerType(validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol Bool = TypeFactory.CreateBooleanType();
         // LooseBool should be regarded as equal to the 'bool' type, but with different validation behavior
-        public static readonly TypeSymbol LooseBool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.AllowLooseAssignment);
-        public static readonly TypeSymbol True = new BooleanLiteralType(true);
-        public static readonly TypeSymbol False = new BooleanLiteralType(false);
-        public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
-        public static readonly TypeSymbol Array = new ArrayType(ArrayType);
+        public static readonly TypeSymbol LooseBool = TypeFactory.CreateBooleanType(TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol True = TypeFactory.CreateBooleanLiteralType(true);
+        public static readonly TypeSymbol False = TypeFactory.CreateBooleanLiteralType(false);
+        public static readonly TypeSymbol Null = new NullType();
+        public static readonly TypeSymbol Array = TypeFactory.CreateArrayType();
 
-        public static readonly TypeSymbol StringFilePath = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.IsStringFilePath);
-        public static readonly TypeSymbol StringJsonFilePath = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
+        public static readonly TypeSymbol StringFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath);
+        public static readonly TypeSymbol StringJsonFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
+        public static readonly TypeSymbol StringYamlFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringYamlFilePath);
 
         //Type for available loadTextContent encoding
 
@@ -196,7 +216,7 @@ namespace Bicep.Core
             ["utf-16"] = Encoding.Unicode,
         }.ToImmutableSortedDictionary(IdentifierComparer);
 
-        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Keys.Select(s => new StringLiteralType(s)));
+        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Keys.Select(s => TypeFactory.CreateStringLiteralType(s)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);

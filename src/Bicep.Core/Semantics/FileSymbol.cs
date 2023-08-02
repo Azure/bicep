@@ -25,8 +25,7 @@ namespace Bicep.Core.Semantics
             ISymbolContext context,
             BicepSourceFile sourceFile,
             NamespaceResolver namespaceResolver,
-            IEnumerable<LocalScope> outermostScopes,
-            ImmutableArray<DeclaredSymbol> declarations)
+            LocalScope fileScope)
             : base(sourceFile.FileUri.LocalPath)
         {
             this.Context = context;
@@ -34,20 +33,22 @@ namespace Bicep.Core.Semantics
             this.NamespaceResolver = namespaceResolver;
             this.FileUri = sourceFile.FileUri;
             this.FileKind = sourceFile.FileKind;
-            this.LocalScopes = outermostScopes.ToImmutableArray();
+            this.LocalScopes = fileScope.ChildScopes;
 
-            // TODO: Avoid looping 8 times?
-            this.DeclarationsBySyntax = declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
-            this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
-            this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
-            this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
-            this.TypeDeclarations = declarations.OfType<TypeAliasSymbol>().ToImmutableArray();
-            this.VariableDeclarations = declarations.OfType<VariableSymbol>().ToImmutableArray();
-            this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
-            this.ModuleDeclarations = declarations.OfType<ModuleSymbol>().ToImmutableArray();
-            this.OutputDeclarations = declarations.OfType<OutputSymbol>().ToImmutableArray();
-            this.ParameterAssignments = declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
-
+            // TODO: Avoid looping 10 times?
+            this.DeclarationsBySyntax = fileScope.Declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
+            this.ImportDeclarations = fileScope.Declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
+            this.MetadataDeclarations = fileScope.Declarations.OfType<MetadataSymbol>().ToImmutableArray();
+            this.ParameterDeclarations = fileScope.Declarations.OfType<ParameterSymbol>().ToImmutableArray();
+            this.TypeDeclarations = fileScope.Declarations.OfType<TypeAliasSymbol>().ToImmutableArray();
+            this.VariableDeclarations = fileScope.Declarations.OfType<VariableSymbol>().ToImmutableArray();
+            this.FunctionDeclarations = fileScope.Declarations.OfType<DeclaredFunctionSymbol>().ToImmutableArray();
+            this.ResourceDeclarations = fileScope.Declarations.OfType<ResourceSymbol>().ToImmutableArray();
+            this.ModuleDeclarations = fileScope.Declarations.OfType<ModuleSymbol>().ToImmutableArray();
+            this.OutputDeclarations = fileScope.Declarations.OfType<OutputSymbol>().ToImmutableArray();
+            this.AssertDeclarations = fileScope.Declarations.OfType<AssertSymbol>().ToImmutableArray();
+            this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
+            this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
 
             this.usingDeclarationLazy = new Lazy<UsingDeclarationSyntax?>(() => this.Syntax.Children.OfType<UsingDeclarationSyntax>().FirstOrDefault());
@@ -61,9 +62,11 @@ namespace Bicep.Core.Semantics
             .Concat(this.ParameterDeclarations)
             .Concat(this.TypeDeclarations)
             .Concat(this.VariableDeclarations)
+            .Concat(this.FunctionDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations)
+            .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments);
 
         public IEnumerable<Symbol> Namespaces =>
@@ -94,11 +97,17 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<VariableSymbol> VariableDeclarations { get; }
 
+        public ImmutableArray<DeclaredFunctionSymbol> FunctionDeclarations { get; }
+
         public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
 
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
+
+        public ImmutableArray<AssertSymbol> AssertDeclarations { get; }
+
+        public ImmutableArray<TestSymbol> TestDeclarations { get; }
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
 
@@ -110,6 +119,8 @@ namespace Bicep.Core.Semantics
         /// Returns all the top-level declaration symbols.
         /// </summary>
         public IEnumerable<DeclaredSymbol> Declarations => this.Descendants.OfType<DeclaredSymbol>();
+
+        public ScopeResolution ScopeResolution => ScopeResolution.GlobalsOnly;
 
         public override void Accept(SymbolVisitor visitor)
         {
@@ -203,7 +214,7 @@ namespace Bicep.Core.Semantics
                 var outputDeclarations = scope.Declarations.OfType<OutputSymbol>();
                 var metadataDeclarations = scope.Declarations.OfType<MetadataSymbol>();
                 var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
-                var referenceableDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol and not MetadataSymbol);
+                var referenceableDeclarations = scope.Declarations.Where(decl => decl.CanBeReferenced());
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
                 this.Diagnostics.AddRange(

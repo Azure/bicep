@@ -30,6 +30,13 @@ namespace Bicep.Core.TypeSystem
             return visitor.deployTimeConstantContainers;
         }
 
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            this.deployTimeConstantContainers.Add(syntax);
+
+            base.VisitFunctionDeclarationSyntax(syntax);
+        }
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             if (syntax.IsExistingResource())

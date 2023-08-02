@@ -8,5 +8,7 @@ namespace Bicep.Core.Semantics
         ITypeManager TypeManager { get; }
 
         Compilation Compilation { get; }
+
+        IBinder Binder { get; }
     }
 }

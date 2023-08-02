@@ -559,7 +559,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-Azure.Deployments.Internal.GenerateNotice 0.1.31 - MIT
+Azure.Deployments.Internal.GenerateNotice 0.1.32 - MIT
 
 
 Copyright (c) 2019, App
@@ -775,7 +775,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Nerdbank.GitVersioning 3.5.119 - MIT
+Nerdbank.GitVersioning 3.6.133 - MIT
 
 
 Copyright 1995-2017 Mark Adler

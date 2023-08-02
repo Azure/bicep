@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -34,7 +35,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
@@ -50,7 +51,7 @@ namespace Bicep.Core.UnitTests.Registry
                 digest: "sha:12345",
                 cacheRootDirectory: false);
 
-            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
@@ -83,7 +84,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
         }
@@ -121,9 +122,85 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDocumentationUri_WithAnnotationsInManifestFile_ButEmpty_ShouldReturnNullDocumentationAndDescription()
+        {
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ],
+  ""annotations"": {
+  }
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var documentation = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
+            documentation.Should().BeNull();
+
+            var description = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            description.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDocumentationUri_WithAnnotationsInManifestFile_ButOnlyHasOtherProperties_ShouldReturnNullDocumentationAndDescription()
+        {
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ],
+  ""annotations"": {
+     ""org.opencontainers.image.notdocumentation"": """ + "documentationUri" + @""",
+     ""org.opencontainers.image.notdescription"": """ + "description" + @"""
+  }
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var documentation = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
+            documentation.Should().BeNull();
+
+            var description = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+            description.Should().BeNull();
         }
 
         [TestMethod]
@@ -158,7 +235,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(documentationUri);
@@ -204,10 +281,233 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/app/dapr-containerapps-environment/bicep/core",
                 tag: "1.0.1");
 
-            var result = ociModuleRegistry.GetDocumentationUri(ociArtifactModuleReference);
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/bicep/core/1.0.1/modules/app/dapr-containerapps-environment/bicep/core/README.md");
+        }
+
+        [DataRow("")]
+        [DataRow("    ")]
+        [DataRow(null)]
+        [DataTestMethod]
+        public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
+        {
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var result = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDescription_WithNonExistentManifestFile_ShouldReturnNull()
+        {
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                "some_manifest_text",
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                digest: "sha:12345",
+                cacheRootDirectory: false);
+
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDescription_WithManifestFileAndNoAnnotations_ShouldReturnNull()
+        {
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ]
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDescription_WithManifestFileAndJustDocumentationUri_ShouldReturnNull()
+        {
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {
+        ""org.opencontainers.image.documentation"": ""https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md""
+      }
+    }
+  ]
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDescription_WithValidDescriptionInManifestFile_ShouldReturnDescription()
+        {
+            var description = @"My description is this: https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ],
+  ""annotations"": {
+    ""org.opencontainers.image.description"": """ + description + @"""
+  }
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+
+            result.Should().NotBeNull();
+            result.Should().BeEquivalentTo(description);
+        }
+
+        [DataRow("")]
+        [DataRow("   ")]
+        [DataTestMethod]
+        public async Task GetDescription_WithAnnotationsInManifestFileAndInvalidDescription_ShouldReturnNull(string description)
+        {
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ],
+  ""annotations"": {
+    ""org.opencontainers.image.description"": """ + description + @"""
+  }
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var result = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetDescription_WithValidDescriptionAndDocumentationUriInManifestFile_ShouldReturnDescriptionAndDocumentationUri()
+        {
+            var documentationUri = @"https://github.com/Azure/bicep-registry-modules/blob/main/modules/samples/hello-world/README.md";
+            var description = "This is my \\\"description\\\"";
+            var manifestFileContents = @"{
+  ""schemaVersion"": 2,
+  ""artifactType"": ""application/vnd.ms.bicep.module.artifact"",
+  ""config"": {
+    ""mediaType"": ""application/vnd.ms.bicep.module.config.v1+json"",
+    ""digest"": ""sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"",
+    ""size"": 0,
+    ""annotations"": {}
+  },
+  ""layers"": [
+    {
+      ""mediaType"": ""application/vnd.ms.bicep.module.layer.v1+json"",
+      ""digest"": ""sha256:9846dcfde47a4b2943be478754d1169ece3adc6447c9596d9ba48e2579c24173"",
+      ""size"": 735131,
+      ""annotations"": {}
+    }
+  ],
+  ""annotations"": {
+    ""org.opencontainers.image.documentation"": """ + documentationUri + @""",
+    ""org.opencontainers.image.description"": """ + description + @"""
+  }
+}";
+            (OciModuleRegistry ociModuleRegistry, OciArtifactModuleReference ociArtifactModuleReference) = GetOciModuleRegistryAndOciArtifactModuleReference(
+                "output myOutput string = 'hello!'",
+                manifestFileContents,
+                "test.azurecr.io",
+                "bicep/modules/storage",
+                "sha:12345");
+
+            var actualDocumentationUri = ociModuleRegistry.TryGetDocumentationUri(ociArtifactModuleReference);
+
+            actualDocumentationUri.Should().NotBeNull();
+            actualDocumentationUri.Should().BeEquivalentTo(documentationUri);
+
+            var actualDescription = await ociModuleRegistry.TryGetDescription(ociArtifactModuleReference);
+
+            actualDescription.Should().NotBeNull();
+            actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json
         }
 
         private (OciModuleRegistry, OciArtifactModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(
@@ -241,7 +541,6 @@ namespace Bicep.Core.UnitTests.Registry
         private IFeatureProvider GetFeatures(bool cacheRootDirectory, string rootDirectory)
         {
             var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.RegistryEnabled).Returns(true);
 
             if (cacheRootDirectory)
             {

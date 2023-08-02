@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 
 namespace Bicep.LanguageServer.Completions
@@ -54,7 +55,7 @@ namespace Bicep.LanguageServer.Completions
         ResourceType = 1UL << 7,
 
         /// <summary>
-        /// The current location needs a module path.
+        /// The current location needs a module path (local or remote)
         /// </summary>
         ModulePath = 1UL << 8,
 
@@ -198,6 +199,31 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location is after the output type.
         /// </summary>
-        OutputTypeFollower = 1UL << 36
+        OutputTypeFollower = 1UL << 36,
+
+        /// <summary>
+        /// The current location can accept a symbolic reference to a resource.
+        /// </summary>
+        ExpectsResourceSymbolicReference = 1UL << 37,
+
+        /// <summary>
+        /// Cursor is on a typed lambda argument type.
+        /// </summary>
+        TypedLocalVariableType = 1UL << 38,
+
+        /// <summary>
+        /// Cursor is on a typed lambda output type.
+        /// </summary>
+        TypedLambdaOutputType = 1UL << 39,
+
+        /// <summary>
+        /// The current location needs a module path (local or remote)
+        /// </summary>
+        TestPath = 1UL << 40,
+        
+        /// <summary>
+        /// The current location needs an assert value.
+        /// </summary>
+        AssertValue = 1UL << 41,
     }
 }

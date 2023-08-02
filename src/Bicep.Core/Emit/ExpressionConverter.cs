@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -95,6 +96,11 @@ namespace Bicep.Core.Emit
                         function.Name,
                         function.Parameters.Select(p => ConvertExpression(p)));
 
+                case UserDefinedFunctionCallExpression function:
+                    return CreateFunction(
+                        $"{EmitConstants.UserDefinedFunctionsNamespace}.{function.Name}",
+                        function.Parameters.Select(p => ConvertExpression(p)));
+
                 case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix): {
                     var resource = listFunction.Resource.Metadata;
                     var resourceIdExpression = new PropertyAccessExpression(
@@ -127,7 +133,7 @@ namespace Bicep.Core.Emit
                     return GetReferenceExpression(exp.Metadata, exp.IndexContext, true);
 
                 case ModuleReferenceExpression exp:
-                    return GetModuleReferenceExpression(exp.Module, exp.IndexContext);
+                    return GetModuleReferenceExpression(exp.Module, exp.IndexContext, false);
 
                 case VariableReferenceExpression exp:
                     return CreateFunction("variables", new JTokenExpression(exp.Variable.Name));
@@ -136,6 +142,9 @@ namespace Bicep.Core.Emit
                     return CreateFunction("variables", new JTokenExpression(exp.Name));
 
                 case ParametersReferenceExpression exp:
+                    return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
+
+                case ParametersAssignmentReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
 
                 case LambdaExpression exp:
@@ -147,6 +156,10 @@ namespace Bicep.Core.Emit
                         variableNames.Concat(body));
 
                 case LambdaVariableReferenceExpression exp:
+                    if (exp.IsFunctionLambda)
+                    {
+                        return CreateFunction("parameters", new JTokenExpression(exp.Variable.Name));
+                    }
                     return CreateFunction("lambdaVariables", new JTokenExpression(exp.Variable.Name));
 
                 case CopyIndexExpression exp:
@@ -260,12 +273,12 @@ namespace Bicep.Core.Emit
             else if (resource is ModuleOutputResourceMetadata output)
             {
                 // there are some slight variations if a safe dereference operator was used on the output itself, e.g., `mod.outputs.?myResource.<prop>`
-                var shortCircuitableResourceRef = reference.SourceSyntax is AccessExpressionSyntax accessExpression && accessExpression.SafeAccessMarker is not null;
+                var shortCircuitableResourceRef = reference.SourceSyntax is AccessExpressionSyntax accessExpression && accessExpression.IsSafeAccess;
                 switch (propertyName)
                 {
                     case "id" when shortCircuitableResourceRef:
                         return (
-                            AppendProperties(GetModuleReferenceExpression(output.Module, null), new JTokenExpression("outputs")),
+                            AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                             new LanguageExpression[]
                             {
                                 new JTokenExpression(output.OutputName),
@@ -273,7 +286,14 @@ namespace Bicep.Core.Emit
                             },
                             true);
                     case "id":
-                        return (GetFullyQualifiedResourceId(output), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return (
+                            AppendProperties(
+                                GetModuleReferenceExpression(output.Module, null, true),
+                                new JTokenExpression("outputs"),
+                                new JTokenExpression(output.OutputName),
+                                new JTokenExpression("value")),
+                            Enumerable.Empty<LanguageExpression>(),
+                            safeAccess);
                     case "type":
                         return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
                     case "apiVersion":
@@ -288,7 +308,7 @@ namespace Bicep.Core.Emit
                                     new FunctionExpression("contains",
                                         new LanguageExpression[]
                                         {
-                                            AppendProperties(GetModuleReferenceExpression(output.Module, null), new JTokenExpression("outputs")),
+                                            AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                                             new JTokenExpression(output.OutputName),
                                         },
                                         Array.Empty<LanguageExpression>()),
@@ -346,7 +366,7 @@ namespace Bicep.Core.Emit
         {
             // the name is dependent on the name expression which could involve locals in case of a resource collection
             "name" => (GetModuleNameExpression(reference.Module), Enumerable.Empty<LanguageExpression>(), false),
-            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext),
+            "outputs" => (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
                 new[] { new JTokenExpression("outputs") },
                 expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)),
             string otherwise => throw new InvalidOperationException($"Unsupported module property: {otherwise}"),
@@ -456,7 +476,7 @@ namespace Bicep.Core.Emit
             else if (resource is ModuleOutputResourceMetadata output)
             {
                 return AppendProperties(
-                    GetModuleReferenceExpression(output.Module, null),
+                    GetModuleReferenceExpression(output.Module, null, true),
                     new JTokenExpression("outputs"),
                     new JTokenExpression(output.OutputName),
                     new JTokenExpression("value"));
@@ -487,17 +507,27 @@ namespace Bicep.Core.Emit
                 GetModuleNameExpression(moduleSymbol).AsEnumerable());
         }
 
-        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
+        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, bool isModuleOutputResource)
         {
+            var isDirectCollectionAccess = !isModuleOutputResource && indexContext == null && moduleSymbol is { IsCollection: true };
+            var referenceFunctionName = isDirectCollectionAccess ? "references" : "reference";
+
             if (context.Settings.EnableSymbolicNames)
             {
                 return CreateFunction(
-                    "reference",
+                    referenceFunctionName,
                     GenerateSymbolicReference(moduleSymbol, indexContext));
             }
 
+            if (isDirectCollectionAccess)
+            {
+                return CreateFunction(
+                    referenceFunctionName,
+                    new JTokenExpression(moduleSymbol.Name)); // this is the copy name
+            }
+
             return CreateFunction(
-                "reference",
+                referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol),
                 new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion));
         }
@@ -512,14 +542,16 @@ namespace Bicep.Core.Emit
                     Array.Empty<LanguageExpression>()),
 
                 ModuleOutputResourceMetadata output => AppendProperties(
-                    GetModuleReferenceExpression(output.Module, null),
+                    GetModuleReferenceExpression(output.Module, null, true),
                     new JTokenExpression("outputs"),
                     new JTokenExpression(output.OutputName),
                     new JTokenExpression("value")),
 
                 DeclaredResourceMetadata declared when context.Settings.EnableSymbolicNames =>
                     GenerateSymbolicReference(declared, indexContext),
-                DeclaredResourceMetadata => GetFullyQualifiedResourceId(resource),
+                DeclaredResourceMetadata declared => declared.Symbol.IsCollection && indexContext == null
+                    ? new JTokenExpression(declared.Symbol.Name) // this is the copy name
+                    : GetFullyQualifiedResourceId(resource),
 
                 _ => throw new InvalidOperationException($"Unexpected resource metadata type: {resource.GetType()}"),
             };
@@ -531,6 +563,18 @@ namespace Bicep.Core.Emit
                 return CreateFunction(
                     "reference",
                     referenceExpression);
+            }
+
+            if (resource is DeclaredResourceMetadata { Symbol.IsCollection: true } && indexContext == null)
+            {
+                return full
+                    ? CreateFunction(
+                        "references",
+                        referenceExpression,
+                        new JTokenExpression("full"))
+                    : CreateFunction(
+                        "references",
+                        referenceExpression);
             }
 
             // full gives access to top-level resource properties, but generates a longer statement

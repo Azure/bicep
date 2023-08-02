@@ -11,7 +11,10 @@ statement ->
   variableDecl |
   resourceDecl |
   moduleDecl |
+  testDecl |
+  assertDel |
   outputDecl |
+  functionDecl |
   NL
 
 targetScopeDecl -> "targetScope" "=" expression
@@ -37,10 +40,16 @@ resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "exist
 
 moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object | forExpression) NL
 
+testDecl -> "test" IDENTIFIER(name) interpString(type) "=" (object) NL
+
+assertDecl -> decorator* "assert" IDENTIFIER(name) "=" expression NL
+
 outputDecl ->
   decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
   decorator* "output" IDENTIFIER(name) "resource" interpString(type) "=" expression NL
 NL -> ("\n" | "\r")+
+
+functionDecl -> decorator* "func" IDENTIFIER(name) typedLambdaExpression NL
 
 decorator -> "@" decoratorExpression NL
 
@@ -106,13 +115,18 @@ primaryExpression ->
 
 decoratorExpression -> functionCall | memberExpression "." functionCall
 
-functionCall -> IDENTIFIER "(" argumentList? ")"
-
 argumentList -> expression ("," expression)*
+functionCall -> IDENTIFIER "(" argumentList? ")"
 
 parenthesizedExpression -> "(" expression ")"
 
-lambdaExpression -> ( "(" argumentList? ")" | IDENTIFIER ) "=>" expression
+localVariable -> IDENTIFIER
+variableBlock -> "(" ( localVariable ("," localVariable)* )? ")"
+lambdaExpression -> ( variableBlock | localVariable ) "=>" expression
+
+typedLocalVariable -> IDENTIFIER primaryTypeExpression
+typedVariableBlock -> "(" ( typedLocalVariable ("," typedLocalVariable)* )? ")"
+typedLambdaExpression -> typedVariableBlock primaryTypeExpression "=>" expression
 
 ifCondition -> "if" parenthesizedExpression object
 

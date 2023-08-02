@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -8,7 +7,6 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -24,11 +22,11 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private SemanticModel CreateSemanticModel(string paramsFilePath)
+        private SemanticModel CreateSemanticModel(ServiceBuilder services, string paramsFilePath)
         {
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var sourceFileGrouping = Services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
-            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
+            var sourceFileGrouping = services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
+            var compilation = services.Build().BuildCompilation(sourceFileGrouping);
 
             return compilation.GetEntrypointSemanticModel();
         }
@@ -40,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(data.Parameters.OutputFilePath);
+            var model = CreateSemanticModel(Services, data.Parameters.OutputFilePath);
 
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()
@@ -62,7 +60,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(data.Parameters.OutputFilePath);
+            var model = CreateSemanticModel(Services, data.Parameters.OutputFilePath);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
@@ -79,6 +77,13 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             data.Symbols.WriteToOutputFolder(sourceTextWithDiags);
             data.Symbols.ShouldHaveExpectedValue();
+        }
+        [TestInitialize]
+        public void testInit()
+        {
+            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
+            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
+            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
         }
     }
 }

@@ -21,6 +21,8 @@ namespace Bicep.Core.Registry
 
         bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
+        bool TryGetModuleReference(TestDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+
         RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
 
         ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
@@ -29,7 +31,9 @@ namespace Bicep.Core.Registry
 
         Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false);
 
-        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri = null);
+        Task<bool> CheckModuleExists(ModuleReference moduleReference);
+
+        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri);
 
         void PruneRestoreStatuses();
     }

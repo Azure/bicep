@@ -1,6 +1,7 @@
 param deployTimeParam string = 'steve'
 //@[00:1098) ProgramExpression
 //@[00:0038) ├─DeclaredParameterExpression { Name = deployTimeParam }
+//@[22:0028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:0038) | └─StringLiteralExpression { Value = steve }
 //@[00:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[00:0000) |   └─ResourceReferenceExpression [UNPARENTED]
@@ -59,6 +60,7 @@ var resourceDependency = {
 
 output resourceAType string = resA.type
 //@[00:0039) ├─DeclaredOutputExpression { Name = resourceAType }
+//@[21:0027) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[30:0039) | └─PropertyAccessExpression { PropertyName = type }
 //@[30:0034) |   └─ResourceReferenceExpression
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
@@ -82,6 +84,7 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 
 output resourceBId string = resB.id
 //@[00:0035) ├─DeclaredOutputExpression { Name = resourceBId }
+//@[19:0025) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[28:0035) | └─PropertyAccessExpression { PropertyName = id }
 //@[28:0032) |   └─ResourceReferenceExpression
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
@@ -157,6 +160,7 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 
 output resourceCProperties object = resC.properties
 //@[00:0051) └─DeclaredOutputExpression { Name = resourceCProperties }
+//@[27:0033)   ├─AmbientTypeReferenceExpression { Name = object }
 //@[36:0051)   └─PropertyAccessExpression { PropertyName = properties }
 //@[36:0040)     └─ResourceReferenceExpression
 

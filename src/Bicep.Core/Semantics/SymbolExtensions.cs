@@ -51,7 +51,7 @@ namespace Bicep.Core.Semantics
         /// <param name="functionSymbol">The function symbol to inspect</param>
         /// <param name="argIndex">The index of the function argument</param>
         /// <param name="getAssignedArgumentType">Function to look up the assigned type of a given argument</param>
-        public static TypeSymbol GetDeclaredArgumentType(this FunctionSymbol functionSymbol, int argIndex, GetFunctionArgumentType? getAssignedArgumentType = null)
+        public static TypeSymbol GetDeclaredArgumentType(this IFunctionSymbol functionSymbol, int argIndex, GetFunctionArgumentType? getAssignedArgumentType = null)
         {
             // if we have a mix of wildcard and non-wildcard overloads, prioritize the non-wildcard overloads.
             // the wildcards have super generic type definitions, so don't result in helpful completions.
@@ -81,5 +81,11 @@ namespace Bicep.Core.Semantics
 
             return TypeHelper.CreateTypeUnion(argTypes);
         }
+
+        /// <summary>
+        ///   Certain declarations (outputs and metadata) define symbols which can't be referenced by name. This method allows you to filter out non-referencable symbols.
+        /// </summary>
+        public static bool CanBeReferenced(this DeclaredSymbol declaredSymbol)
+            => declaredSymbol is not OutputSymbol and not MetadataSymbol;
     }
 }

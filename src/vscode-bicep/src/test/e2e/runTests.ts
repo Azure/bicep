@@ -17,13 +17,13 @@ async function go() {
     // We also don't want it to be included in the /out folder.
     const packageJsonPath = path.resolve(__dirname, "../../../package.json");
     const packageJson = JSON.parse(
-      fs.readFileSync(packageJsonPath, { encoding: "utf-8" })
+      fs.readFileSync(packageJsonPath, { encoding: "utf-8" }),
     );
     const minSupportedVSCodeSemver = minVersion(packageJson.engines.vscode);
 
     if (!minSupportedVSCodeSemver) {
       throw new Error(
-        "Ensure 'engines.vscode' is properly set in package.json"
+        "Ensure 'engines.vscode' is properly set in package.json",
       );
     }
 
@@ -62,6 +62,8 @@ async function go() {
         extensionTestsPath: path.resolve(__dirname, "index"),
         extensionTestsEnv: { TEST_MODE: "e2e" },
         launchArgs: [
+          "--no-sandbox",
+          "--disable-gpu-sandbox",
           "--enable-proposed-api=ms-azuretools.vscode-bicep",
           ...userDataArguments,
         ],

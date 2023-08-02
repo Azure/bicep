@@ -65,6 +65,9 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 param paramUsingType mixedArray
 //@[6:20) Parameter paramUsingType. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 31
 
+output outputUsingType mixedArray = paramUsingType
+//@[7:22) Output outputUsingType. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 50
+
 type tuple = [
 //@[5:10) TypeAlias tuple. Type: Type<[string, bar]>. Declaration start char: 0, length: 129
     @description('A leading string')
@@ -79,11 +82,25 @@ type stringStringDictionary = {
     *: string
 }
 
+@minValue(1)
+@maxValue(10)
+type constrainedInt = int
+//@[5:19) TypeAlias constrainedInt. Type: Type<int>. Declaration start char: 0, length: 52
+
 param mightIncludeNull ({key: 'value'} | null)[]
 //@[6:22) Parameter mightIncludeNull. Type: (null | { key: 'value' })[]. Declaration start char: 0, length: 48
 
-var maybeNull = mightIncludeNull[0]!.key
-//@[4:13) Variable maybeNull. Type: 'value'. Declaration start char: 0, length: 40
+var nonNull = mightIncludeNull[0]!.key
+//@[4:11) Variable nonNull. Type: 'value'. Declaration start char: 0, length: 38
+
+output nonNull string = nonNull
+//@[7:14) Output nonNull. Type: string. Declaration start char: 0, length: 31
+
+var maybeNull = mightIncludeNull[0].?key
+//@[4:13) Variable maybeNull. Type: 'value' | null. Declaration start char: 0, length: 40
+
+output maybeNull string? = maybeNull
+//@[7:16) Output maybeNull. Type: null | string. Declaration start char: 0, length: 36
 
 type nullable = string?
 //@[5:13) TypeAlias nullable. Type: Type<null | string>. Declaration start char: 0, length: 23

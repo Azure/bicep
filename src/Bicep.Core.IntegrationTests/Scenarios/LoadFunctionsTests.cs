@@ -31,7 +31,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 ";
         private static readonly string B64_TEXT_CONTENT = Convert.ToBase64String(Encoding.UTF8.GetBytes(TEXT_CONTENT));
-        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent }
+        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent, loadYamlContent }
         private static string ExpectedResult(FunctionCase function) => function switch
         {
             FunctionCase.loadTextContent => TEXT_CONTENT,
@@ -222,12 +222,6 @@ output out string = message
         }
 
         [DataTestMethod]
-        [DataRow(FunctionCase.loadTextContent, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadTextContent: variable in interpolation")]
-        [DataRow(FunctionCase.loadFileAsBase64, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadFileAsBase64: variable in interpolation")]
-        [DataRow(FunctionCase.loadJsonContent, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadJsonContent: variable in interpolation")]
-        [DataRow(FunctionCase.loadTextContent, "", "'${'fileName'}'", DisplayName = "loadTextContent: string literal in interpolation")]
-        [DataRow(FunctionCase.loadFileAsBase64, "", "'${'fileName'}'", DisplayName = "loadFileAsBase64: string literal in interpolation")]
-        [DataRow(FunctionCase.loadJsonContent, "", "'${'fileName'}'", DisplayName = "loadJsonContent: string literal in interpolation")]
         [DataRow(FunctionCase.loadTextContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadTextContent: parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadFileAsBase64: parameter")]
         [DataRow(FunctionCase.loadJsonContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadJsonContent: parameter")]
@@ -291,6 +285,14 @@ var files = [
   encoding: encoding
  }
 ]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadJsonContent: encoding param as object property in array")]
+        [DataRow(FunctionCase.loadYamlContent, @"param encoding string = 'us-ascii'
+var files = [
+    {
+        name: 'message.yaml'
+        path: '$'
+        encoding: encoding
+    }
+]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadYamlContent: encoding param as object property in array")]
         public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, params string[] args)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
@@ -452,6 +454,7 @@ output out string = script
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
         [DataRow(FunctionCase.loadJsonContent)]
+        [DataRow(FunctionCase.loadYamlContent)]
         public void LoadFunction_FileDoesNotExist(FunctionCase function)
         {
             var (template, diags, _) = CompilationHelper.Compile(
@@ -799,5 +802,230 @@ var fileObj = loadJsonContent('file.json')
 "));
             }
         }
+
+        /**** loadYamlContent ****/
+        private const string TEST_YAML = @"propString: propStringValue
+propBoolTrue: true
+propBoolFalse: false
+propNull: null
+propInt: 1073741824
+propIntNegative: -1073741824
+propBigInt : 4611686018427387904
+propBigIntNegative : -4611686018427387904
+propFloat : 1.618033988749894
+propFloatNegative : -1.618033988749894
+propArrayString :
+- stringArray1
+- stringArray2
+- stringArray3
+propArrayInt :
+- 153584335
+- -5889645
+- 4611686018427387904
+propArrayFloat :
+- 1.61803398874
+- 3.14159265359
+- -1.73205080757
+propObject :
+    subObjectPropString: subObjectPropStringValue
+    subObjectPropBoolTrue: true
+    subObjectPropBoolFalse: false
+    subObjectPropNull: null
+    subObjectPropInt : 1234542113245
+    subObjectPropFloat : 1.618033988749894
+    subObjectPropArrayString :
+    - subObjectStringArray1
+    - subObjectStringArray2
+    - subObjectStringArray3
+    subObjectPropArrayInt :
+    - 153584335
+    - -5889645
+    - 4611686018427387904
+    subObjectPropArrayFloat :
+    - 1.61803398874
+    - 3.14159265359
+    - -1.73205080757
+";
+
+        private const string TEST_YAML_ARM = @"{
+  ""propString"": ""propStringValue"",
+  ""propBoolTrue"": true,
+  ""propBoolFalse"": false,
+  ""propNull"": null,
+  ""propInt"": 1073741824,
+  ""propIntNegative"": -1073741824,
+  ""propBigInt"": 4611686018427387904,
+  ""propBigIntNegative"": -4611686018427387904,
+  ""propFloat"": ""[json('1.618033988749894')]"",
+  ""propFloatNegative"": ""[json('-1.618033988749894')]"",
+  ""propArrayString"": [
+    ""stringArray1"",
+    ""stringArray2"",
+    ""stringArray3""
+  ],
+  ""propArrayInt"": [
+    153584335,
+    -5889645,
+    4611686018427387904
+  ],
+  ""propArrayFloat"": [
+    ""[json('1.61803398874')]"",
+    ""[json('3.14159265359')]"",
+    ""[json('-1.73205080757')]""
+  ],
+  ""propObject"": {
+    ""subObjectPropString"": ""subObjectPropStringValue"",
+    ""subObjectPropBoolTrue"": true,
+    ""subObjectPropBoolFalse"": false,
+    ""subObjectPropNull"": null,
+    ""subObjectPropInt"": 1234542113245,
+    ""subObjectPropFloat"": ""[json('1.618033988749894')]"",
+    ""subObjectPropArrayString"": [
+      ""subObjectStringArray1"",
+      ""subObjectStringArray2"",
+      ""subObjectStringArray3""
+    ],
+    ""subObjectPropArrayInt"": [
+      153584335,
+      -5889645,
+      4611686018427387904
+    ],
+    ""subObjectPropArrayFloat"": [
+      ""[json('1.61803398874')]"",
+      ""[json('3.14159265359')]"",
+      ""[json('-1.73205080757')]""
+    ]
+  }
+}";
+        [TestMethod]
+        public void LoadYamlFunction()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+    ("main.bicep", @"
+var fileObj = loadYamlContent('file.yaml')
+"),
+    ("file.yaml", TEST_YAML));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_YAML_ARM));
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("$")]
+        [DataRow(".propObject")]
+        [DataRow(".propArrayFloat[0]")]
+        [DataRow(".propObject.subObjectPropString")]
+        [DataRow(".propObject.subObjectPropFloat")]
+        [DataRow(".propObject.subObjectPropFloat")]
+        [DataRow(".propObject.subObjectPropArrayInt[0]")]
+        public void LoadYamlFunction_withPath(string path)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+    ("main.bicep", @"
+var fileObj = loadYamlContent('file.yaml', '" + path + @"')
+"),
+    ("file.yaml", TEST_YAML));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_YAML_ARM).SelectToken(path)!);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(".")]
+        [DataRow("[]")]
+        [DataRow("[0]")]
+        [DataRow("$.")]
+        [DataRow(".propObject[0]")]
+        [DataRow(".propArrayFloat[5]")]
+        [DataRow(".propObject/subObjectPropString")]
+        [DataRow(".propObj")]
+        public void LoadYamlFunction_withPath_errorWhenPathInvalidOrDoesNotExist(string path)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+    ("main.bicep", @"
+var fileObj = loadYamlContent('file.yaml', '" + path + @"')
+"),
+    ("file.yaml", TEST_YAML));
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP235", DiagnosticLevel.Error, "Specified JSONPath does not exist in the given file or is invalid.") });
+            }
+        }
+
+        private static CompilationHelper.CompilationResult CreateLoadYamlContentTestCompilation(string encodingName)
+        {
+            var encoding = LanguageConstants.SupportedEncodings.TryGetValue(encodingName, out var val) ? val : Encoding.UTF8;
+
+            var files = new Dictionary<Uri, MockFileData>
+            {
+                [new Uri("file:///main.bicep")] = new(@"
+var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
+"),
+                [new Uri("file:///file.yaml")] = new(TEST_YAML, encoding),
+            };
+
+            return CompilationHelper.Compile(new(), new InMemoryFileResolver(files), files.Keys, new Uri("file:///main.bicep"));
+        }
+
+        [DataTestMethod]
+        [DataRow("utf-8")]
+        [DataRow("utf-16BE")]
+        [DataRow("utf-16")]
+        [DataRow("us-ascii")]
+        [DataRow("iso-8859-1")]
+        public void LoadYamlContent_AcceptsAvailableEncoding(string encoding)
+        {
+            var (template, diags, _) = CreateLoadYamlContentTestCompilation(encoding);
+
+            using (new AssertionScope())
+            {
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template!.Should().NotBeNull();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_YAML_ARM));
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("utf")]
+        [DataRow("utf-32be")]
+        [DataRow("utf-32le")]
+        [DataRow("utf-7")]
+        [DataRow("iso-8859-2")]
+        [DataRow("en-us")]
+        [DataRow("")]
+        public void LoadYamlContent_DisallowsUnknownEncoding(string encoding)
+        {
+            //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
+            var (template, diags, _) = CreateLoadYamlContentTestCompilation(encoding);
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            }
+        }
+
     }
 }

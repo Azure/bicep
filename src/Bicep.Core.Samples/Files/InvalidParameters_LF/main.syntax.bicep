@@ -1821,13 +1821,13 @@ param duplicateDecorators string
 //@[026:0032) |     └─Token(Identifier) |string|
 //@[032:0034) ├─Token(NewLine) |\n\n|
 
-@minLength(-1)
+@maxLength(-1)
 //@[000:0058) ├─ParameterDeclarationSyntax
 //@[000:0014) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[001:0014) | | └─FunctionCallSyntax
 //@[001:0010) | |   ├─IdentifierSyntax
-//@[001:0010) | |   | └─Token(Identifier) |minLength|
+//@[001:0010) | |   | └─Token(Identifier) |maxLength|
 //@[010:0011) | |   ├─Token(LeftParen) |(|
 //@[011:0013) | |   ├─FunctionArgumentSyntax
 //@[011:0013) | |   | └─UnaryOperationSyntax
@@ -1836,12 +1836,12 @@ param duplicateDecorators string
 //@[012:0013) | |   |     └─Token(Integer) |1|
 //@[013:0014) | |   └─Token(RightParen) |)|
 //@[014:0015) | ├─Token(NewLine) |\n|
-@maxLength(-100)
+@minLength(-100)
 //@[000:0016) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[001:0016) | | └─FunctionCallSyntax
 //@[001:0010) | |   ├─IdentifierSyntax
-//@[001:0010) | |   | └─Token(Identifier) |maxLength|
+//@[001:0010) | |   | └─Token(Identifier) |minLength|
 //@[010:0011) | |   ├─Token(LeftParen) |(|
 //@[011:0015) | |   ├─FunctionArgumentSyntax
 //@[011:0015) | |   | └─UnaryOperationSyntax

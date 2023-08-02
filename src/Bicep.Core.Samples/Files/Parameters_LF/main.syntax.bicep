@@ -1003,7 +1003,7 @@ param decoratedString string
 //@[022:0028) |     └─Token(Identifier) |string|
 //@[028:0030) ├─Token(NewLine) |\n\n|
 
-@minValue(200)
+@minValue(100)
 //@[000:0043) ├─ParameterDeclarationSyntax
 //@[000:0014) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1013,7 +1013,7 @@ param decoratedString string
 //@[009:0010) | |   ├─Token(LeftParen) |(|
 //@[010:0013) | |   ├─FunctionArgumentSyntax
 //@[010:0013) | |   | └─IntegerLiteralSyntax
-//@[010:0013) | |   |   └─Token(Integer) |200|
+//@[010:0013) | |   |   └─Token(Integer) |100|
 //@[013:0014) | |   └─Token(RightParen) |)|
 //@[014:0015) | ├─Token(NewLine) |\n|
 param decoratedInt int = 123
@@ -1310,9 +1310,9 @@ param decoratedObject object = {
 
 @sys.metadata({
 //@[000:0166) ├─ParameterDeclarationSyntax
-//@[000:0047) | ├─DecoratorSyntax
+//@[000:0057) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
-//@[001:0047) | | └─InstanceFunctionCallSyntax
+//@[001:0057) | | └─InstanceFunctionCallSyntax
 //@[001:0004) | |   ├─VariableAccessSyntax
 //@[001:0004) | |   | └─IdentifierSyntax
 //@[001:0004) | |   |   └─Token(Identifier) |sys|
@@ -1320,18 +1320,18 @@ param decoratedObject object = {
 //@[005:0013) | |   ├─IdentifierSyntax
 //@[005:0013) | |   | └─Token(Identifier) |metadata|
 //@[013:0014) | |   ├─Token(LeftParen) |(|
-//@[014:0046) | |   ├─FunctionArgumentSyntax
-//@[014:0046) | |   | └─ObjectSyntax
+//@[014:0056) | |   ├─FunctionArgumentSyntax
+//@[014:0056) | |   | └─ObjectSyntax
 //@[014:0015) | |   |   ├─Token(LeftBrace) |{|
 //@[015:0016) | |   |   ├─Token(NewLine) |\n|
-    description: 'An array.'
-//@[004:0028) | |   |   ├─ObjectPropertySyntax
+    description: 'I will be overrode.'
+//@[004:0038) | |   |   ├─ObjectPropertySyntax
 //@[004:0015) | |   |   | ├─IdentifierSyntax
 //@[004:0015) | |   |   | | └─Token(Identifier) |description|
 //@[015:0016) | |   |   | ├─Token(Colon) |:|
-//@[017:0028) | |   |   | └─StringSyntax
-//@[017:0028) | |   |   |   └─Token(StringComplete) |'An array.'|
-//@[028:0029) | |   |   ├─Token(NewLine) |\n|
+//@[017:0038) | |   |   | └─StringSyntax
+//@[017:0038) | |   |   |   └─Token(StringComplete) |'I will be overrode.'|
+//@[038:0039) | |   |   ├─Token(NewLine) |\n|
 })
 //@[000:0001) | |   |   └─Token(RightBrace) |}|
 //@[001:0002) | |   └─Token(RightParen) |)|
@@ -1352,10 +1352,10 @@ param decoratedObject object = {
 //@[015:0017) | |   |   └─Token(Integer) |20|
 //@[017:0018) | |   └─Token(RightParen) |)|
 //@[018:0019) | ├─Token(NewLine) |\n|
-@sys.description('I will be overrode.')
-//@[000:0039) | ├─DecoratorSyntax
+@sys.description('An array.')
+//@[000:0029) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
-//@[001:0039) | | └─InstanceFunctionCallSyntax
+//@[001:0029) | | └─InstanceFunctionCallSyntax
 //@[001:0004) | |   ├─VariableAccessSyntax
 //@[001:0004) | |   | └─IdentifierSyntax
 //@[001:0004) | |   |   └─Token(Identifier) |sys|
@@ -1363,11 +1363,11 @@ param decoratedObject object = {
 //@[005:0016) | |   ├─IdentifierSyntax
 //@[005:0016) | |   | └─Token(Identifier) |description|
 //@[016:0017) | |   ├─Token(LeftParen) |(|
-//@[017:0038) | |   ├─FunctionArgumentSyntax
-//@[017:0038) | |   | └─StringSyntax
-//@[017:0038) | |   |   └─Token(StringComplete) |'I will be overrode.'|
-//@[038:0039) | |   └─Token(RightParen) |)|
-//@[039:0040) | ├─Token(NewLine) |\n|
+//@[017:0028) | |   ├─FunctionArgumentSyntax
+//@[017:0028) | |   | └─StringSyntax
+//@[017:0028) | |   |   └─Token(StringComplete) |'An array.'|
+//@[028:0029) | |   └─Token(RightParen) |)|
+//@[029:0030) | ├─Token(NewLine) |\n|
 param decoratedArray array = [
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0020) | ├─IdentifierSyntax

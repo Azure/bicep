@@ -9,6 +9,7 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
+using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.Parsing
 {
@@ -276,52 +277,72 @@ namespace Bicep.Core.Parsing
             return (char)((codePoint - 0x00010000) / 0x0400 + 0xD800);
         }
 
-        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
-        {
-            if (IsWhiteSpace(textWindow.Peek()))
-            {
-                yield return ScanWhitespace();
-            }
-
-            if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
-            {
-                yield return ScanSingleLineComment();
-                yield break;
-            }
-
-            if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
-            {
-                yield return ScanMultiLineComment();
-                yield break;
-            }
-        }
-
-        private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia(bool includeComments)
         {
             while (true)
             {
-                if (IsWhiteSpace(textWindow.Peek()))
+                var next = textWindow.Peek();
+
+                if (IsWhiteSpace(next))
                 {
                     yield return ScanWhitespace();
                 }
-                else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
+                else if (includeComments && next == '/')
                 {
-                    yield return ScanSingleLineComment();
-                }
-                else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
-                {
-                    yield return ScanMultiLineComment();
-                }
-                else if (textWindow.Peek() == '#' &&
-                    CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
-                    string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
-                {
-                    yield return ScanDisableNextLineDiagnosticsDirective();
+                    var nextNext = textWindow.Peek(1);
+
+                    if (nextNext == '/')
+                    {
+                        yield return ScanSingleLineComment();
+                    }
+                    else if (nextNext == '*')
+                    {
+                        yield return ScanMultiLineComment();
+                    }
+                    else
+                    {
+                        yield break;
+                    }
                 }
                 else
                 {
                     yield break;
                 }
+            }
+        }
+
+        private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
+        {
+            SyntaxTrivia? current = null;
+
+            while (true)
+            {
+                if (IsWhiteSpace(textWindow.Peek()))
+                {
+                    current = ScanWhitespace();
+                }
+                else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
+                {
+                    current = ScanSingleLineComment();
+                }
+                else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
+                {
+                    current = ScanMultiLineComment();
+                }
+                else if (
+                    (current is null || !current.IsComment()) &&
+                    textWindow.Peek() == '#' &&
+                    CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
+                    string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
+                {
+                    current = ScanDisableNextLineDiagnosticsDirective();
+                }
+                else
+                {
+                    yield break;
+                }
+
+                yield return current;
             }
         }
 
@@ -334,7 +355,7 @@ namespace Bicep.Core.Parsing
             int start = span.Position;
             int end = span.GetEndPosition();
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(textWindow.GetText());
 
             textWindow.Reset();
@@ -446,9 +467,9 @@ namespace Bicep.Core.Parsing
         {
             var text = textWindow.GetText();
 
-            if (!string.IsNullOrWhiteSpace(text))
+            if (text.Length > 0)
             {
-                return new Token(TokenType.StringComplete, textWindow.GetSpan(), textWindow.GetText(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+                return new FreeformToken(TokenType.StringComplete, textWindow.GetSpan(), text.ToString(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
             }
 
             return null;
@@ -468,21 +489,28 @@ namespace Bicep.Core.Parsing
 
             if (tokenType == TokenType.Unrecognized)
             {
-                if (tokenText == "\"")
+                var text = tokenText.ToString();
+
+                if (text == "\"")
                 {
-                    AddDiagnostic(b => b.DoubleQuoteToken(tokenText));
+                    AddDiagnostic(b => b.DoubleQuoteToken(text));
                 }
                 else
                 {
-                    AddDiagnostic(b => b.UnrecognizedToken(tokenText));
+                    AddDiagnostic(b => b.UnrecognizedToken(text));
                 }
             }
 
             textWindow.Reset();
-            // important to force enum evaluation here via .ToImmutableArray()!
-            var trailingTrivia = ScanTrailingTrivia().ToImmutableArray();
 
-            var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var includeComments = SyntaxFacts.GetCommentStickiness(tokenType) >= CommentStickiness.Trailing;
+            var trailingTrivia = ScanTrailingTrivia(includeComments).ToImmutableArray();
+
+            var token = SyntaxFacts.HasFreeFromText(tokenType)
+                ? new FreeformToken(tokenType, tokenSpan, tokenText.ToString(), leadingTrivia, trailingTrivia)
+                : new Token(tokenType, tokenSpan, leadingTrivia, trailingTrivia);
+
             this.tokens.Add(token);
         }
 
@@ -504,7 +532,7 @@ namespace Bicep.Core.Parsing
                 break;
             }
 
-            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText());
+            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText().ToString());
         }
 
         private SyntaxTrivia ScanSingleLineComment()
@@ -525,7 +553,7 @@ namespace Bicep.Core.Parsing
                 textWindow.Advance();
             }
 
-            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText());
+            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText().ToString());
         }
 
         private SyntaxTrivia ScanMultiLineComment()
@@ -564,7 +592,7 @@ namespace Bicep.Core.Parsing
                 }
             }
 
-            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText());
+            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText().ToString());
         }
 
         private void ScanNewLine()
@@ -793,12 +821,18 @@ namespace Bicep.Core.Parsing
 
         private TokenType GetIdentifierTokenType()
         {
-            var identifier = textWindow.GetText();
+            var identifier = textWindow.GetText().ToString();
 
             if (LanguageConstants.Keywords.TryGetValue(identifier, out var tokenType))
             {
                 return tokenType;
             }
+
+            if (identifier.Length > LanguageConstants.MaxIdentifierLength)
+            {
+                this.AddDiagnostic(b => b.IdentifierNameExceedsLimit());
+            }
+
             return TokenType.Identifier;
         }
 

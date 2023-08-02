@@ -11,18 +11,15 @@ namespace Bicep.Core.Syntax
 {
     public class ProgramSyntax : SyntaxBase
     {
-        public ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile, IEnumerable<IDiagnostic> lexerDiagnostics)
+        public ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile)
         {
             this.Children = children.ToImmutableArray();
             this.EndOfFile = endOfFile;
-            this.LexerDiagnostics = lexerDiagnostics.ToImmutableArray();
         }
 
         public ImmutableArray<SyntaxBase> Children { get; }
 
         public Token EndOfFile { get; }
-
-        public ImmutableArray<IDiagnostic> LexerDiagnostics { get; }
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitProgramSyntax(this);

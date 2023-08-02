@@ -1,17 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -141,8 +146,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.Bool).Should().BeFalse();
             TypeValidator.AreTypesAssignable(stringUnion, boolIntUnion).Should().BeFalse();
 
-            var logLevelsUnion = TypeHelper.CreateTypeUnion(new StringLiteralType("Error"), new StringLiteralType("Warning"), new StringLiteralType("Info"));
-            var failureLogLevelsUnion = TypeHelper.CreateTypeUnion(new StringLiteralType("Error"), new StringLiteralType("Warning"));
+            var logLevelsUnion = TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("Error"), TypeFactory.CreateStringLiteralType("Warning"), TypeFactory.CreateStringLiteralType("Info"));
+            var failureLogLevelsUnion = TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("Error"), TypeFactory.CreateStringLiteralType("Warning"));
             TypeValidator.AreTypesAssignable(logLevelsUnion, LanguageConstants.String).Should().BeTrue();
             TypeValidator.AreTypesAssignable(logLevelsUnion, stringUnion).Should().BeTrue();
             TypeValidator.AreTypesAssignable(logLevelsUnion, boolIntUnion).Should().BeFalse();
@@ -157,14 +162,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void StringLiteralTypesShouldBeAssignableToStrings()
         {
-            var literalVal1 = new StringLiteralType("evie");
-            var literalVal2 = new StringLiteralType("casper");
+            var literalVal1 = TypeFactory.CreateStringLiteralType("evie");
+            var literalVal2 = TypeFactory.CreateStringLiteralType("casper");
 
             // different string literals should not be assignable to each other
             TypeValidator.AreTypesAssignable(literalVal1, literalVal2).Should().BeFalse();
 
             // same-name string literals should be assignable to each other
-            TypeValidator.AreTypesAssignable(literalVal1, new StringLiteralType("evie")).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(literalVal1, TypeFactory.CreateStringLiteralType("evie")).Should().BeTrue();
 
             // string literals should be assignable to a primitive string
             TypeValidator.AreTypesAssignable(literalVal1, LanguageConstants.String).Should().BeTrue();
@@ -176,8 +181,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void Generic_strings_can_be_assigned_to_string_literals_with_loose_assignment()
         {
-            var literalVal1 = new StringLiteralType("evie");
-            var literalVal2 = new StringLiteralType("casper");
+            var literalVal1 = TypeFactory.CreateStringLiteralType("evie");
+            var literalVal2 = TypeFactory.CreateStringLiteralType("casper");
             var literalUnion = TypeHelper.CreateTypeUnion(literalVal1, literalVal2);
 
             var genericString = LanguageConstants.String;
@@ -198,6 +203,200 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // assignment from string literal works in both cases
             TypeValidator.AreTypesAssignable(literalVal1, genericString).Should().BeTrue();
             TypeValidator.AreTypesAssignable(literalVal1, looseString).Should().BeTrue();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetStringDomainNarrowingData), DynamicDataSourceType.Method)]
+        public void String_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        {
+            Assert_domain_narrowing(sourceType, targetType, expectedType, expectedDiagnostics);
+        }
+
+        private static void Assert_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        {
+            var narrowedType = Assert_narrowing_diagnostics(sourceType, targetType, expectedDiagnostics);
+            narrowedType.Should().Be(expectedType);
+        }
+
+        private static TypeSymbol Assert_narrowing_diagnostics(TypeSymbol sourceType, TypeSymbol targetType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        {
+            var expression = SyntaxFactory.CreateVariableAccess("foo");
+            var typeManagerMock = new Mock<ITypeManager>(MockBehavior.Strict);
+            typeManagerMock.Setup(t => t.GetTypeInfo(expression))
+                .Returns(sourceType);
+
+            var binderMock = StrictMock.Of<IBinder>();
+            binderMock.Setup(t => t.GetSymbolInfo(expression))
+                .Returns<Symbol?>(null);
+
+            var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
+            parsingErrorLookupMock.Setup(x => x.Contains(expression)).Returns(false);
+
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManagerMock.Object, binderMock.Object, parsingErrorLookupMock.Object, diagnosticWriter, expression, targetType);
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+            diagnostics.Should().HaveCount(expectedDiagnostics.Length);
+            for (int i = 0; i < expectedDiagnostics.Length; i++)
+            {
+                diagnostics[i].Code.Should().Be(expectedDiagnostics[i].code);
+                diagnostics[i].Level.Should().Be(expectedDiagnostics[i].level);
+                diagnostics[i].Message.Should().Be(expectedDiagnostics[i].message);
+            }
+
+            return narrowedType;
+        }
+
+        private static IEnumerable<object[]> GetStringDomainNarrowingData()
+        {
+            static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
+                => new object[] { sourceType, targetType, expectedType, diagnostics };
+
+            return new[]
+            {
+                // A matching source and target type should narrow to the same and produce no warnings
+                Row(LanguageConstants.String, LanguageConstants.String, LanguageConstants.String),
+
+                // A source type whose domain is a subset of the target type should narrow to the source
+                Row(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateStringType(0, 11), TypeFactory.CreateStringType(1, 10)),
+
+                // A source type whose domain overlaps but extends below the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateStringType(1, 10),
+                    TypeFactory.CreateStringType(2, 11),
+                    TypeFactory.CreateStringType(2, 10),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
+
+                // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateStringType(3, 11),
+                    TypeFactory.CreateStringType(2, 10),
+                    TypeFactory.CreateStringType(3, 10),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value can have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
+
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and not warn
+                Row(TypeFactory.CreateStringType(),
+                    TypeFactory.CreateStringType(5, 10),
+                    TypeFactory.CreateStringType(5, 10)),
+
+                // A source type whose domain is disjoint from the domain of the target should error and not narrow
+                Row(TypeFactory.CreateStringType(minLength: 10),
+                    TypeFactory.CreateStringType(maxLength: 9),
+                    TypeFactory.CreateStringType(minLength: 10),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                Row(TypeFactory.CreateStringType(maxLength: 9),
+                    TypeFactory.CreateStringType(minLength: 10),
+                    TypeFactory.CreateStringType(maxLength: 9),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                Row(TypeFactory.CreateStringLiteralType("0123456789"),
+                    TypeFactory.CreateStringType(maxLength: 9),
+                    TypeFactory.CreateStringLiteralType("0123456789"),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                Row(TypeFactory.CreateStringLiteralType("012345678"),
+                    TypeFactory.CreateStringType(minLength: 10),
+                    TypeFactory.CreateStringLiteralType("012345678"),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                Row(TypeFactory.CreateStringType(minLength: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    TypeFactory.CreateStringLiteralType("012345678"),
+                    TypeFactory.CreateStringType(minLength: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                Row(TypeFactory.CreateStringType(maxLength: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    TypeFactory.CreateStringLiteralType("0123456789"),
+                    TypeFactory.CreateStringType(maxLength: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+
+                // A literal source type should narrow to the literal
+                Row(TypeFactory.CreateStringLiteralType("boo!"), LanguageConstants.String, TypeFactory.CreateStringLiteralType("boo!")),
+            };
+        }
+
+        [TestMethod]
+        public void IntegerLiteralTypesShouldBeAssignableToInts()
+        {
+            var literalVal1 = TypeFactory.CreateIntegerLiteralType(0);
+            var literalVal2 = TypeFactory.CreateIntegerLiteralType(20);
+
+            // different int literals should not be assignable to each other
+            TypeValidator.AreTypesAssignable(literalVal1, literalVal2).Should().BeFalse();
+
+            // same-name int literals should be assignable to each other
+            TypeValidator.AreTypesAssignable(literalVal1, TypeFactory.CreateIntegerLiteralType(literalVal1.Value)).Should().BeTrue();
+
+            // int literals should be assignable to a primitive int
+            TypeValidator.AreTypesAssignable(literalVal1, LanguageConstants.Int).Should().BeTrue();
+
+            // int literals should not be assignable from a primitive int
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, literalVal1).Should().BeFalse();
+
+            // int literals should be assignable from a loose primitive int
+            TypeValidator.AreTypesAssignable(LanguageConstants.LooseInt, literalVal1).Should().BeTrue();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetIntegerDomainNarrowingData), DynamicDataSourceType.Method)]
+        public void Integer_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        {
+            Assert_domain_narrowing(sourceType, targetType, expectedType, expectedDiagnostics);
+        }
+
+        private static IEnumerable<object[]> GetIntegerDomainNarrowingData()
+        {
+            static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
+                => new object[] { sourceType, targetType, expectedType, diagnostics };
+
+            return new[]
+            {
+                // A matching source and target type should narrow to the same and produce no warnings
+                Row(LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
+
+                // A source type whose domain is a subset of the target type should narrow to the source
+                Row(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateIntegerType(0, 11), TypeFactory.CreateIntegerType(1, 10)),
+
+                // A source type whose domain overlaps but extends below the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateIntegerType(-1, 10),
+                    TypeFactory.CreateIntegerType(0, 11),
+                    TypeFactory.CreateIntegerType(0, 10),
+                    ("BCP329", DiagnosticLevel.Warning, "The provided value can be as small as -1 and may be too small to assign to a target with a configured minimum of 0.")),
+
+                // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateIntegerType(0, 11),
+                    TypeFactory.CreateIntegerType(-5, 10),
+                    TypeFactory.CreateIntegerType(0, 10),
+                    ("BCP330", DiagnosticLevel.Warning, "The provided value can be as large as 11 and may be too large to assign to a target with a configured maximum of 10.")),
+
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and not warn
+                Row(TypeFactory.CreateIntegerType(),
+                    TypeFactory.CreateIntegerType(-5, 10),
+                    TypeFactory.CreateIntegerType(-5, 10)),
+
+                // A source type whose domain is disjoint from the domain of the target should error and not narrow
+                Row(TypeFactory.CreateIntegerType(minValue: 10),
+                    TypeFactory.CreateIntegerType(maxValue: 9),
+                    TypeFactory.CreateIntegerType(minValue: 10),
+                    ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
+                Row(TypeFactory.CreateIntegerType(maxValue: 9),
+                    TypeFactory.CreateIntegerType(minValue: 10),
+                    TypeFactory.CreateIntegerType(maxValue: 9),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
+                Row(TypeFactory.CreateIntegerLiteralType(10),
+                    TypeFactory.CreateIntegerType(maxValue: 9),
+                    TypeFactory.CreateIntegerLiteralType(10),
+                    ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
+                Row(TypeFactory.CreateIntegerLiteralType(9),
+                    TypeFactory.CreateIntegerType(minValue: 10),
+                    TypeFactory.CreateIntegerLiteralType(9),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
+                Row(TypeFactory.CreateIntegerType(minValue: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    TypeFactory.CreateIntegerLiteralType(9),
+                    TypeFactory.CreateIntegerType(minValue: 10, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 10) is too large to assign to a target for which the maximum allowable value is 9.")),
+                Row(TypeFactory.CreateIntegerType(maxValue: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    TypeFactory.CreateIntegerLiteralType(10),
+                    TypeFactory.CreateIntegerType(maxValue: 9, validationFlags: TypeSymbolValidationFlags.AllowLooseAssignment),
+                    ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 9) is too small to assign to a target for which the minimum allowable value is 10.")),
+
+                // A literal source type should narrow to the literal
+                Row(TypeFactory.CreateIntegerLiteralType(0), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(0)),
+            };
         }
 
         [DataTestMethod]
@@ -287,6 +486,125 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
+        public void InvalidTupleValuesShouldBeRejected()
+        {
+            var arrayLiteral = TestSyntaxFactory.CreateArray(new SyntaxBase[] { TestSyntaxFactory.CreateString("foo"), TestSyntaxFactory.CreateInt(5), TestSyntaxFactory.CreateNull() });
+
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(SyntaxHierarchy.Build(arrayLiteral), arrayLiteral, new TupleType(
+                ImmutableArray.Create<ITypeReference>(TypeFactory.CreateStringType(maxLength: 2), TypeFactory.CreateIntegerType(minValue: 6)),
+                default));
+
+            diagnostics.Should().HaveDiagnostics(new[]
+            {
+                // the string at index 0 is too long
+                ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+                // the int at index 1 is too small
+                ("BCP328", DiagnosticLevel.Error, "The provided value (which will always be less than or equal to 5) is too small to assign to a target for which the minimum allowable value is 6."),
+                // the whole array is too long
+                ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
+            });
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetArrayDomainNarrowingData), DynamicDataSourceType.Method)]
+        public void Array_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedReturnType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
+        {
+            var narrowedType = Assert_narrowing_diagnostics(sourceType, targetType, expectedDiagnostics);
+
+            switch ((narrowedType, expectedReturnType))
+            {
+                case (TupleType actual, TupleType expected):
+                    actual.Items.Length.Should().Be(expected.Items.Length);
+                    for (int i = 0; i < actual.Items.Length; i++)
+                    {
+                        TypeValidator.AreTypesAssignable(expected.Items[i].Type, actual.Items[i].Type).Should().BeTrue();
+                    }
+                    break;
+                case (ArrayType actual, ArrayType expected):
+                    actual.MinLength.Should().Be(expected.MinLength);
+                    actual.MaxLength.Should().Be(expected.MaxLength);
+                    TypeValidator.AreTypesAssignable(expected.Item.Type, actual.Item.Type).Should().BeTrue();
+                    break;
+                default:
+                    throw new InvalidOperationException("Expected an array source and return type");
+            }
+        }
+
+        private static IEnumerable<object[]> GetArrayDomainNarrowingData()
+        {
+            static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedReturnType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
+                => new object[] { sourceType, targetType, expectedReturnType, diagnostics };
+
+            return new[]
+            {
+                // A matching source and target type should narrow to the same and produce no warnings
+                Row(LanguageConstants.Array, LanguageConstants.Array, LanguageConstants.Array),
+
+                // A source type whose domain is a subset of the target type should narrow to the source
+                Row(TypeFactory.CreateArrayType(1, 10), TypeFactory.CreateArrayType(0, 11), TypeFactory.CreateArrayType(1, 10)),
+
+                // A source array should narrow its item
+                Row(new TypedArrayType(TypeFactory.CreateIntegerType(1, 10), default),
+                    new TypedArrayType(TypeFactory.CreateIntegerType(0, 11), default),
+                    new TypedArrayType(TypeFactory.CreateIntegerType(1, 10), default)),
+
+                // A source tuple should narrow its items
+                Row(new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)), default),
+                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(-5, 11), TypeFactory.CreateStringType(maxLength: 20)), default),
+                    new TupleType(ImmutableArray.Create<ITypeReference>(TypeFactory.CreateIntegerType(1, 10), TypeFactory.CreateStringType(1, 10)), default)),
+
+                // A source type whose domain overlaps but extends below the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateArrayType(1, 10),
+                    TypeFactory.CreateArrayType(2, 11),
+                    TypeFactory.CreateArrayType(2, 10),
+                    ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 2.")),
+
+                // A source type whose domain overlaps but extends above the domain of the target type should narrow and warn
+                Row(TypeFactory.CreateArrayType(3, 11),
+                    TypeFactory.CreateArrayType(2, 10),
+                    TypeFactory.CreateArrayType(3, 10),
+                    ("BCP335", DiagnosticLevel.Warning, "The provided value can have a length as large as 11 and may be too long to assign to a target with a configured maximum length of 10.")),
+
+                // A source type whose domain contains but extends both below and above the domain of the target type should narrow and not warn
+                Row(TypeFactory.CreateArrayType(),
+                    TypeFactory.CreateArrayType(5, 10),
+                    TypeFactory.CreateArrayType(5, 10)),
+
+                // A source type whose domain is disjoint from the domain of the target should error and not narrow
+                Row(TypeFactory.CreateArrayType(minLength: 10),
+                    TypeFactory.CreateArrayType(maxLength: 9),
+                    TypeFactory.CreateArrayType(minLength: 10),
+                    ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 10) is too long to assign to a target for which the maximum allowable length is 9.")),
+                Row(TypeFactory.CreateArrayType(maxLength: 9),
+                    TypeFactory.CreateArrayType(minLength: 10),
+                    TypeFactory.CreateArrayType(maxLength: 9),
+                    ("BCP333", DiagnosticLevel.Error, "The provided value (whose length will always be less than or equal to 9) is too short to assign to a target for which the minimum allowable length is 10.")),
+                new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default) switch
+                {
+                    TupleType tt => Row(tt,
+                        TypeFactory.CreateArrayType(maxLength: tt.Items.Length - 1),
+                        tt,
+                        ("BCP332", DiagnosticLevel.Error, $"The provided value (whose length will always be greater than or equal to {tt.Items.Length}) is too long to assign to a target for which the maximum allowable length is {tt.Items.Length - 1}.")),
+                },
+                new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default) switch
+                {
+                    TupleType tt => Row(tt,
+                        TypeFactory.CreateArrayType(minLength: tt.Items.Length + 1),
+                        tt,
+                        ("BCP333", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {tt.Items.Length}) is too short to assign to a target for which the minimum allowable length is {tt.Items.Length + 1}.")),
+                },
+                Row(TypeFactory.CreateArrayType(minLength: LanguageConstants.DeclarationTypes.Count + 1),
+                    new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default),
+                    TypeFactory.CreateArrayType(minLength: LanguageConstants.DeclarationTypes.Count + 1),
+                    ("BCP332", DiagnosticLevel.Error, $"The provided value (whose length will always be greater than or equal to {LanguageConstants.DeclarationTypes.Count + 1}) is too long to assign to a target for which the maximum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
+                Row(TypeFactory.CreateArrayType(maxLength: LanguageConstants.DeclarationTypes.Count - 1),
+                    new TupleType(LanguageConstants.DeclarationTypes.Values.ToImmutableArray<ITypeReference>(), default),
+                    TypeFactory.CreateArrayType(maxLength: LanguageConstants.DeclarationTypes.Count - 1),
+                    ("BCP333", DiagnosticLevel.Error, $"The provided value (whose length will always be less than or equal to {LanguageConstants.DeclarationTypes.Count - 1}) is too short to assign to a target for which the minimum allowable length is {LanguageConstants.DeclarationTypes.Count}.")),
+            };
+        }
+
+        [TestMethod]
         public void RequiredPropertyShouldBeRequired()
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
@@ -304,13 +622,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
-                TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a")),
-                TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
+                TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("a")),
             });
 
             var hierarchy = SyntaxHierarchy.Build(obj);
+            var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
+            parsingErrorLookupMock.Setup(x => x.Contains(obj))
+                .Returns(true);
 
-            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType(), parsingErrorLookupMock.Object);
 
             diagnostics.Should().BeEmpty();
         }
@@ -341,19 +661,24 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void WrongTypeOfAdditionalPropertiesWithParseErrorsShouldProduceNoErrors()
         {
+            var tags = TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
+            }));
+
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
-                TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
-                {
-                    TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
-                    TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateInt(3))
-                }))
+                tags,
             });
 
             var hierarchy = SyntaxHierarchy.Build(obj);
 
-            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
+            var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
+            parsingErrorLookupMock.Setup(x => x.Contains(It.IsAny<SyntaxBase>())).Returns(
+                (SyntaxBase syntax) => syntax == tags.Value);
+
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType(), parsingErrorLookupMock.Object);
 
             diagnostics.Should().BeEmpty();
         }
@@ -391,12 +716,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 {
                     new ObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
+                        new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valA")),
                         new TypeProperty("fieldA", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                     new ObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
+                        new TypeProperty("myDiscriminator", TypeFactory.CreateStringLiteralType("valB")),
                         new TypeProperty("fieldB", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null),
                 });
@@ -546,8 +871,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             }
 
             var stringLiteralUnionType = TypeHelper.CreateTypeUnion(
-                new StringLiteralType("dave"),
-                new StringLiteralType("nora"));
+                TypeFactory.CreateStringLiteralType("dave"),
+                TypeFactory.CreateStringLiteralType("nora"));
 
             {
                 // union of string literals with matching type
@@ -605,7 +930,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("DuplicatedObjectProperties", TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateInt(444)),
-                TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("str value")),
+                TestSyntaxFactory.CreateProperty("bar", TestSyntaxFactory.CreateString("str value")),
             }));
         }
 
@@ -613,27 +938,30 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeProvider = TestTypeHelper.CreateEmptyProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
-            var azNamespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features)!;
+            var azNamespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
 
             return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
-        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
+        private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType, IDiagnosticLookup? parsingErrorLookup = null)
         {
-            var binderMock = new Mock<IBinder>(MockBehavior.Strict);
+            var binderMock = StrictMock.Of<IBinder>();
             binderMock
                 .Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
-            var fileResolverMock = new Mock<IFileResolver>(MockBehavior.Strict);
+
+            var fileResolverMock = StrictMock.Of<IFileResolver>();
 
             binderMock
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, Core.Workspaces.BicepSourceFileKind.BicepFile);
+            parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
+
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, parsingErrorLookup, Core.Workspaces.BicepSourceFileKind.BicepFile);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);
+            var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, parsingErrorLookup, diagnosticWriter, expression, targetType);
 
             return (result, diagnosticWriter.GetDiagnostics().ToList());
         }

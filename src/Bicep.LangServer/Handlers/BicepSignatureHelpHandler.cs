@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var semanticModel = context.Compilation.GetEntrypointSemanticModel();
             var symbol = semanticModel.GetSymbolInfo(functionCall);
-            if (symbol is not FunctionSymbol functionSymbol)
+            if (symbol is not IFunctionSymbol functionSymbol)
             {
                 // no symbol or symbol is not a function
                 return NoHelp();
@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer.Handlers
                 .ToList();
         }
 
-        private static SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, FunctionSymbol symbol, int offset, bool includeReturnType)
+        private static SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, IFunctionSymbol symbol, int offset, bool includeReturnType)
         {
             // exclude overloads where the specified arguments have exceeded the maximum
             // allow count mismatches because the user may not have started typing the arguments yet
@@ -263,7 +263,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override SignatureHelpRegistrationOptions CreateRegistrationOptions(SignatureHelpCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create(),
+            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
             /*
              * ( - triggers sig. help when starting function arguments
              * , - separates function arguments

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Extensions
 {
@@ -19,6 +20,7 @@ namespace Bicep.Core.Extensions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             ReadCommentHandling = JsonCommentHandling.Skip,
+            Converters = { new JsonStringEnumConverter() },
         };
 
         public static bool IsNotNullValue(this JsonElement element) => element.ValueKind is not JsonValueKind.Null;
@@ -85,19 +87,6 @@ namespace Bicep.Core.Extensions
             var patched = patch.Apply(element);
 
             return patched;
-        }
-
-        public static IEnumerable<JsonElement> Select(this JsonElement element, string jsonPathQuery)
-        {
-            var jsonPath = JsonPath.Parse(jsonPathQuery);
-            var result = jsonPath.Evaluate(element);
-
-            if (result.Error is string error)
-            {
-                throw new InvalidOperationException(error);
-            }
-
-            return result.Matches?.Select(match => match.Value) ?? Enumerable.Empty<JsonElement>();
         }
 
         [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]

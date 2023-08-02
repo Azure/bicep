@@ -155,6 +155,7 @@ namespace Bicep.Core.Rewriters
                 syntax.Type,
                 syntax.ExistingKeyword,
                 syntax.Assignment,
+                syntax.Newlines,
                 replacementValue);
         }
 
@@ -172,6 +173,7 @@ namespace Bicep.Core.Rewriters
                 syntax.Name,
                 syntax.Path,
                 syntax.Assignment,
+                syntax.Newlines,
                 replacementValue);
         }
     }

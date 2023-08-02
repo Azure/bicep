@@ -35,8 +35,7 @@ param foo object = {
   info: {
     a: 'b'
   }
-  empty: {
-  }
+  empty: {}
   array: [
     'string item'
     12
@@ -108,8 +107,7 @@ param description2 string
   description: 'my description'
   a: 1
   b: true
-  c: [
-  ]
+  c: []
   d: {
     test: 'abc'
   }
@@ -154,7 +152,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 ])
 param decoratedString string
 
-@minValue(200)
+@minValue(100)
 param decoratedInt int = 123
 
 // negative integer literals are allowed as decorator values
@@ -182,8 +180,7 @@ param decoratedObject object = {
   info: {
     a: 'b'
   }
-  empty: {
-  }
+  empty: {}
   array: [
     'string item'
     12
@@ -199,10 +196,10 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-  description: 'An array.'
+  description: 'I will be overrode.'
 })
 @sys.maxLength(20)
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 param decoratedArray array = [
   utcNow()
   newGuid()

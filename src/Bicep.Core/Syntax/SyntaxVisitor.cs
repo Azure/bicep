@@ -57,6 +57,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
+        public abstract void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);
+
         public abstract void VisitNonNullAssertionSyntax(NonNullAssertionSyntax syntax);
 
         public abstract void VisitNullableTypeSyntax(NullableTypeSyntax syntax);
@@ -97,6 +99,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitResourceTypeSyntax(ResourceTypeSyntax syntax);
 
+        public abstract void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax);
+
         public abstract void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax);
 
         public abstract void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax);
@@ -124,6 +128,14 @@ namespace Bicep.Core.Syntax
         public abstract void VisitVariableBlockSyntax(VariableBlockSyntax syntax);
 
         public abstract void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax);
+
+        public abstract void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax);
+
+        public abstract void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax);
+
+        public abstract void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax);
+
+        public abstract void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax);
 
         public void Visit(SyntaxBase? node)
         {

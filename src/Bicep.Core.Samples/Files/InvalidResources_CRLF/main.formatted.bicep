@@ -14,28 +14,21 @@ resource trailingSpace
 resource foo 'ddd'= 
 
 // wrong resource type
-resource foo 'ddd' = {
-}
+resource foo 'ddd' = {}
 
-resource foo 'ddd' = if (1 + 1 == 2) {
-}
+resource foo 'ddd' = if (1 + 1 == 2) {}
 
 // using string interpolation for the resource type
-resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = {
-}
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = {}
 
-resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = if (true) {
-}
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = if (true) {}
 
 // missing required property
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {}
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
@@ -77,19 +70,19 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 }
 
 // duplicate property at the top level
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   name: true
 }
 
 // duplicate property at the top level with string literal syntax
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   'name': true
 }
 
 // duplicate property inside
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   properties: {
     foo: 'a'
@@ -98,7 +91,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 }
 
 // duplicate property inside with string literal syntax
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
   properties: {
     foo: 'a'
@@ -109,8 +102,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 // wrong property types
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
-  location: [
-  ]
+  location: []
   tags: 'tag are not a string?'
 }
 
@@ -282,12 +274,6 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
   name: runtimeValidRes2['${magicString1}']
 }
 
-// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-var magicString2 = 'name'
-resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: runtimeValidRes2['${magicString2}']
-}
-
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
 }
@@ -361,6 +347,11 @@ resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValid.foo4
+}
+
+var magicString2 = 'name'
+resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString2}']
 }
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
@@ -700,8 +691,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
 
-  propertes: {
-  }
+  propertes: {}
 }
 
 var mock = incorrectPropertiesKey.p
@@ -745,8 +735,7 @@ resource startedTypingTypeWithQuotes 'virma'
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
 
-resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-}
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {}
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
@@ -1057,33 +1046,24 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
 
 // duplicate variable in the same scope
-resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
-}]
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {}]
 
 // errors in the array expression
-resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
-}]
-resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union([], 2): {
-}]
+resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union([], 2): {}]
 
 // wrong array type
 var notAnArray = true
-resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
-}]
-resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {
-}]
+resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {}]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {}]
 
 // wrong filter expression type
-resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if (4) {
-}]
-resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in emptyArray: if (concat('s')) {
-}]
+resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if (4) {}]
+resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in emptyArray: if (concat('s')) {}]
 
 // missing required properties
-resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-}]
-resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {
-}]
+resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {}]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {

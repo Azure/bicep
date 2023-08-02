@@ -3,7 +3,7 @@
 
 export function debounce<T extends (...args: never[]) => void>(
   func: T,
-  ms = 200
+  ms = 200,
 ): (this: ThisParameterType<T>, ...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | undefined;
 

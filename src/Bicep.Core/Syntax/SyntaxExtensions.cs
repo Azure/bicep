@@ -11,17 +11,17 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static IReadOnlyList<IDiagnostic> GetParseDiagnostics(this SyntaxBase syntax)
-        {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var parseErrorVisitor = new ParseDiagnosticsVisitor(diagnosticWriter);
-            parseErrorVisitor.Visit(syntax);
+        public static bool IsSingleLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.SingleLineComment;
 
-            return diagnosticWriter.GetDiagnostics();
-        }
+        public static bool IsMultiLineComment(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.MultiLineComment;
 
-        public static bool HasParseErrors(this SyntaxBase syntax)
-            => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
+        public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
+
+        public static bool IsOf(this Token token, TokenType type) => token.Type == type;
+
+        public static bool IsKeyword(this Token token, string keyword) =>
+            token.Type == TokenType.Identifier &&
+            LanguageConstants.IdentifierComparer.Equals(token.Text, keyword);
 
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
@@ -66,7 +66,7 @@ namespace Bicep.Core.Syntax
             Stack<AccessExpressionSyntax> chainedAccesses = new();
             chainedAccesses.Push(syntax);
 
-            while (chainedAccesses.TryPeek(out var current) && current.SafeAccessMarker is null && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
+            while (chainedAccesses.TryPeek(out var current) && !current.IsSafeAccess && current.BaseExpression is AccessExpressionSyntax baseAccessExpression)
             {
                 chainedAccesses.Push(baseAccessExpression);
             }

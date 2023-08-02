@@ -6,16 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.5.0-2.final" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.2.2105" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
     <PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.3.2180" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.2.32505.113" />
     <PackageReference Include="Microsoft.Visualstudio.Telemetry" Version="16.5.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.2.32" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.5.22" />
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.6" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.7" />
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,9 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -82,12 +84,12 @@ namespace Bicep.LangServer.IntegrationTests
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
-                await ValidateOffset(helper.Client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(helper.Client, uri, tree, startOffset, symbol as IFunctionSymbol, expectDecorator);
 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
-                await ValidateOffset(helper.Client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(helper.Client, uri, tree, endOffset, symbol as IFunctionSymbol, expectDecorator);
             }
         }
 
@@ -141,7 +143,27 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepSourceFile bicepFile, int offset, FunctionSymbol? symbol, bool expectDecorator)
+        [TestMethod]
+        public async Task Signature_help_works_with_user_defined_functions()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+@description('Checks whether the input is true in a roundabout way')
+func isTrue(input bool) bool => !(input == false)
+
+var test = isTrue(|)
+");
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)));
+            var file = await new ServerRequestHelper(TestContext, server).OpenFile(text);
+
+            var signatureHelp = await file.RequestSignatureHelp(cursor);
+            var signature = signatureHelp!.Signatures.Single();
+
+            signature.Label.Should().Be("isTrue(input: bool): bool");
+            signature.Documentation!.MarkupContent!.Value.Should().Be("Checks whether the input is true in a roundabout way");
+        }
+
+        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepSourceFile bicepFile, int offset, IFunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(bicepFile.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);
@@ -184,7 +206,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, FunctionSymbol symbol, bool expectDecorator)
+        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, IFunctionSymbol symbol, bool expectDecorator)
         {
             signatureHelp.Should().NotBeNull();
 
@@ -227,8 +249,9 @@ namespace Bicep.LangServer.IntegrationTests
                 signature.Documentation!.MarkupContent.Should().NotBeNull();
                 signature.Documentation.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
 
+                // func declarations will only contain documentation if there's a @description decorator.
                 // List functions provided by the bicep-types-az library do not contain documentation: https://github.com/Azure/bicep/issues/7611
-                if (!isWellKnownListFunction)
+                if (symbol is not DeclaredFunctionSymbol && !isWellKnownListFunction)
                 {
                     signature.Documentation.MarkupContent.Value.Should().NotBeEmpty();
                 }

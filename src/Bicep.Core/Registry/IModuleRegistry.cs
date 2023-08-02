@@ -52,6 +52,12 @@ namespace Bicep.Core.Registry
         bool TryGetLocalModuleEntryPointUri(ModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         /// <summary>
+        /// Returns true if the specified module exists in the registry.
+        /// </summary>
+        /// <param name="reference">The reference to the module.</param>
+        Task<bool> CheckModuleExists(ModuleReference reference);
+
+        /// <summary>
         /// Downloads the specified modules from the registry and caches them locally.
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
@@ -70,12 +76,18 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
-        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri = null);
+        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri, string? description);
 
         /// <summary>
         /// Returns documentationUri for the module.
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         string? GetDocumentationUri(ModuleReference moduleReference);
+
+        /// <summary>
+        /// Returns description for the module.
+        /// </summary>
+        /// <param name="moduleReference">The module reference</param>
+        Task<string?> TryGetDescription(ModuleReference moduleReference);
     }
 }

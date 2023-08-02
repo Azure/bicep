@@ -137,8 +137,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
       // string key value
       '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
       contentVersion: '1.0.0.0'
-      resources: [
-      ]
+      resources: []
     }
   }
 }
@@ -224,6 +223,19 @@ param shouldDeployVm bool = true
 @sys.description('this is vmWithCondition')
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
   name: 'vmName'
+  location: 'westus'
+  properties: {
+    osProfile: {
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+      }
+    }
+  }
+}
+
+@sys.description('this is another vmWithCondition')
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
+  name: 'vmName2'
   location: 'westus'
   properties: {
     osProfile: {

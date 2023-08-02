@@ -24,21 +24,21 @@ export class BicepVisualizerView extends Disposable {
     private readonly languageClient: LanguageClient,
     private readonly webviewPanel: vscode.WebviewPanel,
     private readonly extensionUri: vscode.Uri,
-    private readonly documentUri: vscode.Uri
+    private readonly documentUri: vscode.Uri,
   ) {
     super();
 
     this.onDidDisposeEmitter = new vscode.EventEmitter<void>();
     this.onDidChangeViewStateEmitter = this.register(
-      new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>()
+      new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
     );
 
     this.register(
       this.webviewPanel.webview.onDidReceiveMessage(
         // eslint-disable-next-line jest/unbound-method
         this.handleDidReceiveMessage,
-        this
-      )
+        this,
+      ),
     );
 
     if (!this.isDisposed) {
@@ -49,8 +49,8 @@ export class BicepVisualizerView extends Disposable {
       // eslint-disable-next-line jest/unbound-method
       this.webviewPanel.onDidDispose(this.dispose, this),
       this.webviewPanel.onDidChangeViewState((e) =>
-        this.onDidChangeViewStateEmitter.fire(e)
-      )
+        this.onDidChangeViewStateEmitter.fire(e),
+      ),
     );
   }
 
@@ -66,7 +66,7 @@ export class BicepVisualizerView extends Disposable {
     languageClient: LanguageClient,
     viewColumn: vscode.ViewColumn,
     extensionUri: vscode.Uri,
-    documentUri: vscode.Uri
+    documentUri: vscode.Uri,
   ): BicepVisualizerView {
     const visualizerTitle = `Visualize ${path.basename(documentUri.fsPath)}`;
     const webviewPanel = vscode.window.createWebviewPanel(
@@ -76,14 +76,14 @@ export class BicepVisualizerView extends Disposable {
       {
         enableScripts: true,
         retainContextWhenHidden: true,
-      }
+      },
     );
 
     return new BicepVisualizerView(
       languageClient,
       webviewPanel,
       extensionUri,
-      documentUri
+      documentUri,
     );
   }
 
@@ -91,13 +91,13 @@ export class BicepVisualizerView extends Disposable {
     languageClient: LanguageClient,
     webviewPanel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
-    documentUri: vscode.Uri
+    documentUri: vscode.Uri,
   ): BicepVisualizerView {
     return new BicepVisualizerView(
       languageClient,
       webviewPanel,
       extensionUri,
-      documentUri
+      documentUri,
     );
   }
 
@@ -140,9 +140,9 @@ export class BicepVisualizerView extends Disposable {
       {
         textDocument:
           this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
-            document
+            document,
           ),
-      }
+      },
     );
 
     if (this.isDisposed) {
@@ -151,7 +151,7 @@ export class BicepVisualizerView extends Disposable {
 
     try {
       await this.webviewPanel.webview.postMessage(
-        createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph)
+        createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph),
       );
     } catch (error) {
       // Race condition: the webview was closed before receiving the message,
@@ -164,7 +164,7 @@ export class BicepVisualizerView extends Disposable {
     switch (message.kind) {
       case "READY":
         getLogger().debug(
-          `Visualizer for ${this.documentUri.fsPath} is ready.`
+          `Visualizer for ${this.documentUri.fsPath} is ready.`,
         );
 
         this.readyToRender = true;
@@ -189,8 +189,8 @@ export class BicepVisualizerView extends Disposable {
               vscode.window.showErrorMessage(
                 `Could not reveal file range in "${filePath}": ${
                   parseError(err).message
-                }`
-              )
+                }`,
+              ),
           );
         return;
       }
@@ -203,8 +203,8 @@ export class BicepVisualizerView extends Disposable {
         (editor) => this.revealEditorRange(editor, range),
         (err) =>
           vscode.window.showErrorMessage(
-            `Could not open "${filePath}": ${parseError(err).message}`
-          )
+            `Could not open "${filePath}": ${parseError(err).message}`,
+          ),
       );
   }
 
@@ -212,7 +212,7 @@ export class BicepVisualizerView extends Disposable {
     // editor.selection.active is the current cursor position which is immutable.
     const cursorPosition = editor.selection.active.with(
       range.start.line,
-      range.start.character
+      range.start.character,
     );
     // Move cursor to the beginning of the resource/module and reveal the source code.
     editor.selection = new vscode.Selection(cursorPosition, cursorPosition);
@@ -223,7 +223,7 @@ export class BicepVisualizerView extends Disposable {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "visualizer.js")
+      vscode.Uri.joinPath(this.extensionUri, "out", "visualizer.js"),
     );
 
     return `

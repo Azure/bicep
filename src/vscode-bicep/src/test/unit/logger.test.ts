@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+// eslint-disable-next-line jest/no-untyped-mock-factory
 jest.mock("winston", () => ({
   createLogger: () => mockWinstonLogger,
   format: {
@@ -70,7 +71,7 @@ describe("getLogger()", () => {
   it("should throw if createLogger() is not called first", () => {
     resetLogger();
     expect(() => getLogger()).toThrow(
-      "Logger is undefined. Make sure to call createLogger() first."
+      "Logger is undefined. Make sure to call createLogger() first.",
     );
   });
 
@@ -108,8 +109,8 @@ describe("winstonLogger", () => {
       expect(mockWinstonLogger.log).toHaveBeenNthCalledWith(
         1,
         level,
-        "something"
+        "something",
       );
-    }
+    },
   );
 });

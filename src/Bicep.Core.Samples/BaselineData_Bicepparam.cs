@@ -61,7 +61,8 @@ namespace Bicep.Core.Samples
             BaselineFile Diagnostics,
             BaselineFile Symbols,
             BaselineFile Syntax,
-            BaselineFile Formatted);
+            BaselineFile Formatted,
+            BaselineFile PrettyPrinted);
 
         private readonly EmbeddedFile paramsFile;
 
@@ -87,19 +88,22 @@ namespace Bicep.Core.Samples
                     Diagnostics: outputFolder.GetFileOrEnsureCheckedIn("parameters.diagnostics.bicepparam"),
                     Symbols: outputFolder.GetFileOrEnsureCheckedIn("parameters.symbols.bicepparam"),
                     Syntax: outputFolder.GetFileOrEnsureCheckedIn("parameters.syntax.bicepparam"),
-                    Formatted: outputFolder.GetFileOrEnsureCheckedIn("parameters.formatted.bicepparam"));
+                    Formatted: outputFolder.GetFileOrEnsureCheckedIn("parameters.formatted.bicepparam"),
+                    PrettyPrinted: outputFolder.GetFileOrEnsureCheckedIn("parameters.pprint.bicepparam"));
             }
         }
 
         private static IEnumerable<BaselineData_Bicepparam> GetAllExampleData()
         {
             var embeddedFiles = EmbeddedFile.LoadAll(
-                typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly,
+                typeof(AssemblyInitializer).Assembly,
                 "baselines_bicepparam",
                 streamName => Path.GetFileName(streamName) == "parameters.bicepparam");
 
             // ensure this list is kept up-to-date to validate that we're picking all of the baseline tests
             embeddedFiles.Select(x => x.StreamPath).Should().BeEquivalentTo(
+                "Files/baselines_bicepparam/Expressions/parameters.bicepparam",
+                "Files/baselines_bicepparam/Invalid_Expressions/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Parameters/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_MismatchedTypes/parameters.bicepparam",
                 "Files/baselines_bicepparam/Parameters/parameters.bicepparam");

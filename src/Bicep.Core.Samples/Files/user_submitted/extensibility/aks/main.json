@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13873757649926262153"
+      "templateHash": "231429512460861705"
     }
   },
   "parameters": {
@@ -33,7 +33,7 @@
     },
     "aks": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "aks-deploy",
       "resourceGroup": "[parameters('baseName')]",
       "properties": {
@@ -142,7 +142,7 @@
     },
     "kubernetes": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2022-09-01",
       "name": "kubernetes-deploy",
       "resourceGroup": "[parameters('baseName')]",
       "properties": {

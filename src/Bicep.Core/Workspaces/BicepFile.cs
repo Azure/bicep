@@ -10,8 +10,8 @@ namespace Bicep.Core.Workspaces
 {
     public class BicepFile : BicepSourceFile
     {
-        public BicepFile(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
-            : base(lineStarts, programSyntax, fileUri)
+        public BicepFile(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+            : base(lineStarts, programSyntax, fileUri, lexingErrorLookup, parsingErrorLookup)
         {
         }
 

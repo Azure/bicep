@@ -22,10 +22,19 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
-
-            if (bodyType is ObjectType objectType && resourceFunctions.Any())
+            var assertsProperty = new TypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.ResourceAsserts);
+            // DeclaredResourceMetadata.TypeReference.FormatType()
+            if (bodyType is ObjectType objectType)
             {
-                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+                var properties = objectType.Properties.SetItem(LanguageConstants.ResourceAssertPropertyName, assertsProperty);
+                if (resourceFunctions.Any())
+                {
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+                }
+                else
+                {
+                    bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags);
+                }
             }
 
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
@@ -41,7 +50,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (resourceFunctionType.Input is not null)
             {
                 yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
-                    .WithRequiredParameter("apiVersion", new StringLiteralType(resourceFunctionType.ApiVersion), "The api version")
+                    .WithRequiredParameter("apiVersion", TypeFactory.CreateStringLiteralType(resourceFunctionType.ApiVersion), "The api version")
                     .WithRequiredParameter("params", GetTypeSymbol(resourceFunctionType.Input.Type, false), $"{resourceFunctionType.Name} parameters")
                     .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
                     .WithFlags(FunctionFlags.RequiresInlining)
@@ -122,7 +131,7 @@ namespace Bicep.Core.TypeSystem.Az
                         return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
                     }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
-                    return new StringLiteralType(stringLiteralType.Value);
+                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                     {
                         var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));

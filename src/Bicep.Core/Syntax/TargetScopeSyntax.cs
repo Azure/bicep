@@ -49,10 +49,10 @@ namespace Bicep.Core.Syntax
         {
             // TODO: Implement the ability to declare a file targeting multiple scopes
             return TypeHelper.CreateTypeUnion(
-                new StringLiteralType(LanguageConstants.TargetScopeTypeTenant),
-                new StringLiteralType(LanguageConstants.TargetScopeTypeManagementGroup),
-                new StringLiteralType(LanguageConstants.TargetScopeTypeSubscription),
-                new StringLiteralType(LanguageConstants.TargetScopeTypeResourceGroup));
+                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeTenant),
+                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeManagementGroup),
+                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeSubscription),
+                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeResourceGroup));
         }
     }
 }

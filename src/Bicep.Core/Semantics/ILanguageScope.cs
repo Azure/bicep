@@ -10,5 +10,7 @@ namespace Bicep.Core.Semantics
         IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name);
 
         IEnumerable<DeclaredSymbol> Declarations { get; }
+
+        ScopeResolution ScopeResolution { get; }
     }
 }

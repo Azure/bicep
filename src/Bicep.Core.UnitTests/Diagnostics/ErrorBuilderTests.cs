@@ -104,6 +104,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> { $"<value_{index}" };
             }
 
+            if (parameter.ParameterType == typeof(IDiagnosticLookup))
+            {
+                return new DiagnosticTree();
+            }
+
             if (parameter.ParameterType == typeof(ImmutableArray<string>))
             {
                 return new[] { $"<value_{index}" }.ToImmutableArray();
@@ -127,7 +132,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
             if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
             {
-                return 0;
+                return 0L;
             }
 
             if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
@@ -260,9 +265,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-                       // comment
+                       
                        location:
-                       name:
+                       name:// comment
                  }"
         )]
         [DataRow(@"
@@ -280,6 +285,18 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFixedText(text, expectedFix);
+        }
+
+        private class PrimitiveType : TypeSymbol
+        {
+            public PrimitiveType(string name, TypeSymbolValidationFlags validationFlags) : base(name)
+            {
+                ValidationFlags = validationFlags;
+            }
+
+            public override TypeKind TypeKind => TypeKind.Primitive;
+
+            public override TypeSymbolValidationFlags ValidationFlags { get; }
         }
     }
 }

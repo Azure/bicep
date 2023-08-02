@@ -20,10 +20,12 @@ namespace Bicep.Core.Emit
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
+
         public struct Options
         {
             // If true, only inferred dependencies will be returned, not those declared explicitly by dependsOn entries
             public bool? IgnoreExplicitDependsOn;
+            public bool? IncludeExisting;
         }
 
         /// <summary>
@@ -65,11 +67,11 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            static int GetIndexOfLastNonExistingAncestor(ImmutableArray<ResourceAncestorGraph.ResourceAncestor> ancestors)
+            int GetIndexOfAncestor(ImmutableArray<ResourceAncestorGraph.ResourceAncestor> ancestors)
             {
                 for (int i = ancestors.Length - 1; i >= 0; i--)
                 {
-                    if (!ancestors[i].Resource.IsExistingResource)
+                    if (!ancestors[i].Resource.IsExistingResource || (options?.IncludeExisting ?? false))
                     {
                         // we found the non-existing resource - we're done
                         return i;
@@ -88,13 +90,13 @@ namespace Bicep.Core.Emit
 
             // Resource ancestors are always dependencies.
             var ancestors = this.model.ResourceAncestors.GetAncestors(resource);
-            var lastNonExistingAncestorIndex = GetIndexOfLastNonExistingAncestor(ancestors);
+            var lastAncestorIndex = GetIndexOfAncestor(ancestors);
 
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resource.Symbol;
-            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastNonExistingAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
+            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration

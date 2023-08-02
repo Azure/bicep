@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13502460632028788118"
+      "templateHash": "10329130755894462167"
     }
   },
   "parameters": {
@@ -143,14 +143,14 @@
     },
     "someParameter": {
       "type": "securestring",
-      "metadata": {
-        "description": "Name of the storage account"
-      },
       "allowedValues": [
         "one",
         "two",
         "three"
       ],
+      "metadata": {
+        "description": "Name of the storage account"
+      },
       "maxLength": 24,
       "minLength": 3
     },
@@ -186,7 +186,7 @@
     "decoratedInt": {
       "type": "int",
       "defaultValue": 123,
-      "minValue": 200
+      "minValue": 100
     },
     "negativeValues": {
       "type": "int",

@@ -90,7 +90,7 @@ export const App: VFC = () => {
   };
 
   useEffect(() => {
-    mapToElements(graph, theme).then(setElements);
+    void mapToElements(graph, theme).then(setElements);
   }, [graph, theme]);
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export const App: VFC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Graph theme={theme} elements={elements} />
+      <Graph elements={elements} />
       <StatusBar
         errorCount={graph?.errorCount ?? 0}
         hasNodes={elements.length > 0}

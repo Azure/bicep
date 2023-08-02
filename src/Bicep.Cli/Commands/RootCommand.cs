@@ -63,10 +63,11 @@ Usage:
       <file>        The input file
 
     Options:
-      --outdir <dir>    Saves the output at the specified directory.
-      --outfile <file>  Saves the output as the specified file path.
-      --stdout          Prints the output to stdout.
-      --no-restore      Builds the bicep file without restoring external modules.
+      --outdir <dir>                Saves the output at the specified directory.
+      --outfile <file>              Saves the output as the specified file path.
+      --stdout                      Prints the output to stdout.
+      --no-restore                  Builds the bicep file without restoring external modules.
+      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
 
     Examples:
       bicep build file.bicep
@@ -74,6 +75,7 @@ Usage:
       bicep build file.bicep --outdir dir1
       bicep build file.bicep --outfile file.json
       bicep build file.bicep --no-restore
+      bicep build file.bicep --diagnostics-format sarif
 
     {exeName} format [options] <file>
     Formats a .bicep file.
@@ -107,7 +109,7 @@ Usage:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
-      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile').
+      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').
 
     Examples:
       bicep decompile file.json
@@ -116,8 +118,29 @@ Usage:
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
 
+  {exeName} decompile-params [options] <file>
+    Attempts to decompile a parameters .json file to .bicepparam.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --outdir <dir>    Saves the output at the specified directory.
+      --outfile <file>  Saves the output as the specified file path.
+      --stdout          Prints the output to stdout.
+      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').
+      --bicep-file      Path to the bicep template file (relative to the .bicepparam file) that will be referenced in the using declaration
+
+    Examples:
+      bicep decompile-params file.json
+      bicep decompile-params file.json --bicep-file ./dir/main.bicep
+      bicep decompile-params file.json --stdout
+      bicep decompile-params file.json --outdir dir1
+      bicep decompile-params file.json --force
+      bicep decompile-params file.json --outfile file.bicepparam
+
   {exeName} generate-params [options] <file>
-    Builds .parameters.json file from the given bicep file, updates if there is an existing parameters.json file.
+    Builds parameters file from the given bicep file, updates if there is an existing parameters file.
 
     Arguments:
       <file>        The input file
@@ -127,6 +150,8 @@ Usage:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
+      --output-format   Selects the output format {{json, bicepparam}}
+      --include-params  Selects which parameters to include into output {{requiredonly, all}}
 
     Examples:
       bicep generate-params file.bicep
@@ -134,7 +159,7 @@ Usage:
       bicep generate-params file.bicep --stdout
       bicep generate-params file.bicep --outdir dir1
       bicep generate-params file.bicep --outfile file.parameters.json
-
+      bicep generate-params file.bicep --output-format bicepparam --include-params all
 
   {exeName} publish <file> --target <ref>
     Publishes the .bicep file to the module registry.
@@ -145,9 +170,11 @@ Usage:
 
     Options:
       --documentationUri  Module documentation uri
+      --force             Overwrite existing published module or file
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --force
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md
 
@@ -157,33 +184,30 @@ Usage:
     Arguments:
       <file>        The input file
 
- {exeName} [options]
+  {exeName} [options]
     Options:
       --version              -v   Shows bicep version information
       --help                 -h   Shows this usage information
       --license                   Prints license information
       --third-party-notices       Prints third-party notices
-      
-  
-  {exeName} build-params <file> 
-    Builds .bicepparam file.
+
+  {exeName} build-params <file>
+    Builds a .json file from a .bicepparam file.
 
     Arguments:
-      <file>        The input Bicepparam file 
+      <file>        The input Bicepparam file
 
     Options:
-      --bicep-file <file> Verifies if the bicep file reference in the params file using declaration matches the specified file path.
-      --outfile-params <file>  Saves the param output as the specified file path.
-      --outfile-bicep <file>  Saves the bicep output as the specified file path.
-      --stdout          Prints the output to stdout.
-      --no-restore      Builds the bicep file without restoring external modules.
+      --bicep-file <file> Verifies if the specified bicep file path matches the one provided in the params file using declaration
+      --outfile <file>  Saves the param output json as the specified file path.
+      --stdout          Prints the param and bicep json output to stdout.
+      --no-restore      Builds the bicep file (referenced in using declaration) without restoring external modules.
 
     Examples:
       bicep build-params params.bicepparam
       bicep build-params params.bicepparam --stdout
-      bicep build-params params.bicepparam --outfile-params otherParams.json --outfile-bicep otherMain.json 
+      bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
-
 
 "; // this newline is intentional
 
