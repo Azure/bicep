@@ -1,4 +1,6 @@
-# Using the Deployment Pane
+# Using the Deployment Pane (Experimental!)
+
+![](./images/deploypane-ui.png)
 
 ## What is it?
 The Deployment Pane is a UI panel in VSCode that allows you to connect to your Azure subscription and execute validate, deploy & whatif operations and get instant feedback without leaving the editor.
@@ -8,11 +10,13 @@ This feature is currently experimental while we collect feedback, but can be eas
 ## Enabling
 1. You must be using Bicep VSCode extension v0.20.4 or later.
 1. You must enable the "Experimental: Deploy Pane" VSCode setting before you can access the functionality.
+    ![](./images/deploypane-setting.png)
 
 ## Using
 1. Ensure you've followed the steps under [Enabling](#enabling).
 1. Open a `.bicep` or `.bicepparam` file in your editor.
 1. Press the Deploy Pane button visible in the top right of your editor window.
+    ![](./images/deploypane-button.png)
 1. Select a deployment scope with the "Pick Scope" button. This is only necessary if you haven't previously configured it for a given file, or wish to change the scope.
 1. (if using a `.bicep` file) Select a JSON parameters file, or manually enter the parameters.
 1. (if using a `.bicepparam` file) Change the parameter values if necessary.
