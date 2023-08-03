@@ -7,14 +7,15 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
-using Bicep.Core.Extensions;
-using Bicep.Core.Syntax.Visitors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -603,24 +604,33 @@ namespace Bicep.Core.Emit
                 ("asserts", model.Root.AssertDeclarations),
             })
             {
-                BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, diagnostics);
+                BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, s => s.Name, s => s.NameSource, diagnostics);
+            }
+
+            foreach (var objectTypeDeclaration in SyntaxAggregator.AggregateByType<ObjectTypeSyntax>(model.SourceFile.ProgramSyntax))
+            {
+                BlockCaseInsensitiveNameClashes("type properties",
+                    objectTypeDeclaration.Properties.SelectMany(p => p.TryGetKeyText() is string key ? (key, p.Key).AsEnumerable() : Enumerable.Empty<(string, SyntaxBase)>()),
+                    t => t.Item1,
+                    t => t.Item2,
+                    diagnostics);
             }
         }
 
-        private static void BlockCaseInsensitiveNameClashes(string symbolTypePluralName, IEnumerable<DeclaredSymbol> symbolsOfType, IDiagnosticWriter diagnostics)
+        private static void BlockCaseInsensitiveNameClashes<T>(string itemTypePluralName, IEnumerable<T> itemsOfType, Func<T, string> nameExtractor, Func<T, IPositionable> nameSyntaxExtractor, IDiagnosticWriter diagnostics)
         {
-            foreach (var grouping in symbolsOfType.ToLookup(s => s.Name, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
+            foreach (var grouping in itemsOfType.ToLookup(nameExtractor, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
             {
-                var clashingSymbols = grouping.Select(s => s.Name).ToArray();
+                var clashingNames = grouping.Select(nameExtractor).ToArray();
 
                 // if any symbols are exact matches, a different diagnostic about multiple declarations will have already been raised
-                if (clashingSymbols.Distinct().Count() != clashingSymbols.Length)
+                if (clashingNames.Distinct().Count() != clashingNames.Length)
                 {
                     continue;
                 }
 
                 diagnostics.WriteMultiple(grouping.Select(
-                    symbol => DiagnosticBuilder.ForPosition(symbol.NameSource).SymbolsMustBeCaseInsensitivelyUnique(symbolTypePluralName, clashingSymbols)));
+                    item => DiagnosticBuilder.ForPosition(nameSyntaxExtractor(item)).ItemsMustBeCaseInsensitivelyUnique(itemTypePluralName, clashingNames)));
             }
         }
     }
