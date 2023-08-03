@@ -4906,4 +4906,72 @@ param foo = 'asdf'
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/Azure/bicep/issues/502
+    [TestMethod]
+    public void Test_Issue502()
+    {
+        var result = CompilationHelper.Compile("""
+            var foo = 1
+            var FoO = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The variables \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The variables \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            param foo int = 1
+            param FoO int = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The parameters \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The parameters \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            output foo int = 1
+            output FoO int = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The outputs \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The outputs \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), """
+            type foo = string
+            type FoO = int
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(AssertsEnabled: true)), """
+            assert foo = true
+            assert FoO = true
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The asserts \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The asserts \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        // if the two symbols are of different types, ARM will be able to distinguish between them
+        result = CompilationHelper.Compile("""
+            param foo int = 1
+            var FoO = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
