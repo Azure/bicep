@@ -65,6 +65,114 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Test_command_ShouldSucceed()
+        {
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+            Directory.CreateDirectory(outputFileDir);
+
+            // Test should succeed when passing a required parameter
+            var testPath = FileHelper.SaveResultFile(TestContext, "test.bicep", @"// test content here", outputFileDir);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test foo 'test.bicep' = {}", outputFileDir);
+
+            var (output, error, result) = await Bicep(settings, "test", bicepPath);
+
+            result.Should().Be(0);
+            error.Should().NotBeEmpty();
+            error.Should().NotContain("Skipped");
+            error.Should().NotContain("Failed");
+
+            output.Should().Contain("All 1 evaluations passed!");
+
+            // Test should succeed when passing a required parameter
+            testPath = FileHelper.SaveResultFile(TestContext, "test.bicep", @"param foo string
+                                                                              output foo string = foo", outputFileDir);
+            bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test foo 'test.bicep' = {params:{foo:'ShouldSucceed'}}", outputFileDir);
+
+            (output, error, result) = await Bicep(settings, "test", bicepPath);
+            
+            result.Should().Be(0);
+            error.Should().NotBeEmpty();
+            error.Should().NotContain("Skipped");
+            error.Should().NotContain("Failed");
+            output.Should().Contain("All 1 evaluations passed!");
+
+            // Test should succeed when all Assertions pass
+            testPath = FileHelper.SaveResultFile(TestContext, "test.bicep", @"param foo string
+                                                                              assert isEqual = foo == 'ShouldSucceed'", outputFileDir);
+            bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test foo 'test.bicep' = {params:{foo:'ShouldSucceed'}}", outputFileDir);
+
+            (output, error, result) = await Bicep(settings, "test", bicepPath);
+
+            result.Should().Be(0);
+            error.Should().NotBeEmpty();
+            error.Should().NotContain("Skipped");
+            error.Should().NotContain("Failed");
+
+            output.Should().NotBeEmpty();
+            output.Should().Contain("Evaluation foo Succeded");
+            
+        }
+        
+        [TestMethod]
+        public async Task Test_command_ShouldFail()
+        {
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+            Directory.CreateDirectory(outputFileDir);
+
+
+            // Test should fail when not passing a required parameter
+            var testPath = FileHelper.SaveResultFile(TestContext, "test.bicep", @"param foo string
+                                                                                  output foo string = foo", outputFileDir);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test foo 'test.bicep' = {foo: 1}", outputFileDir);
+
+            var (output, error, result) = await Bicep(settings, "test", bicepPath);
+
+              using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+
+                error.Should().NotBeEmpty();
+                error.Should().Contain("Evaluation foo Skipped!");
+            }
+            // Test should fail when not passing a required parameter
+            testPath = FileHelper.SaveResultFile(TestContext, "test.bicep", @"param foo string
+                                                                              output foo string = foo", outputFileDir);
+            bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test foo 'test.bicep' = {params:{}}", outputFileDir);
+
+            (output, error, result) = await Bicep(settings, "test", bicepPath);
+            
+             using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+
+                error.Should().NotBeEmpty();
+                error.Should().Contain("Evaluation foo Skipped!");
+            }
+
+            // Test should fail when at least one assertion fails
+            testPath = FileHelper.SaveResultFile(TestContext, "test.bicep", @"param foo string
+                                                                              assert isEqual = foo == 'ShouldNotSucceed'", outputFileDir);
+            bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test foo 'test.bicep' = {params:{foo:'ShouldSucceed'}}", outputFileDir);
+
+            (output, error, result) = await Bicep(settings, "test", bicepPath);
+            
+             using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+
+                error.Should().NotBeEmpty();
+                error.Should().Contain("Evaluation foo Failed");
+            }
+        }
+
+        [TestMethod]
         public async Task Test_WithoutTestFrameworkEnabled_ShouldFail()
         {
             var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: false), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
