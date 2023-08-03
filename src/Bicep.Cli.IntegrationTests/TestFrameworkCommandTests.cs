@@ -111,7 +111,7 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().NotContain("Failed");
 
             output.Should().NotBeEmpty();
-            output.Should().Contain("Evaluation foo Succeded");
+            output.Should().Contain("All 1 evaluations passed!");
             
         }
         
