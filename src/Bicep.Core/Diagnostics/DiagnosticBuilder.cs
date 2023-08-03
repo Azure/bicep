@@ -1981,10 +1981,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP352",
                 $"Failed to evaluate variable \"{name}\": {message}");
 
-            public ErrorDiagnostic SymbolsMustBeCaseInsensitivelyUnique(string symbolTypePluralName, string[] symbolNames) => new(
+            public ErrorDiagnostic SymbolsMustBeCaseInsensitivelyUnique(string symbolTypePluralName, IEnumerable<string> symbolNames) => new(
                 TextSpan,
                 "BCP353",
-                $"The {symbolTypePluralName} {SentenceJoin(symbolNames, quoteChar: '"')} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
+                $"The {symbolTypePluralName} {ToQuotedString(symbolNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
@@ -1995,33 +1995,5 @@ namespace Bicep.Core.Diagnostics
 
         public static DiagnosticBuilderInternal ForDocumentStart()
             => new(TextSpan.TextDocumentStart);
-
-        /// <summary>
-        /// Joins zero or more strings together into a list suitable for use in an English sentence, with an option to quote each item.
-        /// </summary>
-        /// <remarks>
-        /// This method follows Strunk and White rules: no Oxford comma is used, and separating commas will appear within the quotation marks.
-        /// </remarks>
-        private static string SentenceJoin(string[] toJoin, char? quoteChar = null)
-        {
-            StringBuilder builder = new();
-            string quote = quoteChar?.ToString() ?? string.Empty;
-
-            for (int i = 0; i < toJoin.Length; i++)
-            {
-                builder.Append(quoteChar).Append(toJoin[i]);
-                if (i < toJoin.Length - 2)
-                {
-                    builder.Append(',');
-                }
-                builder.Append(quoteChar);
-                if (i == toJoin.Length - 2)
-                {
-                    builder.Append(" and ");
-                }
-            }
-
-            return builder.ToString();
-        }
     }
 }

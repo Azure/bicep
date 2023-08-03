@@ -612,6 +612,13 @@ namespace Bicep.Core.Emit
             foreach (var grouping in symbolsOfType.ToLookup(s => s.Name, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
             {
                 var clashingSymbols = grouping.Select(s => s.Name).ToArray();
+
+                // if any symbols are exact matches, a different diagnostic about multiple declarations will have already been raised
+                if (clashingSymbols.Distinct().Count() != clashingSymbols.Length)
+                {
+                    continue;
+                }
+
                 diagnostics.WriteMultiple(grouping.Select(
                     symbol => DiagnosticBuilder.ForPosition(symbol.NameSource).SymbolsMustBeCaseInsensitivelyUnique(symbolTypePluralName, clashingSymbols)));
             }
