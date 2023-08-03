@@ -1981,49 +1981,54 @@ namespace Bicep.Core.Diagnostics
                 "BCP352",
                 $"Failed to evaluate variable \"{name}\": {message}");
 
-            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
+            public ErrorDiagnostic SymbolsMustBeCaseInsensitivelyUnique(string symbolTypePluralName, IEnumerable<string> symbolNames) => new(
                 TextSpan,
                 "BCP353",
+                $"The {symbolTypePluralName} {ToQuotedString(symbolNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
+
+            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
+                TextSpan,
+                "BCP354",
                 "Expected left brace ('{') or asterisk ('*') character at this location.");
 
             public ErrorDiagnostic ExpectedExportedSymbolName() => new(
                 TextSpan,
-                "BCP354",
+                "BCP355",
                 "Expected the name of an exported symbol at this location.");
 
             public ErrorDiagnostic ExpectedNamespaceIdentifier() => new(
                 TextSpan,
-                "BCP355",
+                "BCP356",
                 "Expected a valid namespace identifier at this location.");
 
             public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
                 TextSpan,
-                "BCP356",
+                "BCP357",
                 $@"Using compile-time import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
 
             public ErrorDiagnostic PathHasNotBeenSpecified() => new(
                 TextSpan,
-                "BCP357",
+                "BCP358",
                 "This declaration is missing a template file path reference.");
 
             public ErrorDiagnostic CompileTimeImportDeclarationMustReferenceTemplate() => new(
                 TextSpan,
-                "BCP358",
+                "BCP359",
                 "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.");
 
             public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
                 TextSpan,
-                "BCP359",
+                "BCP360",
                 $"The '{symbolName}' symbol was not found in (or was not exported by) the imported template.");
 
             public ErrorDiagnostic ExportDecoratorMustTargetStatement() => new(
                 TextSpan,
-                "BCP360",
+                "BCP361",
                 @"The ""@export()"" decorator must target a top-level statement.");
 
             public ErrorDiagnostic SymbolImportedMultipleTimes(params string[] importedAs) => new(
                 TextSpan,
-                "BCP361",
+                "BCP362",
                 $"This symbol is imported multiple times under the names {string.Join(", ", importedAs.Select(identifier => $"'{identifier}'"))}.");
         }
 

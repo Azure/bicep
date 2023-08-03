@@ -52,6 +52,7 @@ namespace Bicep.Core.Emit
             BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
             BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
+            BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -588,6 +589,38 @@ namespace Bicep.Core.Emit
                 {
                     diagnostics.Write(value, x => x.AssertsUnsupported());
                 }
+            }
+        }
+
+        private static void BlockNamesDistinguishedOnlyByCase(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var (symbolTypePluralName, symbolsOfType) in new (string, IEnumerable<DeclaredSymbol>)[]
+            {
+                ("parameters", model.Root.ParameterDeclarations),
+                ("variables", model.Root.VariableDeclarations),
+                ("outputs", model.Root.OutputDeclarations),
+                ("types", model.Root.TypeDeclarations),
+                ("asserts", model.Root.AssertDeclarations),
+            })
+            {
+                BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, diagnostics);
+            }
+        }
+
+        private static void BlockCaseInsensitiveNameClashes(string symbolTypePluralName, IEnumerable<DeclaredSymbol> symbolsOfType, IDiagnosticWriter diagnostics)
+        {
+            foreach (var grouping in symbolsOfType.ToLookup(s => s.Name, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
+            {
+                var clashingSymbols = grouping.Select(s => s.Name).ToArray();
+
+                // if any symbols are exact matches, a different diagnostic about multiple declarations will have already been raised
+                if (clashingSymbols.Distinct().Count() != clashingSymbols.Length)
+                {
+                    continue;
+                }
+
+                diagnostics.WriteMultiple(grouping.Select(
+                    symbol => DiagnosticBuilder.ForPosition(symbol.NameSource).SymbolsMustBeCaseInsensitivelyUnique(symbolTypePluralName, clashingSymbols)));
             }
         }
     }
