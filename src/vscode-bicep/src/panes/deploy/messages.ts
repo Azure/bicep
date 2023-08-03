@@ -4,8 +4,10 @@ import { AccessToken } from "@azure/identity";
 import {
   DeployPaneState,
   DeploymentScope,
+  DeploymentScopeType,
   UntypedError,
-} from "./app/components/models";
+} from "./models";
+import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -22,19 +24,22 @@ export type DeploymentDataMessage = MessageWithPayload<
   "DEPLOYMENT_DATA",
   {
     documentPath: string;
-    templateJson: string;
+    templateJson?: string;
     parametersJson?: string;
+    errorMessage?: string;
   }
 >;
 export function createDeploymentDataMessage(
   documentPath: string,
-  templateJson: string,
+  templateJson?: string,
   parametersJson?: string,
+  errorMessage?: string,
 ): DeploymentDataMessage {
   return createMessageWithPayload("DEPLOYMENT_DATA", {
     documentPath,
     templateJson,
     parametersJson,
+    errorMessage,
   });
 }
 
@@ -124,9 +129,18 @@ export function createPickParamsFileResultMessage(
   });
 }
 
-export type GetDeploymentScopeMessage = SimpleMessage<"GET_DEPLOYMENT_SCOPE">;
-export function createGetDeploymentScopeMessage(): GetDeploymentScopeMessage {
-  return createSimpleMessage("GET_DEPLOYMENT_SCOPE");
+export type GetDeploymentScopeMessage = MessageWithPayload<
+  "GET_DEPLOYMENT_SCOPE",
+  {
+    scopeType: DeploymentScopeType;
+  }
+>;
+export function createGetDeploymentScopeMessage(
+  scopeType: DeploymentScopeType,
+): GetDeploymentScopeMessage {
+  return createMessageWithPayload("GET_DEPLOYMENT_SCOPE", {
+    scopeType,
+  });
 }
 
 export type GetDeploymentScopeResultMessage = MessageWithPayload<
@@ -143,20 +157,20 @@ export function createGetDeploymentScopeResultMessage(
   });
 }
 
-export type ShowUserErrorDialogMessage = MessageWithPayload<
-  "SHOW_USER_ERROR_DIALOG",
+export type PublishTelemetryMessage = MessageWithPayload<
+  "PUBLISH_TELEMETRY",
   {
-    callbackId: string;
-    error: UntypedError;
+    eventName: string;
+    properties: TelemetryProperties;
   }
 >;
-export function createShowUserErrorDialogMessage(
-  callbackId: string,
-  error: UntypedError,
-): ShowUserErrorDialogMessage {
-  return createMessageWithPayload("SHOW_USER_ERROR_DIALOG", {
-    callbackId,
-    error,
+export function createPublishTelemetryMessage(
+  eventName: string,
+  properties: TelemetryProperties,
+): PublishTelemetryMessage {
+  return createMessageWithPayload("PUBLISH_TELEMETRY", {
+    eventName,
+    properties,
   });
 }
 
@@ -174,7 +188,7 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | ShowUserErrorDialogMessage;
+  | PublishTelemetryMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };

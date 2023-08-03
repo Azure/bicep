@@ -130,7 +130,6 @@ param myObj = {
   environment: environment()
 //@[15:26) [BCP057 (Error)] The name "environment" does not exist in the current context. (CodeDescription: none) |environment|
   azNs: az
-//@[08:10) [BCP057 (Error)] The name "az" does not exist in the current context. (CodeDescription: none) |az|
   azNsFunc: az.providers('Microsoft.Compute')
-//@[12:14) [BCP057 (Error)] The name "az" does not exist in the current context. (CodeDescription: none) |az|
+//@[15:24) [BCP107 (Error)] The function "providers" does not exist in namespace "az". (CodeDescription: none) |providers|
 }

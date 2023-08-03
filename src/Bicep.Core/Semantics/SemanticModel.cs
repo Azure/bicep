@@ -420,46 +420,32 @@ namespace Bicep.Core.Semantics
 
         private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
-            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)
+            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
                 return ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>.Empty;
             }
 
-            var assignmentsByDeclaration = bicepSemanticModel.Root.ParameterDeclarations.ToDictionary(x => x, _ => (ParameterAssignmentSymbol?)null);
-            var parameterAssignments = SourceFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.Binder.GetSymbolInfo(x) is not null);
-            var assignmentsBySymbolName = parameterAssignments.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+            var parameterAssignments = Root.ParameterAssignments.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            foreach (var declaration in assignmentsByDeclaration.Keys)
-            {
-                if (assignmentsBySymbolName.TryGetValue(declaration.Name, out var parameterAssignmentSyntax))
-                {
-                    assignmentsByDeclaration[declaration] = this.Binder.GetSymbolInfo(parameterAssignmentSyntax) as ParameterAssignmentSymbol;
-                }
-            }
-            return assignmentsByDeclaration.ToImmutableDictionary();
+            return bicepModel.Root.ParameterDeclarations.ToImmutableDictionary(
+                decl => decl,
+                decl => parameterAssignments[decl.Name].FirstOrDefault());
         }
 
         private ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?> InitializeAssignmentToDeclarationDictionary()
         {
-            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)
+            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>.Empty;
             }
 
-            var declarationsByAssignment = this.Binder.FileSymbol.ParameterAssignments.ToDictionary(x => x, _ => (ParameterSymbol?)null);
-            var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-            var declarationsBySymbolName = parameterDeclarations.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+            var parameterDeclarations = bicepModel.Root.ParameterDeclarations.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            foreach (var declaration in declarationsByAssignment.Keys)
-            {
-                if (declarationsBySymbolName.TryGetValue(declaration.Name, out var parameterDeclarationSyntax))
-                {
-                    declarationsByAssignment[declaration] = bicepSemanticModel.GetSymbolInfo(parameterDeclarationSyntax) as ParameterSymbol;
-                }
-            }
-            return declarationsByAssignment.ToImmutableDictionary();
+            return Root.ParameterAssignments.ToImmutableDictionary(
+                decl => decl,
+                decl => parameterDeclarations[decl.Name].FirstOrDefault());
         }
 
         private SemanticModel? TryGetBicepSemanticModelForParamsFile()

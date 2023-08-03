@@ -115,7 +115,9 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
-
+                
+                case TestSymbol test:
+                    return AsMarkdown(CodeBlockWithDescription($"test {test.Name}", TryGetDescriptionMarkdown(result, test)));
                 case OutputSymbol output:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"output {output.Name}: {output.Type}", output.Type), TryGetDescriptionMarkdown(result, output)));

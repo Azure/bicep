@@ -2040,7 +2040,8 @@ module a '|' = {
                 x => x.Label.Should().Be("percentage%file.bicep"),
                 x => x.Label.Should().Be("../"),
                 x => x.Label.Should().Be("folder with space/"),
-                x => x.Label.Should().Be("br/"),
+                x => x.Label.Should().Be("br/public:"),
+                x => x.Label.Should().Be("ts/"),
                 x => x.Label.Should().Be("br:"),
                 x => x.Label.Should().Be("ts:")
             );

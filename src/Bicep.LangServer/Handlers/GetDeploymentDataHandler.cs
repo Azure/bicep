@@ -16,11 +16,11 @@ namespace Bicep.LanguageServer.Handlers
 {
     [Method("bicep/getDeploymentData", Direction.ClientToServer)]
     public record GetDeploymentDataRequest(TextDocumentIdentifier TextDocument)
-        : ITextDocumentIdentifierParams, IRequest<GetDeploymentDataResponse?>;
+        : ITextDocumentIdentifierParams, IRequest<GetDeploymentDataResponse>;
 
-    public record GetDeploymentDataResponse(string TemplateJson, string? ParametersJson);
+    public record GetDeploymentDataResponse(string? TemplateJson = null, string? ParametersJson = null, string? ErrorMessage = null);
 
-    public class GetDeploymentDataHandler : IJsonRpcRequestHandler<GetDeploymentDataRequest, GetDeploymentDataResponse?>
+    public class GetDeploymentDataHandler : IJsonRpcRequestHandler<GetDeploymentDataRequest, GetDeploymentDataResponse>
     {
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
         private readonly ICompilationManager compilationManager;
@@ -31,13 +31,13 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager = compilationManager;
         }
 
-        public async Task<GetDeploymentDataResponse?> Handle(GetDeploymentDataRequest request, CancellationToken cancellationToken)
+        public async Task<GetDeploymentDataResponse> Handle(GetDeploymentDataRequest request, CancellationToken cancellationToken)
         {
             await Task.Yield();
 
             if (this.compilationManager.GetCompilation(request.TextDocument.Uri) is not {} context)
             {
-                return null;
+                return new(ErrorMessage: $"Bicep compilation failed. An unexpected error occurred.");
             }
 
             var semanticModel = context.Compilation.GetEntrypointSemanticModel();
@@ -49,13 +49,13 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (paramsResult.Status == EmitStatus.Failed)
                 {
-                    return null;
+                    return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.");
                 }
 
                 paramsFile = paramsStringWriter.ToString();
                 if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out semanticModel, out _))
                 {
-                    return null;
+                    return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.");
                 }
             }
 
@@ -63,10 +63,10 @@ namespace Bicep.LanguageServer.Handlers
             var result = new TemplateEmitter(semanticModel).Emit(templateStringWriter);
             if (result.Status == EmitStatus.Failed)
             {
-                return null;
+                return new(ErrorMessage: $"Bicep compilation failed. The Bicep file contains errors.");
             }
 
-            return new(templateStringWriter.ToString(), paramsFile);
+            return new(TemplateJson: templateStringWriter.ToString(), ParametersJson: paramsFile);
         }
     }
 }

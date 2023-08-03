@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.Intermediate;
@@ -16,21 +16,32 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Services
 {
-    public class ValidationService
+    public record TestResult(TestSymbol Source, TestEvaluation Result);
+
+    public record TestResults(ImmutableArray<TestResult> Results)
     {
-        public static void Validate(ImmutableArray<TestSymbol> testDeclarations)
+        public int TotalEvaluations => Results.Length;
+
+        public int SuccessfullEvaluations => Results.Count(x => x.Result.Success);
+
+        public int FailedEvaluations => Results.Count(x => !x.Result.Success);
+
+        public int SkippedEvaluations => Results.Count(x => x.Result.Skip);
+
+        public bool Success => FailedEvaluations == 0 && SkippedEvaluations == 0;
+    }
+    public class TestRunner
+    { 
+        public static TestResults Run(ImmutableArray<TestSymbol> testDeclarations)
         {
             var templateOutputBuffer = new StringBuilder();
             using var textWriter = new StringWriter();
 
-            EvaluateTemplates(testDeclarations, textWriter);
-
-            
+            return EvaluateTemplates(testDeclarations, textWriter);    
         }
-        private static void EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
+        private static  TestResults EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
         {
-            var evaluatedTemplates =  new InsensitiveDictionary<JToken>();
-
+            var testResults = ImmutableArray.CreateBuilder<TestResult>();;
             foreach(var testDeclaration  in testDeclarations)
             {
                 if (testDeclaration.TryGetSemanticModel(out var semanticModel, out var failureDiagnostic) &&
@@ -39,13 +50,16 @@ namespace Bicep.Cli.Services
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
                     var template = GetTemplate(testSemanticModel, testDeclaration);
 
-                    var evaluatedTemplate = TemplateEvaluatorService.Evaluate(template, parameters);
+                    var evaluation = TemplateEvaluator.Evaluate(template, parameters);
+                    var testResult = new TestResult(testDeclaration, evaluation);
 
-                    evaluatedTemplates.Add(testDeclaration.Name, evaluatedTemplate);
+                    testResults.Add(testResult);
                 
                 }
                 
             }
+            return new TestResults(testResults.ToImmutable());
+
 
         }
 

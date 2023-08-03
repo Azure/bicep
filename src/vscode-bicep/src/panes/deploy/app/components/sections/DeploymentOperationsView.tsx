@@ -1,7 +1,8 @@
-import { VSCodeDivider, VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { DeploymentOperation } from "@azure/arm-resources";
 import { getPreformattedJson, isFailed, isInProgress } from "../utils";
+import { FormSection } from "./FormSection";
 
 interface DeploymentOperationsViewProps {
   operations?: DeploymentOperation[];
@@ -20,9 +21,7 @@ export const DeploymentOperationsView: FC<DeploymentOperationsViewProps> = ({ op
   }
 
   return (
-    <section>
-      <VSCodeDivider />
-      <h2>Operations</h2>
+    <FormSection title="Operations">
       <VSCodeDataGrid>
         <VSCodeDataGridRow rowType="header">
           <VSCodeDataGridCell gridColumn="1" cellType="columnheader">Resource Name</VSCodeDataGridCell>
@@ -43,6 +42,6 @@ export const DeploymentOperationsView: FC<DeploymentOperationsViewProps> = ({ op
           </VSCodeDataGridRow>
         ))}
       </VSCodeDataGrid>
-    </section>
+    </FormSection>
   );
 };

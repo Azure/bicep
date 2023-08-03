@@ -9,12 +9,12 @@ import {
   ParametersMetadata,
   TemplateMetadata,
   UntypedError,
-} from "../models";
+} from "../../../models";
 import { AccessToken, TokenCredential } from "@azure/identity";
 import {
+  CloudError,
   Deployment,
   DeploymentOperation,
-  ErrorResponse,
   ResourceManagementClient,
   WhatIfChange,
 } from "@azure/arm-resources";
@@ -24,7 +24,7 @@ export interface UseAzureProps {
   templateMetadata?: TemplateMetadata;
   parametersMetadata: ParametersMetadata;
   acquireAccessToken: () => Promise<AccessToken>;
-  showErrorDialog: (callbackId: string, error: UntypedError) => void;
+  setErrorMessage: (message?: string) => void;
 }
 
 export function useAzure(props: UseAzureProps) {
@@ -33,7 +33,7 @@ export function useAzure(props: UseAzureProps) {
     templateMetadata,
     parametersMetadata,
     acquireAccessToken,
-    showErrorDialog,
+    setErrorMessage,
   } = props;
   const deploymentName = "bicep-deploy";
   const [operations, setOperations] = useState<DeploymentOperation[]>();
@@ -66,18 +66,20 @@ export function useAzure(props: UseAzureProps) {
     }
 
     try {
+      setErrorMessage(undefined);
       clearState();
       setRunning(true);
 
       const deployment = getDeploymentProperties(
+        scope,
         templateMetadata,
         parametersMetadata.parameters,
       );
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
       await operation(armClient, deployment);
-    } catch (e) {
-      showErrorDialog("doDeploymentOperation", e);
+    } catch (error) {
+      setErrorMessage(`Azure operation failed: ${error}`);
     } finally {
       setRunning(false);
     }
@@ -91,8 +93,8 @@ export function useAzure(props: UseAzureProps) {
     await doDeploymentOperation(scope, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
-        const result = client.deploymentOperations.list(
-          scope.resourceGroup,
+        const result = client.deploymentOperations.listAtScope(
+          getScopeId(scope),
           deploymentName,
         );
         for await (const page of result.byPage()) {
@@ -103,8 +105,8 @@ export function useAzure(props: UseAzureProps) {
 
       let poller;
       try {
-        poller = await client.deployments.beginCreateOrUpdate(
-          scope.resourceGroup,
+        poller = await client.deployments.beginCreateOrUpdateAtScope(
+          getScopeId(scope),
           deploymentName,
           deployment,
         );
@@ -139,8 +141,8 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await client.deployments.beginValidateAndWait(
-          scope.resourceGroup,
+        const response = await client.deployments.beginValidateAtScopeAndWait(
+          getScopeId(scope),
           deploymentName,
           deployment,
         );
@@ -165,8 +167,9 @@ export function useAzure(props: UseAzureProps) {
 
     await doDeploymentOperation(scope, async (client, deployment) => {
       try {
-        const response = await client.deployments.beginWhatIfAndWait(
-          scope.resourceGroup,
+        const response = await beginWhatIfAndWait(
+          client,
+          scope,
           deploymentName,
           deployment,
         );
@@ -204,10 +207,9 @@ export function useAzure(props: UseAzureProps) {
   };
 }
 
-function parseError(error: UntypedError): ErrorResponse {
+function parseError(error: UntypedError) {
   if (error instanceof RestError) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (error.details as any).error as ErrorResponse;
+    return (error.details as CloudError).error;
   }
 
   return {
@@ -216,22 +218,57 @@ function parseError(error: UntypedError): ErrorResponse {
 }
 
 function getDeploymentProperties(
+  scope: DeploymentScope,
   metadata: TemplateMetadata,
   paramValues: Record<string, ParamData>,
 ): Deployment {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const parameters: Record<string, any> = {};
-  for (const [key, { value }] of Object.entries(paramValues)) {
-    parameters[key] = {
-      value,
-    };
+  const parameters: Record<string, unknown> = {};
+  for (const { name } of metadata.parameterDefinitions) {
+    if (paramValues[name]) {
+      const value = paramValues[name].value;
+      parameters[name] = { value };
+    }
   }
 
+  const location =
+    scope.scopeType !== "resourceGroup" ? scope.location : undefined;
+
   return {
+    location,
     properties: {
       mode: "Incremental",
       parameters,
       template: metadata.template,
     },
   };
+}
+
+function getScopeId(scope: DeploymentScope) {
+  switch (scope.scopeType) {
+    case "resourceGroup":
+      return `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}`;
+    case "subscription":
+      return `/subscriptions/${scope.subscriptionId}`;
+  }
+}
+
+async function beginWhatIfAndWait(
+  client: ResourceManagementClient,
+  scope: DeploymentScope,
+  deploymentName: string,
+  deployment: Deployment,
+) {
+  switch (scope.scopeType) {
+    case "resourceGroup":
+      return await client.deployments.beginWhatIfAndWait(
+        scope.resourceGroup,
+        deploymentName,
+        deployment,
+      );
+    case "subscription":
+      return await client.deployments.beginWhatIfAtSubscriptionScopeAndWait(
+        deploymentName,
+        { ...deployment, location: scope.location },
+      );
+  }
 }

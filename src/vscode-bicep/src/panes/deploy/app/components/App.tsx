@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { FC } from "react";
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { FC, useState } from "react";
+import { VSCodeButton, VSCodeDivider, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./index.css";
-import { ParamData } from "./models";
+import { ParamData } from "../../models";
 import { useMessageHandler } from "./hooks/useMessageHandler";
 import { WhatIfChangesView } from "./sections/WhatIfChangesView";
 import { DeploymentOperationsView } from "./sections/DeploymentOperationsView";
@@ -12,15 +12,17 @@ import { ResultsView } from "./sections/ResultsView";
 import { ParametersInputView } from "./sections/ParametersInputView";
 import { useAzure } from "./hooks/useAzure";
 import { DeploymentScopeInputView } from "./sections/DeploymentScopeInputView";
+import { FormSection } from "./sections/FormSection";
 
 export const App: FC = () => {
-  const messages = useMessageHandler();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const messages = useMessageHandler({ setErrorMessage });
   const azure = useAzure({
     scope: messages.scope,
     acquireAccessToken: messages.acquireAccessToken,
     templateMetadata: messages.templateMetadata,
     parametersMetadata: messages.paramsMetadata,
-    showErrorDialog: messages.showErrorDialog
+    setErrorMessage
   });
 
   function setParamValue(key: string, data: ParamData) {
@@ -34,35 +36,61 @@ export const App: FC = () => {
 
   const azureDisabled = !messages.scope || !messages.templateMetadata || azure.running;
 
+  async function handleDeployClick() {
+    messages.publishTelemetry('deployPane/deploy', {});
+    await azure.deploy();
+  }
+
+  async function handleValidateClick() {
+    messages.publishTelemetry('deployPane/validate', {});
+    await azure.validate();
+  }
+
+  async function handleWhatIfClick() {
+    messages.publishTelemetry('deployPane/whatIf', {});
+    await azure.whatIf();
+  }
+
   return (
     <main id="webview-body">
-      <section className="form-section">
-        <DeploymentScopeInputView
-          scope={messages.scope}
-          onPickScope={messages.pickScope} />
+      <VSCodeDivider />
 
-        <ParametersInputView
-          parameters={messages.paramsMetadata}
-          template={messages.templateMetadata}
-          disabled={azure.running}
-          onValueChange={setParamValue}
-          onEnableEditing={handleEnableParamEditing}
-          onPickParametersFile={messages.pickParamsFile} />
+      <DeploymentScopeInputView
+        scope={messages.scope}
+        onPickScope={messages.pickScope} />
 
+      <ParametersInputView
+        parameters={messages.paramsMetadata}
+        template={messages.templateMetadata}
+        disabled={azure.running}
+        onValueChange={setParamValue}
+        onEnableEditing={handleEnableParamEditing}
+        onPickParametersFile={messages.pickParamsFile} />
+
+      <FormSection title="Actions">
+        {errorMessage && <div
+          style={{
+            color: "var(--vscode-statusBarItem-errorForeground)",
+            backgroundColor: "var(--vscode-statusBarItem-errorBackground)",
+            padding: '5px 10px',
+            borderRadius: '4px',
+            fontSize: '14px',
+            alignSelf: 'center'
+          }}>
+          {errorMessage}
+        </div>}
         <div className="controls">
-          <VSCodeButton onClick={azure.deploy} disabled={azureDisabled}>Deploy</VSCodeButton>
-          <VSCodeButton onClick={azure.validate} disabled={azureDisabled}>Validate</VSCodeButton>
-          <VSCodeButton onClick={azure.whatIf} disabled={azureDisabled}>What-If</VSCodeButton>
+          <VSCodeButton onClick={handleDeployClick} disabled={azureDisabled}>Deploy</VSCodeButton>
+          <VSCodeButton onClick={handleValidateClick} disabled={azureDisabled}>Validate</VSCodeButton>
+          <VSCodeButton onClick={handleWhatIfClick} disabled={azureDisabled}>What-If</VSCodeButton>
         </div>
-      </section>
+        {azure.running && <VSCodeProgressRing></VSCodeProgressRing>}
+      </FormSection>
 
-      <section className="form-section">
-        {azure.running && <VSCodeProgressRing />}
-        <ResultsView result={azure.result} />
-        <DeploymentOperationsView operations={azure.operations} />
-        <DeploymentOutputsView outputs={azure.outputs} />
-        <WhatIfChangesView changes={azure.whatIfChanges} />
-      </section>
+      <ResultsView result={azure.result} />
+      <DeploymentOperationsView operations={azure.operations} />
+      <DeploymentOutputsView outputs={azure.outputs} />
+      <WhatIfChangesView changes={azure.whatIfChanges} />
     </main>
   );
 };

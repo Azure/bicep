@@ -1,7 +1,8 @@
-import { VSCodeTextField, VSCodeCheckbox, VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
-import { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../models";
+import { ParamData, ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../../models";
 import { ParamInputBox } from "../ParamInputBox";
+import { FormSection } from "./FormSection";
 
 interface ParametersInputViewProps {
   template?: TemplateMetadata;
@@ -21,12 +22,10 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, pa
   const { sourceFilePath } = parameters;
 
   return (
-    <section className="form-section">
-      <VSCodeDivider />
-      <h2>Parameters</h2>
+    <FormSection title="Parameters">
       {sourceFilePath && <VSCodeTextField value={sourceFilePath} disabled={true}>File Path</VSCodeTextField>}
-      {sourceFilePath && !sourceFilePath.endsWith('.bicepparam') && <VSCodeCheckbox onChange={onEnableEditing} checked={false}>Edit Parameters?</VSCodeCheckbox>}
-      {!sourceFilePath && <VSCodeButton onClick={onPickParametersFile} appearance="secondary">Pick Parameters File</VSCodeButton>}
+      {sourceFilePath && !sourceFilePath.endsWith('.bicepparam') && <VSCodeButton onClick={onEnableEditing}>Edit Parameters</VSCodeButton>}
+      {!sourceFilePath && <VSCodeButton onClick={onPickParametersFile}>Pick Parameters File</VSCodeButton>}
       {!sourceFilePath && parameterDefinitions.map(definition => (
         <ParamInputBox
           key={definition.name}
@@ -36,13 +35,12 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, pa
           onChangeData={data => onValueChange(definition.name, data)}
         />
       ))}
-    </section>
+    </FormSection>
   );
 };
 
 function getParamData(params: ParametersMetadata, definition: ParamDefinition): ParamData {
   return params.parameters[definition.name] ?? {
-    value: definition.defaultValue ?? '',
-    useDefault: definition.defaultValue !== undefined,
+    value: definition.defaultValue,
   };
 }

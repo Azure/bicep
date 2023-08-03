@@ -1433,7 +1433,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new(
                 TextSpan,
                 "BCP244",
                 $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
@@ -1900,7 +1900,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
                 TextSpan,
                 "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
 
             public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
@@ -1942,7 +1942,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP344",
                 "Expected an assert identifier at this location.");
-        
+
             public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
                 TextSpan,
                 "BCP345",
@@ -1970,6 +1970,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP350",
                 $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
+
+            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
+                TextSpan,
+                "BCP351",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+
+            public ErrorDiagnostic FailedToEvaluateVariable(string name, string message) => new(
+                TextSpan,
+                "BCP352",
+                $"Failed to evaluate variable \"{name}\": {message}");
+
+            public ErrorDiagnostic SymbolsMustBeCaseInsensitivelyUnique(string symbolTypePluralName, IEnumerable<string> symbolNames) => new(
+                TextSpan,
+                "BCP353",
+                $"The {symbolTypePluralName} {ToQuotedString(symbolNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

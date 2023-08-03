@@ -238,35 +238,26 @@ public class ExpressionBuilder
     }
 
     private TypeExpression ConvertTypeWithoutLowering(SyntaxBase syntax)
-    {
-        switch (Context.SemanticModel.Binder.GetSymbolInfo(syntax))
+        => syntax switch
         {
-            case AmbientTypeSymbol ambientType:
-                return new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type);
-            case TypeAliasSymbol typeAlias:
-                return new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type);
-            case Symbol otherwise:
-                throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression.");
-        }
-
-        switch (Context.SemanticModel.GetTypeInfo(syntax))
-        {
-            case StringLiteralType @string:
-                return new StringLiteralTypeExpression(syntax, @string);
-            case IntegerLiteralType @int:
-                return new IntegerLiteralTypeExpression(syntax, @int);
-            case BooleanLiteralType @bool:
-                return new BooleanLiteralTypeExpression(syntax, @bool);
-            case NullType @null:
-                return new NullLiteralTypeExpression(syntax, @null);
-            case ResourceType resource:
-                return new ResourceTypeExpression(syntax, resource);
-        }
-        var symbol = Context.SemanticModel.GetSymbolInfo(syntax);
-        var typeInfo = Context.SemanticModel.GetTypeInfo(syntax);
-
-        return syntax switch
-        {
+            VariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
+            {
+                AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
+                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type),
+                Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
+                _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
+            },
+            StringSyntax @string => new StringLiteralTypeExpression(@string, GetTypeInfo<StringLiteralType>(@string)),
+            IntegerLiteralSyntax @int => new IntegerLiteralTypeExpression(@int, GetTypeInfo<IntegerLiteralType>(@int)),
+            BooleanLiteralSyntax @bool => new BooleanLiteralTypeExpression(@bool, GetTypeInfo<BooleanLiteralType>(@bool)),
+            UnaryOperationSyntax unaryOperation => Context.SemanticModel.GetTypeInfo(unaryOperation) switch
+            {
+                IntegerLiteralType intOperation => new IntegerLiteralTypeExpression(syntax, intOperation),
+                BooleanLiteralType boolOperation => new BooleanLiteralTypeExpression(syntax, boolOperation),
+                _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
+            },
+            NullLiteralSyntax @null => new NullLiteralTypeExpression(@null, GetTypeInfo<NullType>(@null)),
+            ResourceTypeSyntax resource => new ResourceTypeExpression(resource, GetTypeInfo<ResourceType>(resource)),
             ObjectTypeSyntax objectTypeSyntax => new ObjectTypeExpression(syntax,
                 GetTypeInfo<ObjectType>(syntax),
                 objectTypeSyntax.Properties.Select(p => ConvertWithoutLowering<ObjectTypePropertyExpression>(p)).ToImmutableArray(),
@@ -280,9 +271,17 @@ public class ExpressionBuilder
                 GetTypeInfo<ArrayType>(syntax),
                 ConvertTypeWithoutLowering(arrayTypeSyntax.Item.Value)),
             NullableTypeSyntax nullableTypeSyntax => new NullableTypeExpression(syntax, ConvertTypeWithoutLowering(nullableTypeSyntax.Base)),
-            UnionTypeSyntax unionTypeSyntax => new UnionTypeExpression(syntax,
-                GetTypeInfo<UnionType>(syntax),
-                unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
+            UnionTypeSyntax unionTypeSyntax when Context.SemanticModel.GetTypeInfo(unionTypeSyntax) is UnionType unionType
+                => new UnionTypeExpression(syntax, unionType, unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
+            UnionTypeSyntax unionTypeSyntax => Context.SemanticModel.GetTypeInfo(unionTypeSyntax) switch
+            {
+                ErrorType errorType => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
+                UnionType unionType => new UnionTypeExpression(syntax, unionType, ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
+                // If a union type expression's members all refer to the same literal value, the type of the expression will be a single literal rather than a union
+                TypeSymbol otherwise => new UnionTypeExpression(syntax,
+                    new UnionType(string.Empty, ImmutableArray.Create<ITypeReference>(otherwise)),
+                    ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
+            },
             ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
             PropertyAccessSyntax propertyAccess when Context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is BuiltInNamespaceSymbol namespaceSymbol &&
@@ -291,7 +290,6 @@ public class ExpressionBuilder
                 => new FullyQualifiedAmbientTypeReferenceExpression(propertyAccess, namespaceSymbol.Type.ProviderName, property.Name, property.TypeReference.Type),
             _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
         };
-    }
 
     private TExpression ConvertWithoutLowering<TExpression>(SyntaxBase syntax)
         where TExpression : Expression
