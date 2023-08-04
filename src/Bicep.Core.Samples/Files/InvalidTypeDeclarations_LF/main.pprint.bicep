@@ -229,3 +229,162 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 
 @discriminator('type')
 output discriminatorOutputBadType2 object = { prop: 'value' }
+
+// BEGIN: valid tagged unions baselines; move this back to TypeDeclarations_LF when backend updates are released and uncomment typesA-D
+//type typeA = {
+//  type: 'a'
+//  value: string
+//}
+//
+//type typeB = {
+//  type: 'b'
+//  value: int
+//}
+//
+//type typeC = {
+//  type: 'c'
+//  value: bool
+//  value2: string
+//}
+//
+//type typeD = {
+//  type: 'd'
+//  value: object
+//}
+
+type typeH = {
+  type: 'h'
+  value: 'a' | 'b'
+}
+
+type typeI = {
+  type: 'i'
+  *: string
+}
+
+@discriminator('type')
+type discriminatedUnion1 = typeA | typeB
+
+@discriminator('type')
+type discriminatedUnion2 = { type: 'c', value: string } | {
+  type: 'd'
+  value: bool
+}
+
+@discriminator('type')
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | {
+  type: 'e'
+  value: string
+}
+
+@discriminator('type')
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)
+
+@discriminator('type')
+type discriminatedUnion5 = (typeA | typeB)?
+
+type inlineDiscriminatedUnion1 = {
+  @discriminator('type')
+  prop: typeA | typeC
+}
+
+type inlineDiscriminatedUnion2 = {
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+}
+
+@discriminator('type')
+type inlineDiscriminatedUnion3 = {
+  type: 'a'
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+} | {
+  type: 'b'
+  @discriminator('type')
+  prop: discriminatedUnion1 | discriminatedUnion2
+}
+
+type inlineDiscriminatedUnion4 = {
+  @discriminator('type')
+  prop: (typeA | typeC)?
+}
+
+type discriminatorUnionAsPropertyType = {
+  prop1: discriminatedUnion1
+  prop2: discriminatedUnion3
+}
+
+type discriminatedUnionInlineAdditionalProps1 = {
+  @discriminator('type')
+  *: typeA | typeB
+}
+
+type discriminatedUnionInlineAdditionalProps2 = {
+  @discriminator('type')
+  *: (typeA | typeB)?
+}
+
+@discriminator('type')
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeI | {
+  type: 'g'
+  *: int
+}
+
+@discriminator('type')
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+}
+
+type discriminatedUnionMemberOptionalCycle1 = {
+  type: 'b'
+  @discriminator('type')
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
+}
+
+type discriminatedUnionTuple1 = [discriminatedUnion1, string]
+
+type discriminatedUnionInlineTuple1 = [
+  @discriminator('type')
+  typeA | typeB | { type: 'c', value: object }
+  string
+]
+
+param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
+param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion1 typeA | typeB
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion3 (typeA | typeB)?
+
+output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = {
+  type: 'a'
+  value: 'str'
+}
+@discriminator('type')
+output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = {
+  type: 'a'
+  value: 'str'
+}
+output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = {
+  type: 'a'
+  value: 'a'
+}
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion2 typeA | typeB | ({
+  type: 'c'
+  value: int
+}) = { type: 'c', value: 1 }
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
+// END: valid tagged unions baselines; move this back to TypeDeclarations_LF when backend updates are released and uncomment typesA-D

@@ -114,7 +114,7 @@ type typeB = {
 
 @discriminator('type')
 type unionAB = typeA | typeB
-//@[5:12) TypeAlias unionAB. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 51
+//@[5:12) TypeAlias unionAB. Type: error. Declaration start char: 0, length: 51
 
 type typeC = {
 //@[5:10) TypeAlias typeC. Type: Type<{ type: 'c', value: bool, value2: string }>. Declaration start char: 0, length: 59
@@ -164,7 +164,7 @@ type discriminatorPropertyNotExistAtAll = typeA | typeB
 
 @discriminator('nonexistent')
 type discriminatorPropertyMismatch = unionAB
-//@[5:34) TypeAlias discriminatorPropertyMismatch. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 74
+//@[5:34) TypeAlias discriminatorPropertyMismatch. Type: error. Declaration start char: 0, length: 74
 
 @discriminator('type')
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
@@ -200,7 +200,7 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
-//@[5:47) TypeAlias discriminatorMemberHasAdditionalProperties. Type: Type<{ type: 'a', value: string } | { type: 'e', *: string }>. Declaration start char: 0, length: 86
+//@[5:47) TypeAlias discriminatorMemberHasAdditionalProperties. Type: error. Declaration start char: 0, length: 86
 
 @discriminator('type')
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
@@ -219,7 +219,7 @@ type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 
 @discriminator('type')
 type discriminatorInnerSelfCycle1 = typeA | {
-//@[5:33) TypeAlias discriminatorInnerSelfCycle1. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle1 }>. Declaration start char: 0, length: 120
+//@[5:33) TypeAlias discriminatorInnerSelfCycle1. Type: error. Declaration start char: 0, length: 120
   type: 'b'
   value: discriminatorInnerSelfCycle1
 }
@@ -231,7 +231,7 @@ type discriminatorInnerSelfCycle2Helper = {
 }
 @discriminator('type')
 type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
-//@[5:33) TypeAlias discriminatorInnerSelfCycle2. Type: Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfCycle2 }>. Declaration start char: 0, length: 101
+//@[5:33) TypeAlias discriminatorInnerSelfCycle2. Type: error. Declaration start char: 0, length: 101
 
 @discriminator('type')
 type discriminatorTupleBadType1 = [typeA, typeB]
@@ -293,4 +293,175 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 @discriminator('type')
 output discriminatorOutputBadType2 object = { prop: 'value' }
 //@[7:34) Output discriminatorOutputBadType2. Type: object. Declaration start char: 0, length: 84
+
+// BEGIN: valid tagged unions baselines; move this back to TypeDeclarations_LF when backend updates are released and uncomment typesA-D
+//type typeA = {
+//  type: 'a'
+//  value: string
+//}
+//
+//type typeB = {
+//  type: 'b'
+//  value: int
+//}
+//
+//type typeC = {
+//  type: 'c'
+//  value: bool
+//  value2: string
+//}
+//
+//type typeD = {
+//  type: 'd'
+//  value: object
+//}
+
+type typeH = {
+//@[5:10) TypeAlias typeH. Type: Type<{ type: 'h', value: 'a' | 'b' }>. Declaration start char: 0, length: 47
+  type: 'h'
+  value: 'a' | 'b'
+}
+
+type typeI = {
+//@[5:10) TypeAlias typeI. Type: Type<{ type: 'i', *: string }>. Declaration start char: 0, length: 40
+  type: 'i'
+  *: string
+}
+
+@discriminator('type')
+type discriminatedUnion1 = typeA | typeB
+//@[5:24) TypeAlias discriminatedUnion1. Type: error. Declaration start char: 0, length: 63
+
+@discriminator('type')
+type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
+//@[5:24) TypeAlias discriminatedUnion2. Type: error. Declaration start char: 0, length: 107
+
+@discriminator('type')
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }
+//@[5:24) TypeAlias discriminatedUnion3. Type: error. Declaration start char: 0, length: 122
+
+@discriminator('type')
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)
+//@[5:24) TypeAlias discriminatedUnion4. Type: error. Declaration start char: 0, length: 101
+
+@discriminator('type')
+type discriminatedUnion5 = (typeA | typeB)?
+//@[5:24) TypeAlias discriminatedUnion5. Type: error. Declaration start char: 0, length: 66
+
+type inlineDiscriminatedUnion1 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion1. Type: Type<{ prop: typeA | typeC }>. Declaration start char: 0, length: 83
+  @discriminator('type')
+  prop: typeA | typeC
+}
+
+type inlineDiscriminatedUnion2 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion2. Type: Type<{ prop: { type: 'a', value: bool } | typeB }>. Declaration start char: 0, length: 104
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+}
+
+@discriminator('type')
+type inlineDiscriminatedUnion3 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion3. Type: error. Declaration start char: 0, length: 232
+  type: 'a'
+  @discriminator('type')
+  prop: { type: 'a', value: bool } | typeB
+} | {
+  type: 'b'
+  @discriminator('type')
+  prop: discriminatedUnion1 | discriminatedUnion2
+}
+
+type inlineDiscriminatedUnion4 = {
+//@[5:30) TypeAlias inlineDiscriminatedUnion4. Type: Type<{ prop: (typeA | typeC)? }>. Declaration start char: 0, length: 86
+  @discriminator('type')
+  prop: (typeA | typeC)?
+}
+
+type discriminatorUnionAsPropertyType = {
+//@[5:37) TypeAlias discriminatorUnionAsPropertyType. Type: Type<{ prop1: discriminatedUnion1, prop2: discriminatedUnion3 }>. Declaration start char: 0, length: 101
+  prop1: discriminatedUnion1
+  prop2: discriminatedUnion3
+}
+
+type discriminatedUnionInlineAdditionalProps1 = {
+//@[5:45) TypeAlias discriminatedUnionInlineAdditionalProps1. Type: Type<{ *: typeA | typeB }>. Declaration start char: 0, length: 95
+  @discriminator('type')
+  *: typeA | typeB
+}
+
+type discriminatedUnionInlineAdditionalProps2 = {
+//@[5:45) TypeAlias discriminatedUnionInlineAdditionalProps2. Type: Type<{ *: (typeA | typeB)? }>. Declaration start char: 0, length: 98
+  @discriminator('type')
+  *: (typeA | typeB)?
+}
+
+@discriminator('type')
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeI | { type: 'g', *: int }
+//@[5:48) TypeAlias discriminatorMemberHasAdditionalProperties1. Type: error. Declaration start char: 0, length: 111
+
+@discriminator('type')
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+//@[5:41) TypeAlias discriminatorInnerSelfOptionalCycle1. Type: error. Declaration start char: 0, length: 137
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+}
+
+type discriminatedUnionMemberOptionalCycle1 = {
+//@[5:43) TypeAlias discriminatedUnionMemberOptionalCycle1. Type: Type<{ type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? }>. Declaration start char: 0, length: 144
+  type: 'b'
+  @discriminator('type')
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
+}
+
+type discriminatedUnionTuple1 = [
+//@[5:29) TypeAlias discriminatedUnionTuple1. Type: Type<[discriminatedUnion1, string]>. Declaration start char: 0, length: 66
+  discriminatedUnion1
+  string
+]
+
+type discriminatedUnionInlineTuple1 = [
+//@[5:35) TypeAlias discriminatedUnionInlineTuple1. Type: Type<[typeA | typeB | { type: 'c', value: object }, string]>. Declaration start char: 0, length: 122
+  @discriminator('type')
+  typeA | typeB | { type: 'c', value: object }
+  string
+]
+
+param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
+//@[6:39) Parameter paramDiscriminatedUnionTypeAlias1. Type: error. Declaration start char: 0, length: 59
+param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
+//@[6:39) Parameter paramDiscriminatedUnionTypeAlias2. Type: error. Declaration start char: 0, length: 59
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion1 typeA | typeB
+//@[6:36) Parameter paramInlineDiscriminatedUnion1. Type: error. Declaration start char: 0, length: 73
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
+//@[6:36) Parameter paramInlineDiscriminatedUnion2. Type: error. Declaration start char: 0, length: 101
+
+@discriminator('type')
+param paramInlineDiscriminatedUnion3 (typeA | typeB)?
+//@[6:36) Parameter paramInlineDiscriminatedUnion3. Type: error. Declaration start char: 0, length: 76
+
+output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
+//@[7:41) Output outputDiscriminatedUnionTypeAlias1. Type: error. Declaration start char: 0, length: 91
+@discriminator('type')
+output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = { type: 'a', value: 'str' }
+//@[7:41) Output outputDiscriminatedUnionTypeAlias2. Type: error. Declaration start char: 0, length: 114
+output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
+//@[7:41) Output outputDiscriminatedUnionTypeAlias3. Type: error. Declaration start char: 0, length: 68
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }
+//@[7:38) Output outputInlineDiscriminatedUnion1. Type: error. Declaration start char: 0, length: 131
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int }) = { type: 'c', value: 1 }
+//@[7:38) Output outputInlineDiscriminatedUnion2. Type: error. Declaration start char: 0, length: 131
+
+@discriminator('type')
+output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
+//@[7:38) Output outputInlineDiscriminatedUnion3. Type: error. Declaration start char: 0, length: 85
+// END: valid tagged unions baselines; move this back to TypeDeclarations_LF when backend updates are released and uncomment typesA-D
 

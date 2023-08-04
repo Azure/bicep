@@ -116,6 +116,7 @@ type typeB = {
 }
 
 @discriminator('type')
+//@[00:051) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype unionAB = typeA | typeB|
 type unionAB = typeA | typeB
 
 type typeC = {
@@ -149,48 +150,49 @@ type objectUnion = typeA | typeB
 //@[27:032) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
 
 @discriminator()
+//@[00:058) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator()\ntype noDiscriminatorParam = typeA | typeB|
 //@[14:016) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
 type noDiscriminatorParam = typeA | typeB
 
 @discriminator(true)
+//@[00:069) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator(true)\ntype wrongDiscriminatorParamType = typeA | typeB|
 //@[15:019) [BCP070 (Error)] Argument of type "true" is not assignable to parameter of type "string". (CodeDescription: none) |true|
 type wrongDiscriminatorParamType = typeA | typeB
 
 @discriminator('nonexistent')
+//@[00:085) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('nonexistent')\ntype discriminatorPropertyNotExistAtAll = typeA | typeB|
 type discriminatorPropertyNotExistAtAll = typeA | typeB
-//@[42:047) [BCP364 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeA|
-//@[50:055) [BCP364 (Error)] The property "nonexistent" must be a required string literal on all union member types. (CodeDescription: none) |typeB|
 
 @discriminator('nonexistent')
-//@[00:029) [BCP366 (Error)] The discriminator property name must be "nonexistent" on all union member types. (CodeDescription: none) |@discriminator('nonexistent')|
 type discriminatorPropertyMismatch = unionAB
+//@[37:044) [BCP062 (Error)] The referenced declaration with name "unionAB" is not valid. (CodeDescription: none) |unionAB|
 
 @discriminator('type')
+//@[00:095) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }|
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
-//@[57:072) [BCP364 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |{ value: bool }|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorWithOnlyOneMember = typeA
 
 @discriminator('type')
+//@[00:090) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF|
 type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
-//@[62:067) [BCP364 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeF|
 
 @discriminator('type')
+//@[00:090) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG|
 type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
-//@[62:067) [BCP364 (Error)] The property "type" must be a required string literal on all union member types. (CodeDescription: none) |typeG|
 
 @discriminator('type')
+//@[00:074) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorDuplicatedMember1 = typeA | typeA|
 type discriminatorDuplicatedMember1 = typeA | typeA
-//@[46:051) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 
 @discriminator('type')
+//@[00:098) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }|
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
-//@[46:075) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:077) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorOnlyOneNonNullMember1 = typeA | null|
 type discriminatorOnlyOneNonNullMember1 = typeA | null
 
 @discriminator('type')
@@ -198,42 +200,44 @@ type discriminatorOnlyOneNonNullMember1 = typeA | null
 type discriminatorOnlyOneNonNullMember2 = (typeA)?
 
 @discriminator('type')
+//@[00:086) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorMemberHasAdditionalProperties = typeA | typeE|
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:085) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1|
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
 //@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle1|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:088) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?|
 type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
 //@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle2|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:093) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB|
 type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
 //@[05:032) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleA" -> "discriminatorTopLevelCycleB"). (CodeDescription: none) |discriminatorTopLevelCycleA|
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:093) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA|
 type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 //@[05:032) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleB" -> "discriminatorTopLevelCycleA"). (CodeDescription: none) |discriminatorTopLevelCycleB|
 
 @discriminator('type')
+//@[00:120) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorInnerSelfCycle1 = typeA | {\n  type: 'b'\n  value: discriminatorInnerSelfCycle1\n}|
 type discriminatorInnerSelfCycle1 = typeA | {
-//@[05:033) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorInnerSelfCycle1|
   type: 'b'
   value: discriminatorInnerSelfCycle1
+//@[09:037) [BCP062 (Error)] The referenced declaration with name "discriminatorInnerSelfCycle1" is not valid. (CodeDescription: none) |discriminatorInnerSelfCycle1|
 }
 
 type discriminatorInnerSelfCycle2Helper = {
-//@[05:039) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorInnerSelfCycle2Helper" -> "discriminatorInnerSelfCycle2"). (CodeDescription: none) |discriminatorInnerSelfCycle2Helper|
   type: 'b'
   value: discriminatorInnerSelfCycle2
+//@[09:037) [BCP062 (Error)] The referenced declaration with name "discriminatorInnerSelfCycle2" is not valid. (CodeDescription: none) |discriminatorInnerSelfCycle2|
 }
 @discriminator('type')
+//@[00:101) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper|
 type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
-//@[05:033) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorInnerSelfCycle2" -> "discriminatorInnerSelfCycle2Helper"). (CodeDescription: none) |discriminatorInnerSelfCycle2|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
@@ -261,8 +265,8 @@ type discriminatorInlineAdditionalPropsBadType1 = {
 
 type discriminatorInlineAdditionalPropsBadType2 = {
   @discriminator('type')
+//@[02:043) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  *: typeA | typeA|
   *: typeA | typeA
-//@[13:018) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 }
 
 type discriminatorInlineAdditionalPropsBadType3 = {
@@ -275,18 +279,17 @@ type discriminatorInlineAdditionalPropsCycle1 = {
 //@[05:045) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorInlineAdditionalPropsCycle1|
   type: 'b'
   @discriminator('type')
-//@[02:024) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[02:078) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  *: typeA | discriminatorInlineAdditionalPropsCycle1|
   *: typeA | discriminatorInlineAdditionalPropsCycle1
 }
 
 @discriminator('type')
+//@[00:131) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }|
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
-//@[83:108) [BCP365 (Error)] The value "'A'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'A', value: int }|
 
 @discriminator('TYPE')
+//@[00:131) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('TYPE')\ntype discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }|
 type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }
-//@[52:080) [BCP364 (Error)] The property "TYPE" must be a required string literal on all union member types. (CodeDescription: none) |{ type: 'a', value: string }|
-//@[83:108) [BCP364 (Error)] The property "TYPE" must be a required string literal on all union member types. (CodeDescription: none) |{ type: 'b', value: int }|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
@@ -294,7 +297,7 @@ param discriminatorParamBadType1 typeA
 //@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |discriminatorParamBadType1|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:065) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\nparam discriminatorParamBadType2 'a' | 'b'|
 param discriminatorParamBadType2 'a' | 'b'
 //@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |discriminatorParamBadType2|
 
@@ -305,4 +308,183 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 output discriminatorOutputBadType2 object = { prop: 'value' }
+
+// BEGIN: valid tagged unions baselines; move this back to TypeDeclarations_LF when backend updates are released and uncomment typesA-D
+//type typeA = {
+//  type: 'a'
+//  value: string
+//}
+//
+//type typeB = {
+//  type: 'b'
+//  value: int
+//}
+//
+//type typeC = {
+//  type: 'c'
+//  value: bool
+//  value2: string
+//}
+//
+//type typeD = {
+//  type: 'd'
+//  value: object
+//}
+
+type typeH = {
+  type: 'h'
+  value: 'a' | 'b'
+}
+
+type typeI = {
+  type: 'i'
+  *: string
+}
+
+@discriminator('type')
+//@[00:063) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion1 = typeA | typeB|
+type discriminatedUnion1 = typeA | typeB
+
+@discriminator('type')
+//@[00:107) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }|
+type discriminatedUnion2 = { type: 'c', value: string } | { type: 'd', value: bool }
+
+@discriminator('type')
+//@[00:122) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }|
+type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | { type: 'e', value: string }
+
+@discriminator('type')
+//@[00:101) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)|
+//@[00:101) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)|
+type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)
+
+@discriminator('type')
+//@[00:066) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion5 = (typeA | typeB)?|
+type discriminatedUnion5 = (typeA | typeB)?
+
+type inlineDiscriminatedUnion1 = {
+  @discriminator('type')
+//@[02:046) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: typeA | typeC|
+  prop: typeA | typeC
+}
+
+type inlineDiscriminatedUnion2 = {
+  @discriminator('type')
+//@[02:067) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: { type: 'a', value: bool } | typeB|
+  prop: { type: 'a', value: bool } | typeB
+}
+
+@discriminator('type')
+//@[00:232) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype inlineDiscriminatedUnion3 = {\n  type: 'a'\n  @discriminator('type')\n  prop: { type: 'a', value: bool } | typeB\n} | {\n  type: 'b'\n  @discriminator('type')\n  prop: discriminatedUnion1 | discriminatedUnion2\n}|
+type inlineDiscriminatedUnion3 = {
+  type: 'a'
+  @discriminator('type')
+//@[02:067) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: { type: 'a', value: bool } | typeB|
+  prop: { type: 'a', value: bool } | typeB
+} | {
+  type: 'b'
+  @discriminator('type')
+//@[02:074) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: discriminatedUnion1 | discriminatedUnion2|
+  prop: discriminatedUnion1 | discriminatedUnion2
+}
+
+type inlineDiscriminatedUnion4 = {
+  @discriminator('type')
+//@[02:049) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: (typeA | typeC)?|
+  prop: (typeA | typeC)?
+}
+
+type discriminatorUnionAsPropertyType = {
+  prop1: discriminatedUnion1
+//@[09:028) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion1" is not valid. (CodeDescription: none) |discriminatedUnion1|
+  prop2: discriminatedUnion3
+//@[09:028) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion3" is not valid. (CodeDescription: none) |discriminatedUnion3|
+}
+
+type discriminatedUnionInlineAdditionalProps1 = {
+  @discriminator('type')
+//@[02:043) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  *: typeA | typeB|
+  *: typeA | typeB
+}
+
+type discriminatedUnionInlineAdditionalProps2 = {
+  @discriminator('type')
+//@[02:046) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  *: (typeA | typeB)?|
+  *: (typeA | typeB)?
+}
+
+@discriminator('type')
+//@[00:111) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorMemberHasAdditionalProperties1 = typeA | typeI | { type: 'g', *: int }|
+type discriminatorMemberHasAdditionalProperties1 = typeA | typeI | { type: 'g', *: int }
+
+@discriminator('type')
+//@[00:137) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatorInnerSelfOptionalCycle1 = typeA | {\n  type: 'b'\n  value: discriminatorInnerSelfOptionalCycle1?\n}|
+type discriminatorInnerSelfOptionalCycle1 = typeA | {
+  type: 'b'
+  value: discriminatorInnerSelfOptionalCycle1?
+//@[09:045) [BCP062 (Error)] The referenced declaration with name "discriminatorInnerSelfOptionalCycle1" is not valid. (CodeDescription: none) |discriminatorInnerSelfOptionalCycle1|
+}
+
+type discriminatedUnionMemberOptionalCycle1 = {
+  type: 'b'
+  @discriminator('type')
+//@[02:082) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?|
+  prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
+}
+
+type discriminatedUnionTuple1 = [
+  discriminatedUnion1
+//@[02:021) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion1" is not valid. (CodeDescription: none) |discriminatedUnion1|
+  string
+]
+
+type discriminatedUnionInlineTuple1 = [
+  @discriminator('type')
+//@[02:071) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  typeA | typeB | { type: 'c', value: object }|
+  typeA | typeB | { type: 'c', value: object }
+  string
+]
+
+param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
+//@[06:039) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias1|
+//@[40:059) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion1" is not valid. (CodeDescription: none) |discriminatedUnion1|
+param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
+//@[06:039) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias2|
+//@[40:059) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion5" is not valid. (CodeDescription: none) |discriminatedUnion5|
+
+@discriminator('type')
+//@[00:073) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\nparam paramInlineDiscriminatedUnion1 typeA | typeB|
+param paramInlineDiscriminatedUnion1 typeA | typeB
+//@[06:036) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion1|
+
+@discriminator('type')
+//@[00:101) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\nparam paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }|
+param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
+//@[06:036) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion2|
+
+@discriminator('type')
+//@[00:076) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\nparam paramInlineDiscriminatedUnion3 (typeA | typeB)?|
+param paramInlineDiscriminatedUnion3 (typeA | typeB)?
+//@[06:036) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion3|
+
+output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
+//@[42:061) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion1" is not valid. (CodeDescription: none) |discriminatedUnion1|
+@discriminator('type')
+output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = { type: 'a', value: 'str' }
+//@[42:061) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion1" is not valid. (CodeDescription: none) |discriminatedUnion1|
+output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
+//@[42:061) [BCP062 (Error)] The referenced declaration with name "discriminatedUnion5" is not valid. (CodeDescription: none) |discriminatedUnion5|
+
+@discriminator('type')
+//@[00:131) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\noutput outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }|
+output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }
+
+@discriminator('type')
+//@[00:131) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\noutput outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int }) = { type: 'c', value: 1 }|
+output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int }) = { type: 'c', value: 1 }
+
+@discriminator('type')
+//@[00:085) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\noutput outputInlineDiscriminatedUnion3 (typeA | typeB)? = null|
+output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
+// END: valid tagged unions baselines; move this back to TypeDeclarations_LF when backend updates are released and uncomment typesA-D
 
