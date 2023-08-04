@@ -65,8 +65,8 @@ namespace Bicep.Core.Registry
         {
             /*
              * this should be kept in sync with the WriteModuleContent() implementation
-             * but beware that it's possible older versions of Bicep may be sharing this cache
-             * current and possibly even newer versions on the same machine.
+             * but beware that it's possible older versions of Bicep and newer versions of Bicep
+             * may be sharing this cache on the same machine.
              *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
@@ -247,7 +247,8 @@ namespace Bicep.Core.Registry
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
-             * but beware that it's possible older versions of Bicep may be sharing this cache
+             * but beware that it's possible older versions of Bicep and newer versions of Bicep
+             * may be sharing this cache on the same machine.
              */
 
             // write main.json

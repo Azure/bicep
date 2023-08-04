@@ -11,8 +11,7 @@ import * as path from "path";
 
 export class BicepCacheContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider
-{
+  implements vscode.TextDocumentContentProvider {
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(
@@ -76,7 +75,7 @@ export class BicepCacheContentProvider
       );
     }
 
-    return moduleReferenceWithLeadingSeparator.substring(0, colonIndex); 
+    return moduleReferenceWithLeadingSeparator.substring(0, colonIndex);
   }
 
   private tryFixCacheContentLanguage(document: vscode.TextDocument): void {
