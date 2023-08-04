@@ -451,7 +451,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        public static string GetTestDisplayName(MethodInfo methodInfo, object[] objects)
+        public static string GetTestDisplayName(MethodInfo _, object[] objects)
         {
             return (string)objects[0];
         }

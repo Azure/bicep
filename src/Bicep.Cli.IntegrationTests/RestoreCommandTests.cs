@@ -28,6 +28,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using System.Text;
 using Bicep.Core.Emit;
 using Azure.Identity;
+using System.Reflection;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -53,8 +54,8 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Restore_ShouldSucceed(DataSet dataSet, bool publishSource)
+        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
@@ -82,8 +83,8 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Restore_ShouldSucceedWithAnonymousClient(DataSet dataSet, bool publishSource)
+        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
@@ -382,8 +383,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet, bool publishSource)
+        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
@@ -473,8 +474,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         {
             foreach (DataSet ds in DataSets.AllDataSets)
             {
-                yield return new object[] { ds, false /* publishSource*/ };
-                yield return new object[] { ds, true /* publishSource*/ };
+                yield return new object[] { $"{ds.Name}, not publishing source", ds, false  };
+                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
             }
         }
 
@@ -482,9 +483,13 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         {
             foreach (DataSet ds in DataSets.AllDataSets.Where(ds => ds.IsValid && ds.HasExternalModules))
             {
-                yield return new object[] { ds, false /* publishSource*/ };
-                yield return new object[] { ds, true /* publishSource*/ };
+                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
+                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
             }
+        }
+
+        public static string GetTestDisplayName(MethodInfo _, object[] objects) {
+            return (string)objects[0];
         }
     }
 }
