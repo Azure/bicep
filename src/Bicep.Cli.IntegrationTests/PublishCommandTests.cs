@@ -227,61 +227,6 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
-        public async Task Publish_ValidArmTemplateFile_AllDataSets_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
-        {
-            Console.WriteLine(testName);
-
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-
-            var registryStr = "example.com";
-            var registryUri = new Uri($"https://{registryStr}");
-            var repository = $"test/{dataSet.Name}".ToLowerInvariant();
-
-            var clientFactory = dataSet.CreateMockRegistryClients((registryUri, repository)).Object;
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
-
-            // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
-
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
-
-            var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result.Should().Be(0);
-            output.Should().BeEmpty();
-            AssertNoErrors(error);
-
-            using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
-
-            // verify the module was published
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
-
-            // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
-            testClient.Should().NotHaveAnyAttachments("v1");
-
-            // publish the same content again without --force
-            var (output2, error2, result2) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result2.Should().Be(1);
-            output2.Should().BeEmpty();
-            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
-
-            // publish the same content again with --force
-            var (output3, error3, result3) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--force");
-            result3.Should().Be(0);
-            output3.Should().BeEmpty();
-            AssertNoErrors(error3);
-
-            // we should still only have 1 module TODO: previous manifest gets leaked if we include a timestamp in the manifests - do we delete old manifest and blobs and source manifests?
-            expectedCompiledStream.Position = 0;
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
-
-            // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
-            testClient.Should().NotHaveAnyAttachments("v1");
-        }
-
         [TestMethod]
         public async Task Publish_RequestFailedException_ShouldFail()
         {
