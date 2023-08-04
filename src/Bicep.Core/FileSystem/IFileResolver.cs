@@ -81,6 +81,12 @@ namespace Bicep.Core.FileSystem
         bool FileExists(Uri uri);
 
         /// <summary>
+        /// Checks if the specified file URI exists, and if so, deletes it
+        /// </summary>
+        /// <param name="uri">The URI to test.</param>
+        void DeleteFileIfExists(Uri uri);
+
+        /// <summary>
         /// Tries to read a file and encode it as base64 string. If an exception is encoutered, returns null and sets a non-null failureMessage.
         /// </summary>
         /// <param name="fileUri">The file URI to read.</param>

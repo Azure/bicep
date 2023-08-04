@@ -22,6 +22,8 @@ namespace Bicep.Core.Features
         bool UserDefinedFunctionsEnabled { get; }
 
         bool DynamicTypeLoadingEnabled { get; }
+
+        bool PublishSourceEnabled { get; }
         
         bool PrettyPrintingEnabled { get; }
 

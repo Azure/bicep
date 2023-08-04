@@ -78,7 +78,7 @@ namespace Bicep.Core.Registry
 
         public override bool IsModuleRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description) => throw new NotSupportedException("Local modules cannot be published.");
 
         public override Task<bool> CheckModuleExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
 
@@ -104,6 +104,11 @@ namespace Bicep.Core.Registry
                 // ignore
             }
 
+            return null;
+        }
+
+        public override SourceArchive? TryGetSources(LocalModuleReference reference)
+        {
             return null;
         }
     }

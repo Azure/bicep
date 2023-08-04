@@ -3,6 +3,7 @@
 
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
+using Bicep.Core.Registry.Oci;
 using System;
 
 namespace Bicep.Core.Registry
@@ -13,8 +14,8 @@ namespace Bicep.Core.Registry
     /// <remarks>This exists because we need to inject mock clients in integration tests and because the real client constructor requires parameters.</remarks>
     public interface IContainerRegistryClientFactory
     {
-        ContainerRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
+        IOciRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
 
-        ContainerRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
+        IOciRegistryContentClient CreateAnonymousBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
     }
 }

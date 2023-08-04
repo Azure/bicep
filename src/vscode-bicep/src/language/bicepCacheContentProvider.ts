@@ -7,6 +7,7 @@ import {
 } from "vscode-languageclient/node";
 import { Disposable } from "../utils/disposable";
 import { bicepCacheRequestType } from "./protocol";
+import * as path from "path";
 
 export class BicepCacheContentProvider
   extends Disposable
@@ -34,6 +35,7 @@ export class BicepCacheContentProvider
     uri: vscode.Uri,
     token: vscode.CancellationToken,
   ): Promise<string> {
+    // Ask the language server for the sources for the cached module
     const response = await this.languageClient.sendRequest(
       bicepCacheRequestType,
       this.getBicepCacheRequest(uri),
@@ -44,11 +46,25 @@ export class BicepCacheContentProvider
   }
 
   private getBicepCacheRequest(uri: vscode.Uri) {
-    // The URIs have the format of bicep-cache:<uri-encoded bicep file path>#<uri-encoded bicep module reference>.
-    const path = decodeURIComponent(uri.path);
-    const target = decodeURIComponent(uri.fragment);
+    const [moduleReference, cachePath] = this.decodeBicepCacheUri(uri);
+    return {
+      textDocument: TextDocumentIdentifier.create(cachePath),
+      target: moduleReference,
+    };
+  }
 
-    return { textDocument: TextDocumentIdentifier.create(path), target };
+  private decodeBicepCacheUri(
+    uri: vscode.Uri,
+  ): [moduleReference: string, cachePath: string] {
+    // The uri passed in has this format:
+    //   bicep-cache:module-reference#cache-file-path
+    //
+    // Example decoded URI:
+    //   bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
+    const registry = decodeURIComponent(uri.path); // e.g. br:myregistry.azurecr.io/myrepo:v1
+    const cachePath = decodeURIComponent(uri.fragment); // e.g. eg /Users/MyUserName/.bicep/br/myregistry.azurecr.io/myrepo/v1$/main.json
+
+    return [registry, cachePath];
   }
 
   private getModuleReferenceScheme(document: vscode.TextDocument) {
@@ -60,8 +76,7 @@ export class BicepCacheContentProvider
       );
     }
 
-    // skip over the leading separator
-    return moduleReferenceWithLeadingSeparator.substring(1, colonIndex);
+    return moduleReferenceWithLeadingSeparator.substring(0, colonIndex); 
   }
 
   private tryFixCacheContentLanguage(document: vscode.TextDocument): void {
@@ -71,20 +86,27 @@ export class BicepCacheContentProvider
     ) {
       // the file is showing content from the bicep cache and the language is still set to plain text
       // we should try to correct it
+
       const scheme = this.getModuleReferenceScheme(document);
+      const [, cachePath] = this.decodeBicepCacheUri(document.uri);
+
       // Not necessary to wait for this to finish
       void vscode.languages.setTextDocumentLanguage(
         document,
-        this.getLanguageId(scheme),
+        this.getLanguageId(scheme, cachePath),
       );
     }
   }
 
-  private getLanguageId(scheme: string) {
+  private getLanguageId(scheme: string, fileName: string) {
     switch (scheme) {
       case "ts":
         return "json";
       case "br": {
+        if (path.extname(fileName) === ".bicep") {
+          return "bicep";
+        }
+
         const armToolsExtension = vscode.extensions.getExtension(
           "msazurermtools.azurerm-vscode-tools",
         );
@@ -93,7 +115,7 @@ export class BicepCacheContentProvider
         // otherwise, fall back to JSON
         return armToolsExtension && armToolsExtension.isActive
           ? "arm-template"
-          : "json";
+          : "jsonc";
       }
       default:
         return "plaintext";

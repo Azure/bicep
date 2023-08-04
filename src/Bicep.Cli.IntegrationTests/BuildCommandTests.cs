@@ -11,6 +11,7 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -72,7 +73,7 @@ namespace Bicep.Cli.IntegrationTests
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
 
             using (new AssertionScope())
@@ -112,7 +113,7 @@ namespace Bicep.Cli.IntegrationTests
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build", "--stdout", bicepFilePath);
 
@@ -125,7 +126,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (dataSet.HasExternalModules)
             {
-                settings.FeatureOverrides.Should().HaveValidModules();
+                settings.FeatureOverrides.Should().HaveValidCachedModulesWithSources();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -150,7 +151,7 @@ namespace Bicep.Cli.IntegrationTests
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (restoreOutput, restoreError, restoreResult) = await Bicep(settings, "restore", bicepFilePath);
             using (new AssertionScope())
@@ -196,7 +197,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -212,11 +213,11 @@ namespace Bicep.Cli.IntegrationTests
                 publishError.Should().BeEmpty();
             }
 
-            client.Blobs.Should().HaveCount(2);
-            client.Manifests.Should().HaveCount(1);
+            client.Blobs.Should().HaveCount(4);
+            client.Manifests.Should().HaveCount(2);
             client.ManifestTags.Should().HaveCount(1);
 
-            string digest = client.Manifests.Single().Key;
+            string digest = client.ModuleManifestObjects.Single().Key;
 
             var bicep = $@"
 module empty 'br:{registry}/{repository}@{digest}' = {{
@@ -305,9 +306,9 @@ output myOutput string = 'hello!'
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
         }
 
-        [DataRow(new string[] {})]
-        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
-        [DataRow(new[] { "--diagnostics-format", "sArif"})]
+        [DataRow(new string[] { })]
+        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
+        [DataRow(new[] { "--diagnostics-format", "sArif" })]
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
@@ -320,7 +321,7 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(outputFileDir, "input.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath}.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", outputFileDir, bicepPath }.Concat(args).ToArray());
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             output.Should().BeEmpty();
@@ -427,8 +428,8 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.\".");
         }
 
-        [DataRow(new string[] {})]
-        [DataRow(new[] { "--diagnostics-format", "defAULt"})]
+        [DataRow(new string[] { })]
+        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
         [DataTestMethod]
         public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError(string[] args)
         {
@@ -451,7 +452,7 @@ output myOutput string = 'hello!'
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
             File.Exists(expectedOutputFile).Should().BeFalse();
-            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile}.Concat(args).ToArray());
+            var (output, error, result) = await Bicep(new[] { "build", "--outdir", testOutputPath, inputFile }.Concat(args).ToArray());
 
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);

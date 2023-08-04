@@ -30,13 +30,13 @@ namespace Bicep.Core.Registry
 
         private readonly RootConfiguration configuration;
 
-        private readonly Uri parentModuleUri;        
+        private readonly Uri parentModuleUri;
 
         public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
             : base(FileResolver)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(clientFactory);
+            this.client = new AzureContainerRegistryManager(clientFactory, features);
             this.configuration = configuration;
             this.parentModuleUri = parentModuleUri;
         }
@@ -65,6 +65,8 @@ namespace Bicep.Core.Registry
         {
             /*
              * this should be kept in sync with the WriteModuleContent() implementation
+             * but beware that it's possible older versions of Bicep may be sharing this cache
+             * current and possibly even newer versions on the same machine.
              *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
@@ -82,8 +84,8 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                // Get module
-                await this.client.PullArtifactAsync(configuration, reference);
+                // Try getting module
+                await this.client.PullModuleArtifactsAsync(configuration, reference, downloadSource: false);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -219,14 +221,14 @@ namespace Bicep.Core.Registry
             return await base.InvalidateModulesCacheInternal(references);
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
+        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
-            var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
+            var layer = new StreamDescriptor(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
             {
-                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, documentationUri, description, layer);
+                await this.client.PushModuleAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, bicepSources, documentationUri, description, new StreamDescriptor[] { layer });
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
@@ -240,13 +242,15 @@ namespace Bicep.Core.Registry
             }
         }
 
-        protected override void WriteModuleContent(OciArtifactModuleReference reference, OciArtifactResult result)
+        // Writes the contents of the downloaded module into the local cache
+        protected override void DownloadToCache(OciArtifactModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
+             * but beware that it's possible older versions of Bicep may be sharing this cache
              */
 
-            // write main.bicep
+            // write main.json
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), result.ModuleStream);
 
             // write manifest
@@ -260,6 +264,17 @@ namespace Bicep.Core.Registry
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
+
+            // write sources
+            var sourcesFile = this.GetModuleFileUri(reference, ModuleFileType.Sources);
+            if (result.SourcesStream is Stream sourcesStream)
+            {
+                this.FileResolver.Write(sourcesFile, result.SourcesStream);
+            }
+            else
+            {
+                this.FileResolver.DeleteFileIfExists(sourcesFile);
+             }
         }
 
         protected override string GetModuleDirectoryPath(OciArtifactModuleReference reference)
@@ -309,9 +324,9 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await this.client.PullArtifactAsync(configuration, reference);
+                var result = await this.client.PullModuleArtifactsAsync(configuration, reference);
 
-                await this.TryWriteModuleContentAsync(reference, result);
+                await this.TryWriteModuleContentToCacheAsync(reference, result);
 
                 return (result, null);
             }
@@ -359,10 +374,23 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Lock => "lock",
                 ModuleFileType.Manifest => "manifest",
                 ModuleFileType.Metadata => "metadata",
+                ModuleFileType.Sources => "sources.zip",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
 
             return Path.Combine(this.GetModuleDirectoryPath(reference), fileName);
+        }
+
+        public override SourceArchive? TryGetSources(OciArtifactModuleReference reference)
+        {
+            var zipFile = GetModuleFilePath(reference, ModuleFileType.Sources);
+            if (!File.Exists(zipFile))
+            {
+                return null;
+            }
+
+            var stream = File.OpenRead(zipFile);
+            return new SourceArchive(stream);
         }
 
         private enum ModuleFileType
@@ -370,7 +398,8 @@ namespace Bicep.Core.Registry
             ModuleMain,
             Manifest,
             Lock,
-            Metadata
+            Metadata,
+            Sources,
         };
     }
 }

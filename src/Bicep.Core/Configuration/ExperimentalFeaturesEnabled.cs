@@ -18,7 +18,8 @@ public record ExperimentalFeaturesEnabled(
     bool TestFramework,
     bool Assertions,
     bool DynamicTypeLoading,
-    bool CompileTimeImports)
+    bool CompileTimeImports,
+    bool PublishSource)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

@@ -21,6 +21,7 @@ public record FeatureProviderOverrides(
     bool? AssertsEnabled = default,
     bool? DynamicTypeLoading = default,
     bool? CompileTimeImportsEnabled = default,
+    bool? PublishSourceEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(
@@ -38,6 +39,7 @@ public record FeatureProviderOverrides(
         bool? AssertsEnabled = default,
         bool? DynamicTypeLoading = default,
         bool? CompileTimeImportsEnabled = default,
+        bool? PublishSourceEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
@@ -54,5 +56,6 @@ public record FeatureProviderOverrides(
         AssertsEnabled,
         DynamicTypeLoading,
         CompileTimeImportsEnabled,
+        PublishSourceEnabled,
         AssemblyVersion) {}
 }

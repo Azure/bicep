@@ -188,12 +188,12 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri)
+        public async Task PublishModule(ModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri)
         {
             var registry = this.GetRegistry(moduleReference);
 
-            var description = DescriptionHelper.TryGetFromArmTemplate(compiled);
-            await registry.PublishModule(moduleReference, compiled, documentationUri, description);
+            var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
+            await registry.PublishModule(moduleReference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
         public async Task<bool> CheckModuleExists(ModuleReference moduleReference)
@@ -215,6 +215,12 @@ namespace Bicep.Core.Registry
                     this.restoreFailures.TryRemove(key, out _);
                 }
             }
+        }
+
+        public bool TryGetModuleSources(ModuleReference moduleReference, [NotNullWhen(true)] out SourceArchive? sourceArchive) {
+            var registry = this.GetRegistry(moduleReference);
+            sourceArchive = registry.TryGetSources(moduleReference);
+            return sourceArchive is { };
         }
 
         private IModuleRegistry GetRegistry(ModuleReference moduleReference) =>

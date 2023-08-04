@@ -41,4 +41,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoading ?? features.DynamicTypeLoadingEnabled;
 
     public bool CompileTimeImportsEnabled => overrides.CompileTimeImportsEnabled ?? features.CompileTimeImportsEnabled;
+
+    public bool PublishSourceEnabled => overrides.PublishSourceEnabled ?? features.PublishSourceEnabled;
 }

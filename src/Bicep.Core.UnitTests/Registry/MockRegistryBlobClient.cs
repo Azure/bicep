@@ -5,10 +5,15 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Moq;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,23 +23,31 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockRegistryBlobClient : ContainerRegistryContentClient
+    public class MockRegistryBlobClient : IOciRegistryContentClient
     {
-        public MockRegistryBlobClient() : base()
-        {
-            // ensure we call the base parameterless constructor to prevent outgoing calls
-        }
-
         // maps digest to blob bytes
-        public ConcurrentDictionary<string, ImmutableArray<byte>> Blobs { get; } = new();
+        public ConcurrentDictionary<string, TextBytes> Blobs { get; } = new();
 
         // maps digest to manifest bytes
-        public ConcurrentDictionary<string, ImmutableArray<byte>> Manifests { get; } = new();
+        public ConcurrentDictionary<string, TextBytes> Manifests { get; } = new();
 
         // maps tag to manifest digest
         public ConcurrentDictionary<string, string> ManifestTags { get; } = new();
 
-        public override async Task<Response<DownloadRegistryBlobResult>> DownloadBlobContentAsync(string digest, CancellationToken cancellationToken = default)
+        public IDictionary<string, OciManifest> ManifestObjects =>
+            Manifests.ToDictionary(kvp => kvp.Key, kvp => OciSerialization.Deserialize<OciManifest>(kvp.Value.ToStream()));
+
+        public IDictionary<string, OciManifest> ModuleManifestObjects =>
+            ManifestObjects
+            .Where(kvp => kvp.Value.ArtifactType == BicepMediaTypes.BicepModuleArtifactType)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+        public IDictionary<string, OciManifest> SourceManifestObjects =>
+            ManifestObjects
+            .Where(kvp => kvp.Value.ArtifactType == BicepMediaTypes.BicepSourceArtifactType)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+        public async Task<Response<DownloadRegistryBlobResult>> DownloadBlobContentAsync(string digest, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
@@ -43,10 +56,10 @@ namespace Bicep.Core.UnitTests.Registry
                 throw new RequestFailedException(404, "Mock blob does not exist.");
             }
 
-            return CreateResult(ContainerRegistryModelFactory.DownloadRegistryBlobResult(digest, BinaryData.FromStream(WriteStream(bytes))));
+            return CreateResult(ContainerRegistryModelFactory.DownloadRegistryBlobResult(digest, BinaryData.FromBytes(bytes.ToArray())));
         }
 
-        public override async Task<Response<GetManifestResult>> GetManifestAsync(string tagOrDigest, CancellationToken cancellationToken = default)
+        public async Task<Response<GetManifestResult>> GetManifestAsync(string tagOrDigest, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
@@ -69,25 +82,25 @@ namespace Bicep.Core.UnitTests.Registry
             return CreateResult(ContainerRegistryModelFactory.GetManifestResult(
                 digest: digest,
                 mediaType: ManifestMediaType.OciImageManifest.ToString(),
-                manifest: BinaryData.FromStream(WriteStream(bytes))));
+                manifest: BinaryData.FromBytes(bytes.ToArray())));
         }
 
-        public override async Task<Response<UploadRegistryBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
+        public async Task<Response<UploadRegistryBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
             var (copy, digest) = ReadStream(stream);
-            Blobs.TryAdd(digest, copy);
+            Blobs.TryAdd(digest, new TextBytes(copy));
 
             return CreateResult(ContainerRegistryModelFactory.UploadRegistryBlobResult(digest, copy.Length));
         }
 
-        public override async Task<Response<SetManifestResult>> SetManifestAsync(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
+        public async Task<Response<SetManifestResult>> SetManifestAsync(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
             var (copy, digest) = ReadStream(manifest.ToStream());
-            Manifests.TryAdd(digest, copy);
+            Manifests.TryAdd(digest, new TextBytes(copy));
 
             if (tag is not null)
             {
@@ -114,17 +127,6 @@ namespace Bicep.Core.UnitTests.Registry
             return (bytes, digest);
         }
 
-        public static Stream WriteStream(ImmutableArray<byte> bytes)
-        {
-            var stream = new MemoryStream(bytes.Length);
-            var writer = new BinaryWriter(stream, new UTF8Encoding(false), true);
-
-            writer.Write(bytes.AsSpan());
-            stream.Position = 0;
-
-            return stream;
-        }
-
         private static Response<T> CreateResult<T>(T value)
         {
             var response = StrictMock.Of<Response>();
@@ -134,6 +136,33 @@ namespace Bicep.Core.UnitTests.Registry
             result.Setup(m => m.GetRawResponse()).Returns(response.Object);
 
             return result.Object;
+        }
+
+        public async Task<IEnumerable<(string artifactType, string digest)>> GetReferrersAsync(string mainManifestDigest)
+        {
+            await Task.Delay(1);
+
+            var mainManifest = await GetManifestAsync(mainManifestDigest);
+            if (mainManifest.Value is null)
+            {
+                return Enumerable.Empty<(string artifactType, string digest)>();
+            }
+
+            var referringManifestDigests = (await Manifests.SelectConcurrently(async m =>
+            {
+                var manifest = await GetManifestAsync(m.Key);
+                if (Manifests.TryGetValue(m.Key, out var bytes))
+                {
+                    var manifestObject = OciSerialization.Deserialize<OciManifest>(bytes.ToStream());
+                    return (manifestObject.ArtifactType ?? string.Empty, manifestObject.Subject?.Digest ?? string.Empty);
+                }
+
+                return (string.Empty, string.Empty);
+            },
+            int.MaxValue))
+                .Where(item => !string.IsNullOrWhiteSpace(item.Item1) && !string.IsNullOrWhiteSpace(item.Item2));
+
+            return referringManifestDigests;
         }
     }
 }

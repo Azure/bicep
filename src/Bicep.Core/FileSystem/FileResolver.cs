@@ -249,6 +249,14 @@ namespace Bicep.Core.FileSystem
 
         public bool FileExists(Uri uri) => uri.IsFile && fileSystem.File.Exists(uri.LocalPath);
 
+        public void DeleteFileIfExists(Uri uri)
+        {
+            if (FileExists(uri))
+            {
+                fileSystem.File.Delete(uri.LocalPath);
+            }
+        }
+
         private static void RequireFileUri(Uri uri)
         {
             if (!uri.IsFile)
@@ -276,7 +284,7 @@ namespace Bicep.Core.FileSystem
             }
 
             string fileName = Path.GetFileNameWithoutExtension(localPath);
-            if(!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
             {
                 // file is not named CON or CON.<any extension>, so we can proceed normally
                 return;

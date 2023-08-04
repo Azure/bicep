@@ -58,7 +58,7 @@ namespace Bicep.Core.Registry
         public override bool IsModuleRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override Task<bool> CheckModuleExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
@@ -81,7 +81,7 @@ namespace Bicep.Core.Registry
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
-                    await this.TryWriteModuleContentAsync(reference, templateSpecEntity);
+                    await this.TryWriteModuleContentToCacheAsync(reference, templateSpecEntity);
                 }
                 catch (ExternalModuleException templateSpecException)
                 {
@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        protected override void WriteModuleContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
+        protected override void DownloadToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
         protected override string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
@@ -147,6 +147,11 @@ namespace Bicep.Core.Registry
             }
 
             return Task.FromResult<string?>(null);
+        }
+
+        public override SourceArchive? TryGetSources(TemplateSpecModuleReference reference)
+        {
+            return null;
         }
     }
 }

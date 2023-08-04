@@ -43,12 +43,12 @@ namespace Bicep.Core.Samples
         public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext)
             => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, dataSet.GetStreamPrefix());
 
-        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext, FeatureProviderOverrides? features = null)
+        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext, FeatureProviderOverrides? features = null, bool publishSource = true)
         {
             features ??= new(testContext, RegistryEnabled: dataSet.HasExternalModules);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
 
             var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features)).GetCompiler();
@@ -160,15 +160,15 @@ namespace Bicep.Core.Samples
             return repositoryFactoryMock.Object;
         }
 
-        public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
+        public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, bool publishSource = true)
         {
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
-                await PublishModuleToRegistryAsync(clientFactory, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, null);
+                await PublishModuleToRegistryAsync(clientFactory, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
             }
         }
 
-        public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, string? documentationUri = null)
+        public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, bool publishSource, string? documentationUri = null)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
@@ -190,9 +190,11 @@ namespace Bicep.Core.Samples
             {
                 await result.Template.WriteToAsync(writer);
             }
-
             stream.Position = 0;
-            await dispatcher.PublishModule(targetReference, stream, documentationUri);
+
+            using Stream? sourcesStream = publishSource ? SourceArchive.PackSources(result.Compilation.SourceFileGrouping) : null;
+
+            await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

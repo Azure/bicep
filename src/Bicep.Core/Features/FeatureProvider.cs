@@ -33,7 +33,7 @@ namespace Bicep.Core.Features
         public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
         public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
-        
+
         public bool TestFrameworkEnabled => this.configuration.ExperimentalFeaturesEnabled.TestFramework;
 
         public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
@@ -45,6 +45,8 @@ namespace Bicep.Core.Features
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
 
         public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
+
+        public bool PublishSourceEnabled => configuration.ExperimentalFeaturesEnabled.PublishSource;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

@@ -42,7 +42,7 @@ namespace Bicep.LangServer.UnitTests
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
 
             var @params = new BicepRegistryCacheParams("/main.bicep", ModuleRefStr);
             (await FluentActions
@@ -67,7 +67,7 @@ namespace Bicep.LangServer.UnitTests
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
 
             var @params = new BicepRegistryCacheParams("/foo/bar/main.bicep", ModuleRefStr);
             (await FluentActions
@@ -98,7 +98,7 @@ namespace Bicep.LangServer.UnitTests
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
 
             var @params = new BicepRegistryCacheParams(parentModuleLocalPath, ModuleRefStr);
             (await FluentActions
@@ -130,7 +130,7 @@ namespace Bicep.LangServer.UnitTests
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
 
             var @params = new BicepRegistryCacheParams(parentModuleLocalPath, ModuleRefStr);
             (await FluentActions
@@ -166,7 +166,7 @@ namespace Bicep.LangServer.UnitTests
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri, out fileContents, out readFailureBuilder)).Returns(false);
 
-            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
 
             var @params = new BicepRegistryCacheParams(fileUri.AbsolutePath, ModuleRefStr);
             (await FluentActions
@@ -203,7 +203,7 @@ namespace Bicep.LangServer.UnitTests
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri, out fileContents, out nullBuilder)).Returns(true);
 
-            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
 
             var @params = new BicepRegistryCacheParams(fileUri.AbsolutePath, ModuleRefStr);
             var response = await handler.Handle(@params, default);

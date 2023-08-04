@@ -5,14 +5,18 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Registry
 {
@@ -21,6 +25,8 @@ namespace Bicep.Core.UnitTests.Registry
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        #region GetDocumentationUri
 
         [DataRow("")]
         [DataRow("    ")]
@@ -287,6 +293,10 @@ namespace Bicep.Core.UnitTests.Registry
             result.Should().BeEquivalentTo("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/bicep/core/1.0.1/modules/app/dapr-containerapps-environment/bicep/core/README.md");
         }
 
+        #endregion GetDocumentationUri
+
+        #region GetDescription
+
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
@@ -510,17 +520,205 @@ namespace Bicep.Core.UnitTests.Registry
             actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json
         }
 
+        #endregion GetDescription
+
+        #region PublishModule
+
+        private const string jsonContentsV1 = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.19.5.34762"",
+      ""templateHash"": ""6661241730999253120""
+    }
+  },
+  ""resources"": [],
+  ""outputs"": {
+    ""myOutput"": {
+      ""type"": ""string"",
+      ""value"": ""hello!""
+    }
+  }
+}";
+        private const string jsonContentsV2 = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.19.5.34762"",
+      ""templateHash"": ""6661241730999253120""
+    }
+  },
+  ""resources"": [],
+  ""outputs"": {
+    ""myOutput"": {
+      ""type"": ""string"",
+      ""value"": ""hello! V2""
+    }
+  }
+}";
+
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task PublishModuleWithSources_ShouldAttachSourceToModuleManifest(bool publishSource)
+        {
+            string registry = "myregistry.azurecr.io";
+            string repository = "bicep/myrepo";
+            var moduleReference = new OciArtifactModuleReference(registry, repository, "v1", null, new Uri("file://fakebicepfile.bicep", UriKind.Absolute));
+
+            var (blobClient, ociRegistry) = CreateMocks();
+
+            var template = new TextBytes(jsonContentsV1);
+            var sources = publishSource ? new TextBytes("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
+
+            await ociRegistry.PublishModule(moduleReference, template.ToStream(), sources?.ToStream(), "http://documentation", "description");
+
+            blobClient.Should().HaveModule("v1", template.ToStream());
+            if (publishSource)
+            {
+                blobClient.Should().HaveSourceAttachedToModule("v1", sources!.ToArray());
+            }
+            else
+            {
+                blobClient.Should().NotHaveAnyAttachments("v1");
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task PublishModuleWithSources_AtMultipleVersions_ShouldAttachSourceToModuleManifest(bool publishSource)
+        {
+            string registry = "myregistry.azurecr.io";
+            string repository = "bicep/myrepo";
+            var moduleReferenceV1 = new OciArtifactModuleReference(registry, repository, "v1", null, new Uri("file://fakebicepfile.bicep", UriKind.Absolute));
+            var moduleReferenceV2 = new OciArtifactModuleReference(registry, repository, "v2", null, new Uri("file://fakebicepfile.bicep", UriKind.Absolute));
+
+
+            var (blobClient, ociRegistry) = CreateMocks();
+
+            var templateV1 = new TextBytes(jsonContentsV1);
+            var sourcesV1 = publishSource ? new TextBytes("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
+            await ociRegistry.PublishModule(moduleReferenceV1, templateV1.ToStream(), sourcesV1?.ToStream(), "http://documentation", "description");
+
+            var templateV2 = new TextBytes(jsonContentsV2);
+            var sourcesV2 = publishSource ? new TextBytes("This is a test V2. This is only a test. If this were a real source archive, it would have been binary.") : null;
+            await ociRegistry.PublishModule(moduleReferenceV2, templateV2.ToStream(), sourcesV2?.ToStream(), "http://documentation", "description");
+
+            blobClient.Should().HaveModule("v1", templateV1.ToStream());
+            blobClient.Should().HaveModule("v2", templateV2.ToStream());
+
+            if (publishSource)
+            {
+                blobClient.Should().HaveSourceAttachedToModule("v1", sourcesV1!.ToArray());
+                blobClient.Should().HaveSourceAttachedToModule("v2", sourcesV2!.ToArray());
+            }
+            else
+            {
+                blobClient.Should().NotHaveAnyAttachments("v1");
+                blobClient.Should().NotHaveAnyAttachments("v2");
+            }
+        }
+
+        [DataTestMethod]
+        // No sources at all
+        [DataRow(jsonContentsV1, null, jsonContentsV2, null)]
+        // Sources for only one version
+        [DataRow(jsonContentsV1, "sources v1", jsonContentsV2, null)]
+        [DataRow(jsonContentsV1, null, jsonContentsV2, "sources v2")]
+        // Sources for both versions
+        [DataRow(jsonContentsV1, "sources v1", jsonContentsV2, "sources v2")]
+        // Template changed, but sources did not (perhaps imported text source changed)
+        [DataRow(jsonContentsV1, "sources", jsonContentsV2, "sources")]
+        // Sources changed, but compiled template did not
+        [DataRow(jsonContentsV1, "sources v1", jsonContentsV1, "sources v2")]
+        public async Task PublishModuleWithSources_AtMultipleVersions_ShouldAttachSourceToModuleManifest(string jsonContentsV1, string? sourceContentsV1, string jsonContentsV2, string? sourceContentsV2)
+        {
+            string registry = "myregistry.azurecr.io";
+            string repository = "bicep/myrepo";
+            var moduleReferenceV1 = new OciArtifactModuleReference(registry, repository, "v1", null, new Uri("file://fakebicepfile.bicep", UriKind.Absolute));
+            var moduleReferenceV2 = new OciArtifactModuleReference(registry, repository, "v2", null, new Uri("file://fakebicepfile.bicep", UriKind.Absolute));
+
+
+            var (blobClient, ociRegistry) = CreateMocks();
+
+            var templateV1 = new TextBytes(jsonContentsV1);
+            var sourcesV1 = sourceContentsV1 == null ? null : new TextBytes(sourceContentsV1);
+            await ociRegistry.PublishModule(moduleReferenceV1, templateV1.ToStream(), sourcesV1?.ToStream(), "http://documentation", "description");
+
+            var templateV2 = new TextBytes(jsonContentsV2);
+            var sourcesV2 = sourceContentsV2 == null ? null : new TextBytes(sourceContentsV2);
+            await ociRegistry.PublishModule(moduleReferenceV2, templateV2.ToStream(), sourcesV2?.ToStream(), "http://documentation", "description");
+
+            if (sourcesV1 != null)
+            {
+                blobClient.Should().HaveModuleWithSource("v1", templateV1.ToStream(), sourcesV1.ToArray());
+            }
+            else
+            {
+                blobClient.Should().HaveModuleWithoutSource("v1", templateV1.ToStream());
+            }
+            if (sourcesV2 != null)
+            {
+                blobClient.Should().HaveModuleWithSource("v2", templateV1.ToStream(), sourcesV2.ToArray());
+            }
+            else
+            {
+                blobClient.Should().HaveModuleWithoutSource("v2", templateV2.ToStream());
+            }
+        }
+
+        private (
+            MockRegistryBlobClient blobClient,
+            OciModuleRegistry ociModuleRegistry
+        ) CreateMocks()
+        {
+            IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
+
+            var blobClient = new MockRegistryBlobClient();
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns(blobClient);
+
+            var ociModuleRegistry = CreateOciModuleRegistry(new Uri("file:///caller.bicep", UriKind.Absolute), null, clientFactory.Object);
+
+            return (blobClient, ociModuleRegistry);
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private OciModuleRegistry CreateOciModuleRegistry(
+            Uri parentModuleUri,
+            string? cacheRootDirectory,
+            IContainerRegistryClientFactory? containerRegistryClientFactory = null)
+        {
+            return new OciModuleRegistry(
+                BicepTestConstants.FileResolver,
+                containerRegistryClientFactory ?? BicepTestConstants.ClientFactory,
+                GetFeatures(cacheRootDirectory is not null, cacheRootDirectory ?? string.Empty),
+                BicepTestConstants.BuiltInConfiguration,
+                parentModuleUri);
+        }
+
         private (OciModuleRegistry, OciArtifactModuleReference) GetOciModuleRegistryAndOciArtifactModuleReference(
-            string bicepFileContents,
+            string parentBicepFileContents, // The bicep file which references the module
             string manifestFileContents,
             string registory,
             string repository,
-            string? digest= null,
+            string? digest = null,
             string? tag = null,
-            bool cacheRootDirectory = true)
+            bool cacheRootDirectory = true,
+            IContainerRegistryClientFactory? containerRegistryClientFactory = null)
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", parentBicepFileContents, testOutputPath);
             var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
 
             var ociArtifactModuleReference = OciArtifactModuleReferenceHelper.GetModuleReferenceAndSaveManifestFile(
@@ -533,7 +731,10 @@ namespace Bicep.Core.UnitTests.Registry
                 digest,
                 tag);
 
-            var ociModuleRegistry = new OciModuleRegistry(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, GetFeatures(cacheRootDirectory, testOutputPath), BicepTestConstants.BuiltInConfiguration, parentModuleUri);
+            var ociModuleRegistry = CreateOciModuleRegistry(
+                parentModuleUri,
+                cacheRootDirectory ? testOutputPath : null,
+                containerRegistryClientFactory);
 
             return (ociModuleRegistry, ociArtifactModuleReference);
         }
@@ -553,5 +754,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             return features.Object;
         }
+
+        #endregion Helpers
     }
 }
