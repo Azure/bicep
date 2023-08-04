@@ -111,14 +111,14 @@ namespace Bicep.Core.Semantics
                 return parameters.ToImmutable();
             });
 
-            this.exportedTypesLazy = new(() => ImmutableDictionary.CreateRange(Root.TypeDeclarations.DistinctBy(t => t.Name)
+            this.exportedTypesLazy = new(() => Root.TypeDeclarations.DistinctBy(t => t.Name)
                 // skip over any type without an `@export()` decorator
                 .Where(t => SemanticModelHelper.TryGetDecoratorInNamespace(this,
                     t.DeclaringType,
                     SystemNamespaceType.BuiltInName,
                     LanguageConstants.ExportPropertyName) is not null)
-                .Select(t => new KeyValuePair<string, ExportedTypeMetadata>(t.Name,
-                    new(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))))));
+                .ToImmutableDictionary(t => t.Name,
+                    t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
 
             this.outputsLazy = new Lazy<ImmutableArray<OutputMetadata>>(() =>
             {
