@@ -22,10 +22,13 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DataSet = Bicep.Core.Samples.DataSet;
+
+#pragma warning disable RS0030 // Do not use banned APIs
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -139,9 +142,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithDocumentationUriAndSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Publish_AllValidDataSets_ShouldSucceed(DataSet dataSet, string documentationUri, bool publishSource)
+        [DynamicData(nameof(GetValidDataSetsWithDocUriAndSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)
         {
+            Console.WriteLine(testName);
+
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
             var registryStr = "example.com";
@@ -223,9 +228,11 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Publish_ValidArmTemplateFile_AllDataSets_ShouldSucceed(DataSet dataSet, bool publishSource)
+        [DynamicData(nameof(GetValidDataSetsWithSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Publish_ValidArmTemplateFile_AllDataSets_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
+            Console.WriteLine(testName);
+
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
             var registryStr = "example.com";
@@ -430,18 +437,23 @@ namespace Bicep.Cli.IntegrationTests
         {
             foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))
             {
-                yield return new object[] { ds, false /*publishSource*/ };
-                yield return new object[] { ds, true /*publishSource*/ };
+                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
+                yield return new object[] { $"{ds.Name}, publishing source", true };
             }
         }
 
-        private static IEnumerable<object[]> GetValidDataSetsWithDocumentationUriAndSourcesFlag()
+        private static IEnumerable<object[]> GetValidDataSetsWithDocUriAndSourcesFlag()
         {
-            foreach (var dataSet in DataSets.AllDataSets.Where(ds => ds.IsValid))
+            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))
             {
-                yield return new object[] { dataSet, "", false /*publishSource*/ };
-                yield return new object[] { dataSet, "https://example.com", true };
+                yield return new object[] { $"{ds.Name}, without docUri, not publishing source", ds, "", false };
+                yield return new object[] { $"{ds.Name}, with docUri, publishing source", ds, "https://example.com", true };
             }
+        }
+
+        public static string GetTestDisplayName(MethodInfo methodInfo, object[] objects)
+        {
+            return (string)objects[0];
         }
 
         private static IEnumerable<object[]> GetInvalidDataSets() => DataSets
