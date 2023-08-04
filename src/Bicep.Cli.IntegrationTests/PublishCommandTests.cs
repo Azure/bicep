@@ -318,31 +318,31 @@ namespace Bicep.Cli.IntegrationTests
             null,
             "param description string",
             null,
-            DisplayName = "manifest: neither description nor uri"
+            DisplayName = "neither description nor uri"
             )]
         [DataRow(
             "mydocs.org/abc",
             "metadata description = 'my description'",
             "my description",
-            DisplayName = "manifest: description and uri"
+            DisplayName = "description and uri"
             )]
         [DataRow(
             null,
             "metadata description = 'my description'",
             "my description",
-            DisplayName = "manifest: just description"
+            DisplayName = "just description"
             )]
         [DataRow(
             "mydocs.org/abc",
             "",
             null,
-            DisplayName = "manifest: just uri"
+            DisplayName = "just uri"
             )]
         [DataRow(
             "mydocs.org/abc",
             "metadata description2 = 'my description'",
             null,
-            DisplayName = "manifest: just uri 2"
+            DisplayName = "just uri 2"
             )]
         public async Task Publish_BicepModule_WithDescriptionAndDocUri_ShouldPlaceDescriptionInManifest(string? documentationUri, string bicepModuleContents, string? expectedDescription)
         {
