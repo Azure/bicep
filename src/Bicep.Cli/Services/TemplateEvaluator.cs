@@ -18,15 +18,16 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Cli.Services
 {
-    public class TemplateEvaluatorService
+    public partial class TemplateEvaluator
     {
         private const string DummyTenantId = "";
         private const string DummyManagementGroupName = "";
         private const string DummySubscriptionId = "";
         private const string DummyResourceGroupName = "";
         private const string DummyLocation = "";
-        private static readonly Regex templateSchemaPattern = new Regex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.Compiled);
 
+        [GeneratedRegex(@"https?://schema\.management\.azure\.com/schemas/[0-9a-zA-Z-]+/(?<templateType>[a-zA-Z]+)Template\.json#?", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex templateSchemaPattern();
         public delegate JToken OnListDelegate(string functionName, string resourceId, string apiVersion, JToken? body);
 
         public delegate JToken OnReferenceDelegate(string resourceId, string apiVersion, bool fullBody);
@@ -142,7 +143,7 @@ namespace Bicep.Cli.Services
             }
         }
 
-        public static JToken Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
+        public static TestEvaluation Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
@@ -154,7 +155,7 @@ namespace Bicep.Cli.Services
             return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
         }
 
-        private static JToken EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
+        private static TestEvaluation EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
@@ -176,15 +177,15 @@ namespace Bicep.Cli.Services
 
                 TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
-                return template.ToJToken();
+                var allAssertions = template.Asserts?.Select(p => new AssertionResult(p.Key, (bool)p.Value.Value)).ToImmutableArray() ?? ImmutableArray<AssertionResult>.Empty;
+                var failedAssertions = allAssertions.Where(a => !a.Result).Select(a => a).ToImmutableArray();
+                return new TestEvaluation(template, null, allAssertions, failedAssertions);
             }
             catch (Exception exception)
             {
-                throw new InvalidOperationException(
-                    $"Evaluating template failed: {exception.Message}." +
-                    $"\nTemplate file: {templateJtoken}" +
-                    (parametersJToken is null ? "" : $"\nParameters file: {parametersJToken}"),
-                    exception);
+                var error = exception.Message;
+
+                return new TestEvaluation(null, error, ImmutableArray<AssertionResult>.Empty, ImmutableArray<AssertionResult>.Empty);
             }
         }
 
@@ -200,7 +201,7 @@ namespace Bicep.Cli.Services
         
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
         {
-            var templateSchemaMatch = templateSchemaPattern.Match(templateSchema);
+            var templateSchemaMatch = templateSchemaPattern().Match(templateSchema);
             var templateType = templateSchemaMatch.Groups["templateType"].Value.ToLowerInvariant();
 
             return templateType switch 
@@ -214,3 +215,4 @@ namespace Bicep.Cli.Services
         }
     }
 }
+

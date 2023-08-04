@@ -102,10 +102,11 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false, 
+                    "prettyPrinting": false,
                     "testFramework": false,
                     "assertions": false,
-                    "dynamicTypeLoading": false
+                    "dynamicTypeLoading": false,
+                    "compileTimeImports": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -173,10 +174,11 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false, 
+                    "prettyPrinting": false,
                     "testFramework": false,
                     "assertions": false,
-                    "dynamicTypeLoading": false
+                    "dynamicTypeLoading": false,
+                    "compileTimeImports": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -269,10 +271,11 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false, 
+                    "prettyPrinting": false,
                     "testFramework": false,
                     "assertions": false,
-                    "dynamicTypeLoading": false
+                    "dynamicTypeLoading": false,
+                    "compileTimeImports": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -596,10 +599,11 @@ namespace Bicep.Core.UnitTests.Configuration
                     "sourceMapping": false,
                     "userDefinedTypes": false,
                     "userDefinedFunctions": false,
-                    "prettyPrinting": false, 
+                    "prettyPrinting": false,
                     "testFramework": false,
                     "assertions": false,
-                    "dynamicTypeLoading": false
+                    "dynamicTypeLoading": false,
+                    "compileTimeImports": false
                   },
                   "formatting": {
                     "indentKind": "Space",

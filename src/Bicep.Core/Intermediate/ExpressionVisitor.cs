@@ -158,7 +158,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Description);
     }
 
-    public virtual void VisitDeclaredImportExpression(DeclaredImportExpression expression)
+    public virtual void VisitDeclaredProviderExpression(DeclaredProviderExpression expression)
     {
         VisitDescribableExpression(expression);
         Visit(expression.Config);
@@ -319,6 +319,14 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.MemberExpressions);
     }
 
+    public void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
+    {
+    }
+
+    public void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    {
+    }
+
     public virtual void VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression)
     {
         Visit(expression.MemberExpressions);
@@ -327,7 +335,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     public virtual void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);
-        Visit(expression.Imports);
+        Visit(expression.Providers);
         Visit(expression.Types);
         Visit(expression.Parameters);
         Visit(expression.Variables);

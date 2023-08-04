@@ -1195,8 +1195,8 @@ namespace Bicep.Core.TypeSystem
                 // for properties, put it on the property name in the parent object
                 ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
 
-                // for import declarations, mark the entire configuration object
-                ImportWithClauseSyntax importParent => (expression, "object"),
+                // for provider declarations, mark the entire configuration object
+                ProviderWithClauseSyntax providerParent => (expression, "object"),
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),

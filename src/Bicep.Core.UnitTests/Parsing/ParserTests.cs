@@ -469,6 +469,73 @@ type multilineUnion = 'a'
             RunExpressionTest(text, expected, expectedRootType);
         }
 
+        [TestMethod]
+        public void Cherry_pick_import_should_parse_successfully()
+        {
+            var importStatement = """
+                import {foo, bar as baz} from 'other.bicep'
+                """;
+
+            var parsed = ParserHelper.Parse(importStatement);
+            var statement = parsed.Declarations.Single().Should().BeOfType<CompileTimeImportDeclarationSyntax>().Subject;
+
+            var imported = statement.ImportExpression.Should().BeOfType<ImportedSymbolsListSyntax>().Subject;
+            imported.ImportedSymbols.Should().SatisfyRespectively(
+                item =>
+                {
+                    item.OriginalSymbolName.IdentifierName.Should().Be("foo");
+                    item.AsClause.Should().BeNull();
+                    item.Name.IdentifierName.Should().Be("foo");
+                },
+                item =>
+                {
+                    item.OriginalSymbolName.IdentifierName.Should().Be("bar");
+                    var asClause = item.AsClause.Should().BeOfType<AliasAsClauseSyntax>().Subject;
+                    asClause.Alias.IdentifierName.Should().Be("baz");
+                    item.Name.IdentifierName.Should().Be("baz");
+                });
+
+            var fromClause = statement.FromClause.Should().BeOfType<CompileTimeImportFromClauseSyntax>().Subject;
+            var fromPath = fromClause.Path.Should().BeOfType<StringSyntax>().Subject;
+            fromPath.TryGetLiteralValue().Should().Be("other.bicep");
+        }
+
+        [TestMethod]
+        public void Empty_cherry_pick_import_should_parse_successfully()
+        {
+            var importStatement = """
+                import {} from 'other.bicep'
+                """;
+
+            var parsed = ParserHelper.Parse(importStatement);
+            var statement = parsed.Declarations.Single().Should().BeOfType<CompileTimeImportDeclarationSyntax>().Subject;
+
+            var imported = statement.ImportExpression.Should().BeOfType<ImportedSymbolsListSyntax>().Subject;
+            imported.ImportedSymbols.Should().BeEmpty();
+
+            var fromClause = statement.FromClause.Should().BeOfType<CompileTimeImportFromClauseSyntax>().Subject;
+            var fromPath = fromClause.Path.Should().BeOfType<StringSyntax>().Subject;
+            fromPath.TryGetLiteralValue().Should().Be("other.bicep");
+        }
+
+        [TestMethod]
+        public void Wildcard_import_should_parse_successfully()
+        {
+            var importStatement = """
+                import * as foo from 'other.bicep'
+                """;
+
+            var parsed = ParserHelper.Parse(importStatement);
+            var statement = parsed.Declarations.Single().Should().BeOfType<CompileTimeImportDeclarationSyntax>().Subject;
+
+            var imported = statement.ImportExpression.Should().BeOfType<WildcardImportSyntax>().Subject;
+            imported.Name.IdentifierName.Should().Be("foo");
+
+            var fromClause = statement.FromClause.Should().BeOfType<CompileTimeImportFromClauseSyntax>().Subject;
+            var fromPath = fromClause.Path.Should().BeOfType<StringSyntax>().Subject;
+            fromPath.TryGetLiteralValue().Should().Be("other.bicep");
+        }
+
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
             SyntaxBase expression = ParserHelper.ParseExpression(text);

@@ -8,9 +8,9 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class ImportedNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
+    public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
-        public ImportedNamespaceSymbol(ISymbolContext context, ImportDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
+        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
             : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
         {
             this.DeclaredType = declaredType;
@@ -18,11 +18,11 @@ namespace Bicep.Core.Semantics
 
         public TypeSymbol DeclaredType { get; }
 
-        public ImportDeclarationSyntax DeclaringImport => (ImportDeclarationSyntax)this.DeclaringSyntax;
+        public ProviderDeclarationSyntax DeclaringImport => (ProviderDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor)
         {
-            visitor.VisitImportedNamespaceSymbol(this);
+            visitor.VisitProviderNamespaceSymbol(this);
         }
 
         public override SymbolKind Kind => SymbolKind.ImportedNamespace;

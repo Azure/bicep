@@ -1,5 +1,5 @@
 type 44
-//@[05:007) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |44|
+//@[05:007) [BCP325 (Error)] Expected a type identifier at this location. (CodeDescription: none) |44|
 //@[07:007) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 //@[07:007) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 

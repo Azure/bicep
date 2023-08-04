@@ -49,8 +49,8 @@ namespace Bicep.Core.TypeSystem
 
             switch (syntax)
             {
-                case ImportDeclarationSyntax import:
-                    return GetImportType(import);
+                case ProviderDeclarationSyntax provider:
+                    return GetProviderType(provider);
 
                 case MetadataDeclarationSyntax metadata:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
@@ -510,9 +510,12 @@ namespace Bicep.Core.TypeSystem
             => binder.GetSymbolInfo(syntax) switch
             {
                 BuiltInNamespaceSymbol builtInNamespace when allowNamespaceReferences => builtInNamespace.Type,
-                ImportedNamespaceSymbol importedNamespace when allowNamespaceReferences => importedNamespace.Type,
-                BuiltInNamespaceSymbol or ImportedNamespaceSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
-                AmbientTypeSymbol ambientType when ambientType.Type is TypeType assignableType => assignableType.Unwrapped,
+                ProviderNamespaceSymbol providerNamespace when allowNamespaceReferences => providerNamespace.Type,
+                WildcardImportSymbol wildcardImport when allowNamespaceReferences => wildcardImport.Type,
+                BuiltInNamespaceSymbol or ProviderNamespaceSymbol or WildcardImportSymbol
+                    => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
+                AmbientTypeSymbol ambientType => UnwrapType(ambientType.Type),
+                ImportedTypeSymbol importedType => UnwrapType(importedType.Type),
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
@@ -915,12 +918,14 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Diagnostics will be surfaced by the TypeAssignmentVisitor, so we're only concerned here with whether the property access would be an error type
-            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()) switch
-            {
-                TypeType tt => tt.Unwrapped,
-                TypeSymbol otherwise => otherwise,
-            };
+            return UnwrapType(TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()));
         }
+
+        private TypeSymbol UnwrapType(TypeSymbol type) => type switch
+        {
+            TypeType tt => tt.Unwrapped,
+            _ => type,
+        };
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
         {
@@ -962,9 +967,9 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol otherwise => otherwise,
         };
 
-        private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
+        private DeclaredTypeAssignment? GetProviderType(ProviderDeclarationSyntax syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is ImportedNamespaceSymbol importedNamespace)
+            if (this.binder.GetSymbolInfo(syntax) is ProviderNamespaceSymbol importedNamespace)
             {
                 return new(importedNamespace.DeclaredType, syntax);
             }
@@ -1013,6 +1018,10 @@ namespace Bicep.Core.TypeSystem
                 case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
                     var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
+
+                case WildcardImportSymbol wildcardImportSymbol when IsCycleFree(wildcardImportSymbol):
+                    var wildcardImportType = this.typeManager.GetTypeInfo(wildcardImportSymbol.DeclaringSyntax);
+                    return new DeclaredTypeAssignment(wildcardImportType, declaringSyntax: null);
 
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
@@ -1506,7 +1515,7 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
 
-                case ImportWithClauseSyntax:
+                case ProviderWithClauseSyntax:
                     parent = this.binder.GetParent(parent);
 
                     if (parent is null)
@@ -1514,8 +1523,8 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
                     }
 
-                    if (GetDeclaredTypeAssignment(parent) is not { } importAssignment ||
-                        importAssignment.Reference.Type is not NamespaceType namespaceType)
+                    if (GetDeclaredTypeAssignment(parent) is not { } providerAssignment ||
+                        providerAssignment.Reference.Type is not NamespaceType namespaceType)
                     {
                         return null;
                     }
@@ -1529,7 +1538,7 @@ namespace Bicep.Core.TypeSystem
 
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, providerAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)

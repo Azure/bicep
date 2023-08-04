@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using Bicep.Core.Diagnostics;
+using System.Collections.Immutable;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -48,6 +48,7 @@ namespace Bicep.Core.Parsing
             this.WithRecovery(
                 () =>
                 {
+                    var leadingNodes = DecorableSyntaxLeadingNodes().ToImmutableArray();
 
                     Token current = reader.Peek();
 
@@ -57,6 +58,7 @@ namespace Bicep.Core.Parsing
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
+                            LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
