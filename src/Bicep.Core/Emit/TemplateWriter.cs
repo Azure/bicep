@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -115,12 +114,14 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(emitter, program.Metadata);
 
-            if (program.Types.Any())
+            var programTypes = program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure);
+
+            if (programTypes.Any())
             {
                 TypeAliasLookupVisitor = new ExpressionTypeAliasLookupVisitor();
                 TypeAliasLookupVisitor.Visit(program);
 
-                this.EmitTypeDefinitionsIfPresent(emitter, program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure));
+                this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
             }
 
             this.EmitUserDefinedFunctions(emitter, program.Functions);
