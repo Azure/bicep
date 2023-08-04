@@ -31,6 +31,7 @@ using System.Net;
 using Bicep.Core.Navigation;
 using Bicep.Core.TypeSystem;
 using System.IO;
+using Bicep.Core.Features;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -41,19 +42,22 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileResolver fileResolver;
         private readonly ILanguageServerFacade languageServer;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IFeatureProviderFactory featureProviderFactory;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
             ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher) : base()
+            IModuleDispatcher moduleDispatcher,
+            IFeatureProviderFactory featureProviderFactory) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)

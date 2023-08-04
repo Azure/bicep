@@ -50,8 +50,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            var parentBicepUri = request.TextDocument.Uri.ToUri();
-            if (!moduleDispatcher.TryGetModuleReference(request.Target, parentBicepUri, out var moduleReference, out _))
+            if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
             {
                 throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");
             }
@@ -71,12 +70,11 @@ namespace Bicep.LanguageServer.Handlers
                 throw new InvalidOperationException($"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
-            var featureProvider = featureProviderFactory.GetFeatureProvider(parentBicepUri);
-            if (featureProvider.PublishSourceEnabled && moduleDispatcher.TryGetModuleSources(moduleReference, out var sourceArchive))
+            if (moduleDispatcher.TryGetModuleSources(moduleReference, out var sourceArchive))
             {
                 using var sources = sourceArchive;
 
-                // TODO: For now, we just proffer the main file
+                // TODO: For now, we just proffer the main source file
                 var entrypointFile = sources.GetSourceFiles().Single(f => f.Metadata.Path == sourceArchive.GetEntrypointPath());
                 return Task.FromResult(new BicepRegistryCacheResponse(entrypointFile.Contents));
             }

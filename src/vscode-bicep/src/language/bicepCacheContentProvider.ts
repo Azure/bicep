@@ -8,10 +8,12 @@ import {
 import { Disposable } from "../utils/disposable";
 import { bicepCacheRequestType } from "./protocol";
 import * as path from "path";
+import { Uri } from "vscode";
 
 export class BicepCacheContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider {
+  implements vscode.TextDocumentContentProvider
+{
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(
@@ -52,30 +54,36 @@ export class BicepCacheContentProvider
     };
   }
 
-  private decodeBicepCacheUri(
-    uri: vscode.Uri,
-  ): [moduleReference: string, cachePath: string] {
+  private decodeBicepCacheUri(uri: vscode.Uri): [
+    moduleReference: string, // e.g. br:myregistry.azurecr.io/myrepo:v1
+    cachePath: string, // eg /Users/MyUserName/.bicep/br/myregistry.azurecr.io/myrepo/v1$/main.json
+  ] {
     // The uri passed in has this format:
     //   bicep-cache:module-reference#cache-file-path
     //
     // Example decoded URI:
     //   bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
-    const registry = decodeURIComponent(uri.path); // e.g. br:myregistry.azurecr.io/myrepo:v1
-    const cachePath = decodeURIComponent(uri.fragment); // e.g. eg /Users/MyUserName/.bicep/br/myregistry.azurecr.io/myrepo/v1$/main.json
+    const registry = decodeURIComponent(uri.path);
+    const cachePath = decodeURIComponent(uri.fragment);
 
     return [registry, cachePath];
   }
 
-  private getModuleReferenceScheme(document: vscode.TextDocument) {
-    const moduleReferenceWithLeadingSeparator = document.uri.path;
-    const colonIndex = moduleReferenceWithLeadingSeparator.indexOf(":");
-    if (colonIndex < 0) {
-      throw new Error(
-        `The document URI '${document.uri.toString()}' has an unexpected format.`,
-      );
+  private getModuleReferenceScheme(uri: Uri): "br" | "ts" {
+    // e.g. 'br:registry.azurecr.io/module:v3'
+    const [moduleReference] = this.decodeBicepCacheUri(uri);
+
+    const colonIndex = moduleReference.indexOf(":");
+    if (colonIndex >= 0) {
+      const scheme = moduleReference.substring(0, colonIndex);
+      if (scheme === "br" || scheme === "ts") {
+        return scheme;
+      }
     }
 
-    return moduleReferenceWithLeadingSeparator.substring(0, colonIndex);
+    throw new Error(
+      `The document URI '${uri.toString()}' is in an unexpected format.`,
+    );
   }
 
   private tryFixCacheContentLanguage(document: vscode.TextDocument): void {
@@ -86,7 +94,7 @@ export class BicepCacheContentProvider
       // the file is showing content from the bicep cache and the language is still set to plain text
       // we should try to correct it
 
-      const scheme = this.getModuleReferenceScheme(document);
+      const scheme = this.getModuleReferenceScheme(document.uri);
       const [, cachePath] = this.decodeBicepCacheUri(document.uri);
 
       // Not necessary to wait for this to finish
@@ -97,7 +105,7 @@ export class BicepCacheContentProvider
     }
   }
 
-  private getLanguageId(scheme: string, fileName: string) {
+  private getLanguageId(scheme: "br" | "ts", fileName: string) {
     switch (scheme) {
       case "ts":
         return "json";
