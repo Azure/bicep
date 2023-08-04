@@ -771,7 +771,11 @@ namespace Bicep.Core.TypeSystem
             if (TryResolveUnionImmediateDecorableSyntax(syntax) is { } decorableSyntax
                 && TryGetSystemDecorator(decorableSyntax, LanguageConstants.TypeDiscriminatorDecoratorName) is { } discriminatorDecorator)
             {
-                return FinalizeDiscriminatedObjectType(syntax, unionMembers, discriminatorDecorator);
+                // TODO: revert this when backend updates go out for tagged unions
+                return ErrorType.Create(
+                    DiagnosticBuilder.ForPosition(decorableSyntax)
+                        .FeatureIsTemporarilyDisabled("tagged unions"));
+                // return FinalizeDiscriminatedObjectType(syntax, unionMembers, discriminatorDecorator);
             }
 
             return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
@@ -790,7 +794,9 @@ namespace Bicep.Core.TypeSystem
             binder.GetParent(unionTypeSyntax) is ParenthesizedExpressionSyntax parenthesizedExpressionSyntax
             && binder.GetParent(parenthesizedExpressionSyntax) is NullableTypeSyntax;
 
+#pragma warning disable IDE0051
         private TypeSymbol FinalizeDiscriminatedObjectType(
+#pragma warning restore IDE0051
             UnionTypeSyntax unionTypeSyntax,
             IEnumerable<(UnionTypeMemberSyntax syntax, ITypeReference type)> unionMembers,
             DecoratorSyntax discriminatorDecorator)

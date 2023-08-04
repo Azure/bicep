@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
+    [Ignore] // TODO: remove this when tagged union backend updates go out
     public class UserDefinedDiscriminatedObjectUnionTests
     {
         [NotNull]
