@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class TestDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
+    public class TestDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IForeignTemplateReference
     {
         public TestDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
@@ -43,6 +43,8 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
+        public SyntaxBase ReferenceSourceSyntax => Path;
+
         public ObjectSyntax? TryGetBody() =>
             this.Value switch
             {
@@ -55,6 +57,5 @@ namespace Bicep.Core.Syntax
 
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid test body is not available on this test due to errors. Use {nameof(TryGetBody)}() instead.");
-
     }
 }

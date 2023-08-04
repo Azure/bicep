@@ -15,6 +15,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -29,6 +30,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
 
@@ -57,9 +59,10 @@ namespace Bicep.Core.Semantics
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
+            this.TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
 
-            // name binding is done, allow type queries now
+            // name binding is done
+            // allow type queries now
             symbolContext.Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
@@ -107,6 +110,15 @@ namespace Bicep.Core.Semantics
 
                 return parameters.ToImmutable();
             });
+
+            this.exportedTypesLazy = new(() => Root.TypeDeclarations.DistinctBy(t => t.Name)
+                // skip over any type without an `@export()` decorator
+                .Where(t => SemanticModelHelper.TryGetDecoratorInNamespace(this,
+                    t.DeclaringType,
+                    SystemNamespaceType.BuiltInName,
+                    LanguageConstants.ExportPropertyName) is not null)
+                .ToImmutableDictionary(t => t.Name,
+                    t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
 
             this.outputsLazy = new Lazy<ImmutableArray<OutputMetadata>>(() =>
             {
@@ -223,6 +235,8 @@ namespace Bicep.Core.Semantics
         public IBicepAnalyzer LinterAnalyzer { get; }
 
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+
+        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 

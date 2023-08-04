@@ -37,11 +37,11 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
-        public abstract void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax);
+        public abstract void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax);
 
-        public abstract void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
+        public abstract void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax);
 
-        public abstract void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax);
+        public abstract void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax);
 
         public abstract void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax);
 
@@ -136,6 +136,16 @@ namespace Bicep.Core.Syntax
         public abstract void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax);
 
         public abstract void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax);
+
+        public abstract void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax);
+
+        public abstract void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax);
+
+        public abstract void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax);
+
+        public abstract void VisitWildcardImportSyntax(WildcardImportSyntax syntax);
+
+        public abstract void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax);
 
         public void Visit(SyntaxBase? node)
         {

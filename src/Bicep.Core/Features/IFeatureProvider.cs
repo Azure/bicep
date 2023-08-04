@@ -28,5 +28,7 @@ namespace Bicep.Core.Features
         bool TestFrameworkEnabled { get; }
 
         bool AssertsEnabled { get; }
+
+        bool CompileTimeImportsEnabled { get; }
     }
 }

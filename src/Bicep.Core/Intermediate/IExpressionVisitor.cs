@@ -61,7 +61,7 @@ public interface IExpressionVisitor
 
     void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression);
 
-    void VisitDeclaredImportExpression(DeclaredImportExpression expression);
+    void VisitDeclaredProviderExpression(DeclaredProviderExpression expression);
 
     void VisitDeclaredParameterExpression(DeclaredParameterExpression expression);
 
@@ -120,4 +120,8 @@ public interface IExpressionVisitor
     void VisitNonNullableTypeExpression(NonNullableTypeExpression expression);
 
     void VisitUnionTypeExpression(UnionTypeExpression expression);
+
+    void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression);
+
+    void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression);
 }

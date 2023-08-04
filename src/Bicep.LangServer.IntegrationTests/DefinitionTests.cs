@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -27,8 +28,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Text;
 using Bicep.Core.Navigation;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.Core.FileSystem;
-using Bicep.LanguageServer;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.LanguageServer.Utils;
 
@@ -279,6 +278,257 @@ param |foo| string
             var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(bicepContents), bicepCursors[0], bicepCursors[1]);
             response.TargetUri.Path.Should().Be("/main.bicep");
             response.TargetRange.Should().Be(expectedRange);
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_import_statement()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
+                import * as mod from 'mod.bi|cep'
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors("""
+                ||@export()
+                type foo = string
+                """);
+
+            await helper.OpenFile("/mod.bicep", moduleContents);
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            var response = await file.GotoDefinition(cursor);
+
+            var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+            response.TargetUri.Path.Should().Be("/mod.bicep");
+            response.TargetRange.Should().Be(expectedRange);
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_wildcard_import_statements()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import *| |a|s| |m|o|d from 'mod.bicep'
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors("""
+                ||@export()
+                type foo = string
+                """);
+
+            await helper.OpenFile("/mod.bicep", moduleContents);
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.bicep");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_wildcard_import_references()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import * as mod from 'mod.bicep'
+
+                param foo m|o|d.foo
+                """);
+            var (_, targetRangeCursors) = ParserHelper.GetFileWithCursors("""
+                import |* as mod| from 'mod.bicep'
+
+                param foo mod.foo
+                """);
+
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(contents), targetRangeCursors[0], targetRangeCursors[1]);
+                response.TargetUri.Path.Should().Be("/main.bicep");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_wildcard_import_property_references()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import * as mod from 'mod.bicep'
+
+                param foo mod.f|o|o
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors("""
+                @export()
+                type bar = int
+
+                @export()
+                type |foo| = string
+                """);
+
+            await helper.OpenFile("/mod.bicep", moduleContents);
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.bicep");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_cherrypick_import_statements_and_references()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import {f|o|o| |a|s| |f|i|z|z} from 'mod.bicep'
+
+                param foo f|i|z|z
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors("""
+                @export()
+                type bar = int
+
+                @export()
+                type |foo| = string
+                """);
+
+            await helper.OpenFile("/mod.bicep", moduleContents);
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.bicep");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_wildcard_arm_import_property_references()
+        {
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import * as mod from 'mod.json'
+
+                param foo mod.f|o|o
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors($$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "1.10-experimental",
+                    "definitions": {
+                        "foo": {||
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            },
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/bar"
+                            }
+                        },
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "resources": {}
+                }
+                """);
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true))
+                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
+                {
+                    {new("file:///mod.json"), moduleContents},
+                })));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_cherrypick_arm_import_statements_and_references()
+        {
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import {f|o|o| |a|s| |f|i|z|z} from 'mod.json'
+
+                param foo f|i|z|z
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors($$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "1.10-experimental",
+                    "definitions": {
+                        "foo": {||
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            },
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/bar"
+                            }
+                        },
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "resources": {}
+                }
+                """);
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true))
+                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
+                {
+                    {new("file:///mod.json"), moduleContents},
+                })));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetRange.Should().Be(expectedRange);
+            }
         }
 
         private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, char cursor, Action<List<LocationOrLocationLinks>> assertAction)

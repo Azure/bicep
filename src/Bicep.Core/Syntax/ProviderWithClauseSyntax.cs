@@ -2,17 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.Syntax
 {
-    public class ImportWithClauseSyntax : SyntaxBase
+    public class ProviderWithClauseSyntax : SyntaxBase
     {
-        public ImportWithClauseSyntax(Token keyword, SyntaxBase config)
+        public ProviderWithClauseSyntax(Token keyword, SyntaxBase config)
         {
             AssertTokenType(keyword, nameof(keyword), TokenType.WithKeyword);
             AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
@@ -27,6 +22,6 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Config);
 
-        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitImportWithClauseSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderWithClauseSyntax(this);
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -107,7 +106,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase TypeDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.TypeKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
             var value = this.WithRecovery(() => Type(allowOptionalResourceType: false), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
 
@@ -265,11 +264,79 @@ namespace Bicep.Core.Parsing
 
             return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
-        private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+
+        private SyntaxBase ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
+
+            // Provider namespace imports will use the `provider` keyword soon, but in the meantime, the keyword is
+            // shared between provider imports and type imports. If the next character is a '{' or '*', assume the
+            // statement is a type import
+            return reader.Peek().Type switch
+            {
+                TokenType.LeftBrace or TokenType.Asterisk => CompileTimeImportDeclaration(keyword, leadingNodes),
+                _ => ProviderImportDeclaration(keyword, leadingNodes),
+            };
+        }
+
+        private CompileTimeImportDeclarationSyntax CompileTimeImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
+        {
+            SyntaxBase importExpression = reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine or
+                TokenType.Identifier => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
+                TokenType.LeftBrace => ImportedSymbolsList(),
+                TokenType.Asterisk => WithRecovery(WildcardImport, GetSuppressionFlag(keyword), TokenType.NewLine),
+                _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
+            };
+
+            return new(leadingNodes,
+                keyword,
+                importExpression,
+                WithRecovery(CompileTimeImportFromClause, GetSuppressionFlag(keyword), TokenType.NewLine));
+        }
+
+        private ImportedSymbolsListSyntax ImportedSymbolsList()
+        {
+            var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
+
+            var itemsOrTokens = HandleArrayOrObjectElements(
+                closingTokenType: TokenType.RightBrace,
+                parseChildElement: ImportedSymbolsListItem);
+
+            var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
+
+            return new(openBrace, itemsOrTokens, closeBrace);
+        }
+
+        private ImportedSymbolsListItemSyntax ImportedSymbolsListItem()
+            => new(Identifier(b => b.ExpectedExportedSymbolName()), ImportedSymbolsListItemAsClause());
+
+        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => Check(reader.Peek(), TokenType.AsKeyword)
+            ? new(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+                IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.NewLine))
+            : null;
+
+        private WildcardImportSyntax WildcardImport() => new(Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
+            new AliasAsClauseSyntax(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
+                Identifier(b => b.ExpectedNamespaceIdentifier())));
+
+        private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.FromKeyword);
+            var path = WithRecovery(
+                () => ThrowIfSkipped(InterpolableString, b => b.ExpectedModulePathString()),
+                GetSuppressionFlag(keyword),
+                TokenType.NewLine);
+
+            return new(keyword, path);
+        }
+
+        private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
+        {
             var providerSpecification = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecificationOrCompileTimeImportExpression()),
                 RecoveryFlags.None,
                 TokenType.Assignment,
                 TokenType.NewLine);
@@ -294,7 +361,7 @@ namespace Bicep.Core.Parsing
             return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
         }
 
-        private ImportWithClauseSyntax ImportWithClause()
+        private ProviderWithClauseSyntax ImportWithClause()
         {
             var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
@@ -302,7 +369,7 @@ namespace Bicep.Core.Parsing
             return new(keyword, config);
         }
 
-        private ImportAsClauseSyntax ImportAsClause()
+        private AliasAsClauseSyntax ImportAsClause()
         {
             var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);

@@ -57,6 +57,6 @@ public class BicepCompiler
             //TODO(asilverman): I want to inject here the logic that restores the providers
         }
 
-        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer);
+        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);
     }
 }
