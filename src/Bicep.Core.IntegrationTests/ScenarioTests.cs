@@ -4955,6 +4955,19 @@ param foo = 'asdf'
             ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
         });
 
+        result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), """
+            param x {
+              foo: string
+              FoO: int
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The type properties \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The type properties \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
         result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(AssertsEnabled: true)), """
             assert foo = true
             assert FoO = true

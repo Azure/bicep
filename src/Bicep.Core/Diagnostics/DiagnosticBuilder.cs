@@ -1981,10 +1981,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP352",
                 $"Failed to evaluate variable \"{name}\": {message}");
 
-            public ErrorDiagnostic SymbolsMustBeCaseInsensitivelyUnique(string symbolTypePluralName, IEnumerable<string> symbolNames) => new(
+            public ErrorDiagnostic ItemsMustBeCaseInsensitivelyUnique(string itemTypePluralName, IEnumerable<string> itemNames) => new(
                 TextSpan,
                 "BCP353",
-                $"The {symbolTypePluralName} {ToQuotedString(symbolNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
+                $"The {itemTypePluralName} {ToQuotedString(itemNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
 
             public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
                 TextSpan,
