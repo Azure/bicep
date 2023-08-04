@@ -30,6 +30,8 @@ using Bicep.Core.Emit;
 using Azure.Identity;
 using System.Reflection;
 
+#pragma warning disable RS0030 // Do not use banned APIs
+
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
@@ -57,6 +59,8 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
+            Console.WriteLine($"Test name: {testName}");
+
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -86,6 +90,8 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
+            Console.WriteLine($"Test name: {testName}");
+
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -386,6 +392,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
+            Console.WriteLine($"Test name: {testName}");
+
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);

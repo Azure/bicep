@@ -145,7 +145,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSetsWithDocUriAndSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)
         {
-            Console.WriteLine(testName);
+            Console.WriteLine($"Test name: {testName}");
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
