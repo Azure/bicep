@@ -2051,6 +2051,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP366",
                 $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
+
+            public ErrorDiagnostic FeatureIsTemporarilyDisabled(string featureName) => new(
+                TextSpan,
+                "BCP367",
+                $"The \"{featureName}\" feature is temporarily disabled.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
