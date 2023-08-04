@@ -5,6 +5,12 @@
 // So don't use things like expect().toHaveBeenCalledTimes() in the unit tests, because they will interfere with each other.
 //
 // (This is not the case for the e2e tests, which run sequentially.)
+
+// eslint-disable-next-line no-debugger
+debugger;
+
+import * as vscodeUri from "vscode-uri";
+
 jest.mock(
   "vscode",
   () => ({
@@ -51,8 +57,12 @@ jest.mock(
       Left: null,
     },
     Uri: {
-      file: jest.fn(),
-      parse: jest.fn(),
+      parse: jest.fn((uri) => {
+        return vscodeUri.URI.parse(uri);
+      }),
+      file: jest.fn((path) => {
+        return vscodeUri.URI.file(path);
+      }),
     },
     Range: jest.fn(),
     Diagnostic: jest.fn(),

@@ -8,10 +8,21 @@ import {
 import { Disposable } from "../utils/disposable";
 import { bicepCacheRequestType } from "./protocol";
 import * as path from "path";
+import { Uri } from "vscode";
+
+// eslint-disable-next-line no-debugger
+debugger;
+// eslint-disable-next-line jest/require-hook
+const uri = Uri;
+// eslint-disable-next-line jest/require-hook
+let a = uri.parse("http://a.txt");
+const b = a;
+a = b;
 
 export class BicepCacheContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider {
+  implements vscode.TextDocumentContentProvider
+{
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(
@@ -66,12 +77,13 @@ export class BicepCacheContentProvider
     return [registry, cachePath];
   }
 
-  private getModuleReferenceScheme(document: vscode.TextDocument) {
-    const moduleReferenceWithLeadingSeparator = document.uri.path;
+  // Returns "br" or "ts"
+  public static getModuleReferenceScheme(uri: Uri) {
+    const moduleReferenceWithLeadingSeparator = uri.path;
     const colonIndex = moduleReferenceWithLeadingSeparator.indexOf(":");
     if (colonIndex < 0) {
       throw new Error(
-        `The document URI '${document.uri.toString()}' has an unexpected format.`,
+        `The document URI '${uri.toString()}' has an unexpected format.`,
       );
     }
 
@@ -86,8 +98,10 @@ export class BicepCacheContentProvider
       // the file is showing content from the bicep cache and the language is still set to plain text
       // we should try to correct it
 
-      const scheme = this.getModuleReferenceScheme(document);
-      const [, cachePath] = this.decodeBicepCacheUri(document.uri);
+      const scheme = BicepCacheContentProvider.getModuleReferenceScheme(
+        document.uri,
+      );
+      const [, cachePath] = this.decodeBicepCacheUri(document.uri); //asdfg test
 
       // Not necessary to wait for this to finish
       void vscode.languages.setTextDocumentLanguage(
