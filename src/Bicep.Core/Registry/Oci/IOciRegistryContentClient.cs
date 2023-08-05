@@ -37,7 +37,7 @@ public interface IOciRegistryContentClient
     /// <summary>
     /// Retrieves all manifests that reference the main manifest as its attached parent ("Subject")
     /// </summary>
-    /// <param name="mainManifestDigest"></param>
-    /// <returns></returns>
-    Task<IEnumerable<(string artifactType, string digest)>> GetReferrersAsync(string mainManifestDigest);
+    /// <param name="manifestDigest">A manifest digest.</param>
+    /// <returns>The info for all manifests whose Subject points to the given manifestDigest</returns>
+    Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(string manifestDigest);
 }

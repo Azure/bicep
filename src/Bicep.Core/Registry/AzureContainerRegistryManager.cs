@@ -97,18 +97,20 @@ namespace Bicep.Core.Registry
         {
             var referrers = await client.GetReferrersAsync(moduleManifestDigest);
 
-            var sourceDigests = referrers.Where(r => r.artifactType == BicepMediaTypes.BicepSourceArtifactType).Select(r => r.digest);
-            if (sourceDigests?.Count() > 1)
+            var matchingSourceDigests = referrers.Where(r => r.artifactType == BicepMediaTypes.BicepSourceArtifactType).Select(r => r.digest);
+            if (matchingSourceDigests?.Count() > 1)
             {
                 Trace.WriteLine($"Multiple source manifests found for module {moduleReference.FullyQualifiedReference}, ignoring all. "
                 + $"Module manifest: ${moduleManifestDigest}. "
-                + $"Source referrers: {string.Join(", ", sourceDigests)}");
+                + $"Source referrers: {string.Join(", ", matchingSourceDigests)}");
             }
-            else if (sourceDigests?.SingleOrDefault() is string sourcesManifestDigest)
+            else if (matchingSourceDigests?.SingleOrDefault() is string sourcesManifestDigest)
             {
                 var sourcesManifest = await client.GetManifestAsync(sourcesManifestDigest);
                 var sourcesManifestStream = sourcesManifest.Value.Manifest.ToStream();
                 var dm = DeserializeManifest(sourcesManifestStream);
+                Debug.Assert(dm.ArtifactType == BicepMediaTypes.BicepSourceArtifactType);
+
                 var sourceLayer = dm.Layers.FirstOrDefault(l => l.MediaType == BicepMediaTypes.BicepSourceV1Layer);
                 if (sourceLayer?.Digest is string sourcesBlobDigest)
                 {

@@ -9,6 +9,7 @@ using Bicep.Core.Modules;
 using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -59,9 +60,11 @@ public class OciRegistryContentClient : IOciRegistryContentClient
 
     #endregion ContainerRegistryContentClient functionality forwarded
 
-    public async Task<IEnumerable<(string artifactType, string digest)>> GetReferrersAsync(string mainManifestDigest)
+    public async Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(string mainManifestDigest)
     {
-        IEnumerable<(string artifactType, string digest)>? referrers = null;
+        Debug.Assert(mainManifestDigest != null);
+
+        IEnumerable<(string digest, string? artifactType)>? referrers = null;
 
         var request = _client.Pipeline.CreateRequest();
         request.Method = RequestMethod.Get;
@@ -97,11 +100,11 @@ public class OciRegistryContentClient : IOciRegistryContentClient
 
         referrers = referrersResponse.TryGetPropertyByPath("manifests")
             ?.EnumerateArray()
-            .Select<JsonElement, (string? artifactType, string? digest)>(
-                m => (m.GetProperty("artifactType").GetString(), m.GetProperty("digest").GetString()))
-            .Where(m => m.artifactType is not null && m.digest is not null)
-            .Select(m => (m.artifactType!, m.digest!));
+            .Select<JsonElement, (string? digest, string? artifactType)>(
+                m => (m.GetProperty("digest").GetString(), m.GetProperty("artifactType").GetString()))
+            .Where(m => m.digest is not null)
+            .Select(m => (m.artifactType!, m.digest));
 
-        return referrers ?? Enumerable.Empty<(string, string)>();
+        return referrers ?? Enumerable.Empty<(string, string?)>();
     }
 }

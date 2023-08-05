@@ -12,6 +12,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -138,31 +139,20 @@ namespace Bicep.Core.UnitTests.Registry
             return result.Object;
         }
 
-        public async Task<IEnumerable<(string artifactType, string digest)>> GetReferrersAsync(string mainManifestDigest)
+        public async Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(string mainManifestDigest)
         {
+            Debug.Assert(mainManifestDigest != null);
+
             await Task.Delay(1);
 
             var mainManifest = await GetManifestAsync(mainManifestDigest);
             if (mainManifest.Value is null)
             {
-                return Enumerable.Empty<(string artifactType, string digest)>();
+                return Enumerable.Empty<(string digest, string? artifactType)>();
             }
 
-            var referringManifestDigests = (await Manifests.SelectConcurrently(async m =>
-            {
-                var manifest = await GetManifestAsync(m.Key);
-                if (Manifests.TryGetValue(m.Key, out var bytes))
-                {
-                    var manifestObject = OciSerialization.Deserialize<OciManifest>(bytes.ToStream());
-                    return (manifestObject.ArtifactType ?? string.Empty, manifestObject.Subject?.Digest ?? string.Empty);
-                }
-
-                return (string.Empty, string.Empty);
-            },
-            int.MaxValue))
-                .Where(item => !string.IsNullOrWhiteSpace(item.Item1) && !string.IsNullOrWhiteSpace(item.Item2));
-
-            return referringManifestDigests;
+            var referringManifests = ManifestObjects.Where(m => m.Value.Subject?.Digest == mainManifestDigest);
+            return referringManifests.Select(m => (m.Key, m.Value.ArtifactType));
         }
     }
 }
