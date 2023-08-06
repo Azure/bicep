@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="SymbolicNamesDisclaimerMessage" xml:space="preserve">
-    <value>WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
-  </data>
   <data name="ResourceTypesDisclaimerMessage" xml:space="preserve">
     <value>WARNING: Resource-typed parameters and outputs in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
   </data>
@@ -146,5 +143,23 @@
   <data name="UnrecognizedBicepOrBicepparamsFileExtensionMessage" xml:space="preserve">
     <value>The specified input "{0}" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension.</value>
     <comment>{0} input file path</comment>
+  </data>
+  <data name="AssertsDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: Asserts in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
+  </data>
+  <data name="DynamicTypeLoadingDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: Dynamic type loading in Bicep is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
+  </data>
+  <data name="ExtensibilityDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: Extensibility in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
+  </data>
+  <data name="SourceMappingDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: Source mapping in Bicep is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
+  </data>
+  <data name="TestFrameworkDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: Test statements in Bicep are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
+  </data>
+  <data name="UserDefinedFunctionsDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: User-defined functions in Bicep are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
   </data>
 </root>

@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -42,24 +40,15 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
-            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.BicepFile);
 
-            if (emitterSettings.EnableSymbolicNames)
-            {
-                logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
-            }
-
-            if (features.ResourceTypedParamsAndOutputsEnabled)
-            {
-                logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
-            }
-
-            if(!features.TestFrameworkEnabled) 
+            if(!features.TestFrameworkEnabled)
             {
                 logger.LogError("TestFrameWork not enabled");
-                
+
                 return 1;
             }
+
+            logger.LogWarning(CliResources.TestFrameworkDisclaimerMessage);
 
             if (IsBicepFile(inputPath))
             {
@@ -101,12 +90,11 @@ namespace Bicep.Cli.Commands
             {
                 logger.LogInformation($"All {testResults.TotalEvaluations} evaluations passed!");
             }
-            else 
+            else
             {
                 logger.LogError($"Evaluation Summary: Failure!");
                 logger.LogError($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
             }
-            
         }
     }
 }

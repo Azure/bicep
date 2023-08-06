@@ -3,13 +3,11 @@
 
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Configuration;
-using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -39,23 +37,16 @@ namespace Bicep.Cli.Commands
         public async Task<int> RunAsync(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
-            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.BicepFile);
-
-            if (emitterSettings.EnableSymbolicNames)
-            {
-                logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
-            }
-
-            if (features.ResourceTypedParamsAndOutputsEnabled)
-            {
-                logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
-            }
 
             if (IsBicepFile(inputPath))
             {
                 diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+
+                foreach (var warning in ExperimentalFeatureWarningProvider.GetEnabledExperimentalFeatureWarningMessages(compilation.SourceFileGrouping, featureProviderFactory))
+                {
+                    logger.LogWarning(warning);
+                }
 
                 if (diagnosticLogger.ErrorCount < 1)
                 {
