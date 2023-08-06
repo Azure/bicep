@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -19,7 +18,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""objectParameter"": {
@@ -53,7 +52,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""objectParameter"": {
@@ -78,7 +77,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""arrayParameter"": {
@@ -101,7 +100,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""tupleParameter"": {
@@ -131,7 +130,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""complexParameter"": {
@@ -185,7 +184,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""definitions"": {
             ""intermediate"": {
@@ -212,7 +211,7 @@ public class ArmTemplateSemanticModelTests
         var model = LoadModel(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""definitions"": {},
           ""resources"": {},
           ""definitions"": {},
@@ -233,7 +232,7 @@ public class ArmTemplateSemanticModelTests
         var model = LoadModel(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""definitions"": {
             ""intermediate"": {
@@ -260,7 +259,7 @@ public class ArmTemplateSemanticModelTests
         var jsonTemplate = @"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""definitions"": {
             ""intermediate"": {
@@ -303,7 +302,7 @@ public class ArmTemplateSemanticModelTests
         var jsonTemplate = @"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""stringLiteral"": {
@@ -347,7 +346,7 @@ public class ArmTemplateSemanticModelTests
         var parameterType = GetLoadedParameterType(@"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
           ""contentVersion"": ""1.0.0.0"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.0"",
           ""resources"": {},
           ""parameters"": {
             ""nullableParam"": {

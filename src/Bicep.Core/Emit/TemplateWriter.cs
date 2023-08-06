@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -12,6 +11,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
 using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -31,6 +31,7 @@ namespace Bicep.Core.Emit
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         public const string TemplateHashPropertyName = "templateHash";
+        public const string LanguageVersionPropertyName = "languageVersion";
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2022-09-01";
@@ -104,9 +105,13 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
 
-            if (Context.Settings.EnableSymbolicNames || Context.Settings.EnableAsserts)
+            if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                emitter.EmitProperty("languageVersion", "1.10-experimental");
+                emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
+            }
+            else if (Context.Settings.EnableSymbolicNames)
+            {
+                emitter.EmitProperty(LanguageVersionPropertyName, "2.0");
             }
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
@@ -1022,12 +1027,19 @@ namespace Bicep.Core.Emit
             });
         }
 
-        public void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
+        private void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
         {
             emitter.EmitObjectProperty("metadata", () => {
-                if (Context.Settings.EnableSymbolicNames)
+                if (Context.Settings.UseExperimentalTemplateLanguageVersion)
                 {
-                    emitter.EmitProperty("_EXPERIMENTAL_WARNING", "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!");
+                    emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!");
+                    emitter.EmitArrayProperty("_EXPERIMENTAL_FEATURES_ENABLED", () =>
+                    {
+                        foreach (var feature in GetEnabledExperimentalArmFeatures(this.Context.SemanticModel.Features))
+                        {
+                            emitter.EmitExpression(ExpressionFactory.CreateStringLiteral(feature));
+                        }
+                    });
                 }
 
                 emitter.EmitObjectProperty("_generator", () => {
@@ -1040,6 +1052,17 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(item.Name, item.Value);
                 }
             });
+        }
+
+        private static IEnumerable<string> GetEnabledExperimentalArmFeatures(IFeatureProvider features)
+        {
+            foreach (var (enabled, name) in new[] { (features.ExtensibilityEnabled, "Extensibility"), (features.AssertsEnabled, "Asserts") })
+            {
+                if (enabled)
+                {
+                    yield return name;
+                }
+            }
         }
     }
 }

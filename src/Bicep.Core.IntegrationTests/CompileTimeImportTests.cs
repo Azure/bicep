@@ -147,7 +147,7 @@ public class CompileTimeImportTests
                 {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "languageVersion": "1.10-experimental",
+                    "languageVersion": "2.0",
                     "definitions": {
                         "foo": {
                             "metadata": {
@@ -203,7 +203,7 @@ public class CompileTimeImportTests
                 {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "languageVersion": "1.10-experimental",
+                    "languageVersion": "2.0",
                     "definitions": {
                         "foo": {
                             "metadata": {
@@ -497,7 +497,7 @@ public class CompileTimeImportTests
                 {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "languageVersion": "1.10-experimental",
+                    "languageVersion": "2.0",
                     "definitions": {
                         "foo": {
                             "metadata": {
