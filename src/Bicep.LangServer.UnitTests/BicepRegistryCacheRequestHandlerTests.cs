@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -163,6 +164,9 @@ namespace Bicep.LangServer.UnitTests
             dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
 
+            SourceArchive? sourceArchive = null;
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!, out sourceArchive)).Returns(false);
+
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri, out fileContents, out readFailureBuilder)).Returns(false);
 
@@ -177,7 +181,7 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public async Task RestoredValidModuleShouldReturnSuccessfully()
+        public async Task RestoredValidModule_WithNoSources_ShouldReturnJsonContents()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
 
@@ -200,6 +204,9 @@ namespace Bicep.LangServer.UnitTests
             dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
 
+            SourceArchive? sourceArchive = null;
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!, out sourceArchive)).Returns(false);
+
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri, out fileContents, out nullBuilder)).Returns(true);
 
@@ -210,6 +217,47 @@ namespace Bicep.LangServer.UnitTests
 
             response.Should().NotBeNull();
             response.Content.Should().Be(fileContents);
+        }
+
+        [TestMethod]
+        public async Task RestoredValidModule_WithSource_ShouldReturnBicepContents()
+        {
+            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+
+            // needed for mocking out parameters
+            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
+            string? fileContents = "mock file contents";
+
+            const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
+            const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
+
+            var fileUri = new Uri("file:///foo/bar/main.bicep");
+            var configuration = ConfigurationManager.GetConfiguration(fileUri);
+
+            OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, fileUri, out var moduleReference, out _).Should().BeTrue();
+            moduleReference.Should().NotBeNull();
+
+            ModuleReference? outRef = moduleReference;
+            dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<Uri>(), out outRef, out nullBuilder)).Returns(true);
+            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
+
+            var bicepSource = "metadata hi 'mom'";
+            var sourceArchive = new SourceArchive(SourceArchive.PackSources(fileUri, new Core.Workspaces.ISourceFile[] {
+                SourceFileFactory.CreateBicepFile(fileUri, bicepSource)}));
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!, out sourceArchive)).Returns(true);
+
+            var resolver = StrictMock.Of<IFileResolver>();
+            resolver.Setup(m => m.TryRead(fileUri, out fileContents, out nullBuilder)).Returns(true);
+
+            var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.FeatureProviderFactory);
+
+            var @params = new BicepRegistryCacheParams(fileUri.AbsolutePath, ModuleRefStr);
+            var response = await handler.Handle(@params, default);
+
+            response.Should().NotBeNull();
+            response.Content.Should().Be(bicepSource);
         }
     }
 }
