@@ -172,6 +172,7 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
 
                         if (model.Features.ExtensibilityEnabled || model.Features.CompileTimeImportsEnabled)
                         {
@@ -195,11 +196,6 @@ namespace Bicep.LanguageServer.Completions
                         if (model.Features.AssertsEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.AssertKeyword, "Assert keyword", context.ReplacementRange);
-                        }
-
-                        if (model.Features.UserDefinedTypesEnabled)
-                        {
-                            yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
                         }
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
@@ -307,13 +303,10 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
-                var completions = GetAmbientTypeCompletions(model, context).Concat(GetParameterTypeSnippets(model.Compilation, context));
-
-                // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.UserDefinedTypesEnabled)
-                {
-                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context)).Concat(GetImportedTypeCompletions(model, context));
-                }
+                var completions = GetAmbientTypeCompletions(model, context)
+                    .Concat(GetParameterTypeSnippets(model.Compilation, context))
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
@@ -354,14 +347,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
-                var completions = GetAmbientTypeCompletions(model, context);
-
-                // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.UserDefinedTypesEnabled)
-                {
-                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context))
-                        .Concat(GetImportedTypeCompletions(model, context));
-                }
+                var completions = GetAmbientTypeCompletions(model, context)
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)

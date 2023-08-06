@@ -15,7 +15,7 @@ namespace Bicep.Core.IntegrationTests;
 public class CompileTimeImportTests
 {
     private ServiceBuilder ServicesWithCompileTimeTypeImports => new ServiceBuilder()
-        .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true));
+        .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true));
 
     [NotNull]
     public TestContext? TestContext { get; set; }
