@@ -823,8 +823,7 @@ namespace Bicep.Core.TypeSystem
                     // validate the member has the discriminator property defined and is of the right type
                     if (!objectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
                         || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorMemberLiteral
-                        || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required)
-                        || !string.Equals(discriminatorPropertyName, discriminatorTypeProperty.Name, LanguageConstants.IdentifierComparison))
+                        || !discriminatorTypeProperty.Flags.HasFlag(TypePropertyFlags.Required))
                     {
                         errorDiagnostics.Add(
                             DiagnosticBuilder.ForPosition(memberSyntax)

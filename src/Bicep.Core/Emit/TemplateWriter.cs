@@ -68,12 +68,13 @@ namespace Bicep.Core.Emit
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
         private ImportClosureInfo ImportClosureInfo { get; }
-        private ExpressionTypeAliasLookupVisitor? TypeAliasLookupVisitor;
+        private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
             ImportClosureInfo = ImportClosureInfo.Calculate(semanticModel);
+            declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -101,6 +102,9 @@ namespace Bicep.Core.Emit
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
             var program = (ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax);
 
+            var programTypes = program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure);
+            declaredTypesByName = programTypes.ToImmutableDictionary(t => t.Name);
+
             jsonWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
@@ -114,15 +118,7 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(emitter, program.Metadata);
 
-            var programTypes = program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure);
-
-            if (programTypes.Any())
-            {
-                TypeAliasLookupVisitor = new ExpressionTypeAliasLookupVisitor();
-                TypeAliasLookupVisitor.Visit(program);
-
-                this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
-            }
+            this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
             this.EmitUserDefinedFunctions(emitter, program.Functions);
 
@@ -583,7 +579,7 @@ namespace Bicep.Core.Emit
                 var resolvedMemberExpression = memberExpression;
                 TypeAliasReferenceExpression? typeAliasReferenceExpr = null;
                 if (memberExpression is TypeAliasReferenceExpression memberTypeAliasExpr
-                    && TypeAliasLookupVisitor!.GetDeclaredTypeExpression(memberTypeAliasExpr.Name) is { } declaredTypeExpression)
+                    && declaredTypesByName.TryGetValue(memberTypeAliasExpr.Name, out var declaredTypeExpression))
                 {
                     resolvedMemberExpression = declaredTypeExpression.Value;
                     typeAliasReferenceExpr = memberTypeAliasExpr;
