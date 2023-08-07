@@ -1304,6 +1304,25 @@ type discriminatedUnion5 = (typeA | typeB)?
 //@[042:043) Question |?|
 //@[043:045) NewLine |\n\n|
 
+@discriminator('type')
+//@[000:001) At |@|
+//@[001:014) Identifier |discriminator|
+//@[014:015) LeftParen |(|
+//@[015:021) StringComplete |'type'|
+//@[021:022) RightParen |)|
+//@[022:023) NewLine |\n|
+type discriminatedUnion6 = (typeA | typeB)!
+//@[000:004) Identifier |type|
+//@[005:024) Identifier |discriminatedUnion6|
+//@[025:026) Assignment |=|
+//@[027:028) LeftParen |(|
+//@[028:033) Identifier |typeA|
+//@[034:035) Pipe |||
+//@[036:041) Identifier |typeB|
+//@[041:042) RightParen |)|
+//@[042:043) Exclamation |!|
+//@[043:045) NewLine |\n\n|
+
 type inlineDiscriminatedUnion1 = {
 //@[000:004) Identifier |type|
 //@[005:030) Identifier |inlineDiscriminatedUnion1|

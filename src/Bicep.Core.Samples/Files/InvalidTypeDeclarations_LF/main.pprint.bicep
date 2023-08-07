@@ -283,6 +283,9 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)
 @discriminator('type')
 type discriminatedUnion5 = (typeA | typeB)?
 
+@discriminator('type')
+type discriminatedUnion6 = (typeA | typeB)!
+
 type inlineDiscriminatedUnion1 = {
   @discriminator('type')
   prop: typeA | typeC

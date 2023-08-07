@@ -348,6 +348,10 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)
 type discriminatedUnion5 = (typeA | typeB)?
 //@[5:24) TypeAlias discriminatedUnion5. Type: error. Declaration start char: 0, length: 66
 
+@discriminator('type')
+type discriminatedUnion6 = (typeA | typeB)!
+//@[5:24) TypeAlias discriminatedUnion6. Type: error. Declaration start char: 0, length: 66
+
 type inlineDiscriminatedUnion1 = {
 //@[5:30) TypeAlias inlineDiscriminatedUnion1. Type: Type<{ prop: typeA | typeC }>. Declaration start char: 0, length: 83
   @discriminator('type')

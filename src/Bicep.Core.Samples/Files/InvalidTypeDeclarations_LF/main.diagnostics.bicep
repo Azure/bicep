@@ -362,6 +362,10 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeH)
 //@[00:066) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion5 = (typeA | typeB)?|
 type discriminatedUnion5 = (typeA | typeB)?
 
+@discriminator('type')
+//@[00:066) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\ntype discriminatedUnion6 = (typeA | typeB)!|
+type discriminatedUnion6 = (typeA | typeB)!
+
 type inlineDiscriminatedUnion1 = {
   @discriminator('type')
 //@[02:046) [BCP367 (Error)] The "tagged unions" feature is temporarily disabled. (CodeDescription: none) |@discriminator('type')\n  prop: typeA | typeC|

@@ -775,7 +775,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(
                     DiagnosticBuilder.ForPosition(decorableSyntax)
                         .FeatureIsTemporarilyDisabled("tagged unions"));
-                // return FinalizeDiscriminatedObjectType(syntax, unionMembers, discriminatorDecorator);
+                // return FinalizeDiscriminatedObjectType(unionMembers, discriminatorDecorator);
             }
 
             return TypeHelper.CreateTypeUnion(unionMembers.Select(t => t.Item2));
@@ -785,7 +785,7 @@ namespace Bicep.Core.TypeSystem
             syntaxBase switch
             {
                 DecorableSyntax decorableSyntax => decorableSyntax,
-                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax or NullableTypeSyntax =>
+                ParenthesizedExpressionSyntax or UnionTypeSyntax or UnionTypeMemberSyntax or NullableTypeSyntax or NonNullAssertionSyntax =>
                     TryResolveUnionImmediateDecorableSyntax(binder.GetParent(syntaxBase)),
                 _ => null
             };
@@ -793,7 +793,6 @@ namespace Bicep.Core.TypeSystem
 #pragma warning disable IDE0051
         private TypeSymbol FinalizeDiscriminatedObjectType(
 #pragma warning restore IDE0051
-            UnionTypeSyntax unionTypeSyntax,
             IEnumerable<(UnionTypeMemberSyntax syntax, ITypeReference type)> unionMembers,
             DecoratorSyntax discriminatorDecorator)
         {

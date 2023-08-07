@@ -1,5 +1,5 @@
 type 44
-//@[000:8162) ProgramSyntax
+//@[000:8230) ProgramSyntax
 //@[000:0007) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0007) | ├─IdentifierSyntax
@@ -2205,6 +2205,41 @@ type discriminatedUnion5 = (typeA | typeB)?
 //@[036:0041) |   | |       └─Token(Identifier) |typeB|
 //@[041:0042) |   | └─Token(RightParen) |)|
 //@[042:0043) |   └─Token(Question) |?|
+//@[043:0045) ├─Token(NewLine) |\n\n|
+
+@discriminator('type')
+//@[000:0066) ├─TypeDeclarationSyntax
+//@[000:0022) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0022) | | └─FunctionCallSyntax
+//@[001:0014) | |   ├─IdentifierSyntax
+//@[001:0014) | |   | └─Token(Identifier) |discriminator|
+//@[014:0015) | |   ├─Token(LeftParen) |(|
+//@[015:0021) | |   ├─FunctionArgumentSyntax
+//@[015:0021) | |   | └─StringSyntax
+//@[015:0021) | |   |   └─Token(StringComplete) |'type'|
+//@[021:0022) | |   └─Token(RightParen) |)|
+//@[022:0023) | ├─Token(NewLine) |\n|
+type discriminatedUnion6 = (typeA | typeB)!
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0024) | ├─IdentifierSyntax
+//@[005:0024) | | └─Token(Identifier) |discriminatedUnion6|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0043) | └─NonNullAssertionSyntax
+//@[027:0042) |   ├─ParenthesizedExpressionSyntax
+//@[027:0028) |   | ├─Token(LeftParen) |(|
+//@[028:0041) |   | ├─UnionTypeSyntax
+//@[028:0033) |   | | ├─UnionTypeMemberSyntax
+//@[028:0033) |   | | | └─VariableAccessSyntax
+//@[028:0033) |   | | |   └─IdentifierSyntax
+//@[028:0033) |   | | |     └─Token(Identifier) |typeA|
+//@[034:0035) |   | | ├─Token(Pipe) |||
+//@[036:0041) |   | | └─UnionTypeMemberSyntax
+//@[036:0041) |   | |   └─VariableAccessSyntax
+//@[036:0041) |   | |     └─IdentifierSyntax
+//@[036:0041) |   | |       └─Token(Identifier) |typeB|
+//@[041:0042) |   | └─Token(RightParen) |)|
+//@[042:0043) |   └─Token(Exclamation) |!|
 //@[043:0045) ├─Token(NewLine) |\n\n|
 
 type inlineDiscriminatedUnion1 = {
