@@ -365,8 +365,7 @@ namespace Bicep.Core.Emit
                         @bool.SourceSyntax),
                 },
                 @bool.SourceSyntax),
-            UnionTypeExpression unionType when TypeHelper.TryRemoveNullability(unionType.ExpressedUnionType) is not DiscriminatedObjectType
-                => GetTypePropertiesForUnionTypeExpression(unionType),
+            UnionTypeExpression unionType => GetTypePropertiesForUnionTypeExpression(unionType),
 
             // resource types
             ResourceTypeExpression resourceType => GetTypePropertiesForResourceType(resourceType),
@@ -380,7 +379,6 @@ namespace Bicep.Core.Emit
             NonNullableTypeExpression nonNullableType => TypePropertiesForTypeExpression(nonNullableType.BaseExpression)
                 .MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(false, nonNullableType.SourceSyntax)),
             DiscriminatedObjectTypeExpression discriminatedObject => GetTypePropertiesForDiscriminatedObjectExpression(discriminatedObject),
-
             // this should have been caught by the parser
             _ => throw new ArgumentException("Invalid type expression encountered."),
         };
