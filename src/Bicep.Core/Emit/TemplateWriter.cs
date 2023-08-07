@@ -506,7 +506,7 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {
-            (var nullable, var nonLiteralTypeName) = GetUnionTypeNullabilityAndType(expression.ExpressedUnionType);
+            var (nullable, nonLiteralTypeName) = GetUnionTypeNullabilityAndType(expression.ExpressedUnionType);
 
             var properties = new List<ObjectPropertyExpression>
             {
@@ -527,29 +527,14 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression GetTypePropertiesForDiscriminatedObjectExpression(DiscriminatedObjectTypeExpression expression)
         {
-            var nullable = false;
-            var nonLiteralTypeName = "object";
-
-            if (TypeHelper.CreateTypeUnion(expression.MemberExpressions.Select(exp => exp.ExpressedType)) is UnionType unionType)
-            {
-                var unionTypeInfo = GetUnionTypeNullabilityAndType(unionType);
-                nullable = unionTypeInfo.Nullable;
-                nonLiteralTypeName = unionTypeInfo.NonLiteralTypeName;
-            }
-
             var properties = new List<ObjectPropertyExpression>
             {
-                TypeProperty(nonLiteralTypeName, expression.SourceSyntax),
+                TypeProperty("object", expression.SourceSyntax),
                 ExpressionFactory.CreateObjectProperty(
                     "discriminator",
                     GetTypePropertiesForDiscriminator(expression),
                     expression.SourceSyntax),
             };
-
-            if (nullable)
-            {
-                properties.Add(ExpressionFactory.CreateObjectProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true), expression.SourceSyntax));
-            }
 
             return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
         }
@@ -649,9 +634,8 @@ namespace Bicep.Core.Emit
             StringLiteralType or StringType => "string",
             IntegerLiteralType or IntegerType => "int",
             BooleanLiteralType or BooleanType => "bool",
-            ObjectType or DiscriminatedObjectType => "object",
+            ObjectType => "object",
             ArrayType => "array",
-            TypeType typeType => GetNonLiteralTypeName(typeType.Unwrapped),
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),
         };

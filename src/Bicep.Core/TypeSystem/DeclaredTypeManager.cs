@@ -790,10 +790,6 @@ namespace Bicep.Core.TypeSystem
                 _ => null
             };
 
-        private bool IsNullableUnion(UnionTypeSyntax unionTypeSyntax) =>
-            binder.GetParent(unionTypeSyntax) is ParenthesizedExpressionSyntax parenthesizedExpressionSyntax
-            && binder.GetParent(parenthesizedExpressionSyntax) is NullableTypeSyntax;
-
 #pragma warning disable IDE0051
         private TypeSymbol FinalizeDiscriminatedObjectType(
 #pragma warning restore IDE0051
@@ -900,9 +896,7 @@ namespace Bicep.Core.TypeSystem
                 discriminatorKey: discriminatorPropertyName,
                 unionMembers: expandedMemberTypes);
 
-            return IsNullableUnion(unionTypeSyntax)
-                ? TypeHelper.CreateTypeUnion(discriminatedObjectType, LanguageConstants.Null)
-                : discriminatedObjectType;
+            return discriminatedObjectType;
         }
 
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
