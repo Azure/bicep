@@ -16,6 +16,7 @@ namespace Bicep.Core.Registry.Oci
     public class OciArtifactReference : IOciArtifactReference
     {
         public const string Scheme = "br";
+
         public const int MaxRegistryLength = 255;
 
         // must be kept in sync with the tag name regex

@@ -230,7 +230,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var data = baselineData.GetData(TestContext);
             data.Compiled.Should().NotBeNull();
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.moduleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
             var result = this.EmitParam(sourceFileGrouping, data.Compiled!.OutputFilePath);
 
             result.Diagnostics.Should().NotHaveErrors();
@@ -246,7 +246,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         {
             var data = baselineData.GetData(TestContext);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.moduleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath));
             var result = this.EmitParam(sourceFileGrouping, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
 
             result.Diagnostics.Should().NotBeEmpty();

@@ -75,7 +75,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithFeatureProviderFactory(this IServiceCollection services, IFeatureProviderFactory featureProviderFactory)
         => Register(services, featureProviderFactory);
 
-    public static IServiceCollection WithmoduleDispatcher(this IServiceCollection services, IModuleDispatcher moduleDispatcher)
+    public static IServiceCollection WithModuleDispatcher(this IServiceCollection services, IModuleDispatcher moduleDispatcher)
         => Register(services, moduleDispatcher);
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)

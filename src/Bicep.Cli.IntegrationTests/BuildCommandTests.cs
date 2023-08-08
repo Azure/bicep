@@ -105,15 +105,14 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Provider_Artifacts_Restore_From_Registry_ShouldSucceed()
         {
-            // TEST SETUP
+            // SETUP
             // 1. create a mock registry client
             var registryUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
             var repository = $"bicep/providers/az";
             var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
             var myClient = blobClients[(registryUri, repository)];
 
-            // 3. create a manifest and upload a blob
-
+            // 2. upload a manifest and its blob layer
             var manifestStr = """
                                 {
                   "schemaVersion": 2,
@@ -140,7 +139,7 @@ namespace Bicep.Cli.IntegrationTests
             await myClient.SetManifestAsync(BinaryData.FromString(manifestStr), "2.0.0");
             await myClient.UploadBlobAsync(new MemoryStream());
 
-            // save file to test output directory...
+            // 3. create a main.bicep and save it to a output directory
             var bicepFile = """
 import 'az@2.0.0'
 """;
@@ -149,21 +148,25 @@ import 'az@2.0.0'
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
 
-
+            // 4. create a settings object with the mock registry client and relevant features enabled
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
+
+            // TEST
+            // 5. run bicep build
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
-            // assert there are no errors
+
+            // ASSERT
+            // 6. assert 'bicep build' completed successfully
             using (new AssertionScope())
             {
                 result.Should().Be(0);
                 output.Should().BeEmpty();
                 AssertNoErrors(error);
             }
-            // ensure something got restored
+            // 7. assert the provider files were restored to the cache directory
             Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
             var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, LanguageConstants.BicepPublicMcrRegistry, "bicep$providers$az", "2.0.0$");
-
-            Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string>{ "types.tgz", "lock", "manifest", "metadata" });
+            Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
         }
 
         [DataTestMethod]
@@ -253,7 +256,7 @@ import 'az@2.0.0'
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
-            var client = new FakeRegistryClient();
+            var client = new MockRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
@@ -282,11 +285,11 @@ import 'az@2.0.0'
 
             string digest = client.Manifests.Single().Key;
 
-            var bicep = $@"
-module empty 'br:{registry}/{repository}@{digest}' = {{
-  name: 'empty'
-}}
-";
+            var bicep = $$"""
+module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
+    name: 'empty'
+}
+""";
 
             var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
             File.WriteAllText(bicepFilePath, bicep);
@@ -339,9 +342,12 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [TestMethod]
         public async Task Build_WithOutFile_ShouldSucceed()
         {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
+            var bicepPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicep",
+                """
+                output myOutput string = 'hello!'
+                """);
 
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
@@ -357,9 +363,12 @@ output myOutput string = 'hello!'
         [TestMethod]
         public async Task Build_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
         {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
+            var bicepPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicep",
+                """
+                output myOutput string = 'hello!'
+                """);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             var (output, error, result) = await Bicep("build", "--outdir", outputFileDir, bicepPath);
@@ -375,9 +384,12 @@ output myOutput string = 'hello!'
         [DataTestMethod]
         public async Task Build_WithOutDir_ShouldSucceed(string[] args)
         {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
+            var bicepPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicep",
+                """
+                output myOutput string = 'hello!'
+                """);
 
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             Directory.CreateDirectory(outputFileDir);
@@ -391,27 +403,29 @@ output myOutput string = 'hello!'
             if (Array.Exists(args, x => x.Equals("sarif", StringComparison.OrdinalIgnoreCase)))
             {
                 var errorJToken = JToken.Parse(error);
-                var expectedErrorJToken = JToken.Parse(@"{
-  ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
-  ""version"": ""2.1.0"",
-  ""runs"": [
-    {
-      ""tool"": {
-        ""driver"": {
-          ""name"": ""bicep""
-        }
-      },
-      ""results"": [],
-      ""columnKind"": ""utf16CodeUnits""
-    }
-  ]
-}");
+                var expectedErrorJToken = JToken.Parse("""
+                    {
+                      "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json",
+                      "version": "2.1.0",
+                      "runs": [
+                        {
+                          "tool": {
+                            "driver": {
+                              "name": "bicep"
+                            }
+                          },
+                          "results": [],
+                          "columnKind": "utf16CodeUnits"
+                        }
+                      ]
+                    }
+                    """);
                 errorJToken.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                expectedErrorJToken,
-                "",
-                "",
-                validateLocation: false);
+                    TestContext,
+                    expectedErrorJToken,
+                    "",
+                    "",
+                    validateLocation: false);
             }
             else
             {
@@ -474,15 +488,21 @@ output myOutput string = 'hello!'
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
-            var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-", testOutputPath);
+            var configurationPath = FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": true,
+                      "rules": {
+                        "no-unused-params": {
+                          "level": "info"
+
+                """,
+                testOutputPath);
 
             var (output, error, result) = await Bicep("build", inputFile);
 
@@ -498,19 +518,25 @@ output myOutput string = 'hello!'
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
-            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""warning""
-        }
-      }
-    }
-  }
-}", testOutputPath);
+            FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": true,
+                      "rules": {
+                        "no-unused-params": {
+                          "level": "warning"
+                        }
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
 
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
@@ -528,19 +554,25 @@ output myOutput string = 'hello!'
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
-            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""warning""
-        }
-      }
-    }
-  }
-}", testOutputPath);
+            FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                   "analyzers":{
+                      "core":{
+                         "verbose":false,
+                         "enabled":true,
+                         "rules":{
+                            "no-unused-params":{
+                               "level":"warning"
+                            }
+                         }
+                      }
+                   }
+                }
+                """,
+                testOutputPath);
 
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
@@ -552,41 +584,43 @@ output myOutput string = 'hello!'
             result.Should().Be(0);
             output.Should().BeEmpty();
             var errorJToken = JToken.Parse(error);
-            var expectedErrorJToken = JToken.Parse(@"{
-  ""$schema"": ""https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json"",
-  ""version"": ""2.1.0"",
-  ""runs"": [
-    {
-      ""tool"": {
-        ""driver"": {
-          ""name"": ""bicep""
-        }
-      },
-      ""results"": [
-        {
-          ""ruleId"": ""no-unused-params"",
-          ""message"": {
-            ""text"": ""Parameter \""storageAccountName\"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]""
-          },
-          ""locations"": [
-            {
-              ""physicalLocation"": {
-                ""artifactLocation"": {
-                  ""uri"": ""main.bicep""
-                },
-                ""region"": {
-                  ""startLine"": 1,
-                  ""charOffset"": 7
-                }
-              }
+            var expectedErrorJToken = JToken.Parse("""
+{
+   "$schema":"https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json",
+   "version":"2.1.0",
+   "runs":[
+      {
+         "tool":{
+            "driver":{
+               "name":"bicep"
             }
-          ]
-        }
-      ],
-      ""columnKind"": ""utf16CodeUnits""
-    }
-  ]
-}");
+         },
+         "results":[
+            {
+               "ruleId":"no-unused-params",
+               "message":{
+                  "text":"Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]"
+               },
+               "locations":[
+                  {
+                     "physicalLocation":{
+                        "artifactLocation":{
+                           "uri":"main.bicep"
+                        },
+                        "region":{
+                           "startLine":1,
+                           "charOffset":7
+                        }
+                     }
+                  }
+               ]
+            }
+         ],
+         "columnKind":"utf16CodeUnits"
+      }
+   ]
+}
+""");
             var selectedPath = errorJToken.SelectToken("$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri");
             selectedPath.Should().NotBeNull();
             selectedPath?.Value<string>().Should().Contain("file://");

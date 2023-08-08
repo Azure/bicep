@@ -983,7 +983,7 @@ param foo|bar = true
             var compilationContext = new CompilationContext(compilation);
             var compilationManager = GetBicepCompilationManager(documentUri, compilationContext);
 
-            var moduleDispatcher = GetmoduleDispatcher(
+            var moduleDispatcher = GetModuleDispatcher(
                 compilationContext.ProgramSyntax,
                 parentModuleUri,
                 bicepFileContents,
@@ -1000,7 +1000,7 @@ param foo|bar = true
                     TestContext, 
                     services => services
                         .WithFeatureProviderFactory(featureProviderFactory)
-                        .WithmoduleDispatcher(moduleDispatcher)
+                        .WithModuleDispatcher(moduleDispatcher)
                         .WithCompilationManager(compilationManager)));
 
             var multiFileLanguageServerHelper = await sharedLanguageHelperManager.GetAsync();
@@ -1026,7 +1026,7 @@ param foo|bar = true
             return featureProviderFactory.Object;
         }
 
-        private IModuleDispatcher GetmoduleDispatcher(
+        private IModuleDispatcher GetModuleDispatcher(
             ProgramSyntax programSyntax,
             Uri parentModuleUri,
             string bicepFileContents,

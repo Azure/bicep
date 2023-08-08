@@ -77,9 +77,9 @@ namespace Bicep.Core.Samples
             return CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
-        public static (Mock<IContainerRegistryClientFactory> factoryMock, ImmutableDictionary<(Uri, string), FakeRegistryClient> blobClientMocks) CreateMockRegistryClients(params (Uri registryUri, string repository)[] clients)
+        public static (Mock<IContainerRegistryClientFactory> factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (Uri registryUri, string repository)[] clients)
         {
-            var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), FakeRegistryClient>();
+            var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
@@ -87,7 +87,7 @@ namespace Bicep.Core.Samples
 
             foreach (var client in clients)
             {
-                clientsBuilder.TryAdd((client.registryUri, client.repository), new FakeRegistryClient());
+                clientsBuilder.TryAdd((client.registryUri, client.repository), new MockRegistryBlobClient());
             }
 
             var repoToClient = clientsBuilder.ToImmutable();
