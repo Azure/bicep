@@ -25,7 +25,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 namespace Bicep.Core.UnitTests.Registry
 {
     [TestClass]
-    public class ArtifactDispatcherTests
+    public class ModuleDispatcherTests
     {
         [TestMethod]
         public void NoRegistries_AvailableSchemes_ShouldReturnEmpty()
@@ -252,12 +252,12 @@ namespace Bicep.Core.UnitTests.Registry
             };
         }
 
-        private static IArtifactDispatcher CreateDispatcher(IConfigurationManager configurationManager, params IModuleRegistry[] registries)
+        private static IModuleDispatcher CreateDispatcher(IConfigurationManager configurationManager, params IModuleRegistry[] registries)
         {
             var provider = StrictMock.Of<IModuleRegistryProvider>();
             provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(registries.ToImmutableArray());
 
-            return new ArtifactDispatcher(provider.Object, configurationManager);
+            return new ModuleDispatcher(provider.Object, configurationManager);
         }
 
         private static ModuleDeclarationSyntax CreateModule(string reference)

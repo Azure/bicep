@@ -52,7 +52,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
                     }
                     provider = new AzResourceTypeProvider(loader, overriddenProviderVersion);
                 }
-                return AzNamespaceType.Create(alias, scope, provider);
+                return AzNamespaceType.Create(alias, scope, provider, sourceFileKind);
             },
             [K8sNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => K8sNamespaceType.Create(alias),
         }.ToImmutableDictionary();

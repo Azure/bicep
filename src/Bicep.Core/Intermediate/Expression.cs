@@ -362,7 +362,7 @@ public record DeclaredMetadataExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
-public record DeclaredImportExpression(
+public record DeclaredProviderExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     NamespaceType NamespaceType,
@@ -371,7 +371,7 @@ public record DeclaredImportExpression(
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitDeclaredImportExpression(this);
+        => visitor.VisitDeclaredProviderExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
 }
@@ -498,7 +498,7 @@ public record ResourceDependencyExpression(
 public record ProgramExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<DeclaredMetadataExpression> Metadata,
-    ImmutableArray<DeclaredImportExpression> Imports,
+    ImmutableArray<DeclaredProviderExpression> Providers,
     ImmutableArray<DeclaredTypeExpression> Types,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
@@ -551,7 +551,6 @@ public record UserDefinedFunctionCallExpression(
 public record DeclaredTypeExpression(
     SyntaxBase? SourceSyntax,
     string Name,
-    TypeAliasSymbol Symbol,
     TypeExpression Value,
     Expression? Description = null,
     Expression? Metadata = null,
@@ -560,7 +559,8 @@ public record DeclaredTypeExpression(
     Expression? MaxLength = null,
     Expression? MinValue = null,
     Expression? MaxValue = null,
-    Expression? Sealed = null
+    Expression? Sealed = null,
+    Expression? Exported = null
 ) : TypeDeclaringExpression(SourceSyntax, Description, Metadata, Secure, MinLength, MaxLength, MinValue, MaxValue, Sealed)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -612,6 +612,31 @@ public record TypeAliasReferenceExpression(
         => visitor.VisitTypeAliasReferenceExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record ImportedTypeReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ImportedTypeSymbol Symbol,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitImportedTypeReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+}
+
+public record WildcardImportPropertyReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    WildcardImportSymbol ImportSymbol,
+    string PropertyName,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitWildcardImportPropertyReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Name = $"{ImportSymbol.Name}.{PropertyName}" };
 }
 
 public record StringLiteralTypeExpression(
@@ -774,4 +799,14 @@ public record UnionTypeExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitUnionTypeExpression(this);
+}
+
+public record DiscriminatedObjectTypeExpression(
+    SyntaxBase? SourceSyntax,
+    DiscriminatedObjectType ExpressedDiscriminatedObjectType,
+    ImmutableArray<TypeExpression> MemberExpressions
+) : TypeExpression(SourceSyntax, ExpressedDiscriminatedObjectType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDiscriminatedObjectTypeExpression(this);
 }

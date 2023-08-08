@@ -37,7 +37,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-        .AddSingleton<IArtifactDispatcher, ArtifactDispatcher>()
+        .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
@@ -75,8 +75,8 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithFeatureProviderFactory(this IServiceCollection services, IFeatureProviderFactory featureProviderFactory)
         => Register(services, featureProviderFactory);
 
-    public static IServiceCollection WithArtifactDispatcher(this IServiceCollection services, IArtifactDispatcher artifactDispatcher)
-        => Register(services, artifactDispatcher);
+    public static IServiceCollection WithmoduleDispatcher(this IServiceCollection services, IModuleDispatcher moduleDispatcher)
+        => Register(services, moduleDispatcher);
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);

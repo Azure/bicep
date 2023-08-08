@@ -57,7 +57,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IArtifactDispatcher>();
+                .Construct<IModuleDispatcher>();
 
             var clients = new List<(Uri registryUri, string repository)>();
 
@@ -83,7 +83,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IArtifactDispatcher>();
+                .Construct<IModuleDispatcher>();
 
             foreach (var client in clients)
             {
@@ -126,7 +126,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IArtifactDispatcher>();
+                .Construct<IModuleDispatcher>();
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
@@ -166,7 +166,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
-                .Construct<IArtifactDispatcher>();
+                .Construct<IModuleDispatcher>();
 
             var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri(), out var @ref, out _) ? @ref
                 : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");

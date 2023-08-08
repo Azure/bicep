@@ -25,12 +25,12 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
         {
-            var importedNamespaces = fileScope.Declarations.OfType<ImportedNamespaceSymbol>()
+            var declaredNamespaces = fileScope.Declarations.OfType<ProviderNamespaceSymbol>()
                 .DistinctBy(x => x.Name, LanguageConstants.IdentifierComparer);
-            
+
             var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
-            
-            var namespaceTypes = importedNamespaces
+
+            var namespaceTypes = declaredNamespaces
                 .Select(x => x.DeclaredType)
                 .OfType<NamespaceType>()
                 .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
@@ -63,11 +63,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
             TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
 
-            if (sourceFile.FileKind == BicepSourceFileKind.BicepFile) // don't register "az" namespace for Bicep Parameters files
-            {
-                // don't register "az" namespace for Bicep Parameters files
-                TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
-            }
+            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
+
             return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
         }
 

@@ -30,12 +30,13 @@ public static class IDependencyHelperExtensions
             sourceFileGrouping,
             helper.Construct<IConfigurationManager>(),
             helper.Construct<IBicepAnalyzer>(),
+            helper.Construct<IModuleDispatcher>(),
             modelLookup);
 
     public static SourceFileGrouping BuildSourceFileGrouping(this IDependencyHelper helper, Uri entryFileUri, bool forceModulesRestore = false)
         => SourceFileGroupingBuilder.Build(
             helper.Construct<IFileResolver>(),
-            helper.Construct<IArtifactDispatcher>(),
+            helper.Construct<IModuleDispatcher>(),
             helper.Construct<IWorkspace>(),
             entryFileUri,
             forceModulesRestore);

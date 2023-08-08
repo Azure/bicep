@@ -26,13 +26,13 @@ namespace Bicep.LanguageServer.Handlers
     {
         public const string BicepCacheLspMethod = "textDocument/bicepCache";
 
-        private readonly IArtifactDispatcher artifactDispatcher;
+        private readonly IModuleDispatcher moduleDispatcher;
 
         private readonly IFileResolver fileResolver;
 
-        public BicepRegistryCacheRequestHandler(IArtifactDispatcher artifactDispatcher, IFileResolver fileResolver)
+        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver)
         {
-            this.artifactDispatcher = artifactDispatcher;
+            this.moduleDispatcher = moduleDispatcher;
             this.fileResolver = fileResolver;
         }
 
@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!artifactDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
+            if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
             {
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");
@@ -54,13 +54,13 @@ namespace Bicep.LanguageServer.Handlers
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
             }
 
-            if (this.artifactDispatcher.GetModuleRestoreStatus(moduleReference, out _) != ArtifactRestoreStatus.Succeeded)
+            if (this.moduleDispatcher.GetModuleRestoreStatus(moduleReference, out _) != ArtifactRestoreStatus.Succeeded)
             {
                 throw new InvalidOperationException(
                     $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
-            if (!artifactDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var uri, out _))
+            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var uri, out _))
             {
                 throw new InvalidOperationException(
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");

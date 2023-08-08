@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -15,6 +16,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -29,6 +31,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
 
@@ -57,9 +60,10 @@ namespace Bicep.Core.Semantics
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, this.Binder, fileResolver, this.ParsingErrorLookup, this.SourceFile.FileKind);
+            this.TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
 
-            // name binding is done, allow type queries now
+            // name binding is done
+            // allow type queries now
             symbolContext.Unlock();
 
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
@@ -107,6 +111,15 @@ namespace Bicep.Core.Semantics
 
                 return parameters.ToImmutable();
             });
+
+            this.exportedTypesLazy = new(() => Root.TypeDeclarations.DistinctBy(t => t.Name)
+                // skip over any type without an `@export()` decorator
+                .Where(t => SemanticModelHelper.TryGetDecoratorInNamespace(this,
+                    t.DeclaringType,
+                    SystemNamespaceType.BuiltInName,
+                    LanguageConstants.ExportPropertyName) is not null)
+                .ToImmutableDictionary(t => t.Name,
+                    t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
 
             this.outputsLazy = new Lazy<ImmutableArray<OutputMetadata>>(() =>
             {
@@ -224,6 +237,8 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
+        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
+
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
         /// <summary>
@@ -301,6 +316,7 @@ namespace Bicep.Core.Semantics
                 .Concat(GetAnalyzerDiagnostics())
                 // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
+                .Distinct()
                 .OrderBy(diag => diag.Span.Position);
             var filteredDiagnostics = new List<IDiagnostic>();
 
@@ -420,46 +436,32 @@ namespace Bicep.Core.Semantics
 
         private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
-            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)
+            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
                 return ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>.Empty;
             }
 
-            var assignmentsByDeclaration = bicepSemanticModel.Root.ParameterDeclarations.ToDictionary(x => x, _ => (ParameterAssignmentSymbol?)null);
-            var parameterAssignments = SourceFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.Binder.GetSymbolInfo(x) is not null);
-            var assignmentsBySymbolName = parameterAssignments.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+            var parameterAssignments = Root.ParameterAssignments.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            foreach (var declaration in assignmentsByDeclaration.Keys)
-            {
-                if (assignmentsBySymbolName.TryGetValue(declaration.Name, out var parameterAssignmentSyntax))
-                {
-                    assignmentsByDeclaration[declaration] = this.Binder.GetSymbolInfo(parameterAssignmentSyntax) as ParameterAssignmentSymbol;
-                }
-            }
-            return assignmentsByDeclaration.ToImmutableDictionary();
+            return bicepModel.Root.ParameterDeclarations.ToImmutableDictionary(
+                decl => decl,
+                decl => parameterAssignments[decl.Name].FirstOrDefault());
         }
 
         private ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?> InitializeAssignmentToDeclarationDictionary()
         {
-            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepSemanticModel)
+            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>.Empty;
             }
 
-            var declarationsByAssignment = this.Binder.FileSymbol.ParameterAssignments.ToDictionary(x => x, _ => (ParameterSymbol?)null);
-            var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-            var declarationsBySymbolName = parameterDeclarations.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+            var parameterDeclarations = bicepModel.Root.ParameterDeclarations.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            foreach (var declaration in declarationsByAssignment.Keys)
-            {
-                if (declarationsBySymbolName.TryGetValue(declaration.Name, out var parameterDeclarationSyntax))
-                {
-                    declarationsByAssignment[declaration] = bicepSemanticModel.GetSymbolInfo(parameterDeclarationSyntax) as ParameterSymbol;
-                }
-            }
-            return declarationsByAssignment.ToImmutableDictionary();
+            return Root.ParameterAssignments.ToImmutableDictionary(
+                decl => decl,
+                decl => parameterDeclarations[decl.Name].FirstOrDefault());
         }
 
         private SemanticModel? TryGetBicepSemanticModelForParamsFile()

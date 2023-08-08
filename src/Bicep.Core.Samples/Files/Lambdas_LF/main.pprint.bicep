@@ -64,7 +64,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
 
-resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: 'asdfsadf'
 }
 var mappedResProps = map(

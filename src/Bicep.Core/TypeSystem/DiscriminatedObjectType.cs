@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -40,6 +41,7 @@ namespace Bicep.Core.TypeSystem
                 unionKeyTypes.Add(stringLiteral);
             }
 
+            // NOTE(kylealbert): keys are bicep string literals (ex: "'a'" and not "a")
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             this.ValidationFlags = validationFlags;
             this.DiscriminatorKeysUnionType = TypeHelper.CreateTypeUnion(unionKeyTypes);

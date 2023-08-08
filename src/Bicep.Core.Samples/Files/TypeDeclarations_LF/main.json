@@ -16,11 +16,11 @@
       "properties": {
         "stringProp": {
           "type": "string",
+          "minLength": 3,
+          "maxLength": 10,
           "metadata": {
             "description": "A string property"
-          },
-          "maxLength": 10,
-          "minLength": 3
+          }
         },
         "objectProp": {
           "type": "object",
@@ -186,8 +186,8 @@
     },
     "constrainedInt": {
       "type": "int",
-      "maxValue": 10,
-      "minValue": 1
+      "minValue": 1,
+      "maxValue": 10
     },
     "nullable": {
       "type": "string",

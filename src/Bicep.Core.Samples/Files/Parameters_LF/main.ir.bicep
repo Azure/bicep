@@ -417,16 +417,16 @@ param decoratedObject object = {
 
 @sys.metadata({
 //@[000:0166) └─DeclaredParameterExpression { Name = decoratedArray }
-//@[014:0046)   ├─ObjectExpression
-    description: 'An array.'
-//@[004:0028)   | └─ObjectPropertyExpression
+//@[014:0056)   ├─ObjectExpression
+    description: 'I will be overrode.'
+//@[004:0038)   | └─ObjectPropertyExpression
 //@[004:0015)   |   ├─StringLiteralExpression { Value = description }
-//@[017:0028)   |   └─StringLiteralExpression { Value = An array. }
+//@[017:0038)   |   └─StringLiteralExpression { Value = I will be overrode. }
 })
 @sys.maxLength(20)
 //@[015:0017)   ├─IntegerLiteralExpression { Value = 20 }
-@sys.description('I will be overrode.')
-//@[017:0038)   ├─StringLiteralExpression { Value = I will be overrode. }
+@sys.description('An array.')
+//@[017:0028)   ├─StringLiteralExpression { Value = An array. }
 param decoratedArray array = [
 //@[021:0026)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[029:0059)   └─ArrayExpression

@@ -3,26 +3,16 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
-using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
-    public interface IArtifactDispatcher
+    public interface IModuleDispatcher : IModuleReferenceFactory
     {
-        ImmutableArray<string> AvailableSchemes(Uri parentModuleUri);
-
-        bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
-
-        bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
-
-        bool TryGetModuleReference(TestDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
-
         RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
 
         ArtifactRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);

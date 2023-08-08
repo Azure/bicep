@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -13,56 +14,51 @@ namespace Bicep.Core.Workspaces
 {
     public interface IArtifactResolutionInfo
     {
-        StatementSyntax Statement { get; }
-        ISourceFile SourceFile { get; }
+        IForeignTemplateReference ForeignTemplateReference { get; }
+        ISourceFile ParentTemplateFile { get; }
+    }
+    public record ModuleSourceResolutionInfo(
+        IForeignTemplateReference ModuleDeclaration,
+        ISourceFile ModuleParentTemplateFile) : IArtifactResolutionInfo
+    {
+        public IForeignTemplateReference ForeignTemplateReference => ModuleDeclaration;
+        public ISourceFile ParentTemplateFile => ModuleParentTemplateFile;
     }
 
+    public record ProviderSourceResolutionInfo(
+        IForeignTemplateReference ProviderDeclaration,
+        ISourceFile ProviderParentTemplateFile) : IArtifactResolutionInfo
+    {
+        public IForeignTemplateReference ForeignTemplateReference => ProviderDeclaration;
+        public ISourceFile ParentTemplateFile => ProviderParentTemplateFile;
+    };
     public record FileResolutionResult(
         Uri FileUri,
         ErrorBuilderDelegate? ErrorBuilder,
         ISourceFile? File);
 
     public record UriResolutionResult(
-        StatementSyntax Statement,
         Uri? FileUri,
         bool RequiresRestore,
         ErrorBuilderDelegate? ErrorBuilder);
-
-    public record ModuleSourceResolutionInfo(
-        ModuleDeclarationSyntax ModuleDeclaration,
-        ISourceFile ParentTemplateFile) : IArtifactResolutionInfo
-    {
-        public StatementSyntax Statement => ModuleDeclaration;
-
-        public ISourceFile SourceFile => ParentTemplateFile;
-    }
-
-    public record ProviderSourceResolutionInfo(
-        ImportDeclarationSyntax ImportDeclaration,
-        ISourceFile ParentTemplateFile) : IArtifactResolutionInfo
-    {
-        public StatementSyntax Statement => ImportDeclaration;
-
-        public ISourceFile SourceFile => ParentTemplateFile;
-    };
 
     public record SourceFileGrouping(
         IFileResolver FileResolver,
         Uri EntryFileUri,
         ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<StatementSyntax, UriResolutionResult>> UriResultByModule,
-        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup)
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignTemplateReference, UriResolutionResult>> UriResultByModule,
+        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
     {
         public IEnumerable<IArtifactResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(
-                kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>()
-                    .Where(x => kvp.Value[x].RequiresRestore)
-                    .Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
+                kvp => kvp.Value
+                    .Where(entry => entry.Value.RequiresRestore)
+                    .Select(entry => new ModuleSourceResolutionInfo(entry.Key, kvp.Key)));
 
         public IEnumerable<IArtifactResolutionInfo> GetProvidersToRestore()
         {
             return SourceFiles.OfType<BicepSourceFile>()
-                .SelectMany(sourceFile => sourceFile.ProgramSyntax.Children.OfType<ImportDeclarationSyntax>()
+                .SelectMany(sourceFile => sourceFile.ProgramSyntax.Children.OfType<ProviderDeclarationSyntax>()
                 .Select(import => new ProviderSourceResolutionInfo(import, sourceFile)));
         }
 
@@ -73,9 +69,9 @@ namespace Bicep.Core.Workspaces
 
         public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.File).WhereNotNull();
 
-        public ErrorBuilderDelegate? TryGetErrorDiagnostic(StatementSyntax statement)
+        public ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignTemplateReference foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(statement, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.ErrorBuilder is not null)
             {
                 return uriResult.ErrorBuilder;
@@ -85,9 +81,9 @@ namespace Bicep.Core.Workspaces
             return fileResult.ErrorBuilder;
         }
 
-        public ISourceFile? TryGetSourceFile(StatementSyntax statement)
+        public ISourceFile? TryGetSourceFile(IForeignTemplateReference foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(statement, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.FileUri is null)
             {
                 return null;

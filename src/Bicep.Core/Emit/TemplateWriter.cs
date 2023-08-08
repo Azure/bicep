@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -10,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
@@ -30,6 +30,7 @@ namespace Bicep.Core.Emit
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         public const string TemplateHashPropertyName = "templateHash";
+        private const string TypePropertyName = "type";
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2022-09-01";
@@ -66,10 +67,14 @@ namespace Bicep.Core.Emit
 
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
+        private ImportClosureInfo ImportClosureInfo { get; }
+        private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
+            ImportClosureInfo = ImportClosureInfo.Calculate(semanticModel);
+            declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -86,10 +91,19 @@ namespace Bicep.Core.Emit
             writer.ProcessSourceMap(templateJToken);
         }
 
+        public (Template, JToken) GetTemplate(SourceAwareJsonTextWriter writer)
+        {
+            return GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
+        }
+
+
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
             var program = (ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax);
+
+            var programTypes = program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure);
+            declaredTypesByName = programTypes.ToImmutableDictionary(t => t.Name);
 
             jsonWriter.WriteStartObject();
 
@@ -104,7 +118,7 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(emitter, program.Metadata);
 
-            this.EmitTypeDefinitionsIfPresent(emitter, program.Types);
+            this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
             this.EmitUserDefinedFunctions(emitter, program.Functions);
 
@@ -112,7 +126,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(emitter, program.Variables);
 
-            this.EmitImports(emitter, program.Imports);
+            this.EmitProviders(emitter, program.Providers);
 
             this.EmitResources(jsonWriter, emitter, program.Resources, program.Modules);
 
@@ -126,7 +140,7 @@ namespace Bicep.Core.Emit
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
-        private void EmitTypeDefinitionsIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredTypeExpression> types)
+        private void EmitTypeDefinitionsIfPresent(ExpressionEmitter emitter, IEnumerable<DeclaredTypeExpression> types)
         {
             if (!types.Any())
             {
@@ -177,15 +191,13 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private record TypeModification(Expression? Modifier, Func<ObjectExpression, Expression, ObjectExpression> ModifyFunc) {}
-
-        private ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
+        private static ObjectExpression ApplyTypeModifiers(TypeDeclaringExpression expression, ObjectExpression input)
         {
-            List<TypeModification> modifications = new();
+            var result = input;
 
-            modifications.Add(new(expression.Secure, (result, secure) =>
+            if (expression.Secure is {} secure)
             {
-                return input.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
+                result = result.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
                 {
                     StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString
                         => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", secure.SourceSyntax)),
@@ -193,10 +205,17 @@ namespace Bicep.Core.Emit
                         => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("secureObject", secure.SourceSyntax)),
                     _ => result,
                 };
-            }));
+            }
 
-            modifications.Add(new(expression.Sealed,
-                (result, @sealed) => result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax))));
+            if (expression.Sealed is {} @sealed)
+            {
+                result = result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax));
+            }
+
+            if (expression is DeclaredTypeExpression declaredTypeExpression && declaredTypeExpression.Exported is {} exported)
+            {
+                result = ApplyMetadataProperty(result, LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, exported.SourceSyntax));
+            }
 
             foreach (var (modifier, propertyName) in new[]
             {
@@ -206,54 +225,22 @@ namespace Bicep.Core.Emit
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
                 (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
             }) {
-                modifications.Add(new(modifier, (result, nonNullModifier) => result.MergeProperty(propertyName, nonNullModifier)));
-            }
-
-            modifications.Add(new(expression.Description, (result, _) => ApplyDescription(expression, result)));
-
-            // Whether one decorator overrides another is determined by their order in the syntax tree
-            // TODO should we change this?
-            if (expression.SourceSyntax is DecorableSyntax decorable)
-            {
-                ConcurrentDictionary<TypeModification, int> modificationIndices = new();
-                int GetIndex(TypeModification modification)
+                if (modifier is not null)
                 {
-                    if (modification.Modifier?.SourceSyntax is {} sourceSyntax)
-                    {
-                        int idx = 0;
-                        foreach (var decorator in decorable.Decorators)
-                        {
-                            if (Context.SemanticModel.Binder.IsDescendant(sourceSyntax, decorator))
-                            {
-                                return idx;
-                            }
-
-                            idx++;
-                        }
-                    }
-
-                    return int.MaxValue;
-                }
-
-                modifications.Sort((a, b) => modificationIndices.GetOrAdd(b, GetIndex) - modificationIndices.GetOrAdd(a, GetIndex));
-            }
-
-            var result = input;
-            foreach (var modification in modifications)
-            {
-                if (modification.Modifier is not null)
-                {
-                    result = modification.ModifyFunc(result, modification.Modifier);
+                    result = result.MergeProperty(propertyName, modifier);
                 }
             }
 
-            return result;
+            return ApplyDescription(expression, result);
         }
 
-        private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input) => expression.Description is {} description
+        private static ObjectExpression ApplyDescription(DescribableExpression expression, ObjectExpression input)
+            => ApplyMetadataProperty(input, LanguageConstants.MetadataDescriptionPropertyName, expression.Description);
+
+        private static ObjectExpression ApplyMetadataProperty(ObjectExpression input, string propertyName, Expression? propertyValue) => propertyValue is not null
             ? input.MergeProperty(LanguageConstants.ParameterMetadataPropertyName, ExpressionFactory.CreateObject(
-                ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataDescriptionPropertyName, description, description.SourceSyntax).AsEnumerable(),
-                description.SourceSyntax))
+                ExpressionFactory.CreateObjectProperty(propertyName, propertyValue, propertyValue.SourceSyntax).AsEnumerable(),
+                propertyValue.SourceSyntax))
             : input;
 
         private void EmitParameter(ExpressionEmitter emitter, DeclaredParameterExpression parameter)
@@ -322,7 +309,19 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperty(declaredType.Name,
                 () =>
                 {
-                    EmitProperties(emitter, ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value)));
+                    var declaredTypeObject = ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value));
+                    if (ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(declaredType.Name, out var originMetadata))
+                    {
+                        var importedFromProperties = ExpressionFactory.CreateObjectProperty(LanguageConstants.ImportMetadataSourceTemplatePropertyName,
+                            ExpressionFactory.CreateStringLiteral(originMetadata.SourceTemplateIdentifier)).AsEnumerable();
+                        if (!declaredType.Name.EndsWith(originMetadata.OriginalName))
+                        {
+                            importedFromProperties = importedFromProperties.Append(ExpressionFactory.CreateObjectProperty(LanguageConstants.ImportMetadataOriginalIdentifierPropertyName,
+                                ExpressionFactory.CreateStringLiteral(originMetadata.OriginalName)));
+                        }
+                        declaredTypeObject = ApplyMetadataProperty(declaredTypeObject, LanguageConstants.MetadataImportedFromPropertyName, ExpressionFactory.CreateObject(importedFromProperties));
+                    }
+                    EmitProperties(emitter, declaredTypeObject);
                 },
                 declaredType.SourceSyntax);
         }
@@ -335,9 +334,11 @@ namespace Bicep.Core.Emit
                     ambientTypeReference.SourceSyntax),
             FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
-            TypeAliasReferenceExpression typeAliasReference=> ExpressionFactory.CreateObject(ExpressionFactory.CreateObjectProperty("$ref",
-                ExpressionFactory.CreateStringLiteral($"#/definitions/{typeAliasReference.Name}")).AsEnumerable(),
-                    typeAliasReference.SourceSyntax),
+            TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
+            ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(importedTypeReference.Symbol.Name, importedTypeReference.SourceSyntax),
+            WildcardImportPropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
+                ImportClosureInfo.WildcardPropertyReferenceToImportedTypeName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
+                wildcardProperty.SourceSyntax),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
@@ -377,7 +378,7 @@ namespace Bicep.Core.Emit
                 .MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(true, nullableType.SourceSyntax)),
             NonNullableTypeExpression nonNullableType => TypePropertiesForTypeExpression(nonNullableType.BaseExpression)
                 .MergeProperty("nullable", ExpressionFactory.CreateBooleanLiteral(false, nonNullableType.SourceSyntax)),
-
+            DiscriminatedObjectTypeExpression discriminatedObject => GetTypePropertiesForDiscriminatedObjectExpression(discriminatedObject),
             // this should have been caught by the parser
             _ => throw new ArgumentException("Invalid type expression encountered."),
         };
@@ -393,8 +394,12 @@ namespace Bicep.Core.Emit
                 qualifiedAmbientType.SourceSyntax);
         }
 
+        private static ObjectExpression CreateRefSchemaNode(string typeName, SyntaxBase? sourceSyntax) => ExpressionFactory.CreateObject(
+            ExpressionFactory.CreateObjectProperty("$ref", ExpressionFactory.CreateStringLiteral($"#/definitions/{typeName}", sourceSyntax), sourceSyntax).AsEnumerable(),
+            sourceSyntax);
+
         private static ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
-            => Property("type", new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);
+            => Property(TypePropertyName, new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);
 
         private static ObjectPropertyExpression AllowedValuesProperty(ArrayExpression allowedValues, SyntaxBase? sourceSyntax)
             => Property("allowedValues", allowedValues, sourceSyntax);
@@ -460,7 +465,6 @@ namespace Bicep.Core.Emit
             foreach (var property in expression.PropertyExpressions)
             {
                 var propertySchema = ApplyTypeModifiers(property, TypePropertiesForTypeExpression(property.Value));
-
                 propertySchemata.Add(ExpressionFactory.CreateObjectProperty(property.PropertyName, propertySchema, property.SourceSyntax));
             }
 
@@ -490,19 +494,23 @@ namespace Bicep.Core.Emit
             ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
         });
 
-        private static ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
-        {
-            (var nullable, var nonLiteralTypeName) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
+        private static (bool Nullable, string NonLiteralTypeName) GetUnionTypeNullabilityAndType(UnionType unionType) =>
+            TypeHelper.TryRemoveNullability(unionType) switch
             {
                 UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
                 TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-                _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type)),
+                _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
             };
+
+        private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
+        {
+            var (nullable, nonLiteralTypeName) = GetUnionTypeNullabilityAndType(expression.ExpressedUnionType);
 
             var properties = new List<ObjectPropertyExpression>
             {
                 TypeProperty(nonLiteralTypeName, expression.SourceSyntax),
-                ExpressionFactory.CreateObjectProperty("allowedValues",
+                ExpressionFactory.CreateObjectProperty(
+                    "allowedValues",
                     GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax),
                     expression.SourceSyntax),
             };
@@ -513,6 +521,98 @@ namespace Bicep.Core.Emit
             }
 
             return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
+        }
+
+        private ObjectExpression GetTypePropertiesForDiscriminatedObjectExpression(DiscriminatedObjectTypeExpression expression)
+        {
+            var properties = new List<ObjectPropertyExpression>
+            {
+                TypeProperty("object", expression.SourceSyntax),
+                ExpressionFactory.CreateObjectProperty(
+                    "discriminator",
+                    GetTypePropertiesForDiscriminator(expression),
+                    expression.SourceSyntax),
+            };
+
+            return ExpressionFactory.CreateObject(properties, expression.SourceSyntax);
+        }
+
+        private ObjectExpression GetTypePropertiesForDiscriminator(
+            DiscriminatedObjectTypeExpression discriminatedObjectTypeExpr)
+        {
+            var objectProperties = new List<ObjectPropertyExpression>();
+
+            var discriminatorPropertyName = discriminatedObjectTypeExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
+            objectProperties.Add(ExpressionFactory.CreateObjectProperty("propertyName", ExpressionFactory.CreateStringLiteral(discriminatorPropertyName)));
+            objectProperties.Add(
+                ExpressionFactory.CreateObjectProperty(
+                    "mapping",
+                    ExpressionFactory.CreateObject(
+                        GetDiscriminatedUnionMappingEntries(discriminatedObjectTypeExpr))));
+
+            return ExpressionFactory.CreateObject(properties: objectProperties);
+        }
+
+        private IEnumerable<ObjectPropertyExpression> GetDiscriminatedUnionMappingEntries(DiscriminatedObjectTypeExpression discriminatedObjectTypeExpr)
+        {
+            var discriminatorPropertyName = discriminatedObjectTypeExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
+
+            foreach (var memberExpression in discriminatedObjectTypeExpr.MemberExpressions)
+            {
+                var resolvedMemberExpression = memberExpression;
+                TypeAliasReferenceExpression? typeAliasReferenceExpr = null;
+                if (memberExpression is TypeAliasReferenceExpression memberTypeAliasExpr
+                    && declaredTypesByName.TryGetValue(memberTypeAliasExpr.Name, out var declaredTypeExpression))
+                {
+                    resolvedMemberExpression = declaredTypeExpression.Value;
+                    typeAliasReferenceExpr = memberTypeAliasExpr;
+                }
+
+                if (resolvedMemberExpression is ObjectTypeExpression objectUnionMemberExpr)
+                {
+                    var memberObjectType = objectUnionMemberExpr.ExpressedObjectType;
+
+                    if (!memberObjectType.Properties.TryGetValue(discriminatorPropertyName, out var discriminatorTypeProperty)
+                        || discriminatorTypeProperty.TypeReference.Type is not StringLiteralType discriminatorStringLiteral)
+                    {
+                        // This should have been caught during type checking
+                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                    }
+
+                    ObjectExpression objectExpression;
+
+                    if (typeAliasReferenceExpr != null)
+                    {
+                        objectExpression = TypePropertiesForTypeExpression(typeAliasReferenceExpr);
+                    }
+                    else
+                    {
+                        objectExpression = GetTypePropertiesForObjectType(objectUnionMemberExpr);
+                    }
+
+                    yield return ExpressionFactory.CreateObjectProperty(discriminatorStringLiteral.RawStringValue, objectExpression);
+                }
+                else if (resolvedMemberExpression is DiscriminatedObjectTypeExpression nestedDiscriminatedMemberExpr)
+                {
+                    var nestedDiscriminatorPropertyName = nestedDiscriminatedMemberExpr.ExpressedDiscriminatedObjectType.DiscriminatorProperty.Name;
+
+                    if (nestedDiscriminatorPropertyName != discriminatorPropertyName)
+                    {
+                        // This should have been caught during type checking
+                        throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                    }
+
+                    foreach (var nestedPropertyExpr in GetDiscriminatedUnionMappingEntries(nestedDiscriminatedMemberExpr))
+                    {
+                        yield return nestedPropertyExpr;
+                    }
+                }
+                else
+                {
+                    // This should have been caught during type checking
+                    throw new ArgumentException("Invalid discriminated union type encountered during serialization.");
+                }
+            }
         }
 
         private static Expression ToLiteralValue(ITypeReference literalType) => literalType.Type switch
@@ -569,27 +669,27 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitImports(ExpressionEmitter emitter, ImmutableArray<DeclaredImportExpression> imports)
+        private void EmitProviders(ExpressionEmitter emitter, ImmutableArray<DeclaredProviderExpression> providers)
         {
-            if (!imports.Any())
+            if (!providers.Any())
             {
                 return;
             }
 
             emitter.EmitObjectProperty("imports", () => {
-                foreach (var import in imports)
+                foreach (var provider in providers)
                 {
-                    var settings = import.NamespaceType.Settings;
+                    var settings = provider.NamespaceType.Settings;
 
-                    emitter.EmitObjectProperty(import.Name, () =>
+                    emitter.EmitObjectProperty(provider.Name, () =>
                     {
                         emitter.EmitProperty("provider", settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", settings.ArmTemplateProviderVersion);
-                        if (import.Config is not null)
+                        if (provider.Config is not null)
                         {
-                            emitter.EmitProperty("config", import.Config);
+                            emitter.EmitProperty("config", provider.Config);
                         }
-                    }, import.SourceSyntax);
+                    }, provider.SourceSyntax);
                 }
             });
         }
@@ -663,7 +763,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("existing", new BooleanLiteralExpression(null, true));
                 }
 
-                var importSymbol = Context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+                var importSymbol = Context.SemanticModel.Root.ProviderDeclarations.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (importSymbol is not null)
                 {
                     emitter.EmitProperty("import", importSymbol.Name);
@@ -705,6 +805,28 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(property);
                 }
             }, resource.SourceSyntax);
+        }
+
+        public void EmitTestParameters(ExpressionEmitter emitter, Expression parameters)
+        {
+            if (parameters is not ObjectExpression paramsObject)
+            {
+                // 'params' is optional if the module has no required params
+                return;
+            }
+
+            emitter.EmitObject(() => {
+                foreach (var property in paramsObject.Properties)
+                {
+                    if (property.TryGetKeyText() is not {} keyName)
+                    {
+                        // should have been caught by earlier validation
+                        throw new ArgumentException("Disallowed interpolation in test parameter");
+                    }
+
+                    emitter.EmitProperty(keyName, property.Value);
+                }
+            }, paramsObject.SourceSyntax);
         }
 
         private void EmitModuleParameters(ExpressionEmitter emitter, DeclaredModuleExpression module)

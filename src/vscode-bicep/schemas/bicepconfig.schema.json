@@ -305,6 +305,16 @@
                     }
                   ]
                 },
+                "no-conflicting-metadata": {
+                  "allOf": [
+                    {
+                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator. See https://aka.ms/bicep/linter/no-conflicting-metadata"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {
@@ -619,6 +629,9 @@
           "type": "boolean"
         },
         "dynamicTypeLoading": {
+          "type": "boolean"
+        },
+        "compileTimeImports": {
           "type": "boolean"
         }
       }

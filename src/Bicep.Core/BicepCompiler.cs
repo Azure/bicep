@@ -20,7 +20,7 @@ public class BicepCompiler
     private readonly IConfigurationManager configurationManager;
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileResolver fileResolver;
-    private readonly IArtifactDispatcher artifactDispatcher;
+    private readonly IModuleDispatcher moduleDispatcher;
 
     public BicepCompiler(
         IFeatureProviderFactory featureProviderFactory,
@@ -28,20 +28,20 @@ public class BicepCompiler
         IConfigurationManager configurationManager,
         IBicepAnalyzer bicepAnalyzer,
         IFileResolver fileResolver,
-        IArtifactDispatcher artifactDispatcher)
+        IModuleDispatcher moduleDispatcher)
     {
         this.featureProviderFactory = featureProviderFactory;
         this.namespaceProvider = namespaceProvider;
         this.configurationManager = configurationManager;
         this.bicepAnalyzer = bicepAnalyzer;
         this.fileResolver = fileResolver;
-        this.artifactDispatcher = artifactDispatcher;
+        this.moduleDispatcher = moduleDispatcher;
     }
 
     public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceModulesRestore = false)
     {
         workspace ??= new Workspace();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, artifactDispatcher, workspace, bicepUri, forceModulesRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepUri, forceModulesRestore);
 
         if (!skipRestore)
         {
@@ -49,14 +49,14 @@ public class BicepCompiler
             // however we still want to surface as many errors as we can for the module refs that are valid
             // so we will try to restore modules with valid refs and skip everything else
             // (the diagnostics will be collected during compilation)
-            if (await artifactDispatcher.RestoreModules(artifactDispatcher.GetValidArtifactReferences(sourceFileGrouping.GetArtifactsToRestore())))
+            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))
             {
                 // modules had to be restored - recompile
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(artifactDispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, sourceFileGrouping);
             }
             //TODO(asilverman): I want to inject here the logic that restores the providers
         }
 
-        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer);
+        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);
     }
 }

@@ -513,7 +513,7 @@ module moduleB './moduleB.bicep' = {
                 BicepTestConstants.FeatureProviderFactory,
                 TestTypeHelper.CreateEmptyProvider(),
                 fileResolver,
-                new ArtifactDispatcher(
+                new ModuleDispatcher(
                     new DefaultModuleRegistryProvider(
                         BicepTestConstants.EmptyServiceProvider,
                         fileResolver,

@@ -25,20 +25,20 @@ namespace Bicep.LanguageServer.Providers
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
-        private readonly IArtifactDispatcher artifactDispatcher;
+        private readonly IModuleDispatcher moduleDispatcher;
 
         public BicepCompilationProvider(
             IFeatureProviderFactory featureProviderFactory,
             INamespaceProvider namespaceProvider,
             IFileResolver fileResolver,
-            IArtifactDispatcher artifactDispatcher,
+            IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             IBicepAnalyzer bicepAnalyzer)
         {
             this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
-            this.artifactDispatcher = artifactDispatcher;
+            this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
             this.bicepAnalyzer = bicepAnalyzer;
         }
@@ -50,7 +50,7 @@ namespace Bicep.LanguageServer.Providers
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 fileResolver,
-                artifactDispatcher,
+                moduleDispatcher,
                 workspace,
                 documentUri.ToUri());
             return this.CreateContext(sourceFileGrouping, modelLookup);
@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Providers
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
-                artifactDispatcher,
+                moduleDispatcher,
                 workspace,
                 current.Compilation.SourceFileGrouping);
             return this.CreateContext(sourceFileGrouping, modelLookup);
@@ -78,6 +78,7 @@ namespace Bicep.LanguageServer.Providers
                 syntaxTreeGrouping,
                 configurationManager,
                 bicepAnalyzer,
+                moduleDispatcher,
                 modelLookup);
             return new CompilationContext(compilation);
         }

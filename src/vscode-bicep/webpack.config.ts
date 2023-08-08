@@ -43,7 +43,7 @@ const extensionConfig: webpack.Configuration = {
           loader: "ts",
           target: "es2019",
         },
-        exclude: [/node_modules/, /visualizer\/app/, /test/],
+        exclude: [/node_modules/, /panes\/deploy\/app/, /visualizer\/app/, /test/],
       },
     ],
   },
@@ -113,6 +113,53 @@ const visualizerConfig: webpack.Configuration = {
   ],
 };
 
+const deployPaneConfig: webpack.Configuration = {
+  target: "web",
+  entry: "./src/panes/deploy/app/components/index.tsx",
+  devtool: "source-map",
+  output: {
+    filename: "deployPane.js",
+    path: path.resolve(__dirname, "out"),
+    devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
+  },
+  externals: {
+    "web-worker": "commonjs web-worker",
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: "esbuild-loader",
+        options: {
+          loader: "tsx",
+          target: "es2019",
+        },
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.js$/,
+        resolve: {
+          fullySpecified: false
+        }
+      }
+    ],
+  },
+  resolve: {
+    extensions: [".js", ".ts", ".tsx"],
+  },
+  plugins: [
+    // Since React 17 it's not necessary to do "import React from 'react';" anymore.
+    // This is needed for esbuild-loader to resolve react.
+    new webpack.ProvidePlugin({
+      React: "react",
+    }),
+  ],
+};
+
 module.exports = (env: unknown, argv: { mode: string }) => {
   if (argv.mode === "development") {
     // "cheap-module-source-map" is almost 2x faster than "source-map",
@@ -128,5 +175,5 @@ module.exports = (env: unknown, argv: { mode: string }) => {
     //extensionConfig.devtool = developmentDevtool;
   }
 
-  return [extensionConfig, visualizerConfig];
+  return [extensionConfig, visualizerConfig, deployPaneConfig];
 };

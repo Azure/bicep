@@ -321,7 +321,7 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.SpecificationString);
@@ -329,12 +329,12 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.AsClause);
         }
 
-        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
         {
             this.Visit(syntax.Config);
         }
 
-        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {
             this.Visit(syntax.Alias);
         }
@@ -386,6 +386,34 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);
             this.Visit(syntax.Lambda);
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.ImportExpression);
+            this.Visit(syntax.FromClause);
+        }
+
+        public override void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax)
+        {
+            this.VisitNodes(syntax.Children);
+        }
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+        {
+            this.Visit(syntax.OriginalSymbolName);
+            this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax)
+        {
+            this.Visit(syntax.AliasAsClause);
+        }
+
+        public override void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax)
+        {
+            this.Visit(syntax.Path);
         }
     }
 }

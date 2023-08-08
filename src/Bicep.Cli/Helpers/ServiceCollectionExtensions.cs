@@ -56,7 +56,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-        .AddSingleton<IArtifactDispatcher, ArtifactDispatcher>()
+        .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
