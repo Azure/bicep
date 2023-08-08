@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
@@ -102,23 +103,46 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task TestAri()
+        public async Task Provider_Artifacts_Restore_From_Registry_ShouldSucceed()
         {
-            var registryStr = "asilvermantestbr.azurecr.io";
-            var registryUri = new Uri($"https://{registryStr}");
+            // TEST SETUP
+            // 1. create a mock registry client
+            var registryUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
             var repository = $"bicep/providers/az";
-
             var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
-
             var myClient = blobClients[(registryUri, repository)];
-            var manifest = await BinaryData.FromStreamAsync(File.OpenRead(@"C:\Users\asilverman\src\ms\bicep\.asilverman\.bicep\br\mcr.microsoft.com\bicep$providers$az\1.0.0\manifest"));
-            await myClient.SetManifestAsync(manifest, "test");
-            await myClient.UploadBlobAsync(File.OpenRead(@"C:\Users\asilverman\src\ms\bicep\.asilverman\.bicep\br\mcr.microsoft.com\bicep$providers$az\1.0.0\types.tgz"));
-            
+
+            // 3. create a manifest and upload a blob
+
+            var manifestStr = """
+                                {
+                  "schemaVersion": 2,
+                  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                  "config": {
+                    "mediaType": "application/vnd.ms.bicep.provider.config.v1+json",
+                    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                    "size": 2
+                  },
+                  "layers": [
+                    {
+                      "mediaType": "application/vnd.ms.bicep.provider.layer.v1.tar+gzip",
+                      "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "size": 0
+                    }
+                  ],
+                  "annotations": {
+                    "bicep.serialization.format": "v1",
+                    "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
+                  }
+                }
+                """;
+
+            await myClient.SetManifestAsync(BinaryData.FromString(manifestStr), "2.0.0");
+            await myClient.UploadBlobAsync(new MemoryStream());
 
             // save file to test output directory...
             var bicepFile = """
-import 'az@1.0.0'
+import 'az@2.0.0'
 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -128,11 +152,18 @@ import 'az@1.0.0'
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
-
+            // assert there are no errors
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                AssertNoErrors(error);
+            }
             // ensure something got restored
             Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
-            Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
-            // assert there are no errors
+            var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, LanguageConstants.BicepPublicMcrRegistry, "bicep$providers$az", "2.0.0$");
+
+            Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string>{ "types.tgz", "lock", "manifest", "metadata" });
         }
 
         [DataTestMethod]

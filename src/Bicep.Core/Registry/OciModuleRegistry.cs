@@ -30,7 +30,7 @@ namespace Bicep.Core.Registry
 
         private readonly RootConfiguration configuration;
 
-        private readonly Uri parentModuleUri;        
+        private readonly Uri parentModuleUri;
 
         public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
             : base(FileResolver)
@@ -157,6 +157,36 @@ namespace Bicep.Core.Registry
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
+        private string? TryGetModuleLayerMediaType(OciModuleReference ociArtifactReference)
+        {
+            try
+            {
+                string manifestFilePath = this.GetModuleFilePath(ociArtifactReference, ModuleFileType.Manifest);
+                if (!File.Exists(manifestFilePath))
+                {
+                    return null;
+                }
+
+                string manifestFileContents = File.ReadAllText(manifestFilePath);
+                if (string.IsNullOrWhiteSpace(manifestFileContents))
+                {
+                    return null;
+                }
+
+                OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
+                if (ociManifest is null)
+                {
+                    return null;
+                }
+
+                return ociManifest.Layers.Single().MediaType;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciModuleReference ociArtifactModuleReference)
         {
             try
@@ -246,13 +276,30 @@ namespace Bicep.Core.Registry
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
              */
 
-            // write main.bicep
-            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), result.ModuleStream);
 
             // write manifest
             // it's important to write the original stream here rather than serialize the manifest object
             // this way we guarantee the manifest hash will match
-            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Manifest), result.ManifestStream);
+            var manifestFileUri = this.GetModuleFileUri(reference, ModuleFileType.Manifest);
+            this.FileResolver.Write(manifestFileUri, result.ManifestStream);
+
+            var mediaType = TryGetModuleLayerMediaType(reference);
+            if (mediaType is not null)
+            {
+                switch (mediaType)
+                {
+                    case BicepMediaTypes.BicepModuleLayerV1Json:
+                        // write module.json
+                        this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), result.ModuleStream);
+                        break;
+                    case BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip:
+                        // write provider.tar.gz
+                        this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Provider), result.ModuleStream);
+                        break;
+                    default:
+                        break;
+                }
+            } 
 
             // write metadata
             var metadata = new ModuleMetadata(result.ManifestDigest);
@@ -359,6 +406,7 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Lock => "lock",
                 ModuleFileType.Manifest => "manifest",
                 ModuleFileType.Metadata => "metadata",
+                ModuleFileType.Provider => "types.tgz",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
 
@@ -370,7 +418,8 @@ namespace Bicep.Core.Registry
             ModuleMain,
             Manifest,
             Lock,
-            Metadata
+            Metadata,
+            Provider
         };
     }
 }

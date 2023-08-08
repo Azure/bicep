@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using System;
@@ -40,12 +41,14 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
+        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{ModuleReferenceSchemes.Oci}:{LanguageConstants.BicepPublicMcrRegistry}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
-        SyntaxBase IForeignTemplateReference.ReferenceSourceSyntax => SyntaxFactory.CreateStringLiteral($@"br:asilvermantestbr.azurecr.io/bicep/providers/{this.Specification.Name}:test");
+        SyntaxBase IForeignTemplateReference.ReferenceSourceSyntax => ProviderPath;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
 
-        public StringSyntax? TryGetPath() => SyntaxFactory.CreateStringLiteral($@"br:asilvermantestbr.azurecr.io/bicep/providers/{this.Specification.Name}:test");
+        public StringSyntax? TryGetPath() => ProviderPath;
     }
 }

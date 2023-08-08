@@ -135,56 +135,61 @@ namespace Bicep.Core.Workspaces
             switch (fileResult.File)
             {
                 case BicepFile bicepFile:
-                {
-                    foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>())
                     {
-                        var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
-
-                        uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
-                        if (uriResult.FileUri is null)
+                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>())
                         {
-                            continue;
-                        }
+                            if (restorable.GetType() == typeof(ProviderDeclarationSyntax))
+                            {
+                                continue;
+                            }
 
-                        if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
-                            (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
-                        {
-                            // only recurse if we've not seen this file before - to avoid infinite loops
-                            childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild);
-                        }
+                            var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
+                            uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
 
-                        fileResultByUri[uriResult.FileUri] = childResult;
+                            if (uriResult.FileUri is null)
+                            {
+                                continue;
+                            }
+
+                            if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
+                                (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
+                            {
+                                // only recurse if we've not seen this file before - to avoid infinite loops
+                                childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild);
+                            }
+
+                            fileResultByUri[uriResult.FileUri] = childResult;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case BicepParamFile paramsFile:
-                {
-                    foreach (var usingDeclaration in paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>())
                     {
-                        if (!SyntaxHelper.TryGetForeignTemplatePath(usingDeclaration, out var usingFilePath, out var errorBuilder))
+                        foreach (var usingDeclaration in paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>())
                         {
-                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, errorBuilder);
-                            continue;
+                            if (!SyntaxHelper.TryGetForeignTemplatePath(usingDeclaration, out var usingFilePath, out var errorBuilder))
+                            {
+                                uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, errorBuilder);
+                                continue;
+                            }
+
+                            if (fileResolver.TryResolveFilePath(fileUri, usingFilePath) is not { } usingFileUri)
+                            {
+                                uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
+                                continue;
+                            }
+
+                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingFileUri, false, null);
+
+                            if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
+                            {
+                                // only recurse if we've not seen this file before - to avoid infinite loops
+                                childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild);
+                            }
+
+                            fileResultByUri[usingFileUri] = childResult;
                         }
-
-                        if (fileResolver.TryResolveFilePath(fileUri, usingFilePath) is not {} usingFileUri)
-                        {
-                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
-                            continue;
-                        }
-
-                        uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingFileUri, false, null);
-
-                        if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
-                        {
-                            // only recurse if we've not seen this file before - to avoid infinite loops
-                            childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild);
-                        }
-
-                        fileResultByUri[usingFileUri] = childResult;
+                        break;
                     }
-                    break;
-                }
             }
 
             return fileResult;
@@ -245,7 +250,7 @@ namespace Bicep.Core.Workspaces
                 foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
                     if (urlResult.FileUri is not null &&
-                        fileResultByUri[urlResult.FileUri].File is {} sourceFile &&
+                        fileResultByUri[urlResult.FileUri].File is { } sourceFile &&
                         cycles.TryGetValue(sourceFile, out var cycle))
                     {
                         if (cycle.Length == 1)
