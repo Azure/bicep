@@ -338,7 +338,7 @@ namespace Bicep.Core.IntegrationTests
                 failureBuilder!.Should().HaveCode("BCP233");
                 failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:05\" for the lock on file \"{lockFileUri}\" to be released.");
 #else
-                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out _).Should().Be(ArtifactRestoreStatus.Succeeded);
 #endif
 
                 // all other modules should have succeeded
