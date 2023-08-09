@@ -49,9 +49,9 @@ namespace Bicep.Cli.Commands
 
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-            foreach (var warning in ExperimentalFeatureWarningProvider.GetEnabledExperimentalFeatureWarningMessages(compilation.SourceFileGrouping, featureProviderFactory))
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is {} warningMessage)
             {
-                logger.LogWarning(warning);
+                logger.LogWarning(warningMessage);
             }
 
             if (diagnosticLogger.ErrorCount < 1)

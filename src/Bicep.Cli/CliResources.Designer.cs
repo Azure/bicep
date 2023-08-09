@@ -61,15 +61,6 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: Asserts in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string AssertsDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("AssertsDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0}: Decompilation failed with fatal error &quot;{1}&quot;.
         /// </summary>
         internal static string DecompilationFailedFormat {
@@ -88,47 +79,11 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: Dynamic type loading in Bicep is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
+        ///   Looks up a localized string similar to ntal Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!.
         /// </summary>
-        internal static string DynamicTypeLoadingDisclaimerMessage {
+        internal static string ExperimentalFeaturesDisclaimerMessage {
             get {
-                return ResourceManager.GetString("DynamicTypeLoadingDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: Extensibility in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string ExtensibilityDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("ExtensibilityDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: Resource-typed parameters and outputs in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string ResourceTypesDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("ResourceTypesDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: Source mapping in Bicep is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string SourceMappingDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("SourceMappingDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: Test statements in Bicep are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string TestFrameworkDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("TestFrameworkDisclaimerMessage", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeaturesDisclaimerMessage", resourceCulture);
             }
         }
         
@@ -165,15 +120,6 @@ namespace Bicep.Cli {
         internal static string UnrecognizedBicepparamsFileExtensionMessage {
             get {
                 return ResourceManager.GetString("UnrecognizedBicepparamsFileExtensionMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: User-defined functions in Bicep are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string UserDefinedFunctionsDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("UserDefinedFunctionsDisclaimerMessage", resourceCulture);
             }
         }
     }

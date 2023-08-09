@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
@@ -54,7 +55,7 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            logger.LogWarning(CliResources.TestFrameworkDisclaimerMessage);
+            logger.LogWarning(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, "TestFramework"));
 
             if (IsBicepFile(inputPath))
             {

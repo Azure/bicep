@@ -13,7 +13,7 @@ namespace Bicep.Core.Emit
         public EmitterSettings(SemanticModel model)
         {
             FileKind = model.SourceFileKind;
-            UseExperimentalTemplateLanguageVersion = model.Features.ExtensibilityEnabled || model.Features.AssertsEnabled;
+            UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature);
 
             // Symbolic names are used if (evaluated in increasing order of computational cost):
             EnableSymbolicNames =

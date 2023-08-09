@@ -55,9 +55,9 @@ namespace Bicep.Cli.Commands
 
             var paramsCompilation = await compilationService.CompileAsync(paramsInputPath, args.NoRestore);
 
-            foreach (var warning in ExperimentalFeatureWarningProvider.GetEnabledExperimentalFeatureWarningMessages(paramsCompilation.SourceFileGrouping, featureProviderFactory))
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(paramsCompilation.SourceFileGrouping, featureProviderFactory) is {} message)
             {
-                logger.LogWarning(warning);
+                logger.LogWarning(message);
             }
 
             var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();

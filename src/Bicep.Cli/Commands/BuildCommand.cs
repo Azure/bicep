@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
@@ -43,9 +44,9 @@ namespace Bicep.Cli.Commands
                 diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-                foreach (var warning in ExperimentalFeatureWarningProvider.GetEnabledExperimentalFeatureWarningMessages(compilation.SourceFileGrouping, featureProviderFactory))
+                if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is {} warningMessage)
                 {
-                    logger.LogWarning(warning);
+                    logger.LogWarning(warningMessage);
                 }
 
                 if (diagnosticLogger.ErrorCount < 1)

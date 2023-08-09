@@ -1136,9 +1136,9 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!");
                     emitter.EmitArrayProperty("_EXPERIMENTAL_FEATURES_ENABLED", () =>
                     {
-                        foreach (var feature in GetEnabledExperimentalArmFeatures(this.Context.SemanticModel.Features))
+                        foreach (var (featureName, _, _) in this.Context.SemanticModel.Features.EnabledFeatureMetadata.Where(f => f.usesExperimentalArmEngineFeature))
                         {
-                            emitter.EmitExpression(ExpressionFactory.CreateStringLiteral(feature));
+                            emitter.EmitExpression(ExpressionFactory.CreateStringLiteral(featureName));
                         }
                     });
                 }
@@ -1153,17 +1153,6 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(item.Name, item.Value);
                 }
             });
-        }
-
-        private static IEnumerable<string> GetEnabledExperimentalArmFeatures(IFeatureProvider features)
-        {
-            foreach (var (enabled, name) in new[] { (features.ExtensibilityEnabled, "Extensibility"), (features.AssertsEnabled, "Asserts") })
-            {
-                if (enabled)
-                {
-                    yield return name;
-                }
-            }
         }
     }
 }
