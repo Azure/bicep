@@ -129,7 +129,7 @@ namespace Bicep.Core.Registry
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: false);
 
-            var timestamp = DateTime.UtcNow.ToRFC3339();
+            var timestamp = DateTime.UtcNow.ToRfc3339Format();
 
             var moduleManifestDescriptor = await PushModuleManifestAsync(blobClient, moduleReference, artifactType, config, documentationUri, description, layers, timestamp);
             if (bicepSources is not null)

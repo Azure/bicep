@@ -73,7 +73,8 @@ namespace Bicep.Cli.Commands
             }
 
             var compiledArmTemplateStream = new MemoryStream();
-            compilationWriter.ToStream(compilation, compiledArmTemplateStream);            compiledArmTemplateStream.Position = 0;
+            compilationWriter.ToStream(compilation, compiledArmTemplateStream);
+            compiledArmTemplateStream.Position = 0;
 
             using var sourcesStream = features.PublishSourceEnabled ? SourceArchive.PackSources(compilation.SourceFileGrouping) : null;
 

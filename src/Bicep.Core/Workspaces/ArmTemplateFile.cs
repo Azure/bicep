@@ -9,7 +9,7 @@ namespace Bicep.Core.Workspaces
 {
     public class ArmTemplateFile : ISourceFile
     {
-        private readonly string _originalSource;
+        private readonly string originalSource;
 
         public ArmTemplateFile(Uri fileUri, string originalSource, Template? template, JObject? templateObject)
         {
@@ -22,12 +22,12 @@ namespace Bicep.Core.Workspaces
             this.FileUri = fileUri;
             this.Template = template;
             this.TemplateObject = templateObject;
-            this._originalSource = originalSource;
+            this.originalSource = originalSource;
         }
 
         public Uri FileUri { get; }
 
-        public string GetOriginalSource() => _originalSource;
+        public string GetOriginalSource() => originalSource;
 
         public Template? Template { get; }
 

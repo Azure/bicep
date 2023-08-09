@@ -9,6 +9,6 @@ public static class DateTimeExtensions
     public static string ToRfc3339Format(this DateTime date)
     {
         XmlConvert.ToString(date, XmlDateTimeSerializationMode.Utc);
-        return date.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffK");
+        return date.ToUniversalTime().ToString("o");
     }
 }
