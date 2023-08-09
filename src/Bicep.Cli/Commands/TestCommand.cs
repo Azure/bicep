@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
@@ -14,6 +15,8 @@ namespace Bicep.Cli.Commands
     public class TestCommand : ICommand
     {
         private readonly ILogger logger;
+        private readonly TextWriter outputWriter;
+        private readonly TextWriter errorWriter;
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
@@ -23,6 +26,7 @@ namespace Bicep.Cli.Commands
         private const string SkippedSymbol = "[-]";
 
         public TestCommand(
+            IOContext io,
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
@@ -34,6 +38,8 @@ namespace Bicep.Cli.Commands
             this.compilationService = compilationService;
             this.writer = writer;
             this.featureProviderFactory = featureProviderFactory;
+            this.outputWriter = io.Output;
+            this.errorWriter = io.Error;
         }
 
         public async Task<int> RunAsync(TestArguments args)
@@ -43,7 +49,7 @@ namespace Bicep.Cli.Commands
 
             if(!features.TestFrameworkEnabled)
             {
-                logger.LogError("TestFrameWork not enabled");
+                errorWriter.WriteLine("TestFrameWork not enabled");
 
                 return 1;
             }
@@ -61,7 +67,7 @@ namespace Bicep.Cli.Commands
                 return testResults.Success? 0 : 1;
             }
 
-            logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
+            errorWriter.WriteLine(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
             return 1;
         }
 
@@ -71,29 +77,29 @@ namespace Bicep.Cli.Commands
             {
                 if(evaluation.Success)
                 {
-                    logger.LogInformation($"{SuccessSymbol} Evaluation {testDeclaration.Name} Passed!");
+                    outputWriter.WriteLine($"{SuccessSymbol} Evaluation {testDeclaration.Name} Passed!");
                 }
                 else if(evaluation.Skip)
                 {
-                    logger.LogError($"{SkippedSymbol} Evaluation {testDeclaration.Name} Skipped!");
-                    logger.LogError($"Reason: {evaluation.Error}");
+                    errorWriter.WriteLine($"{SkippedSymbol} Evaluation {testDeclaration.Name} Skipped!");
+                    errorWriter.WriteLine($"Reason: {evaluation.Error}");
                 }
                 else
                 {
-                    logger.LogError($"{FailureSymbol} Evaluation {testDeclaration.Name} Failed at {evaluation.FailedAssertions.Length} / {evaluation.AllAssertions.Length} assertions!");
+                    errorWriter.WriteLine($"{FailureSymbol} Evaluation {testDeclaration.Name} Failed at {evaluation.FailedAssertions.Length} / {evaluation.AllAssertions.Length} assertions!");
                     foreach(var (assertion, _) in evaluation.FailedAssertions){
-                        logger.LogError($"\t{FailureSymbol} Assertion {assertion} failed!");
+                        errorWriter.WriteLine($"\t{FailureSymbol} Assertion {assertion} failed!");
                     }
                 }
             }
             if (testResults.Success)
             {
-                logger.LogInformation($"All {testResults.TotalEvaluations} evaluations passed!");
+                outputWriter.WriteLine($"All {testResults.TotalEvaluations} evaluations passed!");
             }
             else
             {
-                logger.LogError($"Evaluation Summary: Failure!");
-                logger.LogError($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
+                errorWriter.WriteLine($"Evaluation Summary: Failure!");
+                errorWriter.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
             }
         }
     }
