@@ -114,7 +114,7 @@ memberExpression ->
   memberExpression "[" expression "]" |
   memberExpression "." IDENTIFIER(property) |
   memberExpression "." functionCall |
-  memberExpression ":" IDENTIFIER(name) |
+  memberExpression "::" IDENTIFIER(name) |
   memberExpression "!"
 
 primaryExpression ->
