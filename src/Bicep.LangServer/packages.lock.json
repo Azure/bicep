@@ -2,6 +2,16 @@
   "version": 1,
   "dependencies": {
     "net7.0": {
+      "Azure.AI.OpenAI": {
+        "type": "Direct",
+        "requested": "[1.0.0-beta.6, )",
+        "resolved": "1.0.0-beta.6",
+        "contentHash": "B4M3OaXDXoIqjl2W7nmTNMvTkL2Y5qhN7LU7kKEnwifxQdjcwCqw9LEKG4xr8+wge/S2X/ncPZ+bThAdyEgnCQ==",
+        "dependencies": {
+          "Azure.Core": "1.34.0",
+          "System.Text.Json": "4.7.2"
+        }
+      },
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
         "requested": "[0.1.32, )",
@@ -100,11 +110,11 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.32.0",
-        "contentHash": "NmnJxaNqKjPwnHXngVg63SrkwbJXrkT0mcK8uCx9rSq0nK6Q3Q+/GZRCaTWcdcECoRP5XK0lr3Ce8PZkHkuHNg==",
+        "resolved": "1.34.0",
+        "contentHash": "6dNpM8OlGO+5gvt97tHXBp9qWRFkimRFulupDSGRgyT3sje1kQNza1/EMYaDcolmNARPmVJo8+wgD6ReV9wG5Q==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
-          "System.Diagnostics.DiagnosticSource": "4.6.0",
+          "System.Diagnostics.DiagnosticSource": "6.0.1",
           "System.Memory.Data": "1.0.2",
           "System.Numerics.Vectors": "4.5.0",
           "System.Text.Encodings.Web": "4.7.2",
@@ -926,8 +936,8 @@
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "frQDfv0rl209cKm1lnwTgFPzNigy2EKk1BS3uAvHvlBVKe5cymGyHO+Sj+NLv5VF/AhHsqPIUUwya5oV4CHMUw==",
+        "resolved": "6.0.1",
+        "contentHash": "KiLYDu2k2J82Q9BJpWiuQqCkFjRBWVq4jDzKKWawVi9KWzyD0XG3cmfX0vqTQlL14Wi9EufJrbL0+KCLTbqWiQ==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }

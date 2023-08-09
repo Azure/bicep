@@ -166,12 +166,12 @@ namespace Bicep.LanguageServer.Handlers
                 return (Unit.Value, BicepTelemetryEvent.InsertResourceSuccess(resourceId.FullyQualifiedType, matchedType.ApiVersion));
             });
 
-        private record InsertContext(
+        public record InsertContext(
             bool StartWithNewline,
             bool EndWithNewline,
             int InsertOffset);
 
-        private static InsertContext GetInsertContext(CompilationContext context, Position requestPosition)
+        public static InsertContext GetInsertContext(CompilationContext context, Position requestPosition)
         {
             var cursorOffset = PositionHelper.GetOffset(context.LineStarts, requestPosition);
             var binder = context.Compilation.GetEntrypointSemanticModel().Binder;
@@ -192,13 +192,13 @@ namespace Bicep.LanguageServer.Handlers
             return new(startNewline, endNewline, insertOffset);
         }
 
-        private static CodeReplacement GenerateCodeReplacement(Compilation prevCompilation, ResourceDeclarationSyntax resourceDeclaration, InsertContext insertContext)
+        public static CodeReplacement GenerateCodeReplacement(Compilation prevCompilation, StatementSyntax statement, InsertContext insertContext)
         {
             // Create a new document containing the resource to insert.
             // This allows us to apply syntax rewriters and formatting, before generating the code replacement.
             var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
             var program = new ProgramSyntax(
-                new[] { resourceDeclaration },
+                new[] { statement },
                 SyntaxFactory.EndOfFileToken);
 
             var printed = PrettyPrinter.PrintValidProgram(program, printOptions);
@@ -296,7 +296,7 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static SyntaxBase ConvertJsonElement(JsonElement element)
+        public static SyntaxBase ConvertJsonElement(JsonElement element)
         {
             switch (element.ValueKind)
             {

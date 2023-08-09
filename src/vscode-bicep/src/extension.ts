@@ -58,6 +58,7 @@ import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
 import * as surveys from "./feedback/surveys";
 import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployPaneViewManager } from "./panes/deploy";
+import { InsertAiResourceCommand } from "./commands/insertAiResource";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -184,6 +185,7 @@ export async function activate(
               outputChannelManager,
             ),
             new InsertResourceCommand(languageClient),
+            new InsertAiResourceCommand(languageClient),
             pasteAsBicepCommand,
             new ShowDeployPaneCommand(deployPaneViewManager),
             new ShowDeployPaneToSideCommand(deployPaneViewManager),

@@ -73,6 +73,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
+                    .WithHandler<InsertAiResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
                     .WithServices(RegisterServices);
 
@@ -117,6 +118,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
                 .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
                 .AddSingleton<IAzResourceProvider, AzResourceProvider>()
+                .AddSingleton<OpenAiProvider>()
                 .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()

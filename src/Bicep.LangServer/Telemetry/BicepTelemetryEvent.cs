@@ -108,6 +108,27 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
+        public static BicepTelemetryEvent InsertAiResourceSuccess(string resourceType, string apiVersion)
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.InsertAiResourceSuccess,
+                properties: new()
+                {
+                    ["resourceType"] = resourceType,
+                    ["apiVersion"] = apiVersion,
+                }
+            );
+
+        public static BicepTelemetryEvent InsertAiResourceFailure(string failureType)
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.InsertAiResourceFailure,
+                properties: new()
+                {
+                    ["failureType"] = failureType,
+                }
+            );
+
         public static BicepTelemetryEvent ImportKubernetesManifestSuccess()
             => new BicepTelemetryEvent
             (

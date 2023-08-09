@@ -27,6 +27,9 @@ namespace Bicep.LanguageServer.Telemetry
             public const string InsertResourceSuccess = "InsertResource/success";
             public const string InsertResourceFailure = "InsertResource/failure";
 
+            public const string InsertAiResourceSuccess = "InsertAiResource/success";
+            public const string InsertAiResourceFailure = "InsertAiResource/failure";
+
             public const string InsertKubernetesManifestSuccess = "ImportKubernetesManifest/success";
             public const string InsertKubernetesManifestFailure = "ImportKubernetesManifest/failure";
 

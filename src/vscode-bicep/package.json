@@ -46,6 +46,7 @@
     "onCommand:bicep.deploy",
     "onCommand:bicep.forceModulesRestore",
     "onCommand:bicep.insertResource",
+    "onCommand:bicep.insertAiResource",
     "onCommand:bicep.importKubernetesManifest",
     "onCommand:bicep.pasteAsBicep",
     "onCommand:bicep.showDeployPane",
@@ -118,6 +119,14 @@
           "type": "boolean",
           "description": "(Experimental) Show the new Bicep deploy pane.",
           "default": false
+        },
+        "bicep.experimental.openAiEndpoint": {
+          "type": "string",
+          "description": "(Experimental) Configure an OpenAI endpoint to communicate with."
+        },
+        "bicep.experimental.openAiKey": {
+          "type": "string",
+          "description": "(Experimental) Configure an OpenAI key."
         },
         "bicep.trace.server": {
           "type": "string",
@@ -275,6 +284,12 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "bicep.insertAiResource",
+        "title": "Insert AI Resource...",
+        "category": "Bicep",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "bicep.importKubernetesManifest",
         "title": "Import Kubernetes Manifest (EXPERIMENTAL)",
         "category": "Bicep",
@@ -375,6 +390,11 @@
           "group": "1_bicep"
         },
         {
+          "command": "bicep.insertAiResource",
+          "when": "config.bicep.experimental.openAiEndpoint != '' && editorLangId == bicep",
+          "group": "1_bicep"
+        },
+        {
           "command": "bicep.buildParams",
           "when": "editorLangId == bicep-params",
           "group": "1_bicep"
@@ -399,6 +419,11 @@
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.insertAiResource",
+          "when": "config.bicep.experimental.openAiEndpoint != '' && resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
         {
@@ -469,6 +494,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.insertAiResource",
+          "when": "config.bicep.experimental.openAiEndpoint != '' && resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_2_deploy"
@@ -528,6 +558,11 @@
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.insertAiResource",
+          "when": "config.bicep.experimental.openAiEndpoint != '' && resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
         {
@@ -595,6 +630,11 @@
         },
         {
           "command": "bicep.insertResource",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.insertAiResource",
+          "when": "config.bicep.experimental.openAiEndpoint != ''",
           "group": "0_bicep"
         },
         {

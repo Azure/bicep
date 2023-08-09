@@ -170,6 +170,21 @@ export const insertResourceRequestType = new ProtocolNotificationType<
   void
 >("textDocument/insertResource");
 
+export interface InsertAiResourceParams {
+  textDocument: TextDocumentIdentifier;
+  position: Position;
+  openAiEndpoint: string;
+  openAiKey?: string;
+  resourceType: string;
+  apiVersion: string;
+  scenario: string;
+}
+
+export const insertAiResourceRequestType = new ProtocolNotificationType<
+  InsertAiResourceParams,
+  void
+>("textDocument/insertAiResource");
+
 export interface ImportKubernetesManifestRequest {
   manifestFilePath: string;
 }
