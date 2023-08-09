@@ -38,6 +38,6 @@ public interface IOciRegistryContentClient
     /// Retrieves all manifests that reference the main manifest as its attached parent ("Subject")
     /// </summary>
     /// <param name="manifestDigest">A manifest digest.</param>
-    /// <returns>The info for all manifests whose Subject points to the given manifestDigest</returns>
-    Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(string manifestDigest);
+    /// <returns>An Azure.Response containing the info for all manifests whose Subject points to the given manifestDigest</returns>
+    Task<Response> SendGetReferrersRequestAsync(string manifestDigest);
 }

@@ -3,11 +3,13 @@
 
 using Azure;
 using Azure.Containers.ContainerRegistry;
+using Bicep.Core.Json;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
+using SharpYaml.Tokens;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,8 +18,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using static Bicep.Core.Emit.ParameterAssignmentEvaluator;
 
 namespace Bicep.Core.UnitTests.Registry
 {
@@ -139,20 +143,61 @@ namespace Bicep.Core.UnitTests.Registry
             return result.Object;
         }
 
-        public async Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(string mainManifestDigest)
+        public async Task<Response> SendGetReferrersRequestAsync(string manifestDigest)
         {
-            Debug.Assert(mainManifestDigest != null);
+            /* Example JSON result:
+                {
+                  "schemaVersion": 2,
+                  "mediaType": "application/vnd.oci.image.index.v1+json",
+                  "manifests": [
+                    {
+                      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                      "digest": "sha256:210a9f9e8134fc77940ea17f971adcf8752e36b513eb7982223caa1120774284",
+                      "size": 811,
+                      "artifactType": "application/vnd.ms.bicep.module.sources"
+                    },
+                    ...
+            */
+
+            Debug.Assert(manifestDigest != null);
 
             await Task.Delay(1);
 
-            var mainManifest = await GetManifestAsync(mainManifestDigest);
-            if (mainManifest.Value is null)
+            string resultString;
+            var manifest = await GetManifestAsync(manifestDigest);
+            if (manifest.Value is null)
             {
-                return Enumerable.Empty<(string digest, string? artifactType)>();
+                resultString = @"{
+                    ""schemaVersion"": 2,
+                    ""mediaType"": ""application/vnd.oci.image.index.v1+json"",
+                    ""manifests"": []
+                }";
+            }
+            else
+            {
+                var referringManifests = ManifestObjects.Where(m => m.Value.Subject?.Digest == manifestDigest);
+                resultString = @"{
+                    ""schemaVersion"": 2,
+                    ""mediaType"": ""application/vnd.oci.image.index.v1+json"",
+                    ""manifests"": ["
+                + string.Join(",", referringManifests.Select(m =>
+                    @$"{{
+                      ""mediaType"": ""application/vnd.oci.image.manifest.v1+json"",
+                      ""digest"": ""{m.Key}"",
+                      ""size"": {Manifests[m.Key].Bytes.Length},
+                      ""artifactType"": ""{m.Value.ArtifactType ?? m.Value.MediaType}""
+                    }}"
+                    ).ToArray())
+                + @"]
+                }
+            ";
             }
 
-            var referringManifests = ManifestObjects.Where(m => m.Value.Subject?.Digest == mainManifestDigest);
-            return referringManifests.Select(m => (m.Key, m.Value.ArtifactType));
+            var response = StrictMock.Of<Response>();
+            response.SetupGet(m => m.IsError).Returns(false);
+            response.SetupGet(m => m.Content).Returns(new BinaryData(resultString));
+
+            return response.Object;
         }
     }
 }

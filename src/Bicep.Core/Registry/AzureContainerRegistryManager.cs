@@ -20,6 +20,7 @@ using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -93,9 +94,42 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(moduleManifestDigest, manifest, manifestStream, moduleStream, sourcesStream);
         }
 
+        private async Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(IOciRegistryContentClient client, string manifestDigest) {
+            var response = await client.SendGetReferrersRequestAsync(manifestDigest);
+            if (response.IsError)
+            {
+                throw new Exception($"Unable to retrieve source manifests. Referrers API failed with status code {response.Status}");
+            }
+
+            var referrersResponse = JsonElementFactory.CreateElement(response.Content.ToString());
+
+            /* Example JSON result:
+                {
+                  "schemaVersion": 2,
+                  "mediaType": "application/vnd.oci.image.index.v1+json",
+                  "manifests": [
+                    {
+                      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                      "digest": "sha256:210a9f9e8134fc77940ea17f971adcf8752e36b513eb7982223caa1120774284",
+                      "size": 811,
+                      "artifactType": "application/vnd.ms.bicep.module.sources"
+                    },
+                    ...
+            */
+
+            var referrers = referrersResponse.TryGetPropertyByPath("manifests")
+                ?.EnumerateArray()
+                .Select<JsonElement, (string? digest, string? artifactType)>(
+                    m => (m.GetProperty("digest").GetString(), m.GetProperty("artifactType").GetString()))
+                .Where(m => m.digest is not null)
+                .Select(m => (m.digest!, m.artifactType));
+
+            return referrers ?? Enumerable.Empty<(string, string?)>();
+        }
+
         private async Task<Stream?> PullSourcesAsync(IOciRegistryContentClient client, OciArtifactModuleReference moduleReference, string moduleManifestDigest)
         {
-            var referrers = await client.GetReferrersAsync(moduleManifestDigest);
+            var referrers = await this.GetReferrersAsync(client, moduleManifestDigest);
 
             var matchingSourceDigests = referrers.Where(r => r.artifactType == BicepMediaTypes.BicepSourceArtifactType).Select(r => r.digest);
             if (matchingSourceDigests?.Count() > 1)

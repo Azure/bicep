@@ -61,49 +61,19 @@ public class OciRegistryContentClient : IOciRegistryContentClient
 
     #endregion ContainerRegistryContentClient functionality forwarded
 
-    public async Task<IEnumerable<(string digest, string? artifactType)>> GetReferrersAsync(string mainManifestDigest)
+    public async Task<Response> SendGetReferrersRequestAsync(string manifestDigest)
     {
-        Debug.Assert(mainManifestDigest != null);
+        Debug.Assert(manifestDigest != null);
 
-        IEnumerable<(string digest, string? artifactType)>? referrers = null;
-
+        // https://github.com/opencontainers/distribution-spec/blob/main/spec.md#listing-referrers
         var request = _client.Pipeline.CreateRequest();
         request.Method = RequestMethod.Get;
         request.Uri.Reset(_endpoint);
         request.Uri.AppendPath("/v2/", false);
         request.Uri.AppendPath(_repositoryName, true);
         request.Uri.AppendPath("/referrers/", false);
-        request.Uri.AppendPath(mainManifestDigest);
+        request.Uri.AppendPath(manifestDigest);
 
-        var response = await _client.Pipeline.SendRequestAsync(request, CancellationToken.None);
-        if (response.IsError)
-        {
-            throw new Exception($"Unable to retrieve source manifests. Referrers API failed with status code {response.Status}");
-        }
-
-        var referrersResponse = JsonElementFactory.CreateElement(response.Content);
-
-        /* Example JSON result:
-            {
-              "schemaVersion": 2,
-              "mediaType": "application/vnd.oci.image.index.v1+json",
-              "manifests": [
-                {
-                  "mediaType": "application/vnd.oci.image.manifest.v1+json",
-                  "digest": "sha256:210a9f9e8134fc77940ea17f971adcf8752e36b513eb7982223caa1120774284",
-                  "size": 811,
-                  "artifactType": "application/vnd.ms.bicep.module.sources"
-                },
-                ...
-        */
-
-        referrers = referrersResponse.TryGetPropertyByPath("manifests")
-            ?.EnumerateArray()
-            .Select<JsonElement, (string? digest, string? artifactType)>(
-                m => (m.GetProperty("digest").GetString(), m.GetProperty("artifactType").GetString()))
-            .Where(m => m.digest is not null)
-            .Select(m => (m.artifactType!, m.digest));
-
-        return referrers ?? Enumerable.Empty<(string, string?)>();
+        return await _client.Pipeline.SendRequestAsync(request, CancellationToken.None);
     }
 }
