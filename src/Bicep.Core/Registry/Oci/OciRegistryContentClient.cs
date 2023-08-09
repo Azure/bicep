@@ -5,6 +5,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System;
@@ -80,9 +81,7 @@ public class OciRegistryContentClient : IOciRegistryContentClient
             throw new Exception($"Unable to retrieve source manifests. Referrers API failed with status code {response.Status}");
         }
 
-#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-        var referrersResponse = JsonSerializer.Deserialize<JsonElement>(response.Content.ToString());
-#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+        var referrersResponse = JsonElementFactory.CreateElement(response.Content);
 
         /* Example JSON result:
             {
