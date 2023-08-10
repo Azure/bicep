@@ -512,14 +512,17 @@ Hello from Bicep!"));
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""languageVersion"": ""1.10-experimental"",
+  ""languageVersion"": ""2.1-experimental"",
   ""contentVersion"": ""1.0.0.0"",
   ""metadata"": {
-    ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+    ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+    ""_EXPERIMENTAL_FEATURES_ENABLED"": [
+      ""Extensibility""
+    ],
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""13432420222306620637""
+      ""templateHash"": ""5467429402825561944""
     }
   },
   ""parameters"": {
@@ -554,14 +557,17 @@ Hello from Bicep!"));
         },
         ""template"": {
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-          ""languageVersion"": ""1.10-experimental"",
+          ""languageVersion"": ""2.1-experimental"",
           ""contentVersion"": ""1.0.0.0"",
           ""metadata"": {
-            ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+            ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+            ""_EXPERIMENTAL_FEATURES_ENABLED"": [
+              ""Extensibility""
+            ],
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""3998586609553744579""
+              ""templateHash"": ""4726710895277962729""
             }
           },
           ""parameters"": {

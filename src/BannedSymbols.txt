@@ -5,7 +5,7 @@ M:System.Console.Write(System.UInt64);Don't use Console.Write for logging.
 M:System.Console.Write(System.Boolean);Don't use Console.Write for logging.
 M:System.Console.Write(System.Char);Don't use Console.Write for logging.
 M:System.Console.Write(System.Char[]);Don't use Console.Write for logging.
-M:System.Console.Write(System.Char[],System.Int32,Symstem.Int32);Don't use Console.Write for logging.
+M:System.Console.Write(System.Char[],System.Int32,System.Int32);Don't use Console.Write for logging.
 M:System.Console.Write(System.Single);Don't use Console.Write for logging.
 M:System.Console.Write(System.Double);Don't use Console.Write for logging.
 M:System.Console.Write(System.Object);Don't use Console.Write for logging.
@@ -24,7 +24,7 @@ M:System.Console.WriteLine(System.UInt64);Don't use Console.WriteLine for loggin
 M:System.Console.WriteLine(System.Boolean);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.Char);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.Char[]);Don't use Console.WriteLine for logging.
-M:System.Console.WriteLine(System.Char[],System.Int32,Symstem.Int32);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Char[],System.Int32,System.Int32);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.Single);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.Double);Don't use Console.WriteLine for logging.
 M:System.Console.WriteLine(System.Object);Don't use Console.WriteLine for logging.

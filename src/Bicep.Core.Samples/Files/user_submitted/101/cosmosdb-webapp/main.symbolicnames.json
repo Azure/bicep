@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1787077827269547158"
+      "templateHash": "39478038817515390"
     }
   },
   "parameters": {
@@ -29,9 +28,6 @@
     "appServicePlanTier": {
       "type": "string",
       "defaultValue": "F1",
-      "metadata": {
-        "description": "App Service Plan's pricing tier. Details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
-      },
       "allowedValues": [
         "F1",
         "D1",
@@ -45,16 +41,19 @@
         "P2",
         "P3",
         "P4"
-      ]
+      ],
+      "metadata": {
+        "description": "App Service Plan's pricing tier. Details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
     },
     "appServicePlanInstances": {
       "type": "int",
       "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 3,
       "metadata": {
         "description": "App Service Plan's instance count"
-      },
-      "maxValue": 3,
-      "minValue": 1
+      }
     },
     "repositoryUrl": {
       "type": "string",

@@ -3,12 +3,11 @@
 
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -43,19 +42,6 @@ namespace Bicep.Cli.Commands
             var paramsInputPath = PathHelper.ResolvePath(args.ParamsFile);
             var bicepFileArgPath = args.BicepFile != null ? PathHelper.ResolvePath(args.BicepFile) : null;
 
-            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(paramsInputPath));
-            var emitterSettings = new EmitterSettings(features, BicepSourceFileKind.ParamsFile);
-
-            if (emitterSettings.EnableSymbolicNames)
-            {
-                logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
-            }
-
-            if (features.ResourceTypedParamsAndOutputsEnabled)
-            {
-                logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
-            }
-
             if (bicepFileArgPath != null && !IsBicepFile(bicepFileArgPath))
             {
                 throw new CommandLineException($"{bicepFileArgPath} is not a bicep file");
@@ -68,6 +54,11 @@ namespace Bicep.Cli.Commands
             }
 
             var paramsCompilation = await compilationService.CompileAsync(paramsInputPath, args.NoRestore);
+
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(paramsCompilation.SourceFileGrouping, featureProviderFactory) is {} message)
+            {
+                logger.LogWarning(message);
+            }
 
             var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
 

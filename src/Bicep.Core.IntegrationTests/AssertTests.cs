@@ -264,14 +264,17 @@ namespace Bicep.Core.IntegrationTests
             result.Template.Should().DeepEqual(JToken.Parse(@"
                 {
                     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-                    ""languageVersion"": ""1.10-experimental"",
+                    ""languageVersion"": ""2.1-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
-                        ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_FEATURES_ENABLED"": [
+                            ""Asserts""
+                        ],
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""17284967353931057894""
+                            ""templateHash"": ""1702433823331399255""
                         }
                     },
                     ""parameters"": {
@@ -336,14 +339,17 @@ namespace Bicep.Core.IntegrationTests
             result.Template.Should().DeepEqual(JToken.Parse(@"
                 {
                     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-                    ""languageVersion"": ""1.10-experimental"",
+                    ""languageVersion"": ""2.1-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
-                        ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_FEATURES_ENABLED"": [
+                            ""Asserts""
+                        ],
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""8822582252570074206""
+                            ""templateHash"": ""14932187055295885119""
                         }
                     },
                     ""parameters"": {

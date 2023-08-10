@@ -922,7 +922,7 @@ param foo|bar = true
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, mainFile.FileUri,
-                services => services.WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true, CompileTimeImportsEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var client = helper.Client;
 
             var hovers = await RequestHovers(client, mainFile, cursors);
@@ -1102,7 +1102,7 @@ param foo|bar = true
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
                         break;
-                    
+
                     case TestSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"test {variable.Name}", $"var {variable.Name}" });
