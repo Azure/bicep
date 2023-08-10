@@ -29,5 +29,7 @@ namespace Bicep.Core.Registry.Oci
         /// Gets the artifact ID.
         /// </summary>
         public string ArtifactId {get;}
+
+        public string FullyQualifiedReference {get;}
     }
 }

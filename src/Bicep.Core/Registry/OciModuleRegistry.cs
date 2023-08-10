@@ -113,6 +113,42 @@ namespace Bicep.Core.Registry
             return true;
         }
 
+        private void ValidateModule(OciArtifactResult artifactResult)
+        {
+            var manifest = artifactResult.Manifest;
+            var artifactType = manifest.ArtifactType;
+            if (artifactType is not null &&
+                !artifactType.Equals(BicepMediaTypes.BicepModuleArtifactType, OciMediaTypeComparison))
+            {
+                throw new InvalidModuleException(
+                    $"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'.",
+                    InvalidModuleExceptionKind.WrongArtifactType);
+            }
+            var config = artifactResult.Manifest.Config;
+            var configMediaType = config.MediaType;
+            if (configMediaType is not null &&
+                !configMediaType.Equals(BicepMediaTypes.BicepModuleConfigV1, OciMediaTypeComparison))
+            {
+                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
+            }
+
+            if (config.Size > 0)
+            {
+                throw new InvalidModuleException("Expected an empty config blob.");
+            }
+
+            if (manifest.Layers.Length != 1)
+            {
+                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
+            }
+
+            var layer = manifest.Layers[0];
+            if (!layer.MediaType.Equals(BicepMediaTypes.BicepModuleLayerV1Json, OciMediaTypeComparison))
+            {
+                new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+            }
+        }
+
         public override bool TryGetLocalModuleEntryPointUri(OciModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
@@ -270,7 +306,11 @@ namespace Bicep.Core.Registry
             }
         }
 
-        protected override void WriteModuleContent(OciModuleReference reference, OciArtifactResult result)
+        // media types are case-insensitive (they are lowercase by convention only)
+        public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
+        public static readonly StringComparison OciMediaTypeComparison = StringComparison.Ordinal;
+
+        protected override async void WriteModuleContent(OciModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
@@ -281,7 +321,8 @@ namespace Bicep.Core.Registry
             // it's important to write the original stream here rather than serialize the manifest object
             // this way we guarantee the manifest hash will match
             var manifestFileUri = this.GetModuleFileUri(reference, ModuleFileType.Manifest);
-            this.FileResolver.Write(manifestFileUri, result.ManifestStream);
+            using var manifestStream = result.ToStream();
+            this.FileResolver.Write(manifestFileUri, manifestStream);
 
             var mediaType = TryGetModuleLayerMediaType(reference);
             if (mediaType is not null)
@@ -289,17 +330,25 @@ namespace Bicep.Core.Registry
                 switch (mediaType)
                 {
                     case BicepMediaTypes.BicepModuleLayerV1Json:
-                        // write module.json
-                        this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), result.ModuleStream);
-                        break;
+                        {
+                            // write module.json
+                            var moduleData = await result.PullLayerAsync(result.Manifest.Layers.Single());
+                            using var moduleStream = moduleData.ToStream();
+                            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), moduleStream);
+                            break;
+                        }
                     case BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip:
-                        // write provider.tar.gz
-                        this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Provider), result.ModuleStream);
-                        break;
+                        {
+                            // write provider.tar.gz
+                            var providerData = await result.PullLayerAsync(result.Manifest.Layers.Single());
+                            using var providerStream = providerData.ToStream();
+                            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Provider), providerStream);
+                            break;
+                        }
                     default:
                         break;
                 }
-            } 
+            }
 
             // write metadata
             var metadata = new ModuleMetadata(result.ManifestDigest);
@@ -357,6 +406,7 @@ namespace Bicep.Core.Registry
             try
             {
                 var result = await this.client.PullArtifactAsync(configuration, reference);
+                ValidateModule(result);
 
                 await this.TryWriteModuleContentAsync(reference, result);
 

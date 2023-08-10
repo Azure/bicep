@@ -164,7 +164,7 @@ namespace Bicep.Cli.IntegrationTests
 
                 await containerRegistryManager.PushArtifactAsync(
                     configuration: configuration,
-                    moduleReference: moduleReference!,
+                    artifactReference: moduleReference!,
                     // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
                     artifactType: null,
                     config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),

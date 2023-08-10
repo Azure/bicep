@@ -87,6 +87,8 @@ namespace Bicep.Core.Registry.Oci
             ? $"{this.Registry}/{this.Repository}:{this.Tag}"
             : $"{this.Registry}/{this.Repository}@{this.Digest}";
 
+        public string FullyQualifiedReference => $"{Scheme}:{ArtifactId}";
+
         public static bool TryParse(
             string? aliasName,
             string rawValue,
