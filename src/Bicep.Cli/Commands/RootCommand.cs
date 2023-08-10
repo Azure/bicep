@@ -118,28 +118,6 @@ Usage:
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
 
-    {exeName} format [options] <file>
-    Formats a .bicep file.
-
-    Arguments:
-      <file>        The input file
-
-    Options:
-      --outdir <dir>        Saves the output at the specified directory.
-      --outfile <file>      Saves the output as the specified file path.
-      --stdout              Prints the output to stdout.
-      --newline             Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
-      --indentKind          Set indentation kind. Valid values are ( Space | Tab ).
-      --indentSize          Number of spaces to indent with (Only valid with --indentKind set to Space).
-      --insertFinalNewline  Insert a final newline.
-
-    Examples:
-      bicep format file.bicep
-      bicep format file.bicep --stdout
-      bicep format file.bicep --outdir dir1
-      bicep format file.bicep --outfile file.json
-      bicep format file.bicep --indentKind Tab
-
   {exeName} lint [options] <file>
     Lints a .bicep file.
 
