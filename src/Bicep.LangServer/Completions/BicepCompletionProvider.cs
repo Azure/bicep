@@ -920,7 +920,7 @@ namespace Bicep.LanguageServer.Completions
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTestBodySnippetInsertion(prefix);
                 var command = TelemetryHelper.CreateCommand
                 (
-                    title: "module body completion snippet",
+                    title: "test body completion snippet",
                     name: TelemetryConstants.CommandName,
                     args: JArray.FromObject(new List<object> { telemetryEvent })
                 );
