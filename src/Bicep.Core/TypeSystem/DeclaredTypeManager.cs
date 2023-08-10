@@ -103,6 +103,9 @@ namespace Bicep.Core.TypeSystem
                 case ModuleDeclarationSyntax module:
                     return GetModuleType(module);
 
+                case TestDeclarationSyntax test:
+                    return GetTestType(test);
+
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
 
@@ -858,7 +861,14 @@ namespace Bicep.Core.TypeSystem
                 syntax.Value is ForSyntax ? new TypedArrayType(declaredModuleType, TypeSymbolValidationFlags.Default) : declaredModuleType,
                 syntax);
         }
+        private DeclaredTypeAssignment GetTestType(TestDeclarationSyntax syntax)
+        {
+            var declaredTestType = GetDeclaredTestType(syntax);
 
+            return new DeclaredTypeAssignment(
+                declaredTestType,
+                syntax);
+        }
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
             // because all variable access nodes are normally bound to something, this should always return true
@@ -1682,7 +1692,34 @@ namespace Bicep.Core.TypeSystem
                 binder.TargetScope,
                 LanguageConstants.TypeNameModule);
         }
+        private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)
+        {
+            if (binder.GetSymbolInfo(test) is not TestSymbol testSymbol)
+            {
+                // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                return ErrorType.Empty();
+            }
 
+            if (!testSymbol.TryGetSemanticModel(out var testSemanticModel, out var failureDiagnostic))
+            {
+                return ErrorType.Create(failureDiagnostic);
+            }
+
+            var parameters = new List<TypeProperty>();
+
+            foreach (var parameter in testSemanticModel.Parameters.Values)
+            {
+                var type = parameter.TypeReference.Type;
+
+                var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
+                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+            }
+
+            return LanguageConstants.CreateTestType(
+                parameters,
+                LanguageConstants.TypeNameModule);
+        }
+        
         private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
         {
             var colonIndex = stringContent.IndexOf(':');

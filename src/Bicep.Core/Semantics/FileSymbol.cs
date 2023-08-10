@@ -67,7 +67,8 @@ namespace Bicep.Core.Semantics
             .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations)
             .Concat(this.AssertDeclarations)
-            .Concat(this.ParameterAssignments);
+            .Concat(this.ParameterAssignments)
+            .Concat(this.TestDeclarations);
 
         public IEnumerable<Symbol> Namespaces =>
             this.NamespaceResolver.BuiltIns.Values

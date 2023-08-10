@@ -75,6 +75,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetLocalModulePathCompletions(model, context))
                 .Concat(GetLocalTestPathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
+                .Concat(GetTestBodyCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
@@ -908,6 +909,31 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private IEnumerable<CompletionItem> CreateTestBodyCompletions(SemanticModel model, BicepCompletionContext context, TestDeclarationSyntax testDeclarationSyntax)
+        {
+            TypeSymbol typeSymbol = model.GetTypeInfo(testDeclarationSyntax);
+            IEnumerable<Snippet> snippets = SnippetsProvider.GetTestBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+
+            foreach (Snippet snippet in snippets)
+            {
+                string prefix = snippet.Prefix;
+                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTestBodySnippetInsertion(prefix);
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "module body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
+                yield return CreateContextualSnippetCompletion(prefix,
+                    snippet.Detail,
+                    snippet.Text,
+                    context.ReplacementRange,
+                    command,
+                    snippet.CompletionPriority,
+                    preselect: true);
+            }
+        }
+
         private IEnumerable<CompletionItem> GetAssertValueCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.AssertValue) || context.EnclosingDeclaration is not AssertDeclarationSyntax assert)
@@ -936,6 +962,17 @@ namespace Bicep.LanguageServer.Completions
                     {
                         yield return completion;
                     }
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetTestBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.TestBody) && context.EnclosingDeclaration is TestDeclarationSyntax testDeclarationSyntax)
+            {
+                foreach (CompletionItem completionItem in CreateTestBodyCompletions(model, context, testDeclarationSyntax))
+                {
+                    yield return completionItem;
                 }
             }
         }
@@ -1237,6 +1274,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 ResourceType resourceType => GetProperties(resourceType.Body.Type),
                 ModuleType moduleType => GetProperties(moduleType.Body.Type),
+                TestType testType => GetProperties(testType.Body.Type),
                 ObjectType objectType => objectType.Properties.Values,
                 DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
                 _ => Enumerable.Empty<TypeProperty>(),
