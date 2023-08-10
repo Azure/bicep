@@ -223,8 +223,8 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static readonly ImmutableArray<string> allowedMediaTypes = new() { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip };
-        
+        private static readonly ImmutableArray<string> allowedMediaTypes = ImmutableArray.Create(BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip);
+
         private static async Task<Stream> ProcessLayer(ContainerRegistryContentClient client, OciDescriptor layer)
         {
             // media types are case insensitive
