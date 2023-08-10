@@ -7,6 +7,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -80,19 +81,19 @@ namespace Bicep.Cli.Services
             return compilation;
         }
 
-        public async Task<Compilation> TestAsync(string inputPath, bool skipRestore)
+        public async Task<TestResults> TestAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
-            var semantic_model = compilation.GetEntrypointSemanticModel();
+            var semanticModel = compilation.GetEntrypointSemanticModel();
 
-            var declarations = semantic_model.Root.TestDeclarations;
-            ValidationService.Validate(declarations);
+            var declarations = semanticModel.Root.TestDeclarations;
+            var testResults = TestRunner.Run(declarations);
 
             LogDiagnostics(compilation);
 
-            return compilation;
+            return testResults;
         }
 
         public async Task<DecompileResult> DecompileAsync(string inputPath, string outputPath)
@@ -126,14 +127,14 @@ namespace Bicep.Cli.Services
             {
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
             }
-           
+
             return decompilation;
         }
 
         private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
-            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, ModuleDeclarationSyntax module)
-                => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.Path)) : null;
+            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IForeignTemplateReference module)
+                => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.ReferenceSourceSyntax)) : null;
 
             static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore)
             {

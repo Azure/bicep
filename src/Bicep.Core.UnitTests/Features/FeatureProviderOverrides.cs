@@ -14,13 +14,13 @@ public record FeatureProviderOverrides(
     bool? AdvancedListComprehensionEnabled = default,
     bool? ResourceTypedParamsAndOutputsEnabled = default,
     bool? SourceMappingEnabled = default,
-    bool? UserDefinedTypesEnabled = default,
     bool? UserDefinedFunctionsEnabled = default,
     bool? PrettyPrintingEnabled = default,
     bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
-    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-    bool? DynamicTypeLoading = default)
+    bool? DynamicTypeLoading = default,
+    bool? CompileTimeImportsEnabled = default,
+    string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -30,13 +30,13 @@ public record FeatureProviderOverrides(
         bool? AdvancedListComprehensionEnabled = default,
         bool? ResourceTypedParamsAndOutputsEnabled = default,
         bool? SourceMappingEnabled = default,
-        bool? UserDefinedTypesEnabled = default,
         bool? UserDefinedFunctionsEnabled = default,
         bool? PrettyPrintingEnabled = default,
         bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
-        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-        bool? DynamicTypeLoading = default
+        bool? DynamicTypeLoading = default,
+        bool? CompileTimeImportsEnabled = default,
+        string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
         RegistryEnabled,
@@ -45,11 +45,11 @@ public record FeatureProviderOverrides(
         AdvancedListComprehensionEnabled,
         ResourceTypedParamsAndOutputsEnabled,
         SourceMappingEnabled,
-        UserDefinedTypesEnabled,
         UserDefinedFunctionsEnabled,
         PrettyPrintingEnabled,
         TestFrameworkEnabled,
         AssertsEnabled,
-        AssemblyVersion,
-        DynamicTypeLoading) { }
+        DynamicTypeLoading,
+        CompileTimeImportsEnabled,
+        AssemblyVersion) {}
 }

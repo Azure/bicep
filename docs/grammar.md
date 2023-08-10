@@ -5,6 +5,7 @@ program -> statement* EOF
 statement ->
   targetScopeDecl |
   importDecl |
+  compileTimeImportDecl |
   metadataDecl |
   parameterDecl |
   typeDecl |
@@ -24,6 +25,20 @@ importDecl -> decorator* "import" interpString(specification) importWithClause? 
 importWithClause -> "with" object
 
 importAsClause -> "as" IDENTIFIER(alias)
+
+compileTimeImportDecl -> decorator* "import" compileTimeImportTarget compileTimeImportFromClause
+
+compileTimeImportTarget ->
+  importedSymbolsList |
+  wildcardImport
+
+importedSymbolsList -> "{" ( NL+ ( importedSymbolsListItem NL+ )* )? "}"
+
+importedSymbolsListItem -> IDENTIFIER(originalSymbolName) importAsClause?
+
+wildcardImport -> "*" importAsClause
+
+compileTimeImportFromClause -> "from" interpString(path)
 
 metadataDecl -> "metadata" IDENTIFIER(name) "=" expression NL
 
@@ -99,7 +114,7 @@ memberExpression ->
   memberExpression "[" expression "]" |
   memberExpression "." IDENTIFIER(property) |
   memberExpression "." functionCall |
-  memberExpression ":" IDENTIFIER(name) |
+  memberExpression "::" IDENTIFIER(name) |
   memberExpression "!"
 
 primaryExpression ->

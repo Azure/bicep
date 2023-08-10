@@ -446,4 +446,34 @@
   <data name="NoConflictingMetadataRuleMessageFormat" xml:space="preserve">
     <value>The "{0}" metadata property conflicts with the "{1}" decorator and will be overwritten.</value>
   </data>
+  <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
+    <value>Asserts</value>
+  </data>
+  <data name="ExperimentalFeatureNames_DynamicTypeLoading" xml:space="preserve">
+    <value>Dynamic type loading</value>
+  </data>
+  <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
+    <value>Extensibility</value>
+  </data>
+  <data name="ExperimentalFeatureNames_ResourceTypedParamsAndOutputs" xml:space="preserve">
+    <value>Resource-typed parameters and outputs</value>
+  </data>
+  <data name="ExperimentalFeatureNames_SourceMapping" xml:space="preserve">
+    <value>Source mapping</value>
+  </data>
+  <data name="ExperimentalFeatureNames_UserDefinedFunctions" xml:space="preserve">
+    <value>User-defined functions</value>
+  </data>
+  <data name="ExperimentalFeatureNames_CompileTimeImports" xml:space="preserve">
+    <value>Compile-time imports</value>
+  </data>
+  <data name="ExperimentalFeatureNames_PrettyPrinting" xml:space="preserve">
+    <value>Pretty printing</value>
+  </data>
+  <data name="ExperimentalFeatureNames_SymbolicNameCodegen" xml:space="preserve">
+    <value>Symbolic name code generation</value>
+  </data>
+  <data name="ExperimentalFeatureNames_TestFramework" xml:space="preserve">
+    <value>Test framework</value>
+  </data>
 </root>

@@ -47,9 +47,9 @@
       },
       "Azure.Deployments.Core": {
         "type": "Direct",
-        "requested": "[1.0.1010, )",
-        "resolved": "1.0.1010",
-        "contentHash": "HtAYoJh3yEng8/YdF5RcwESQf/M4bcgDf0iO4Y7bjdZjZIetguP2yestidQ+a3Ffs/V2Fp2poIfYbJ1mUt2kHg==",
+        "requested": "[1.0.1040, )",
+        "resolved": "1.0.1040",
+        "contentHash": "joA1CvSA2st5SlDAiFwfenQBHDz0ZL8/vecR/OQhcZ1X/735odypvu58wiX4uQj2DMHbC/gKeW7Rwn2kdZAg1g==",
         "dependencies": {
           "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1457",
           "Newtonsoft.Json": "13.0.2",
@@ -59,11 +59,11 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Direct",
-        "requested": "[1.0.1010, )",
-        "resolved": "1.0.1010",
-        "contentHash": "hamcVBIzrITSrom/BG8luwyzGY2ztzV8Ak2lKoaho4ICWY3AnFy1ErLfbxfC7JD9gh03zcWVP8fSCYb2dxF9bA==",
+        "requested": "[1.0.1040, )",
+        "resolved": "1.0.1040",
+        "contentHash": "lCJreXno5J1zNC3aY6WTBb8jTik7MA1rGJzgXM9fSakSDQMYdPvWWdGz4hVbYi8cVAzmT7WDXKQZI4wmjnWa8w==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.1010",
+          "Azure.Deployments.Core": "1.0.1040",
           "IPNetwork2": "2.6.548",
           "Newtonsoft.Json": "13.0.2"
         }
@@ -76,12 +76,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Direct",
-        "requested": "[1.0.1010, )",
-        "resolved": "1.0.1010",
-        "contentHash": "wwaU8fMnNXaK/lMBIUNbt5rnVdVhRJS2xlGjBwKVFyJLA4g1Sua9MmaiHRWoU+N4k+gbhPcB6xX9p8bIe5uhRw==",
+        "requested": "[1.0.1040, )",
+        "resolved": "1.0.1040",
+        "contentHash": "/PT0gQ/x6elQCNht05ZZURZAym3U1Nc6CNSN4ooXZpoTIx81mU5cq90Gm8sBegRq0Z3rF9IDVbQx8/DmAkBDXA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.1010",
-          "Azure.Deployments.Expression": "1.0.1010",
+          "Azure.Deployments.Core": "1.0.1040",
+          "Azure.Deployments.Expression": "1.0.1040",
           "Microsoft.Automata.SRM": "1.2.2",
           "Newtonsoft.Json": "13.0.2"
         }

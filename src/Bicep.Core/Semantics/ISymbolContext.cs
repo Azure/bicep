@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Workspaces;
+
 namespace Bicep.Core.Semantics
 {
     public interface ISymbolContext
@@ -10,5 +12,7 @@ namespace Bicep.Core.Semantics
         Compilation Compilation { get; }
 
         IBinder Binder { get; }
+
+        ISourceFile SourceFile { get; }
     }
 }

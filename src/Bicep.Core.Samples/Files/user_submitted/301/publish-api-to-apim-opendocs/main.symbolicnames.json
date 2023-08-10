@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11159205909589042222"
+      "templateHash": "15303901391681280108"
     }
   },
   "parameters": {
@@ -31,9 +30,6 @@
     "apiFormat": {
       "type": "string",
       "defaultValue": "swagger-link-json",
-      "metadata": {
-        "description": "Type of OpenAPI we are importing"
-      },
       "allowedValues": [
         "openapi",
         "openapi+json",
@@ -44,7 +40,10 @@
         "wadl-xml",
         "wsdl",
         "wsdl-link"
-      ]
+      ],
+      "metadata": {
+        "description": "Type of OpenAPI we are importing"
+      }
     }
   },
   "variables": {

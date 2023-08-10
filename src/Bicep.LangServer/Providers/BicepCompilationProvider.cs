@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var compilation = new Compilation(featureProviderFactory, namespaceProvider, syntaxTreeGrouping, configurationManager, bicepAnalyzer, modelLookup);
+            var compilation = new Compilation(featureProviderFactory, namespaceProvider, syntaxTreeGrouping, configurationManager, bicepAnalyzer, moduleDispatcher, modelLookup);
             return new CompilationContext(compilation);
         }
     }

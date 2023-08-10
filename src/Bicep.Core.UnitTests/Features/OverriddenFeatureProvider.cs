@@ -28,15 +28,15 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool SourceMappingEnabled => overrides.SourceMappingEnabled ?? features.SourceMappingEnabled;
 
-    public bool UserDefinedTypesEnabled => overrides.UserDefinedTypesEnabled ?? features.UserDefinedTypesEnabled;
-
     public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
 
     public bool PrettyPrintingEnabled => overrides.PrettyPrintingEnabled ?? features.PrettyPrintingEnabled;
 
     public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;
-    
+
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
-    
+
     public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoading ?? features.DynamicTypeLoadingEnabled;
+
+    public bool CompileTimeImportsEnabled => overrides.CompileTimeImportsEnabled ?? features.CompileTimeImportsEnabled;
 }

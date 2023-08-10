@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests
                       }
                       asserts: {
                         ra1: false
-                      } 
+                      }
                 }
             """;
 
@@ -91,7 +91,7 @@ namespace Bicep.Core.IntegrationTests
                     properties: {
                         serverFarmId: 'id'
                         httpsOnly: true
-                    }    
+                    }
                     asserts: {
                         locationInUS: contains(location, 'us')
                         missingColon
@@ -111,7 +111,7 @@ namespace Bicep.Core.IntegrationTests
                     properties: {
                         serverFarmId: 'id'
                         httpsOnly: true
-                    }    
+                    }
                     asserts: {
                         locationInUS: contains(location, 'us')
                         missingCondition:
@@ -156,7 +156,7 @@ namespace Bicep.Core.IntegrationTests
                         properties: {
                             serverFarmId: 'id'
                             httpsOnly: true
-                        }    
+                        }
                         asserts: {
                             ra1: false
                             ra1: location == 'us'
@@ -188,7 +188,7 @@ namespace Bicep.Core.IntegrationTests
                         properties: {
                             serverFarmId: 'id'
                             httpsOnly: true
-                        }    
+                        }
                         asserts: {
                             ra1: 0
                             ra2: contains(accountName, 'stgA')
@@ -204,7 +204,7 @@ namespace Bicep.Core.IntegrationTests
                     }
 
                     assert a1 = 1
-                    assert a2 = 1 + 2 
+                    assert a2 = 1 + 2
                     assert a3 = contains(accountName, 'stgA')
                     assert a4 = true
                     assert a5 = environment == 'dev'
@@ -264,14 +264,17 @@ namespace Bicep.Core.IntegrationTests
             result.Template.Should().DeepEqual(JToken.Parse(@"
                 {
                     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-                    ""languageVersion"": ""1.10-experimental"",
+                    ""languageVersion"": ""2.1-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
-                        ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_FEATURES_ENABLED"": [
+                            ""Asserts""
+                        ],
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""17284967353931057894""
+                            ""templateHash"": ""1702433823331399255""
                         }
                     },
                     ""parameters"": {
@@ -283,7 +286,7 @@ namespace Bicep.Core.IntegrationTests
                         },
                         ""location"": {
                             ""type"": ""string""
-                        }           
+                        }
                     },
                     ""resources"": {
                         ""stgAccount"": {
@@ -336,14 +339,17 @@ namespace Bicep.Core.IntegrationTests
             result.Template.Should().DeepEqual(JToken.Parse(@"
                 {
                     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-                    ""languageVersion"": ""1.10-experimental"",
+                    ""languageVersion"": ""2.1-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
-                        ""_EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_FEATURES_ENABLED"": [
+                            ""Asserts""
+                        ],
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""2524536890773058281""
+                            ""templateHash"": ""14932187055295885119""
                         }
                     },
                     ""parameters"": {
@@ -355,7 +361,7 @@ namespace Bicep.Core.IntegrationTests
                         },
                         ""location"": {
                             ""type"": ""string""
-                        }           
+                        }
                     },
                     ""resources"": {
                         ""stgAccount"": {
@@ -371,7 +377,7 @@ namespace Bicep.Core.IntegrationTests
                                 ""ra1"": ""[less(length(parameters('accountName')), variables('myInt'))]"",
                                 ""ra2"": ""[contains(parameters('location'), 'us')]"",
                                 ""ra3"": ""[equals(parameters('environment'), 'dev')]""
-                            }   
+                            }
                         }
                     },
                     ""variables"": {

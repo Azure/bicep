@@ -630,6 +630,9 @@
         },
         "dynamicTypeLoading": {
           "type": "boolean"
+        },
+        "compileTimeImports": {
+          "type": "boolean"
         }
       }
     },

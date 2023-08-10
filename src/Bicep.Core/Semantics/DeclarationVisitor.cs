@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
             this.targetScope = targetScope;
             this.context = context;
             this.localScopes = localScopes;
-            this.sourceFileKind=sourceFileKind;
+            this.sourceFileKind = sourceFileKind;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
@@ -132,7 +132,7 @@ namespace Bicep.Core.Semantics
             base.VisitTestDeclarationSyntax(syntax);
 
             var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
-            DeclareSymbol(symbol);            
+            DeclareSymbol(symbol);
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -151,9 +151,9 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
-            base.VisitImportDeclarationSyntax(syntax);
+            base.VisitProviderDeclarationSyntax(syntax);
 
             TypeSymbol declaredType;
             if (!features.ExtensibilityEnabled)
@@ -179,7 +179,7 @@ namespace Bicep.Core.Semantics
                 declaredType = namespaceType;
             }
 
-            var symbol = new ImportedNamespaceSymbol(this.context, syntax, declaredType);
+            var symbol = new ProviderNamespaceSymbol(this.context, syntax, declaredType);
             DeclareSymbol(symbol);
         }
 
@@ -263,6 +263,24 @@ namespace Bicep.Core.Semantics
             base.VisitForSyntax(syntax);
 
             this.PopScope();
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            base.VisitCompileTimeImportDeclarationSyntax(syntax);
+
+            switch (syntax.ImportExpression)
+            {
+                case WildcardImportSyntax wildcardImport:
+                    DeclareSymbol(new WildcardImportSymbol(context, wildcardImport, syntax));
+                    break;
+                case ImportedSymbolsListSyntax importedSymbolsList:
+                    foreach (var item in importedSymbolsList.ImportedSymbols)
+                    {
+                        DeclareSymbol(new ImportedTypeSymbol(context, item, syntax));
+                    }
+                    break;
+            }
         }
 
         private void DeclareSymbol(DeclaredSymbol symbol)

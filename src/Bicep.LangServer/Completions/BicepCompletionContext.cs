@@ -26,6 +26,7 @@ namespace Bicep.LanguageServer.Completions
             FunctionCallSyntaxBase Function,
             int ArgumentIndex
         );
+
         private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
             cursor: '|',
             "import |",
@@ -207,6 +208,15 @@ namespace Bicep.LanguageServer.Completions
                     ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
                     ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
                     ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
+            }
+
+            if (featureProvider.CompileTimeImportsEnabled)
+            {
+                kind |= ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
+                    ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
+                    ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
+                    ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
+                    ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath);
             }
 
             if (featureProvider.AssertsEnabled)
@@ -398,7 +408,7 @@ namespace Bicep.LanguageServer.Completions
                 // we are in a token that is inside a StringSyntax node, which is inside a module declaration
                 return BicepCompletionContextKind.ModulePath;
             }
-            
+
             if (SyntaxMatcher.IsTailMatch<TestDeclarationSyntax>(matchingNodes, test => CheckTypeIsExpected(test.Name, test.Path)) ||
                 SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
                 SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (test, skipped, _) => test.Path == skipped))
@@ -425,7 +435,7 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
             // resource foo '...' |=
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
-        
+
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>
                 !targetScope.Assignment.Span.ContainsInclusive(offset) &&
@@ -769,6 +779,39 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<AssertDeclarationSyntax, Token>(matchingNodes, (assert, token) => assert.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // assert foo = a|
             SyntaxMatcher.IsTailMatch<AssertDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (assert, _, _, token) => token.Type == TokenType.Identifier && assert.Assignment is Token assignmentToken && offset > assignmentToken.GetEndPosition());
+
+        private static bool IsImportIdentifierContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // import |
+            // because extensibility and compile-time imports share a keyword at present, an incomplete statement will be parsed as a ProviderDeclarationSyntax node instead of a CompileTimeImportDeclarationSyntax node
+            SyntaxMatcher.IsTailMatch<ProviderDeclarationSyntax>(matchingNodes, declaration => declaration.SpecificationString is SkippedTriviaSyntax &&
+                declaration.SpecificationString.Span.ContainsInclusive(offset) &&
+                declaration.WithClause is SkippedTriviaSyntax &&
+                declaration.WithClause.Span.Length == 0 &&
+                declaration.AsClause is SkippedTriviaSyntax &&
+                declaration.AsClause.Span.Length == 0);
+
+        private static bool IsImportedSymbolListItemContext(List<SyntaxBase> matchingNodes, int offset) =>
+            SyntaxMatcher.IsTailMatch<ImportedSymbolsListItemSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
+            SyntaxMatcher.IsTailMatch<ImportedSymbolsListSyntax, Token>(matchingNodes);
+
+        private static bool ExpectingContextualAsKeyword(List<SyntaxBase> matchingNodes, int offset) =>
+            // import {} | or import * |
+            SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax>(matchingNodes, statement => statement.ImportExpression is SkippedTriviaSyntax importExpressionTrivia &&
+                statement.FromClause.Span.Length == 0 &&
+                importExpressionTrivia.Elements.Length == 1 &&
+                importExpressionTrivia.Elements[0] is Token importToken &&
+                importToken.Type == TokenType.Asterisk);
+
+        private static bool ExpectingContextualFromKeyword(List<SyntaxBase> matchingNodes, int offset) =>
+            // import {} | or import * as foo |
+            SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax>(matchingNodes, statement => statement.ImportExpression is not SkippedTriviaSyntax &&
+                statement.FromClause is SkippedTriviaSyntax &&
+                statement.FromClause.Span.ContainsInclusive(offset));
+
+        private static bool IsImportTargetContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // import {} | or import * as foo |
+            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax>(matchingNodes, (fromClause) => offset > fromClause.Keyword.GetEndPosition()) ||
+            SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax, StringSyntax>(matchingNodes);
 
         private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // resources only allow {} as the body so we don't need to worry about

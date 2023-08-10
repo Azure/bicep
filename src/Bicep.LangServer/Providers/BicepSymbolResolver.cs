@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Providers
             // locate the most specific node that can be bound as a symbol
             var node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(
                 offset,
-                n => n is not IdentifierSyntax && n is not Token);
+                n => n is not IdentifierSyntax && n is not Token && n is not AliasAsClauseSyntax);
 
             if (node is null)
             {

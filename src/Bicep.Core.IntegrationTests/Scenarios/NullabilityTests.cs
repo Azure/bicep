@@ -215,7 +215,7 @@ param anotherParam string = first(filter(split(csv, ','), x => true))!
     [TestMethod]
     public void Function_overload_with_multiple_nullability_violations_still_finds_match_and_raises_no_errors()
     {
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
+        var result = CompilationHelper.Compile(@"
 param input string[]
 
 output out array = split(first(input), last(input))
@@ -232,7 +232,7 @@ output out array = split(first(input), last(input))
     [TestMethod]
     public void Function_overload_mismatch_even_with_nullability_tweaks_raises_no_nullability_warnings()
     {
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), @"
+        var result = CompilationHelper.Compile(@"
 param input string[]
 
 output out array = split(first(input), 21)
