@@ -1975,6 +1975,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP351",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+            
+            public ErrorDiagnostic InvalidParameterValueAssignmentType(string parameterName, TypeSymbol declaredType) => new(
+                TextSpan, 
+                "BCP352", 
+                $"Assigned type of parameter \"{parameterName}\" does not match the declared type \"{declaredType}\" in the bicep template");
+        
+            public ErrorDiagnostic ParameterNotPresentInTemplate(string parameterName, string bicepFilePath) => new(
+                TextSpan, 
+                "BCP353", 
+                $"A value for parameter \"{parameterName}\" is provided but it is not declared in the bicep template \"{bicepFilePath}\"");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

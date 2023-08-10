@@ -8,6 +8,7 @@ namespace Bicep.Cli.Constants
         public const string Build = "build";
         public const string Test = "test";
         public const string BuildParams = "build-params";
+        public const string ValidateParams = "validate-params";
         public const string Format = "format";
         public const string GenerateParamsFile = "generate-params";
         public const string Decompile = "decompile";
@@ -15,6 +16,7 @@ namespace Bicep.Cli.Constants
         public const string Publish = "publish";
         public const string Restore = "restore";
         public const string Root = "";
+
     }
 
     public static class Argument

@@ -1279,7 +1279,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
         }
 
-        private static TypeSymbol ConvertJsonToBicepType(JToken token)
+        public static TypeSymbol ConvertJsonToBicepType(JToken token)
             => token switch
             {
                 JObject @object => new ObjectType(
