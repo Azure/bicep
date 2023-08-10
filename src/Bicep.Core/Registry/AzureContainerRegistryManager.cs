@@ -22,8 +22,6 @@ namespace Bicep.Core.Registry
     public class AzureContainerRegistryManager
     {
         // media types are case-insensitive (they are lowercase by convention only)
-        // private const StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
-        public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
         private readonly IContainerRegistryClientFactory clientFactory;
@@ -166,84 +164,5 @@ namespace Bicep.Core.Registry
                 throw new OciModuleRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
             }
         }
-
-        // private static async Task<Stream> ProcessManifest(ContainerRegistryContentClient client, OciManifest manifest)
-        // {
-        //     // Bicep versions before 0.14 used to publish modules without the artifactType field set in the OCI manifest,
-        //     // so we must allow null here
-        //     if (manifest.ArtifactType is not null && !string.Equals(manifest.ArtifactType, BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
-        //     {
-        //         throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.", InvalidModuleExceptionKind.WrongArtifactType);
-        //     }
-
-        //     ProcessConfig(manifest.Config);
-        //     if (manifest.Layers.Length != 1)
-        //     {
-        //         throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
-        //     }
-
-        //     var layer = manifest.Layers.Single();
-
-        //     return await ProcessLayer(client, layer);
-        // }
-
-        // private static void ValidateBlobResponse(Response<DownloadRegistryBlobResult> blobResponse, OciDescriptor descriptor)
-        // {
-        //     var stream = blobResponse.Value.Content.ToStream();
-
-        //     if (descriptor.Size != stream.Length)
-        //     {
-        //         throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
-        //     }
-
-        //     stream.Position = 0;
-        //     string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
-        //     stream.Position = 0;
-
-        //     if (!string.Equals(descriptor.Digest, digestFromContents, DigestComparison))
-        //     {
-        //         throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
-        //     }
-        // }
-
-        // private static readonly ImmutableArray<string> allowedMediaTypes = new() { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip };
-        
-        // private static async Task<Stream> ProcessLayer(ContainerRegistryContentClient client, OciDescriptor layer)
-        // {
-        //     // media types are case insensitive
-        //     if (!allowedMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
-        //     {
-        //         new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
-        //     }
-
-        //     Response<DownloadRegistryBlobResult> blobResult;
-        //     try
-        //     {
-        //         blobResult = await client.DownloadBlobContentAsync(layer.Digest);
-        //     }
-        //     catch (RequestFailedException exception) when (exception.Status == 404)
-        //     {
-        //         throw new InvalidModuleException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
-        //     }
-
-        //     ValidateBlobResponse(blobResult, layer);
-
-        //     return blobResult.Value.Content.ToStream();
-        // }
-
-        // private static void ProcessConfig(OciDescriptor config)
-        // {
-        //     string[] allowedMediaTypes = { BicepMediaTypes.BicepModuleConfigV1, BicepMediaTypes.BicepProviderConfigV1 };
-        //     // media types are case insensitive
-        //     if (!allowedMediaTypes.Contains(config.MediaType, StringComparer.OrdinalIgnoreCase))
-        //     {
-        //         throw new InvalidModuleException($"Did not expect config media type \"{config.MediaType}\".");
-        //     }
-
-        //     if (config.Size > 2)
-        //     {
-        //         throw new InvalidModuleException("Expected an empty config blob.");
-        //     }
-        // }
     }
 }
