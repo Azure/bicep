@@ -49,13 +49,13 @@ namespace Bicep.Core.Workspaces
         ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignTemplateReference, UriResolutionResult>> UriResultByModule,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
     {
-        public IEnumerable<IArtifactResolutionInfo> GetModulesToRestore()
+        public IEnumerable<ModuleSourceResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(
                 kvp => kvp.Value
                     .Where(entry => entry.Value.RequiresRestore)
                     .Select(entry => new ModuleSourceResolutionInfo(entry.Key, kvp.Key)));
 
-        public IEnumerable<IArtifactResolutionInfo> GetProvidersToRestore()
+        public IEnumerable<ProviderSourceResolutionInfo> GetProvidersToRestore()
         {
             return SourceFiles.OfType<BicepSourceFile>()
                 .SelectMany(sourceFile => sourceFile.ProgramSyntax.Children.OfType<ProviderDeclarationSyntax>()
@@ -63,7 +63,7 @@ namespace Bicep.Core.Workspaces
         }
 
         public IEnumerable<IArtifactResolutionInfo> GetArtifactsToRestore() =>
-            GetModulesToRestore().Concat(GetProvidersToRestore());
+            GetModulesToRestore().AsEnumerable<IArtifactResolutionInfo>().Concat(GetProvidersToRestore());
 
         public BicepSourceFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepSourceFile)!;
 

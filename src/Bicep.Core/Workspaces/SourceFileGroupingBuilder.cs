@@ -59,7 +59,7 @@ namespace Bicep.Core.Workspaces
         {
             var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
             var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
-            var modulesToRestore = current.GetModulesToRestore().OfType<ModuleSourceResolutionInfo>().ToHashSet();
+            var modulesToRestore = current.GetModulesToRestore().ToHashSet();
 
             foreach (var (module, sourceFile) in modulesToRestore)
             {
@@ -138,7 +138,7 @@ namespace Bicep.Core.Workspaces
                     {
                         foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>())
                         {
-                            if (restorable.GetType() == typeof(ProviderDeclarationSyntax))
+                            if (restorable is ProviderDeclarationSyntax)
                             {
                                 continue;
                             }

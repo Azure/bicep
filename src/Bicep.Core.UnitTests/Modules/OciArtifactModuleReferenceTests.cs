@@ -51,6 +51,7 @@ namespace Bicep.Core.UnitTests.Modules
                 parsed.Repository.Should().Be(@case.ExpectedRepository);
                 parsed.Tag.Should().Be(@case.ExpectedTag);
                 parsed.Digest.Should().Be(@case.ExpectedDigest);
+                parsed.ArtifactId.Should().Be(@case.Value);
                 parsed.UnqualifiedReference.Should().Be(@case.Value);
             }
         }

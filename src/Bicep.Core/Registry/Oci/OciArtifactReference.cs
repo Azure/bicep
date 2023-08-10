@@ -96,7 +96,7 @@ namespace Bicep.Core.Registry.Oci
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReference.Scheme}:{referenceValue}";
 
-            static string DecodedSegment(string segment) => HttpUtility.UrlDecode(segment);
+            static string DecodeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
             if (aliasName is not null)
             {
@@ -138,7 +138,7 @@ namespace Bicep.Core.Registry.Oci
                 var pathMatch = ModulePathSegmentRegex.Match(current, 0, current.Length - 1);
                 if (!pathMatch.Success)
                 {
-                    var invalidSegment = DecodedSegment(current.Substring(0, current.Length - 1));
+                    var invalidSegment = DecodeSegment(current.Substring(0, current.Length - 1));
                     failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment);
                     artifactReference = null;
                     return false;
@@ -146,7 +146,7 @@ namespace Bicep.Core.Registry.Oci
 
                 // even though chars that require URL-escaping are not part of the allowed regexes
                 // users can still type them in, so error messages should contain the original text rather than an escaped version
-                repoBuilder.Append(DecodedSegment(current));
+                repoBuilder.Append(DecodeSegment(current));
             }
 
             // on a valid ref it would look something like "bar:v1" or "bar@sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
@@ -164,7 +164,7 @@ namespace Bicep.Core.Registry.Oci
 
             // users will type references from left to right, so we should validate the last component of the module path
             // before we complain about the missing tag, which is the last part of the module ref
-            var name = DecodedSegment(!delimiter.HasValue ? lastSegment : lastSegment.Substring(0, indexOfLastSegmentDelimiter));
+            var name = DecodeSegment(!delimiter.HasValue ? lastSegment : lastSegment.Substring(0, indexOfLastSegmentDelimiter));
             if (!ModulePathSegmentRegex.IsMatch(name))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name);
@@ -190,7 +190,7 @@ namespace Bicep.Core.Registry.Oci
                 return false;
             }
 
-            var tagOrDigest = DecodedSegment(lastSegment.Substring(indexOfLastSegmentDelimiter + 1));
+            var tagOrDigest = DecodeSegment(lastSegment.Substring(indexOfLastSegmentDelimiter + 1));
             if (string.IsNullOrEmpty(tagOrDigest))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));

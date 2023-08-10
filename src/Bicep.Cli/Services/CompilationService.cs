@@ -136,9 +136,9 @@ namespace Bicep.Cli.Services
             static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IForeignTemplateReference module)
                 => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.ReferenceSourceSyntax)) : null;
 
-            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<IArtifactResolutionInfo> originaArtifactsToRestore)
+            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<IArtifactResolutionInfo> originalArtifactsToRestore)
             {
-                var originalModulesToRestore = originaArtifactsToRestore.OfType<ModuleSourceResolutionInfo>();
+                var originalModulesToRestore = originalArtifactsToRestore.OfType<ModuleSourceResolutionInfo>();
                 foreach (var (module, sourceFile) in originalModulesToRestore)
                 {
                     if (sourceFile is BicepFile bicepFile &&

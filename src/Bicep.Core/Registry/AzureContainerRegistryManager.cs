@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace Bicep.Core.Registry
     {
         // media types are case-insensitive (they are lowercase by convention only)
         private const StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
+        public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
         private readonly IContainerRegistryClientFactory clientFactory;
@@ -32,7 +34,7 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<OciArtifactResult> PullArtifactAsync(
-            RootConfiguration configuration, 
+            RootConfiguration configuration,
             OciModuleReference moduleReference)
         {
             ContainerRegistryContentClient client;
@@ -72,12 +74,12 @@ namespace Bicep.Core.Registry
         }
 
         public async Task PushArtifactAsync(
-            RootConfiguration configuration, 
-            OciModuleReference moduleReference, 
-            string? artifactType, 
-            StreamDescriptor config, 
-            string? documentationUri = null, 
-            string? description = null, 
+            RootConfiguration configuration,
+            OciModuleReference moduleReference,
+            string? artifactType,
+            StreamDescriptor config,
+            string? documentationUri = null,
+            string? description = null,
             params StreamDescriptor[] layers)
         {
             // TODO: How do we choose this? Does it ever change?
@@ -128,8 +130,8 @@ namespace Bicep.Core.Registry
         private static Uri GetRegistryUri(OciModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
 
         private ContainerRegistryContentClient CreateBlobClient(
-            RootConfiguration configuration, 
-            OciModuleReference moduleReference, 
+            RootConfiguration configuration,
+            OciModuleReference moduleReference,
             bool anonymousAccess) => anonymousAccess
             ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
@@ -221,15 +223,15 @@ namespace Bicep.Core.Registry
             }
         }
 
+        private static readonly ImmutableArray<string> allowedMediaTypes = new() { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip };
+        
         private static async Task<Stream> ProcessLayer(ContainerRegistryContentClient client, OciDescriptor layer)
         {
-            string[] allowedMediaTypes = { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip };
             // media types are case insensitive
-            if (!allowedMediaTypes.Contains(layer.MediaType, StringComparer.OrdinalIgnoreCase))
+            if (!allowedMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
             {
                 new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
-          
 
             Response<DownloadRegistryBlobResult> blobResult;
             try
@@ -254,7 +256,7 @@ namespace Bicep.Core.Registry
             {
                 throw new InvalidModuleException($"Did not expect config media type \"{config.MediaType}\".");
             }
-            
+
             if (config.Size > 2)
             {
                 throw new InvalidModuleException("Expected an empty config blob.");
